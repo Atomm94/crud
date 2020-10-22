@@ -1,0 +1,36 @@
+{
+    "model": {
+        "columns": {
+            "name": {
+                "type": "varchar",
+                "params": {
+                    "name": "name",
+                    "nullable": true
+                },
+                "formType": "textInput",
+                "header": true
+            },
+            "key": {
+                "type": "varchar",
+                "params": {
+                    "name": "key",
+                    "nullable": true
+                },
+                "formType": "textInput",
+                "header": false
+            },
+            "value": {
+                "type": "varchar",
+                "params": {
+                    "name": "value",
+                    "nullable": true
+                },
+                "formType": "textInput",
+                "header": true
+            }
+        }
+    },
+    "module": {
+        "type": "list"
+    }
+}

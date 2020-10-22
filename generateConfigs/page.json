@@ -1,0 +1,83 @@
+{
+    "model": {
+        "columns": {
+            "title": {
+                "type": "jsonb",
+                "params": {
+                    "name": "title",
+                    "nullable": true
+                }
+            },
+            "url": {
+                "type": "jsonb",
+                "params": {
+                    "name": "url",
+                    "nullable": true
+                }
+            },
+            "image": {
+                "type": "jsonb",
+                "params": {
+                    "name": "image",
+                    "nullable": true
+                }
+            },
+            "files": {
+                "type": "jsonb",
+                "params": {
+                    "name": "files",
+                    "nullable": true
+                }
+            },
+            "summary": {
+                "type": "jsonb",
+                "params": {
+                    "name": "summary",
+                    "nullable": true
+                }
+            },
+            "body": {
+                "type": "jsonb",
+                "params": {
+                    "name": "body",
+                    "nullable": true
+                }
+            },
+            "published": {
+                "type": "jsonb",
+                "params": {
+                    "name": "published",
+                    "nullable": true
+                }
+            },
+            "meta_title": {
+                "type": "jsonb",
+                "params": {
+                    "name": "meta_title",
+                    "nullable": true
+                }
+            },
+            "meta_keywords": {
+                "type": "jsonb",
+                "params": {
+                    "name": "meta_keywords",
+                    "nullable": true
+                }
+            },
+            "status": {
+                "type": "boolean",
+                "params": {
+                    "name": "status",
+                    "default": true
+                }
+            },
+            "parentId": {
+                "type": "int",
+                "params": {
+                    "name": "parentId",
+                    "nullable": true
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,29 @@
+{
+    "model": {
+        "columns": {
+            "title": {
+                "type": "varchar",
+                "params": {
+                    "name": "title",
+                    "nullable": true,
+                    "length": 255,
+                    "unique": true
+                }
+            },
+            "iso": {
+                "type": "varchar",
+                "params": {
+                    "name": "iso",
+                    "nullable": true
+                }
+            },
+            "status": {
+                "type": "boolean",
+                "params": {
+                    "name": "status",
+                    "default": true
+                }
+            }
+        }
+    }
+}

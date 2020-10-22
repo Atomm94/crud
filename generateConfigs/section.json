@@ -1,0 +1,62 @@
+{
+    "model": {
+        "columns": {
+            "title": {
+                "type": "json",
+                "params": {
+                    "name": "title",
+                    "nullable": true
+                }
+            },
+            "slug": {
+                "type": "json",
+                "params": {
+                    "name": "slug",
+                    "nullable": true
+                }
+            },
+            "image": {
+                "type": "json",
+                "params": {
+                    "name": "image",
+                    "unique": true
+                }
+            },
+            "files": {
+                "type": "json",
+                "params": {
+                    "name": "files",
+                    "nullable": true
+                }
+            },
+            "body": {
+                "type": "json",
+                "params": {
+                    "name": "body",
+                    "nullable": true
+                }
+            },
+            "published": {
+                "type": "json",
+                "params": {
+                    "name": "published",
+                    "nullable": true
+                }
+            },
+            "priority": {
+                "type": "int",
+                "params": {
+                    "name": "priority",
+                    "nullable": true
+                }
+            },
+            "status": {
+                "type": "boolean",
+                "params": {
+                    "name": "status",
+                    "default": true
+                }
+            }
+        }
+    }
+}

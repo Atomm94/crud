@@ -1,0 +1,60 @@
+{
+    "model": {
+        "columns": {
+            "username": {
+                "type": "varchar",
+                "params": {
+                    "name": "username",
+                    "nullable": true,
+                    "length": 255,
+                    "unique": true
+                }
+            },
+            "fullName": {
+                "type": "varchar",
+                "params": {
+                    "name": "fullName",
+                    "nullable": true,
+                    "length": 255
+                }
+            },
+            "email": {
+                "type": "varchar",
+                "params": {
+                    "name": "email",
+                    "length": 255,
+                    "unique": true
+                }
+            },
+            "avatar": {
+                "type": "json",
+                "params": {
+                    "name": "avatar",
+                    "nullable": true
+                }
+            },
+            "password": {
+                "type": "varchar",
+                "params": {
+                    "name": "password",
+                    "nullable": true,
+                    "length": 255
+                }
+            },
+            "role": {
+                "type": "int",
+                "params": {
+                    "name": "role",
+                    "nullable": true
+                }
+            },
+            "status": {
+                "type": "boolean",
+                "params": {
+                    "name": "status",
+                    "default": true
+                }
+            }
+        }
+    }
+}

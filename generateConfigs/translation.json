@@ -1,0 +1,22 @@
+{
+    "model": {
+        "columns": {
+            "term": {
+                "type": "varchar",
+                "params": {
+                    "name": "term",
+                    "nullable": true,
+                    "length" : 255,
+                    "unique" : true
+                }
+            },
+            "translations": {
+                "type": "json",
+                "params": {
+                    "name": "translations",
+                    "nullable": true
+                }
+            }
+        }
+    }
+}

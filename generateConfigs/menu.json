@@ -1,0 +1,49 @@
+{
+    "model": {
+        "columns": {
+            "title": {
+                "type": "jsonb",
+                "params": {
+                    "name": "title",
+                    "nullable": true
+                }
+            },
+            "url": {
+                "type": "varchar",
+                "params": {
+                    "name": "url",
+                    "nullable": true,
+                    "length": 255
+                }
+            },
+            "translated_name": {
+                "type": "jsonb",
+                "params": {
+                    "name": "translated_name",
+                    "nullable": true
+                }
+            },
+            "show": {
+                "type": "jsonb",
+                "params": {
+                    "name": "show",
+                    "nullable": true
+                }
+            },
+            "parentId": {
+                "type": "int",
+                "params": {
+                    "name": "parentId",
+                    "nullable": true
+                }
+            },
+            "status": {
+                "type": "boolean",
+                "params": {
+                    "name": "status",
+                    "default": true
+                }
+            }
+        }
+    }
+}

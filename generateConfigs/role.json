@@ -1,0 +1,28 @@
+{
+    "model": {
+        "columns": {
+            "slug": {
+                "type": "varchar",
+                "params": {
+                    "name": "slug",
+                    "nullable": true,
+                    "length": 255
+                }
+            },
+            "permissions": {
+                "type": "json",
+                "params": {
+                    "name": "permissions",
+                    "nullable": true
+                }
+            },
+            "status": {
+                "type": "boolean",
+                "params": {
+                    "name": "status",
+                    "default": true
+                }
+            }
+        }
+    }
+}

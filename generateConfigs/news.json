@@ -1,0 +1,91 @@
+{
+    "model": {
+        "columns": {
+            "numberInput": {
+                "type": "int",
+                "params": {
+                    "name": "numberInput",
+                    "nullable": true
+                },
+                "formType": "numberInput",
+                "header": true
+            },
+            "textInput": {
+                "type": "json",
+                "params": {
+                    "name": "textInput",
+                    "nullable": true
+                },
+                "formType": "textInput",
+                "header": true,
+                "multiLng": true
+            },
+            "editor": {
+                "type": "json",
+                "params": {
+                    "name": "editor",
+                    "nullable": true
+                },
+                "formType": "editor",
+                "header": false,
+                "multiLng": true
+            },
+            "switchButton": {
+                "type": "boolean",
+                "params": {
+                    "name": "switchButton"
+                },
+                "formType": "switchButton",
+                "header": true
+            },
+            "emailInput": {
+                "type": "varchar",
+                "params": {
+                    "name": "emailInput",
+                    "nullable": true
+                },
+                "formType": "emailInput",
+                "header": true
+            },
+            "selectInput": {
+                "type": "int",
+                "params": {
+                    "name": "selectInput"
+                },
+                "formType": "selectInput",
+                "header": false,
+                "selections": "/newsCategories"
+            },
+            "checkboxButton": {
+                "type": "boolean",
+                "params": {
+                    "name": "checkboxButton"
+                },
+                "formType": "checkboxButton",
+                "header": false
+            },
+            "image": {
+                "type": "json",
+                "params": {
+                    "name": "image",
+                    "nullable": true
+                },
+                "formType": "imageUpload",
+                "header": true
+            },
+            "files": {
+                "type": "json",
+                "params": {
+                    "name": "files",
+                    "nullable": true
+                },
+                "formType": "uploadFile",
+                "header": false
+            }
+        }
+    },
+    "module": {
+        "type": "list",
+        "group": "news"
+    }
+}

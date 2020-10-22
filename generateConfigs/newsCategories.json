@@ -1,0 +1,37 @@
+{
+    "model": {
+        "columns": {
+            "name": {
+                "type": "varchar",
+                "params": {
+                    "name": "name",
+                    "nullable": true
+                },
+                "formType": "textInput",
+                "header": true,
+                "multiLng": false
+            },
+            "active": {
+                "type": "boolean",
+                "params": {
+                    "name": "active"
+                },
+                "formType": "switchButton",
+                "header": true
+            },
+            "image": {
+                "type": "json",
+                "params": {
+                    "name": "image",
+                    "nullable": true
+                },
+                "formType": "imageUpload",
+                "header": true
+            }
+        }
+    },
+    "module": {
+        "type": "list",
+        "group": "news"
+    }
+}

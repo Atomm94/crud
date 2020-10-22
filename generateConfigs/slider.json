@@ -1,0 +1,41 @@
+{
+    "model": {
+        "columns": {
+            "title": {
+                "type": "json",
+                "params": {
+                    "name": "title",
+                    "nullable": true
+                }
+            },
+            "description": {
+                "type": "json",
+                "params": {
+                    "name": "description",
+                    "nullable": true
+                }
+            },
+            "photo": {
+                "type": "json",
+                "params": {
+                    "name": "photo",
+                    "nullable": true
+                }
+            },
+            "url": {
+                "type": "json",
+                "params": {
+                    "name": "url",
+                    "nullable": true
+                }
+            },
+            "status": {
+                "type": "boolean",
+                "params": {
+                    "name": "status",
+                    "default": true
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,39 @@
+{
+    "model": {
+        "columns": {
+            "title": {
+                "type": "varchar",
+                "params": {
+                    "name": "title",
+                    "nullable": true,
+                    "length" : 255,
+                    "unique" : true
+                }
+            },
+            "url": {
+                "type": "varchar",
+                "params": {
+                    "name": "url",
+                    "nullable": true,
+                    "length" : 255
+                }
+            },
+            "class": {
+                "type": "varchar",
+                "params": {
+                    "name": "class",
+                    "nullable": true,
+                    "length" : 255
+                }
+            },
+            "iconClass": {
+                "type": "varchar",
+                "params": {
+                    "name": "iconClass",
+                    "nullable": true,
+                    "length" : 255
+                }
+            }
+        }
+    }
+}
