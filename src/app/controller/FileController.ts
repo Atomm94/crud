@@ -1,6 +1,6 @@
 // import * as _ from 'lodash'
 import { DefaultContext } from 'koa'
-import { save } from '../functions/file'
+import { fileSave } from '../functions/file'
 // import { getRepository /* Connection */ } from 'typeorm'
 // import { Page, Section } from '../model/entity/index'
 import fs from 'fs'
@@ -45,7 +45,7 @@ class FileController {
      */
     public static async saveFile (ctx: DefaultContext) {
         const file = ctx.request.files.file
-        const savedFile = save(file)
+        const savedFile = fileSave(file)
         return ctx.body = savedFile
     }
 
