@@ -51,7 +51,8 @@ export abstract class MainEntity extends BaseEntity {
             where: where,
             order: data.sort ? { [data.sort.split(' ')[0]]: data.sort.split(' ')[1] } : { id: 'DESC' },
             take: take,
-            skip: skip
+            skip: skip,
+            relations: data.relations ? data.relations : []
         })
 
         if (data.page) {
