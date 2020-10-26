@@ -1,0 +1,27 @@
+{
+    "model": {
+        "columns": {
+            "ticketId": {
+                "type": "int",
+                "params": {
+                    "name": "ticketId"
+                },
+                "formType": "numberInput"
+            },
+            "userId": {
+                "type": "int",
+                "params": {
+                    "name": "userId"
+                },
+                "formType": "numberInput"
+            },
+            "messageId": {
+                "type": "int",
+                "params": {
+                    "name": "messageId"
+                },
+                "formType": "numberinput"
+            }
+        }
+    }
+}

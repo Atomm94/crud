@@ -33,6 +33,9 @@ export abstract class MainEntity extends BaseEntity {
     @UpdateDateColumn({ type: 'timestamp', name: 'update_date' })
     updateDate: string;
 
+    public static gettingActions: boolean = true
+    public static gettingAttributes: boolean = true
+
     public static async findByParams (data: any) {
         const where: any = {}
         if (data.where) {

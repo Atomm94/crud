@@ -7,5 +7,9 @@ import { Page } from './Page'
 import { Menu } from './Menu'
 import { Language } from './Language'
 import { Section } from './Section'
+import { Ticket } from './Ticket'
+import { Department } from './Department'
+import { Message } from './Message'
+import { TicketMessage } from './TicketMessage'
 
-export { Admin, Role, Translation, Slider, Social, Page, Menu, Language, Section }
+export { Admin, Role, Translation, Slider, Social, Page, Menu, Language, Section, Ticket, Department, Message, TicketMessage }
