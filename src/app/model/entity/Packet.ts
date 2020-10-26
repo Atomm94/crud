@@ -25,6 +25,9 @@ export class Packet extends MainEntity {
     @Column('float', { name: 'price', nullable: true })
     price: number | null
 
+    @Column('json', { name: 'pay_terms', nullable: true })
+    pay_terms: JSON | null
+
     @Column('boolean', { name: 'status', default: true })
     status: boolean
 
@@ -40,6 +43,7 @@ export class Packet extends MainEntity {
         packet.packet_type = data.packet_type
         packet.pay_type = data.pay_type
         packet.price = data.price
+        packet.pay_terms = data.pay_terms
         packet.status = data.status
 
         return new Promise((resolve, reject) => {
@@ -61,6 +65,7 @@ export class Packet extends MainEntity {
         if ('packet_type' in data) packet.packet_type = data.packet_type
         if ('pay_type' in data) packet.pay_type = data.pay_type
         if ('price' in data) packet.price = data.price
+        if ('pay_terms' in data) packet.pay_terms = data.pay_terms
         if ('status' in data) packet.status = data.status
 
         if (!packet) return { status: 400, messsage: 'Item not found' }

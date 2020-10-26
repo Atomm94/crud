@@ -35,6 +35,8 @@ export default class PacketController {
      *                      type: boolean
      *                  price:
      *                      type: number
+     *                  pay_terms:
+     *                      type: JSON
      *                  status:
      *                      type: boolean
      *          responses:
@@ -94,6 +96,8 @@ export default class PacketController {
      *                      type: boolean
      *                  price:
      *                      type: number
+     *                  pay_terms:
+     *                      type: JSON
      *                  status:
      *                      type: boolean
      *          responses:
@@ -148,8 +152,6 @@ export default class PacketController {
             const relations = ['packet_types']
             ctx.body = await Packet.getItem(+ctx.params.id, relations)
         } catch (error) {
-            console.log(error)
-
             ctx.status = error.status || 400
             ctx.body = error
         }

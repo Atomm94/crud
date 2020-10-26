@@ -45,6 +45,16 @@
                 "formType": "textInput",
                 "header": true
             },
+              "payTerms": {
+                "type": "json",
+                "params": {
+                    "name": "payTerms",
+                    "nullable": true
+                },
+                "formType": "textInput",
+                "header": true,
+                "multiLng": true
+            },
             "status": {
                 "type": "boolean",
                 "params": {
