@@ -1,0 +1,20 @@
+{
+    "model": {
+        "columns": {
+            "text": {
+                "type": "varchar",
+                "params": {
+                    "name": "text"
+                },
+                "formType": "textInput"
+            },
+            "parentId": {
+                "type": "int",
+                "params": {
+                    "name": "parentId"
+                },
+                "formType": "numberInput"
+            }
+        }
+    }
+}

@@ -1,5 +1,6 @@
 import { DefaultContext } from 'koa'
 import { Ticket } from '../model/entity/Ticket'
+import { Message } from '../model/entity/Message'
 
 export default class TicketController {
     /**
@@ -308,6 +309,216 @@ export default class TicketController {
             ctx.body = {
                 success: true
             }
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
+       /**
+     *
+     * @swagger
+     *  /addTicketMessage:
+     *      post:
+     *          tags:
+     *              - Ticket
+     *          summary: Creates a message.
+     *          consumes:
+     *              - application/json
+     *          parameters:
+     *            - in: header
+     *              name: Authorization
+     *              required: true
+     *              description: Authentication token
+     *              schema:
+     *                type: string
+     *            - in: body
+     *              name: message
+     *              description: The message to create.
+     *              schema:
+     *                type: object
+     *                required:
+     *                properties:
+     *                  text:
+     *                      type: string
+     *                  parent_id:
+     *                      type: number
+     *          responses:
+     *              '201':
+     *                  description: A message object
+     *              '409':
+     *                  description: Conflict
+     *              '422':
+     *                  description: Wrong data
+     */
+
+    public static async addTicketMessage (ctx: DefaultContext) {
+        try {
+            ctx.body = await Message.addMessage(ctx.request.body as Message)
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     *  /updateTicketMessage:
+     *      put:
+     *          tags:
+     *              - Ticket
+     *          summary: Update a message.
+     *          consumes:
+     *              - application/json
+     *          parameters:
+     *            - in: header
+     *              name: Authorization
+     *              required: true
+     *              description: Authentication token
+     *              schema:
+     *                type: string
+     *            - in: body
+     *              name: message
+     *              description: The message to create.
+     *              schema:
+     *                type: object
+     *                required:
+     *                  - id
+     *                properties:
+     *                  id:
+     *                      type: number
+     *                      example: 1
+     *                  text:
+     *                      type: string
+     *                  parent_id:
+     *                      type: number
+     *          responses:
+     *              '201':
+     *                  description: A message updated object
+     *              '409':
+     *                  description: Conflict
+     *              '422':
+     *                  description: Wrong data
+     */
+    public static async updateTicketMessage (ctx: DefaultContext) {
+        try {
+            ctx.body = await Message.updateMessage(ctx.request.body as Message)
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     * /getTicketMessage/{id}:
+     *      get:
+     *          tags:
+     *              - Ticket
+     *          summary: Return message by ID
+     *          parameters:
+     *              - name: id
+     *                in: path
+     *                required: true
+     *                description: Parameter description
+     *                schema:
+     *                    type: integer
+     *                    format: int64
+     *                    minimum: 1
+     *              - in: header
+     *                name: Authorization
+     *                required: true
+     *                description: Authentication token
+     *                schema:
+     *                    type: string
+     *          responses:
+     *              '200':
+     *                  description: Data object
+     *              '404':
+     *                  description: Data not found
+     */
+    public static async getTicketMessage (ctx: DefaultContext) {
+        try {
+            ctx.body = await Message.getMessage(+ctx.params.id)
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     *  /destroyTicketMessage:
+     *      delete:
+     *          tags:
+     *              - Ticket
+     *          summary: Delete a message.
+     *          consumes:
+     *              - application/json
+     *          parameters:
+     *            - in: header
+     *              name: Authorization
+     *              required: true
+     *              description: Authentication token
+     *              schema:
+     *                type: string
+     *            - in: body
+     *              name: message
+     *              description: The message to create.
+     *              schema:
+     *                type: object
+     *                required:
+     *                  - id
+     *                properties:
+     *                  id:
+     *                      type: number
+     *                      example: 1
+     *          responses:
+     *              '200':
+     *                  description: message has been deleted
+     *              '422':
+     *                  description: Wrong data
+     */
+    public static async destroyTicketMessage (ctx: DefaultContext) {
+        try {
+            ctx.body = await Message.destroyMessage(ctx.request.body as { id: number })
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     * /getAllTicketMessages:
+     *      get:
+     *          tags:
+     *              - Ticket
+     *          summary: Return message list
+     *          parameters:
+     *              - in: header
+     *                name: Authorization
+     *                required: true
+     *                description: Authentication token
+     *                schema:
+     *                    type: string
+     *          responses:
+     *              '200':
+     *                  description: Array of message
+     *              '401':
+     *                  description: Unauthorized
+     */
+    public static async getAllTicketMessages (ctx: DefaultContext) {
+        try {
+            ctx.body = await Message.getAllMessages(ctx.query)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

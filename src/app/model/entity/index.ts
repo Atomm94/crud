@@ -7,8 +7,10 @@ import { Page } from './Page'
 import { Menu } from './Menu'
 import { Language } from './Language'
 import { Section } from './Section'
-
-// have not model
+import { Ticket } from './Ticket'
+import { Department } from './Department'
+import { Message } from './Message'
+import { TicketMessage } from './TicketMessage'
 import { Module } from './Modules'
 
-export { Admin, Role, Translation, Slider, Social, Page, Menu, Language, Section, Module }
+export { Admin, Role, Translation, Slider, Social, Page, Menu, Language, Section, Module, Ticket, Department, Message, TicketMessage }

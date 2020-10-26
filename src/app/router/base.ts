@@ -1,3 +1,6 @@
+import PacketTypeController from '../controller/PacketTypeController'
+import PacketController from '../controller/PacketController'
+import TicketMessageController from '../controller/TicketMessageController'
 import DepartmentController from '../controller/DepartmentController'
 import TicketController from '../controller/TicketController'
 import SectionController from '../controller/SectionController'
@@ -115,6 +118,26 @@ export default router
   .delete('Language-destroyItem', 'language', LanguageController.destroy)
   .get('Language-getAllItems', 'language', LanguageController.getAll)
 
+  // Packet controller CRUD endpoints
+  .post('Packet-addItem', 'packet', PacketController.add)
+  .put('Packet-updateItem', 'packet', PacketController.update)
+  .get('Packet-getItem', 'packet/:id', PacketController.get)
+  .delete('Packet-destroyItem', 'packet', PacketController.destroy)
+  .get('Packet-getAllItems', 'packet', PacketController.getAll)
+
+  // PacketType controller CRUD endpoints
+  .post('PacketType-addItem', 'packetType', PacketTypeController.add)
+  .put('PacketType-updateItem', 'packetType', PacketTypeController.update)
+  .get('PacketType-getItem', 'packetType/:id', PacketTypeController.get)
+  .delete('PacketType-destroyItem', 'packetType', PacketTypeController.destroy)
+  .get('PacketType-getAllItems', 'packetType', PacketTypeController.getAll)
+
+  // PacketType controller CRUD endpoints
+  .post('packetType', PacketTypeController.add)
+  .put('packetType', PacketTypeController.update)
+  .get('packetType/:id', PacketTypeController.get)
+  .delete('packetType', PacketTypeController.destroy)
+  .get('packetType', PacketTypeController.getAll)
   // Ticket controller CRUD endpoints
   .post('Ticket-addItem', 'ticket', TicketController.add)
   .put('Ticket-updateItem', 'ticket', TicketController.update)
@@ -124,9 +147,22 @@ export default router
   .post('Ticket-saveImage', 'ticketImage', TicketController.saveImage)
   .delete('Ticket-deleteImage', 'ticketImage', TicketController.deleteImage)
 
+  .post('Ticket-addMessage', 'addTicketMessage', TicketController.addTicketMessage)
+  .put('Ticket-updateMessage', 'updateTicketMessage', TicketController.updateTicketMessage)
+  .get('Ticket-getMessage', 'getTicketMessage/:id', TicketController.getTicketMessage)
+  .delete('Ticket-destroyMessage', 'destroyTicketMessage', TicketController.destroyTicketMessage)
+  .get('Ticket-getAllMessages', 'getAllTicketMessages', TicketController.getAllTicketMessages)
+
   // Department controller CRUD endpoints
   .post('Department-addItem', 'department', DepartmentController.add)
   .put('Department-updateItem', 'department', DepartmentController.update)
   .get('Department-getItem', 'department/:id', DepartmentController.get)
   .delete('Department-destroyItem', 'department', DepartmentController.destroy)
   .get('Department-getAllItems', 'department', DepartmentController.getAll)
+
+  // TicketMessage controller CRUD endpoints
+  .post('TicketMessage-addItem', 'ticketMessage', TicketMessageController.add)
+  .put('TicketMessage-updateItem', 'ticketMessage', TicketMessageController.update)
+  .get('TicketMessage-getItem', 'ticketMessage/:id', TicketMessageController.get)
+  .delete('TicketMessage-destroyItem', 'ticketMessage', TicketMessageController.destroy)
+  .get('TicketMessage-getAllItems', 'ticketMessage', TicketMessageController.getAll)
