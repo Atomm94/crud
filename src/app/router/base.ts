@@ -1,3 +1,5 @@
+import PacketTypeController from '../controller/PacketTypeController'
+import PacketController from '../controller/PacketController'
 import Testmodule1Controller from '../controller/Testmodule1Controller'
 import SectionController from '../controller/SectionController'
 
@@ -123,3 +125,24 @@ export default router
   .get('testmodule1/:id', Testmodule1Controller.get)
   .delete('testmodule1', Testmodule1Controller.destroy)
   .get('testmodule1', Testmodule1Controller.getAll)
+
+  // Packet controller CRUD endpoints
+  .post('Packet-addItem', 'packet', PacketController.add)
+  .put('Packet-updateItem', 'packet', PacketController.update)
+  .get('Packet-getItem', 'packet/:id', PacketController.get)
+  .delete('Packet-destroyItem', 'packet', PacketController.destroy)
+  .get('Packet-getAllItems', 'packet', PacketController.getAll)
+
+  // PacketType controller CRUD endpoints
+  .post('PacketType-addItem', 'packetType', PacketTypeController.add)
+  .put('PacketType-updateItem', 'packetType', PacketTypeController.update)
+  .get('PacketType-getItem', 'packetType/:id', PacketTypeController.get)
+  .delete('PacketType-destroyItem', 'packetType', PacketTypeController.destroy)
+  .get('PacketType-getAllItems', 'packetType', PacketTypeController.getAll)
+
+  // PacketType controller CRUD endpoints
+  .post('packetType', PacketTypeController.add)
+  .put('packetType', PacketTypeController.update)
+  .get('packetType/:id', PacketTypeController.get)
+  .delete('packetType', PacketTypeController.destroy)
+  .get('packetType', PacketTypeController.getAll)

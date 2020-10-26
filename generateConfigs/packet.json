@@ -1,0 +1,62 @@
+{
+    "model": {
+        "columns": {
+            "name": {
+                "type": "varchar",
+                "params": {
+                    "name": "name",
+                    "unique": true
+                },
+                "formType": "textInput",
+                "header": true
+            },
+            "description": {
+                "type": "varchar",
+                "params": {
+                    "name": "description",
+                    "nullable": true
+                },
+                "formType": "textInput",
+                "header": true
+            },
+            "packetType": {
+                "type": "int",
+                "params": {
+                    "name": "packetType"
+                },
+                "formType": "numberInput",
+                "header": true
+            },
+            "payType": {
+                "type": "boolean",
+                "params": {
+                    "name": "payType",
+                    "default": true
+                },
+                "formType": "checkboxButton",
+                "header": true
+            },
+            "price": {
+                "type": "float",
+                "params": {
+                    "name": "price",
+                    "nullable": true
+                },
+                "formType": "textInput",
+                "header": true
+            },
+            "status": {
+                "type": "boolean",
+                "params": {
+                    "name": "status",
+                    "default": true
+                },
+                "formType": "checkboxButton",
+                "header": true
+            }
+        }
+    },
+    "module": {
+        "type": "list"
+    }
+}
