@@ -1,5 +1,7 @@
 import PacketTypeController from '../controller/PacketTypeController'
 import PacketController from '../controller/PacketController'
+import DepartmentController from '../controller/DepartmentController'
+import TicketController from '../controller/TicketController'
 import Testmodule1Controller from '../controller/Testmodule1Controller'
 import SectionController from '../controller/SectionController'
 
@@ -146,3 +148,18 @@ export default router
   .get('packetType/:id', PacketTypeController.get)
   .delete('packetType', PacketTypeController.destroy)
   .get('packetType', PacketTypeController.getAll)
+  // Ticket controller CRUD endpoints
+  .post('Ticket-addItem', 'ticket', TicketController.add)
+  .put('Ticket-updateItem', 'ticket', TicketController.update)
+  .get('Ticket-getItem', 'ticket/:id', TicketController.get)
+  .delete('Ticket-destroyItem', 'ticket', TicketController.destroy)
+  .get('Ticket-getAllItems', 'ticket', TicketController.getAll)
+  .post('Ticket-saveImage', 'ticketImage', TicketController.saveImage)
+  .delete('Ticket-deleteImage', 'ticketImage', TicketController.deleteImage)
+
+  // Department controller CRUD endpoints
+  .post('Department-addItem', 'department', DepartmentController.add)
+  .put('Department-updateItem', 'department', DepartmentController.update)
+  .get('Department-getItem', 'department/:id', DepartmentController.get)
+  .delete('Department-destroyItem', 'department', DepartmentController.destroy)
+  .get('Department-getAllItems', 'department', DepartmentController.getAll)

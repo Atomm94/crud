@@ -3,7 +3,7 @@ import { logger } from '../../../modules/winston/logger'
 import { join } from 'path'
 const parentDir = join(__dirname, '../..')
 
-export function save (imageFile: any) {
+export function fileSave (imageFile: any) {
     const imagePath = imageFile.path.split('/')
     const path = imagePath[imagePath.length - 1]
 
