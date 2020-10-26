@@ -1,0 +1,27 @@
+{
+    "model": {
+        "columns": {
+            "name": {
+                "type": "varchar",
+                "params": {
+                    "name": "name",
+                    "unique": true
+                },
+                "formType": "textInput",
+                "header": true
+            },
+            "status": {
+                "type": "boolean",
+                "params": {
+                    "name": "status",
+                    "default": true
+                },
+                "formType": "checkboxButton",
+                "header": true
+            }
+        }
+    },
+    "module": {
+        "type": "list"
+    }
+}
