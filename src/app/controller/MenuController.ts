@@ -1,6 +1,7 @@
 // import * as _ from 'lodash'
 import { DefaultContext } from 'koa'
 import { Menu } from '../model/entity/index'
+import { getRepository } from 'typeorm'
 
 class MenuController {
     /**
@@ -27,8 +28,13 @@ class MenuController {
     public static async getMenu (ctx: DefaultContext) {
         let menu: any
         try {
-            menu = await Menu.getAllItems(ctx.query)
-            ctx.body = menu.filter((m: any) => !m.parent_id)
+            menu = await
+                getRepository(Menu)
+                    .createQueryBuilder('menu')
+                    .leftJoinAndSelect('menu.page', 'page')
+                    .getMany()
+
+            ctx.body = menu
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

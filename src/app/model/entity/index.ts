@@ -8,4 +8,7 @@ import { Menu } from './Menu'
 import { Language } from './Language'
 import { Section } from './Section'
 
-export { Admin, Role, Translation, Slider, Social, Page, Menu, Language, Section }
+// have not model
+import { Module } from './Modules'
+
+export { Admin, Role, Translation, Slider, Social, Page, Menu, Language, Section, Module }

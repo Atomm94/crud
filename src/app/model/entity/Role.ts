@@ -101,4 +101,11 @@ export class Role extends MainEntity {
         })
     })
   }
+
+  public static async getRole () {
+    return await Role.createQueryBuilder('role')
+      .select(['role', 'admins'])
+      .leftJoin('role.admins', 'admins')
+      .getMany()
+  }
 }

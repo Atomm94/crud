@@ -1,51 +1,44 @@
 // import * as _ from 'lodash'
 import { DefaultContext } from 'koa'
 // import { getRepository } from 'typeorm';
-import { Role } from '../model/entity/index'
+// import { Role } from '../model/entity/index'
+import { AccessControl } from '../functions/access-control'
 
 export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
-    let permissions: any
+    // const path = ctx.request.url.split('/')[1]
+    // const swagger = ctx.request.url.split('/')[1].split('-')[0]
 
-    let path = ctx.request.url.split('/')[1]
-    const swagger = ctx.request.url.split('/')[1].split('-')[0]
+    // const method1 = ctx.request.method
 
-    const method1 = ctx.request.method
+    // const method = method1 === 'PUT' ? 'update' : method1 === 'POST' ? 'create' : method1 === 'DELETE' ? 'delete' : 'read'
 
-    const method = method1 === 'PUT' ? 'update' : method1 === 'POST' ? 'create' : method1 === 'DELETE' ? 'delete' : 'read'
-
-    if (path === 'login' || path === 'changeMyPass' || path === 'myProfile' || method === 'read' || swagger === 'swagger' || swagger === 'favicon' || path === 'getUserData') {
+    // if (path === 'login' || path === 'changeMyPass' || path === 'myProfile' || method === 'read' || swagger === 'swagger' || swagger === 'favicon' || path === 'getUserData') {
+    //     return next()
+    // }
+    if (ctx.allowed) {
         return next()
     }
 
-    const roleId = ctx.user.role
-
+    let check = false
+    if (ctx.user && ctx.user.role) {
+        const roleId = ctx.user.role
+        const actionName = ctx.actionName
+        const actionModel = ctx.actionModel
+        check = await AccessControl.canAccess(roleId, actionModel, actionName)
+    }
     try {
-        const role = await Role.findOneOrFail({
-            select: ['id', 'slug', 'permissions'],
-            where: {
-                id: roleId
-            }
-        })
-        if (role && role.permissions) {
-            if (role.permissions.super) {
-                return next()
-            }
+        // console.log('check', check)
 
-            if (path === 'changePass') {
-                path = 'users'
+        if (check) {
+            return next()
+        } else {
+            ctx.status = 403
+            ctx.body = {
+                statusCode: 403,
+                message: 'Permission denied'
             }
-
-            permissions = role.permissions[path]
-            if (permissions[method] === true) {
-                return next()
-            } else {
-                return (ctx.body = {
-                    statusCode: 403,
-                    message: 'Permission denied'
-                })
-            }
+            return ctx
         }
-        return next()
     } catch (error) {
         ctx.status = error.status || 400
         ctx.body = error

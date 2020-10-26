@@ -115,13 +115,18 @@ export abstract class MainEntity extends BaseEntity {
         const model_actions = Object.getOwnPropertyNames(self)
             .filter((item: any) => typeof self[item] === 'function')
         // console.log('model_actions', model_actions)
+        const model_actions_data: any = {}
+        model_actions.forEach(action => {
+            model_actions_data[action] = false
+        })
 
-        const MainEntityClass: any = MainEntity
-        const MainEntity_actions = Object.getOwnPropertyNames(MainEntityClass)
-            .filter((item: any) => typeof MainEntityClass[item] === 'function' && model_actions.indexOf(item) === -1)
+        // const MainEntityClass: any = MainEntity
+        // const MainEntity_actions = Object.getOwnPropertyNames(MainEntityClass)
+        //     .filter((item: any) => typeof MainEntityClass[item] === 'function' && model_actions.indexOf(item) === -1)
         // console.log('MainEntity_actions', MainEntity_actions)
 
-        return [...model_actions, ...MainEntity_actions]
+        return { ...model_actions_data }
+        // return [...model_actions, ...MainEntity_actions]
     }
 
     public static getAttributes () {

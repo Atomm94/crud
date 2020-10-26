@@ -2,6 +2,7 @@ import app from './app'
 import config from '../config'
 import { Database } from '../component/db'
 import { logger } from '../../modules/winston/logger'
+import { AccessControl } from './functions/access-control'
 
 const database = new Database();
 // create connection with database
@@ -10,6 +11,7 @@ const database = new Database();
 (async () => {
     try {
         await database.connect()
+        await AccessControl.GrantAccess()
         app.listen(
             config.server.port, () => console.log('APP listening at port %d', config.server.port)
         )
@@ -22,5 +24,5 @@ const database = new Database();
                 process.exit(1)
             }
         })
-    } catch (e) { logger.error(e) }
+    } catch (e) { logger.error('Error:', e) }
 })()

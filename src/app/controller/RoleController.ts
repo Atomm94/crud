@@ -1,6 +1,8 @@
 // import * as _ from 'lodash'
 import { DefaultContext } from 'koa'
 import { Role, Admin } from '../model/entity/index'
+import * as Models from '../model/entity/index'
+// import { getRepository } from 'typeorm'
 
 class RoleController {
   /**
@@ -80,10 +82,7 @@ class RoleController {
     let role
 
     try {
-      role = await Role.createQueryBuilder('role')
-        .select(['role', 'admins'])
-        .leftJoin('role.admins', 'admins')
-        .getMany()
+      role = await Role.getRole()
       ctx.body = role
     } catch (error) {
       ctx.status = error.status || 400
@@ -252,6 +251,41 @@ class RoleController {
       ctx.body = error
     }
     return ctx.body
+  }
+
+  /**
+   *
+   * @swagger
+   * /getAllAccesses:
+   *      get:
+   *          tags:
+   *              - Role
+   *          summary: Return all actions and attributes list
+   *          parameters:
+   *              - in: header
+   *                name: Authorization
+   *                required: true
+   *                description: Authentication token
+   *                schema:
+   *                    type: string
+   *          responses:
+   *              '200':
+   *                  description: Array of accesses
+   *              '401':
+   *                  description: Unauthorized
+   */
+  public static async getAllAccess (ctx: DefaultContext) {
+    // console.log('Models', Models)
+    const models: any = Models
+    const accesses: any = {}
+    Object.keys(models).forEach((model: string) => {
+      accesses[model] = { actions: models[model].getActions() }
+      if (models[model].haveModel !== false) {
+        // accesses[model].attributes = models[model].getAttributes()
+      }
+    })
+
+    ctx.body = accesses
   }
 }
 

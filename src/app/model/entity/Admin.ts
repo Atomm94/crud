@@ -4,7 +4,8 @@ import {
   BeforeInsert,
   BeforeUpdate,
   ManyToOne,
-  JoinColumn
+  JoinColumn,
+  createQueryBuilder
   // ManyToOne
   // Index,
   // CreateDateColumn,
@@ -16,8 +17,13 @@ import {
 import * as bcrypt from 'bcrypt'
 import { MainEntity } from './MainEntity'
 import { Role } from './index'
-
+import { fileSave } from '../../functions/file'
+import fs from 'fs'
+import { join } from 'path'
 import { IAdmins } from '../../Interfaces/Admins'
+import { logger } from '../../../../modules/winston/logger'
+
+const parentDir = join(__dirname, '../../..')
 
 @Entity('admin')
 export class Admin extends MainEntity {
@@ -96,8 +102,6 @@ export class Admin extends MainEntity {
   }
 
   public static async updateItem (data: any) {
-    console.log(data)
-
     const admin = await this.findOneOrFail(data.id)
 
     if ('username' in data) admin.username = data.username
@@ -106,7 +110,6 @@ export class Admin extends MainEntity {
     if ('status' in data) admin.status = (data.status === 'true') ? true : (data.status === 'false') ? false : data.status
     if ('role' in data) admin.role = +data.role
     if ('avatar' in data) admin.avatar = data.avatar
-    if (!('password' in data)) delete admin.password ///  cheeeeeeeeeck
 
     if (!admin) return { status: 400, messsage: 'Item not found' }
     return new Promise((resolve, reject) => {
@@ -147,6 +150,8 @@ export class Admin extends MainEntity {
   }
 
   public static async getAllItems (params?: any) {
+    // console.log(await this.getRolesAndAttributes(9))
+
     return new Promise((resolve, reject) => {
       this.findByParams(params)
         .then((items) => {
@@ -155,6 +160,27 @@ export class Admin extends MainEntity {
         .catch((error: any) => {
           reject(error)
         })
+    })
+  }
+
+  public static async saveImage (file: any) {
+    return fileSave(file)
+  }
+
+  public static async deleteImage (file: any) {
+    return fs.unlink(`${parentDir}/public/${file}`, (err) => {
+      if (err) throw err
+      logger.info('Delete complete!')
+    })
+  }
+
+  public static async getRolesAndAttributes (id: number) {
+    // eslint-disable-next-line no-async-promise-executor
+    return new Promise(async (resolve, reject) => {
+      const admin: any = await createQueryBuilder(Admin, 'admin').innerJoinAndSelect(Role, 'role', 'role.id = admin.role').select('role.permissions').where('admin.id = :id', { id: id }).getRawOne()
+      if (admin) {
+        resolve(admin)
+      }
     })
   }
 }

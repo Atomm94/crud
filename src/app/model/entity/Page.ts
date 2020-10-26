@@ -145,4 +145,19 @@ export class Page extends MainEntity {
                 })
         })
     }
+
+    public static async getPageWithSection () {
+        return await Page.createQueryBuilder('page')
+            .select(['page', 'sections'])
+            .leftJoin('page.sections', 'sections')
+            .getMany()
+    }
+
+    public static async getPageById (id: number) {
+        return await Page.createQueryBuilder('page')
+            .select(['page', 'sections'])
+            .where('page.id = :id', { id: id })
+            .leftJoin('page.sections', 'sections')
+            .getMany()
+    }
 }

@@ -10,7 +10,8 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
 
   const token = <string>ctx.request.header.authorization
 
-  if (whiteList.includes(path) || whiteList.includes(swagger)) {
+  ctx.allowed = true
+  if (whiteList.includes(path) || whiteList.includes(swagger) || ctx.allowed) {
     return next()
   }
 

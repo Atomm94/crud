@@ -1,6 +1,9 @@
 import {
     Column,
-    Entity
+    Entity,
+    JoinColumn,
+    // JoinColumn,
+    OneToOne
     // ManyToOne,
     // OneToMany
     // Index,
@@ -12,6 +15,7 @@ import {
 } from 'typeorm'
 import { MainEntity } from './MainEntity'
 import { IMenu } from '../../Interfaces/Menu'
+import { Page } from './Page'
 
 @Entity('menu')
 export class Menu extends MainEntity {
@@ -33,6 +37,10 @@ export class Menu extends MainEntity {
     @Column('boolean', { name: 'status', default: true })
     status: boolean | true;
 
+    @OneToOne(() => Page, { nullable: true })
+    @JoinColumn()
+    page: Page;
+
     public static async addItem (data: any) {
         const menu = new Menu()
 
@@ -42,6 +50,7 @@ export class Menu extends MainEntity {
         if ('show' in data) menu.show = data.show
         if ('status' in data) menu.status = data.status
         if ('parent_id' in data) menu.parent_id = data.parent_id
+        if ('page_id' in data) menu.page = data.page_id
 
         return new Promise((resolve, reject) => {
             this.save(menu)
@@ -63,6 +72,7 @@ export class Menu extends MainEntity {
         if ('show' in data) menu.show = data.show
         if ('status' in data) menu.status = data.status
         if ('parent_id' in data) menu.parent_id = data.parent_id
+        if ('page_id' in data) menu.page = data.page_id
 
         if (!menu) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {

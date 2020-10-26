@@ -67,7 +67,7 @@ const config: IConfig = {
         synchronize: _.defaultTo(JSON.parse(process.env.DB_SYNC as string), false)
     },
     cors: {
-        origin: '*',
+        origin: 'http://localhost:8080',
         credentials: true,
         allowMethods: ['GET', 'HEAD', 'PUT', 'POST', 'DELETE', 'PATCH'],
         exposeHeaders: ['X-Request-Id'],
