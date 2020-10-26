@@ -3,7 +3,6 @@ import PacketController from '../controller/PacketController'
 import TicketMessageController from '../controller/TicketMessageController'
 import DepartmentController from '../controller/DepartmentController'
 import TicketController from '../controller/TicketController'
-import Testmodule1Controller from '../controller/Testmodule1Controller'
 import SectionController from '../controller/SectionController'
 
 import {
@@ -35,99 +34,89 @@ export default router
   .get('auth', AuthController.checkAuth)
   .post('login', AuthController.login)
 
-  .post('users', AdminController.createAdmin)
-  .delete('users', AdminController.destroy)
-  .put('users', AdminController.update)
-  .get('users/:id', AdminController.get)
-  .get('users', AdminController.getAll)
-  .put('changePass', AdminController.changePass)
-  .put('changeMyPass', AdminController.changeMyPass)
-  .get('getUserData', AdminController.getUserData)
-  .put('myProfile', AdminController.update)
+  .post('Admin-addItem', 'users', AdminController.createAdmin)
+  .delete('Admin-destroyItem', 'users', AdminController.destroy)
+  .put('Admin-updateItem', 'users', AdminController.update)
+  .get('Admin-getItem', 'users/:id', AdminController.get)
+  .get('Admin-getAllItems', 'users', AdminController.getAll)
+  .put('Admin-updateItem', 'changePass', AdminController.changePass)
+  .put('Admin-updateItem', 'changeMyPass', AdminController.changeMyPass)
+  .get('Admin-getItem', 'getUserData', AdminController.getUserData)
+  .put('Admin-updateItem', 'myProfile', AdminController.update)
+
+  .post('Admin-saveImage', 'userImageSave', AdminController.userImageSave)
+  .delete('Admin-deleteImage', 'userImageDelete', AdminController.userImageDelete)
 
   // Role
 
-  .post('roles', RoleController.createRole)
-  .get('roles/:id', RoleController.getRoleById)
-  .put('roles', RoleController.updateRole)
-  .delete('roles', RoleController.deleteRole)
-  .get('roles', RoleController.getRole)
+  .post('Role-addItem', 'roles', RoleController.createRole)
+  .get('Role-getItem', 'roles/:id', RoleController.getRoleById)
+  .put('Role-updateItem', 'roles', RoleController.updateRole)
+  .delete('Role-destroyItem', 'roles', RoleController.deleteRole)
+  .get('Role-getAllItems', 'roles', RoleController.getRole)
+  .get('Role-getAllItems', 'access', RoleController.getAllAccess)
 
   // Translation
-  .post('translations', TranslationController.createTrans)
-  .put('translations', TranslationController.updateTrans)
-  .delete('translations', TranslationController.deleteTrans)
-  .get('translations', TranslationController.getTrans)
+  .post('Translation-addItem', 'translations', TranslationController.createTrans)
+  .put('Translation-updateItem', 'translations', TranslationController.updateTrans)
+  .delete('Translation-destroyItem', 'translations', TranslationController.deleteTrans)
+  .get('Translation-getAllItems', 'translations', TranslationController.getTrans)
 
   // Slider
 
-  .post('slider', SliderController.createSlider)
-  .delete('slider', SliderController.deleteSlider)
-  .put('slider', SliderController.updateSlider)
-  .get('slider', SliderController.getSlider)
+  .post('Slider-addItem', 'slider', SliderController.createSlider)
+  .delete('Slider-destroyItem', 'slider', SliderController.deleteSlider)
+  .put('Slider-updateItem', 'slider', SliderController.updateSlider)
+  .get('Slider-getAllItems', 'slider', SliderController.getSlider)
 
   // Social
 
-  .post('social', SocialController.createSocialLink)
-  .delete('social', SocialController.deleteSocialLink)
-  .put('social', SocialController.updateSocialLink)
-  .get('social', SocialController.getSocialLink)
+  .post('Social-addItem', 'social', SocialController.createSocialLink)
+  .delete('Social-destroyItem', 'social', SocialController.deleteSocialLink)
+  .put('Social-updateItem', 'social', SocialController.updateSocialLink)
+  .get('Social-getAllItems', 'social', SocialController.getSocialLink)
 
   // Page
 
-  .post('page', PageController.createPage)
-  .delete('page', PageController.deletePage)
+  .post('Page-addItem', 'page', PageController.createPage)
+  .delete('Page-destroyItem', 'page', PageController.deletePage)
 
-  .put('page', PageController.updatePage)
-  .get('page', PageController.getPage)
-  .get('page/:pageId', PageController.getPageById)
-  .put('updatePageStatus', PageController.updatePageStatus)
+  .put('Page-updateItem', 'page', PageController.updatePage)
+  .get('Page-getPageWithSection', 'page', PageController.getPage)
+  .get('Page-getPageById', 'page/:pageId', PageController.getPageById)
+  .put('Page-updateItem', 'updatePageStatus', PageController.updatePageStatus)
 
   // Section
-  .delete('section', SectionController.deleteSection)
-  .get('section/:id', SectionController.getSectionById)
-  .post('createSection', SectionController.createSection)
-  .put('section', SectionController.updateSection)
+  .delete('Section-destroyItem', 'section', SectionController.deleteSection)
+  .get('Section-getItem', 'section/:id', SectionController.getSectionById)
+  .post('Section-addItem', 'createSection', SectionController.createSection)
+  .put('Section-updateItem', 'section', SectionController.updateSection)
 
-  .get('findModule', ModuleController.findModule)
-  .get('module', ModuleController.getModule)
-
-  .get('getSelections/:name', ModuleController.getModuleSelections)
-  .post('createModuleData', ModuleController.createModuleData)
+  // Module
+  .get('Module-findModule', 'findModule', ModuleController.findModule)
+  .get('Module-getModule', 'module', ModuleController.getModule)
+  .get('Module-getModuleSelections', 'getSelections/:name', ModuleController.getModuleSelections)
+  .post('Module-createModuleData', 'createModuleData', ModuleController.createModuleData)
 
   // Menu
 
-  .post('menu', MenuController.createMenu)
-  .delete('menu', MenuController.deleteMenu)
-  .put('menu', MenuController.updateMenu)
-  .get('menu', MenuController.getMenu)
-  .put('updateMenuStatus', MenuController.updateMenuStatus)
+  .post('Menu-addItem', 'menu', MenuController.createMenu)
+  .delete('Menu-destroyItem', 'menu', MenuController.deleteMenu)
+  .put('Menu-updateItem', 'menu', MenuController.updateMenu)
+  .get('Menu-getAllItems', 'menu', MenuController.getMenu)
+  .put('Menu-updateItem', 'updateMenuStatus', MenuController.updateMenuStatus)
 
   // Files
 
   .post('upload', FileController.saveFile)
-  .delete('upload', FileController.deleteFile)
-
-  // Testmodule1 controller CRUD endpoints
-  .post('testmodule1', Testmodule1Controller.add)
-  .put('testmodule1', Testmodule1Controller.update)
-  .get('testmodule1/:id', Testmodule1Controller.get)
-  .delete('testmodule1', Testmodule1Controller.destroy)
-  .get('testmodule1', Testmodule1Controller.getAll)
+  .delete('File-destroyItem', 'upload', FileController.deleteFile)
 
   // Language controller CRUD endpoints
-  .post('language', LanguageController.add)
-  .put('language', LanguageController.update)
-  .get('language/:id', LanguageController.get)
-  .delete('language', LanguageController.destroy)
-  .get('language', LanguageController.getAll)
-
-  // Testmodule1 controller CRUD endpoints
-  .post('testmodule1', Testmodule1Controller.add)
-  .put('testmodule1', Testmodule1Controller.update)
-  .get('testmodule1/:id', Testmodule1Controller.get)
-  .delete('testmodule1', Testmodule1Controller.destroy)
-  .get('testmodule1', Testmodule1Controller.getAll)
+  .post('Language-addItem', 'language', LanguageController.add)
+  .put('Language-updateItem', 'language', LanguageController.update)
+  .get('Language-getItem', 'language/:id', LanguageController.get)
+  .delete('Language-destroyItem', 'language', LanguageController.destroy)
+  .get('Language-getAllItems', 'language', LanguageController.getAll)
 
   // Packet controller CRUD endpoints
   .post('Packet-addItem', 'packet', PacketController.add)

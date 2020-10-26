@@ -53,7 +53,6 @@ export default class AuthController {
 
         try {
             user = await Admin.findOneOrFail({ where: [{ username }, { email: username }] })
-            console.log(user)
         } catch (error) {
             ctx.status = error.status || 401
             ctx.body = { message: 'Wrong username or e-mail' }
@@ -64,7 +63,6 @@ export default class AuthController {
         if (user.username && user.password) {
             try {
                 checkPass = bcrypt.compareSync(password, user.password)
-                // checkPass = true
                 if (!checkPass) {
                     ctx.status = 400
                     return (ctx.body = {

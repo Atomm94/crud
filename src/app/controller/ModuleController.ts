@@ -1,15 +1,14 @@
 // import * as _ from 'lodash'
 import { DefaultContext } from 'koa'
 import {
-    // Social, /*, Role */
-    Role
+    // Role,
+    Module
 } from '../model/entity/index'
-import * as jwt from 'jsonwebtoken'
-import fs from 'fs'
-import { join } from 'path'
+// import fs from 'fs'
+// import { join } from 'path'
 import { logger } from '../../../modules/winston/logger'
 
-const parentDir = join(__dirname, '..')
+// const parentDir = join(__dirname, '..')
 
 class ModuleController {
     /**
@@ -34,7 +33,7 @@ class ModuleController {
      *                  description: Unauthorized
      */
     public static async getModule (ctx: DefaultContext) {
-        const moduleData: any = fs.readFileSync(`${join(parentDir, '/model/entity/Module.json')}`)
+        const moduleData: any = Module.getModule()
         return ctx.body = moduleData
     }
 
@@ -60,37 +59,34 @@ class ModuleController {
      *                  description: Unauthorized
      */
     public static async findModule (ctx: DefaultContext) {
-        const token = ctx.request.header.authorization
-        const moduleData: any = fs.readFileSync(`${join(parentDir, '/model/entity/Module.json')}`)
-        const parsedModule = JSON.parse(moduleData)
-        let verify
-        let role
-        let permissions: any
+        const parsedModule: any = Module.findModule()
+
+        // let role
+        // let permissions: any
         try {
-            verify = <any>jwt.verify(token, 'jwtSecret')
-            if (verify) {
-                role = await Role.findOne({ id: verify.role })
-                permissions = role?.permissions
-                if (role && !permissions.super) {
-                    Object.keys(parsedModule).forEach((m) => {
-                        if (!parsedModule[m].submenu) {
-                            logger.info('parsedModule ' + JSON.stringify(parsedModule))
-                            if (!permissions.modules[m].read) {
-                                delete parsedModule[m]
-                            }
-                        } else if (parsedModule[m].submenu) {
-                            Object.keys(parsedModule[m].submenu).forEach((sub) => {
-                                if (!permissions.modules[sub].read) {
-                                    delete parsedModule[m].submenu[sub]
-                                }
-                            })
-                        }
-                    })
-                    ctx.body = parsedModule
-                } else {
-                    ctx.body = parsedModule
-                }
+            if (ctx.user && ctx.user.role) {
+                // role = await Role.findOne({ id: ctx.user.role })
+                // permissions = role?.permissions
+                // if (role && !permissions.super) {
+                //     Object.keys(parsedModule).forEach((m) => {
+                //         if (!parsedModule[m].submenu) {
+                //             logger.info('parsedModule ' + JSON.stringify(parsedModule))
+                //             if (!permissions.modules[m].read) {
+                //                 delete parsedModule[m]
+                //             }
+                //         } else if (parsedModule[m].submenu) {
+                //             Object.keys(parsedModule[m].submenu).forEach((sub) => {
+                //                 if (!permissions.modules[sub].read) {
+                //                     delete parsedModule[m].submenu[sub]
+                //                 }
+                //             })
+                //         }
+                //     })
+                // } else {
+                //     ctx.body = parsedModule
+                // }
             }
+            ctx.body = parsedModule
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -128,16 +124,7 @@ class ModuleController {
     public static async getModuleSelections (ctx: DefaultContext) {
         const name = ctx.params.name
 
-        const data: any = {
-            empty_select: [{
-                name: 'empty_select1',
-                id: 1
-            },
-            {
-                name: 'empty_select112',
-                id: 2
-            }]
-        }
+        const data: any = Module.getModuleSelections()
 
         const body = data[name]
 
@@ -179,7 +166,9 @@ class ModuleController {
         logger.info('body ' + (body))
         logger.info(image)
 
-        return ctx.body = 'ok'
+        const send = Module.createModuleData()
+
+        return ctx.body = send
     }
 }
 

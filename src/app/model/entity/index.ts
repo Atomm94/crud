@@ -11,5 +11,6 @@ import { Ticket } from './Ticket'
 import { Department } from './Department'
 import { Message } from './Message'
 import { TicketMessage } from './TicketMessage'
+import { Module } from './Modules'
 
-export { Admin, Role, Translation, Slider, Social, Page, Menu, Language, Section, Ticket, Department, Message, TicketMessage }
+export { Admin, Role, Translation, Slider, Social, Page, Menu, Language, Section, Module, Ticket, Department, Message, TicketMessage }

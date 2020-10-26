@@ -35,11 +35,7 @@ class PageController {
      */
     public static async getPage (ctx: DefaultContext) {
         try {
-            // const page = await Page.getAllItems(ctx.query)
-            const page = await Page.createQueryBuilder('page')
-                .select(['page', 'sections'])
-                .leftJoin('page.sections', 'sections')
-                .getMany()
+            const page = await Page.getPageWithSection()
             ctx.body = page
         } catch (error) {
             ctx.status = error.status || 400
@@ -81,11 +77,7 @@ class PageController {
         let page
 
         try {
-            page = await Page.createQueryBuilder('page')
-                .select(['page', 'sections'])
-                .where('page.id = :id', { id: id })
-                .leftJoin('page.sections', 'sections')
-                .getMany()
+            page = await Page.getPageById(id)
             ctx.body = page
         } catch (error) {
             ctx.status = error.status || 400

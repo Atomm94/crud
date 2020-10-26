@@ -56,6 +56,7 @@
 		"reflect-metadata": "^0.1.13",
 		"request": "^2.88.2",
 		"request-promise-native": "^1.0.8",
+		"role-acl": "^4.5.4",
 		"swagger-jsdoc": "^3.5.0",
 		"swagger-ui-koa": "latest",
 		"tsconfig-paths": "^3.9.0",

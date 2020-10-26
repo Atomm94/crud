@@ -527,4 +527,89 @@ export default class AdminController {
 
         return (ctx.body = allAdmin)
     }
+
+    /**
+     *
+     * @swagger
+     *  /userImageSave:
+     *      post:
+     *          tags:
+     *              - Admin
+     *          summary: Upload user image.
+     *          consumes:
+     *              - multipart/form-data
+     *          parameters:
+     *            - in: header
+     *              name: Authorization
+     *              required: true
+     *              description: Authentication token
+     *              schema:
+     *                    type: string
+     *            - in: formData
+     *              name: file
+     *              type: file
+     *              description: The upload user image.
+     *          responses:
+     *              '201':
+     *                  description: image upload
+     *              '409':
+     *                  description: Conflict
+     *              '422':
+     *                  description: Wrong data
+     */
+    public static async userImageSave (ctx: DefaultContext) {
+        const file = ctx.request.files.file
+        const savedFile = Admin.saveImage(file)
+        return ctx.body = savedFile
+    }
+
+    /**
+     *
+     * @swagger
+     *  /userImageDelete:
+     *      delete:
+     *          tags:
+     *              - Admin
+     *          summary: Delete an user image.
+     *          consumes:
+     *              - application/json
+     *          parameters:
+     *            - in: header
+     *              name: Authorization
+     *              required: true
+     *              description: Authentication token
+     *              schema:
+     *              type: string
+     *            - in: body
+     *              name: file
+     *              description: The user image name to delete.
+     *              schema:
+     *                type: string
+     *                required:
+     *                  - name
+     *                properties:
+     *                  name:
+     *                      type: string
+     *          responses:
+     *              '200':
+     *                  description: User image has been deleted
+     *              '409':
+     *                  description: Conflict
+     *              '422':
+     *                  description: Wrong data
+     */
+    public static async userImageDelete (ctx: DefaultContext) {
+        const name = ctx.request.body.name
+
+        try {
+            Admin.deleteImage(name)
+            ctx.body = {
+                success: true
+            }
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
 }
