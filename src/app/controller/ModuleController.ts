@@ -1,12 +1,13 @@
 // import * as _ from 'lodash'
 import { DefaultContext } from 'koa'
 import {
-    // Role,
+    Role,
     Module
 } from '../model/entity/index'
 // import fs from 'fs'
 // import { join } from 'path'
 import { logger } from '../../../modules/winston/logger'
+import { capitalizeFirst } from '../../app/functions/file'
 
 // const parentDir = join(__dirname, '..')
 
@@ -61,32 +62,33 @@ class ModuleController {
     public static async findModule (ctx: DefaultContext) {
         const parsedModule: any = Module.findModule()
 
-        // let role
-        // let permissions: any
         try {
             if (ctx.user && ctx.user.role) {
-                // role = await Role.findOne({ id: ctx.user.role })
-                // permissions = role?.permissions
-                // if (role && !permissions.super) {
-                //     Object.keys(parsedModule).forEach((m) => {
-                //         if (!parsedModule[m].submenu) {
-                //             logger.info('parsedModule ' + JSON.stringify(parsedModule))
-                //             if (!permissions.modules[m].read) {
-                //                 delete parsedModule[m]
-                //             }
-                //         } else if (parsedModule[m].submenu) {
-                //             Object.keys(parsedModule[m].submenu).forEach((sub) => {
-                //                 if (!permissions.modules[sub].read) {
-                //                     delete parsedModule[m].submenu[sub]
-                //                 }
-                //             })
-                //         }
-                //     })
-                // } else {
-                //     ctx.body = parsedModule
-                // }
+                const role = await Role.findOne({ id: ctx.user.role })
+                const permissions: any = role?.permissions
+                if (role && permissions) { // if (role && !permissions.super) {
+                    Object.keys(parsedModule).forEach((m) => {
+                        if (!parsedModule[m].submenu) {
+                            if (!permissions[capitalizeFirst(m)] || Object.values(permissions[capitalizeFirst(m)].actions).indexOf(true) === -1) {
+                                delete parsedModule[m]
+                            }
+                        } else if (parsedModule[m].submenu) {
+                            Object.keys(parsedModule[m].submenu).forEach((sub) => {
+                                if (!permissions[capitalizeFirst(sub)] || Object.values(permissions[capitalizeFirst(sub)].actions).indexOf(true) === -1) {
+                                    delete parsedModule[m].submenu[sub]
+                                }
+                            })
+                        }
+                    })
+                }
+                ctx.body = parsedModule
+            } else {
+                ctx.status = 401
+                ctx.body = {
+                    status: 401,
+                    message: 'Unauthorized'
+                }
             }
-            ctx.body = parsedModule
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
