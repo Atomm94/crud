@@ -1,6 +1,6 @@
 import { DefaultContext } from 'koa'
 import { Ticket } from '../model/entity/Ticket'
-import { Message } from '../model/entity/Message'
+import { TicketMessage } from '../model/entity/TicketMessage'
 
 export default class TicketController {
     /**
@@ -315,14 +315,15 @@ export default class TicketController {
         }
         return ctx.body
     }
-       /**
+
+    /**
      *
      * @swagger
      *  /addTicketMessage:
      *      post:
      *          tags:
      *              - Ticket
-     *          summary: Creates a message.
+     *          summary: Creates a ticketMessage.
      *          consumes:
      *              - application/json
      *          parameters:
@@ -333,28 +334,31 @@ export default class TicketController {
      *              schema:
      *                type: string
      *            - in: body
-     *              name: message
-     *              description: The message to create.
+     *              name: ticketMessage
+     *              description: The ticketMessage to create.
      *              schema:
      *                type: object
      *                required:
      *                properties:
+     *                  ticket_id:
+     *                      type: number
+     *                  user_id:
+     *                      type: number
      *                  text:
      *                      type: string
      *                  parent_id:
      *                      type: number
      *          responses:
      *              '201':
-     *                  description: A message object
+     *                  description: A ticketMessage object
      *              '409':
      *                  description: Conflict
      *              '422':
      *                  description: Wrong data
      */
-
     public static async addTicketMessage (ctx: DefaultContext) {
         try {
-            ctx.body = await Message.addMessage(ctx.request.body as Message)
+            ctx.body = await Ticket.addMessage(ctx.request.body as TicketMessage)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -369,7 +373,7 @@ export default class TicketController {
      *      put:
      *          tags:
      *              - Ticket
-     *          summary: Update a message.
+     *          summary: Update a ticketMessage.
      *          consumes:
      *              - application/json
      *          parameters:
@@ -380,8 +384,8 @@ export default class TicketController {
      *              schema:
      *                type: string
      *            - in: body
-     *              name: message
-     *              description: The message to create.
+     *              name: ticketMessage
+     *              description: The ticketMessage to create.
      *              schema:
      *                type: object
      *                required:
@@ -390,13 +394,17 @@ export default class TicketController {
      *                  id:
      *                      type: number
      *                      example: 1
+     *                  ticket_id:
+     *                      type: number
+     *                  user_id:
+     *                      type: number
      *                  text:
      *                      type: string
      *                  parent_id:
      *                      type: number
      *          responses:
      *              '201':
-     *                  description: A message updated object
+     *                  description: A ticketMessage updated object
      *              '409':
      *                  description: Conflict
      *              '422':
@@ -404,7 +412,7 @@ export default class TicketController {
      */
     public static async updateTicketMessage (ctx: DefaultContext) {
         try {
-            ctx.body = await Message.updateMessage(ctx.request.body as Message)
+            ctx.body = await Ticket.updateMessage(ctx.request.body as TicketMessage)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -419,7 +427,7 @@ export default class TicketController {
      *      get:
      *          tags:
      *              - Ticket
-     *          summary: Return message by ID
+     *          summary: Return ticketMessage by ID
      *          parameters:
      *              - name: id
      *                in: path
@@ -443,7 +451,7 @@ export default class TicketController {
      */
     public static async getTicketMessage (ctx: DefaultContext) {
         try {
-            ctx.body = await Message.getMessage(+ctx.params.id)
+            ctx.body = await Ticket.getMessage(+ctx.params.id)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -458,7 +466,7 @@ export default class TicketController {
      *      delete:
      *          tags:
      *              - Ticket
-     *          summary: Delete a message.
+     *          summary: Delete a ticketMessage.
      *          consumes:
      *              - application/json
      *          parameters:
@@ -469,8 +477,8 @@ export default class TicketController {
      *              schema:
      *                type: string
      *            - in: body
-     *              name: message
-     *              description: The message to create.
+     *              name: ticketMessage
+     *              description: The ticketMessage to create.
      *              schema:
      *                type: object
      *                required:
@@ -481,13 +489,13 @@ export default class TicketController {
      *                      example: 1
      *          responses:
      *              '200':
-     *                  description: message has been deleted
+     *                  description: ticketMessage has been deleted
      *              '422':
      *                  description: Wrong data
      */
     public static async destroyTicketMessage (ctx: DefaultContext) {
         try {
-            ctx.body = await Message.destroyMessage(ctx.request.body as { id: number })
+            ctx.body = await Ticket.destroyMessage(ctx.request.body as { id: number })
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -502,7 +510,7 @@ export default class TicketController {
      *      get:
      *          tags:
      *              - Ticket
-     *          summary: Return message list
+     *          summary: Return ticketMessage list
      *          parameters:
      *              - in: header
      *                name: Authorization
@@ -512,13 +520,13 @@ export default class TicketController {
      *                    type: string
      *          responses:
      *              '200':
-     *                  description: Array of message
+     *                  description: Array of ticketMessage
      *              '401':
      *                  description: Unauthorized
      */
     public static async getAllTicketMessages (ctx: DefaultContext) {
         try {
-            ctx.body = await Message.getAllMessages(ctx.query)
+            ctx.body = await Ticket.getAllMessages(ctx.query)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

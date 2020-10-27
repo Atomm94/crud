@@ -1,6 +1,5 @@
 import PacketTypeController from '../controller/PacketTypeController'
 import PacketController from '../controller/PacketController'
-import TicketMessageController from '../controller/TicketMessageController'
 import DepartmentController from '../controller/DepartmentController'
 import TicketController from '../controller/TicketController'
 import SectionController from '../controller/SectionController'
@@ -138,6 +137,7 @@ export default router
   .get('packetType/:id', PacketTypeController.get)
   .delete('packetType', PacketTypeController.destroy)
   .get('packetType', PacketTypeController.getAll)
+
   // Ticket controller CRUD endpoints
   .post('Ticket-addItem', 'ticket', TicketController.add)
   .put('Ticket-updateItem', 'ticket', TicketController.update)
@@ -159,10 +159,3 @@ export default router
   .get('Department-getItem', 'department/:id', DepartmentController.get)
   .delete('Department-destroyItem', 'department', DepartmentController.destroy)
   .get('Department-getAllItems', 'department', DepartmentController.getAll)
-
-  // TicketMessage controller CRUD endpoints
-  .post('TicketMessage-addItem', 'ticketMessage', TicketMessageController.add)
-  .put('TicketMessage-updateItem', 'ticketMessage', TicketMessageController.update)
-  .get('TicketMessage-getItem', 'ticketMessage/:id', TicketMessageController.get)
-  .delete('TicketMessage-destroyItem', 'ticketMessage', TicketMessageController.destroy)
-  .get('TicketMessage-getAllItems', 'ticketMessage', TicketMessageController.getAll)

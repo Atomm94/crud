@@ -254,7 +254,7 @@ class RoleController {
   /**
    *
    * @swagger
-   * /getAllAccesses:
+   * /access:
    *      get:
    *          tags:
    *              - Role
@@ -277,11 +277,19 @@ class RoleController {
     const models: any = Models
     const accesses: any = {}
     Object.keys(models).forEach((model: string) => {
-      accesses[model] = { actions: models[model].getActions() }
-      if (models[model].haveModel !== false) {
-        // accesses[model].attributes = models[model].getAttributes()
+      if (models[model].gettingActions === true) {
+        accesses[model] = { actions: models[model].getActions() }
       }
+      // if (models[model].gettingAttributes === true) {
+      //   const attributes = models[model].getAttributes()
+      //   if (accesses[model]) {
+      //     accesses[model].attributes = attributes
+      //   } else {
+      //     accesses[model] = { attributes: attributes }
+      //   }
+      // }
     })
+    // console.log('accesses', accesses)
 
     ctx.body = accesses
   }

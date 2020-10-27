@@ -15,12 +15,19 @@
                 },
                 "formType": "numberInput"
             },
-            "messageId": {
+            "text": {
+                "type": "varchar",
+                "params": {
+                    "name": "text"
+                },
+                "formType": "textInput"
+            },
+            "parentId": {
                 "type": "int",
                 "params": {
-                    "name": "messageId"
+                    "name": "parentId"
                 },
-                "formType": "numberinput"
+                "formType": "numberInput"
             }
         }
     }

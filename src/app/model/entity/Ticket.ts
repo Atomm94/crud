@@ -11,6 +11,7 @@ import fs from 'fs'
 import { join } from 'path'
 import { logger } from '../../../../modules/winston/logger'
 import { Department } from './Department'
+import { TicketMessage } from '.'
 
 const parentDir = join(__dirname, '../../..')
 
@@ -126,5 +127,25 @@ export class Ticket extends MainEntity {
             if (err) throw err
             logger.info('Delete complete!')
         })
+    }
+
+    public static async addMessage (data: TicketMessage) {
+        return TicketMessage.addItem(data)
+    }
+
+    public static async updateMessage (data: TicketMessage) {
+        return TicketMessage.updateItem(data)
+    }
+
+    public static async getMessage (id: number) {
+        return TicketMessage.getItem(id)
+    }
+
+    public static async destroyMessage (data: { id: number }) {
+        return TicketMessage.destroyItem(data)
+    }
+
+    public static async getAllMessages (query: any) {
+        return TicketMessage.getAllItems(query)
     }
 }

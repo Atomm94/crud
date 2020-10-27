@@ -9,8 +9,9 @@ import { Language } from './Language'
 import { Section } from './Section'
 import { Ticket } from './Ticket'
 import { Department } from './Department'
-import { Message } from './Message'
 import { TicketMessage } from './TicketMessage'
 import { Module } from './Modules'
+import { Packet } from './Packet'
+import { PacketType } from './PacketType'
 
-export { Admin, Role, Translation, Slider, Social, Page, Menu, Language, Section, Module, Ticket, Department, Message, TicketMessage }
+export { Admin, Role, Translation, Slider, Social, Page, Menu, Language, Section, Module, Ticket, Department, TicketMessage, Packet, PacketType }
