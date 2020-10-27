@@ -25,7 +25,8 @@
             "parentId": {
                 "type": "int",
                 "params": {
-                    "name": "parentId"
+                    "name": "parentId",
+                    "nullable": true
                 },
                 "formType": "numberInput"
             }

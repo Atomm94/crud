@@ -1,6 +1,9 @@
 import { DefaultContext } from 'koa'
-import { Ticket } from '../model/entity/Ticket'
-import { TicketMessage } from '../model/entity/TicketMessage'
+import {
+    Ticket,
+    TicketMessage,
+    Admin
+ } from '../model/entity/index'
 
 export default class TicketController {
     /**
@@ -342,8 +345,6 @@ export default class TicketController {
      *                properties:
      *                  ticket_id:
      *                      type: number
-     *                  user_id:
-     *                      type: number
      *                  text:
      *                      type: string
      *                  parent_id:
@@ -358,7 +359,9 @@ export default class TicketController {
      */
     public static async addTicketMessage (ctx: DefaultContext) {
         try {
-            ctx.body = await Ticket.addMessage(ctx.request.body as TicketMessage)
+            const req_data = ctx.request.body
+            req_data.user_id = ctx.user.id
+            ctx.body = await Ticket.addMessage(req_data as TicketMessage)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -390,14 +393,11 @@ export default class TicketController {
      *                type: object
      *                required:
      *                  - id
+     *                  - text
      *                properties:
      *                  id:
      *                      type: number
      *                      example: 1
-     *                  ticket_id:
-     *                      type: number
-     *                  user_id:
-     *                      type: number
      *                  text:
      *                      type: string
      *                  parent_id:
@@ -412,7 +412,9 @@ export default class TicketController {
      */
     public static async updateTicketMessage (ctx: DefaultContext) {
         try {
-            ctx.body = await Ticket.updateMessage(ctx.request.body as TicketMessage)
+            const req_data = ctx.request.body
+            const user = ctx.user
+            ctx.body = await Ticket.updateMessage(req_data as TicketMessage, user as Admin)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -495,7 +497,9 @@ export default class TicketController {
      */
     public static async destroyTicketMessage (ctx: DefaultContext) {
         try {
-            ctx.body = await Ticket.destroyMessage(ctx.request.body as { id: number })
+            const req_data = ctx.request.body
+            const user = ctx.user
+            ctx.body = await Ticket.destroyMessage(req_data as { id: number }, user as Admin)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

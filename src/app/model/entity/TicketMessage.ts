@@ -22,7 +22,7 @@ export class TicketMessage extends MainEntity {
     @Column('varchar', { name: 'text' })
     text: string
 
-    @Column('int', { name: 'parent_id' })
+    @Column('int', { name: 'parent_id', nullable: true })
     parent_id: number | null
 
     @ManyToOne(type => Ticket, ticket => ticket.ticket_messages)
@@ -42,7 +42,7 @@ export class TicketMessage extends MainEntity {
         ticketMessage.ticket_id = data.ticket_id
         ticketMessage.user_id = data.user_id
         ticketMessage.text = data.text
-        ticketMessage.parent_id = data.parent_id
+        if ('parent_id' in data) ticketMessage.parent_id = data.parent_id
 
         return new Promise((resolve, reject) => {
             this.save(ticketMessage)
@@ -55,23 +55,25 @@ export class TicketMessage extends MainEntity {
         })
     }
 
-    public static async updateItem (data: TicketMessage) {
+    public static async updateItem (data: TicketMessage, user: Admin) {
         const ticketMessage = await this.findOneOrFail(data.id)
 
-        if ('ticket_id' in data) ticketMessage.ticket_id = data.ticket_id
-        if ('user_id' in data) ticketMessage.user_id = data.user_id
         if ('text' in data) ticketMessage.text = data.text
-        if ('parent_id' in data) ticketMessage.parent_id = data.parent_id
+        // if ('parent_id' in data) ticketMessage.parent_id = data.parent_id
 
         if (!ticketMessage) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(ticketMessage)
-                .then((item: TicketMessage) => {
-                    resolve(item)
-                })
-                .catch((error: any) => {
-                    reject(error)
-                })
+            if (ticketMessage.user_id === user.id) {
+                this.save(ticketMessage)
+                    .then((item: TicketMessage) => {
+                        resolve(item)
+                    })
+                    .catch((error: any) => {
+                        reject(error)
+                    })
+            } else {
+                reject(new Error(`User ${user.id} cant update ${ticketMessage.user_id} user message!!!`))
+            }
         })
     }
 
@@ -92,16 +94,22 @@ export class TicketMessage extends MainEntity {
         })
     }
 
-    public static async destroyItem (data: { id: number }) {
+    public static async destroyItem (data: { id: number }, user: Admin) {
         const itemId: number = +data.id
+        const ticketMessage = await this.findOneOrFail(itemId)
+        if (!ticketMessage) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.delete(itemId)
-                .then(() => {
-                    resolve({ message: 'success' })
-                })
-                .catch((error: any) => {
-                    reject(error)
-                })
+            if (ticketMessage.user_id === user.id) {
+                this.delete(itemId)
+                    .then(() => {
+                        resolve({ message: 'success' })
+                    })
+                    .catch((error: any) => {
+                        reject(error)
+                    })
+            } else {
+                reject(new Error(`User ${user.id} cant update ${ticketMessage.user_id} user message!!!`))
+            }
         })
     }
 

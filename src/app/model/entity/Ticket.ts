@@ -11,8 +11,11 @@ import { fileSave } from '../../functions/file'
 import fs from 'fs'
 import { join } from 'path'
 import { logger } from '../../../../modules/winston/logger'
-import { Department } from './Department'
-import { TicketMessage } from './TicketMessage'
+import {
+    Department,
+    TicketMessage,
+    Admin
+} from './index'
 
 const parentDir = join(__dirname, '../../..')
 
@@ -140,16 +143,16 @@ export class Ticket extends MainEntity {
         return TicketMessage.addItem(data)
     }
 
-    public static async updateMessage (data: TicketMessage) {
-        return TicketMessage.updateItem(data)
+    public static async updateMessage (data: TicketMessage, user: Admin) {
+        return TicketMessage.updateItem(data, user)
     }
 
     public static async getMessage (id: number) {
         return TicketMessage.getItem(id)
     }
 
-    public static async destroyMessage (data: { id: number }) {
-        return TicketMessage.destroyItem(data)
+    public static async destroyMessage (data: { id: number }, user: Admin) {
+        return TicketMessage.destroyItem(data, user)
     }
 
     public static async getAllMessages (query: any) {
