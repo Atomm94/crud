@@ -25,12 +25,12 @@ export class AccessControl {
     }
 
     public static async canAccess (role: string | number, model: string, action: string) {
-        try {
-            if (typeof role === 'number') role = role.toString()
+        if (typeof role === 'number') role = role.toString()
+        if (this.ac.hasRole(role)) {
             const permission = await this.ac.can(role).execute(action).on(model)
             return permission.granted
-        } catch (error) {
-            logger.error(`role ${role} not found in Grant!!`)
+        } else {
+            logger.warn(`[Grant] canAccess - role ${role} not found!!`)
             return false
         }
     }

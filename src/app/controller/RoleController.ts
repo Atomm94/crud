@@ -1,7 +1,6 @@
 // import * as _ from 'lodash'
 import { DefaultContext } from 'koa'
 import { Role, Admin } from '../model/entity/index'
-import * as Models from '../model/entity/index'
 // import { getRepository } from 'typeorm'
 
 class RoleController {
@@ -273,25 +272,9 @@ class RoleController {
    *                  description: Unauthorized
    */
   public static async getAllAccess (ctx: DefaultContext) {
-    // console.log('Models', Models)
-    const models: any = Models
-    const accesses: any = {}
-    Object.keys(models).forEach((model: string) => {
-      if (models[model].gettingActions === true) {
-        accesses[model] = { actions: models[model].getActions() }
-      }
-      // if (models[model].gettingAttributes === true) {
-      //   const attributes = models[model].getAttributes()
-      //   if (accesses[model]) {
-      //     accesses[model].attributes = attributes
-      //   } else {
-      //     accesses[model] = { attributes: attributes }
-      //   }
-      // }
-    })
-    // console.log('accesses', accesses)
-
+    const accesses = Role.getAllAccess()
     ctx.body = accesses
+    return ctx.body
   }
 }
 

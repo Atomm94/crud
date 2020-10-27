@@ -2,7 +2,8 @@ import {
     Entity,
     Column,
     ManyToOne,
-    JoinColumn
+    JoinColumn,
+    OneToMany
 } from 'typeorm'
 
 import { MainEntity } from './MainEntity'
@@ -11,7 +12,7 @@ import fs from 'fs'
 import { join } from 'path'
 import { logger } from '../../../../modules/winston/logger'
 import { Department } from './Department'
-import { TicketMessage } from '.'
+import { TicketMessage } from './TicketMessage'
 
 const parentDir = join(__dirname, '../../..')
 
@@ -29,12 +30,18 @@ export class Ticket extends MainEntity {
     @Column('json', { name: 'image', nullable: true })
     image: JSON | null
 
+    @Column('timestamp', { name: 'last_update', nullable: true })
+    last_update: string | null
+
     @Column('boolean', { name: 'status', default: true })
     status: boolean
 
     @ManyToOne(type => Department, department => department.tickets)
     @JoinColumn({ name: 'department' })
-    departments: Department;
+    departments: Department | null;
+
+    @OneToMany(type => TicketMessage, ticket_message => ticket_message.tickets, { nullable: true })
+    ticket_messages: TicketMessage[] | null;
 
     public static async addItem (data: Ticket) {
         const ticket = new Ticket()

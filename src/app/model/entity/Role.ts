@@ -11,8 +11,10 @@ import {
   // ObjectID
   // PrimaryGeneratedColumn,
 } from 'typeorm'
+import * as Models from './index'
 import { MainEntity } from './MainEntity'
 import { Admin } from './index'
+
 @Entity('role')
 export class Role extends MainEntity {
   @Column('varchar', { name: 'slug', nullable: true, length: 255 })
@@ -107,5 +109,24 @@ export class Role extends MainEntity {
       .select(['role', 'admins'])
       .leftJoin('role.admins', 'admins')
       .getMany()
+  }
+
+  public static getAllAccess () {
+    const models: any = Models
+    const accesses: any = {}
+    Object.keys(models).forEach((model: string) => {
+      if (models[model].gettingActions === true) {
+        accesses[model] = { actions: models[model].getActions() }
+      }
+      // if (models[model].gettingAttributes === true) {
+      //   const attributes = models[model].getAttributes()
+      //   if (accesses[model]) {
+      //     accesses[model].attributes = attributes
+      //   } else {
+      //     accesses[model] = { attributes: attributes }
+      //   }
+      // }
+    })
+    return accesses
   }
 }

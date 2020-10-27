@@ -48,6 +48,13 @@
                     "nullable": true
                 }
             },
+            "lastLoginDate": {
+                "type": "timestamp",
+                "params": {
+                    "name": "lastLoginDate",
+                    "nullable": true
+                }
+            },
             "status": {
                 "type": "boolean",
                 "params": {

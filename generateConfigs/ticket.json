@@ -5,48 +5,42 @@
                 "type": "int",
                 "params": {
                     "name": "department"
-                },
-                "formType": "numberInput",
-                "header": true
+                }
             },
             "subject": {
                 "type": "varchar",
                 "params": {
                     "name": "subject"
-                },
-                "formType": "textInput",
-                "header": true
+                }
             },
             "message": {
                 "type": "varchar",
                 "params": {
                     "name": "message",
                     "nullable": true
-                },
-                "formType": "editor",
-                "header": false
+                }
             },
             "image": {
                 "type": "json",
                 "params": {
                     "name": "image",
                     "nullable": true
-                },
-                "formType": "imageUpload",
-                "header": true
+                }
+            },
+            "lastUpdate": {
+                "type": "timestamp",
+                "params": {
+                    "name": "lastUpdate",
+                    "nullable": true
+                }
             },
             "status": {
                 "type": "boolean",
                 "params": {
                     "name": "status",
                     "default": true
-                },
-                "formType": "checkboxButton",
-                "header": true
+                }
             }
         }
-    },
-    "module": {
-        "type": "list"
     }
 }

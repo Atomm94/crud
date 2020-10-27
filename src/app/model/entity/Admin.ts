@@ -5,7 +5,8 @@ import {
   BeforeUpdate,
   ManyToOne,
   JoinColumn,
-  createQueryBuilder
+  createQueryBuilder,
+  OneToMany
   // ManyToOne
   // Index,
   // CreateDateColumn,
@@ -17,6 +18,7 @@ import {
 import * as bcrypt from 'bcrypt'
 import { MainEntity } from './MainEntity'
 import { Role } from './index'
+import { TicketMessage } from './TicketMessage'
 import { fileSave } from '../../functions/file'
 import fs from 'fs'
 import { join } from 'path'
@@ -61,6 +63,9 @@ export class Admin extends MainEntity {
   @ManyToOne(type => Role, role => role.admins)
   @JoinColumn({ name: 'role' })
   roles: Role;
+
+  @OneToMany(type => TicketMessage, ticket_message => ticket_message.users, { nullable: true })
+  ticket_messages: TicketMessage[] | null;
 
   @BeforeInsert()
   async generatePassword () {

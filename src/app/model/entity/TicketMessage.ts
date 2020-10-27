@@ -1,9 +1,15 @@
 import {
     Entity,
-    Column
+    Column,
+    ManyToOne,
+    JoinColumn
 } from 'typeorm'
 
 import { MainEntity } from './MainEntity'
+import {
+    Ticket,
+    Admin
+} from './index'
 
 @Entity('ticket_message')
 export class TicketMessage extends MainEntity {
@@ -17,7 +23,15 @@ export class TicketMessage extends MainEntity {
     text: string
 
     @Column('int', { name: 'parent_id' })
-    parent_id: number
+    parent_id: number | null
+
+    @ManyToOne(type => Ticket, ticket => ticket.ticket_messages)
+    @JoinColumn({ name: 'ticket_id' })
+    tickets: Ticket | null;
+
+    @ManyToOne(type => Admin, admin => admin.ticket_messages)
+    @JoinColumn({ name: 'user_id' })
+    users: Ticket | null;
 
     public static gettingActions: boolean = false
     // public static gettingAttributes: boolean = true
@@ -63,8 +77,12 @@ export class TicketMessage extends MainEntity {
 
     public static async getItem (id: number) {
         const itemId: number = id
+        const relations = ['tickets', 'users']
         return new Promise((resolve, reject) => {
-            this.findOneOrFail(itemId)
+            this.findOneOrFail({
+                where: { id: itemId },
+                relations: relations || []
+            })
                 .then((item: TicketMessage) => {
                     resolve(item)
                 })
@@ -88,6 +106,7 @@ export class TicketMessage extends MainEntity {
     }
 
     public static async getAllItems (params?: any) {
+        params.relations = ['tickets', 'users']
         return new Promise((resolve, reject) => {
             this.findByParams(params)
                 .then((items) => {
