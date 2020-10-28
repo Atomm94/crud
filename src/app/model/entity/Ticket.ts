@@ -36,8 +36,11 @@ export class Ticket extends MainEntity {
     @Column('timestamp', { name: 'last_update', nullable: true })
     last_update: string | null
 
-    @Column('boolean', { name: 'status', default: true })
-    status: boolean
+    @Column('boolean', { name: 'active', default: true })
+    active: boolean
+
+    @Column('boolean', { name: 'read', default: false })
+    read: boolean
 
     @ManyToOne(type => Department, department => department.tickets)
     @JoinColumn({ name: 'department' })
@@ -53,7 +56,6 @@ export class Ticket extends MainEntity {
         ticket.subject = data.subject
         ticket.message = data.message
         ticket.image = data.image
-        ticket.status = data.status
 
         return new Promise((resolve, reject) => {
             this.save(ticket)
@@ -73,7 +75,6 @@ export class Ticket extends MainEntity {
         if ('subject' in data) ticket.subject = data.subject
         if ('message' in data) ticket.message = data.message
         if ('image' in data) ticket.image = data.image
-        if ('status' in data) ticket.status = data.status
 
         if (!ticket) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {

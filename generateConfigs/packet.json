@@ -65,8 +65,5 @@
                 "header": true
             }
         }
-    },
-    "module": {
-        "type": "list"
     }
 }

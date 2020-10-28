@@ -38,8 +38,6 @@ export default class TicketController {
      *                      type: string
      *                  image:
      *                      type: JSON
-     *                  status:
-     *                      type: boolean
      *          responses:
      *              '201':
      *                  description: A ticket object
@@ -95,8 +93,6 @@ export default class TicketController {
      *                      type: string
      *                  image:
      *                      type: JSON
-     *                  status:
-     *                      type: boolean
      *          responses:
      *              '201':
      *                  description: A ticket updated object
@@ -146,7 +142,7 @@ export default class TicketController {
      */
     public static async get (ctx: DefaultContext) {
         try {
-            const relations = ['departments']
+            const relations = ['departments', 'ticket_messages', 'ticket_messages.users']
             ctx.body = await Ticket.getItem(+ctx.params.id, relations)
         } catch (error) {
             ctx.status = error.status || 400
