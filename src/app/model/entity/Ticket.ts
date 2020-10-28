@@ -16,6 +16,7 @@ import {
     TicketMessage,
     Admin
 } from './index'
+import { pick } from 'lodash'
 
 const parentDir = join(__dirname, '../../..')
 
@@ -96,6 +97,14 @@ export class Ticket extends MainEntity {
                 relations: relations || []
             })
                 .then((item: Ticket) => {
+                    if (item.ticket_messages) {
+                        item.ticket_messages.forEach((ticket_message: TicketMessage) => {
+                            if (ticket_message.users) {
+                                const user_params: any = pick(ticket_message, 'users.id', 'users.full_name', 'users.avatar')
+                                ticket_message.users = user_params.users
+                            }
+                        })
+                    }
                     resolve(item)
                 })
                 .catch((error: any) => {
@@ -120,7 +129,17 @@ export class Ticket extends MainEntity {
     public static async getAllItems (params?: any) {
         return new Promise((resolve, reject) => {
             this.findByParams(params)
-                .then((items) => {
+                .then((items: Array<Ticket>) => {
+                    items.forEach((item: Ticket, i: number) => {
+                        if (item.ticket_messages) {
+                            item.ticket_messages.forEach((ticket_message: TicketMessage) => {
+                                if (ticket_message.users) {
+                                    const user_params: any = pick(ticket_message, 'users.id', 'users.full_name', 'users.avatar')
+                                    ticket_message.users = user_params.users
+                                }
+                            })
+                        }
+                    })
                     resolve(items)
                 })
                 .catch((error: any) => {

@@ -219,7 +219,7 @@ export default class TicketController {
     public static async getAll (ctx: DefaultContext) {
         try {
             const req_data = ctx.query
-            req_data.relations = ['departments']
+            req_data.relations = ['departments', 'ticket_messages', 'ticket_messages.users']
             ctx.body = await Ticket.getAllItems(req_data)
         } catch (error) {
             console.log('error', error)
