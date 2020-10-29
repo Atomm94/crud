@@ -49,7 +49,9 @@ export default class TicketController {
 
     public static async add (ctx: DefaultContext) {
         try {
-            ctx.body = await Ticket.addItem(ctx.request.body as Ticket)
+            const req_data = ctx.request.body
+            req_data.user_id = ctx.user.id
+            ctx.body = await Ticket.addItem(req_data as Ticket)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -142,7 +144,7 @@ export default class TicketController {
      */
     public static async get (ctx: DefaultContext) {
         try {
-            const relations = ['departments', 'ticket_messages', 'ticket_messages.users']
+            const relations = ['user', 'departments', 'ticket_messages', 'ticket_messages.users']
             ctx.body = await Ticket.getItem(+ctx.params.id, relations)
         } catch (error) {
             ctx.status = error.status || 400
@@ -219,7 +221,7 @@ export default class TicketController {
     public static async getAll (ctx: DefaultContext) {
         try {
             const req_data = ctx.query
-            req_data.relations = ['departments', 'ticket_messages', 'ticket_messages.users']
+            req_data.relations = ['user', 'departments']
             ctx.body = await Ticket.getAllItems(req_data)
         } catch (error) {
             console.log('error', error)

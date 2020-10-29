@@ -5,7 +5,10 @@ import {
 } from 'typeorm'
 
 import { MainEntity } from './MainEntity'
-import { Ticket } from './Ticket'
+import {
+    Ticket,
+    Admin
+ } from './index'
 
 @Entity('department')
 export class Department extends MainEntity {
@@ -17,6 +20,9 @@ export class Department extends MainEntity {
 
     @OneToMany(type => Ticket, ticket => ticket.departments, { nullable: true })
     tickets: Ticket[] | null;
+
+    @OneToMany(type => Admin, admin => admin.departments, { nullable: true })
+    users: Admin[] | null;
 
     public static async addItem (data: Department) {
         const department = new Department()

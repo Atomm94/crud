@@ -23,7 +23,7 @@ const parentDir = join(__dirname, '../../..')
 @Entity('ticket')
 export class Ticket extends MainEntity {
     @Column('int', { name: 'department' })
-    department: number | null
+    department: number
 
     @Column('varchar', { name: 'subject' })
     subject: string | null
@@ -34,6 +34,9 @@ export class Ticket extends MainEntity {
     @Column('json', { name: 'image', nullable: true })
     image: JSON | null
 
+    @Column('int', { name: 'user_id' })
+    user_id: number
+
     @Column('timestamp', { name: 'last_update', nullable: true })
     last_update: string | null
 
@@ -42,6 +45,10 @@ export class Ticket extends MainEntity {
 
     @Column('boolean', { name: 'read', default: false })
     read: boolean
+
+    @ManyToOne(type => Admin, admin => admin.tickets)
+    @JoinColumn({ name: 'user_id' })
+    user: Admin | null;
 
     @ManyToOne(type => Department, department => department.tickets)
     @JoinColumn({ name: 'department' })
@@ -57,6 +64,7 @@ export class Ticket extends MainEntity {
         ticket.subject = data.subject
         ticket.message = data.message
         ticket.image = data.image
+        ticket.user_id = data.user_id
 
         return new Promise((resolve, reject) => {
             this.save(ticket)
@@ -97,6 +105,10 @@ export class Ticket extends MainEntity {
                 relations: relations || []
             })
                 .then((item: Ticket) => {
+                    if (item.user) {
+                        const user_params: any = pick(item.user, 'id', 'full_name', 'avatar')
+                        item.user = user_params
+                    }
                     if (item.ticket_messages) {
                         item.ticket_messages.forEach((ticket_message: TicketMessage) => {
                             if (ticket_message.users) {
@@ -131,6 +143,10 @@ export class Ticket extends MainEntity {
             this.findByParams(params)
                 .then((items: Array<Ticket>) => {
                     items.forEach((item: Ticket, i: number) => {
+                        if (item.user) {
+                            const user_params: any = pick(item.user, 'id', 'full_name', 'avatar')
+                            item.user = user_params
+                        }
                         if (item.ticket_messages) {
                             item.ticket_messages.forEach((ticket_message: TicketMessage) => {
                                 if (ticket_message.users) {

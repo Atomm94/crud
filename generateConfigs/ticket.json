@@ -27,6 +27,12 @@
                     "nullable": true
                 }
             },
+            "userId": {
+                "type": "int",
+                "params": {
+                    "name": "userId"
+                }
+            },
             "lastUpdate": {
                 "type": "timestamp",
                 "params": {
@@ -34,11 +40,18 @@
                     "nullable": true
                 }
             },
-            "status": {
+            "active": {
                 "type": "boolean",
                 "params": {
-                    "name": "status",
+                    "name": "active",
                     "default": true
+                }
+            },
+            "read": {
+                "type": "boolean",
+                "params": {
+                    "name": "read",
+                    "default": false
                 }
             }
         }

@@ -15,10 +15,14 @@ import {
   // ObjectID
   // PrimaryGeneratedColumn,
 } from 'typeorm'
+import {
+  Role,
+  TicketMessage,
+  Department,
+  Ticket
+} from './index'
 import * as bcrypt from 'bcrypt'
 import { MainEntity } from './MainEntity'
-import { Role } from './index'
-import { TicketMessage } from './TicketMessage'
 import { fileSave } from '../../functions/file'
 import fs from 'fs'
 import { join } from 'path'
@@ -54,15 +58,25 @@ export class Admin extends MainEntity {
   @Column('int', { name: 'role', nullable: true })
   role: number | null;
 
+  @Column('int', { name: 'department_id', nullable: true })
+  department_id: number | null;
+
   @Column('boolean', { name: 'status', default: true })
   status: boolean | true;
 
   @Column('timestamp', { name: 'last_login_date', nullable: true })
   last_login_date: string;
 
+  @ManyToOne(type => Department, department => department.users)
+  @JoinColumn({ name: 'department_id' })
+  departments: Department;
+
   @ManyToOne(type => Role, role => role.admins)
   @JoinColumn({ name: 'role' })
   roles: Role;
+
+  @OneToMany(type => Ticket, ticket => ticket.user, { nullable: true })
+  tickets: Admin[] | null;
 
   @OneToMany(type => TicketMessage, ticket_message => ticket_message.users, { nullable: true })
   ticket_messages: TicketMessage[] | null;
@@ -128,10 +142,13 @@ export class Admin extends MainEntity {
     })
   }
 
-  public static async getItem (id: number) {
+  public static async getItem (id: number, relations?: Array<string>) {
     const itemId: number = id
     return new Promise((resolve, reject) => {
-      this.findOneOrFail(itemId)
+      this.findOneOrFail({
+        where: { id: itemId },
+        relations: relations || []
+      })
         .then((item: Admin) => {
           resolve(item)
         })

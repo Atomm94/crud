@@ -422,7 +422,8 @@ export default class AdminController {
         let admin
         const role = {}
         try {
-            admin = await Admin.getItem(adminId)
+            const relations = ['department']
+            admin = await Admin.getItem(adminId, relations)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -522,7 +523,9 @@ export default class AdminController {
                 .where('admin.username like :username OR admin.email like :email', { username: `%${name}%`, email: `%${name}%` })
                 .getMany()
         } else {
-            allAdmin = await Admin.getAllItems(ctx.query)
+            const req_data = ctx.query
+            req_data.relations = ['departments']
+            allAdmin = await Admin.getAllItems(req_data)
         }
 
         return (ctx.body = allAdmin)
