@@ -55,7 +55,7 @@ export class Ticket extends MainEntity {
     departments: Department | null;
 
     @OneToMany(type => TicketMessage, ticket_message => ticket_message.tickets, { nullable: true })
-    ticket_messages: TicketMessage[] | null;
+    ticket_messages: Array<TicketMessage> | null;
 
     public static async addItem (data: Ticket) {
         const ticket = new Ticket()
@@ -97,14 +97,14 @@ export class Ticket extends MainEntity {
         })
     }
 
-    public static async getItem (id: number, relations?: Array<string>) {
+    public static async getItem (id: number, user: Admin, relations?: Array<string>) {
         const itemId: number = id
         return new Promise((resolve, reject) => {
             this.findOneOrFail({
                 where: { id: itemId },
                 relations: relations || []
             })
-                .then((item: Ticket) => {
+                .then(async (item: Ticket) => {
                     if (item.user) {
                         const user_params: any = pick(item.user, 'id', 'full_name', 'avatar')
                         item.user = user_params
@@ -116,6 +116,16 @@ export class Ticket extends MainEntity {
                                 ticket_message.users = user_params.users
                             }
                         })
+                        if (item.ticket_messages.slice(-1)[0].users.id !== user.id) {
+                            const ticket = await this.findOneOrFail({
+                                where: { id: id }
+                            })
+                            ticket.read = true
+                            const update = await ticket.save()
+                            if (update) {
+                                item.read = update.read
+                            }
+                        }
                     }
                     resolve(item)
                 })

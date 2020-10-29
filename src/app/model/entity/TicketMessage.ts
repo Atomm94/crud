@@ -2,7 +2,8 @@ import {
     Entity,
     Column,
     ManyToOne,
-    JoinColumn
+    JoinColumn,
+    AfterInsert
 } from 'typeorm'
 
 import { MainEntity } from './MainEntity'
@@ -27,11 +28,20 @@ export class TicketMessage extends MainEntity {
 
     @ManyToOne(type => Ticket, ticket => ticket.ticket_messages)
     @JoinColumn({ name: 'ticket_id' })
-    tickets: Ticket | null;
+    tickets: Ticket;
 
     @ManyToOne(type => Admin, admin => admin.ticket_messages)
     @JoinColumn({ name: 'user_id' })
-    users: Ticket | null;
+    users: Ticket;
+
+    @AfterInsert()
+    async updateTicketReadStatus () {
+        const ticket = await Ticket.findOneOrFail({
+            where: { id: this.ticket_id }
+        })
+        ticket.read = false
+        ticket.save()
+    }
 
     public static gettingActions: boolean = false
     // public static gettingAttributes: boolean = true
