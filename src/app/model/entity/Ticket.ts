@@ -55,7 +55,7 @@ export class Ticket extends MainEntity {
     departments: Department | null;
 
     @OneToMany(type => TicketMessage, ticket_message => ticket_message.tickets, { nullable: true })
-    ticket_messages: Array<TicketMessage> | null;
+    ticket_messages: Array<TicketMessage>;
 
     public static async addItem (data: Ticket) {
         const ticket = new Ticket()
@@ -84,6 +84,7 @@ export class Ticket extends MainEntity {
         if ('subject' in data) ticket.subject = data.subject
         if ('message' in data) ticket.message = data.message
         if ('image' in data) ticket.image = data.image
+        if ('read' in data) ticket.read = data.read
 
         if (!ticket) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
@@ -116,12 +117,9 @@ export class Ticket extends MainEntity {
                                 ticket_message.users = user_params.users
                             }
                         })
-                        if (item.ticket_messages.slice(-1)[0].users.id !== user.id) {
-                            const ticket = await this.findOneOrFail({
-                                where: { id: id }
-                            })
-                            ticket.read = true
-                            const update = await ticket.save()
+                        if (item.ticket_messages.length && item.ticket_messages.slice(-1)[0].users.id !== user.id) {
+                            const ticket_data: any = { id: id, read: true }
+                            const update: any = await this.updateItem(ticket_data)
                             if (update) {
                                 item.read = update.read
                             }
