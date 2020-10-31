@@ -48,10 +48,10 @@
                     "nullable": true
                 }
             },
-            "lastLoginDate": {
-                "type": "timestamp",
+            "departmentId": {
+                "type": "int",
                 "params": {
-                    "name": "lastLoginDate",
+                    "name": "departmentId",
                     "nullable": true
                 }
             },
@@ -60,6 +60,20 @@
                 "params": {
                     "name": "status",
                     "default": true
+                }
+            },
+            "super": {
+                "type": "boolean",
+                "params": {
+                    "name": "super",
+                    "default": false
+                }
+            },
+            "lastLoginDate": {
+                "type": "timestamp",
+                "params": {
+                    "name": "lastLoginDate",
+                    "nullable": true
                 }
             }
         }

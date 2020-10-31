@@ -79,8 +79,9 @@ export default class AuthController {
             }
         }
 
-        const adminFiltered = _.pick(user, ['id', 'username', 'full_name', 'email', 'avatar', 'role'])
-        const token = jwt.sign(adminFiltered, 'jwtSecret', { expiresIn: '2h' }) // , { expiresIn: '1h' }
+        const adminFiltered = _.pick(user, ['id', 'username', 'full_name', 'email', 'avatar', 'role', 'super'])
+        const expireTime = process.env.TOKEN_EXPIRE_TIME ? process.env.TOKEN_EXPIRE_TIME : 2
+        const token = jwt.sign(adminFiltered, 'jwtSecret', { expiresIn: `${expireTime}h` }) // , { expiresIn: '1h' }
 
         if (user.status) {
             ctx.body = { user: adminFiltered, token: token }

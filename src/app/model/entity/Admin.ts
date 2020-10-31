@@ -64,6 +64,9 @@ export class Admin extends MainEntity {
   @Column('boolean', { name: 'status', default: true })
   status: boolean | true;
 
+  @Column('boolean', { name: 'super', default: false })
+  super: boolean;
+
   @Column('timestamp', { name: 'last_login_date', nullable: true })
   last_login_date: string;
 

@@ -20,6 +20,9 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
       const verify = <any>jwt.verify(token, 'jwtSecret')
       if (verify) {
         ctx.user = verify
+        if (ctx.user.super) {
+          ctx.allowed = true
+        }
         return await next()
       }
     } catch (error) {
