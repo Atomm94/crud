@@ -1,5 +1,7 @@
 import { DefaultContext } from 'koa'
 import { Packet } from '../model/entity/Packet'
+import * as Models from '../model/entity/index'
+
 export default class PacketController {
     /**
      *
@@ -228,6 +230,59 @@ export default class PacketController {
             const req_data = ctx.query
             req_data.relations = ['packet_types']
             ctx.body = await Packet.getAllItems(req_data)
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     * /packetExtraSettings:
+     *      get:
+     *          tags:
+     *              - Packet
+     *          summary: Return packet extra settings
+     *          parameters:
+     *              - in: header
+     *                name: Authorization
+     *                required: true
+     *                description: Authentication token
+     *                schema:
+     *                    type: string
+     *          responses:
+     *              '200':
+     *                  description: Packet settings
+     *              '401':
+     *                  description: Unauthorized
+     */
+    public static async getExtraSettings (ctx: DefaultContext) {
+        try {
+            const models: any = Models
+            const data: any = {
+                resources: [],
+                features: null
+            }
+            const features: any = {}
+            Object.keys(models).forEach((model: string) => {
+                if (models[model].resource) {
+                    data.resources.push(model)
+                }
+                if (models[model].features) {
+                    Object.keys(models[model].features).forEach((feature: string) => {
+                        if (features[model]) {
+                            features[model].push(feature)
+                        } else {
+                            features[model] = [feature]
+                        }
+                    })
+                }
+            })
+            if (Object.keys(features).length) data.features = features
+
+            ctx.body = data
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

@@ -36,6 +36,9 @@ export abstract class MainEntity extends BaseEntity {
     public static gettingActions: boolean = true
     public static gettingAttributes: boolean = true
 
+    public static resource: boolean = false
+    public static features: any = false
+
     public static async findByParams (data: any) {
         const where: any = {}
         if (data.where) {

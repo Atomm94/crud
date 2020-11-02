@@ -28,6 +28,9 @@ export class Packet extends MainEntity {
     @Column('json', { name: 'pay_terms', nullable: true })
     pay_terms: JSON | null
 
+    @Column('json', { name: 'extra_settings', nullable: true })
+    extra_settings: JSON | null
+
     @Column('boolean', { name: 'status', default: true })
     status: boolean
 

@@ -1,7 +1,11 @@
 export class BaseClass {
     public static haveModel: boolean = false
+
     public static gettingActions: boolean = true
     public static gettingAttributes: boolean = false
+
+    public static resource: boolean = false
+    public static features: any = false
 
     public static getActions () {
         const self: any = this

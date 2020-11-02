@@ -123,6 +123,7 @@ export default router
   .get('Packet-getItem', 'packet/:id', PacketController.get)
   .delete('Packet-destroyItem', 'packet', PacketController.destroy)
   .get('Packet-getAllItems', 'packet', PacketController.getAll)
+  .get('Packet-getAllItems', 'packetExtraSettings', PacketController.getExtraSettings)
 
   // PacketType controller CRUD endpoints
   .post('PacketType-addItem', 'packetType', PacketTypeController.add)
