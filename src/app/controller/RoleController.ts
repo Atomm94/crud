@@ -27,13 +27,13 @@ class RoleController {
    *              schema:
    *                type: object
    *                required:
-   *                  - name
-   *                  - perms
+   *                  - slug
+   *                  - permissions
    *                properties:
-   *                  name:
+   *                  slug:
    *                      type: string
-   *                      example: name
-   *                  perms:
+   *                      example: slug
+   *                  permissions:
    *                      type: string
    *                      example: perms
    *          responses:
@@ -152,16 +152,20 @@ class RoleController {
    *              schema:
    *                type: object
    *                required:
-   *                  - name
-   *                  - perms
+   *                  - id
+   *                  - slug
+   *                  - permissions
    *                  - status
    *                properties:
-   *                  name:
+   *                  id:
+   *                      type: number
+   *                      example: 1
+   *                  slug:
    *                      type: string
-   *                      example: name
-   *                  perms:
+   *                      example: slug
+   *                  permissions:
    *                      type: string
-   *                      example: perms
+   *                      example: permissions
    *                  status:
    *                      type: string
    *                      example: status

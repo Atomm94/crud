@@ -1,7 +1,10 @@
 import {
   Column,
   Entity,
-  OneToMany
+  OneToMany,
+  AfterInsert,
+  AfterUpdate,
+  AfterRemove
   // ManyToOne,
   // OneToMany
   // Index,
@@ -14,6 +17,7 @@ import {
 import * as Models from './index'
 import { MainEntity } from './MainEntity'
 import { Admin } from './index'
+import { AccessControl } from '../../functions/access-control'
 
 @Entity('role')
 export class Role extends MainEntity {
@@ -28,6 +32,25 @@ export class Role extends MainEntity {
 
   @Column('boolean', { name: 'status', default: true })
   status: boolean | true;
+
+  @AfterInsert()
+  async createAccessControl () {
+    if (this.permissions) {
+      AccessControl.addGrant(this.id, this.permissions)
+    }
+  }
+
+  @AfterUpdate()
+  async updateAccessControl () {
+    if (this.permissions) {
+      AccessControl.updateGrant(this.id, this.permissions)
+    }
+  }
+
+  @AfterRemove()
+  async deleteAccessControl () {
+    AccessControl.deleteGrant(this.id)
+  }
 
   public static async addItem (data: Role) {
     const role = new Role()
@@ -79,10 +102,11 @@ export class Role extends MainEntity {
     })
   }
 
-  public static async destroyItem (data: { id: number }) {
-    const itemId: number = +data.id
-    return new Promise((resolve, reject) => {
-      this.delete(itemId)
+  public static async destroyItem (id: number) {
+    const itemId: number = +id
+    // eslint-disable-next-line no-async-promise-executor
+    return new Promise(async (resolve, reject) => {
+      this.remove(await this.findByIds([itemId]))
         .then(() => {
           resolve({ message: 'success' })
         })

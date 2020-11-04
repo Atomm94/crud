@@ -11,15 +11,7 @@ export class AccessControl {
         roles_data.forEach(async (role_data: any) => {
             const grant_name = role_data.id.toString()
             if (role_data.permissions) {
-                Object.keys(role_data.permissions).forEach((model: any) => {
-                    Object.keys(role_data.permissions[model].actions).forEach((action: string) => {
-                        if (role_data.permissions[model].actions[action] === true) {
-                            this.ac.grant(grant_name)
-                                .execute(action).on(model)
-                            // console.log('grant', grant_name, model, action)
-                        }
-                    })
-                })
+                this.addGrant(grant_name, role_data.permissions)
             }
         })
     }
@@ -33,5 +25,41 @@ export class AccessControl {
             logger.warn(`[Grant] canAccess - role ${role} not found!!`)
             return false
         }
+    }
+
+    public static async addGrant (role: string | number, permissions: any) {
+        const grant_name = (typeof role === 'number') ? role.toString() : role
+        if (this.ac.hasRole(grant_name)) {
+            logger.warn(`[Grant] add - role ${grant_name} exists!!`)
+            this.deleteGrant(grant_name)
+        }
+        Object.keys(permissions).forEach((model: any) => {
+            Object.keys(permissions[model].actions).forEach(async (action: string) => {
+                if (permissions[model].actions[action] === true) {
+                    await this.ac.grant(grant_name)
+                        .execute(action).on(model)
+                    // console.log('grant', grant_name, model, action)
+                }
+            })
+        })
+    }
+
+    public static async deleteGrant (role: string | number) {
+        if (typeof role === 'number') role = role.toString()
+        if (this.ac.hasRole(role)) {
+            await this.ac.removeRoles(role)
+        } else {
+            logger.warn(`[Grant] delete - role ${role} not found!!`)
+        }
+    }
+
+    public static async updateGrant (role: string | number, permissions: any) {
+        if (typeof role === 'number') role = role.toString()
+        if (this.ac.hasRole(role)) {
+            await this.deleteGrant(role)
+        } else {
+            logger.warn(`[Grant] update - role ${role} not found!!`)
+        }
+        await this.addGrant(role, permissions)
     }
 }
