@@ -221,9 +221,10 @@ export default class TicketController {
      */
     public static async getAll (ctx: DefaultContext) {
         try {
+            const user = ctx.user
             const req_data = ctx.query
             req_data.relations = ['user', 'departments']
-            ctx.body = await Ticket.getAllItems(req_data)
+            ctx.body = await Ticket.getAllItems(req_data, user as Admin)
         } catch (error) {
             console.log('error', error)
 

@@ -42,7 +42,7 @@ export abstract class MainEntity extends BaseEntity {
     public static async findByParams (data: any) {
         const where: any = {}
         if (data.where) {
-            data.where = JSON.parse(data.where)
+            if (typeof data.where === 'string') data.where = JSON.parse(data.where)
             Object.keys(data.where).forEach(column => {
                 Object.keys(data.where[column]).forEach((el: any) => {
                     where[column] = this.changeAdvancedOptions(el, data.where[column][el])

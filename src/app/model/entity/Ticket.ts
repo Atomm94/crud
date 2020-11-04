@@ -100,10 +100,17 @@ export class Ticket extends MainEntity {
 
     public static async getItem (id: number, user: Admin, relations?: Array<string>) {
         const itemId: number = id
+        let where = {}
+        if (user.super === true) {
+            where = {
+                department: user.department_id,
+                id: itemId
+            }
+        }
         return new Promise((resolve, reject) => {
             this.findOneOrFail({
-                where: { id: itemId },
-                relations: relations || []
+                relations: relations || [],
+                where: where
             })
                 .then(async (item: Ticket) => {
                     if (item.user) {
@@ -146,9 +153,21 @@ export class Ticket extends MainEntity {
         })
     }
 
-    public static async getAllItems (params?: any) {
+    public static async getAllItems (params: any, user: Admin) {
+        let where = {}
+        if (user.super !== true) {
+            where = {
+                department: {
+                    '=': user.department_id
+                }
+            }
+        }
         return new Promise((resolve, reject) => {
-            this.findByParams(params)
+            this.findByParams({
+                params,
+                relations: params.relations || [],
+                where: where
+            })
                 .then((items: Array<Ticket>) => {
                     items.forEach((item: Ticket, i: number) => {
                         if (item.user) {
