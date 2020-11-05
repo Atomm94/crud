@@ -422,7 +422,7 @@ export default class AdminController {
         let admin
         const role = {}
         try {
-            const relations = ['department']
+            const relations = ['departments']
             admin = await Admin.getItem(adminId, relations)
         } catch (error) {
             ctx.status = error.status || 400
