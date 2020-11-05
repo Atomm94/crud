@@ -100,11 +100,14 @@ export class Ticket extends MainEntity {
 
     public static async getItem (id: number, user: Admin, relations?: Array<string>) {
         const itemId: number = id
-        let where = {}
-        if (user.super === true) {
-            where = {
-                department: user.department,
-                id: itemId
+        const where: any = {
+            id: itemId
+        }
+        if (user.super !== true) {
+            if (user.department) {
+                where.department = user.department
+            } else {
+                where.user_id = user.id
             }
         }
         return new Promise((resolve, reject) => {
@@ -156,11 +159,22 @@ export class Ticket extends MainEntity {
     public static async getAllItems (params: any, user: Admin) {
         let where = {}
         if (user.super !== true) {
-            where = {
-                department: {
-                    '=': user.department
+            if (user.department) {
+                where = {
+                    department: {
+                        '=': user.department
+                    }
+                }
+            } else {
+                where = {
+                    user_id: {
+                        '=': user.id
+                    }
                 }
             }
+        }
+
+        if (user.super !== true) {
         }
         return new Promise((resolve, reject) => {
             this.findByParams({
