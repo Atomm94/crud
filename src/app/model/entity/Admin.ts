@@ -70,13 +70,13 @@ export class Admin extends MainEntity {
   @Column('timestamp', { name: 'last_login_date', nullable: true })
   last_login_date: string;
 
-  @ManyToOne(type => Department, department => department.users)
+  @ManyToOne(type => Department, department => department.users, { nullable: true })
   @JoinColumn({ name: 'department_id' })
   departments: Department;
 
-  @ManyToOne(type => Role, role => role.admins)
+  @ManyToOne(type => Role, role => role.admins, { nullable: true })
   @JoinColumn({ name: 'role' })
-  roles: Role;
+  roles: Role | null;
 
   @OneToMany(type => Ticket, ticket => ticket.user, { nullable: true })
   tickets: Admin[] | null;
@@ -108,7 +108,8 @@ export class Admin extends MainEntity {
     admin.password = data.password
     admin.full_name = data.full_name
     admin.status = (data.status === 'true') ? true : (data.status === 'false') ? false : data.status
-    admin.role = +data.role
+    if ('role' in data) admin.role = data.role
+    if ('department_id' in data) admin.department_id = data.department_id
     admin.avatar = data.avatar
     // if (file) admin.avatar = newFilePath
 
@@ -130,7 +131,8 @@ export class Admin extends MainEntity {
     if ('full_name' in data) admin.full_name = data.full_name
     if ('email' in data) admin.email = data.email
     if ('status' in data) admin.status = (data.status === 'true') ? true : (data.status === 'false') ? false : data.status
-    if ('role' in data) admin.role = +data.role
+    if ('role' in data) admin.role = data.role
+    if ('department_id' in data) admin.department_id = data.department_id
     if ('avatar' in data) admin.avatar = data.avatar
 
     if (!admin) return { status: 400, messsage: 'Item not found' }
