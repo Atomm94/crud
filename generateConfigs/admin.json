@@ -48,10 +48,10 @@
                     "nullable": true
                 }
             },
-            "departmentId": {
+            "department": {
                 "type": "int",
                 "params": {
-                    "name": "departmentId",
+                    "name": "department",
                     "nullable": true
                 }
             },

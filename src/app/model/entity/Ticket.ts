@@ -103,7 +103,7 @@ export class Ticket extends MainEntity {
         let where = {}
         if (user.super === true) {
             where = {
-                department: user.department_id,
+                department: user.department,
                 id: itemId
             }
         }
@@ -158,7 +158,7 @@ export class Ticket extends MainEntity {
         if (user.super !== true) {
             where = {
                 department: {
-                    '=': user.department_id
+                    '=': user.department
                 }
             }
         }
