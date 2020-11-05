@@ -99,10 +99,10 @@ export default class AdminController {
             } catch (error) {
                 ctx.status = error.status || 400
                 ctx.body = error
-                if (error.detail.includes('username')) {
+                if (error.detail && error.detail.includes('username')) {
                     ctx.body.errorMsg = `username ${reqData.username} already exists.`
                     ctx.body.err = 'username'
-                } else if (error.detail.includes('email')) {
+                } else if (error.detail && error.detail.includes('email')) {
                     ctx.body.err = 'email'
                     ctx.body.errorMsg = `email ${reqData.email} already exists.`
                 }

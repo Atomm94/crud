@@ -48,6 +48,7 @@ export class Packet extends MainEntity {
         packet.price = data.price
         packet.pay_terms = data.pay_terms
         packet.status = data.status
+        packet.extra_settings = data.extra_settings
 
         return new Promise((resolve, reject) => {
             this.save(packet)
@@ -70,6 +71,7 @@ export class Packet extends MainEntity {
         if ('price' in data) packet.price = data.price
         if ('pay_terms' in data) packet.pay_terms = data.pay_terms
         if ('status' in data) packet.status = data.status
+        if ('extra_settings' in data) packet.extra_settings = data.extra_settings
 
         if (!packet) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
