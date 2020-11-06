@@ -8,9 +8,9 @@ import {
 
 import { MainEntity } from './MainEntity'
 import {
-    Ticket,
-    Admin
+    Ticket
 } from './index'
+import { Admin } from './Admin'
 
 @Entity('ticket_message')
 export class TicketMessage extends MainEntity {

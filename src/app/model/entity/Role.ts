@@ -16,9 +16,8 @@ import {
 } from 'typeorm'
 import * as Models from './index'
 import { MainEntity } from './MainEntity'
-import { Admin } from './index'
+import { Admin } from './Admin'
 import { AccessControl } from '../../functions/access-control'
-
 @Entity('role')
 export class Role extends MainEntity {
   @Column('varchar', { name: 'slug', nullable: true, length: 255 })
