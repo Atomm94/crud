@@ -3,7 +3,7 @@ import {
     Ticket,
     TicketMessage,
     Admin
- } from '../model/entity/index'
+} from '../model/entity/index'
 
 export default class TicketController {
     /**
@@ -308,7 +308,7 @@ export default class TicketController {
         const name = ctx.request.body.name
 
         try {
-            Ticket.deleteImage(name)
+            await Ticket.deleteImage(name)
             ctx.body = {
                 success: true
             }
@@ -531,6 +531,93 @@ export default class TicketController {
     public static async getAllTicketMessages (ctx: DefaultContext) {
         try {
             ctx.body = await Ticket.getAllMessages(ctx.query)
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
+
+    /**
+ *
+ * @swagger
+ *  /TicketImageSave:
+ *      post:
+ *          tags:
+ *              - Ticket
+ *          summary: Upload Ticket Message image.
+ *          consumes:
+ *              - multipart/form-data
+ *          parameters:
+ *            - in: header
+ *              name: Authorization
+ *              required: true
+ *              description: Authentication token
+ *              schema:
+ *                    type: string
+ *            - in: formData
+ *              name: file
+ *              type: file
+ *              description: The upload ticket message image.
+ *          responses:
+ *              '201':
+ *                  description: image upload
+ *              '409':
+ *                  description: Conflict
+ *              '422':
+ *                  description: Wrong data
+ */
+    public static async ticketMessageImageSave (ctx: DefaultContext) {
+        const file = ctx.request.files.file
+        const savedFile = await Ticket.saveMessageImage(file)
+        console.log('savedFile', savedFile)
+
+        return ctx.body = savedFile
+    }
+
+    /**
+     *
+     * @swagger
+     *  /TicketImageDelete:
+     *      delete:
+     *          tags:
+     *              - Ticket
+     *          summary: Delete a ticket message image.
+     *          consumes:
+     *              - application/json
+     *          parameters:
+     *            - in: header
+     *              name: Authorization
+     *              required: true
+     *              description: Authentication token
+     *              schema:
+     *              type: string
+     *            - in: body
+     *              name: file
+     *              description: The ticket message image name to delete.
+     *              schema:
+     *                type: string
+     *                required:
+     *                  - name
+     *                properties:
+     *                  name:
+     *                      type: string
+     *          responses:
+     *              '200':
+     *                  description: Ticket message image has been deleted
+     *              '409':
+     *                  description: Conflict
+     *              '422':
+     *                  description: Wrong data
+     */
+    public static async ticketMessageImageDelete (ctx: DefaultContext) {
+        const name = ctx.request.body.name
+
+        try {
+            await Ticket.deleteMessageImage(name)
+            ctx.body = {
+                success: true
+            }
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

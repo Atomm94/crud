@@ -59,7 +59,7 @@ export class Ticket extends MainEntity {
 
     public static async addItem (data: Ticket) {
         const ticket = new Ticket()
-
+        const check: any = await Department.findOne({ id: data.department })
         ticket.department = data.department
         ticket.subject = data.subject
         ticket.message = data.message
@@ -67,13 +67,21 @@ export class Ticket extends MainEntity {
         ticket.user_id = data.user_id
 
         return new Promise((resolve, reject) => {
-            this.save(ticket)
-                .then((item: Ticket) => {
-                    resolve(item)
-                })
-                .catch((error: any) => {
-                    reject(error)
-                })
+            if (check) {
+                if (check.status) {
+                    this.save(ticket)
+                        .then((item: Ticket) => {
+                            resolve(item)
+                        })
+                        .catch((error: any) => {
+                            reject(error)
+                        })
+                } else {
+                    reject(new Error(`The ${data.department} department status is false!!`))
+                }
+            } else {
+                reject(new Error(`The ${data.department} department not found!!`))
+            }
         })
     }
 
@@ -217,7 +225,12 @@ export class Ticket extends MainEntity {
     }
 
     public static async addMessage (data: TicketMessage) {
-        return TicketMessage.addItem(data)
+        const check: any = await this.findOne({ id: data.ticket_id, active: true })
+        if (check) {
+            return TicketMessage.addItem(data)
+        } else {
+            return `Ticket ${data.ticket_id} is not active !!!`
+        }
     }
 
     public static async updateMessage (data: TicketMessage, user: Admin) {
@@ -234,5 +247,13 @@ export class Ticket extends MainEntity {
 
     public static async getAllMessages (query: any) {
         return TicketMessage.getAllItems(query)
+    }
+
+    public static async saveMessageImage (file: any) {
+        return TicketMessage.saveImage(file)
+    }
+
+    public static async deleteMessageImage (file: any) {
+        return TicketMessage.deleteImage(file)
     }
 }
