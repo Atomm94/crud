@@ -13,9 +13,9 @@ import { join } from 'path'
 import { logger } from '../../../../modules/winston/logger'
 import {
     Department,
-    TicketMessage,
-    Admin
+    TicketMessage
 } from './index'
+import { Admin } from './Admin'
 import { pick } from 'lodash'
 
 const parentDir = join(__dirname, '../../..')

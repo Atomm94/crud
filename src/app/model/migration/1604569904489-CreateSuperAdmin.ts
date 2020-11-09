@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm'
 import * as bcrypt from 'bcrypt'
 
-const username = 'super'
+const username = 'superaccount'
 const password = '123456'
 const password_hash = bcrypt.hashSync(password, 10)
 
