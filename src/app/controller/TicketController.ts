@@ -265,7 +265,7 @@ export default class TicketController {
      */
     public static async saveImage (ctx: DefaultContext) {
         const file = ctx.request.files.file
-        const savedFile = Ticket.saveImage(file)
+        const savedFile = await Ticket.saveImage(file)
         return ctx.body = savedFile
     }
 
