@@ -7,10 +7,16 @@ import {
 } from 'typeorm'
 
 import { MainEntity } from './MainEntity'
+import { fileSave } from '../../functions/file'
 import {
     Ticket
 } from './index'
 import { Admin } from './Admin'
+import { logger } from '../../../../modules/winston/logger'
+import fs from 'fs'
+import { join } from 'path'
+
+const parentDir = join(__dirname, '../../..')
 
 @Entity('ticket_message')
 export class TicketMessage extends MainEntity {
@@ -22,6 +28,9 @@ export class TicketMessage extends MainEntity {
 
     @Column('varchar', { name: 'text' })
     text: string
+
+    @Column('varchar', { name: 'image', nullable: true })
+    image: string | null
 
     @Column('int', { name: 'parent_id', nullable: true })
     parent_id: number | null
@@ -53,7 +62,7 @@ export class TicketMessage extends MainEntity {
         ticketMessage.user_id = data.user_id
         ticketMessage.text = data.text
         if ('parent_id' in data) ticketMessage.parent_id = data.parent_id
-
+        if ('image' in data) ticketMessage.image = data.image
         return new Promise((resolve, reject) => {
             this.save(ticketMessage)
                 .then((item: TicketMessage) => {
@@ -69,6 +78,7 @@ export class TicketMessage extends MainEntity {
         const ticketMessage = await this.findOneOrFail(data.id)
 
         if ('text' in data) ticketMessage.text = data.text
+        if ('image' in data) ticketMessage.image = data.image
         // if ('parent_id' in data) ticketMessage.parent_id = data.parent_id
 
         if (!ticketMessage) return { status: 400, messsage: 'Item not found' }
@@ -133,6 +143,17 @@ export class TicketMessage extends MainEntity {
                 .catch((error: any) => {
                     reject(error)
                 })
+        })
+    }
+
+    public static async saveImage (file: any) {
+        return fileSave(file)
+    }
+
+    public static async deleteImage (file: any) {
+        return fs.unlink(`${parentDir}/public/${file}`, (err) => {
+            if (err) throw err
+            logger.info('Delete complete!')
         })
     }
 }
