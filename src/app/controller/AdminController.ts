@@ -562,7 +562,7 @@ export default class AdminController {
      */
     public static async userImageSave (ctx: DefaultContext) {
         const file = ctx.request.files.file
-        const savedFile = Admin.saveImage(file)
+        const savedFile = await Admin.saveImage(file)
         return ctx.body = savedFile
     }
 
