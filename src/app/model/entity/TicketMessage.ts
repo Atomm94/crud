@@ -29,8 +29,8 @@ export class TicketMessage extends MainEntity {
     @Column('varchar', { name: 'text' })
     text: string
 
-    @Column('varchar', { name: 'image', nullable: true })
-    image: string | null
+    @Column('json', { name: 'image', nullable: true })
+    image: JSON | null
 
     @Column('int', { name: 'parent_id', nullable: true })
     parent_id: number | null
