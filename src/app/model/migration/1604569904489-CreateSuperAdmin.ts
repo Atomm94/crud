@@ -1,8 +1,8 @@
 import { MigrationInterface, QueryRunner } from 'typeorm'
 import * as bcrypt from 'bcrypt'
 
-const username = 'superaccount'
-const password = '123456'
+const username = 'super'
+const password = 'admin'
 const password_hash = bcrypt.hashSync(password, 10)
 
 export class CreateSuperAdmin1604569904489 implements MigrationInterface {
