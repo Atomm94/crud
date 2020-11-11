@@ -9,22 +9,22 @@ import { Page } from './Page'
 import { ITranslations } from '../../Interfaces/Translation'
 @Entity('section')
 export class Section extends MainEntity {
-    @Column('jsonb', { name: 'title', nullable: true })
+    @Column('json', { name: 'title', nullable: true })
     title: ITranslations[] | null
 
-    @Column('jsonb', { name: 'slug', nullable: true })
+    @Column('json', { name: 'slug', nullable: true })
     slug: ITranslations[] | null
 
-    @Column('jsonb', { name: 'image', nullable: true })
+    @Column('json', { name: 'image', nullable: true })
     image: string | null
 
-    @Column('jsonb', { name: 'files', nullable: true })
+    @Column('json', { name: 'files', nullable: true })
     files: string[] | null
 
-    @Column('jsonb', { name: 'body', nullable: true })
+    @Column('json', { name: 'body', nullable: true })
     body: ITranslations[] | null
 
-    @Column('jsonb', { name: 'published', nullable: true })
+    @Column('json', { name: 'published', nullable: true })
     published: ITranslations[] | null
 
     @Column('int', { name: 'priority', nullable: true })

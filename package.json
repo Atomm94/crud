@@ -49,6 +49,7 @@
 		"koa2-cors": "^2.0.6",
 		"koa2-swagger-ui": "^2.15.4",
 		"lodash": "^4.17.15",
+		"mysql": "^2.18.1",
 		"node-input-validator": "^2.3.4",
 		"pg": "^7.18.2",
 		"raven": "^2.6.4",

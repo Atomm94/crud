@@ -46,7 +46,7 @@ export class Admin extends MainEntity {
   })
   email: string;
 
-  @Column('jsonb', {
+  @Column('json', {
     name: 'avatar',
     nullable: true
   })
@@ -72,7 +72,7 @@ export class Admin extends MainEntity {
 
   @ManyToOne(type => Department, department => department.users, { nullable: true })
   @JoinColumn({ name: 'department' })
-  departments: Department;
+  departments: Department | null;
 
   @ManyToOne(type => Role, role => role.admins, { nullable: true })
   @JoinColumn({ name: 'role' })
