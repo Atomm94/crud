@@ -541,7 +541,7 @@ export default class TicketController {
     /**
  *
  * @swagger
- *  /TicketImageSave:
+ *  /ticketMessageImage:
  *      post:
  *          tags:
  *              - Ticket
@@ -570,15 +570,13 @@ export default class TicketController {
     public static async ticketMessageImageSave (ctx: DefaultContext) {
         const file = ctx.request.files.file
         const savedFile = await Ticket.saveMessageImage(file)
-        console.log('savedFile', savedFile)
-
         return ctx.body = savedFile
     }
 
     /**
      *
      * @swagger
-     *  /TicketImageDelete:
+     *  /ticketMessageImage:
      *      delete:
      *          tags:
      *              - Ticket

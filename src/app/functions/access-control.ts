@@ -6,7 +6,7 @@ export class AccessControl {
     public static ac = new RA()
 
     public static async GrantAccess () {
-        const roles_data: any = await Role.getAllItems({})
+        const roles_data: any = await Role.getAllItems({ where: { status: { '=': true } } })
 
         roles_data.forEach(async (role_data: any) => {
             const grant_name = role_data.id.toString()
@@ -39,6 +39,7 @@ export class AccessControl {
                     await this.ac.grant(grant_name)
                         .execute(action).on(model)
                     // console.log('grant', grant_name, model, action)
+                    // logger.info(`[Grant] add - role ${grant_name}, ${model}, ${action} was executed`)
                 }
             })
         })
@@ -48,6 +49,7 @@ export class AccessControl {
         if (typeof role === 'number') role = role.toString()
         if (this.ac.hasRole(role)) {
             await this.ac.removeRoles(role)
+            logger.info(`[Grant] delete - role ${role} was removed`)
         } else {
             logger.warn(`[Grant] delete - role ${role} not found!!`)
         }
@@ -57,9 +59,11 @@ export class AccessControl {
         if (typeof role === 'number') role = role.toString()
         if (this.ac.hasRole(role)) {
             await this.deleteGrant(role)
+            await this.addGrant(role, permissions)
+            logger.info(`[Grant] update - role ${role} was updated`)
         } else {
+            await this.addGrant(role, permissions)
             logger.warn(`[Grant] update - role ${role} not found!!`)
         }
-        await this.addGrant(role, permissions)
     }
 }

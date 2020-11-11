@@ -1,10 +1,10 @@
 import {
   Column,
   Entity,
-  OneToMany,
-  AfterInsert,
-  AfterUpdate,
-  AfterRemove
+  OneToMany
+  // AfterInsert,
+  // AfterUpdate,
+  // AfterRemove
   // ManyToOne,
   // OneToMany
   // Index,
@@ -17,7 +17,7 @@ import {
 import * as Models from './index'
 import { MainEntity } from './MainEntity'
 import { Admin } from './Admin'
-import { AccessControl } from '../../functions/access-control'
+
 @Entity('role')
 export class Role extends MainEntity {
   @Column('varchar', { name: 'slug', nullable: true, length: 255 })
@@ -31,25 +31,6 @@ export class Role extends MainEntity {
 
   @Column('boolean', { name: 'status', default: true })
   status: boolean | true;
-
-  @AfterInsert()
-  async createAccessControl () {
-    if (this.permissions) {
-      AccessControl.addGrant(this.id, this.permissions)
-    }
-  }
-
-  @AfterUpdate()
-  async updateAccessControl () {
-    if (this.permissions) {
-      AccessControl.updateGrant(this.id, this.permissions)
-    }
-  }
-
-  @AfterRemove()
-  async deleteAccessControl () {
-    AccessControl.deleteGrant(this.id)
-  }
 
   public static async addItem (data: Role) {
     const role = new Role()

@@ -154,8 +154,8 @@ export default router
   .delete('Ticket-destroyMessage', 'destroyTicketMessage', TicketController.destroyTicketMessage)
   .get('Ticket-getAllMessages', 'getAllTicketMessages', TicketController.getAllTicketMessages)
 
-  .post('Ticket-saveImage', 'TicketImageSave', TicketController.ticketMessageImageSave)
-  .delete('Ticket-deleteImage', 'TicketImageDelete', TicketController.ticketMessageImageDelete)
+  .post('Ticket-saveMessageImage', 'ticketMessageImage', TicketController.ticketMessageImageSave)
+  .delete('Ticket-deleteMessageImage', 'ticketMessageImage', TicketController.ticketMessageImageDelete)
 
   // Department controller CRUD endpoints
   .post('Department-addItem', 'department', DepartmentController.add)
