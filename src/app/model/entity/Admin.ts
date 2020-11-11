@@ -21,7 +21,6 @@ import {
   TicketMessage,
   Department,
   Ticket,
-  Packet,
   Company
 } from './index'
 import * as bcrypt from 'bcrypt'
