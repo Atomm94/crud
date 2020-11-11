@@ -3,7 +3,7 @@ import { DefaultContext } from 'koa'
 import * as jwt from 'jsonwebtoken'
 
 export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
-  const whiteList = ['login', 'swagger', 'favicon', 'page/saveFile']
+  const whiteList = ['login', 'swagger', 'favicon', 'page/saveFile', 'registrationInvite']
 
   const path = ctx.request.url.split('/')[1]
   const swagger = ctx.request.url.split('/')[1].split('-')[0]

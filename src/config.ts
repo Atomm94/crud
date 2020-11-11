@@ -44,6 +44,9 @@ export interface IConfig {
             dns: string
         }
     };
+    sendgrid:{
+        apiKey:string
+    };
     nodeEnv: string;
     isTest: boolean;
     isProduction: boolean;
@@ -82,6 +85,9 @@ const config: IConfig = {
         sentry: {
             dns: process.env.SENTRY_DNS as string
         }
+    },
+    sendgrid: {
+        apiKey: _.defaultTo(process.env.SENDGRID_API_KEY, 'empty')
     },
     nodeEnv: process.env.NODE_ENV,
     isTest: !!(process.env.NODE_ENV === 'test' && process.env.NODE_TEST),

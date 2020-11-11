@@ -1,3 +1,4 @@
+import RegistrationInviteController from '../controller/RegistrationInviteController'
 import PacketTypeController from '../controller/PacketTypeController'
 import PacketController from '../controller/PacketController'
 import DepartmentController from '../controller/DepartmentController'
@@ -163,3 +164,10 @@ export default router
   .get('Department-getItem', 'department/:id', DepartmentController.get)
   .delete('Department-destroyItem', 'department', DepartmentController.destroy)
   .get('Department-getAllItems', 'department', DepartmentController.getAll)
+
+  // RegistrationInvite controller CRUD endpoints
+  .post('RegistrationInvite-createLink', 'registrationInvite', RegistrationInviteController.add)
+  .get('RegistrationInvite-allowed', 'registrationInvite/:token', RegistrationInviteController.get)
+  // .put('registrationInvite', RegistrationInviteController.update)
+  // .delete('registrationInvite', RegistrationInviteController.destroy)
+  // .get('registrationInvite', RegistrationInviteController.getAll)

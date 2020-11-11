@@ -1,0 +1,26 @@
+{
+    "model": {
+        "columns": {
+            "email": {
+                "type": "varchar",
+                "params": {
+                    "name": "email"
+                }
+            },
+            "token": {
+                "type": "varchar",
+                "params": {
+                    "name": "token",
+                    "unique": true
+                }
+            },
+            "used":{
+                "type":"boolean",
+                "params":{
+                    "name":"used",
+                    "default":false
+                }
+            }
+        }
+    }
+}

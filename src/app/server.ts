@@ -1,6 +1,7 @@
 import app from './app'
 import config from '../config'
 import { Database } from '../component/db'
+import { Sendgrid } from '../component/sendgrid/sendgrid'
 import { logger } from '../../modules/winston/logger'
 import { AccessControl } from './functions/access-control'
 
@@ -12,6 +13,7 @@ const database = new Database();
     try {
         await database.connect()
         await AccessControl.GrantAccess()
+        await Sendgrid.init(config.sendgrid.apiKey)
         app.listen(
             config.server.port, () => console.log('APP listening at port %d', config.server.port)
         )
