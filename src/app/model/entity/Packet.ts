@@ -3,7 +3,7 @@ import {
     Column,
     ManyToOne,
     JoinColumn,
-    OneToOne
+    OneToMany
 } from 'typeorm'
 
 import { MainEntity } from './MainEntity'
@@ -40,7 +40,7 @@ export class Packet extends MainEntity {
     @JoinColumn({ name: 'packet_type' })
     packet_types: PacketType;
 
-    @OneToOne(type => Company, company => company.product, { nullable: true })
+    @OneToMany(type => Company, company => company.product, { nullable: true })
     packets: Packet[] | null;
 
     public static async addItem (data: Packet) {

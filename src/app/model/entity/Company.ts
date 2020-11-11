@@ -1,7 +1,8 @@
 import {
     Entity,
     Column,
-    OneToOne
+    ManyToOne,
+    JoinColumn
 } from 'typeorm'
 
 import { MainEntity } from './MainEntity'
@@ -21,8 +22,9 @@ export class Company extends MainEntity {
     @Column('varchar', { name: 'status', default: 'pending' })
     status: string
 
-    @OneToOne(type => Packet, packet => packet.id, { nullable: true })
-    companies: Company[] | null;
+    @ManyToOne(type => Packet, packet => packet.id, { nullable: true })
+    @JoinColumn({ name: 'department' })
+    packets: Packet;
 
     public static async addItem (data: Company) {
         const company = new Company()
