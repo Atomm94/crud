@@ -1,3 +1,4 @@
+import CompanyController from '../controller/CompanyController'
 import PacketTypeController from '../controller/PacketTypeController'
 import PacketController from '../controller/PacketController'
 import DepartmentController from '../controller/DepartmentController'
@@ -163,3 +164,20 @@ export default router
   .get('Department-getItem', 'department/:id', DepartmentController.get)
   .delete('Department-destroyItem', 'department', DepartmentController.destroy)
   .get('Department-getAllItems', 'department', DepartmentController.getAll)
+
+  
+  // Company controller CRUD endpoints   
+  .post('company', CompanyController.add)
+  .put('company', CompanyController.update)
+  .get('company/:id', CompanyController.get)
+  .delete('company', CompanyController.destroy)
+  .get('company', CompanyController.getAll)
+  
+  
+  // Company controller CRUD endpoints   
+  .post('company', CompanyController.add)
+  .put('company', CompanyController.update)
+  .get('company/:id', CompanyController.get)
+  .delete('company', CompanyController.destroy)
+  .get('company', CompanyController.getAll)
+  

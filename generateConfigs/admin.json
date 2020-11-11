@@ -75,6 +75,95 @@
                     "name": "lastLoginDate",
                     "nullable": true
                 }
+            },
+            "first_name": {
+                "type": "varchar",
+                "params": {
+                    "name": "first_name",
+                    "nullable": false,
+                    "required" : true
+                }
+            },
+            "last_name": {
+                "type": "varchar",
+                "params": {
+                    "name": "last_name",
+                    "nullable": false,
+                    "required" : true
+                }
+            },
+            "uid": {
+                "type": "int",
+                "params": {
+                    "name": "uid",
+                    "nullable": false,
+                    "required" : true
+                }
+            },
+            "phone_1": {
+                "type": "int",
+                "params": {
+                    "name": "phone_1",
+                    "nullable": false,
+                    "required" : true
+                }
+            },
+            "phone_2": {
+                "type": "int",
+                "params": {
+                    "name": "phone_2",
+                    "nullable": true
+                }
+            },
+            "post_code": {
+                "type": "int",
+                "params": {
+                    "name": "post_code",
+                    "nullable": false,
+                    "required" : true
+                }
+            },
+            "country": {
+                "type": "varchar",
+                "params": {
+                    "name": "country",
+                    "nullable": true
+                }
+            },
+            "site": {
+                "type": "varchar",
+                "params": {
+                    "name": "site",
+                    "nullable": true
+                }
+            },
+            "address": {
+                "type": "varchar",
+                "params": {
+                    "name": "address",
+                    "nullable": true
+                }
+            },
+            "viber": {
+                "type": "int",
+                "params": {
+                    "name": "viber",
+                    "nullable": true
+                }
+            },
+            "whatsapp": {
+                "type": "int",
+                "params": {
+                    "name": "whatsapp",
+                    "nullable": true
+                }
+            },
+            "company_id": {
+                "type": "int",
+                "params": {
+                    "name": "company_id",
+                    "nullable": true
+                }
             }
         }
     }

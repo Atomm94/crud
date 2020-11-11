@@ -2,11 +2,13 @@ import {
     Entity,
     Column,
     ManyToOne,
-    JoinColumn
+    JoinColumn,
+    OneToOne
 } from 'typeorm'
 
 import { MainEntity } from './MainEntity'
 import { PacketType } from './PacketType'
+import { Company } from './Company'
 
 @Entity('packet')
 export class Packet extends MainEntity {
@@ -37,6 +39,9 @@ export class Packet extends MainEntity {
     @ManyToOne(type => PacketType, packetType => packetType.packets)
     @JoinColumn({ name: 'packet_type' })
     packet_types: PacketType;
+
+    @OneToOne(type => Company, company => company.product, { nullable: true })
+    packets: Packet[] | null;
 
     public static async addItem (data: Packet) {
         const packet = new Packet()

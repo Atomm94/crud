@@ -16,5 +16,6 @@ import { PacketType } from './PacketType'
 import { TestResource } from './TestResource'
 import { TestResource1 } from './TestResource1'
 import { TestResource2 } from './TestResource2'
+import { Company } from './Company'
 
-export { Admin, Role, Translation, Slider, Social, Page, Menu, Language, Section, Module, Ticket, Department, TicketMessage, Packet, PacketType, TestResource, TestResource1, TestResource2 }
+export { Admin, Role, Translation, Slider, Social, Page, Menu, Language, Section, Module, Ticket, Department, TicketMessage, Packet, PacketType, TestResource, TestResource1, TestResource2, Company }

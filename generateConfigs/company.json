@@ -1,0 +1,33 @@
+{
+    "model": {
+        "columns": {
+            "companyName": {
+                "type": "varchar",
+                "params": {
+                    "name": "companyName"
+                }
+            },
+            "product": {
+                "type": "int",
+                "params": {
+                    "name": "product",
+                    "nullable": true
+                }
+            },
+            "message": {
+                "type": "varchar",
+                "params": {
+                    "name": "message",
+                    "nullable": true
+                }
+            },
+            "status": {
+                "type": "varchar",
+                "params": {
+                    "name": "status",
+                    "default": "pending"
+                }
+            }
+        }
+    }
+}

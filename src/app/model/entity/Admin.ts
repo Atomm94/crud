@@ -6,7 +6,8 @@ import {
   ManyToOne,
   JoinColumn,
   createQueryBuilder,
-  OneToMany
+  OneToMany,
+  OneToOne
   // ManyToOne
   // Index,
   // CreateDateColumn,
@@ -19,7 +20,9 @@ import {
   Role,
   TicketMessage,
   Department,
-  Ticket
+  Ticket,
+  Packet,
+  Company
 } from './index'
 import * as bcrypt from 'bcrypt'
 import { MainEntity } from './MainEntity'
@@ -70,6 +73,45 @@ export class Admin extends MainEntity {
   @Column('timestamp', { name: 'last_login_date', nullable: true })
   last_login_date: string;
 
+  @Column('varchar', { name: 'first_name', nullable: false })
+  first_name: string;
+
+  @Column('varchar', { name: 'last_name', nullable: false })
+  last_name: string;
+
+  @Column('json', { name: 'image', nullable: true })
+  image: string[] | null;
+
+  @Column('int', { name: 'UID', nullable: false })
+  UID: number;
+
+  @Column('int', { name: 'phone_1', nullable: false })
+  phone_1: number;
+
+  @Column('int', { name: 'phone_2', nullable: true })
+  phone_2: number | null;
+
+  @Column('int', { name: 'post_code', nullable: false })
+  post_code: number;
+
+  @Column('varchar', { name: 'country', nullable: true })
+  country: string | null;
+
+  @Column('varchar', { name: 'site', nullable: true })
+  site: string | null;
+
+  @Column('varchar', { name: 'address', nullable: true })
+  address: string | null;
+
+  @Column('int', { name: 'viber', nullable: true })
+  viber: number | null;
+
+  @Column('int', { name: 'whatsapp', nullable: true })
+  whatsapp: number | null;
+
+  @Column('int', { name: 'company_id', nullable: true })
+  company_id: number | null;
+
   @ManyToOne(type => Department, department => department.users, { nullable: true })
   @JoinColumn({ name: 'department' })
   departments: Department;
@@ -83,6 +125,9 @@ export class Admin extends MainEntity {
 
   @OneToMany(type => TicketMessage, ticket_message => ticket_message.users, { nullable: true })
   ticket_messages: TicketMessage[] | null;
+
+  @OneToOne(type => Company, company => company.id, { nullable: true })
+  companies: Company[] | null;
 
   @BeforeInsert()
   async generatePassword () {
