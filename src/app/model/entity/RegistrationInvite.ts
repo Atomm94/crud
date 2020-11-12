@@ -1,0 +1,137 @@
+import {
+    Entity,
+    Column
+} from 'typeorm'
+
+import { MainEntity } from './MainEntity'
+import { uid } from 'uid'
+import { Sendgrid } from '../../../component/sendgrid/sendgrid'
+import { PacketType } from './PacketType'
+import config from '../../../config'
+
+@Entity('registration_invite')
+export class RegistrationInvite extends MainEntity {
+    @Column('varchar', { name: 'email' })
+    email: string
+
+    @Column('varchar', { name: 'token', unique: true })
+    token: string
+
+    @Column('boolean', { name: 'used', default: false })
+    used: boolean
+
+    // public static async addItem (data: RegistrationInvite) {
+    //     const registrationInvite = new RegistrationInvite()
+
+    //     registrationInvite.email = data.email
+    //     registrationInvite.token = data.token
+    //     registrationInvite.used = data.used
+
+    //     return new Promise((resolve, reject) => {
+    //         this.save(registrationInvite)
+    //             .then((item: RegistrationInvite) => {
+    //                 resolve(item)
+    //             })
+    //             .catch((error: any) => {
+    //                 reject(error)
+    //             })
+    //     })
+    // }
+
+    // public static async updateItem (data: RegistrationInvite) {
+    //     const registrationInvite = await this.findOneOrFail(data.id)
+
+    //     if ('email' in data) registrationInvite.email = data.email
+    //     if ('token' in data) registrationInvite.token = data.token
+    //     if ('used' in data) registrationInvite.used = data.used
+
+    //     if (!registrationInvite) return { status: 400, messsage: 'Item not found' }
+    //     return new Promise((resolve, reject) => {
+    //         this.save(registrationInvite)
+    //             .then((item: RegistrationInvite) => {
+    //                 resolve(item)
+    //             })
+    //             .catch((error: any) => {
+    //                 reject(error)
+    //             })
+    //     })
+    // }
+
+    // public static async getItem (id: number) {
+    //     const itemId: number = id
+    //     return new Promise((resolve, reject) => {
+    //         this.findOneOrFail(itemId)
+    //             .then((item: RegistrationInvite) => {
+    //                 resolve(item)
+    //             })
+    //             .catch((error: any) => {
+    //                 reject(error)
+    //             })
+    //     })
+    // }
+
+    // public static async destroyItem (data: { id: number }) {
+    //     const itemId: number = +data.id
+    //     return new Promise((resolve, reject) => {
+    //         this.delete(itemId)
+    //             .then(() => {
+    //                 resolve({ message: 'success' })
+    //             })
+    //             .catch((error: any) => {
+    //                 reject(error)
+    //             })
+    //     })
+    // }
+
+    // public static async getAllItems (params?: any) {
+    //     return new Promise((resolve, reject) => {
+    //         this.findByParams(params)
+    //             .then((items) => {
+    //                 resolve(items)
+    //             })
+    //             .catch((error: any) => {
+    //                 reject(error)
+    //             })
+    //     })
+    // }
+
+    public static async createLink (data: any) {
+        const registrationInvite = new RegistrationInvite()
+
+        registrationInvite.email = data.email
+        registrationInvite.token = uid(32)
+        registrationInvite.used = false
+
+        return new Promise((resolve, reject) => {
+            this.save(registrationInvite)
+                .then(async (item: RegistrationInvite) => {
+                    const msg = {
+                        to: `${item.email}`,
+                        from: 'g.israelyan@studio-one.am',
+                        subject: 'You have been invited to Unimacs',
+                        text: 'has invited you',
+                        html: `<h1>Unimacs company has invited you to make a registration. Please click link bellow ${config.cors.origin}/registration/${item.token}</h1>`
+                    }
+                    await Sendgrid.send(msg)
+                    resolve(item)
+                })
+                .catch((error: any) => {
+                    reject(error)
+                })
+        })
+    }
+
+    public static async getByLink (token: any) {
+        try {
+            const regToken = await RegistrationInvite.findOneOrFail({ token: token, used: false })
+            if (regToken) {
+                const packetTypes = await PacketType.getAllItems({ where: { status: { '=': true } } })
+                return packetTypes
+            } else {
+                return false
+            }
+        } catch (error) {
+            return error
+        }
+    }
+}

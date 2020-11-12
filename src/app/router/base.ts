@@ -1,4 +1,5 @@
 import CompanyController from '../controller/CompanyController'
+import RegistrationInviteController from '../controller/RegistrationInviteController'
 import PacketTypeController from '../controller/PacketTypeController'
 import PacketController from '../controller/PacketController'
 import DepartmentController from '../controller/DepartmentController'
@@ -178,3 +179,9 @@ export default router
   .get('company/:id', CompanyController.get)
   .delete('company', CompanyController.destroy)
   .get('company', CompanyController.getAll)
+  // RegistrationInvite controller CRUD endpoints
+  .post('RegistrationInvite-createLink', 'registrationInvite', RegistrationInviteController.add)
+  .get('registration/:token', RegistrationInviteController.get)
+  // .put('registrationInvite', RegistrationInviteController.update)
+  // .delete('registrationInvite', RegistrationInviteController.destroy)
+  // .get('registrationInvite', RegistrationInviteController.getAll)

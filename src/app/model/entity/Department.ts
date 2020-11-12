@@ -5,10 +5,8 @@ import {
 } from 'typeorm'
 
 import { MainEntity } from './MainEntity'
-import {
-    Ticket,
-    Admin
- } from './index'
+import { Ticket } from './Ticket'
+import { Admin } from './Admin'
 
 @Entity('department')
 export class Department extends MainEntity {
