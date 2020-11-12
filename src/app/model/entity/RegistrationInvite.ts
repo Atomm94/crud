@@ -7,6 +7,7 @@ import { MainEntity } from './MainEntity'
 import { uid } from 'uid'
 import { Sendgrid } from '../../../component/sendgrid/sendgrid'
 import { PacketType } from './PacketType'
+import config from '../../../config'
 
 @Entity('registration_invite')
 export class RegistrationInvite extends MainEntity {
@@ -107,9 +108,9 @@ export class RegistrationInvite extends MainEntity {
                     const msg = {
                         to: `${item.email}`,
                         from: 'g.israelyan@studio-one.am',
-                        subject: 'Sending with Twilio SendGrid is Fun',
-                        text: 'and easy to do anywhere, even with Node.js',
-                        html: `<strong>${item.token}</strong>`
+                        subject: 'You have been invited to Unimacs',
+                        text: 'has invited you',
+                        html: `<h1>Unimacs company has invited you to make a registration. Please click link bellow ${config.cors.origin}/registration/${item.token}</h1>`
                     }
                     await Sendgrid.send(msg)
                     resolve(item)
