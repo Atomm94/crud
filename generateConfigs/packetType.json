@@ -10,6 +10,15 @@
                 "formType": "textInput",
                 "header": true
             },
+            "description": {
+                "type": "varchar",
+                "params": {
+                    "name": "description",
+                    "nullable": true
+                },
+                "formType": "textInput",
+                "header": true
+            },
             "status": {
                 "type": "boolean",
                 "params": {

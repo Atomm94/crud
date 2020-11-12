@@ -12,6 +12,9 @@ export class PacketType extends MainEntity {
     @Column('varchar', { name: 'name', unique: true })
     name: string
 
+    @Column('varchar', { name: 'description', nullable: true })
+    description: string | null
+
     @Column('boolean', { name: 'status', default: true })
     status: boolean
 
