@@ -277,13 +277,13 @@ export default class CompanyController {
      *                          properties:
      *                              first_name:
      *                                  type: string
-     *                                  example: Georgi
+     *                                  example: John
      *                              last_name:
      *                                  type: string
-     *                                  example: Ghazaryan
+     *                                  example: Smith
      *                              email:
      *                                  type: string
-     *                                  example: ghazaryangeorgi@gmail.com
+     *                                  example: example@gmail.com
      *                              phone_1:
      *                                  type: string
      *                                  example: +374XXXXXXXX
