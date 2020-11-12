@@ -19,16 +19,16 @@ import { Page } from './Page'
 
 @Entity('menu')
 export class Menu extends MainEntity {
-    @Column('jsonb', { name: 'title', nullable: true })
+    @Column('json', { name: 'title', nullable: true })
     title: IMenu[] | null;
 
     @Column('varchar', { name: 'url', nullable: true, length: 255 })
     url: string | null;
 
-    @Column('jsonb', { name: 'translated_name', nullable: true })
+    @Column('json', { name: 'translated_name', nullable: true })
     translated_name: { [key: string]: string[] } | null;
 
-    @Column('jsonb', { name: 'show', nullable: true })
+    @Column('json', { name: 'show', nullable: true })
     show: { [key: string]: string[] } | null;
 
     @Column('int', { name: 'parent_id', nullable: true })

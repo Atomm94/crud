@@ -8,16 +8,16 @@ import { ISliders } from '../../Interfaces/Sliders'
 
 @Entity('slider')
 export class Slider extends MainEntity {
-    @Column('jsonb', { name: 'title', nullable: true })
+    @Column('json', { name: 'title', nullable: true })
     title: ISliders[] | null;
 
-    @Column('jsonb', { name: 'description', nullable: true })
+    @Column('json', { name: 'description', nullable: true })
     description: ISliders[] | null;
 
-    @Column('jsonb', { name: 'photo', nullable: true })
+    @Column('json', { name: 'photo', nullable: true })
     photo: ISliders[] | null;
 
-    @Column('jsonb', { name: 'url', nullable: true })
+    @Column('json', { name: 'url', nullable: true })
     url: ISliders[] | null;
 
     @Column('boolean', { name: 'status', default: true })

@@ -93,8 +93,9 @@ export class Ticket extends MainEntity {
         if ('message' in data) ticket.message = data.message
         if ('image' in data) ticket.image = data.image
         if ('read' in data) ticket.read = data.read
+        if ('active' in data) ticket.active = data.active
 
-        if (!ticket) return { status: 400, messsage: 'Item not found' }
+        if (!ticket) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
             this.save(ticket)
                 .then((item: Ticket) => {
