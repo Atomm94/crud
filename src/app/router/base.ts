@@ -167,7 +167,7 @@ export default router
 
   // RegistrationInvite controller CRUD endpoints
   .post('RegistrationInvite-createLink', 'registrationInvite', RegistrationInviteController.add)
-  .get('RegistrationInvite-allowed', 'registrationInvite/:token', RegistrationInviteController.get)
+  .get('registration/:token', RegistrationInviteController.get)
   // .put('registrationInvite', RegistrationInviteController.update)
   // .delete('registrationInvite', RegistrationInviteController.destroy)
   // .get('registrationInvite', RegistrationInviteController.getAll)
