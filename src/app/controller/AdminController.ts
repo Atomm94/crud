@@ -616,9 +616,31 @@ export default class AdminController {
         return ctx.body
     }
 
+    /**
+     *
+     * @swagger
+     * /account/{token}:
+     *      get:
+     *          tags:
+     *              - Admin
+     *          summary: Return account by token
+     *          parameters:
+     *              - name: token
+     *                in: path
+     *                required: true
+     *                description: account description
+     *                schema:
+     *                    type: string
+     *                    minimum: 1
+     *          responses:
+     *              '200':
+     *                  description: Data object
+     *              '404':
+     *                  description: Data not found
+     */
     public static async getUserByToken (ctx: DefaultContext) {
-        const token_verify: string = ctx.params.token
-        const user = await Admin.findOne({ where: { token_verify: token_verify } })
+        const verify_token: string = ctx.params.token
+        const user = await Admin.findOne({ verify_token: verify_token })
         if (user) {
             ctx.body = {
                 email: user.email,
@@ -634,9 +656,42 @@ export default class AdminController {
         return ctx.body
     }
 
+    /**
+     *
+     * @swagger
+     * /account/{token}:
+     *      put:
+     *          tags:
+     *              - Admin
+     *          summary: Set user password
+     *          parameters:
+     *              - in: path
+     *                name: token
+     *                required: true
+     *                description: account description
+     *                schema:
+     *                    type: string
+     *                    minimum: 1
+     *              - in: body
+     *                name: passForm
+     *                description: The setting of password.
+     *                schema:
+     *                  type: object
+     *                  required:
+     *                      - password
+     *                  properties:
+     *                      password:
+     *                          type: string
+     *                          example: 123456
+     *          responses:
+     *              '200':
+     *                  description: Data object
+     *              '404':
+     *                  description: Data not found
+     */
     public static async setPassword (ctx: DefaultContext) {
-        const token_verify: string = ctx.params.token
-        const user = await Admin.findOne({ where: { token_verify: token_verify } })
+        const verify_token: string = ctx.params.token
+        const user = await Admin.findOne({ verify_token: verify_token })
         if (user) {
             const password = ctx.request.body.password
             if (validate(password).success) {
