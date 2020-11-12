@@ -70,7 +70,7 @@ export class Admin extends MainEntity {
   super: boolean;
 
   @Column('timestamp', { name: 'last_login_date', nullable: true })
-  last_login_date: string;
+  last_login_date: string | null;
 
   @Column('varchar', { name: 'first_name', nullable: false })
   first_name: string;
@@ -78,20 +78,17 @@ export class Admin extends MainEntity {
   @Column('varchar', { name: 'last_name', nullable: false })
   last_name: string;
 
-  @Column('json', { name: 'image', nullable: true })
-  image: string[] | null;
+  @Column('varchar', { name: 'verify_token', nullable: true })
+  verify_token: string | null;
 
-  @Column('int', { name: 'UID', nullable: false })
-  UID: number;
+  @Column('varchar', { name: 'phone_1', nullable: false })
+  phone_1: string;
 
-  @Column('int', { name: 'phone_1', nullable: false })
-  phone_1: number;
+  @Column('varchar', { name: 'phone_2', nullable: true })
+  phone_2: string | null;
 
-  @Column('int', { name: 'phone_2', nullable: true })
-  phone_2: number | null;
-
-  @Column('int', { name: 'post_code', nullable: false })
-  post_code: number;
+  @Column('varchar', { name: 'post_code', nullable: false })
+  post_code: string;
 
   @Column('varchar', { name: 'country', nullable: true })
   country: string | null;
@@ -102,14 +99,14 @@ export class Admin extends MainEntity {
   @Column('varchar', { name: 'address', nullable: true })
   address: string | null;
 
-  @Column('int', { name: 'viber', nullable: true })
-  viber: number | null;
+  @Column('varchar', { name: 'viber', nullable: true })
+  viber: string | null;
 
-  @Column('int', { name: 'whatsapp', nullable: true })
-  whatsapp: number | null;
+  @Column('varchar', { name: 'whatsapp', nullable: true })
+  whatsapp: string | null;
 
-  @Column('int', { name: 'company_id', nullable: true })
-  company_id: number | null;
+  @Column('int', { name: 'company', nullable: true })
+  company: number | null;
 
   @ManyToOne(type => Department, department => department.users, { nullable: true })
   @JoinColumn({ name: 'department' })
@@ -154,8 +151,21 @@ export class Admin extends MainEntity {
     admin.status = (data.status === 'true') ? true : (data.status === 'false') ? false : data.status
     if ('role' in data) admin.role = data.role
     if ('department' in data) admin.department = data.department
-    admin.avatar = data.avatar
+    if ('avatar' in data) admin.avatar = data.avatar
     // if (file) admin.avatar = newFilePath
+
+    admin.first_name = data.first_name
+    admin.last_name = data.last_name
+    if ('verify_token' in data) admin.verify_token = data.verify_token
+    admin.phone_1 = data.phone_1
+    if ('phone_2' in data) admin.phone_2 = data.phone_2
+    admin.post_code = data.post_code
+    if ('country' in data) admin.country = data.country
+    if ('site' in data) admin.site = data.site
+    if ('address' in data) admin.address = data.address
+    if ('viber' in data) admin.viber = data.viber
+    if ('whatsapp' in data) admin.whatsapp = data.whatsapp
+    if ('company' in data) admin.company = data.company
 
     return new Promise((resolve, reject) => {
       this.save(admin)

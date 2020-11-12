@@ -7,11 +7,18 @@
                     "name": "companyName"
                 }
             },
-            "product": {
+            "packet": {
                 "type": "int",
                 "params": {
-                    "name": "product",
+                    "name": "packet",
                     "nullable": true
+                }
+            },
+            "packetType": {
+                "type": "int",
+                "params": {
+                    "name": "packetType",
+                    "nullable": false
                 }
             },
             "message": {

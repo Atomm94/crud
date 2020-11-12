@@ -1,5 +1,7 @@
 import { DefaultContext } from 'koa'
 import { RegistrationInvite } from '../model/entity/RegistrationInvite'
+import { PacketType } from '../model/entity/PacketType'
+
 export default class RegistrationInviteController {
     /**
      *
@@ -101,7 +103,7 @@ export default class RegistrationInviteController {
     /**
      *
      * @swagger
-     * /registrationInvite/{token}:
+     * /registration/{token}:
      *      get:
      *          tags:
      *              - RegistrationInvite
@@ -121,7 +123,19 @@ export default class RegistrationInviteController {
      */
     public static async get (ctx: DefaultContext) {
         try {
-            ctx.body = await RegistrationInvite.getByLink(ctx.params.token)
+            // ctx.body = await RegistrationInvite.getByLink(ctx.params.token)
+            const token = ctx.params.token
+
+            const regToken = await RegistrationInvite.findOneOrFail({ token: token, used: false })
+            if (regToken) {
+                const packetTypes = await PacketType.getAllItems({ where: { status: { '=': true } } })
+                ctx.body = packetTypes
+            } else {
+                ctx.status = 400
+                ctx.body = {
+                    message: 'Wrong token!!'
+                }
+            }
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

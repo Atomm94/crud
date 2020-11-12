@@ -615,4 +615,52 @@ export default class AdminController {
         }
         return ctx.body
     }
+
+    public static async getUserByToken (ctx: DefaultContext) {
+        const token_verify: string = ctx.params.token
+        const user = await Admin.findOne({ where: { token_verify: token_verify } })
+        if (user) {
+            ctx.body = {
+                email: user.email,
+                first_name: user.first_name,
+                last_name: user.last_name
+            }
+        } else {
+            ctx.status = 400
+            ctx.body = {
+                message: 'Wrong token!!'
+            }
+        }
+        return ctx.body
+    }
+
+    public static async setPassword (ctx: DefaultContext) {
+        const token_verify: string = ctx.params.token
+        const user = await Admin.findOne({ where: { token_verify: token_verify } })
+        if (user) {
+            const password = ctx.request.body.password
+            if (validate(password).success) {
+                user.password = password
+                const save = await user.save()
+                if (save) {
+                    save.verify_token = null
+                    save.save()
+                }
+                ctx.body = {
+                    success: true
+                }
+            } else {
+                ctx.status = 400
+                ctx.body = {
+                    message: validate(password).message
+                }
+            }
+        } else {
+            ctx.status = 400
+            ctx.body = {
+                message: 'Wrong token!!'
+            }
+        }
+        return ctx.body
+    }
 }

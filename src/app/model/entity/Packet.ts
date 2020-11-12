@@ -40,7 +40,7 @@ export class Packet extends MainEntity {
     @JoinColumn({ name: 'packet_type' })
     packet_types: PacketType;
 
-    @OneToMany(type => Company, company => company.product, { nullable: true })
+    @OneToMany(type => Company, company => company.packet, { nullable: true })
     packets: Packet[] | null;
 
     public static async addItem (data: Packet) {

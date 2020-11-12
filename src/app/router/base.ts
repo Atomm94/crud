@@ -49,7 +49,6 @@ export default router
   .delete('Admin-deleteImage', 'userImageDelete', AdminController.userImageDelete)
 
   // Role
-
   .post('Role-addItem', 'roles', RoleController.createRole)
   .get('Role-getItem', 'roles/:id', RoleController.getRoleById)
   .put('Role-updateItem', 'roles', RoleController.updateRole)
@@ -167,21 +166,21 @@ export default router
   .get('Department-getAllItems', 'department', DepartmentController.getAll)
 
   // Company controller CRUD endpoints
-  .post('company', CompanyController.add)
-  .put('company', CompanyController.update)
-  .get('company/:id', CompanyController.get)
-  .delete('company', CompanyController.destroy)
-  .get('company', CompanyController.getAll)
+  .post('Company-addItem', 'company', CompanyController.add)
+  .put('Company-updateItem', 'company', CompanyController.update)
+  .get('Company-getItem', 'company/:id', CompanyController.get)
+  .delete('Company-destroyItem', 'company', CompanyController.destroy)
+  .get('Company-getAllItems', 'company', CompanyController.getAll)
 
-  // Company controller CRUD endpoints
-  .post('company', CompanyController.add)
-  .put('company', CompanyController.update)
-  .get('company/:id', CompanyController.get)
-  .delete('company', CompanyController.destroy)
-  .get('company', CompanyController.getAll)
   // RegistrationInvite controller CRUD endpoints
   .post('RegistrationInvite-createLink', 'registrationInvite', RegistrationInviteController.add)
-  .get('registration/:token', RegistrationInviteController.get)
   // .put('registrationInvite', RegistrationInviteController.update)
   // .delete('registrationInvite', RegistrationInviteController.destroy)
   // .get('registrationInvite', RegistrationInviteController.getAll)
+
+  // apis without model-action(role-acl)
+
+  .get('registration/:token', RegistrationInviteController.get)
+  .post('registration/:token', CompanyController.regValidation)
+  .get('account/:token', AdminController.getUserByToken)
+  .put('account/:token', AdminController.setPassword)

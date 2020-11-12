@@ -6,6 +6,7 @@ import {
 
 import { MainEntity } from './MainEntity'
 import { Packet } from './Packet'
+import { Company } from './Company'
 
 @Entity('packet_type')
 export class PacketType extends MainEntity {
@@ -17,6 +18,9 @@ export class PacketType extends MainEntity {
 
     @OneToMany(type => Packet, packet => packet.packet_types, { nullable: true })
     packets: Packet[] | null;
+
+    @OneToMany(type => Company, company => company.packet_type, { nullable: true })
+    companies: Company[] | null;
 
     public static async addItem (data: PacketType) {
         const packetType = new PacketType()
