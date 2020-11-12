@@ -8,6 +8,28 @@ import { MainEntity } from './MainEntity'
 import { Ticket } from './Ticket'
 import { Admin } from './Admin'
 
+// class CardholdersCustomDataField {
+
+// }
+// class CardholdersGroupOperations {
+
+// }
+// class CardholdersGroupAccessRights {
+
+// }
+// class VIPCardholderFunction {
+
+// }
+// class CardholderDeactivations {
+
+// }
+// class KeyStatuses {
+
+// }
+// class CardholderExtraDeactivations {
+
+// }
+
 @Entity('department')
 export class Department extends MainEntity {
     @Column('varchar', { name: 'name', unique: true })
@@ -21,6 +43,17 @@ export class Department extends MainEntity {
 
     @OneToMany(type => Admin, admin => admin.departments, { nullable: true })
     users: Admin[] | null;
+
+    // public static resource: boolean = true
+    // public static features = {
+    //     CardholdersCustomDataField: CardholdersCustomDataField,
+    //     CardholdersGroupOperations: CardholdersGroupOperations,
+    //     CardholdersGroupAccessRights: CardholdersGroupAccessRights,
+    //     VIPCardholderFunction: VIPCardholderFunction,
+    //     CardholderDeactivations: CardholderDeactivations,
+    //     KeyStatuses: KeyStatuses,
+    //     CardholderExtraDeactivations: CardholderExtraDeactivations
+    // }
 
     public static async addItem (data: Department) {
         const department = new Department()
