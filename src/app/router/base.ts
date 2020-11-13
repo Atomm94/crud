@@ -182,5 +182,6 @@ export default router
 
   .get('registration/:token', RegistrationInviteController.get)
   .post('registration/:token', CompanyController.regValidation)
+  .put('registration/:token', CompanyController.resendNewPassEmail)
   .get('account/:token', AdminController.getUserByToken)
   .put('account/:token', AdminController.setPassword)
