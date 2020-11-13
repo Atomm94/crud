@@ -19,11 +19,11 @@ export class PacketType extends MainEntity {
     @Column('boolean', { name: 'status', default: true })
     status: boolean
 
-    @OneToMany(type => Packet, packet => packet.packet_types, { nullable: true })
-    packets: Packet[] | null;
+    @OneToMany(type => Packet, packet => packet.packet_types)
+    packets: Packet[];
 
-    @OneToMany(type => Company, company => company.packet_type, { nullable: true })
-    companies: Company[] | null;
+    @OneToMany(type => Company, company => company.packet_type)
+    companies: Company[];
 
     public static async addItem (data: PacketType) {
         const packetType = new PacketType()

@@ -144,7 +144,7 @@ export default class CompanyController {
      */
     public static async get (ctx: DefaultContext) {
         try {
-            const relations = ['users', 'packets', 'packet_types', 'companyDocuments']
+            const relations = ['users', 'packets', 'packet_types', 'company_documents']
             ctx.body = await Company.getItem(+ctx.params.id, relations)
         } catch (error) {
             ctx.status = error.status || 400
@@ -221,7 +221,7 @@ export default class CompanyController {
     public static async getAll (ctx: DefaultContext) {
         try {
             const req_data = ctx.query
-            req_data.relations = ['users', 'packets', 'packet_types', 'companyDocuments']
+            req_data.relations = ['users', 'packets', 'packet_types', 'company_documents']
             ctx.body = await Company.getAllItems(req_data)
         } catch (error) {
             ctx.status = error.status || 400

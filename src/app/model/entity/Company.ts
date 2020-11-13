@@ -3,7 +3,7 @@ import {
     Column,
     ManyToOne,
     JoinColumn,
-    OneToOne
+    OneToMany
 } from 'typeorm'
 
 import { MainEntity } from './MainEntity'
@@ -32,18 +32,17 @@ export class Company extends MainEntity {
 
     @ManyToOne(type => Packet, packet => packet.id, { nullable: true })
     @JoinColumn({ name: 'packet' })
-    packets: Packet;
+    packets: Packet | null;
 
-    @ManyToOne(type => PacketType, packetType => packetType.companies)
+    @ManyToOne(type => PacketType, packetType => packetType.companies, { nullable: true })
     @JoinColumn({ name: 'packet_type' })
-    packet_types: PacketType;
+    packet_types: PacketType | null;
 
-    @ManyToOne(type => CompanyDocuments, companyDocuments => companyDocuments.companies)
-    @JoinColumn({ name: 'companyId' })
-    companyDocuments: CompanyDocuments;
+    @OneToMany(type => CompanyDocuments, company_documents => company_documents.companies)
+    company_documents: CompanyDocuments[];
 
-    @OneToOne(type => Admin, users => users.profile) // specify inverse side as a second parameter
-    users: Admin;
+    @OneToMany(type => Admin, users => users.companies) // specify inverse side as a second parameter
+    users: Admin[];
 
     public static async addItem (data: Company) {
         const company = new Company()
@@ -116,8 +115,6 @@ export class Company extends MainEntity {
     }
 
     public static async getAllItems (params?: any) {
-        console.log('paama', params)
-
         return new Promise((resolve, reject) => {
             this.findByParams(params)
                 .then((items) => {

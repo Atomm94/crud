@@ -1,11 +1,17 @@
 import {
     Entity,
     Column,
-    OneToMany
+    ManyToOne,
+    JoinColumn
 } from 'typeorm'
 
 import { MainEntity } from './MainEntity'
 import { Company } from './Company'
+import { fileSave } from '../../functions/file'
+import fs from 'fs'
+import { join } from 'path'
+import { logger } from '../../../../modules/winston/logger'
+const parentDir = join(__dirname, '../../..')
 
 @Entity('company_documents')
 export class CompanyDocuments extends MainEntity {
@@ -21,8 +27,9 @@ export class CompanyDocuments extends MainEntity {
     @Column('json', { name: 'file', nullable: true })
     file: JSON | null
 
-    @OneToMany(type => Company, company => company.companyDocuments, { nullable: true })
-    companies: Company[] | null;
+    @ManyToOne(type => Company, company => company.company_documents)
+    @JoinColumn({ name: 'company' })
+    companies: Company;
 
     public static async addItem (data: CompanyDocuments) {
         const companyDocuments = new CompanyDocuments()
@@ -100,4 +107,15 @@ export class CompanyDocuments extends MainEntity {
                 })
         })
     }
+
+    public static async saveFile (file: any) {
+        return fileSave(file)
+      }
+
+      public static async deleteFile (file: any) {
+        return fs.unlink(`${parentDir}/public/${file}`, (err) => {
+          if (err) throw err
+          logger.info('Delete complete!')
+        })
+      }
 }

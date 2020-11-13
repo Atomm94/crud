@@ -6,8 +6,7 @@ import {
   ManyToOne,
   JoinColumn,
   createQueryBuilder,
-  OneToMany,
-  OneToOne
+  OneToMany
   // ManyToOne
   // Index,
   // CreateDateColumn,
@@ -116,15 +115,15 @@ export class Admin extends MainEntity {
   @JoinColumn({ name: 'role' })
   roles: Role | null;
 
-  @OneToMany(type => Ticket, ticket => ticket.user, { nullable: true })
-  tickets: Admin[] | null;
+  @OneToMany(type => Ticket, ticket => ticket.user)
+  tickets: Admin[];
 
-  @OneToMany(type => TicketMessage, ticket_message => ticket_message.users, { nullable: true })
-  ticket_messages: TicketMessage[] | null;
+  @OneToMany(type => TicketMessage, ticket_message => ticket_message.users)
+  ticket_messages: TicketMessage[];
 
-  @OneToOne(type => Company, company => company.users) // specify inverse side as a second parameter
-  @JoinColumn()
-  profile: Company;
+  @ManyToOne(type => Company, company => company.users, { nullable: true })
+  @JoinColumn({ name: 'company' })
+  companies: Company | null;
 
   @BeforeInsert()
   async generatePassword () {

@@ -219,4 +219,89 @@ export default class CompanyDocumentsController {
         }
         return ctx.body
     }
+
+    /**
+     *
+     * @swagger
+     *  /companyFileUpload:
+     *      post:
+     *          tags:
+     *              - CompanyDocuments
+     *          summary: Upload Company file.
+     *          consumes:
+     *              - multipart/form-data
+     *          parameters:
+     *            - in: header
+     *              name: Authorization
+     *              required: true
+     *              description: Authentication token
+     *              schema:
+     *                    type: string
+     *            - in: formData
+     *              name: file
+     *              type: file
+     *              description: The upload company file.
+     *          responses:
+     *              '201':
+     *                  description: file upload
+     *              '409':
+     *                  description: Conflict
+     *              '422':
+     *                  description: Wrong data
+     */
+    public static async companyFileUpload (ctx: DefaultContext) {
+        const file = ctx.request.files.file
+        const savedFile = await CompanyDocuments.saveFile(file)
+        return ctx.body = savedFile
+    }
+
+    /**
+     *
+     * @swagger
+     *  /companyFileDelete:
+     *      delete:
+     *          tags:
+     *              - CompanyDocuments
+     *          summary: Delete a Company file.
+     *          consumes:
+     *              - application/json
+     *          parameters:
+     *            - in: header
+     *              name: Authorization
+     *              required: true
+     *              description: Authentication token
+     *              schema:
+     *              type: string
+     *            - in: body
+     *              name: file
+     *              description: The company file name to delete.
+     *              schema:
+     *                type: string
+     *                required:
+     *                  - name
+     *                properties:
+     *                  name:
+     *                      type: string
+     *          responses:
+     *              '200':
+     *                  description: Company file has been deleted
+     *              '409':
+     *                  description: Conflict
+     *              '422':
+     *                  description: Wrong data
+     */
+    public static async companyFileDelete (ctx: DefaultContext) {
+        const name = ctx.request.body.name
+
+        try {
+            CompanyDocuments.deleteFile(name)
+            ctx.body = {
+                success: true
+            }
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
 }
