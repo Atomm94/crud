@@ -1,0 +1,33 @@
+{
+    "model": {
+        "columns": {
+            "name": {
+                "type": "varchar",
+                "params": {
+                    "name": "name"
+                }
+            },
+            "date": {
+                "type": "varchar",
+                "params": {
+                    "name": "date",
+                    "nullable": true
+                }
+            },
+            "company": {
+                "type": "int",
+                "params": {
+                    "name": "company",
+                    "nullable": true
+                }
+            },
+            "file": {
+                "type": "json",
+                "params": {
+                    "name": "file",
+                    "nullable": true
+                }
+            }
+        }
+    }
+}

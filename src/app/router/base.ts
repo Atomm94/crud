@@ -1,3 +1,4 @@
+import CompanyDocumentsController from '../controller/CompanyDocumentsController'
 import CompanyController from '../controller/CompanyController'
 import RegistrationInviteController from '../controller/RegistrationInviteController'
 import PacketTypeController from '../controller/PacketTypeController'
@@ -184,3 +185,12 @@ export default router
   .post('registration/:token', CompanyController.regValidation)
   .get('account/:token', AdminController.getUserByToken)
   .put('account/:token', AdminController.setPassword)
+
+  
+  // CompanyDocuments controller CRUD endpoints   
+  .post('companyDocuments', CompanyDocumentsController.add)
+  .put('companyDocuments', CompanyDocumentsController.update)
+  .get('companyDocuments/:id', CompanyDocumentsController.get)
+  .delete('companyDocuments', CompanyDocumentsController.destroy)
+  .get('companyDocuments', CompanyDocumentsController.getAll)
+  

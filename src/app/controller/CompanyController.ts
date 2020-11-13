@@ -144,7 +144,8 @@ export default class CompanyController {
      */
     public static async get (ctx: DefaultContext) {
         try {
-            ctx.body = await Company.getItem(+ctx.params.id)
+            const relations = ['users', 'packets', 'packet_types', 'companyDocuments']
+            ctx.body = await Company.getItem(+ctx.params.id, relations)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -219,7 +220,9 @@ export default class CompanyController {
      */
     public static async getAll (ctx: DefaultContext) {
         try {
-            ctx.body = await Company.getAllItems(ctx.query)
+            const req_data = ctx.query
+            req_data.relations = ['users', 'packets', 'packet_types', 'companyDocuments']
+            ctx.body = await Company.getAllItems(req_data)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -320,10 +323,7 @@ export default class CompanyController {
      */
     public static async regValidation (ctx: DefaultContext) {
         try {
-            // check token
             const token = ctx.params.token
-            console.log('token', token)
-
             const regToken = await RegistrationInvite.findOne({ token: token, used: false })
             if (regToken) {
                 const req_data = ctx.request.body

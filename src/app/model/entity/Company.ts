@@ -2,13 +2,16 @@ import {
     Entity,
     Column,
     ManyToOne,
-    JoinColumn
+    JoinColumn,
+    OneToOne
 } from 'typeorm'
 
 import { MainEntity } from './MainEntity'
 import { Packet } from './Packet'
+import { Admin } from './Admin'
 import { PacketType } from './PacketType'
 import { statusCompany } from '../../enums/statusCompany.enum'
+import { CompanyDocuments } from './CompanyDocuments'
 
 @Entity('company')
 export class Company extends MainEntity {
@@ -28,12 +31,19 @@ export class Company extends MainEntity {
     status: statusCompany
 
     @ManyToOne(type => Packet, packet => packet.id, { nullable: true })
-    @JoinColumn({ name: 'department' })
+    @JoinColumn({ name: 'packet' })
     packets: Packet;
 
     @ManyToOne(type => PacketType, packetType => packetType.companies)
     @JoinColumn({ name: 'packet_type' })
     packet_types: PacketType;
+
+    @ManyToOne(type => CompanyDocuments, companyDocuments => companyDocuments.companies)
+    @JoinColumn({ name: 'companyId' })
+    companyDocuments: CompanyDocuments;
+
+    @OneToOne(type => Admin, users => users.profile) // specify inverse side as a second parameter
+    users: Admin;
 
     public static async addItem (data: Company) {
         const company = new Company()
@@ -76,10 +86,13 @@ export class Company extends MainEntity {
         })
     }
 
-    public static async getItem (id: number) {
+    public static async getItem (id: number, relations?: any) {
         const itemId: number = id
         return new Promise((resolve, reject) => {
-            this.findOneOrFail(itemId)
+            this.findOneOrFail({
+                where: { id: itemId },
+                relations: relations || []
+            })
                 .then((item: Company) => {
                     resolve(item)
                 })
@@ -103,6 +116,8 @@ export class Company extends MainEntity {
     }
 
     public static async getAllItems (params?: any) {
+        console.log('paama', params)
+
         return new Promise((resolve, reject) => {
             this.findByParams(params)
                 .then((items) => {

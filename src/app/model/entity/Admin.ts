@@ -122,8 +122,9 @@ export class Admin extends MainEntity {
   @OneToMany(type => TicketMessage, ticket_message => ticket_message.users, { nullable: true })
   ticket_messages: TicketMessage[] | null;
 
-  @OneToOne(type => Company, company => company.id, { nullable: true })
-  companies: Company[] | null;
+  @OneToOne(type => Company, company => company.users) // specify inverse side as a second parameter
+  @JoinColumn()
+  profile: Company;
 
   @BeforeInsert()
   async generatePassword () {
