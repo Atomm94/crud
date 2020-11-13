@@ -212,6 +212,26 @@ export default class CompanyController {
      *                description: Authentication token
      *                schema:
      *                    type: string
+     *              - in: query
+     *                name: page
+     *                description: page number
+     *                schema:
+     *                    type: number
+     *              - in: query
+     *                name: page_items_count
+     *                description: page items count
+     *                schema:
+     *                    type: number
+     *              - in: query
+     *                name: start_date
+     *                description: start date
+     *                schema:
+     *                    type: string
+     *              - in: query
+     *                name: end_date
+     *                description: end date
+     *                schema:
+     *                    type: string
      *          responses:
      *              '200':
      *                  description: Array of company
@@ -221,6 +241,21 @@ export default class CompanyController {
     public static async getAll (ctx: DefaultContext) {
         try {
             const req_data = ctx.query
+            const where: any = {}
+
+            if (req_data.start_date || req_data.end_date) {
+                if (req_data.start_date && req_data.end_date) {
+                    where.createDate = { between: [req_data.start_date, req_data.end_date] }
+                } else {
+                    if (req_data.start_date) {
+                        where.createDate = { '>=': req_data.start_date }
+                    } else {
+                        where.createDate = { '<=': req_data.end_date }
+                    }
+                }
+            }
+
+            req_data.where = where
             req_data.relations = ['users', 'packets', 'packet_types', 'company_documents']
             ctx.body = await Company.getAllItems(req_data)
         } catch (error) {
