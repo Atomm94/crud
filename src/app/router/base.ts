@@ -1,3 +1,4 @@
+import CompanyDocumentsController from '../controller/CompanyDocumentsController'
 import CompanyController from '../controller/CompanyController'
 import RegistrationInviteController from '../controller/RegistrationInviteController'
 import PacketTypeController from '../controller/PacketTypeController'
@@ -178,8 +179,17 @@ export default router
   // .delete('registrationInvite', RegistrationInviteController.destroy)
   // .get('registrationInvite', RegistrationInviteController.getAll)
 
-  // apis without model-action(role-acl)
+  // CompanyDocuments controller CRUD endpoints
+  .post('companyDocuments', CompanyDocumentsController.add)
+  .put('companyDocuments', CompanyDocumentsController.update)
+  .get('companyDocuments/:id', CompanyDocumentsController.get)
+  .delete('companyDocuments', CompanyDocumentsController.destroy)
+  .get('companyDocuments', CompanyDocumentsController.getAll)
 
+  .post('companyDocuments-saveFile', 'companyFileUpload', CompanyDocumentsController.companyFileUpload)
+  .delete('companyDocuments-deleteFile', 'companyFileDelete', CompanyDocumentsController.companyFileDelete)
+
+  // apis without model-action(role-acl)
   .get('registration/:token', RegistrationInviteController.get)
   .post('registration/:token', CompanyController.regValidation)
   .put('registration/:token', CompanyController.resendNewPassEmail)

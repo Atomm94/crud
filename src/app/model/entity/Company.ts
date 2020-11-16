@@ -2,13 +2,16 @@ import {
     Entity,
     Column,
     ManyToOne,
-    JoinColumn
+    JoinColumn,
+    OneToMany
 } from 'typeorm'
 
 import { MainEntity } from './MainEntity'
 import { Packet } from './Packet'
+import { Admin } from './Admin'
 import { PacketType } from './PacketType'
 import { statusCompany } from '../../enums/statusCompany.enum'
+import { CompanyDocuments } from './CompanyDocuments'
 
 @Entity('company')
 export class Company extends MainEntity {
@@ -28,12 +31,18 @@ export class Company extends MainEntity {
     status: statusCompany
 
     @ManyToOne(type => Packet, packet => packet.id, { nullable: true })
-    @JoinColumn({ name: 'department' })
-    packets: Packet;
+    @JoinColumn({ name: 'packet' })
+    packets: Packet | null;
 
-    @ManyToOne(type => PacketType, packetType => packetType.companies)
+    @ManyToOne(type => PacketType, packetType => packetType.companies, { nullable: true })
     @JoinColumn({ name: 'packet_type' })
-    packet_types: PacketType;
+    packet_types: PacketType | null;
+
+    @OneToMany(type => CompanyDocuments, company_documents => company_documents.companies)
+    company_documents: CompanyDocuments[];
+
+    @OneToMany(type => Admin, users => users.companies) // specify inverse side as a second parameter
+    users: Admin[];
 
     public static async addItem (data: Company) {
         const company = new Company()
@@ -76,10 +85,13 @@ export class Company extends MainEntity {
         })
     }
 
-    public static async getItem (id: number) {
+    public static async getItem (id: number, relations?: any) {
         const itemId: number = id
         return new Promise((resolve, reject) => {
-            this.findOneOrFail(itemId)
+            this.findOneOrFail({
+                where: { id: itemId },
+                relations: relations || []
+            })
                 .then((item: Company) => {
                     resolve(item)
                 })
