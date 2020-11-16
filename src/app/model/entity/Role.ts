@@ -1,7 +1,10 @@
 import {
   Column,
   Entity,
-  OneToMany
+  OneToMany,
+  JoinColumn,
+  ManyToOne,
+  Index
   // AfterInsert,
   // AfterUpdate,
   // AfterRemove
@@ -17,6 +20,9 @@ import {
 import * as Models from './index'
 import { MainEntity } from './MainEntity'
 import { Admin } from './Admin'
+import { Company } from './Company'
+
+@Index('slug|company', ['slug', 'company'], { unique: true })
 
 @Entity('role')
 export class Role extends MainEntity {
@@ -29,8 +35,18 @@ export class Role extends MainEntity {
   @OneToMany(type => Admin, admin => admin.roles, { nullable: true })
   admins: Admin[] | null;
 
+  @Column('int', { name: 'company', nullable: true })
+  company: number | null;
+
+  @Column('boolean', { name: 'main', default: false })
+  main: boolean | true;
+
   @Column('boolean', { name: 'status', default: true })
   status: boolean | true;
+
+  @ManyToOne(type => Company, company => company.roles, { nullable: true })
+  @JoinColumn({ name: 'company' })
+  companies: Company | null;
 
   public static async addItem (data: Role) {
     const role = new Role()
@@ -38,6 +54,7 @@ export class Role extends MainEntity {
     role.slug = data.slug
     role.permissions = data.permissions
     role.status = data.status
+    if ('main' in data) role.main = data.main
 
     return new Promise((resolve, reject) => {
       this.save(role)
@@ -56,6 +73,7 @@ export class Role extends MainEntity {
     if ('slug' in data) role.slug = data.slug
     if ('permissions' in data) role.permissions = data.permissions
     if ('status' in data) role.status = data.status
+    if ('main' in data) role.main = data.main
 
     if (!role) return { status: 400, messsage: 'Item not found' }
     return new Promise((resolve, reject) => {

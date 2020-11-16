@@ -37,9 +37,6 @@ export class Admin extends MainEntity {
   @Column('varchar', { name: 'username', nullable: true, length: 255, unique: true })
   username: string | null;
 
-  @Column('varchar', { name: 'full_name', nullable: true, length: 255 })
-  full_name: string | null;
-
   @Column('varchar', {
     name: 'email',
     unique: true,
@@ -147,7 +144,6 @@ export class Admin extends MainEntity {
     admin.username = data.username
     admin.email = data.email
     admin.password = data.password
-    admin.full_name = data.full_name
     admin.status = (data.status === 'true') ? true : (data.status === 'false') ? false : data.status
     if ('role' in data) admin.role = data.role
     if ('department' in data) admin.department = data.department
@@ -182,7 +178,6 @@ export class Admin extends MainEntity {
     const admin = await this.findOneOrFail(data.id)
 
     if ('username' in data) admin.username = data.username
-    if ('full_name' in data) admin.full_name = data.full_name
     if ('email' in data) admin.email = data.email
     if ('status' in data) admin.status = (data.status === 'true') ? true : (data.status === 'false') ? false : data.status
     if ('role' in data) admin.role = data.role

@@ -173,21 +173,21 @@ export default router
   .delete('Company-destroyItem', 'company', CompanyController.destroy)
   .get('Company-getAllItems', 'company', CompanyController.getAll)
 
+  // CompanyDocuments controller CRUD endpoints
+  .post('CompanyDocuments-addItem', 'companyDocuments', CompanyDocumentsController.add)
+  .put('CompanyDocuments-updateItem', 'companyDocuments', CompanyDocumentsController.update)
+  .get('CompanyDocuments-getItem', 'companyDocuments/:id', CompanyDocumentsController.get)
+  .delete('CompanyDocuments-destroyItem', 'companyDocuments', CompanyDocumentsController.destroy)
+  .get('CompanyDocuments-getAllItems', 'companyDocuments', CompanyDocumentsController.getAll)
+
+  .post('companyDocuments-saveFile', 'companyFileUpload', CompanyDocumentsController.companyFileUpload)
+  .delete('companyDocuments-deleteFile', 'companyFileDelete', CompanyDocumentsController.companyFileDelete)
+
   // RegistrationInvite controller CRUD endpoints
   .post('RegistrationInvite-createLink', 'registrationInvite', RegistrationInviteController.add)
   // .put('registrationInvite', RegistrationInviteController.update)
   // .delete('registrationInvite', RegistrationInviteController.destroy)
   // .get('registrationInvite', RegistrationInviteController.getAll)
-
-  // CompanyDocuments controller CRUD endpoints
-  .post('companyDocuments', CompanyDocumentsController.add)
-  .put('companyDocuments', CompanyDocumentsController.update)
-  .get('companyDocuments/:id', CompanyDocumentsController.get)
-  .delete('companyDocuments', CompanyDocumentsController.destroy)
-  .get('companyDocuments', CompanyDocumentsController.getAll)
-
-  .post('companyDocuments-saveFile', 'companyFileUpload', CompanyDocumentsController.companyFileUpload)
-  .delete('companyDocuments-deleteFile', 'companyFileDelete', CompanyDocumentsController.companyFileDelete)
 
   // apis without model-action(role-acl)
   .get('registration/:token', RegistrationInviteController.get)

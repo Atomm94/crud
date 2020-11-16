@@ -21,8 +21,8 @@ export class Packet extends MainEntity {
     @Column('int', { name: 'packet_type' })
     packet_type: number
 
-    @Column('boolean', { name: 'pay_type', default: true })
-    pay_type: boolean
+    @Column('boolean', { name: 'free', default: true })
+    free: boolean
 
     @Column('float', { name: 'price', nullable: true })
     price: number | null
@@ -49,7 +49,7 @@ export class Packet extends MainEntity {
         packet.name = data.name
         packet.description = data.description
         packet.packet_type = data.packet_type
-        packet.pay_type = data.pay_type
+        packet.free = data.free
         packet.price = data.price
         packet.pay_terms = data.pay_terms
         packet.status = data.status
@@ -72,7 +72,7 @@ export class Packet extends MainEntity {
         if ('name' in data) packet.name = data.name
         if ('description' in data) packet.description = data.description
         if ('packet_type' in data) packet.packet_type = data.packet_type
-        if ('pay_type' in data) packet.pay_type = data.pay_type
+        if ('free' in data) packet.free = data.free
         if ('price' in data) packet.price = data.price
         if ('pay_terms' in data) packet.pay_terms = data.pay_terms
         if ('status' in data) packet.status = data.status

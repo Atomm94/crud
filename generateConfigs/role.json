@@ -16,6 +16,20 @@
                     "nullable": true
                 }
             },
+            "company": {
+                "type": "int",
+                "params": {
+                    "name": "company",
+                    "nullable": true
+                }
+            },
+            "main": {
+                "type": "boolean",
+                "params": {
+                    "name": "main",
+                    "default": false
+                }
+            },
             "status": {
                 "type": "boolean",
                 "params": {

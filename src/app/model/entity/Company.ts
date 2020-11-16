@@ -9,6 +9,7 @@ import {
 import { MainEntity } from './MainEntity'
 import { Packet } from './Packet'
 import { Admin } from './Admin'
+import { Role } from './Role'
 import { PacketType } from './PacketType'
 import { statusCompany } from '../../enums/statusCompany.enum'
 import { CompanyDocuments } from './CompanyDocuments'
@@ -43,6 +44,9 @@ export class Company extends MainEntity {
 
     @OneToMany(type => Admin, users => users.companies) // specify inverse side as a second parameter
     users: Admin[];
+
+    @OneToMany(type => Role, role => role.companies) // specify inverse side as a second parameter
+    roles: Role[];
 
     public static async addItem (data: Company) {
         const company = new Company()

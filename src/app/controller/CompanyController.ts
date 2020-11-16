@@ -5,6 +5,7 @@ import config from '../../config'
 
 import { Company } from '../model/entity/Company'
 import { Admin } from '../model/entity/Admin'
+import { Role } from '../model/entity/Role'
 import { RegistrationInvite } from '../model/entity/RegistrationInvite'
 
 export default class CompanyController {
@@ -34,7 +35,9 @@ export default class CompanyController {
      *                properties:
      *                  company_name:
      *                      type: string
-     *                  product:
+     *                  packet:
+     *                      type: number
+     *                  packet_type:
      *                      type: number
      *                  message:
      *                      type: string
@@ -89,7 +92,9 @@ export default class CompanyController {
      *                      example: 1
      *                  company_name:
      *                      type: string
-     *                  product:
+     *                  packet:
+     *                      type: number
+     *                  packet_type:
      *                      type: number
      *                  message:
      *                      type: string
@@ -368,6 +373,10 @@ export default class CompanyController {
                 const company: any = await Company.addItem(company_data as Company)
                 account_data.company = company.id
                 account_data.verify_token = uid(32)
+
+                const role = await Role.findOne({ slug: 'default_partner' })
+                if (role) account_data.role = role.id
+
                 const admin: any = await Admin.addItem(account_data as Admin)
                 // send email (link with verify_token)
                 const msg = {

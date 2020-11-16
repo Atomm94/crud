@@ -27,10 +27,10 @@
                 "formType": "numberInput",
                 "header": true
             },
-            "payType": {
+            "free": {
                 "type": "boolean",
                 "params": {
-                    "name": "payType",
+                    "name": "free",
                     "default": true
                 },
                 "formType": "checkboxButton",

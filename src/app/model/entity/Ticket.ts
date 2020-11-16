@@ -126,13 +126,13 @@ export class Ticket extends MainEntity {
             })
                 .then(async (item: Ticket) => {
                     if (item.user) {
-                        const user_params: any = pick(item.user, 'id', 'full_name', 'avatar')
+                        const user_params: any = pick(item.user, 'id', 'first_name', 'last_name', 'avatar')
                         item.user = user_params
                     }
                     if (item.ticket_messages) {
                         item.ticket_messages.forEach((ticket_message: TicketMessage) => {
                             if (ticket_message.users) {
-                                const user_params: any = pick(ticket_message, 'users.id', 'users.full_name', 'users.avatar')
+                                const user_params: any = pick(ticket_message, 'users.id', 'users.first_name', 'users.last_name', 'users.avatar')
                                 ticket_message.users = user_params.users
                             }
                         })
@@ -194,13 +194,13 @@ export class Ticket extends MainEntity {
                 .then((items: Array<Ticket>) => {
                     items.forEach((item: Ticket, i: number) => {
                         if (item.user) {
-                            const user_params: any = pick(item.user, 'id', 'full_name', 'avatar')
+                            const user_params: any = pick(item.user, 'id', 'first_name', 'last_name', 'avatar')
                             item.user = user_params
                         }
                         if (item.ticket_messages) {
                             item.ticket_messages.forEach((ticket_message: TicketMessage) => {
                                 if (ticket_message.users) {
-                                    const user_params: any = pick(ticket_message, 'users.id', 'users.full_name', 'users.avatar')
+                                    const user_params: any = pick(ticket_message, 'users.id', 'users.first_name', 'users.last_name', 'users.avatar')
                                     ticket_message.users = user_params.users
                                 }
                             })

@@ -10,14 +10,6 @@
                     "unique": true
                 }
             },
-            "fullName": {
-                "type": "varchar",
-                "params": {
-                    "name": "fullName",
-                    "nullable": true,
-                    "length": 255
-                }
-            },
             "email": {
                 "type": "varchar",
                 "params": {

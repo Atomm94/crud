@@ -48,7 +48,6 @@ export default class AdminController {
      *              schema:
      *                type: object
      *                required:
-     *                  - fullName
      *                  - email
      *                  - username
      *                  - status
@@ -67,9 +66,6 @@ export default class AdminController {
      *                  status:
      *                      type: boolean
      *                      example: true
-     *                  fullName:
-     *                      type: string
-     *                      example: Name Surname
      *                  role:
      *                      type: number
      *                      example: 5
@@ -83,6 +79,9 @@ export default class AdminController {
      */
     public static async createAdmin (ctx: DefaultContext) {
         const reqData = ctx.request.body
+        const user = ctx.user
+        if (user.company) reqData.company = user.company
+
         let newAdmin
         let role
 
@@ -150,7 +149,7 @@ export default class AdminController {
             verify = <any>jwt.verify(token, 'jwtSecret')
             if (verify) {
                 admin = await Admin.findOneOrFail(verify.id)
-                const adminFiltered = _.pick(admin, ['id', 'full_name', 'username', 'email', 'avatar', 'role'])
+                const adminFiltered = _.pick(admin, ['id', 'first_name', 'last_name', 'username', 'email', 'avatar', 'role'])
 
                 ctx.body = adminFiltered
             } else {
@@ -345,9 +344,6 @@ export default class AdminController {
      *                  id:
      *                      type: number
      *                      example: 1
-     *                  fullName:
-     *                      type: string
-     *                      example: fullName
      *                  email:
      *                      type: string
      *                      example: 'example@test.com'
@@ -516,17 +512,20 @@ export default class AdminController {
      */
     public static async getAll (ctx: DefaultContext) {
         const name = ctx.query.name
+        const user = ctx.user
         var allAdmin
+
+        const req_data = ctx.query
+        req_data.relations = ['departments']
+        req_data.where = { company: { '=': user.company ? user.company : null } }
+
         if (name) {
-            allAdmin = await getRepository(Admin)
-                .createQueryBuilder('admin')
-                .where('admin.username like :username OR admin.email like :email', { username: `%${name}%`, email: `%${name}%` })
-                .getMany()
-        } else {
-            const req_data = ctx.query
-            req_data.relations = ['departments']
-            allAdmin = await Admin.getAllItems(req_data)
+            req_data.orWhere = [
+                { username: { contains: name } },
+                { email: { contains: name } }
+            ]
         }
+        allAdmin = await Admin.getAllItems(req_data)
 
         return (ctx.body = allAdmin)
     }
@@ -696,11 +695,8 @@ export default class AdminController {
             const password = ctx.request.body.password
             if (validate(password).success) {
                 user.password = password
-                const save = await user.save()
-                if (save) {
-                    save.verify_token = null
-                    save.save()
-                }
+                user.verify_token = null
+                await user.save()
                 ctx.body = {
                     success: true
                 }

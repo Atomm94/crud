@@ -33,7 +33,7 @@ export default class PacketController {
      *                      type: string
      *                  packet_type:
      *                      type: number
-     *                  pay_type:
+     *                  free:
      *                      type: boolean
      *                  price:
      *                      type: number
@@ -94,7 +94,7 @@ export default class PacketController {
      *                      type: string
      *                  packet_type:
      *                      type: number
-     *                  pay_type:
+     *                  free:
      *                      type: boolean
      *                  price:
      *                      type: number
