@@ -138,33 +138,34 @@ export class Admin extends MainEntity {
     }
   }
 
-  public static async addItem (data: any, user: any) {
-      const admin = new Admin()
+  public static async addItem (data: any, user: any = null) {
+    const admin = new Admin()
 
-      admin.username = data.username
-      admin.email = data.email
-      admin.password = data.password
-      admin.status = (data.status === 'true') ? true : (data.status === 'false') ? false : data.status
-      if ('role' in data) admin.role = data.role
-      if ('department' in data) admin.department = data.department
-      if ('avatar' in data) admin.avatar = data.avatar
-      // if (file) admin.avatar = newFilePath
+    admin.username = data.username
+    admin.email = data.email
+    admin.password = data.password
+    admin.status = (data.status === 'true') ? true : (data.status === 'false') ? false : data.status
+    if ('role' in data) admin.role = data.role
+    if ('department' in data) admin.department = data.department
+    if ('avatar' in data) admin.avatar = data.avatar
+    // if (file) admin.avatar = newFilePath
 
-      admin.first_name = data.first_name
-      admin.last_name = data.last_name
-      if ('verify_token' in data) admin.verify_token = data.verify_token
-      admin.phone_1 = data.phone_1
-      if ('phone_2' in data) admin.phone_2 = data.phone_2
-      admin.post_code = data.post_code
-      if ('country' in data) admin.country = data.country
-      if ('site' in data) admin.site = data.site
-      if ('address' in data) admin.address = data.address
-      if ('viber' in data) admin.viber = data.viber
-      if ('whatsapp' in data) admin.whatsapp = data.whatsapp
-      if ('company' in data) admin.company = data.company
+    admin.first_name = data.first_name
+    admin.last_name = data.last_name
+    if ('verify_token' in data) admin.verify_token = data.verify_token
+    admin.phone_1 = data.phone_1
+    if ('phone_2' in data) admin.phone_2 = data.phone_2
+    admin.post_code = data.post_code
+    if ('country' in data) admin.country = data.country
+    if ('site' in data) admin.site = data.site
+    if ('address' in data) admin.address = data.address
+    if ('viber' in data) admin.viber = data.viber
+    if ('whatsapp' in data) admin.whatsapp = data.whatsapp
+    if ('company' in data) admin.company = data.company
 
-      return new Promise(async (resolve, reject) => {
-        if (!user.company || await this.canCreate(user.company, this.name)) {
+    // eslint-disable-next-line no-async-promise-executor
+    return new Promise(async (resolve, reject) => {
+      if (!user || !user.company || await this.canCreate(user.company, this.name)) {
         this.save(admin)
           .then((item: Admin) => {
             resolve(item)
@@ -172,10 +173,10 @@ export class Admin extends MainEntity {
           .catch((error: any) => {
             reject(error)
           })
-        } else {
-          reject(Error(`Resource ${this.name} is limited for company ${user.company}!!`))
-        }
-      })
+      } else {
+        reject(Error(`Resource ${this.name} is limited for company ${user.company}!!`))
+      }
+    })
   }
 
   public static async updateItem (data: any) {
