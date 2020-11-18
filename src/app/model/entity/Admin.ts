@@ -183,6 +183,9 @@ export class Admin extends MainEntity {
     const admin = await this.findOneOrFail(data.id)
 
     if ('username' in data) admin.username = data.username
+    if ('first_name' in data) admin.first_name = data.first_name
+    if ('last_name' in data) admin.last_name = data.last_name
+
     if ('email' in data) admin.email = data.email
     if ('status' in data) admin.status = (data.status === 'true') ? true : (data.status === 'false') ? false : data.status
     if ('role' in data) admin.role = data.role
