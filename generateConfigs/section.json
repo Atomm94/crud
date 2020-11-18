@@ -2,42 +2,42 @@
     "model": {
         "columns": {
             "title": {
-                "type": "json",
+                "type": "longtext",
                 "params": {
                     "name": "title",
                     "nullable": true
                 }
             },
             "slug": {
-                "type": "json",
+                "type": "longtext",
                 "params": {
                     "name": "slug",
                     "nullable": true
                 }
             },
             "image": {
-                "type": "json",
+                "type": "longtext",
                 "params": {
                     "name": "image",
                     "unique": true
                 }
             },
             "files": {
-                "type": "json",
+                "type": "longtext",
                 "params": {
                     "name": "files",
                     "nullable": true
                 }
             },
             "body": {
-                "type": "json",
+                "type": "longtext",
                 "params": {
                     "name": "body",
                     "nullable": true
                 }
             },
             "published": {
-                "type": "json",
+                "type": "longtext",
                 "params": {
                     "name": "published",
                     "nullable": true

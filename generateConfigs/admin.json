@@ -27,7 +27,7 @@
                 }
             },
             "avatar": {
-                "type": "json",
+                "type": "longtext",
                 "params": {
                     "name": "avatar",
                     "nullable": true

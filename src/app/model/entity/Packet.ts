@@ -27,10 +27,10 @@ export class Packet extends MainEntity {
     @Column('float', { name: 'price', nullable: true })
     price: number | null
 
-    @Column('json', { name: 'pay_terms', nullable: true })
+    @Column('longtext', { name: 'pay_terms', nullable: true })
     pay_terms: JSON | null
 
-    @Column('json', { name: 'extra_settings', nullable: true })
+    @Column('longtext', { name: 'extra_settings', nullable: true })
     extra_settings: JSON | null
 
     @Column('boolean', { name: 'status', default: true })

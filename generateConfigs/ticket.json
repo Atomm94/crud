@@ -21,7 +21,7 @@
                 }
             },
             "image": {
-                "type": "json",
+                "type": "longtext",
                 "params": {
                     "name": "image",
                     "nullable": true

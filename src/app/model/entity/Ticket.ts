@@ -31,7 +31,7 @@ export class Ticket extends MainEntity {
     @Column('varchar', { name: 'message', nullable: true })
     message: string | null
 
-    @Column('json', { name: 'image', nullable: true })
+    @Column('longtext', { name: 'image', nullable: true })
     image: JSON | null
 
     @Column('int', { name: 'user_id' })
