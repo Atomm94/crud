@@ -2,16 +2,9 @@
     "model": {
         "columns": {
             "company": {
-                "type": "varchar",
+                "type": "int",
                 "params": {
                     "name": "company",
-                    "nullable": false
-                }
-            },
-            "limit": {
-                "type": "longtext",
-                "params": {
-                    "name": "limit",
                     "nullable": false
                 }
             },

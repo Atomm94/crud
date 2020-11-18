@@ -169,4 +169,8 @@ export abstract class MainEntity extends BaseEntity {
             attributes: this.getAttributes()
         }
     }
+
+    public static async canCreate (company: number, resource: string) {
+        return true
+    }
 }

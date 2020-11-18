@@ -7,11 +7,8 @@ import { MainEntity } from './MainEntity'
 
 @Entity('company_resources')
 export class CompanyResources extends MainEntity {
-    @Column('varchar', { name: 'company', nullable: false })
-    company: string
-
-    @Column('longtext', { name: 'limit', nullable: false })
-    limit: string
+    @Column('int', { name: 'company', nullable: false })
+    company: number
 
     @Column('longtext', { name: 'used', nullable: false })
     used: string
@@ -20,7 +17,6 @@ export class CompanyResources extends MainEntity {
         const companyResources = new CompanyResources()
 
         companyResources.company = data.company
-        companyResources.limit = data.limit
         companyResources.used = data.used
 
         return new Promise((resolve, reject) => {
@@ -38,7 +34,6 @@ export class CompanyResources extends MainEntity {
         const companyResources = await this.findOneOrFail(data.id)
 
         if ('company' in data) companyResources.company = data.company
-        if ('limit' in data) companyResources.limit = data.limit
         if ('used' in data) companyResources.used = data.used
 
         if (!companyResources) return { status: 400, messsage: 'Item not found' }

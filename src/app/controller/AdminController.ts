@@ -87,7 +87,7 @@ export default class AdminController {
 
         if (validate(reqData.password).success) {
             try {
-                newAdmin = await Admin.addItem(reqData)
+                newAdmin = await Admin.addItem(reqData, user)
                 role = await Role.findOne({
                     id: reqData.role
                 })
