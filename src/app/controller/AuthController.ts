@@ -46,7 +46,7 @@ export default class AuthController {
      *              '422':
      *                  description: Wrong data
      */
-    public static async login (ctx: DefaultContext) {
+    public static async login(ctx: DefaultContext) {
         const { username, password } = ctx.request.body
         let checkPass
         let user: Admin
@@ -79,7 +79,7 @@ export default class AuthController {
             }
         }
 
-        const adminFiltered = _.pick(user, ['id', 'username', 'full_name', 'email', 'avatar', 'role', 'super', 'department', 'company'])
+        const adminFiltered = _.pick(user, ['id', 'username', 'last_name', 'first_name', 'email', 'avatar', 'role', 'super', 'department', 'company'])
         const expireTime = process.env.TOKEN_EXPIRE_TIME ? process.env.TOKEN_EXPIRE_TIME : 2
         const token = jwt.sign(adminFiltered, 'jwtSecret', { expiresIn: `${expireTime}h` }) // , { expiresIn: '1h' }
 
@@ -113,7 +113,7 @@ export default class AuthController {
      *              '401':
      *                  description: Unauthorized
      */
-    public static async checkAuth (ctx: DefaultContext) {
+    public static async checkAuth(ctx: DefaultContext) {
         let verify
 
         const token = ctx.request.header.authorization

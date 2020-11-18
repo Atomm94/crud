@@ -26,7 +26,7 @@ class TranslationController {
      *                  description: Unauthorized
      */
 
-    public static async getTrans (ctx: DefaultContext) {
+    public static async getTrans(ctx: DefaultContext) {
         let trans
 
         try {
@@ -77,7 +77,7 @@ class TranslationController {
         *              '422':
         *                  description: Wrong data
         */
-    public static async createTrans (ctx: DefaultContext) {
+    public static async createTrans(ctx: DefaultContext) {
         const body = ctx.request.body
         try {
             const trans = await Translation.addItem(body)
@@ -134,7 +134,7 @@ class TranslationController {
        *                  description: Wrong data
        */
 
-    public static async updateTrans (ctx: DefaultContext) {
+    public static async updateTrans(ctx: DefaultContext) {
         const body = ctx.request.body
         try {
             const updatedTrans = await Translation.updateItem(body)
@@ -187,11 +187,11 @@ class TranslationController {
  *                  description: Wrong data
  */
 
-    public static async deleteTrans (ctx: DefaultContext) {
-        const { id } = ctx.request.body
+    public static async deleteTrans(ctx: DefaultContext) {
+        const req_body = ctx.request.body
 
         try {
-            await Translation.destroyItem(id)
+            await Translation.destroyItem(req_body)
             return ctx.body = 'Deleted'
         } catch (error) {
             return ctx.body = error

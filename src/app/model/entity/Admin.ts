@@ -37,9 +37,6 @@ export class Admin extends MainEntity {
   @Column('varchar', { name: 'username', nullable: true, length: 255, unique: true })
   username: string | null;
 
-  @Column('varchar', { name: 'full_name', nullable: true, length: 255 })
-  full_name: string | null;
-
   @Column('varchar', {
     name: 'email',
     unique: true,
@@ -126,7 +123,7 @@ export class Admin extends MainEntity {
   companies: Company | null;
 
   @BeforeInsert()
-  async generatePassword () {
+  async generatePassword() {
     if (this.password) {
       const password = bcrypt.hashSync(this.password, 10)
       this.password = password
@@ -134,20 +131,19 @@ export class Admin extends MainEntity {
   }
 
   @BeforeUpdate()
-  async updatePassword () {
+  async updatePassword() {
     if (this.password) {
       const password = bcrypt.hashSync(this.password, 10)
       this.password = password
     }
   }
 
-  public static async addItem (data: any) {
+  public static async addItem(data: any) {
     const admin = new Admin()
 
     admin.username = data.username
     admin.email = data.email
     admin.password = data.password
-    admin.full_name = data.full_name
     admin.status = (data.status === 'true') ? true : (data.status === 'false') ? false : data.status
     if ('role' in data) admin.role = data.role
     if ('department' in data) admin.department = data.department
@@ -178,11 +174,13 @@ export class Admin extends MainEntity {
     })
   }
 
-  public static async updateItem (data: any) {
+  public static async updateItem(data: any) {
     const admin = await this.findOneOrFail(data.id)
 
     if ('username' in data) admin.username = data.username
-    if ('full_name' in data) admin.full_name = data.full_name
+    if ('first_name' in data) admin.first_name = data.first_name
+    if ('last_name' in data) admin.last_name = data.last_name
+
     if ('email' in data) admin.email = data.email
     if ('status' in data) admin.status = (data.status === 'true') ? true : (data.status === 'false') ? false : data.status
     if ('role' in data) admin.role = data.role
@@ -201,7 +199,7 @@ export class Admin extends MainEntity {
     })
   }
 
-  public static async getItem (id: number, relations?: Array<string>) {
+  public static async getItem(id: number, relations?: Array<string>) {
     const itemId: number = id
     return new Promise((resolve, reject) => {
       this.findOneOrFail({
@@ -217,7 +215,7 @@ export class Admin extends MainEntity {
     })
   }
 
-  public static async destroyItem (data: { id: number }) {
+  public static async destroyItem(data: { id: number }) {
     const itemId: number = +data.id
     return new Promise((resolve, reject) => {
       this.delete(itemId)
@@ -230,7 +228,7 @@ export class Admin extends MainEntity {
     })
   }
 
-  public static async getAllItems (params?: any) {
+  public static async getAllItems(params?: any) {
     // console.log(await this.getRolesAndAttributes(9))
 
     return new Promise((resolve, reject) => {
@@ -244,18 +242,18 @@ export class Admin extends MainEntity {
     })
   }
 
-  public static async saveImage (file: any) {
+  public static async saveImage(file: any) {
     return fileSave(file)
   }
 
-  public static async deleteImage (file: any) {
+  public static async deleteImage(file: any) {
     return fs.unlink(`${parentDir}/public/${file}`, (err) => {
       if (err) throw err
       logger.info('Delete complete!')
     })
   }
 
-  public static async getRolesAndAttributes (id: number) {
+  public static async getRolesAndAttributes(id: number) {
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve, reject) => {
       const admin: any = await createQueryBuilder(Admin, 'admin').innerJoinAndSelect(Role, 'role', 'role.id = admin.role').select('role.permissions').where('admin.id = :id', { id: id }).getRawOne()
