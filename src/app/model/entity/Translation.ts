@@ -10,7 +10,7 @@ export class Translation extends MainEntity {
     @Column('varchar', { name: 'term', nullable: true, length: '255', unique: true })
     term: string | null
 
-    @Column('json', { name: 'translations', nullable: true })
+    @Column('longtext', { name: 'translations', nullable: true })
     translations: { [key: string]: string[] } | null;
 
     public static async addItem (data: Translation) {

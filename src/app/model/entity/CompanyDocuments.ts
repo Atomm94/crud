@@ -24,7 +24,7 @@ export class CompanyDocuments extends MainEntity {
     @Column('int', { name: 'company', nullable: true })
     company: number | null
 
-    @Column('json', { name: 'file', nullable: true })
+    @Column('longtext', { name: 'file', nullable: true })
     file: JSON | null
 
     @ManyToOne(type => Company, company => company.company_documents)

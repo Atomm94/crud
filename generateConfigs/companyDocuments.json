@@ -22,7 +22,7 @@
                 }
             },
             "file": {
-                "type": "json",
+                "type": "longtext",
                 "params": {
                     "name": "file",
                     "nullable": true

@@ -406,4 +406,68 @@ export default class CompanyController {
         }
         return ctx.body
     }
+
+    /**
+     *
+     * @swagger
+     * /registration/{token}:
+     *      put:
+     *          tags:
+     *              - Company
+     *          summary: Resend confirmation Email
+     *          parameters:
+     *              - in: path
+     *                name: token
+     *                required: true
+     *                description: token
+     *                schema:
+     *                    type: string
+     *              - in: body
+     *                name: regForm
+     *                description: The registration of Partner.
+     *                schema:
+     *                  type: object
+     *                  required:
+     *                      - company
+     *                      - account
+     *                  properties:
+     *                      email:
+     *                          type: string
+     *                          example: example@example.com
+     *
+     *          responses:
+     *              '200':
+     *                  description: Data object
+     *              '404':
+     *                  description: Data not found
+     */
+    public static async resendNewPassEmail (ctx: DefaultContext) {
+        const reqData = ctx.request.body
+        const token = ctx.params.token
+        try {
+            const admin = await Admin.findOneOrFail({ email: reqData.email })
+            if (admin.verify_token && admin.verify_token === token) {
+                const msg = {
+                    to: `${admin.email}`,
+                    from: 'g.israelyan@studio-one.am',
+                    subject: 'You have been invited to Unimacs',
+                    text: 'has invited you',
+                    html: `<h1>Unimacs company has invited you to make a registration. Please click link bellow ${config.cors.origin}/newpassword/${admin.verify_token}</h1>`
+                }
+                await Sendgrid.send(msg)
+                ctx.body = {
+                    success: true
+                }
+            } else {
+                ctx.status = 400
+                ctx.body = {
+                    success: false
+                }
+            }
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
 }

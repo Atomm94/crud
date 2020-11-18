@@ -46,7 +46,7 @@
                 "header": true
             },
               "payTerms": {
-                "type": "json",
+                "type": "longtext",
                 "params": {
                     "name": "payTerms",
                     "nullable": true
@@ -56,7 +56,7 @@
                 "multiLng": true
             },
             "extra_settings": {
-                "type": "json",
+                "type": "longtext",
                 "params": {
                     "name": "extra_settings",
                     "nullable": true

@@ -17,31 +17,31 @@ import { Section } from './Section'
 import { ITranslations } from '../../Interfaces/Translation'
 @Entity('page')
 export class Page extends MainEntity {
-    @Column('json', { name: 'title', nullable: true })
+    @Column('longtext', { name: 'title', nullable: true })
     title: ITranslations[] | null
 
-    @Column('json', { name: 'url', nullable: true })
+    @Column('longtext', { name: 'url', nullable: true })
     url: ITranslations[] | null
 
-    @Column('json', { name: 'image', nullable: true })
+    @Column('longtext', { name: 'image', nullable: true })
     image: ITranslations[] | null
 
-    @Column('json', { name: 'files', nullable: true })
+    @Column('longtext', { name: 'files', nullable: true })
     files: ITranslations[] | null
 
-    @Column('json', { name: 'summary', nullable: true })
+    @Column('longtext', { name: 'summary', nullable: true })
     summary: ITranslations[] | null
 
-    @Column('json', { name: 'body', nullable: true })
+    @Column('longtext', { name: 'body', nullable: true })
     body: ITranslations[] | null
 
-    @Column('json', { name: 'published', nullable: true })
+    @Column('longtext', { name: 'published', nullable: true })
     published: ITranslations[] | null
 
-    @Column('json', { name: 'meta_title', nullable: true })
+    @Column('longtext', { name: 'meta_title', nullable: true })
     meta_title: ITranslations[] | null
 
-    @Column('json', { name: 'meta_keywords', nullable: true })
+    @Column('longtext', { name: 'meta_keywords', nullable: true })
     meta_keywords: ITranslations[] | null
 
     @Column('boolean', { name: 'status', default: true })

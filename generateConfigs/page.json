@@ -2,63 +2,63 @@
     "model": {
         "columns": {
             "title": {
-                "type": "json",
+                "type": "longtext",
                 "params": {
                     "name": "title",
                     "nullable": true
                 }
             },
             "url": {
-                "type": "json",
+                "type": "longtext",
                 "params": {
                     "name": "url",
                     "nullable": true
                 }
             },
             "image": {
-                "type": "json",
+                "type": "longtext",
                 "params": {
                     "name": "image",
                     "nullable": true
                 }
             },
             "files": {
-                "type": "json",
+                "type": "longtext",
                 "params": {
                     "name": "files",
                     "nullable": true
                 }
             },
             "summary": {
-                "type": "json",
+                "type": "longtext",
                 "params": {
                     "name": "summary",
                     "nullable": true
                 }
             },
             "body": {
-                "type": "json",
+                "type": "longtext",
                 "params": {
                     "name": "body",
                     "nullable": true
                 }
             },
             "published": {
-                "type": "json",
+                "type": "longtext",
                 "params": {
                     "name": "published",
                     "nullable": true
                 }
             },
             "meta_title": {
-                "type": "json",
+                "type": "longtext",
                 "params": {
                     "name": "meta_title",
                     "nullable": true
                 }
             },
             "meta_keywords": {
-                "type": "json",
+                "type": "longtext",
                 "params": {
                     "name": "meta_keywords",
                     "nullable": true

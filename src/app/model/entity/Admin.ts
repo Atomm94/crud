@@ -44,7 +44,7 @@ export class Admin extends MainEntity {
   })
   email: string;
 
-  @Column('json', {
+  @Column('longtext', {
     name: 'avatar',
     nullable: true
   })

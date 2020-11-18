@@ -10,7 +10,7 @@
                 }
             },
             "permissions": {
-                "type": "json",
+                "type": "longtext",
                 "params": {
                     "name": "permissions",
                     "nullable": true

@@ -33,6 +33,7 @@ export class AccessControl {
             logger.warn(`[Grant] add - role ${grant_name} exists!!`)
             this.deleteGrant(grant_name)
         }
+        permissions = JSON.parse(permissions)
         Object.keys(permissions).forEach((model: any) => {
             Object.keys(permissions[model].actions).forEach(async (action: string) => {
                 if (permissions[model].actions[action] === true) {
