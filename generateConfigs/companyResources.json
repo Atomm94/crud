@@ -1,0 +1,27 @@
+{
+    "model": {
+        "columns": {
+            "company": {
+                "type": "varchar",
+                "params": {
+                    "name": "company",
+                    "nullable": false
+                }
+            },
+            "limit": {
+                "type": "longtext",
+                "params": {
+                    "name": "limit",
+                    "nullable": false
+                }
+            },
+            "used": {
+                "type": "longtext",
+                "params": {
+                    "name": "used",
+                    "nullable": false
+                }
+            }
+        }
+    }
+}
