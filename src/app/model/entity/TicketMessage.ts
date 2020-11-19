@@ -118,9 +118,10 @@ export class TicketMessage extends MainEntity {
         const itemId: number = +data.id
         const ticketMessage = await this.findOneOrFail(itemId)
         if (!ticketMessage) return { status: 400, messsage: 'Item not found' }
-        return new Promise((resolve, reject) => {
+        // eslint-disable-next-line no-async-promise-executor
+        return new Promise(async (resolve, reject) => {
             if (ticketMessage.user_id === user.id) {
-                this.delete(itemId)
+                  this.remove(await this.findByIds([itemId]))
                     .then(() => {
                         resolve({ message: 'success' })
                     })

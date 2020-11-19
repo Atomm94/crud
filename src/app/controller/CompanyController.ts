@@ -314,7 +314,7 @@ export default class CompanyController {
      *                          required:
      *                              - first_name
      *                              - last_name
-     *                              - uid
+     *                              - email
      *                              - phone_1
      *                              - post_code
      *                          properties:
@@ -370,43 +370,58 @@ export default class CompanyController {
                 const company_data = req_data.company
                 const account_data = req_data.account
 
-                const company: any = await Company.addItem(company_data as Company)
-                account_data.company = company.id
-                account_data.verify_token = uid(32)
+                if (!('first_name' in account_data && 'last_name' in account_data && 'email' in account_data && 'phone_1' in account_data && 'post_code' in account_data)) {
+                    ctx.status = 400
+                    ctx.body = {
+                        message: 'Fill in required inputs!!'
+                    }
+                } else {
+                    if (await Admin.findOne({ email: account_data.email })) {
+                        ctx.status = 400
+                        ctx.body = {
+                            message: 'Duplicate email!!'
+                        }
+                    } else {
+                        const company: any = await Company.addItem(company_data as Company)
 
-                let permissions: string = JSON.stringify({ Admin: { actions: { addItem: true, getItem: true, getAllItems: true } }, PacketType: { actions: { getItem: true, getAllItems: true } } })
-                const default_role = await Role.findOne({ slug: 'default_partner' })
-                if (default_role) {
-                    permissions = default_role.permissions
-                }
-                const role_save_data = {
-                    slug: company.company_name,
-                    permissions: permissions,
-                    main: true
-                }
-                const new_company_role: any = await Role.addItem(role_save_data as Role)
+                        let permissions: string = JSON.stringify({ Admin: { actions: { addItem: true, getItem: true, getAllItems: true } }, PacketType: { actions: { getItem: true, getAllItems: true } } })
+                        const default_role = await Role.findOne({ slug: 'default_partner' })
+                        if (default_role) {
+                            permissions = default_role.permissions
+                        }
+                        const role_save_data = {
+                            slug: company.company_name,
+                            company: company.id,
+                            permissions: permissions,
+                            main: true
+                        }
+                        const new_company_role: any = await Role.addItem(role_save_data as Role)
 
-                account_data.role = new_company_role.id
-                const admin: any = await Admin.addItem(account_data as Admin)
+                        account_data.company = company.id
+                        account_data.verify_token = uid(32)
+                        account_data.role = new_company_role.id
+                        const admin: any = await Admin.addItem(account_data as Admin)
 
-                company.account = admin.id
-                await Company.save(company)
+                        company.account = admin.id
+                        await Company.save(company)
 
-                // send email (link with verify_token)
-                const msg = {
-                    to: `${admin.email}`,
-                    from: 'g.israelyan@studio-one.am',
-                    subject: 'You have been invited to Unimacs',
-                    text: 'has invited you',
-                    html: `<h1>Unimacs company has invited you to make a registration. Please click link bellow ${config.cors.origin}/newpassword/${admin.verify_token}</h1>`
-                }
-                await Sendgrid.send(msg)
+                        // send email (link with verify_token)
+                        const msg = {
+                            to: `${admin.email}`,
+                            from: 'g.israelyan@studio-one.am',
+                            subject: 'You have been invited to Unimacs',
+                            text: 'has invited you',
+                            html: `<h1>Unimacs company has invited you to make a registration. Please click link bellow ${config.cors.origin}/newpassword/${admin.verify_token}</h1>`
+                        }
+                        await Sendgrid.send(msg)
 
-                // set registration token to null
-                regToken.used = true
-                await regToken.save()
-                ctx.body = {
-                    success: true
+                        // set registration token to null
+                        regToken.used = true
+                        await regToken.save()
+                        ctx.body = {
+                            success: true
+                        }
+                    }
                 }
             } else {
                 ctx.status = 400
