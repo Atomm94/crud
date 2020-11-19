@@ -226,8 +226,6 @@ export default class TicketController {
             req_data.relations = ['user', 'departments']
             ctx.body = await Ticket.getAllItems(req_data, user as Admin)
         } catch (error) {
-            console.log('error', error)
-
             ctx.status = error.status || 400
             ctx.body = error
         }

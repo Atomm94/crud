@@ -77,8 +77,6 @@ export class AccessControl {
                     const packet_id = packet.id
                     const extra_settings: { resources: { [key: string]: boolean } } = JSON.parse(packet.extra_settings)
                     if (extra_settings.resources) {
-                        console.log(extra_settings.resources)
-
                         Object.keys(extra_settings.resources).forEach(resource => {
                             this.ac.grant(`packet${packet_id}`)
                                 .condition({
@@ -93,7 +91,7 @@ export class AccessControl {
         }
     }
 
-    public static async companyCanAccess (packet_id: number, resource_name: string, used:number) {
+    public static async companyCanAccess (packet_id: number, resource_name: string, used: number) {
         const permission1 = await this.ac
             .can(`packet${packet_id}`)
             .context({ used: used })
@@ -102,10 +100,27 @@ export class AccessControl {
         return permission1.granted
     }
 
+    public static async addCompanyGrant (packet: Packet) {
+        const packet_id = packet.id
+        if (packet.extra_settings) {
+            const extra_settings: { resources: { [key: string]: boolean } } = JSON.parse(packet.extra_settings)
+            if (extra_settings.resources) {
+                Object.keys(extra_settings.resources).forEach(resource => {
+                    this.ac.grant(`packet${packet_id}`)
+                        .condition({
+                            Fn: 'custom:limit',
+                            args: { limit: +extra_settings.resources[resource] }
+                        })
+                        .execute('addItem').on(resource)
+                })
+            }
+        }
+    }
+
     private static limitCheck = (context: { used: number }, args: { limit: number }) => {
         if (!args || typeof args.limit !== 'number') {
             throw new Error('custom:limitCheck requires "limit" argument')
         }
-        return +context.used < args.limit
+        return +context.used <= args.limit
     }
 }

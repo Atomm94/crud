@@ -34,6 +34,7 @@ const parentDir = join(__dirname, '../../..')
 
 @Entity('admin')
 export class Admin extends MainEntity {
+  static resource = true
   @Column('varchar', { name: 'username', nullable: true, length: 255, unique: true })
   username: string | null;
 
@@ -174,6 +175,8 @@ export class Admin extends MainEntity {
             reject(error)
           })
       } else {
+        console.log(`Resource ${this.name} is limited for company ${user.company}!!`)
+
         reject(Error(`Resource ${this.name} is limited for company ${user.company}!!`))
       }
     })
