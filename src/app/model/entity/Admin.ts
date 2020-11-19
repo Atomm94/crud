@@ -179,8 +179,6 @@ export class Admin extends MainEntity {
             reject(error)
           })
       } else {
-        console.log(`Resource ${this.name} is limited for company ${user.company}!!`)
-
         reject(Error(`Resource ${this.name} is limited for company ${user.company}!!`))
       }
     })

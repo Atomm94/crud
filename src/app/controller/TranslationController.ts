@@ -83,7 +83,6 @@ class TranslationController {
             const trans = await Translation.addItem(body)
             ctx.body = trans
         } catch (error) {
-            console.log(error)
             ctx.status = error.status || 400
             ctx.body = error
         }
