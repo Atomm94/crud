@@ -5,7 +5,8 @@
                 "type": "int",
                 "params": {
                     "name": "company",
-                    "nullable": false
+                    "nullable": false,
+                    "unique":true
                 }
             },
             "used": {

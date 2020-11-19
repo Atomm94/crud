@@ -222,14 +222,13 @@ export abstract class MainEntity extends BaseEntity {
     public static async canCreate (company_id: number, resource: string) {
         try {
             const company = await Company.findOneOrFail({ id: company_id })
+            console.log(company)
             if (company && company.packet) {
                 const companyResources = await CompanyResources.findOneOrFail({ company: company_id })
                 if (companyResources && companyResources.used) {
                     const usedRes = JSON.parse(companyResources.used)
-                    if (resource in usedRes && typeof +usedRes[resource] === 'number') {
-                        const canAccess = await AccessControl.companyCanAccess(company.packet, resource, usedRes[resource])
-                        return canAccess
-                    }
+                    const canAccess = await AccessControl.companyCanAccess(company.packet, resource, (resource in usedRes) ? +usedRes[resource] : 0)
+                    return canAccess
                 }
             }
             return false
