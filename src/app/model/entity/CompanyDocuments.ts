@@ -25,7 +25,7 @@ export class CompanyDocuments extends MainEntity {
     company: number | null
 
     @Column('longtext', { name: 'file', nullable: true })
-    file: JSON | null
+    file: string | null
 
     @ManyToOne(type => Company, company => company.company_documents)
     @JoinColumn({ name: 'company' })

@@ -22,6 +22,9 @@ import {
     In,
     IsNull
 } from 'typeorm'
+import { Company, CompanyResources } from '.'
+import { logger } from '../../../../modules/winston/logger'
+import { AccessControl } from '../../functions/access-control'
 
 export abstract class MainEntity extends BaseEntity {
     @Index()
@@ -40,7 +43,7 @@ export abstract class MainEntity extends BaseEntity {
     public static resource: boolean = false
     public static features: any = false
 
-    public static async findByParams (data: any) {
+    public static async findByParams (data: any = {}) {
         let where: any = {}
         if (data.where) {
             if (typeof data.where === 'string') data.where = JSON.parse(data.where)
@@ -170,7 +173,23 @@ export abstract class MainEntity extends BaseEntity {
         }
     }
 
-    public static async canCreate (company: number, resource: string) {
-        return true
+    public static async canCreate (company_id: number, resource: string) {
+        try {
+            const company = await Company.findOneOrFail({ id: company_id })
+            if (company && company.packet) {
+                const companyResources = await CompanyResources.findOneOrFail({ company: company_id })
+                if (companyResources && companyResources.used) {
+                    const usedRes = JSON.parse(companyResources.used)
+                    if (usedRes[resource] && typeof +usedRes[resource] === 'number') {
+                        const canAccess = await AccessControl.companyCanAccess(company.packet, resource, usedRes[resource])
+                        return canAccess
+                    }
+                }
+            }
+            return false
+        } catch (error) {
+            logger.info(error)
+            return false
+        }
     }
 }

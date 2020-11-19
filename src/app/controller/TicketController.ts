@@ -37,7 +37,7 @@ export default class TicketController {
      *                  message:
      *                      type: string
      *                  image:
-     *                      type: JSON
+     *                      type: string
      *          responses:
      *              '201':
      *                  description: A ticket object
@@ -94,7 +94,7 @@ export default class TicketController {
      *                  message:
      *                      type: string
      *                  image:
-     *                      type: JSON
+     *                      type: string
      *          responses:
      *              '201':
      *                  description: A ticket updated object

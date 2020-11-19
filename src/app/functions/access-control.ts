@@ -1,5 +1,5 @@
 import { AccessControl as RA } from 'role-acl'
-import { Role } from '../model/entity/index'
+import { Packet, Role } from '../model/entity/index'
 import { logger } from '../../../modules/winston/logger'
 
 export class AccessControl {
@@ -66,5 +66,46 @@ export class AccessControl {
             await this.addGrant(role, permissions)
             logger.warn(`[Grant] update - role ${role} not found!!`)
         }
+    }
+
+    public static async GrantCompanyAccess () {
+        const packets: any = await Packet.getAllItems()
+        this.ac.registerConditionFunction('limit', this.limitCheck)
+        if (packets) {
+            packets.forEach((packet: Packet) => {
+                if (packet && packet.extra_settings) {
+                    const packet_id = packet.id
+                    const extra_settings: { resources: { [key: string]: boolean } } = JSON.parse(packet.extra_settings)
+                    if (extra_settings.resources) {
+                        console.log(extra_settings.resources)
+
+                        Object.keys(extra_settings.resources).forEach(resource => {
+                            this.ac.grant(`packet${packet_id}`)
+                                .condition({
+                                    Fn: 'custom:limit',
+                                    args: { limit: +extra_settings.resources[resource] }
+                                })
+                                .execute('addItem').on(resource)
+                        })
+                    }
+                }
+            })
+        }
+    }
+
+    public static async companyCanAccess (packet_id: number, resource_name: string, used:number) {
+        const permission1 = await this.ac
+            .can(`packet${packet_id}`)
+            .context({ used: used })
+            .execute('addItem')
+            .on(resource_name)
+        return permission1.granted
+    }
+
+    private static limitCheck = (context: { used: number }, args: { limit: number }) => {
+        if (!args || typeof args.limit !== 'number') {
+            throw new Error('custom:limitCheck requires "limit" argument')
+        }
+        return +context.used < args.limit
     }
 }
