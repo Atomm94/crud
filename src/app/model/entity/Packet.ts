@@ -1,18 +1,22 @@
 import {
     Entity,
     Column,
+    DeleteDateColumn,
     ManyToOne,
     JoinColumn,
-    OneToMany
+    OneToMany,
+    Index
 } from 'typeorm'
 
 import { MainEntity } from './MainEntity'
 import { PacketType } from './PacketType'
 import { Company } from './Company'
 
+@Index('name|deleteDate', ['name', 'deleteDate'], { unique: true })
+
 @Entity('packet')
 export class Packet extends MainEntity {
-    @Column('varchar', { name: 'name', unique: true })
+    @Column('varchar', { name: 'name' })
     name: string
 
     @Column('varchar', { name: 'description', nullable: true })
@@ -35,6 +39,9 @@ export class Packet extends MainEntity {
 
     @Column('boolean', { name: 'status', default: true })
     status: boolean
+
+    @DeleteDateColumn({ type: 'timestamp', name: 'delete_date' })
+    public deleteDate: Date
 
     @ManyToOne(type => PacketType, packetType => packetType.packets)
     @JoinColumn({ name: 'packet_type' })

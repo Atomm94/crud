@@ -8,7 +8,6 @@ import {
 } from 'typeorm'
 import { Admin } from '../entity/Admin'
 import { CompanyResources } from '../entity/CompanyResources'
-// import { AccessControl } from '../../functions/access-control'
 
 @EventSubscriber()
 export class PostSubscriber implements EntitySubscriberInterface<Admin> {

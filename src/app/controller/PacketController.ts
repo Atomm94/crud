@@ -39,6 +39,8 @@ export default class PacketController {
      *                      type: number
      *                  pay_terms:
      *                      type: JSON
+     *                  extra_settings:
+     *                      type: string
      *                  status:
      *                      type: boolean
      *          responses:
@@ -100,6 +102,8 @@ export default class PacketController {
      *                      type: number
      *                  pay_terms:
      *                      type: JSON
+     *                  extra_settings:
+     *                      type: string
      *                  status:
      *                      type: boolean
      *          responses:

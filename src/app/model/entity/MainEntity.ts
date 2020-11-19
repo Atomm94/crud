@@ -20,8 +20,12 @@ import {
     Like,
     Between,
     In,
-    IsNull
+    IsNull,
+    AfterInsert,
+    AfterRemove
 } from 'typeorm'
+import * as Models from './index'
+import { CompanyResources } from './index'
 
 export abstract class MainEntity extends BaseEntity {
     @Index()
@@ -33,6 +37,52 @@ export abstract class MainEntity extends BaseEntity {
 
     @UpdateDateColumn({ type: 'timestamp', name: 'update_date' })
     updateDate: string;
+
+    @AfterInsert()
+    async increaseCompanyUsedResource () {
+        const self: any = this
+        const models: any = Models
+        const model_name: any = self.constructor.name
+
+        if (self.company) {
+            if (models[model_name] && models[model_name].resource) {
+                const company_resources = await CompanyResources.findOne({ company: self.company })
+                if (company_resources) {
+                    const used: any = JSON.parse(company_resources.used)
+                    if (used[model_name]) {
+                        used[model_name]++
+                    } else {
+                        used[model_name] = 1
+                    }
+                    company_resources.used = JSON.stringify(used)
+                    await company_resources.save()
+                }
+            }
+        }
+    }
+
+    @AfterRemove()
+    async decreaseCompanyUsedResource () {
+        const self: any = this
+        const models: any = Models
+        const model_name: any = self.constructor.name
+
+        console.log('self', self)
+
+        if (self.company) {
+            if (models[model_name] && models[model_name].resource) {
+                const company_resources = await CompanyResources.findOne({ company: self.company })
+                if (company_resources) {
+                    const used: any = JSON.parse(company_resources.used)
+                    if (used[model_name]) {
+                        used[model_name]--
+                        company_resources.used = JSON.stringify(used)
+                        await company_resources.save()
+                    }
+                }
+            }
+        }
+    }
 
     public static gettingActions: boolean = true
     public static gettingAttributes: boolean = true
