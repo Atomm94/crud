@@ -29,8 +29,8 @@ export class Role extends MainEntity {
   @Column('varchar', { name: 'slug', nullable: true, length: 255 })
   slug: string | null;
 
-  @Column('longtext', { name: 'permissions', nullable: true })
-  permissions: { [key: string]: string[] } | null;
+  @Column('longtext', { name: 'permissions', nullable: false })
+  permissions: string;
 
   @OneToMany(type => Admin, admin => admin.roles, { nullable: true })
   admins: Admin[] | null;

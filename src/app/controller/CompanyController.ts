@@ -149,7 +149,7 @@ export default class CompanyController {
      */
     public static async get (ctx: DefaultContext) {
         try {
-            const relations = ['users', 'packets', 'packet_types', 'company_documents']
+            const relations = ['company_account', 'packets', 'packet_types', 'company_documents']
             ctx.body = await Company.getItem(+ctx.params.id, relations)
         } catch (error) {
             ctx.status = error.status || 400
@@ -261,7 +261,7 @@ export default class CompanyController {
             }
 
             req_data.where = where
-            req_data.relations = ['users', 'packets', 'packet_types', 'company_documents']
+            req_data.relations = ['company_account', 'packets', 'packet_types', 'company_documents']
             ctx.body = await Company.getAllItems(req_data)
         } catch (error) {
             ctx.status = error.status || 400
@@ -374,10 +374,24 @@ export default class CompanyController {
                 account_data.company = company.id
                 account_data.verify_token = uid(32)
 
-                const role = await Role.findOne({ slug: 'default_partner' })
-                if (role) account_data.role = role.id
+                let permissions: string = JSON.stringify({ Packet: { actions: { getItem: true, getAllItems: true } }, PacketType: { actions: { getItem: true, getAllItems: true } } })
+                const default_role = await Role.findOne({ slug: 'default_partner' })
+                if (default_role) {
+                    permissions = default_role.permissions
+                }
+                const role_save_data = {
+                    slug: company.company_name,
+                    permissions: permissions,
+                    main: true
+                }
+                const new_company_role: any = await Role.addItem(role_save_data as Role)
 
+                account_data.role = new_company_role.id
                 const admin: any = await Admin.addItem(account_data as Admin)
+
+                company.account = admin.id
+                await Company.save(company)
+
                 // send email (link with verify_token)
                 const msg = {
                     to: `${admin.email}`,

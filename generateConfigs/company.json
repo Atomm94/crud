@@ -28,6 +28,13 @@
                     "nullable": true
                 }
             },
+            "account": {
+                "type": "int",
+                "params": {
+                    "name": "account",
+                    "nullable": true
+                }
+            },
             "status": {
                 "type": "varchar",
                 "params": {
