@@ -78,13 +78,13 @@ export class Admin extends MainEntity {
   @Column('varchar', { name: 'verify_token', nullable: true })
   verify_token: string | null;
 
-  @Column('varchar', { name: 'phone_1', nullable: false })
+  @Column('varchar', { name: 'phone_1', nullable: true })
   phone_1: string;
 
   @Column('varchar', { name: 'phone_2', nullable: true })
   phone_2: string | null;
 
-  @Column('varchar', { name: 'post_code', nullable: false })
+  @Column('varchar', { name: 'post_code', nullable: true })
   post_code: string;
 
   @Column('varchar', { name: 'country', nullable: true })
