@@ -6,7 +6,8 @@ import {
   ManyToOne,
   JoinColumn,
   createQueryBuilder,
-  OneToMany
+  OneToMany,
+  OneToOne
   // ManyToOne
   // Index,
   // CreateDateColumn,
@@ -121,6 +122,9 @@ export class Admin extends MainEntity {
   @ManyToOne(type => Company, company => company.users, { nullable: true })
   @JoinColumn({ name: 'company' })
   companies: Company | null;
+
+  @OneToOne(type => Company, company => company.company_account, { nullable: true })
+  account_company: Company | null;
 
   @BeforeInsert()
   async generatePassword () {
