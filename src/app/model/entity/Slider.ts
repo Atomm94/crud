@@ -79,8 +79,9 @@ export class Slider extends MainEntity {
 
     public static async destroyItem (data: { id: number }) {
         const itemId: number = +data.id
-        return new Promise((resolve, reject) => {
-            this.delete(itemId)
+        // eslint-disable-next-line no-async-promise-executor
+        return new Promise(async (resolve, reject) => {
+              this.remove(await this.findByIds([itemId]))
                 .then(() => {
                     resolve({ message: 'success' })
                 })
