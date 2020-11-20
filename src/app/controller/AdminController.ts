@@ -268,12 +268,15 @@ export default class AdminController {
        *                properties:
        *                  id:
        *                      type: number
+       *                  old_password:
+       *                      type: string
        *                  password:
        *                      type: string
        *                example:
        *                    {
        *                         id: 1,
-       *                         password: 'my_pass',
+       *                         old_password: 'my_pass',
+       *                         password: 'my_new_pass',
        *                    }
        *          responses:
        *              '201':
@@ -293,21 +296,28 @@ export default class AdminController {
         let user
 
         try {
-            user = await userRepository.findOneOrFail({ id: id })
-
-            if (user && user.password) {
-                checkPass = bcrypt.compareSync(old_password, user.password)
-
-                if (checkPass) {
-                    if (reqData.password) user.password = password
-                    updatedUser = await userRepository.save(user)
-                    ctx.body = updatedUser
-                } else {
-                    ctx.status = 401
-                    ctx.body = { message: 'Incorrect Password' }
+            if (!validate(password).success) {
+                ctx.status = 400
+                ctx.body = {
+                    message: validate(password).message
                 }
             } else {
-                ctx.status = 400
+                user = await userRepository.findOneOrFail({ id: id })
+
+                if (user && user.password) {
+                    checkPass = bcrypt.compareSync(old_password, user.password)
+
+                    if (checkPass) {
+                        if (reqData.password) user.password = password
+                        updatedUser = await userRepository.save(user)
+                        ctx.body = updatedUser
+                    } else {
+                        ctx.status = 400
+                        ctx.body = { message: 'Incorrect Password' }
+                    }
+                } else {
+                    ctx.status = 400
+                }
             }
         } catch (error) {
             ctx.status = error.status || 400

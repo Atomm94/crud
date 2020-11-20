@@ -1,6 +1,7 @@
 import { DefaultContext } from 'koa'
-import { Packet } from '../model/entity/Packet'
 import * as Models from '../model/entity/index'
+import { Packet } from '../model/entity/Packet'
+import { Company } from '../model/entity/Company'
 
 export default class PacketController {
     /**
@@ -232,6 +233,15 @@ export default class PacketController {
     public static async getAll (ctx: DefaultContext) {
         try {
             const req_data = ctx.query
+            const user = ctx.user
+            if (user.company) {
+                const company: any = await Company.getItem(user.company)
+                req_data.where = {
+                    packet_type: {
+                        '=': company.packet_type
+                    }
+                }
+            }
             req_data.relations = ['packet_types']
             ctx.body = await Packet.getAllItems(req_data)
         } catch (error) {
