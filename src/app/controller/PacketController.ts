@@ -39,7 +39,7 @@ export default class PacketController {
      *                  price:
      *                      type: number
      *                  pay_terms:
-     *                      type: JSON
+     *                      type: string
      *                  extra_settings:
      *                      type: string
      *                  status:
@@ -102,7 +102,7 @@ export default class PacketController {
      *                  price:
      *                      type: number
      *                  pay_terms:
-     *                      type: JSON
+     *                      type: string
      *                  extra_settings:
      *                      type: string
      *                  status:

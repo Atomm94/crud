@@ -384,7 +384,7 @@ export default class CompanyController {
                     } else {
                         const company: any = await Company.addItem(company_data as Company)
 
-                        let permissions: string = JSON.stringify({ Packet: { actions: { getItem: true, getAllItems: true } }, PacketType: { actions: { getItem: true, getAllItems: true } } })
+                        let permissions: string = JSON.stringify({ Admin: { actions: { addItem: true, getItem: true, getAllItems: true } }, PacketType: { actions: { getItem: true, getAllItems: true } } })
                         const default_role = await Role.findOne({ slug: 'default_partner' })
                         if (default_role) {
                             permissions = default_role.permissions

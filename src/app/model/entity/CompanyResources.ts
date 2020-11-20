@@ -7,7 +7,7 @@ import { MainEntity } from './MainEntity'
 
 @Entity('company_resources')
 export class CompanyResources extends MainEntity {
-    @Column('int', { name: 'company', nullable: false })
+    @Column('int', { name: 'company', nullable: false, unique: true })
     company: number
 
     @Column('longtext', { name: 'used', nullable: false })

@@ -1,9 +1,11 @@
 import {
     EntitySubscriberInterface,
     EventSubscriber,
-    UpdateEvent
+    UpdateEvent,
+    InsertEvent
     // UpdateEvent
 } from 'typeorm'
+import { AccessControl } from '../../functions/access-control'
 import { Packet } from '../entity/Packet'
 
 @EventSubscriber()
@@ -25,6 +27,13 @@ export class PostSubscriber implements EntitySubscriberInterface<Packet> {
             await Packet.softRemove(await Packet.find({ id: Old.id }))
             delete New.name
             await Packet.save(New)
+        }
+    }
+
+    async afterInsert (event: InsertEvent<Packet>) {
+        const data = event.entity
+        if (data.status && data.extra_settings) {
+            AccessControl.addCompanyGrant(data)
         }
     }
 }

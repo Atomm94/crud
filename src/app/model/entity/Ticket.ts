@@ -32,7 +32,7 @@ export class Ticket extends MainEntity {
     message: string | null
 
     @Column('longtext', { name: 'image', nullable: true })
-    image: JSON | null
+    image: string | null
 
     @Column('int', { name: 'user_id' })
     user_id: number

@@ -13,6 +13,7 @@ const database = new Database();
     try {
         await database.connect()
         await AccessControl.GrantAccess()
+        await AccessControl.GrantCompanyAccess()
         await Sendgrid.init(config.sendgrid.apiKey)
         app.listen(
             config.server.port, () => console.log('APP listening at port %d', config.server.port)
