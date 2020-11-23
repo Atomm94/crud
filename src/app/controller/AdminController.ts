@@ -87,7 +87,7 @@ export default class AdminController {
 
         if (validate(reqData.password).success) {
             try {
-                newAdmin = await Admin.addItem(reqData, user)
+                newAdmin = await Admin.features.AdminOperation.addItem(reqData, user)
                 role = await Role.findOne({
                     id: reqData.role
                 })
@@ -380,7 +380,7 @@ export default class AdminController {
         let edAdmin
 
         try {
-            edAdmin = await Admin.updateItem(reqData)
+            edAdmin = await Admin.features.AdminOperation.updateItem(reqData)
             ctx.body = edAdmin
         } catch (error) {
             ctx.status = error.status || 400
@@ -429,7 +429,7 @@ export default class AdminController {
         const role = {}
         try {
             const relations = ['departments']
-            admin = await Admin.getItem(adminId, relations)
+            admin = await Admin.features.AdminOperation.getItem(adminId, relations)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -482,7 +482,7 @@ export default class AdminController {
         const reqData = ctx.request.body
         let result
         try {
-            result = await Admin.destroyItem(reqData.id)
+            result = await Admin.features.AdminOperation.destroyItem(reqData.id)
             ctx.body = {
                 success: true,
                 result
@@ -535,7 +535,7 @@ export default class AdminController {
                 { email: { contains: name } }
             ]
         }
-        allAdmin = await Admin.getAllItems(req_data)
+        allAdmin = await Admin.features.AdminOperation.getAllItems(req_data)
 
         return (ctx.body = allAdmin)
     }

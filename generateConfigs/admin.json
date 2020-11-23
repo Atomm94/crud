@@ -121,6 +121,13 @@
                     "nullable": true
                 }
             },
+            "city": {
+                "type": "varchar",
+                "params": {
+                    "name": "city",
+                    "nullable": true
+                }
+            },
             "site": {
                 "type": "varchar",
                 "params": {

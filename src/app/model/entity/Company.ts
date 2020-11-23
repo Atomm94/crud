@@ -27,7 +27,7 @@ export class Company extends MainEntity {
     @Column('int', { name: 'packet_type', nullable: false })
     packet_type: number
 
-    @Column('varchar', { name: 'message', nullable: true })
+    @Column('longtext', { name: 'message', nullable: true })
     message: string | null
 
     @Column('int', { name: 'account', nullable: true })
@@ -98,7 +98,7 @@ export class Company extends MainEntity {
         })
     }
 
-    public static async getItem (id: number, relations?: any) {
+    public static async getItem (id: number, relations?: Array<string>) {
         const itemId: number = id
         return new Promise((resolve, reject) => {
             this.findOneOrFail({
@@ -135,13 +135,19 @@ export class Company extends MainEntity {
     public static async getAllItems (params?: any) {
         return new Promise((resolve, reject) => {
             this.findByParams(params)
-                .then((items: Array<Company>) => {
-                    items.forEach((item: Company) => {
+                .then((items: Array<Company> | { data: Array<Company>, count: number }) => {
+                    const data = (Array.isArray(items)) ? items : items.data
+                    data.forEach((item: Company) => {
                         if (item.company_account) {
                             const account_params: any = pick(item.company_account, 'id', 'first_name', 'last_name', 'company', 'phone_1', 'post_code')
                             item.company_account = account_params
                         }
                     })
+                    if (Array.isArray(items)) {
+                        items = data
+                    } else {
+                        items.data = data
+                    }
                     resolve(items)
                 })
                 .catch((error: any) => {

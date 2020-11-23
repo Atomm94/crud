@@ -25,6 +25,7 @@ import {
 } from './index'
 import * as bcrypt from 'bcrypt'
 import { MainEntity } from './MainEntity'
+import { BaseClass } from './BaseClass'
 import { fileSave } from '../../functions/file'
 import fs from 'fs'
 import { join } from 'path'
@@ -33,9 +34,30 @@ import { logger } from '../../../../modules/winston/logger'
 
 const parentDir = join(__dirname, '../../..')
 
+class AdminOperation extends BaseClass {
+  public static async addItem (data: any, user: any = null) {
+    return await Admin.addItem(data, user)
+  }
+
+  public static async destroyItem (data: { id: number }) {
+    return await Admin.destroyItem(data)
+  }
+
+  public static async updateItem (data: any) {
+    return await Admin.updateItem(data)
+  }
+
+  public static async getItem (id: number, relations?: Array<string>) {
+    return await Admin.getItem(id, relations)
+  }
+
+  public static async getAllItems (params: any) {
+    return await Admin.getAllItems(params)
+  }
+}
+
 @Entity('admin')
 export class Admin extends MainEntity {
-  static resource = true
   @Column('varchar', { name: 'username', nullable: true, length: 255, unique: true })
   username: string | null;
 
@@ -91,6 +113,9 @@ export class Admin extends MainEntity {
   @Column('varchar', { name: 'country', nullable: true })
   country: string | null;
 
+  @Column('varchar', { name: 'city', nullable: true })
+  city: string | null;
+
   @Column('varchar', { name: 'site', nullable: true })
   site: string | null;
 
@@ -143,6 +168,11 @@ export class Admin extends MainEntity {
     }
   }
 
+  public static resource: boolean = true
+  public static features = {
+    AdminOperation: AdminOperation
+  }
+
   public static async addItem (data: any, user: any = null) {
     const admin = new Admin()
 
@@ -162,6 +192,7 @@ export class Admin extends MainEntity {
     if ('phone_2' in data) admin.phone_2 = data.phone_2
     admin.post_code = data.post_code
     if ('country' in data) admin.country = data.country
+    if ('city' in data) admin.city = data.city
     if ('site' in data) admin.site = data.site
     if ('address' in data) admin.address = data.address
     if ('viber' in data) admin.viber = data.viber
@@ -196,6 +227,7 @@ export class Admin extends MainEntity {
     if ('role' in data) admin.role = data.role
     if ('department' in data) admin.department = data.department
     if ('avatar' in data) admin.avatar = data.avatar
+    if ('city' in data) admin.city = data.city
 
     if (!admin) return { status: 400, messsage: 'Item not found' }
     return new Promise((resolve, reject) => {
@@ -229,7 +261,7 @@ export class Admin extends MainEntity {
     const itemId: number = +data.id
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve, reject) => {
-        this.remove(await this.findByIds([itemId]))
+      this.remove(await this.findByIds([itemId]))
         .then(() => {
           resolve({ message: 'success' })
         })

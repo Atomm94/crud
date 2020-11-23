@@ -34,8 +34,8 @@ export class Packet extends MainEntity {
     @Column('longtext', { name: 'pay_terms', nullable: true })
     pay_terms: string | null
 
-    @Column('longtext', { name: 'extra_settings', nullable: true })
-    extra_settings: string | null
+    @Column('longtext', { name: 'extra_settings', nullable: false })
+    extra_settings: string
 
     @Column('boolean', { name: 'status', default: true })
     status: boolean
