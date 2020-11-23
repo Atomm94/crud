@@ -16,6 +16,8 @@ export class Language extends MainEntity {
     @Column('boolean', { name: 'status', default: true })
     status: boolean
 
+    static gettingActions = false
+
     public static async addItem (data: Language) {
         const language = new Language()
 

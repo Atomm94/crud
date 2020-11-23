@@ -107,7 +107,7 @@ export class Company extends MainEntity {
             })
                 .then((item: Company) => {
                     if (item.company_account) {
-                        const account_params: any = pick(item.company_account, 'id', 'first_name', 'last_name', 'company', 'phone_1', 'post_code')
+                        const account_params: any = pick(item.company_account, 'id', 'first_name', 'last_name', 'company', 'country', 'phone_1', 'post_code', 'viber', 'whatsapp', 'telegram', 'phone_2', 'email', 'address', 'site')
                         item.company_account = account_params
                     }
                     resolve(item)
@@ -139,7 +139,7 @@ export class Company extends MainEntity {
                     const data = (Array.isArray(items)) ? items : items.data
                     data.forEach((item: Company) => {
                         if (item.company_account) {
-                            const account_params: any = pick(item.company_account, 'id', 'first_name', 'last_name', 'company', 'phone_1', 'post_code')
+                            const account_params: any = pick(item.company_account, 'id', 'first_name', 'last_name', 'country', 'company', 'phone_1', 'post_code', 'last_login_date')
                             item.company_account = account_params
                         }
                     })

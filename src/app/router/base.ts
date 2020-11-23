@@ -170,6 +170,7 @@ export default router
   .post('Company-addItem', 'company', CompanyController.add)
   .put('Company-updateItem', 'company', CompanyController.update)
   .get('Company-getItem', 'company/:id', CompanyController.get)
+  .get('Company-getItem', 'serviceCompany', CompanyController.getServiceCompany)
   .delete('Company-destroyItem', 'company', CompanyController.destroy)
   .get('Company-getAllItems', 'company', CompanyController.getAll)
 

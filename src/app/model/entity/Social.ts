@@ -19,6 +19,8 @@ export class Social extends MainEntity {
     @Column('varchar', { name: 'icon_class', nullable: true, length: '255' })
     icon_class: string | null
 
+    static gettingActions = false
+
     public static async addItem (data: Social) {
         const social = new Social()
 

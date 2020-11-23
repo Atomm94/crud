@@ -41,6 +41,8 @@ export class Menu extends MainEntity {
     @JoinColumn()
     page: Page;
 
+    static gettingActions = false
+
     public static async addItem (data: any) {
         const menu = new Menu()
 
