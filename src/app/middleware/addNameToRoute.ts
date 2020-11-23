@@ -8,6 +8,8 @@ export default (router: any) => async (ctx: DefaultContext, next: () => Promise<
   const path = ctx.request.url.split('?')[0].split('/')[1]
   const method = ctx.request.method
   const rt = search(`/${path}`, method, router.stack)
+  console.log('rt', rt)
+
   ctx.allowed = false
   if (rt && rt.name) {
     const route_args = rt.name.split('-')
