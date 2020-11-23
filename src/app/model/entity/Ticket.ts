@@ -5,6 +5,7 @@ import {
     JoinColumn,
     OneToMany
 } from 'typeorm'
+import * as _ from 'lodash'
 
 import { MainEntity } from './MainEntity'
 import { fileSave } from '../../functions/file'
@@ -16,7 +17,6 @@ import {
     TicketMessage
 } from './index'
 import { Admin } from './Admin'
-import { pick } from 'lodash'
 
 const parentDir = join(__dirname, '../../..')
 
@@ -126,14 +126,14 @@ export class Ticket extends MainEntity {
             })
                 .then(async (item: Ticket) => {
                     if (item.user) {
-                        const user_params: any = pick(item.user, 'id', 'first_name', 'last_name', 'avatar')
+                        const user_params: any = _.omit(item.user, ['password', 'super', 'verify_token'])
                         item.user = user_params
                     }
                     if (item.ticket_messages) {
                         item.ticket_messages.forEach((ticket_message: TicketMessage) => {
                             if (ticket_message.users) {
-                                const user_params: any = pick(ticket_message, 'users.id', 'users.first_name', 'users.last_name', 'users.avatar')
-                                ticket_message.users = user_params.users
+                                const user_params: any = _.omit(ticket_message.users, ['password', 'super', 'verify_token'])
+                                ticket_message.users = user_params
                             }
                         })
                         if (item.ticket_messages.length && item.ticket_messages.slice(-1)[0].users.id !== user.id) {
@@ -195,14 +195,14 @@ export class Ticket extends MainEntity {
                 .then((items: Array<Ticket>) => {
                     items.forEach((item: Ticket, i: number) => {
                         if (item.user) {
-                            const user_params: any = pick(item.user, 'id', 'first_name', 'last_name', 'avatar')
+                            const user_params: any = _.omit(item.user, ['password', 'super', 'verify_token'])
                             item.user = user_params
                         }
                         if (item.ticket_messages) {
                             item.ticket_messages.forEach((ticket_message: TicketMessage) => {
                                 if (ticket_message.users) {
-                                    const user_params: any = pick(ticket_message, 'users.id', 'users.first_name', 'users.last_name', 'users.avatar')
-                                    ticket_message.users = user_params.users
+                                    const user_params: any = _.omit(ticket_message.users, ['password', 'super', 'verify_token'])
+                                    ticket_message.users = user_params
                                 }
                             })
                         }

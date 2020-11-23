@@ -223,13 +223,13 @@ export class Admin extends MainEntity {
     if ('last_name' in data) admin.last_name = data.last_name
     if ('address' in data) admin.address = data.address
     if ('country' in data) admin.country = data.country
+    if ('city' in data) admin.city = data.city
     if ('phone_1' in data) admin.phone_1 = data.phone_1
     if ('email' in data) admin.email = data.email
     if ('status' in data) admin.status = (data.status === 'true') ? true : (data.status === 'false') ? false : data.status
     if ('role' in data) admin.role = data.role
     if ('department' in data) admin.department = data.department
     if ('avatar' in data) admin.avatar = data.avatar
-    if ('city' in data) admin.city = data.city
 
     if (!admin) return { status: 400, messsage: 'Item not found' }
     return new Promise((resolve, reject) => {

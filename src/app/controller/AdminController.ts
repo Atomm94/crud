@@ -69,6 +69,49 @@ export default class AdminController {
      *                  role:
      *                      type: number
      *                      example: 5
+     *                  department:
+     *                      type: number
+     *                      example: 1
+     *                  avatar:
+     *                      type: string
+     *                      example: avatar
+     *                  first_name:
+     *                      type: string
+     *                      example: John
+     *                  last_name:
+     *                      type: string
+     *                      example: Smith
+     *                  phone_1:
+     *                      type: string
+     *                      example: +374 XX XXX XXX
+     *                  phone_2:
+     *                      type: string
+     *                      example: +374 XX XXX XXX
+     *                  post_code:
+     *                      type: string
+     *                      example: 0000
+     *                  country:
+     *                      type: string
+     *                      example: some country name
+     *                  city:
+     *                      type: string
+     *                      example: some city name
+     *                  site:
+     *                      type: string
+     *                      example: some site name
+     *                  address:
+     *                      type: string
+     *                      example: some address
+     *                  viber:
+     *                      type: string
+     *                      example: +374 XX XXX XXX
+     *                  whatsapp:
+     *                      type: string
+     *                      example: +374 XX XXX XXX
+     *                  company:
+     *                      type: string
+     *                      example: +374 XX XXX XXX
+
      *          responses:
      *              '201':
      *                  description: A admin object
@@ -146,7 +189,7 @@ export default class AdminController {
         try {
             if (ctx.user) {
                 admin = await Admin.findOneOrFail(ctx.user.id)
-                const adminFiltered = _.pick(admin, ['id', 'first_name', 'last_name', 'username', 'email', 'avatar', 'first_name', 'last_name', 'phone_1', 'phone_2', 'role', 'post_code', 'country', 'site', 'address', 'viber', 'whatsapp', 'company'])
+                const adminFiltered = _.omit(admin, ['password', 'super', 'verify_token'])
                 ctx.body = adminFiltered
             } else {
                 ctx.status = 401
@@ -362,6 +405,45 @@ export default class AdminController {
      *                  role:
      *                      type: number
      *                      example: 5
+     *                  department:
+     *                      type: number
+     *                      example: 1
+     *                  avatar:
+     *                      type: string
+     *                      example: avatar
+     *                  first_name:
+     *                      type: string
+     *                      example: John
+     *                  last_name:
+     *                      type: string
+     *                      example: Smith
+     *                  phone_1:
+     *                      type: string
+     *                      example: +374 XX XXX XXX
+     *                  phone_2:
+     *                      type: string
+     *                      example: +374 XX XXX XXX
+     *                  post_code:
+     *                      type: string
+     *                      example: 0000
+     *                  country:
+     *                      type: string
+     *                      example: some country name
+     *                  city:
+     *                      type: string
+     *                      example: some city name
+     *                  site:
+     *                      type: string
+     *                      example: some site name
+     *                  address:
+     *                      type: string
+     *                      example: some address
+     *                  viber:
+     *                      type: string
+     *                      example: +374 XX XXX XXX
+     *                  whatsapp:
+     *                      type: string
+     *                      example: +374 XX XXX XXX
      *          responses:
      *              '201':
      *                  description: A market updated object
