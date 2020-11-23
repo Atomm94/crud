@@ -1,19 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm'
+import { Role } from '../entity/Role'
 const slug = 'default_partner'
-const permissions = {
-    Packet: {
-        actions: {
-            getItem: true,
-            getAllItems: true
-        }
-    },
-    PacketType: {
-        actions: {
-            getItem: true,
-            getAllItems: true
-        }
-    }
-}
+const permissions = Role.default_partner_role
 
 export class createDeafaultRole1605524671196 implements MigrationInterface {
     public async up (queryRunner: QueryRunner): Promise<void> {

@@ -34,8 +34,8 @@ export class Packet extends MainEntity {
     @Column('longtext', { name: 'pay_terms', nullable: true })
     pay_terms: string | null
 
-    @Column('longtext', { name: 'extra_settings', nullable: true })
-    extra_settings: string | null
+    @Column('longtext', { name: 'extra_settings', nullable: false })
+    extra_settings: string
 
     @Column('boolean', { name: 'status', default: true })
     status: boolean
@@ -97,11 +97,12 @@ export class Packet extends MainEntity {
         })
     }
 
-    public static async getItem (id: number, relations?: Array<string>) {
+    public static async getItem (id: number, where: any, relations?: Array<string>) {
         const itemId: number = id
+        where.id = itemId
         return new Promise((resolve, reject) => {
             this.findOneOrFail({
-                where: { id: itemId },
+                where: where,
                 relations: relations || []
             })
                 .then((item: Packet) => {

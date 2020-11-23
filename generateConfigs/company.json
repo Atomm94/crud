@@ -22,7 +22,7 @@
                 }
             },
             "message": {
-                "type": "varchar",
+                "type": "longtext",
                 "params": {
                     "name": "message",
                     "nullable": true

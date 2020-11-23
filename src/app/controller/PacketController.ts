@@ -156,8 +156,17 @@ export default class PacketController {
      */
     public static async get (ctx: DefaultContext) {
         try {
+            const user = ctx.user
+            let where: any = {}
+            if (user.company) {
+                const company: any = await Company.getItem(user.company)
+                where = {
+                    packet_type: company.packet_type
+                }
+            }
+
             const relations = ['packet_types']
-            ctx.body = await Packet.getItem(+ctx.params.id, relations)
+            ctx.body = await Packet.getItem(+ctx.params.id, where, relations)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

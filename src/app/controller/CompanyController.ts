@@ -32,17 +32,27 @@ export default class CompanyController {
      *              schema:
      *                type: object
      *                required:
+     *                  - company_name
+     *                  - packet_type
      *                properties:
+     *                  id:
+     *                      type: number
+     *                      example: 1
      *                  company_name:
      *                      type: string
+     *                      example: some_company_name
      *                  packet:
      *                      type: number
+     *                      example: 1
      *                  packet_type:
      *                      type: number
+     *                      example: 1
      *                  message:
      *                      type: string
+     *                      example: some_message
      *                  status:
-     *                      type: string
+     *                      type: pending | disable | enable
+     *                      example: pending
      *          responses:
      *              '201':
      *                  description: A company object
@@ -92,14 +102,19 @@ export default class CompanyController {
      *                      example: 1
      *                  company_name:
      *                      type: string
+     *                      example: some_company_name
      *                  packet:
      *                      type: number
+     *                      example: 1
      *                  packet_type:
      *                      type: number
+     *                      example: 1
      *                  message:
      *                      type: string
+     *                      example: some_message
      *                  status:
-     *                      type: string
+     *                      type: pending | disable | enable
+     *                      example: pending
      *          responses:
      *              '201':
      *                  description: A company updated object
@@ -112,6 +127,8 @@ export default class CompanyController {
         try {
             ctx.body = await Company.updateItem(ctx.request.body as Company)
         } catch (error) {
+            console.log(error)
+
             ctx.status = error.status || 400
             ctx.body = error
         }
@@ -424,7 +441,7 @@ export default class CompanyController {
                     } else {
                         const company: any = await Company.addItem(company_data as Company)
 
-                        let permissions: string = JSON.stringify({ Admin: { actions: { addItem: true, getItem: true, getAllItems: true } }, PacketType: { actions: { getItem: true, getAllItems: true } } })
+                        let permissions: string = JSON.stringify(Role.default_partner_role)
                         const default_role = await Role.findOne({ slug: 'default_partner' })
                         if (default_role) {
                             permissions = default_role.permissions

@@ -48,6 +48,21 @@ export class Role extends MainEntity {
   @JoinColumn({ name: 'company' })
   companies: Company | null;
 
+  public static default_partner_role: any = {
+    Packet: {
+      actions: {
+        getItem: true,
+        getAllItems: true
+      }
+    },
+    PacketType: {
+      actions: {
+        getItem: true,
+        getAllItems: true
+      }
+    }
+  }
+
   public static async addItem (data: Role) {
     const role = new Role()
 

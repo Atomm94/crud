@@ -2,7 +2,7 @@ import app from './app'
 import config from '../config'
 import { Database } from '../component/db'
 import { Sendgrid } from '../component/sendgrid/sendgrid'
-import { logger } from '../../modules/winston/logger'
+// import { logger } from '../../modules/winston/logger'
 import { AccessControl } from './functions/access-control'
 
 const database = new Database();
@@ -27,5 +27,5 @@ const database = new Database();
                 process.exit(1)
             }
         })
-    } catch (e) { logger.error('Error:', e) }
+    } catch (e) { console.error('Error:', e) }
 })()
