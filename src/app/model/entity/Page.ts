@@ -54,6 +54,8 @@ export class Page extends MainEntity {
     @JoinColumn({ name: 'section' })
     sections: Section[] | null;
 
+    static gettingActions = false
+
     public static async addItem (data: any) {
         const page = new Page()
 

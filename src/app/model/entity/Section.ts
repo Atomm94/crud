@@ -36,6 +36,8 @@ export class Section extends MainEntity {
     @ManyToOne(type => Page, page => page.sections, { nullable: true })
     page: Page | null;
 
+    static gettingActions = false
+
     public static async addItem (data: any) {
         const section = new Section()
 

@@ -13,6 +13,8 @@ export class CompanyResources extends MainEntity {
     @Column('longtext', { name: 'used', nullable: false })
     used: string
 
+    static gettingActions = false
+
     public static async addItem (data: CompanyResources) {
         const companyResources = new CompanyResources()
 

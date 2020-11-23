@@ -23,6 +23,8 @@ export class Slider extends MainEntity {
     @Column('boolean', { name: 'status', default: true })
     status: boolean | true;
 
+    static gettingActions = false
+
     public static async addItem (data: any) {
         const slider = new Slider()
 

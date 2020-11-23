@@ -190,7 +190,9 @@ export class Admin extends MainEntity {
     if ('username' in data) admin.username = data.username
     if ('first_name' in data) admin.first_name = data.first_name
     if ('last_name' in data) admin.last_name = data.last_name
-
+    if ('address' in data) admin.address = data.address
+    if ('country' in data) admin.country = data.country
+    if ('phone_1' in data) admin.phone_1 = data.phone_1
     if ('email' in data) admin.email = data.email
     if ('status' in data) admin.status = (data.status === 'true') ? true : (data.status === 'false') ? false : data.status
     if ('role' in data) admin.role = data.role

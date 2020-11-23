@@ -142,15 +142,11 @@ export default class AdminController {
      */
 
     public static async getUserData (ctx: DefaultContext) {
-        const token = <string>ctx.request.header.authorization
-        let verify
         let admin
         try {
-            verify = <any>jwt.verify(token, 'jwtSecret')
-            if (verify) {
-                admin = await Admin.findOneOrFail(verify.id)
-                const adminFiltered = _.pick(admin, ['id', 'first_name', 'last_name', 'username', 'email', 'avatar', 'role'])
-
+            if (ctx.user) {
+                admin = await Admin.findOneOrFail(ctx.user.id)
+                const adminFiltered = _.pick(admin, ['id', 'first_name', 'last_name', 'username', 'email', 'avatar', 'first_name', 'last_name', 'phone_1', 'phone_2', 'role', 'post_code', 'country', 'site', 'address', 'viber', 'whatsapp', 'company'])
                 ctx.body = adminFiltered
             } else {
                 ctx.status = 401
