@@ -2,10 +2,11 @@ import {
     EntitySubscriberInterface,
     EventSubscriber,
     InsertEvent,
-    UpdateEvent
+    UpdateEvent,
+    getManager
 } from 'typeorm'
 import * as Models from '../entity'
-import { Admin, CompanyResources, Packet, Role } from '../entity'
+import { Admin, CompanyResources, Role } from '../entity'
 import { Company } from '../entity/Company'
 
 @EventSubscriber()
@@ -40,8 +41,11 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
                 if (account && account.role) {
                     const account_role: Role | undefined = await Role.findOne(account.role)
                     const default_role: Role | undefined = await Role.findOne({ slug: 'default_partner', company: null })
-                    const packet: Packet | undefined = await Packet.findOne(New.packet) // get softDelete too
-                    if (account_role && packet) {
+                    // const packet: Packet | undefined = await Packet.findOne(New.packet) // get softDelete too
+                    let packet: any = await getManager().query(`SELECT * FROM packet where id = ${New.packet}`)
+
+                    if (account_role && packet.length) {
+                        packet = packet[0]
                         // generate account permissions
                         const permissions: any = {}
                         const default_permissions = (default_role) ? JSON.parse(default_role.permissions) : Role.default_partner_role
