@@ -198,7 +198,11 @@ export class Admin extends MainEntity {
     if ('viber' in data) admin.viber = data.viber
     if ('whatsapp' in data) admin.whatsapp = data.whatsapp
 
-    admin.company = (user && user.company) ? user.company : null
+    if ('company' in data) {
+      admin.company = data.company
+    } else {
+      admin.company = (user && user.company) ? user.company : null
+    }
 
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve, reject) => {
