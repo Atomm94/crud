@@ -82,6 +82,29 @@ export class Role extends MainEntity {
         saveFile: true,
         deleteFile: true
       }
+    },
+    Department: {
+      actions: {
+        getItem: true
+      }
+    },
+    Ticket: {
+      actions: {
+        addItem: true,
+        updateItem: true,
+        getItem: true,
+        destroyItem: true,
+        getAllItems: true,
+        saveImage: true,
+        deleteImage: true,
+        addMessage: true,
+        updateMessage: true,
+        getMessage: true,
+        destroyMessage: true,
+        getAllMessages: true,
+        saveMessageImage: true,
+        deleteMessageImage: true
+      }
     }
   }
 
