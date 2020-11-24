@@ -222,7 +222,6 @@ export abstract class MainEntity extends BaseEntity {
     public static async canCreate (company_id: number, resource: string) {
         try {
             const company = await Company.findOneOrFail({ id: company_id })
-            console.log(company)
             if (company && company.packet) {
                 const companyResources = await CompanyResources.findOneOrFail({ company: company_id })
                 if (companyResources && companyResources.used) {

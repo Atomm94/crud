@@ -127,8 +127,6 @@ export default class CompanyController {
         try {
             ctx.body = await Company.updateItem(ctx.request.body as Company)
         } catch (error) {
-            console.log(error)
-
             ctx.status = error.status || 400
             ctx.body = error
         }

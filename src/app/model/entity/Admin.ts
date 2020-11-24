@@ -222,6 +222,7 @@ export class Admin extends MainEntity {
 
   public static async updateItem (data: any) {
     const admin = await this.findOneOrFail(data.id)
+    delete admin.password
 
     if ('username' in data) admin.username = data.username
     if ('first_name' in data) admin.first_name = data.first_name
