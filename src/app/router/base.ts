@@ -168,7 +168,7 @@ export default router
 
   // Company controller CRUD endpoints
   .post('Company-addItem', 'company', CompanyController.add)
-  .put('Company-updateItem', 'company', CompanyController.update)
+  .put('Company-ServiceCompany-updateItem', 'company', CompanyController.update)
   .get('Company-getItem', 'company/:id', CompanyController.get)
   .get('ServiceCompany-getItem', 'serviceCompany', CompanyController.getServiceCompany)
   .delete('Company-destroyItem', 'company', CompanyController.destroy)
