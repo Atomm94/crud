@@ -125,6 +125,9 @@ export default class CompanyController {
      */
     public static async update (ctx: DefaultContext) {
         try {
+            if (ctx.user && ctx.user.company) {
+                ctx.request.body.id = ctx.user.company
+            }
             ctx.body = await Company.updateItem(ctx.request.body as Company)
         } catch (error) {
             ctx.status = error.status || 400
