@@ -1,12 +1,13 @@
+import { BaseClass } from './BaseClass'
 import { MainEntity } from './MainEntity'
 
-class test11Futrue {
+class test11Futrue extends BaseClass {
 
 }
-class test12Futrue {
+class test12Futrue extends BaseClass {
 
 }
-class test13Futrue {
+class test13Futrue extends BaseClass {
 
 }
 export class TestResource extends MainEntity {
