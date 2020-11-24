@@ -529,7 +529,6 @@ export default class CompanyController {
      */
     public static async resendNewPassEmail (ctx: DefaultContext) {
         const reqData = ctx.request.body
-        const token = ctx.params.token
         try {
             const admin = await Admin.findOneOrFail({ email: reqData.email })
             if (admin.verify_token) {
