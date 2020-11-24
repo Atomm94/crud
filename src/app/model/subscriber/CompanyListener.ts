@@ -35,7 +35,7 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
      */
     async afterUpdate (event: UpdateEvent<Company>) {
         const { entity: New, databaseEntity: Old } = event
-        if (New.packet && New.packet === Old.packet && Old.status === 'pending' && New.status === 'enable') {
+        if (New.packet && New.packet === Old.packet && Old.status === 'pending' && New.status === 'enabled') {
             if (New.account) {
                 const account = await Admin.findOne(New.account)
                 if (account && account.role) {

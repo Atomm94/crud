@@ -468,7 +468,7 @@ export default class CompanyController {
                             from: 'g.israelyan@studio-one.am',
                             subject: 'You have been invited to Unimacs',
                             text: 'has invited you',
-                            html: `<h1>Unimacs company has invited you to make a registration. Please click link bellow ${config.cors.origin}/newpassword/${admin.verify_token}</h1>`
+                            html: `<h2>Unimacs company has invited you to make a registration. Please click link bellow ${config.cors.origin}/newpassword/${admin.verify_token}</h2>`
                         }
                         await Sendgrid.send(msg)
 
@@ -538,7 +538,7 @@ export default class CompanyController {
                     from: 'g.israelyan@studio-one.am',
                     subject: 'You have been invited to Unimacs',
                     text: 'has invited you',
-                    html: `<h1>Unimacs company has invited you to make a registration. Please click link bellow ${config.cors.origin}/newpassword/${admin.verify_token}</h1>`
+                    html: `<h2>Unimacs company has invited you to make a registration. Please click link bellow ${config.cors.origin}/newpassword/${admin.verify_token}</h2>`
                 }
                 await Sendgrid.send(msg)
                 ctx.body = {
