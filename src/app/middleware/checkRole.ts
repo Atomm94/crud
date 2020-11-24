@@ -22,8 +22,8 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
     let check = false
     if (ctx.user && ctx.user.role) {
         const roleId = ctx.user.role
-        const actionName = (ctx.user.company && ctx.actionFeature) ? ctx.actionFeature : ctx.actionName
-        const actionModel = ctx.actionModel
+        const actionName = ctx.actionName
+        const actionModel = (ctx.user.company && ctx.actionFeature) ? ctx.actionFeature : ctx.actionModel
         check = await AccessControl.canAccess(roleId, actionModel, actionName)
     }
     try {

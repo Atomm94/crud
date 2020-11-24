@@ -69,15 +69,15 @@ export class Role extends MainEntity {
     },
     Role: {
       actions: {
-          addItem: true,
-          updateItem: true,
-          getItem: true,
-          destroyItem: true,
-          getAllItems: true,
-          getRole: true,
-          getAllAccess: true
+        addItem: true,
+        updateItem: true,
+        getItem: true,
+        destroyItem: true,
+        getAllItems: true,
+        getRole: true,
+        getAllAccess: true
       }
-  }
+    }
   }
 
   public static async addItem (data: Role) {
