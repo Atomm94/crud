@@ -49,18 +49,6 @@ export class Role extends MainEntity {
   companies: Company | null;
 
   public static default_partner_role: any = {
-    Packet: {
-      actions: {
-        getItem: true,
-        getAllItems: true
-      }
-    },
-    PacketType: {
-      actions: {
-        getItem: true,
-        getAllItems: true
-      }
-    },
     ServiceCompany: {
       actions: {
         getItem: true,
@@ -76,6 +64,24 @@ export class Role extends MainEntity {
         getAllItems: true,
         getRole: true,
         getAllAccess: true
+      }
+    },
+    Company: {
+      actions: {
+        addItem: true,
+        updateItem: true,
+        getItem: true,
+        destroyItem: true
+      }
+    },
+    CompanyDocuments: {
+      actions: {
+        addItem: true,
+        updateItem: true,
+        getItem: true,
+        destroyItem: true,
+        saveFile: true,
+        deleteFile: true
       }
     }
   }
