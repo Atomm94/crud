@@ -120,7 +120,7 @@ export default class AdminController {
      *              '422':
      *                  description: Wrong data
      */
-    public static async createAdmin (ctx: DefaultContext) {
+    public static async createAdmin(ctx: DefaultContext) {
         const reqData = ctx.request.body
         const user = ctx.user
         if (user.company) reqData.company = user.company
@@ -184,7 +184,7 @@ export default class AdminController {
      *                  description: OK
      */
 
-    public static async getUserData (ctx: DefaultContext) {
+    public static async getUserData(ctx: DefaultContext) {
         let admin
         try {
             if (ctx.user) {
@@ -244,7 +244,7 @@ export default class AdminController {
        *                  description: Wrong data
        */
 
-    public static async changePass (ctx: DefaultContext) {
+    public static async changePass(ctx: DefaultContext) {
         const userRepository = getRepository(Admin)
         const reqData = ctx.request.body
         let updatedUser
@@ -262,6 +262,7 @@ export default class AdminController {
                 }
             } else {
                 if (validate(reqData.password).success) {
+                    user.password = reqData.password
                     updatedUser = await userRepository.save(user)
                     ctx.body = updatedUser
                 } else {
@@ -326,7 +327,7 @@ export default class AdminController {
        *                  description: Wrong data
        */
 
-    public static async changeMyPass (ctx: DefaultContext) {
+    public static async changeMyPass(ctx: DefaultContext) {
         const { id, old_password, password } = ctx.request.body
         const userRepository = getRepository(Admin)
         let checkPass
@@ -453,7 +454,7 @@ export default class AdminController {
      *                  description: Wrong data
      */
 
-    public static async update (ctx: DefaultContext) {
+    public static async update(ctx: DefaultContext) {
         const reqData = ctx.request.body
         let edAdmin
 
@@ -501,7 +502,7 @@ export default class AdminController {
      *              '200':
      *                  description: OK
      */
-    public static async get (ctx: DefaultContext) {
+    public static async get(ctx: DefaultContext) {
         const adminId: number = +ctx.params.id
         let admin
         const role = {}
@@ -556,7 +557,7 @@ export default class AdminController {
      *              '422':
      *                  description: Wrong data
      */
-    public static async destroy (ctx: DefaultContext) {
+    public static async destroy(ctx: DefaultContext) {
         const reqData = ctx.request.body
         let result
         try {
@@ -598,7 +599,7 @@ export default class AdminController {
      *              '401':
      *                  description: Unauthorized
      */
-    public static async getAll (ctx: DefaultContext) {
+    public static async getAll(ctx: DefaultContext) {
         const name = ctx.query.name
         const user = ctx.user
         var allAdmin
@@ -647,7 +648,7 @@ export default class AdminController {
      *              '422':
      *                  description: Wrong data
      */
-    public static async userImageSave (ctx: DefaultContext) {
+    public static async userImageSave(ctx: DefaultContext) {
         const file = ctx.request.files.file
         const savedFile = await Admin.saveImage(file)
         return ctx.body = savedFile
@@ -688,7 +689,7 @@ export default class AdminController {
      *              '422':
      *                  description: Wrong data
      */
-    public static async userImageDelete (ctx: DefaultContext) {
+    public static async userImageDelete(ctx: DefaultContext) {
         const name = ctx.request.body.name
 
         try {
@@ -725,7 +726,7 @@ export default class AdminController {
      *              '404':
      *                  description: Data not found
      */
-    public static async getUserByToken (ctx: DefaultContext) {
+    public static async getUserByToken(ctx: DefaultContext) {
         const verify_token: string = ctx.params.token
         const user = await Admin.findOne({ verify_token: verify_token })
         if (user) {
@@ -776,7 +777,7 @@ export default class AdminController {
      *              '404':
      *                  description: Data not found
      */
-    public static async setPassword (ctx: DefaultContext) {
+    public static async setPassword(ctx: DefaultContext) {
         const verify_token: string = ctx.params.token
         const user = await Admin.findOne({ verify_token: verify_token })
         if (user) {
