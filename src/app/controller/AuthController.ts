@@ -59,8 +59,7 @@ export default class AuthController {
 
             return ctx.body
         }
-
-        if (user.username && user.password) {
+        if ((user.username || user.email) && user.password) {
             try {
                 checkPass = bcrypt.compareSync(password, user.password)
                 if (!checkPass) {
