@@ -122,9 +122,9 @@ export default router
   // Packet controller CRUD endpoints
   .post('Packet-addItem', 'packet', PacketController.add)
   .put('Packet-updateItem', 'packet', PacketController.update)
-  .get('Packet-getItem', 'packet/:id', PacketController.get)
+  .get('Packet-Product-getItem', 'packet/:id', PacketController.get)
   .delete('Packet-destroyItem', 'packet', PacketController.destroy)
-  .get('Packet-getAllItems', 'packet', PacketController.getAll)
+  .get('Packet-Product-getAllItems', 'packet', PacketController.getAll)
   .get('Packet-getAllItems', 'packetExtraSettings', PacketController.getExtraSettings)
 
   // PacketType controller CRUD endpoints
@@ -133,13 +133,6 @@ export default router
   .get('PacketType-getItem', 'packetType/:id', PacketTypeController.get)
   .delete('PacketType-destroyItem', 'packetType', PacketTypeController.destroy)
   .get('PacketType-getAllItems', 'packetType', PacketTypeController.getAll)
-
-  // PacketType controller CRUD endpoints
-  .post('packetType', PacketTypeController.add)
-  .put('packetType', PacketTypeController.update)
-  .get('packetType/:id', PacketTypeController.get)
-  .delete('packetType', PacketTypeController.destroy)
-  .get('packetType', PacketTypeController.getAll)
 
   // Ticket controller CRUD endpoints
   .post('Ticket-addItem', 'ticket', TicketController.add)
