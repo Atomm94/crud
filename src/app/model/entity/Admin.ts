@@ -226,6 +226,9 @@ export class Admin extends MainEntity {
     if ('country' in data) admin.country = data.country
     if ('city' in data) admin.city = data.city
     if ('phone_1' in data) admin.phone_1 = data.phone_1
+    if ('phone_2' in data) admin.phone_2 = data.phone_2
+    if ('viber' in data) admin.viber = data.viber
+    if ('whatsapp' in data) admin.whatsapp = data.whatsapp
     if ('email' in data) admin.email = data.email
     if ('status' in data) admin.status = (data.status === 'true') ? true : (data.status === 'false') ? false : data.status
     if ('role' in data) admin.role = data.role
