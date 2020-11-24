@@ -532,7 +532,7 @@ export default class CompanyController {
         const token = ctx.params.token
         try {
             const admin = await Admin.findOneOrFail({ email: reqData.email })
-            if (admin.verify_token && admin.verify_token === token) {
+            if (admin.verify_token) {
                 const msg = {
                     to: `${admin.email}`,
                     from: 'g.israelyan@studio-one.am',
