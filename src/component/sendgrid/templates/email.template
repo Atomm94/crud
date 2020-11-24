@@ -30,7 +30,7 @@
 						<tr>
 							<td style="width: 10%; padding: 0;"></td>
 							<td style="width: 80%; padding: 0;">
-									<a href="" style="display: inline-block; vertical-align: top; color: #ffffff !important; width: 275px; max-width: 100%; background: #7367f0; border-radius: 24px; font-size: 14px; line-height: 18px; padding: 13px 16px; font-weight: bold; text-decoration: none !important">CHOOSE A NEW PASSWORD</a>
+									<a href="<%= link %>" style="display: inline-block; vertical-align: top; color: #ffffff !important; width: 275px; max-width: 100%; background: #7367f0; border-radius: 24px; font-size: 14px; line-height: 18px; padding: 13px 16px; font-weight: bold; text-decoration: none !important">CHOOSE A NEW PASSWORD</a>
 							</td>
 							<td style="width: 10%; padding: 0;"></td>
 						</tr>

@@ -66,14 +66,13 @@ export class Role extends MainEntity {
         getAllAccess: true
       }
     },
-    // Company: {
-    //   actions: {
-    //     addItem: true,
-    //     updateItem: true,
-    //     getItem: true,
-    //     destroyItem: true
-    //   }
-    // },
+    Product: {
+      actions: {
+        updateItem: true,
+        getItem: true,
+        destroyItem: true
+      }
+    },
     CompanyDocuments: {
       actions: {
         addItem: true,
