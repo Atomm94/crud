@@ -1,3 +1,4 @@
+import AccountGroupController from '../controller/AccountGroupController'
 import CompanyDocumentsController from '../controller/CompanyDocumentsController'
 import CompanyController from '../controller/CompanyController'
 import RegistrationInviteController from '../controller/RegistrationInviteController'
@@ -189,3 +190,11 @@ export default router
   .put('registration/:token', CompanyController.resendNewPassEmail)
   .get('account/:token', AdminController.getUserByToken)
   .put('account/:token', AdminController.setPassword)
+
+  // AccountGroup controller CRUD endpoints
+  .post('AccountGroup-addItem', 'accountGroup', AccountGroupController.add)
+  .put('AccountGroup-updateItem', 'accountGroup', AccountGroupController.update)
+  .get('AccountGroup-getItem', 'accountGroup/:id', AccountGroupController.get)
+  .delete('AccountGroup-destroyItem', 'accountGroup', AccountGroupController.destroy)
+  .get('AccountGroup-getAllItems', 'accountGroup', AccountGroupController.getAll)
+  .get('AccountGroup-getGroupAccountsCounts', 'accountGroupAccounts/:id', AccountGroupController.getGroupAccountsCounts)

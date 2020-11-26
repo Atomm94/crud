@@ -1,0 +1,44 @@
+{
+    "model": {
+        "columns": {
+            "name": {
+                "type": "varchar",
+                "params": {
+                    "name": "name"
+                },
+                "formType": "textInput"
+            },
+            "description": {
+                "type": "varchar",
+                "params": {
+                    "name": "description",
+                    "nullable": true
+                },
+                "formType": "textInput"
+            },
+            "parentId": {
+                "type": "int",
+                "params": {
+                    "name": "parentId",
+                    "nullable": true
+                },
+                "formType": "numberInput",
+                "header": true
+            },
+            "company": {
+                "type": "int",
+                "params": {
+                    "name": "company",
+                    "nullable": false
+                },
+            "accountGroup": {
+                "type": "int",
+                "params": {
+                    "name": "accountGroup",
+                    "nullable": true
+                }
+            }
+            }
+        }
+    }
+}

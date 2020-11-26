@@ -31,6 +31,7 @@ import fs from 'fs'
 import { join } from 'path'
 import { IAdmins } from '../../Interfaces/Admins'
 import { logger } from '../../../../modules/winston/logger'
+import { AccountGroup } from './AccountGroup'
 
 const parentDir = join(__dirname, '../../..')
 
@@ -131,6 +132,9 @@ export class Admin extends MainEntity {
   @Column('int', { name: 'company', nullable: true })
   company: number | null;
 
+  @Column('int', { name: 'account_group', nullable: true })
+  account_group: number | null;
+
   @ManyToOne(type => Department, department => department.users, { nullable: true })
   @JoinColumn({ name: 'department' })
   departments: Department | null;
@@ -151,6 +155,10 @@ export class Admin extends MainEntity {
 
   @OneToOne(type => Company, company => company.company_account, { nullable: true })
   account_company: Company | null;
+
+  @ManyToOne(type => AccountGroup, account_group => account_group.users)
+  @JoinColumn({ name: 'account_group' })
+  account_groups: AccountGroup | null;
 
   @BeforeInsert()
   async generatePassword () {

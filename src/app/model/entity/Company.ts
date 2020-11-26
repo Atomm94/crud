@@ -15,6 +15,7 @@ import { Role } from './Role'
 import { PacketType } from './PacketType'
 import { statusCompany } from '../../enums/statusCompany.enum'
 import { CompanyDocuments } from './CompanyDocuments'
+import { AccountGroup } from './AccountGroup'
 
 @Entity('company')
 export class Company extends MainEntity {
@@ -56,6 +57,9 @@ export class Company extends MainEntity {
     @OneToOne(() => Admin, admin => admin.account_company, { nullable: true }) // specify inverse side as a second parameter
     @JoinColumn({ name: 'account' })
     company_account: Admin | null;
+
+    @OneToMany(type => AccountGroup, account_group => account_group.companies) // specify inverse side as a second parameter
+    account_group: AccountGroup[];
 
     public static async addItem (data: Company) {
         const company = new Company()
