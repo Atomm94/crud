@@ -1,3 +1,4 @@
+import UserController from '../controller/UserController'
 import CompanyDocumentsController from '../controller/CompanyDocumentsController'
 import CompanyController from '../controller/CompanyController'
 import RegistrationInviteController from '../controller/RegistrationInviteController'
@@ -189,3 +190,10 @@ export default router
   .put('registration/:token', CompanyController.resendNewPassEmail)
   .get('account/:token', AdminController.getUserByToken)
   .put('account/:token', AdminController.setPassword)
+
+  // User controller CRUD endpoints
+  .post('Users-addItem', 'user', UserController.add)
+  .put('Users-getItem', 'user', UserController.update)
+  .get('Users-updateItem', 'user/:id', UserController.get)
+  .delete('Users-destroyItem', 'user', UserController.destroy)
+  .get('Users-getAllItems', 'user', UserController.getAll)
