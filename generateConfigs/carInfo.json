@@ -1,0 +1,51 @@
+{
+    "model": {
+        "columns": {
+            "model": {
+                "type": "varchar",
+                "params": {
+                    "name": "model"
+                },
+                "formType": "textInput"
+            },
+            "color": {
+                "type": "varchar",
+                "params": {
+                    "name": "color",
+                    "nullable": true
+                },
+                "formType": "textInput"
+            },
+            "lpNumber": {
+                "type": "int",
+                "params": {
+                    "name": "lpNumber",
+                    "nullable": true
+                },
+                "formType": "numberInput",
+                "header": true
+            },
+            "carCredential": {
+                "type": "varchar",
+                "params": {
+                "name": "carCredential",
+                "nullable": true
+                },
+                "formType": "selectInput",
+                "selections": [
+                    {
+                        "N^1.RFID": "N^1.RFID",
+                        "N^2.PINPASS": "N^2.PINPASS",
+                        "N^3.VKEY": "N^3.VKEY"
+                    }]
+                },
+            "carEvent": {
+                "type": "boolean",
+                "params": {
+                    "name": "carEvent",
+                    "default": false
+                }
+            }
+        }
+    }
+}
