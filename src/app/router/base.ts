@@ -1,3 +1,4 @@
+// import CarInfoController from '../controller/CarInfoController'
 import AccountGroupController from '../controller/AccountGroupController'
 import UserController from '../controller/UserController'
 import CompanyDocumentsController from '../controller/CompanyDocumentsController'
@@ -206,3 +207,10 @@ export default router
   .get('Users-updateItem', 'user/:id', UserController.get)
   .delete('Users-destroyItem', 'user', UserController.destroy)
   .get('Users-getAllItems', 'user', UserController.getAll)
+
+  // CarInfo controller CRUD endpoints
+  // .post('CarInfo-addItem', 'carInfo', CarInfoController.add)
+  // .put('CarInfo-updateItem', 'carInfo', CarInfoController.update)
+  // .get('CarInfo-getItem', 'carInfo/:id', CarInfoController.get)
+  // .delete('CarInfo-destroyItem', 'carInfo', CarInfoController.destroy)
+  // .get('CarInfo-getAllItems', 'carInfo', CarInfoController.getAll)

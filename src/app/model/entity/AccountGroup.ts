@@ -71,11 +71,20 @@ export class AccountGroup extends MainEntity {
         })
     }
 
-    public static async getItem (id: number) {
+    public static async getItem (id: number, relations?: Array<string>) {
         const itemId: number = id
         return new Promise((resolve, reject) => {
-            this.findOneOrFail(itemId)
+            this.findOneOrFail({
+                where: { id: itemId },
+                relations: relations || []
+            })
                 .then((item: AccountGroup) => {
+                    if (item.users) {
+                        item.users.forEach((user: Admin) => {
+                            const account_params: any = _.omit(user, ['password', 'super', 'verify_token'])
+                            user = account_params
+                        })
+                    }
                     resolve(item)
                 })
                 .catch((error: any) => {

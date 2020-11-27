@@ -1,9 +1,11 @@
 import {
     Entity,
-    Column
+    Column,
+    OneToOne
 } from 'typeorm'
 
 import { MainEntity } from './MainEntity'
+import { User } from './User'
 
 @Entity('car_info')
 export class CarInfo extends MainEntity {
@@ -21,6 +23,9 @@ export class CarInfo extends MainEntity {
 
     @Column('boolean', { name: 'car_event', default: false })
     car_event: boolean
+
+    @OneToOne(type => User, user => user.car_infos, { nullable: true })
+    user: User | null;
 
     public static async addItem (data: CarInfo) {
         const carInfo = new CarInfo()

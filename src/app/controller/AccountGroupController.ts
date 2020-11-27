@@ -137,7 +137,10 @@ export default class AccountGroupController {
      */
     public static async get (ctx: DefaultContext) {
         try {
-            ctx.body = await AccountGroup.getItem(+ctx.params.id)
+            const id: number = +ctx.params.id
+            const relations = ['users', 'companies']
+
+            ctx.body = await AccountGroup.getItem(id, relations)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -255,8 +258,6 @@ export default class AccountGroupController {
         try {
             ctx.body = await AccountGroup.getGroupByAccounts(+ctx.params.id)
         } catch (error) {
-            console.log(error)
-
             ctx.status = error.status || 400
             ctx.body = error
         }

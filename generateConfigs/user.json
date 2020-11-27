@@ -27,24 +27,21 @@
                 "type": "varchar",
                 "params": {
                     "name": "firstName",
-                    "nullable": false,
-                    "required": true
+                    "nullable": false
                 }
             },
             "lastName": {
                 "type": "varchar",
                 "params": {
                     "name": "lastName",
-                    "nullable": false,
-                    "required": true
+                    "nullable": false
                 }
             },
             "familyName": {
                 "type": "varchar",
                 "params": {
                     "name": "familyName",
-                    "nullable": false,
-                    "required": true
+                    "nullable": false
                 }
             },
             "verifyToken": {
@@ -58,8 +55,7 @@
                 "type": "varchar",
                 "params": {
                     "name": "phone",
-                    "nullable": false,
-                    "required": true
+                    "nullable": false
                 }
             },
             "company": {
@@ -94,6 +90,20 @@
                 "type": "int",
                 "params": {
                     "name": "userGroup",
+                    "nullable": true
+                }
+            },
+            "carInfo": {
+                "type": "int",
+                "params": {
+                    "name": "carInfo",
+                    "nullable": true
+                }
+            },
+            "limitation": {
+                "type": "int",
+                "params": {
+                    "name": "limitation",
                     "nullable": true
                 }
             },
