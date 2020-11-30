@@ -2,6 +2,7 @@
 import { DefaultContext } from 'koa'
 import { Role, Admin } from '../model/entity/index'
 // import { getRepository } from 'typeorm'
+import { checkPermissionsAccess } from '../functions/check-permissions-access'
 
 class RoleController {
   /**
@@ -46,9 +47,18 @@ class RoleController {
    */
   public static async createRole (ctx: DefaultContext) {
     try {
-      const reqData = ctx.request.body
-      const role = await Role.addItem(reqData)
-      ctx.body = role
+      const user = ctx.user
+      const req_data = ctx.request.body
+
+      if (await checkPermissionsAccess(user, req_data.permissions)) {
+        const role = await Role.addItem(req_data)
+        ctx.body = role
+      } else {
+        ctx.status = 400
+        ctx.body = {
+          message: 'Permissions access denied!!'
+        }
+      }
     } catch (error) {
       ctx.status = error.status || 400
       ctx.body = error
@@ -78,11 +88,22 @@ class RoleController {
    *                  description: Unauthorized
    */
   public static async getRole (ctx: DefaultContext) {
-    let role
-
     try {
-      role = await Role.getRole()
-      ctx.body = role
+      const user = ctx.user
+
+      const req_data = ctx.query
+      req_data.relations = ['admins']
+      req_data.where = { company: { '=': user.company ? user.company : null } }
+
+      const roles: any = await Role.getAllItems(req_data)
+
+      const data = []
+      roles.forEach(async (role: Role) => {
+        if (await checkPermissionsAccess(user, role.permissions)) {
+          data.push(role)
+        }
+      })
+      ctx.body = roles
     } catch (error) {
       ctx.status = error.status || 400
       ctx.body = error
@@ -111,7 +132,6 @@ class RoleController {
    *                description: Role Id
    *                schema:
    *                    type: integer
-   *                    minimum: 1
    *          responses:
    *              '200':
    *                  description: OK
@@ -120,8 +140,23 @@ class RoleController {
    */
   public static async getRoleById (ctx: DefaultContext) {
     try {
-      const role = await Role.getItem(ctx.params.id)
-      ctx.body = role
+      const user = ctx.user
+      const where = { company: { '=': user.company ? user.company : null } }
+      console.log('where', where)
+
+      console.log('ctx.params.id', ctx.params.id)
+
+      const role: any = await Role.getItem(ctx.params.id, where)
+      console.log('role', role.permissions)
+
+      if (await checkPermissionsAccess(user, role.permissions)) {
+        ctx.body = role
+      } else {
+        ctx.status = 400
+        ctx.body = {
+          message: 'Permissions access denied!!'
+        }
+      }
     } catch (error) {
       ctx.status = error.status || 400
       ctx.body = error

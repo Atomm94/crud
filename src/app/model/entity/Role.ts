@@ -32,9 +32,6 @@ export class Role extends MainEntity {
   @Column('longtext', { name: 'permissions', nullable: false })
   permissions: string;
 
-  @OneToMany(type => Admin, admin => admin.roles, { nullable: true })
-  admins: Admin[] | null;
-
   @Column('int', { name: 'company', nullable: true })
   company: number | null;
 
@@ -43,6 +40,9 @@ export class Role extends MainEntity {
 
   @Column('boolean', { name: 'status', default: true })
   status: boolean | true;
+
+  @OneToMany(type => Admin, admin => admin.roles, { nullable: true })
+  admins: Admin[] | null;
 
   @ManyToOne(type => Company, company => company.roles, { nullable: true })
   @JoinColumn({ name: 'company' })
@@ -147,10 +147,15 @@ export class Role extends MainEntity {
     })
   }
 
-  public static async getItem (id: number) {
+  public static async getItem (id: number, where?: any, relations?: Array<string>) {
     const itemId: number = id
+    if (!where) where = {}
+    where.id = itemId
     return new Promise((resolve, reject) => {
-      this.findOneOrFail(itemId)
+      this.findOneOrFail({
+        where: where,
+        relations: relations || []
+      })
         .then((item: Role) => {
           resolve(item)
         })
@@ -186,12 +191,12 @@ export class Role extends MainEntity {
     })
   }
 
-  public static async getRole () {
-    return await Role.createQueryBuilder('role')
-      .select(['role', 'admins'])
-      .leftJoin('role.admins', 'admins')
-      .getMany()
-  }
+  // public static async getRole () {
+  //   return await Role.createQueryBuilder('role')
+  //     .select(['role', 'admins'])
+  //     .leftJoin('role.admins', 'admins')
+  //     .getMany()
+  // }
 
   public static getAllAccess () {
     const models: any = Models
