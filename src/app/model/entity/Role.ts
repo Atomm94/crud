@@ -198,22 +198,38 @@ export class Role extends MainEntity {
   //     .getMany()
   // }
 
-  public static getAllAccess () {
+  public static async getAllAccess (user: any) {
     const models: any = Models
     const accesses: any = {}
-    Object.keys(models).forEach((model: string) => {
-      if (models[model].gettingActions === true) {
-        accesses[model] = { actions: models[model].getActions() }
+    if (user.company) {
+      const role: any = await Role.findOne({ id: user.role, company: user.company })
+      if (role) {
+        const permissions = JSON.parse(role.permissions)
+        Object.keys(permissions).forEach((model: string) => {
+          Object.keys(permissions[model].actions).forEach(action => {
+            if (accesses[model]) {
+              accesses[model].actions[action] = false
+            } else {
+              accesses[model] = { actions: { [action]: false } }
+            }
+          })
+        })
       }
-      // if (models[model].gettingAttributes === true) {
-      //   const attributes = models[model].getAttributes()
-      //   if (accesses[model]) {
-      //     accesses[model].attributes = attributes
-      //   } else {
-      //     accesses[model] = { attributes: attributes }
-      //   }
-      // }
-    })
+    } else {
+      Object.keys(models).forEach((model: string) => {
+        if (models[model].gettingActions === true) {
+          accesses[model] = { actions: models[model].getActions() }
+        }
+        // if (models[model].gettingAttributes === true) {
+        //   const attributes = models[model].getAttributes()
+        //   if (accesses[model]) {
+        //     accesses[model].attributes = attributes
+        //   } else {
+        //     accesses[model] = { attributes: attributes }
+        //   }
+        // }
+      })
+    }
     return accesses
   }
 }

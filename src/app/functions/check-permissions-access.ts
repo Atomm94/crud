@@ -11,20 +11,18 @@ export async function checkPermissionsAccess (user: any, permissions: any) {
             if (!role) {
                 check = false
             } else {
-                const user_permissions: any = role.permissions
+                const user_permissions: any = JSON.parse(role.permissions)
                 Object.keys(permissions).forEach(model => {
                     if (!user_permissions[model]) {
                         check = false
                     } else {
-                        Object.keys(permissions[model]).forEach(action => {
-                            if (!user_permissions[model][action]) check = false
+                        Object.keys(permissions[model].actions).forEach(action => {
+                            if (!user_permissions[model].actions[action]) check = false
                         })
                     }
                 })
             }
         }
     }
-    console.log('check', check)
-
     return check
 }

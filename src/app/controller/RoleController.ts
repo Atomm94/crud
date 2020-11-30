@@ -141,13 +141,8 @@ class RoleController {
   public static async getRoleById (ctx: DefaultContext) {
     try {
       const user = ctx.user
-      const where = { company: { '=': user.company ? user.company : null } }
-      console.log('where', where)
-
-      console.log('ctx.params.id', ctx.params.id)
-
+      const where = { company: user.company ? user.company : null }
       const role: any = await Role.getItem(ctx.params.id, where)
-      console.log('role', role.permissions)
 
       if (await checkPermissionsAccess(user, role.permissions)) {
         ctx.body = role
@@ -215,8 +210,24 @@ class RoleController {
   public static async updateRole (ctx: DefaultContext) {
     const body = ctx.request.body
     try {
-      const updatedRole = await Role.updateItem(body)
-      ctx.body = updatedRole
+      const user = ctx.user
+      const where = { id: user.role, company: user.company ? user.company : null }
+      const role = await Role.findOne(where)
+
+      if (!role) {
+        ctx.status = 400
+        ctx.body = { message: 'something went wrong' }
+      } else {
+        if (await checkPermissionsAccess(user, body.permissions)) {
+          const updatedRole = await Role.updateItem(body)
+          ctx.body = updatedRole
+        } else {
+          ctx.status = 400
+          ctx.body = {
+            message: 'Permissions access denied!!'
+          }
+        }
+      }
     } catch (error) {
       ctx.status = error.status || 400
       ctx.body = error
@@ -264,23 +275,39 @@ class RoleController {
     let role
     const id = ctx.request.body.id
     try {
-      const admin = await Admin.find({ role: id })
-      if (admin.length) {
-        for (let i = 0; i < admin.length; i++) {
-          admin[i].role = null
-          admin[i].status = false
-          delete admin[i].password
-          await Admin.updateItem(admin[i])
-        }
+      const user = ctx.user
+      const where = { id: user.role, company: user.company ? user.company : null }
+      const check_role_by_company = await Role.findOne(where)
 
-        role = await Role.destroyItem(id)
-
-        if (role) {
-          ctx.body = 'Deleted'
-        }
+      if (!check_role_by_company) {
+        ctx.status = 400
+        ctx.body = { message: 'something went wrong' }
       } else {
-        role = await Role.destroyItem(id)
-        ctx.body = 'Deleted'
+        if (await checkPermissionsAccess(user, check_role_by_company.permissions)) {
+          const admin = await Admin.find({ role: id })
+          if (admin.length) {
+            for (let i = 0; i < admin.length; i++) {
+              admin[i].role = null
+              admin[i].status = false
+              delete admin[i].password
+              await Admin.updateItem(admin[i])
+            }
+
+            role = await Role.destroyItem(id)
+
+            if (role) {
+              ctx.body = 'Deleted'
+            }
+          } else {
+            role = await Role.destroyItem(id)
+            ctx.body = 'Deleted'
+          }
+        } else {
+          ctx.status = 400
+          ctx.body = {
+            message: 'Permissions access denied!!'
+          }
+        }
       }
     } catch (error) {
       ctx.status = error.status || 400
@@ -311,7 +338,8 @@ class RoleController {
    *                  description: Unauthorized
    */
   public static async getAllAccess (ctx: DefaultContext) {
-    const accesses = Role.getAllAccess()
+    const user = ctx.user
+    const accesses = await Role.getAllAccess(user)
     ctx.body = accesses
     return ctx.body
   }
