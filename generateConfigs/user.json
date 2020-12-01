@@ -108,7 +108,7 @@
                 }
             },
             "status": {
-                "type": "varchar",
+                "type": "enum",
                 "params": {
                     "name": "status",
                     "default": "Inactive"

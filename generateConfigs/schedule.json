@@ -1,0 +1,41 @@
+{
+    "model": {
+        "columns": {
+            "name": {
+                "type": "varchar",
+                "params": {
+                    "name": "name",
+                    "nullable": false
+                }
+            },
+            "description": {
+                "type": "varchar",
+                "params": {
+                    "name": "description",
+                    "nullable": true
+                }
+            },
+            "type": {
+                "type": "enum",
+                "params": {
+                    "name": "type",
+                    "nullable": false
+                }
+            },
+            "settings": {
+                "type": "longtext",
+                "params": {
+                    "name": "settings",
+                    "nullable": true
+                }
+            },
+            "company": {
+                "type": "int",
+                "params": {
+                    "name": "company",
+                    "nullable": false
+                }
+            }
+        }
+    }
+}

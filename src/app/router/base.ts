@@ -1,3 +1,4 @@
+import ScheduleController from '../controller/ScheduleController'
 // import CarInfoController from '../controller/CarInfoController'
 import AccountGroupController from '../controller/AccountGroupController'
 import UserController from '../controller/UserController'
@@ -214,3 +215,10 @@ export default router
   // .get('CarInfo-getItem', 'carInfo/:id', CarInfoController.get)
   // .delete('CarInfo-destroyItem', 'carInfo', CarInfoController.destroy)
   // .get('CarInfo-getAllItems', 'carInfo', CarInfoController.getAll)
+
+  // Schedule controller CRUD endpoints
+  .post('schedule', ScheduleController.add)
+  .put('schedule', ScheduleController.update)
+  .get('schedule/:id', ScheduleController.get)
+  .delete('schedule', ScheduleController.destroy)
+  .get('schedule', ScheduleController.getAll)
