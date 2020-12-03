@@ -34,7 +34,7 @@ export class Company extends MainEntity {
     @Column('int', { name: 'account', nullable: true })
     account: number | null
 
-    @Column('varchar', { name: 'status', default: statusCompany.PENDING })
+    @Column('enum', { name: 'status', enum: statusCompany, default: statusCompany.PENDING })
     status: statusCompany
 
     @ManyToOne(type => Packet, packet => packet.id, { nullable: true })

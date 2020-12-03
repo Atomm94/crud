@@ -56,7 +56,7 @@ export class User extends MainEntity {
     @Column('int', { name: 'limitation', nullable: false })
     limitation: number
 
-    @Column('varchar', { name: 'status', default: 'Inactive' })
+    @Column('enum', { name: 'status', enum: userStatus, default: userStatus.inactive })
     status: userStatus
 
     @Column('timestamp', { name: 'last_login_date', nullable: true })
