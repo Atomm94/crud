@@ -20,6 +20,9 @@ import { Company } from './Company'
 import { CompanyDocuments } from './CompanyDocuments'
 import { CompanyResources } from './CompanyResources'
 import { RegistrationInvite } from './RegistrationInvite'
+import { User } from './User'
+import { CarInfo } from './CarInfo'
+import { Limitation } from './Limitation'
 
 export {
     Admin,
@@ -43,5 +46,8 @@ export {
     Company,
     CompanyDocuments,
     CompanyResources,
-    RegistrationInvite
+    RegistrationInvite,
+    User,
+    CarInfo,
+    Limitation
 }

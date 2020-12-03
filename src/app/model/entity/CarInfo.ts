@@ -81,8 +81,8 @@ export class CarInfo extends MainEntity {
         })
     }
 
-    public static async destroyItem (data: { id: number }) {
-        const itemId: number = +data.id
+    public static async destroyItem (id: number) {
+        const itemId: number = id
         return new Promise((resolve, reject) => {
             this.delete(itemId)
                 .then(() => {

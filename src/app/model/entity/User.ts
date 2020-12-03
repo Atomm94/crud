@@ -50,11 +50,11 @@ export class User extends MainEntity {
     @Column('int', { name: 'user_group', nullable: true })
     user_group: number | null
 
-    @Column('int', { name: 'car_info', nullable: true })
-    car_info: number | null
+    @Column('int', { name: 'car_info', nullable: false })
+    car_info: number
 
-    @Column('int', { name: 'limitation', nullable: true })
-    limitation: number | null
+    @Column('int', { name: 'limitation', nullable: false })
+    limitation: number
 
     @Column('enum', { name: 'status', enum: userStatus, default: userStatus.inactive })
     status: userStatus
@@ -91,7 +91,7 @@ export class User extends MainEntity {
 
         return new Promise((resolve, reject) => {
             this.save(user)
-                .then((item: User) => {
+            .then((item: User) => {
                     resolve(item)
                 })
                 .catch((error: any) => {
@@ -147,8 +147,9 @@ export class User extends MainEntity {
 
     public static async destroyItem (data: { id: number }) {
         const itemId: number = +data.id
-        return new Promise((resolve, reject) => {
-            this.delete(itemId)
+        // eslint-disable-next-line no-async-promise-executor
+        return new Promise(async (resolve, reject) => {
+            this.remove(await this.findByIds([itemId]))
                 .then(() => {
                     resolve({ message: 'success' })
                 })
