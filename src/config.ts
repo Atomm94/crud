@@ -44,8 +44,9 @@ export interface IConfig {
             dns: string
         }
     };
-    sendgrid:{
-        apiKey:string
+    sendgrid: {
+        fromEmail:string,
+        apiKey: string
     };
     nodeEnv: string;
     isTest: boolean;
@@ -87,6 +88,7 @@ const config: IConfig = {
         }
     },
     sendgrid: {
+        fromEmail: _.defaultTo(process.env.SENDGRID_FROM_EMAIL, 'g.israelyan@studio-one.am'),
         apiKey: _.defaultTo(process.env.SENDGRID_API_KEY, 'empty')
     },
     nodeEnv: process.env.NODE_ENV,

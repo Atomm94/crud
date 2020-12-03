@@ -7,7 +7,6 @@ import { MainEntity } from './MainEntity'
 import { uid } from 'uid'
 import { Sendgrid } from '../../../component/sendgrid/sendgrid'
 import { PacketType } from './PacketType'
-import config from '../../../config'
 
 @Entity('registration_invite')
 export class RegistrationInvite extends MainEntity {
@@ -105,14 +104,7 @@ export class RegistrationInvite extends MainEntity {
         return new Promise((resolve, reject) => {
             this.save(registrationInvite)
                 .then(async (item: RegistrationInvite) => {
-                    const msg = {
-                        to: `${item.email}`,
-                        from: 'g.israelyan@studio-one.am',
-                        subject: 'You have been invited to Unimacs',
-                        text: 'has invited you',
-                        html: `<h2>Unimacs company has invited you to make a registration. Please click link bellow ${config.cors.origin}/registration/${item.token}</h2>`
-                    }
-                    await Sendgrid.send(msg)
+                    await Sendgrid.sendInvite(item.email, item.token)
                     resolve(item)
                 })
                 .catch((error: any) => {

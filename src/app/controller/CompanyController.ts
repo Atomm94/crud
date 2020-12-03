@@ -1,8 +1,6 @@
 import { DefaultContext } from 'koa'
 import { uid } from 'uid'
 import { Sendgrid } from '../../component/sendgrid/sendgrid'
-import config from '../../config'
-
 import { Company } from '../model/entity/Company'
 import { Admin } from '../model/entity/Admin'
 import { Role } from '../model/entity/Role'
@@ -462,16 +460,7 @@ export default class CompanyController {
 
                         company.account = admin.id
                         await Company.save(company)
-
-                        // send email (link with verify_token)
-                        const msg = {
-                            to: `${admin.email}`,
-                            from: 'g.israelyan@studio-one.am',
-                            subject: 'You have been invited to Unimacs',
-                            text: 'has invited you',
-                            html: `<h2>Unimacs company has invited you to make a registration. Please click link bellow ${config.cors.origin}/newpassword/${admin.verify_token}</h2>`
-                        }
-                        await Sendgrid.send(msg)
+                        await Sendgrid.sendNewPass(admin.email, admin.verify_token)
 
                         // set registration token to null
                         regToken.used = true
@@ -533,14 +522,7 @@ export default class CompanyController {
         try {
             const admin = await Admin.findOneOrFail({ email: reqData.email })
             if (admin.verify_token) {
-                const msg = {
-                    to: `${admin.email}`,
-                    from: 'g.israelyan@studio-one.am',
-                    subject: 'You have been invited to Unimacs',
-                    text: 'has invited you',
-                    html: `<h2>Unimacs company has invited you to make a registration. Please click link bellow ${config.cors.origin}/newpassword/${admin.verify_token}</h2>`
-                }
-                await Sendgrid.send(msg)
+                await Sendgrid.sendNewPass(admin.email, admin.verify_token)
                 ctx.body = {
                     success: true
                 }
