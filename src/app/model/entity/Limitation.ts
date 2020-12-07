@@ -48,6 +48,8 @@ export class Limitation extends MainEntity {
     @OneToOne(type => User, user => user.limitations, { nullable: true })
     user: User | null;
 
+    static gettingActions:any = false
+
     public static async addItem (data: Limitation) {
         const limitation = new Limitation()
 

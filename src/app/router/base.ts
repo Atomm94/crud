@@ -41,6 +41,7 @@ export default router
   .post('login', AuthController.login)
 
   .post('Admin-AdminOperation-addItem', 'users', AdminController.createAdmin)
+  .post('Admin-AdminOperation-addItem', 'inviteUsers', AdminController.inviteAdmin)
   .delete('Admin-AdminOperation-destroyItem', 'users', AdminController.destroy)
   .put('Admin-AdminOperation-updateItem', 'users', AdminController.update)
   .get('Admin-AdminOperation-getItem', 'users/:id', AdminController.get)

@@ -8,6 +8,8 @@ import fs from 'fs'
 import { logger } from '../../../modules/winston/logger'
 import { join } from 'path'
 import { validate } from '../functions/passValidator'
+import { Sendgrid } from '../../component/sendgrid/sendgrid'
+import { uid } from 'uid'
 
 const parentDir = join(__dirname, '../..')
 
@@ -111,6 +113,9 @@ export default class AdminController {
      *                  company:
      *                      type: string
      *                      example: +374 XX XXX XXX
+     *                  comment:
+     *                      type: string
+     *                      example: comment
 
      *          responses:
      *              '201':
@@ -160,6 +165,92 @@ export default class AdminController {
             ctx.body = {
                 message: validate(reqData.password).message
             }
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     *  /inviteUsers:
+     *      post:
+     *          tags:
+     *              - Admin
+     *          summary: Create a admin.
+     *          consumes:
+     *              - application/json
+     *          parameters:
+     *            - in: header
+     *              name: Authorization
+     *              required: true
+     *              description: Authentication token
+     *              schema:
+     *                    type: string
+     *            - in: body
+     *              name: admin
+     *              description: The admin to create.
+     *              schema:
+     *                type: object
+     *                required:
+     *                  - email
+     *                  - username
+     *                properties:
+     *                  username:
+     *                      type: string
+     *                      example: username
+     *                  email:
+     *                      type: string
+     *                      example: example@gmail.com
+     *                  role:
+     *                      type: number
+     *                      example: 5
+     *                  account_group:
+     *                      type: number
+     *                      example: 5
+     *                  comment:
+     *                      type: string
+     *                      example: comment
+     *                  send:
+     *                      type: boolean
+     *                      example: false
+     *          responses:
+     *              '201':
+     *                  description: A admin object
+     *              '409':
+     *                  description: Conflict
+     *              '422':
+     *                  description: Wrong data
+     */
+
+    public static async inviteAdmin (ctx: DefaultContext) {
+        const reqData = ctx.request.body
+        const user = ctx.user
+        if (user.company) reqData.company = user.company
+        reqData.verify_token = uid(32)
+        let role
+
+        try {
+            const newAdmin: Admin = await Admin.features.AdminOperation.addItem(reqData, user)
+            role = await Role.findOne({
+                id: reqData.role
+            })
+            if (newAdmin && role) {
+                ctx.body = { success: true }
+                if (reqData.send && newAdmin.verify_token) {
+                    await Sendgrid.sendNewPass(newAdmin.email, newAdmin.verify_token)
+                }
+            }
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+            if (error.detail && error.detail.includes('username')) {
+                ctx.body.errorMsg = `username ${reqData.username} already exists.`
+                ctx.body.err = 'username'
+            } else if (error.detail && error.detail.includes('email')) {
+                ctx.body.err = 'email'
+                ctx.body.errorMsg = `email ${reqData.email} already exists.`
+            }
+            return ctx.body
         }
         return ctx.body
     }
@@ -445,6 +536,9 @@ export default class AdminController {
      *                  whatsapp:
      *                      type: string
      *                      example: +374 XX XXX XXX
+     *                  comment:
+     *                      type: string
+     *                      example: comment
      *          responses:
      *              '201':
      *                  description: A market updated object
