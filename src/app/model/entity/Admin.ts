@@ -36,23 +36,23 @@ import { AccountGroup } from './AccountGroup'
 const parentDir = join(__dirname, '../../..')
 
 class AdminOperation extends BaseClass {
-  public static async addItem (data: any, user: any = null) {
+  public static async addItem(data: any, user: any = null) {
     return await Admin.addItem(data, user)
   }
 
-  public static async destroyItem (data: { id: number }) {
+  public static async destroyItem(data: { id: number }) {
     return await Admin.destroyItem(data)
   }
 
-  public static async updateItem (data: any) {
+  public static async updateItem(data: any) {
     return await Admin.updateItem(data)
   }
 
-  public static async getItem (where: any, relations?: Array<string>) {
+  public static async getItem(where: any, relations?: Array<string>) {
     return await Admin.getItem(where, relations)
   }
 
-  public static async getAllItems (params: any) {
+  public static async getAllItems(params: any) {
     return await Admin.getAllItems(params)
   }
 }
@@ -161,7 +161,7 @@ export class Admin extends MainEntity {
   account_groups: AccountGroup | null;
 
   @BeforeInsert()
-  async generatePassword () {
+  async generatePassword() {
     if (this.password) {
       const password = bcrypt.hashSync(this.password, 10)
       this.password = password
@@ -169,7 +169,7 @@ export class Admin extends MainEntity {
   }
 
   @BeforeUpdate()
-  async updatePassword () {
+  async updatePassword() {
     if (this.password) {
       const password = bcrypt.hashSync(this.password, 10)
       this.password = password
@@ -181,7 +181,7 @@ export class Admin extends MainEntity {
     AdminOperation: AdminOperation
   }
 
-  public static async addItem (data: any, user: any = null) {
+  public static async addItem(data: any, user: any = null) {
     const admin = new Admin()
 
     admin.username = data.username
@@ -205,6 +205,7 @@ export class Admin extends MainEntity {
     if ('address' in data) admin.address = data.address
     if ('viber' in data) admin.viber = data.viber
     if ('whatsapp' in data) admin.whatsapp = data.whatsapp
+    if ('account_group' in data) admin.account_group = data.account_group
 
     if ('company' in data) {
       admin.company = data.company
@@ -228,7 +229,7 @@ export class Admin extends MainEntity {
     })
   }
 
-  public static async updateItem (data: any) {
+  public static async updateItem(data: any) {
     const admin = await this.findOneOrFail(data.id)
     delete admin.password
 
@@ -247,6 +248,7 @@ export class Admin extends MainEntity {
     if ('role' in data) admin.role = data.role
     if ('department' in data) admin.department = data.department
     if ('avatar' in data) admin.avatar = data.avatar
+    if ('account_group' in data) admin.account_group = data.account_group
 
     if (!admin) return { status: 400, messsage: 'Item not found' }
     return new Promise((resolve, reject) => {
@@ -260,7 +262,7 @@ export class Admin extends MainEntity {
     })
   }
 
-  public static async getItem (where: any, relations?: Array<string>) {
+  public static async getItem(where: any, relations?: Array<string>) {
     return new Promise((resolve, reject) => {
       this.findOneOrFail({
         where: where,
@@ -275,7 +277,7 @@ export class Admin extends MainEntity {
     })
   }
 
-  public static async destroyItem (data: { id: number }) {
+  public static async destroyItem(data: { id: number }) {
     const itemId: number = +data.id
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve, reject) => {
@@ -289,7 +291,7 @@ export class Admin extends MainEntity {
     })
   }
 
-  public static async getAllItems (params?: any) {
+  public static async getAllItems(params?: any) {
     // console.log(await this.getRolesAndAttributes(9))
 
     return new Promise((resolve, reject) => {
@@ -303,18 +305,18 @@ export class Admin extends MainEntity {
     })
   }
 
-  public static async saveImage (file: any) {
+  public static async saveImage(file: any) {
     return fileSave(file)
   }
 
-  public static async deleteImage (file: any) {
+  public static async deleteImage(file: any) {
     return fs.unlink(`${parentDir}/public/${file}`, (err) => {
       if (err) throw err
       logger.info('Delete complete!')
     })
   }
 
-  public static async getRolesAndAttributes (id: number) {
+  public static async getRolesAndAttributes(id: number) {
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve, reject) => {
       const admin: any = await createQueryBuilder(Admin, 'admin').innerJoinAndSelect(Role, 'role', 'role.id = admin.role').select('role.permissions').where('admin.id = :id', { id: id }).getRawOne()
