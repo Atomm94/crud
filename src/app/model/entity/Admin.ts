@@ -48,8 +48,8 @@ class AdminOperation extends BaseClass {
     return await Admin.updateItem(data)
   }
 
-  public static async getItem (id: number, relations?: Array<string>) {
-    return await Admin.getItem(id, relations)
+  public static async getItem (where: any, relations?: Array<string>) {
+    return await Admin.getItem(where, relations)
   }
 
   public static async getAllItems (params: any) {
@@ -260,11 +260,10 @@ export class Admin extends MainEntity {
     })
   }
 
-  public static async getItem (id: number, relations?: Array<string>) {
-    const itemId: number = id
+  public static async getItem (where: any, relations?: Array<string>) {
     return new Promise((resolve, reject) => {
       this.findOneOrFail({
-        where: { id: itemId },
+        where: where,
         relations: relations || []
       })
         .then((item: Admin) => {

@@ -27,12 +27,16 @@ export default class AccountGroupController {
      *                properties:
      *                  name:
      *                      type: string
+     *                      example: APT 50
      *                  description:
      *                      type: string
+     *                      example: description
      *                  parent_id:
-     *                      type: number
-     *                  company:
-     *                      type: number
+     *                      type: number | null
+     *                      example: 5
+     *                  role:
+     *                      type: number | null
+     *                      example: 5
      *          responses:
      *              '201':
      *                  description: A accountGroup object
@@ -44,7 +48,10 @@ export default class AccountGroupController {
 
     public static async add (ctx: DefaultContext) {
         try {
-            ctx.body = await AccountGroup.addItem(ctx.request.body as AccountGroup)
+            const req_data = ctx.request.body
+            const user = ctx.user
+            req_data.company = user.company ? user.company : null
+            ctx.body = await AccountGroup.addItem(req_data as AccountGroup)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -82,12 +89,16 @@ export default class AccountGroupController {
      *                      example: 1
      *                  name:
      *                      type: string
+     *                      example: APT 50
      *                  description:
      *                      type: string
+     *                      example: description
      *                  parent_id:
-     *                      type: number
-     *                  company:
-     *                      type: number
+     *                      type: number | null
+     *                      example: 5
+     *                  role:
+     *                      type: number | null
+     *                      example: 5
      *          responses:
      *              '201':
      *                  description: A accountGroup updated object
@@ -98,7 +109,17 @@ export default class AccountGroupController {
      */
     public static async update (ctx: DefaultContext) {
         try {
-            ctx.body = await AccountGroup.updateItem(ctx.request.body as AccountGroup)
+            const req_data = ctx.request.body
+            const user = ctx.user
+            const where = { id: req_data.id, company: user.company ? user.company : null }
+            const check_by_company = await AccountGroup.findOne(where)
+
+            if (!check_by_company) {
+                ctx.status = 400
+                ctx.body = { message: 'something went wrong' }
+            } else {
+                ctx.body = await AccountGroup.updateItem(ctx.request.body as AccountGroup)
+            }
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -137,10 +158,12 @@ export default class AccountGroupController {
      */
     public static async get (ctx: DefaultContext) {
         try {
+            const user = ctx.user
             const id: number = +ctx.params.id
+            const where = { id: id, company: user.company ? user.company : user.company }
             const relations = ['users', 'companies']
 
-            ctx.body = await AccountGroup.getItem(id, relations)
+            ctx.body = await AccountGroup.getItem(where, relations)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -184,7 +207,17 @@ export default class AccountGroupController {
      */
     public static async destroy (ctx: DefaultContext) {
         try {
-            ctx.body = await AccountGroup.destroyItem(ctx.request.body as { id: number })
+            const req_data = ctx.request.body
+            const user = ctx.user
+            const where = { id: req_data.id, company: user.company ? user.company : null }
+            const check_by_company = await AccountGroup.findOne(where)
+
+            if (!check_by_company) {
+                ctx.status = 400
+                ctx.body = { message: 'something went wrong' }
+            } else {
+                ctx.body = await AccountGroup.destroyItem(req_data as { id: number })
+            }
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -216,6 +249,8 @@ export default class AccountGroupController {
     public static async getAll (ctx: DefaultContext) {
         try {
             const req_data = ctx.query
+            const user = ctx.user
+            req_data.where = { company: { '=': user.company ? user.company : null } }
             req_data.relations = ['users', 'companies']
             ctx.body = await AccountGroup.getAllItems(req_data)
         } catch (error) {
@@ -225,38 +260,39 @@ export default class AccountGroupController {
         return ctx.body
     }
 
-        /**
-     *
-     * @swagger
-     * /accountGroupAccounts/{id}:
-     *      get:
-     *          tags:
-     *              - AccountGroup
-     *          summary: Return accountGroup with group by accounts
-     *          parameters:
-     *              - name: id
-     *                in: path
-     *                required: true
-     *                description: Parameter description
-     *                schema:
-     *                    type: integer
-     *                    format: int64
-     *                    minimum: 1
-     *              - in: header
-     *                name: Authorization
-     *                required: true
-     *                description: Authentication token
-     *                schema:
-     *                    type: string
-     *          responses:
-     *              '200':
-     *                  description: Array of accountGroup
-     *              '401':
-     *                  description: Unauthorized
-     */
+    /**
+ *
+ * @swagger
+ * /accountGroupAccounts/{id}:
+ *      get:
+ *          tags:
+ *              - AccountGroup
+ *          summary: Return accountGroup with group by accounts
+ *          parameters:
+ *              - name: id
+ *                in: path
+ *                required: true
+ *                description: Parameter description
+ *                schema:
+ *                    type: integer
+ *                    format: int64
+ *                    minimum: 1
+ *              - in: header
+ *                name: Authorization
+ *                required: true
+ *                description: Authentication token
+ *                schema:
+ *                    type: string
+ *          responses:
+ *              '200':
+ *                  description: Array of accountGroup
+ *              '401':
+ *                  description: Unauthorized
+ */
     public static async getGroupAccountsCounts (ctx: DefaultContext) {
         try {
-            ctx.body = await AccountGroup.getGroupByAccounts(+ctx.params.id)
+            const user = ctx.user
+            ctx.body = await AccountGroup.getGroupByAccounts(+ctx.params.id, user.company ? user.company : null)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

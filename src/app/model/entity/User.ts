@@ -59,6 +59,9 @@ export class User extends MainEntity {
     @Column('enum', { name: 'status', enum: userStatus, default: userStatus.inactive })
     status: userStatus
 
+    @Column('boolean', { name: 'antipassback', default: false })
+    antipassback: boolean
+
     @Column('timestamp', { name: 'last_login_date', nullable: true })
     last_login_date: string | null
 
@@ -88,6 +91,8 @@ export class User extends MainEntity {
         user.car_info = data.car_info
         user.limitation = data.limitation
         user.status = data.status
+        user.antipassback = data.antipassback
+        user.company = data.company
 
         return new Promise((resolve, reject) => {
             this.save(user)
@@ -116,6 +121,7 @@ export class User extends MainEntity {
         if ('access_right' in data) user.access_right = data.access_right
         if ('user_group' in data) user.user_group = data.user_group
         if ('status' in data) user.status = data.status
+        if ('antipassback' in data) user.antipassback = data.antipassback
 
         if (!user) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
@@ -129,11 +135,10 @@ export class User extends MainEntity {
         })
     }
 
-    public static async getItem (id: number, relations?: Array<string>) {
-        const itemId: number = id
+    public static async getItem (where: any, relations?: Array<string>) {
         return new Promise((resolve, reject) => {
             this.findOneOrFail({
-                where: { id: itemId },
+                where: where,
                 relations: relations || []
             })
                 .then((item: User) => {

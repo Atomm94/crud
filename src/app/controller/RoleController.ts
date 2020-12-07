@@ -51,6 +51,7 @@ class RoleController {
       const req_data = ctx.request.body
 
       if (await checkPermissionsAccess(user, req_data.permissions)) {
+        req_data.company = user.company ? user.company : null
         const role = await Role.addItem(req_data)
         ctx.body = role
       } else {

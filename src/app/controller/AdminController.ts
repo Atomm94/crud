@@ -8,6 +8,7 @@ import fs from 'fs'
 import { logger } from '../../../modules/winston/logger'
 import { join } from 'path'
 import { validate } from '../functions/passValidator'
+import { checkPermissionsAccess } from '../functions/check-permissions-access'
 
 const parentDir = join(__dirname, '../..')
 
@@ -111,7 +112,6 @@ export default class AdminController {
      *                  company:
      *                      type: string
      *                      example: +374 XX XXX XXX
-
      *          responses:
      *              '201':
      *                  description: A admin object
@@ -130,13 +130,34 @@ export default class AdminController {
 
         if (validate(reqData.password).success) {
             try {
-                newAdmin = await Admin.features.AdminOperation.addItem(reqData, user)
-                role = await Role.findOne({
-                    id: reqData.role
-                })
+                if (reqData.role) {
+                    role = await Role.findOne({
+                        id: reqData.role,
+                        company: user.company ? user.company : null
+                    })
+                    if (role) {
+                        if (await checkPermissionsAccess(user, role.permissions)) {
+                            newAdmin = await Admin.features.AdminOperation.addItem(reqData, user)
 
-                if (newAdmin && role) {
-                    ctx.body = { newAdmin }
+                            if (newAdmin && role) {
+                                ctx.body = { newAdmin }
+                            }
+                        } else {
+                            ctx.status = 400
+                            ctx.body = {
+                                message: 'Permissions access denied!!'
+                            }
+                        }
+                    } else {
+                        ctx.status = 400
+                        ctx.body = { message: 'something went wrong' }
+                    }
+                } else {
+                    newAdmin = await Admin.features.AdminOperation.addItem(reqData, user)
+
+                    if (newAdmin && role) {
+                        ctx.body = { newAdmin }
+                    }
                 }
             } catch (error) {
                 ctx.status = error.status || 400
@@ -456,11 +477,42 @@ export default class AdminController {
 
     public static async update (ctx: DefaultContext) {
         const reqData = ctx.request.body
+        const user = ctx.user
         let edAdmin
 
         try {
-            edAdmin = await Admin.features.AdminOperation.updateItem(reqData)
-            ctx.body = edAdmin
+            const admin = Admin.findOne({
+                id: reqData.id,
+                company: user.company ? user.company : null
+            })
+            if (admin) {
+                if (reqData.role) {
+                    const role = await Role.findOne({
+                        id: reqData.role,
+                        company: user.company ? user.company : null
+                    })
+                    if (role) {
+                        if (await checkPermissionsAccess(user, role.permissions)) {
+                            edAdmin = await Admin.features.AdminOperation.updateItem(reqData)
+                            ctx.body = edAdmin
+                        } else {
+                            ctx.status = 400
+                            ctx.body = {
+                                message: 'Permissions access denied!!'
+                            }
+                        }
+                    } else {
+                        ctx.status = 400
+                        ctx.body = { message: 'something with role went wrong' }
+                    }
+                } else {
+                    edAdmin = await Admin.features.AdminOperation.updateItem(reqData)
+                    ctx.body = edAdmin
+                }
+            } else {
+                ctx.status = 400
+                ctx.body = { message: 'something went wrong' }
+            }
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -507,8 +559,10 @@ export default class AdminController {
         let admin
         const role = {}
         try {
+            const user = ctx.user
+            const where = { id: adminId, user: user.company ? user.company : null }
             const relations = ['departments']
-            admin = await Admin.features.AdminOperation.getItem(adminId, relations)
+            admin = await Admin.features.AdminOperation.getItem(where, relations)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -559,12 +613,21 @@ export default class AdminController {
      */
     public static async destroy (ctx: DefaultContext) {
         const reqData = ctx.request.body
+        const user = ctx.user
         let result
         try {
-            result = await Admin.features.AdminOperation.destroyItem(reqData.id)
-            ctx.body = {
-                success: true,
-                result
+            const where = { id: reqData.id, company: user.company ? user.company : null }
+            const check_by_company = await Admin.findOne(where)
+
+            if (!check_by_company) {
+                ctx.status = 400
+                ctx.body = { message: 'something went wrong' }
+            } else {
+                result = await Admin.features.AdminOperation.destroyItem(reqData as { id: number })
+                ctx.body = {
+                    success: true,
+                    result
+                }
             }
         } catch (error) {
             ctx.status = error.status || 400
