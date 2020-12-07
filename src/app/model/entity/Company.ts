@@ -17,6 +17,7 @@ import { statusCompany } from '../../enums/statusCompany.enum'
 import { CompanyDocuments } from './CompanyDocuments'
 import { AccountGroup } from './AccountGroup'
 import { Schedule } from './Schedule'
+import { Entry } from './Entry'
 
 @Entity('company')
 export class Company extends MainEntity {
@@ -64,6 +65,9 @@ export class Company extends MainEntity {
 
     @OneToMany(type => Schedule, schedule => schedule.companies) // specify inverse side as a second parameter
     schedules: Schedule[];
+
+    @OneToMany(type => Entry, entry => entry.companies) // specify inverse side as a second parameter
+    entries: Entry[];
 
     public static async addItem (data: Company) {
         const company = new Company()

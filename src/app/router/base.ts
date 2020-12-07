@@ -1,3 +1,4 @@
+import EntryController from '../controller/EntryController'
 import ScheduleController from '../controller/ScheduleController'
 // import CarInfoController from '../controller/CarInfoController'
 import AccountGroupController from '../controller/AccountGroupController'
@@ -222,3 +223,12 @@ export default router
   .get('schedule/:id', ScheduleController.get)
   .delete('schedule', ScheduleController.destroy)
   .get('schedule', ScheduleController.getAll)
+
+  
+  // Entry controller CRUD endpoints   
+  .post('entry', EntryController.add)
+  .put('entry', EntryController.update)
+  .get('entry/:id', EntryController.get)
+  .delete('entry', EntryController.destroy)
+  .get('entry', EntryController.getAll)
+  
