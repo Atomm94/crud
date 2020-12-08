@@ -16,6 +16,7 @@ import { PacketType } from './PacketType'
 import { statusCompany } from '../../enums/statusCompany.enum'
 import { CompanyDocuments } from './CompanyDocuments'
 import { AccountGroup } from './AccountGroup'
+import { Schedule } from './Schedule'
 
 @Entity('company')
 export class Company extends MainEntity {
@@ -59,7 +60,10 @@ export class Company extends MainEntity {
     company_account: Admin | null;
 
     @OneToMany(type => AccountGroup, account_group => account_group.companies) // specify inverse side as a second parameter
-    account_group: AccountGroup[];
+    account_groups: AccountGroup[];
+
+    @OneToMany(type => Schedule, schedule => schedule.companies) // specify inverse side as a second parameter
+    schedules: Schedule[];
 
     public static async addItem (data: Company) {
         const company = new Company()

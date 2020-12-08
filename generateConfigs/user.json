@@ -114,6 +114,13 @@
                     "default": "Inactive"
                 }
             },
+            "antipassback": {
+                "type": "boolean",
+                "params": {
+                    "name": "antipassback",
+                    "default": false
+                }
+            },
             "lastLoginDate": {
                 "type": "timestamp",
                 "params": {

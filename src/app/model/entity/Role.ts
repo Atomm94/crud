@@ -19,8 +19,9 @@ import {
 } from 'typeorm'
 import * as Models from './index'
 import { MainEntity } from './MainEntity'
-import { Admin } from './Admin'
 import { Company } from './Company'
+import { Admin } from './Admin'
+import { AccountGroup } from './AccountGroup'
 
 @Index('slug|company', ['slug', 'company'], { unique: true })
 
@@ -41,12 +42,15 @@ export class Role extends MainEntity {
   @Column('boolean', { name: 'status', default: true })
   status: boolean | true;
 
-  @OneToMany(type => Admin, admin => admin.roles, { nullable: true })
-  admins: Admin[] | null;
-
   @ManyToOne(type => Company, company => company.roles, { nullable: true })
   @JoinColumn({ name: 'company' })
   companies: Company | null;
+
+  @OneToMany(type => Admin, admin => admin.roles, { nullable: true })
+  admins: Admin[];
+
+  @OneToMany(type => AccountGroup, account_group => account_group.roles, { nullable: true })
+  account_groups: AccountGroup[];
 
   public static default_partner_role: any = {
     ServiceCompany: {
@@ -115,6 +119,7 @@ export class Role extends MainEntity {
     role.permissions = data.permissions
     role.status = data.status
     if ('main' in data) role.main = data.main
+    if ('company' in data) role.company = data.company
 
     return new Promise((resolve, reject) => {
       this.save(role)

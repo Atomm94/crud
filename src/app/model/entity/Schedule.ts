@@ -1,9 +1,12 @@
 import {
     Entity,
-    Column
+    Column,
+    ManyToOne,
+    JoinColumn
 } from 'typeorm'
 
 import { MainEntity } from './MainEntity'
+import { Company } from './Company'
 import { scheduleType } from '../../enums/scheduleType.enum'
 
 @Entity('schedule')
@@ -23,6 +26,10 @@ export class Schedule extends MainEntity {
     @Column('int', { name: 'company', nullable: false })
     company: number
 
+    @ManyToOne(type => Company, company => company.schedules)
+    @JoinColumn({ name: 'company' })
+    companies: Company;
+
     public static async addItem (data: Schedule) {
         const schedule = new Schedule()
 
@@ -30,7 +37,7 @@ export class Schedule extends MainEntity {
         schedule.description = data.description
         schedule.type = data.type
         schedule.settings = data.settings
-        // schedule.company = data.company
+        schedule.company = data.company
 
         return new Promise((resolve, reject) => {
             this.save(schedule)
@@ -63,10 +70,11 @@ export class Schedule extends MainEntity {
         })
     }
 
-    public static async getItem (id: number) {
-        const itemId: number = id
+    public static async getItem (where: any) {
         return new Promise((resolve, reject) => {
-            this.findOneOrFail(itemId)
+            this.findOneOrFail({
+                where: where
+            })
                 .then((item: Schedule) => {
                     resolve(item)
                 })

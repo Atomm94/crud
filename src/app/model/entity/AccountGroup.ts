@@ -9,6 +9,7 @@ import {
 import { MainEntity } from './MainEntity'
 import { Company } from './Company'
 import { Admin } from './Admin'
+import { Role } from './Role'
 import * as _ from 'lodash'
 
 @Entity('account_group')
@@ -22,12 +23,19 @@ export class AccountGroup extends MainEntity {
     @Column('int', { name: 'parent_id', nullable: true })
     parent_id: number | null
 
+    @Column('int', { name: 'role', nullable: true })
+    role: number
+
     @Column('int', { name: 'company', nullable: false })
     company: number
 
-    @ManyToOne(type => Company, company => company.account_group)
+    @ManyToOne(type => Company, company => company.account_groups)
     @JoinColumn({ name: 'company' })
     companies: Company;
+
+    @ManyToOne(type => Role, role => role.account_groups, { nullable: true })
+    @JoinColumn({ name: 'role' })
+    roles: Role | null;
 
     @OneToMany(type => Admin, users => users.account_groups)
     users: Admin[];
@@ -57,7 +65,6 @@ export class AccountGroup extends MainEntity {
         if ('name' in data) accountGroup.name = data.name
         if ('description' in data) accountGroup.description = data.description
         if ('parent_id' in data) accountGroup.parent_id = data.parent_id
-        if ('company' in data) accountGroup.company = data.company
 
         if (!accountGroup) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
@@ -71,11 +78,10 @@ export class AccountGroup extends MainEntity {
         })
     }
 
-    public static async getItem (id: number, relations?: Array<string>) {
-        const itemId: number = id
+    public static async getItem (where: any, relations?: Array<string>) {
         return new Promise((resolve, reject) => {
             this.findOneOrFail({
-                where: { id: itemId },
+                where: where,
                 relations: relations || []
             })
                 .then((item: AccountGroup) => {
@@ -126,7 +132,7 @@ export class AccountGroup extends MainEntity {
         })
     }
 
-    public static async getGroupByAccounts (id: number) {
+    public static async getGroupByAccounts (id: number, company: number | null) {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
             try {
@@ -135,6 +141,7 @@ export class AccountGroup extends MainEntity {
                     .select('account_group.*')
                     .addSelect('COUNT(admin.id)', 'count')
                     .where(`account_group.parent_id = ${id}`)
+                    .andWhere(`account_group.company = ${company}`)
                     .groupBy('admin.account_group')
                     .getRawMany()
                 resolve(data)

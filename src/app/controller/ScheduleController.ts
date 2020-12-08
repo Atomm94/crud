@@ -51,7 +51,10 @@ export default class ScheduleController {
 
     public static async add (ctx: DefaultContext) {
         try {
-            ctx.body = await Schedule.addItem(ctx.request.body as Schedule)
+            const req_data = ctx.request.body
+            const user = ctx.user
+            req_data.company = user.company ? user.company : null
+            ctx.body = await Schedule.addItem(req_data as Schedule)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -109,7 +112,17 @@ export default class ScheduleController {
      */
     public static async update (ctx: DefaultContext) {
         try {
-            ctx.body = await Schedule.updateItem(ctx.request.body as Schedule)
+            const req_data = ctx.request.body
+            const user = ctx.user
+            const where = { id: req_data.id, company: user.company ? user.company : null }
+            const check_by_company = await Schedule.findOne(where)
+
+            if (!check_by_company) {
+                ctx.status = 400
+                ctx.body = { message: 'something went wrong' }
+            } else {
+                ctx.body = await Schedule.updateItem(req_data as Schedule)
+            }
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -148,7 +161,9 @@ export default class ScheduleController {
      */
     public static async get (ctx: DefaultContext) {
         try {
-            ctx.body = await Schedule.getItem(+ctx.params.id)
+            const user = ctx.user
+            const where = { id: +ctx.params.id, company: user.company ? user.company : user.company }
+            ctx.body = await Schedule.getItem(where)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -192,7 +207,17 @@ export default class ScheduleController {
      */
     public static async destroy (ctx: DefaultContext) {
         try {
-            ctx.body = await Schedule.destroyItem(ctx.request.body as { id: number })
+            const req_data = ctx.request.body
+            const user = ctx.user
+            const where = { id: req_data.id, company: user.company ? user.company : null }
+            const check_by_company = await Schedule.findOne(where)
+
+            if (!check_by_company) {
+                ctx.status = 400
+                ctx.body = { message: 'something went wrong' }
+            } else {
+                ctx.body = await Schedule.destroyItem(req_data as { id: number })
+            }
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -223,7 +248,10 @@ export default class ScheduleController {
      */
     public static async getAll (ctx: DefaultContext) {
         try {
-            ctx.body = await Schedule.getAllItems(ctx.query)
+            const req_data = ctx.query
+            const user = ctx.user
+            req_data.where = { company: { '=': user.company ? user.company : null } }
+            ctx.body = await Schedule.getAllItems(req_data)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
