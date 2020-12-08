@@ -144,7 +144,6 @@ class RoleController {
       const user = ctx.user
       const where = { company: user.company ? user.company : null }
       const role: any = await Role.getItem(ctx.params.id, where)
-
       if (await checkPermissionsAccess(user, role.permissions)) {
         ctx.body = role
       } else {

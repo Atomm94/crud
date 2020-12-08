@@ -41,6 +41,8 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
             return ctx
         }
     } catch (error) {
+        console.log('-------- check role -----------', error)
+
         ctx.status = error.status || 400
         ctx.body = error
     }

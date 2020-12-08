@@ -116,12 +116,14 @@ export class Role extends MainEntity {
       }
     },
     AccountGroup: {
-      addItem: true,
-      updateItem: true,
-      getItem: true,
-      destroyItem: true,
-      getAllItems: true,
-      getGroupAccountsCounts: true
+      actions: {
+        addItem: true,
+        updateItem: true,
+        getItem: true,
+        destroyItem: true,
+        getAllItems: true,
+        getGroupAccountsCounts: true
+      }
     }
 
   }
