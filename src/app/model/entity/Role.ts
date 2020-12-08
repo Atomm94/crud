@@ -114,6 +114,14 @@ export class Role extends MainEntity {
         saveMessageImage: true,
         deleteMessageImage: true
       }
+    },
+    AccountGroup: {
+      addItem: true,
+      updateItem: true,
+      getItem: true,
+      destroyItem: true,
+      getAllItems: true,
+      getGroupAccountsCounts: true
     }
 
   }
