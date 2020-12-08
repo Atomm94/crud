@@ -18,6 +18,8 @@ import { CompanyDocuments } from './CompanyDocuments'
 import { AccountGroup } from './AccountGroup'
 import { Schedule } from './Schedule'
 import { Entry } from './Entry'
+import { AccessRight } from './AccessRight'
+import { AccessRightGroup } from './AccessRightGroup'
 
 @Entity('company')
 export class Company extends MainEntity {
@@ -50,24 +52,30 @@ export class Company extends MainEntity {
     @OneToMany(type => CompanyDocuments, company_documents => company_documents.companies)
     company_documents: CompanyDocuments[];
 
-    @OneToMany(type => Admin, users => users.companies) // specify inverse side as a second parameter
+    @OneToMany(type => Admin, users => users.companies)
     users: Admin[];
 
-    @OneToMany(type => Role, role => role.companies) // specify inverse side as a second parameter
+    @OneToMany(type => Role, role => role.companies)
     roles: Role[];
 
-    @OneToOne(() => Admin, admin => admin.account_company, { nullable: true }) // specify inverse side as a second parameter
+    @OneToOne(() => Admin, admin => admin.account_company, { nullable: true })
     @JoinColumn({ name: 'account' })
     company_account: Admin | null;
 
-    @OneToMany(type => AccountGroup, account_group => account_group.companies) // specify inverse side as a second parameter
+    @OneToMany(type => AccountGroup, account_group => account_group.companies)
     account_groups: AccountGroup[];
 
-    @OneToMany(type => Schedule, schedule => schedule.companies) // specify inverse side as a second parameter
+    @OneToMany(type => Schedule, schedule => schedule.companies)
     schedules: Schedule[];
 
-    @OneToMany(type => Entry, entry => entry.companies) // specify inverse side as a second parameter
+    @OneToMany(type => Entry, entry => entry.companies)
     entries: Entry[];
+
+    @OneToMany(type => AccessRight, access_right => access_right.companies)
+    access_rights: AccessRight[];
+
+    @OneToMany(type => AccessRightGroup, access_right_group => access_right_group.companies)
+    access_right_groups: AccessRightGroup[];
 
     public static async addItem (data: Company) {
         const company = new Company()

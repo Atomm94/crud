@@ -261,34 +261,34 @@ export default class AccountGroupController {
     }
 
     /**
- *
- * @swagger
- * /accountGroupAccounts/{id}:
- *      get:
- *          tags:
- *              - AccountGroup
- *          summary: Return accountGroup with group by accounts
- *          parameters:
- *              - name: id
- *                in: path
- *                required: true
- *                description: Parameter description
- *                schema:
- *                    type: integer
- *                    format: int64
- *                    minimum: 1
- *              - in: header
- *                name: Authorization
- *                required: true
- *                description: Authentication token
- *                schema:
- *                    type: string
- *          responses:
- *              '200':
- *                  description: Array of accountGroup
- *              '401':
- *                  description: Unauthorized
- */
+     *
+     * @swagger
+     * /accountGroupAccounts/{id}:
+     *      get:
+     *          tags:
+     *              - AccountGroup
+     *          summary: Return accountGroup with group by accounts
+     *          parameters:
+     *              - name: id
+     *                in: path
+     *                required: true
+     *                description: Parameter description
+     *                schema:
+     *                    type: integer
+     *                    format: int64
+     *                    minimum: 1
+     *              - in: header
+     *                name: Authorization
+     *                required: true
+     *                description: Authentication token
+     *                schema:
+     *                    type: string
+     *          responses:
+     *              '200':
+     *                  description: Array of accountGroup
+     *              '401':
+     *                  description: Unauthorized
+     */
     public static async getGroupAccountsCounts (ctx: DefaultContext) {
         try {
             const user = ctx.user

@@ -27,6 +27,9 @@ export class CarInfo extends MainEntity {
     @OneToOne(type => User, user => user.car_infos, { nullable: true })
     user: User | null;
 
+    public static gettingActions: boolean = false
+    public static gettingAttributes: boolean = false
+
     public static async addItem (data: CarInfo) {
         const carInfo = new CarInfo()
 

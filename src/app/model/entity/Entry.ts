@@ -2,12 +2,13 @@ import {
     Entity,
     Column,
     ManyToOne,
+    OneToMany,
     JoinColumn
 } from 'typeorm'
 
 import { MainEntity } from './MainEntity'
-
 import { Company } from './Company'
+import { AccessRight } from './AccessRight'
 
 @Entity('entry')
 export class Entry extends MainEntity {
@@ -19,7 +20,10 @@ export class Entry extends MainEntity {
 
     @ManyToOne(type => Company, company => company.entries)
     @JoinColumn({ name: 'company' })
-    companies: Company | null;
+    companies: Company;
+
+    @OneToMany(type => AccessRight, access_right => access_right.entries)
+    access_rights: AccessRight[];
 
     public static async addItem (data: Entry) {
         const entry = new Entry()
@@ -42,7 +46,6 @@ export class Entry extends MainEntity {
         const entry = await this.findOneOrFail(data.id)
 
         if ('name' in data) entry.name = data.name
-        if ('company' in data) entry.company = data.company
 
         if (!entry) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {

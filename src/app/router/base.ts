@@ -1,4 +1,6 @@
 import EntryController from '../controller/EntryController'
+import AccessRightGroupController from '../controller/AccessRightGroupController'
+import AccessRightController from '../controller/AccessRightController'
 import ScheduleController from '../controller/ScheduleController'
 // import CarInfoController from '../controller/CarInfoController'
 import AccountGroupController from '../controller/AccountGroupController'
@@ -189,11 +191,15 @@ export default router
   // .get('registrationInvite', RegistrationInviteController.getAll)
 
   // apis without model-action(role-acl)
+  // -----------------------------------------------------
+
   .get('registration/:token', RegistrationInviteController.get)
   .post('registration/:token', CompanyController.regValidation)
   .put('registration/:token', CompanyController.resendNewPassEmail)
   .get('account/:token', AdminController.getUserByToken)
   .put('account/:token', AdminController.setPassword)
+
+  // -----------------------------------------------------
 
   // AccountGroup controller CRUD endpoints
   .post('AccountGroup-addItem', 'accountGroup', AccountGroupController.add)
@@ -224,11 +230,23 @@ export default router
   .delete('schedule', ScheduleController.destroy)
   .get('schedule', ScheduleController.getAll)
 
-  
-  // Entry controller CRUD endpoints   
+  // Entry controller CRUD endpoints
   .post('entry', EntryController.add)
   .put('entry', EntryController.update)
   .get('entry/:id', EntryController.get)
   .delete('entry', EntryController.destroy)
   .get('entry', EntryController.getAll)
-  
+
+  // AccessRight controller CRUD endpoints
+  .post('accessRight', AccessRightController.add)
+  .put('accessRight', AccessRightController.update)
+  .get('accessRight/:id', AccessRightController.get)
+  .delete('accessRight', AccessRightController.destroy)
+  .get('accessRight', AccessRightController.getAll)
+
+  // AccessRightGroup controller CRUD endpoints
+  .post('accessRightGroup', AccessRightGroupController.add)
+  .put('accessRightGroup', AccessRightGroupController.update)
+  .get('accessRightGroup/:id', AccessRightGroupController.get)
+  .delete('accessRightGroup', AccessRightGroupController.destroy)
+  .get('accessRightGroup', AccessRightGroupController.getAll)

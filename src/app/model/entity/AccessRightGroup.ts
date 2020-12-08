@@ -6,47 +6,42 @@ import {
     JoinColumn
 } from 'typeorm'
 
-import { scheduleType } from '../../enums/scheduleType.enum'
 import { MainEntity } from './MainEntity'
 import { Company } from './Company'
 import { AccessRight } from './AccessRight'
+import { User } from '.'
 
-@Entity('schedule')
-export class Schedule extends MainEntity {
+@Entity('access_right_group')
+export class AccessRightGroup extends MainEntity {
     @Column('varchar', { name: 'name', nullable: false })
     name: string
 
     @Column('varchar', { name: 'description', nullable: true })
     description: string | null
 
-    @Column('enum', { name: 'type', nullable: false, enum: scheduleType })
-    type: scheduleType
-
-    @Column('longtext', { name: 'settings', nullable: true })
-    settings: string | null
-
     @Column('int', { name: 'company', nullable: false })
     company: number
 
-    @ManyToOne(type => Company, company => company.schedules)
+    @ManyToOne(type => Company, company => company.access_right_groups)
     @JoinColumn({ name: 'company' })
     companies: Company;
 
-    @OneToMany(type => AccessRight, access_right => access_right.schedules)
+    @OneToMany(type => AccessRight, access_right => access_right.access_groups)
     access_rights: AccessRight[];
 
-    public static async addItem (data: Schedule) {
-        const schedule = new Schedule()
+    @OneToMany(type => User, user => user.access_right_groups)
+    user: User[];
 
-        schedule.name = data.name
-        schedule.description = data.description
-        schedule.type = data.type
-        schedule.settings = data.settings
-        schedule.company = data.company
+    public static async addItem (data: AccessRightGroup) {
+        const accessRightGroup = new AccessRightGroup()
+
+        accessRightGroup.name = data.name
+        accessRightGroup.description = data.description
+        accessRightGroup.company = data.company
 
         return new Promise((resolve, reject) => {
-            this.save(schedule)
-                .then((item: Schedule) => {
+            this.save(accessRightGroup)
+                .then((item: AccessRightGroup) => {
                     resolve(item)
                 })
                 .catch((error: any) => {
@@ -55,18 +50,16 @@ export class Schedule extends MainEntity {
         })
     }
 
-    public static async updateItem (data: Schedule) {
-        const schedule = await this.findOneOrFail(data.id)
+    public static async updateItem (data: AccessRightGroup) {
+        const accessRightGroup = await this.findOneOrFail(data.id)
 
-        if ('name' in data) schedule.name = data.name
-        if ('description' in data) schedule.description = data.description
-        if ('type' in data) schedule.type = data.type
-        if ('settings' in data) schedule.settings = data.settings
+        if ('name' in data) accessRightGroup.name = data.name
+        if ('description' in data) accessRightGroup.description = data.description
 
-        if (!schedule) return { status: 400, messsage: 'Item not found' }
+        if (!accessRightGroup) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(schedule)
-                .then((item: Schedule) => {
+            this.save(accessRightGroup)
+                .then((item: AccessRightGroup) => {
                     resolve(item)
                 })
                 .catch((error: any) => {
@@ -80,7 +73,7 @@ export class Schedule extends MainEntity {
             this.findOneOrFail({
                 where: where
             })
-                .then((item: Schedule) => {
+                .then((item: AccessRightGroup) => {
                     resolve(item)
                 })
                 .catch((error: any) => {

@@ -1,8 +1,10 @@
 import {
     Entity,
     Column,
+    OneToMany,
     OneToOne
 } from 'typeorm'
+import { AccessRight } from './AccessRight'
 
 import { MainEntity } from './MainEntity'
 import { User } from './User'
@@ -47,6 +49,12 @@ export class Limitation extends MainEntity {
 
     @OneToOne(type => User, user => user.limitations, { nullable: true })
     user: User | null;
+
+    @OneToMany(type => AccessRight, access_right => access_right.limitations)
+    access_rights: AccessRight[];
+
+    public static gettingActions: boolean = false
+    public static gettingAttributes: boolean = false
 
     public static async addItem (data: Limitation) {
         const limitation = new Limitation()

@@ -1,14 +1,14 @@
 import { DefaultContext } from 'koa'
-import { Entry } from '../model/entity/Entry'
-export default class EntryController {
+import { AccessRight } from '../model/entity/AccessRight'
+export default class AccessRightController {
     /**
      *
      * @swagger
-     *  /entry:
+     *  /accessRight:
      *      post:
      *          tags:
-     *              - Entry
-     *          summary: Creates a entry.
+     *              - AccessRight
+     *          summary: Creates a accessRight.
      *          consumes:
      *              - application/json
      *          parameters:
@@ -19,18 +19,31 @@ export default class EntryController {
      *              schema:
      *                type: string
      *            - in: body
-     *              name: entry
-     *              description: The entry to create.
+     *              name: accessRight
+     *              description: The accessRight to create.
      *              schema:
      *                type: object
      *                required:
      *                properties:
-     *                  name:
-     *                      type: string
-     *                      example: Elevator 1
+     *                  access_group:
+     *                      type: number
+     *                      example: 1
+     *                      minimum: 1
+     *                  entry:
+     *                      type: number
+     *                      example: 1
+     *                      minimum: 1
+     *                  schedule:
+     *                      type: number
+     *                      example: 1
+     *                      minimum: 1
+     *                  limitation:
+     *                      type: number
+     *                      example: 1
+     *                      minimum: 1
      *          responses:
      *              '201':
-     *                  description: A entry object
+     *                  description: A accessRight object
      *              '409':
      *                  description: Conflict
      *              '422':
@@ -42,7 +55,7 @@ export default class EntryController {
             const req_data = ctx.request.body
             const user = ctx.user
             req_data.company = user.company ? user.company : null
-            ctx.body = await Entry.addItem(req_data as Entry)
+            ctx.body = await AccessRight.addItem(req_data as AccessRight)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -53,11 +66,11 @@ export default class EntryController {
     /**
      *
      * @swagger
-     *  /entry:
+     *  /accessRight:
      *      put:
      *          tags:
-     *              - Entry
-     *          summary: Update a entry.
+     *              - AccessRight
+     *          summary: Update a accessRight.
      *          consumes:
      *              - application/json
      *          parameters:
@@ -68,8 +81,8 @@ export default class EntryController {
      *              schema:
      *                type: string
      *            - in: body
-     *              name: entry
-     *              description: The entry to create.
+     *              name: accessRight
+     *              description: The accessRight to create.
      *              schema:
      *                type: object
      *                required:
@@ -78,12 +91,25 @@ export default class EntryController {
      *                  id:
      *                      type: number
      *                      example: 1
-     *                  name:
-     *                      type: string
-     *                      example: Elevator 1
+     *                  access_group:
+     *                      type: number
+     *                      example: 1
+     *                      minimum: 1
+     *                  entry:
+     *                      type: number
+     *                      example: 1
+     *                      minimum: 1
+     *                  schedule:
+     *                      type: number
+     *                      example: 1
+     *                      minimum: 1
+     *                  limitation:
+     *                      type: number
+     *                      example: 1
+     *                      minimum: 1
      *          responses:
      *              '201':
-     *                  description: A entry updated object
+     *                  description: A accessRight updated object
      *              '409':
      *                  description: Conflict
      *              '422':
@@ -94,13 +120,13 @@ export default class EntryController {
             const req_data = ctx.request.body
             const user = ctx.user
             const where = { id: req_data.id, company: user.company ? user.company : null }
-            const check_by_company = await Entry.findOne(where)
+            const check_by_company = await AccessRight.findOne(where)
 
             if (!check_by_company) {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
             } else {
-                ctx.body = await Entry.updateItem(req_data as Entry)
+                ctx.body = await AccessRight.updateItem(req_data as AccessRight)
             }
         } catch (error) {
             ctx.status = error.status || 400
@@ -112,11 +138,11 @@ export default class EntryController {
     /**
      *
      * @swagger
-     * /entry/{id}:
+     * /accessRight/{id}:
      *      get:
      *          tags:
-     *              - Entry
-     *          summary: Return entry by ID
+     *              - AccessRight
+     *          summary: Return accessRight by ID
      *          parameters:
      *              - name: id
      *                in: path
@@ -142,7 +168,7 @@ export default class EntryController {
         try {
             const user = ctx.user
             const where = { id: +ctx.params.id, company: user.company ? user.company : user.company }
-            ctx.body = await Entry.getItem(where)
+            ctx.body = await AccessRight.getItem(where)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -153,11 +179,11 @@ export default class EntryController {
     /**
      *
      * @swagger
-     *  /entry:
+     *  /accessRight:
      *      delete:
      *          tags:
-     *              - Entry
-     *          summary: Delete a entry.
+     *              - AccessRight
+     *          summary: Delete a accessRight.
      *          consumes:
      *              - application/json
      *          parameters:
@@ -168,8 +194,8 @@ export default class EntryController {
      *              schema:
      *                type: string
      *            - in: body
-     *              name: entry
-     *              description: The entry to create.
+     *              name: accessRight
+     *              description: The accessRight to create.
      *              schema:
      *                type: object
      *                required:
@@ -180,7 +206,7 @@ export default class EntryController {
      *                      example: 1
      *          responses:
      *              '200':
-     *                  description: entry has been deleted
+     *                  description: accessRight has been deleted
      *              '422':
      *                  description: Wrong data
      */
@@ -189,13 +215,13 @@ export default class EntryController {
             const req_data = ctx.request.body
             const user = ctx.user
             const where = { id: req_data.id, company: user.company ? user.company : null }
-            const check_by_company = await Entry.findOne(where)
+            const check_by_company = await AccessRight.findOne(where)
 
             if (!check_by_company) {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
             } else {
-                ctx.body = await Entry.destroyItem(req_data as { id: number })
+                ctx.body = await AccessRight.destroyItem(req_data as { id: number })
             }
         } catch (error) {
             ctx.status = error.status || 400
@@ -207,11 +233,11 @@ export default class EntryController {
     /**
      *
      * @swagger
-     * /entry:
+     * /accessRight:
      *      get:
      *          tags:
-     *              - Entry
-     *          summary: Return entry list
+     *              - AccessRight
+     *          summary: Return accessRight list
      *          parameters:
      *              - in: header
      *                name: Authorization
@@ -221,7 +247,7 @@ export default class EntryController {
      *                    type: string
      *          responses:
      *              '200':
-     *                  description: Array of entry
+     *                  description: Array of accessRight
      *              '401':
      *                  description: Unauthorized
      */
@@ -230,7 +256,7 @@ export default class EntryController {
             const req_data = ctx.query
             const user = ctx.user
             req_data.where = { company: { '=': user.company ? user.company : null } }
-            ctx.body = await Entry.getAllItems(req_data)
+            ctx.body = await AccessRight.getAllItems(req_data)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
