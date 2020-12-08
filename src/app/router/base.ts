@@ -51,8 +51,8 @@ export default router
   .get('Admin-getItem', 'getUserData', AdminController.getUserData)
   .put('Admin-updateItem', 'myProfile', AdminController.update)
 
-  .post('Admin-saveImage', 'userImageSave', AdminController.userImageSave)
-  .delete('Admin-deleteImage', 'userImageDelete', AdminController.userImageDelete)
+  .post('Admin-saveImage', 'accountImageSave', AdminController.accountImageSave)
+  .delete('Admin-deleteImage', 'accountImageDelete', AdminController.accountImageDelete)
 
   // Role
   .post('Role-addItem', 'roles', RoleController.createRole)
@@ -204,11 +204,14 @@ export default router
   .get('AccountGroup-getGroupAccountsCounts', 'accountGroupAccounts/:id', AccountGroupController.getGroupAccountsCounts)
   // User controller CRUD endpoints
 
-  .post('Users-addItem', 'user', UserController.add)
-  .put('Users-getItem', 'user', UserController.update)
-  .get('Users-updateItem', 'user/:id', UserController.get)
-  .delete('Users-destroyItem', 'user', UserController.destroy)
-  .get('Users-getAllItems', 'user', UserController.getAll)
+  .get('User-getItem', 'user/:id', UserController.get)
+  .post('User-addItem', 'user', UserController.add)
+  .put('User-updateItem', 'user', UserController.update)
+  .delete('User-destroyItem', 'user', UserController.destroy)
+  .get('User-getAllItems', 'user', UserController.getAll)
+
+  .post('User-saveImage', 'userImageSave', UserController.userImageSave)
+  .delete('User-deleteImage', 'userImageDelete', UserController.userImageDelete)
 
   // CarInfo controller CRUD endpoints
   // .post('CarInfo-addItem', 'carInfo', CarInfoController.add)

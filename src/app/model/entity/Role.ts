@@ -92,6 +92,11 @@ export class Role extends MainEntity {
         getItem: true
       }
     },
+    Admin: {
+      actions: {
+        getItem: true
+      }
+    },
     Ticket: {
       actions: {
         addItem: true,
@@ -110,6 +115,7 @@ export class Role extends MainEntity {
         deleteMessageImage: true
       }
     }
+
   }
 
   public static async addItem (data: Role) {

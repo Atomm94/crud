@@ -655,7 +655,7 @@ export default class AdminController {
         const role = {}
         try {
             const user = ctx.user
-            const where = { id: adminId, user: user.company ? user.company : null }
+            const where = { id: adminId, company: user.company ? user.company : null }
             const relations = ['departments']
             admin = await Admin.features.AdminOperation.getItem(where, relations)
         } catch (error) {
@@ -780,7 +780,7 @@ export default class AdminController {
     /**
      *
      * @swagger
-     *  /userImageSave:
+     *  /accountImageSave:
      *      post:
      *          tags:
      *              - Admin
@@ -806,7 +806,7 @@ export default class AdminController {
      *              '422':
      *                  description: Wrong data
      */
-    public static async userImageSave (ctx: DefaultContext) {
+    public static async accountImageSave (ctx: DefaultContext) {
         const file = ctx.request.files.file
         const savedFile = await Admin.saveImage(file)
         return ctx.body = savedFile
@@ -815,7 +815,7 @@ export default class AdminController {
     /**
      *
      * @swagger
-     *  /userImageDelete:
+     *  /accountImageDelete:
      *      delete:
      *          tags:
      *              - Admin
@@ -847,7 +847,7 @@ export default class AdminController {
      *              '422':
      *                  description: Wrong data
      */
-    public static async userImageDelete (ctx: DefaultContext) {
+    public static async accountImageDelete (ctx: DefaultContext) {
         const name = ctx.request.body.name
 
         try {

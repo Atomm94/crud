@@ -8,7 +8,11 @@ import { userStatus } from '../../enums/userStatus.enum'
 import { MainEntity } from './MainEntity'
 import { CarInfo } from './CarInfo'
 import { Limitation } from './Limitation'
-
+import { fileSave } from '../../functions/file'
+import { logger } from '../../../../modules/winston/logger'
+import fs from 'fs'
+import { join } from 'path'
+const parentDir = join(__dirname, '../../..')
 @Entity('user')
 export class User extends MainEntity {
     @Column('varchar', { name: 'email', length: '255', unique: true })
@@ -73,6 +77,8 @@ export class User extends MainEntity {
     @JoinColumn({ name: 'limitation' })
     limitations: Limitation | null;
 
+    public static resource: boolean = true
+
     public static async addItem (data: User) {
         const user = new User()
 
@@ -96,7 +102,7 @@ export class User extends MainEntity {
 
         return new Promise((resolve, reject) => {
             this.save(user)
-            .then((item: User) => {
+                .then((item: User) => {
                     resolve(item)
                 })
                 .catch((error: any) => {
@@ -173,6 +179,17 @@ export class User extends MainEntity {
                 .catch((error: any) => {
                     reject(error)
                 })
+        })
+    }
+
+    public static async saveImage (file: any) {
+        return fileSave(file)
+    }
+
+    public static async deleteImage (file: any) {
+        return fs.unlink(`${parentDir}/public/${file}`, (err) => {
+            if (err) throw err
+            logger.info('Delete complete!')
         })
     }
 }
