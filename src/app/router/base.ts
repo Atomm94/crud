@@ -1,4 +1,4 @@
-import TimeframeController from '../controller/TimeframeController'
+// import TimeframeController from '../controller/TimeframeController'
 import EntryController from '../controller/EntryController'
 import AccessRightGroupController from '../controller/AccessRightGroupController'
 import AccessRightController from '../controller/AccessRightController'
@@ -234,13 +234,6 @@ export default router
   .get('Schedule-getItem', 'schedule/:id', ScheduleController.get)
   .delete('Schedule-destroyItem', 'schedule', ScheduleController.destroy)
   .get('Schedule-getAllItems', 'schedule', ScheduleController.getAll)
-
-  // Timeframe controller CRUD endpoints
-  .post('Schedule-addItem', 'timeframe', TimeframeController.add)
-  .put('Schedule-updateItem', 'timeframe', TimeframeController.update)
-  .get('Schedule-getItem', 'timeframe/:id', TimeframeController.get)
-  .delete('Schedule-destroyItem', 'timeframe', TimeframeController.destroy)
-  .get('Schedule-getAllItems', 'timeframe', TimeframeController.getAll)
 
   // Entry controller CRUD endpoints
   .post('entry', EntryController.add)
