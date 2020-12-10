@@ -231,6 +231,13 @@ export default router
   .delete('schedule', ScheduleController.destroy)
   .get('schedule', ScheduleController.getAll)
 
+  // Timeframe controller CRUD endpoints
+  .post('timeframe', TimeframeController.add)
+  .put('timeframe', TimeframeController.update)
+  .get('timeframe/:id', TimeframeController.get)
+  .delete('timeframe', TimeframeController.destroy)
+  .get('timeframe', TimeframeController.getAll)
+
   // Entry controller CRUD endpoints
   .post('entry', EntryController.add)
   .put('entry', EntryController.update)
@@ -251,12 +258,3 @@ export default router
   .get('accessRightGroup/:id', AccessRightGroupController.get)
   .delete('accessRightGroup', AccessRightGroupController.destroy)
   .get('accessRightGroup', AccessRightGroupController.getAll)
-
-  
-  // Timeframe controller CRUD endpoints   
-  .post('timeframe', TimeframeController.add)
-  .put('timeframe', TimeframeController.update)
-  .get('timeframe/:id', TimeframeController.get)
-  .delete('timeframe', TimeframeController.destroy)
-  .get('timeframe', TimeframeController.getAll)
-  
