@@ -37,7 +37,7 @@ export default class TimeframeController {
      *                      example: 08:00
      *                  end:
      *                      type: string
-     *                      example: 12:30
+     *                      example: 09:30
      *                  schedule:
      *                      type: number
      *                      example: 1

@@ -22,6 +22,20 @@
                     "nullable": false
                 }
             },
+            "startFrom": {
+                "type": "date",
+                "params": {
+                    "name": "startFrom",
+                    "nullable": true
+                }
+            },
+            "circle": {
+                "type": "boolean",
+                "params": {
+                    "name": "circle",
+                    "nullable": true
+                }
+            },
             "company": {
                 "type": "int",
                 "params": {

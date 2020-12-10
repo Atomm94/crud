@@ -29,6 +29,9 @@ export class Timeframe extends MainEntity {
     @JoinColumn({ name: 'schedule' })
     schedules: Schedule;
 
+    public static gettingActions: boolean = false
+    public static gettingAttributes: boolean = false
+
     public static async addItem (data: Timeframe) {
         const timeframe = new Timeframe()
 
@@ -69,10 +72,11 @@ export class Timeframe extends MainEntity {
         })
     }
 
-    public static async getItem (where: any) {
+    public static async getItem (where: any, relations?: Array<string>) {
         return new Promise((resolve, reject) => {
             this.findOneOrFail({
-                where: where
+                where: where,
+                relations: relations || []
             })
                 .then((item: Timeframe) => {
                     resolve(item)

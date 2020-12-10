@@ -234,6 +234,7 @@ export default router
   .get('Schedule-getItem', 'schedule/:id', ScheduleController.get)
   .delete('Schedule-destroyItem', 'schedule', ScheduleController.destroy)
   .get('Schedule-getAllItems', 'schedule', ScheduleController.getAll)
+  .get('Schedule-getAllItems', 'scheduleTree', ScheduleController.getTree)
 
   // Timeframe controller CRUD endpoints
   .post('Schedule-addItem', 'timeframe', TimeframeController.add)

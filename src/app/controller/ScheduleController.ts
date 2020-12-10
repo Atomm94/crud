@@ -1,5 +1,6 @@
 import { DefaultContext } from 'koa'
 import { Schedule } from '../model/entity/Schedule'
+import { Timeframe } from '../model/entity/Timeframe'
 export default class ScheduleController {
     /**
      *
@@ -36,6 +37,12 @@ export default class ScheduleController {
      *                  type:
      *                      type: daily | weekly | specific | flexitime | ordinal
      *                      example: daily
+     *                  start_from:
+     *                      type: string | null
+     *                      example: 2020-12-31
+     *                  circle:
+     *                      type: boolean | null
+     *                      example: false
      *          responses:
      *              '201':
      *                  description: A schedule object
@@ -95,6 +102,12 @@ export default class ScheduleController {
      *                  type:
      *                      type: daily | weekly | specific | flexitime | ordinal
      *                      example: daily
+     *                  start_from:
+     *                      type: string | null
+     *                      example: 2020-12-31
+     *                  circle:
+     *                      type: boolean | null
+     *                      example: false
      *          responses:
      *              '201':
      *                  description: A schedule updated object
@@ -156,7 +169,8 @@ export default class ScheduleController {
         try {
             const user = ctx.user
             const where = { id: +ctx.params.id, company: user.company ? user.company : user.company }
-            ctx.body = await Schedule.getItem(where)
+            const relations = ['timeframes']
+            ctx.body = await Schedule.getItem(where, relations)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -245,6 +259,46 @@ export default class ScheduleController {
             const user = ctx.user
             req_data.where = { company: { '=': user.company ? user.company : null } }
             ctx.body = await Schedule.getAllItems(req_data)
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     * /scheduleTree:
+     *      get:
+     *          tags:
+     *              - Schedule
+     *          summary: Return schedule tree
+     *          parameters:
+     *              - in: header
+     *                name: Authorization
+     *                required: true
+     *                description: Authentication token
+     *                schema:
+     *                    type: string
+     *          responses:
+     *              '200':
+     *                  description: Tree of schedule
+     *              '401':
+     *                  description: Unauthorized
+     */
+    public static async getTree (ctx: DefaultContext) {
+        try {
+            const user = ctx.user
+            const company = user.company ? user.company : null
+            ctx.body = await Timeframe.createQueryBuilder('timeframe')
+                    .innerJoinAndSelect('timeframe.schedules', 'schedule')
+                    .select('schedule.*')
+                    .addSelect('timeframe.name')
+                    .where(`schedule.company = ${company}`)
+                    .groupBy('timeframe.name')
+                    .addGroupBy('timeframe.schedule')
+                    .getRawMany()
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

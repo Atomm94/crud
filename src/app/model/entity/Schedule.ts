@@ -23,6 +23,12 @@ export class Schedule extends MainEntity {
     @Column('enum', { name: 'type', nullable: false, enum: scheduleType })
     type: scheduleType
 
+    @Column('date', { name: 'start_from', nullable: true })
+    start_from: Date
+
+    @Column('boolean', { name: 'circle', nullable: true })
+    circle: boolean
+
     @Column('int', { name: 'company', nullable: false })
     company: number
 
@@ -42,6 +48,8 @@ export class Schedule extends MainEntity {
         schedule.name = data.name
         schedule.description = data.description
         schedule.type = data.type
+        if ('start_from' in data) schedule.start_from = data.start_from
+        if ('circle' in data) schedule.circle = data.circle
         schedule.company = data.company
 
         return new Promise((resolve, reject) => {
@@ -61,6 +69,8 @@ export class Schedule extends MainEntity {
         if ('name' in data) schedule.name = data.name
         if ('description' in data) schedule.description = data.description
         if ('type' in data) schedule.type = data.type
+        if ('start_from' in data) schedule.start_from = data.start_from
+        if ('circle' in data) schedule.circle = data.circle
 
         if (!schedule) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
@@ -74,10 +84,11 @@ export class Schedule extends MainEntity {
         })
     }
 
-    public static async getItem (where: any) {
+    public static async getItem (where: any, relations?: Array<string>) {
         return new Promise((resolve, reject) => {
             this.findOneOrFail({
-                where: where
+                where: where,
+                relations: relations || []
             })
                 .then((item: Schedule) => {
                     resolve(item)
