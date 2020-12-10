@@ -1,3 +1,4 @@
+import TimeframeController from '../controller/TimeframeController'
 import EntryController from '../controller/EntryController'
 import AccessRightGroupController from '../controller/AccessRightGroupController'
 import AccessRightController from '../controller/AccessRightController'
@@ -250,3 +251,12 @@ export default router
   .get('accessRightGroup/:id', AccessRightGroupController.get)
   .delete('accessRightGroup', AccessRightGroupController.destroy)
   .get('accessRightGroup', AccessRightGroupController.getAll)
+
+  
+  // Timeframe controller CRUD endpoints   
+  .post('timeframe', TimeframeController.add)
+  .put('timeframe', TimeframeController.update)
+  .get('timeframe/:id', TimeframeController.get)
+  .delete('timeframe', TimeframeController.destroy)
+  .get('timeframe', TimeframeController.getAll)
+  

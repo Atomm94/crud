@@ -44,8 +44,9 @@ export class AccountGroup extends MainEntity {
         const accountGroup = new AccountGroup()
 
         accountGroup.name = data.name
-        accountGroup.description = data.description
-        accountGroup.parent_id = data.parent_id
+        if ('description' in data) accountGroup.description = data.description
+        if ('parent_id' in data) accountGroup.parent_id = data.parent_id
+        if ('role' in data) accountGroup.role = data.role
         accountGroup.company = data.company
 
         return new Promise((resolve, reject) => {
@@ -65,6 +66,7 @@ export class AccountGroup extends MainEntity {
         if ('name' in data) accountGroup.name = data.name
         if ('description' in data) accountGroup.description = data.description
         if ('parent_id' in data) accountGroup.parent_id = data.parent_id
+        if ('role' in data) accountGroup.role = data.role
 
         if (!accountGroup) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {

@@ -76,7 +76,7 @@ export class User extends MainEntity {
     limitations: Limitation | null;
 
     @ManyToOne(() => AccessRightGroup, access_right_group => access_right_group.user, { nullable: true })
-    @JoinColumn({ name: 'limitation' })
+    @JoinColumn({ name: 'access_right_group' })
     access_right_groups: AccessRightGroup;
 
     public static async addItem (data: User) {
