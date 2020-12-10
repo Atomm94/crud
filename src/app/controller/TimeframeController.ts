@@ -24,17 +24,24 @@ export default class TimeframeController {
      *              schema:
      *                type: object
      *                required:
+     *                  - name
+     *                  - start
+     *                  - end
+     *                  - schedule
      *                properties:
      *                  name:
      *                      type: string
+     *                      example: sun
      *                  start:
      *                      type: string
+     *                      example: 08:00
      *                  end:
      *                      type: string
+     *                      example: 12:30
      *                  schedule:
      *                      type: number
-     *                  company:
-     *                      type: number
+     *                      example: 1
+     *                      minimum: 1
      *          responses:
      *              '201':
      *                  description: A timeframe object
@@ -46,7 +53,10 @@ export default class TimeframeController {
 
     public static async add (ctx: DefaultContext) {
         try {
-            ctx.body = await Timeframe.addItem(ctx.request.body as Timeframe)
+            const req_data = ctx.request.body
+            const user = ctx.user
+            req_data.company = user.company ? user.company : null
+            ctx.body = await Timeframe.addItem(req_data as Timeframe)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -84,14 +94,17 @@ export default class TimeframeController {
      *                      example: 1
      *                  name:
      *                      type: string
+     *                      example: 3
      *                  start:
      *                      type: string
+     *                      example: 08:00
      *                  end:
      *                      type: string
+     *                      example: 12:30
      *                  schedule:
      *                      type: number
-     *                  company:
-     *                      type: number
+     *                      example: 1
+     *                      minimum: 1
      *          responses:
      *              '201':
      *                  description: A timeframe updated object
@@ -102,7 +115,17 @@ export default class TimeframeController {
      */
     public static async update (ctx: DefaultContext) {
         try {
-            ctx.body = await Timeframe.updateItem(ctx.request.body as Timeframe)
+            const req_data = ctx.request.body
+            const user = ctx.user
+            const where = { id: req_data.id, company: user.company ? user.company : null }
+            const check_by_company = await Timeframe.findOne(where)
+
+            if (!check_by_company) {
+                ctx.status = 400
+                ctx.body = { message: 'something went wrong' }
+            } else {
+                ctx.body = await Timeframe.updateItem(req_data as Timeframe)
+            }
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -141,7 +164,9 @@ export default class TimeframeController {
      */
     public static async get (ctx: DefaultContext) {
         try {
-            ctx.body = await Timeframe.getItem(+ctx.params.id)
+            const user = ctx.user
+            const where = { id: +ctx.params.id, company: user.company ? user.company : user.company }
+            ctx.body = await Timeframe.getItem(where)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -185,7 +210,17 @@ export default class TimeframeController {
      */
     public static async destroy (ctx: DefaultContext) {
         try {
-            ctx.body = await Timeframe.destroyItem(ctx.request.body as { id: number })
+            const req_data = ctx.request.body
+            const user = ctx.user
+            const where = { id: req_data.id, company: user.company ? user.company : null }
+            const check_by_company = await Timeframe.findOne(where)
+
+            if (!check_by_company) {
+                ctx.status = 400
+                ctx.body = { message: 'something went wrong' }
+            } else {
+                ctx.body = await Timeframe.destroyItem(req_data as { id: number })
+            }
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -216,7 +251,10 @@ export default class TimeframeController {
      */
     public static async getAll (ctx: DefaultContext) {
         try {
-            ctx.body = await Timeframe.getAllItems(ctx.query)
+            const req_data = ctx.query
+            const user = ctx.user
+            req_data.where = { company: { '=': user.company ? user.company : null } }
+            ctx.body = await Timeframe.getAllItems(req_data)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

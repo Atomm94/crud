@@ -229,18 +229,18 @@ export default router
   // .get('CarInfo-getAllItems', 'carInfo', CarInfoController.getAll)
 
   // Schedule controller CRUD endpoints
-  .post('schedule', ScheduleController.add)
-  .put('schedule', ScheduleController.update)
-  .get('schedule/:id', ScheduleController.get)
-  .delete('schedule', ScheduleController.destroy)
-  .get('schedule', ScheduleController.getAll)
+  .post('Schedule-addItem', 'schedule', ScheduleController.add)
+  .put('Schedule-updateItem', 'schedule', ScheduleController.update)
+  .get('Schedule-getItem', 'schedule/:id', ScheduleController.get)
+  .delete('Schedule-destroyItem', 'schedule', ScheduleController.destroy)
+  .get('Schedule-getAllItems', 'schedule', ScheduleController.getAll)
 
   // Timeframe controller CRUD endpoints
-  .post('timeframe', TimeframeController.add)
-  .put('timeframe', TimeframeController.update)
-  .get('timeframe/:id', TimeframeController.get)
-  .delete('timeframe', TimeframeController.destroy)
-  .get('timeframe', TimeframeController.getAll)
+  .post('Schedule-addItem', 'timeframe', TimeframeController.add)
+  .put('Schedule-updateItem', 'timeframe', TimeframeController.update)
+  .get('Schedule-getItem', 'timeframe/:id', TimeframeController.get)
+  .delete('Schedule-destroyItem', 'timeframe', TimeframeController.destroy)
+  .get('Schedule-getAllItems', 'timeframe', TimeframeController.getAll)
 
   // Entry controller CRUD endpoints
   .post('entry', EntryController.add)

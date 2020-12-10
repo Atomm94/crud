@@ -22,13 +22,6 @@
                     "nullable": false
                 }
             },
-            "settings": {
-                "type": "longtext",
-                "params": {
-                    "name": "settings",
-                    "nullable": true
-                }
-            },
             "company": {
                 "type": "int",
                 "params": {

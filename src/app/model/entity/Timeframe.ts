@@ -1,9 +1,12 @@
 import {
     Entity,
-    Column
+    Column,
+    ManyToOne,
+    JoinColumn
 } from 'typeorm'
 
 import { MainEntity } from './MainEntity'
+import { Schedule } from './Schedule'
 
 @Entity('timeframe')
 export class Timeframe extends MainEntity {
@@ -21,6 +24,10 @@ export class Timeframe extends MainEntity {
 
     @Column('int', { name: 'company', nullable: false })
     company: number
+
+    @ManyToOne(type => Schedule, schedule => schedule.timeframes)
+    @JoinColumn({ name: 'schedule' })
+    schedules: Schedule;
 
     public static async addItem (data: Timeframe) {
         const timeframe = new Timeframe()
@@ -49,7 +56,6 @@ export class Timeframe extends MainEntity {
         if ('start' in data) timeframe.start = data.start
         if ('end' in data) timeframe.end = data.end
         if ('schedule' in data) timeframe.schedule = data.schedule
-        if ('company' in data) timeframe.company = data.company
 
         if (!timeframe) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
@@ -63,10 +69,11 @@ export class Timeframe extends MainEntity {
         })
     }
 
-    public static async getItem (id: number) {
-        const itemId: number = id
+    public static async getItem (where: any) {
         return new Promise((resolve, reject) => {
-            this.findOneOrFail(itemId)
+            this.findOneOrFail({
+                where: where
+            })
                 .then((item: Timeframe) => {
                     resolve(item)
                 })

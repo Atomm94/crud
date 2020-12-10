@@ -10,6 +10,7 @@ import { scheduleType } from '../../enums/scheduleType.enum'
 import { MainEntity } from './MainEntity'
 import { Company } from './Company'
 import { AccessRight } from './AccessRight'
+import { Timeframe } from './Timeframe'
 
 @Entity('schedule')
 export class Schedule extends MainEntity {
@@ -22,9 +23,6 @@ export class Schedule extends MainEntity {
     @Column('enum', { name: 'type', nullable: false, enum: scheduleType })
     type: scheduleType
 
-    @Column('longtext', { name: 'settings', nullable: true })
-    settings: string | null
-
     @Column('int', { name: 'company', nullable: false })
     company: number
 
@@ -35,13 +33,15 @@ export class Schedule extends MainEntity {
     @OneToMany(type => AccessRight, access_right => access_right.schedules)
     access_rights: AccessRight[];
 
+    @OneToMany(type => Timeframe, timeframe => timeframe.schedules)
+    timeframes: Timeframe[];
+
     public static async addItem (data: Schedule) {
         const schedule = new Schedule()
 
         schedule.name = data.name
         schedule.description = data.description
         schedule.type = data.type
-        schedule.settings = data.settings
         schedule.company = data.company
 
         return new Promise((resolve, reject) => {
@@ -61,7 +61,6 @@ export class Schedule extends MainEntity {
         if ('name' in data) schedule.name = data.name
         if ('description' in data) schedule.description = data.description
         if ('type' in data) schedule.type = data.type
-        if ('settings' in data) schedule.settings = data.settings
 
         if (!schedule) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {

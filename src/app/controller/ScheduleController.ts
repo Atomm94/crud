@@ -26,7 +26,6 @@ export default class ScheduleController {
      *                required:
      *                  - name
      *                  - type
-     *                  - settings
      *                properties:
      *                  name:
      *                      type: string
@@ -37,9 +36,6 @@ export default class ScheduleController {
      *                  type:
      *                      type: daily | weekly | specific | flexitime | ordinal
      *                      example: daily
-     *                  settings:
-     *                      type: string
-     *                      example: {}
      *          responses:
      *              '201':
      *                  description: A schedule object
@@ -99,9 +95,6 @@ export default class ScheduleController {
      *                  type:
      *                      type: daily | weekly | specific | flexitime | ordinal
      *                      example: daily
-     *                  settings:
-     *                      type: string
-     *                      example: {}
      *          responses:
      *              '201':
      *                  description: A schedule updated object
