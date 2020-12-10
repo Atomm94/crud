@@ -13,9 +13,6 @@ import { TicketMessage } from './TicketMessage'
 import { Module } from './Modules'
 import { Packet } from './Packet'
 import { PacketType } from './PacketType'
-import { TestResource } from './TestResource'
-import { TestResource1 } from './TestResource1'
-import { TestResource2 } from './TestResource2'
 import { Company } from './Company'
 import { CompanyDocuments } from './CompanyDocuments'
 import { CompanyResources } from './CompanyResources'
@@ -40,9 +37,6 @@ export {
     TicketMessage,
     Packet,
     PacketType,
-    TestResource,
-    TestResource1,
-    TestResource2,
     Company,
     CompanyDocuments,
     CompanyResources,

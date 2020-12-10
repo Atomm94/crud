@@ -35,14 +35,16 @@ export class AccessControl {
         }
         permissions = JSON.parse(permissions)
         Object.keys(permissions).forEach((model: any) => {
-            Object.keys(permissions[model].actions).forEach(async (action: string) => {
-                if (permissions[model].actions[action] === true) {
-                    await this.ac.grant(grant_name)
-                        .execute(action).on(model)
-                    // console.log('grant', grant_name, model, action)
-                    // logger.info(`[Grant] add - role ${grant_name}, ${model}, ${action} was executed`)
-                }
-            })
+            if (permissions[model].actions) {
+                Object.keys(permissions[model].actions).forEach(async (action: string) => {
+                    if (permissions[model].actions[action] === true) {
+                        await this.ac.grant(grant_name)
+                            .execute(action).on(model)
+                        // console.log('grant', grant_name, model, action)
+                        // logger.info(`[Grant] add - role ${grant_name}, ${model}, ${action} was executed`)
+                    }
+                })
+            }
         })
     }
 

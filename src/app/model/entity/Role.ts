@@ -92,6 +92,11 @@ export class Role extends MainEntity {
         getItem: true
       }
     },
+    Admin: {
+      actions: {
+        getItem: true
+      }
+    },
     Ticket: {
       actions: {
         addItem: true,
@@ -109,7 +114,18 @@ export class Role extends MainEntity {
         saveMessageImage: true,
         deleteMessageImage: true
       }
+    },
+    AccountGroup: {
+      actions: {
+        addItem: true,
+        updateItem: true,
+        getItem: true,
+        destroyItem: true,
+        getAllItems: true,
+        getGroupAccountsCounts: true
+      }
     }
+
   }
 
   public static async addItem (data: Role) {

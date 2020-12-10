@@ -36,7 +36,7 @@ import { AccountGroup } from './AccountGroup'
 const parentDir = join(__dirname, '../../..')
 
 class AdminOperation extends BaseClass {
-  public static async addItem (data: any, user: any = null) {
+  public static async addItem (data: any, user: any = null):Promise<Admin> {
     return await Admin.addItem(data, user)
   }
 
@@ -93,10 +93,10 @@ export class Admin extends MainEntity {
   @Column('timestamp', { name: 'last_login_date', nullable: true })
   last_login_date: string | null;
 
-  @Column('varchar', { name: 'first_name', nullable: false })
+  @Column('varchar', { name: 'first_name', nullable: true })
   first_name: string;
 
-  @Column('varchar', { name: 'last_name', nullable: false })
+  @Column('varchar', { name: 'last_name', nullable: true })
   last_name: string;
 
   @Column('varchar', { name: 'verify_token', nullable: true })
@@ -131,6 +131,9 @@ export class Admin extends MainEntity {
 
   @Column('int', { name: 'company', nullable: true })
   company: number | null;
+
+  @Column('longtext', { name: 'comment', nullable: true })
+  comment: string | null;
 
   @Column('int', { name: 'account_group', nullable: true })
   account_group: number | null;
@@ -181,30 +184,36 @@ export class Admin extends MainEntity {
     AdminOperation: AdminOperation
   }
 
-  public static async addItem (data: any, user: any = null) {
+  public static async addItem (data: any, user: any = null):Promise<Admin> {
     const admin = new Admin()
 
     admin.username = data.username
     admin.email = data.email
-    admin.password = data.password
+    if ('password' in data) admin.password = data.password
     admin.status = (data.status === 'true') ? true : (data.status === 'false') ? false : data.status
     if ('role' in data) admin.role = data.role
     if ('department' in data) admin.department = data.department
     if ('avatar' in data) admin.avatar = data.avatar
     // if (file) admin.avatar = newFilePath
 
-    admin.first_name = data.first_name
-    admin.last_name = data.last_name
+    // admin.first_name = data.first_name
+    // admin.last_name = data.last_name
+    if ('first_name' in data) admin.first_name = data.first_name
+    if ('last_name' in data) admin.last_name = data.last_name
     if ('verify_token' in data) admin.verify_token = data.verify_token
-    admin.phone_1 = data.phone_1
+    // admin.phone_1 = data.phone_1
+    if ('phone_1' in data) admin.phone_1 = data.phone_1
     if ('phone_2' in data) admin.phone_2 = data.phone_2
-    admin.post_code = data.post_code
+    // admin.post_code = data.post_code
+    if ('post_code' in data) admin.post_code = data.post_code
     if ('country' in data) admin.country = data.country
     if ('city' in data) admin.city = data.city
     if ('site' in data) admin.site = data.site
     if ('address' in data) admin.address = data.address
     if ('viber' in data) admin.viber = data.viber
     if ('whatsapp' in data) admin.whatsapp = data.whatsapp
+    if ('comment' in data) admin.comment = data.comment
+    if ('account_group' in data) admin.account_group = data.account_group
 
     if ('company' in data) {
       admin.company = data.company
@@ -246,7 +255,9 @@ export class Admin extends MainEntity {
     if ('status' in data) admin.status = (data.status === 'true') ? true : (data.status === 'false') ? false : data.status
     if ('role' in data) admin.role = data.role
     if ('department' in data) admin.department = data.department
+    if ('comment' in data) admin.comment = data.comment
     if ('avatar' in data) admin.avatar = data.avatar
+    if ('account_group' in data) admin.account_group = data.account_group
 
     if (!admin) return { status: 400, messsage: 'Item not found' }
     return new Promise((resolve, reject) => {

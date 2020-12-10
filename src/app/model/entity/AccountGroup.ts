@@ -44,11 +44,10 @@ export class AccountGroup extends MainEntity {
         const accountGroup = new AccountGroup()
 
         accountGroup.name = data.name
+        accountGroup.company = data.company
         if ('description' in data) accountGroup.description = data.description
         if ('parent_id' in data) accountGroup.parent_id = data.parent_id
         if ('role' in data) accountGroup.role = data.role
-        accountGroup.company = data.company
-
         return new Promise((resolve, reject) => {
             this.save(accountGroup)
                 .then((item: AccountGroup) => {
