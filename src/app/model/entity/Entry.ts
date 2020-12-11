@@ -8,7 +8,7 @@ import {
 
 import { MainEntity } from './MainEntity'
 import { Company } from './Company'
-import { AccessRight } from './AccessRight'
+import { AccessRule } from './AccessRule'
 
 @Entity('entry')
 export class Entry extends MainEntity {
@@ -22,8 +22,8 @@ export class Entry extends MainEntity {
     @JoinColumn({ name: 'company' })
     companies: Company;
 
-    @OneToMany(type => AccessRight, access_right => access_right.entries)
-    access_rights: AccessRight[];
+    @OneToMany(type => AccessRule, access_rule => access_rule.entries)
+    access_rules: AccessRule[];
 
     public static async addItem (data: Entry) {
         const entry = new Entry()

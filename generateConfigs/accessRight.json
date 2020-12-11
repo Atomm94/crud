@@ -1,31 +1,17 @@
 {
     "model": {
         "columns": {
-            "accessGroup": {
-                "type": "int",
+            "name": {
+                "type": "varchar",
                 "params": {
-                    "name": "accessGroup",
+                    "name": "name",
                     "nullable": false
                 }
             },
-            "entry": {
-                "type": "int",
+            "description": {
+                "type": "varchar",
                 "params": {
-                    "name": "entry",
-                    "nullable": false
-                }
-            },
-            "schedule": {
-                "type": "int",
-                "params": {
-                    "name": "schedule",
-                    "nullable": false
-                }
-            },
-            "limitation": {
-                "type": "int",
-                "params": {
-                    "name": "limitation",
+                    "name": "description",
                     "nullable": true
                 }
             },

@@ -9,7 +9,7 @@ import {
 import { scheduleType } from '../../enums/scheduleType.enum'
 import { MainEntity } from './MainEntity'
 import { Company } from './Company'
-import { AccessRight } from './AccessRight'
+import { AccessRule } from './AccessRule'
 import { Timeframe } from './Timeframe'
 
 @Entity('schedule')
@@ -36,8 +36,8 @@ export class Schedule extends MainEntity {
     @JoinColumn({ name: 'company' })
     companies: Company;
 
-    @OneToMany(type => AccessRight, access_right => access_right.schedules)
-    access_rights: AccessRight[];
+    @OneToMany(type => AccessRule, access_rule => access_rule.schedules)
+    access_rules: AccessRule[];
 
     @OneToMany(type => Timeframe, timeframe => timeframe.schedules)
     timeframes: Timeframe[];
