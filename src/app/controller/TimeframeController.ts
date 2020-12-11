@@ -4,7 +4,7 @@ export default class TimeframeController {
     /**
      *
      * @swagger
-     *  /timeframe:
+     *  /schedule/timeframe:
      *      post:
      *          tags:
      *              - Timeframe
@@ -67,7 +67,7 @@ export default class TimeframeController {
     /**
      *
      * @swagger
-     *  /timeframe:
+     *  /schedule/timeframe:
      *      put:
      *          tags:
      *              - Timeframe
@@ -136,7 +136,7 @@ export default class TimeframeController {
     /**
      *
      * @swagger
-     * /timeframe/{id}:
+     * /schedule/timeframe/{id}:
      *      get:
      *          tags:
      *              - Timeframe
@@ -177,7 +177,7 @@ export default class TimeframeController {
     /**
      *
      * @swagger
-     *  /timeframe:
+     *  /schedule/timeframe:
      *      delete:
      *          tags:
      *              - Timeframe
@@ -231,7 +231,7 @@ export default class TimeframeController {
     /**
      *
      * @swagger
-     * /timeframe:
+     * /schedule/timeframe:
      *      get:
      *          tags:
      *              - Timeframe
@@ -265,7 +265,7 @@ export default class TimeframeController {
     /**
      *
      * @swagger
-     *  /timeframe/clone:
+     *  /schedule/timeframe/clone:
      *      put:
      *          tags:
      *              - Timeframe
