@@ -18,8 +18,8 @@ import { CompanyDocuments } from './CompanyDocuments'
 import { AccountGroup } from './AccountGroup'
 import { Schedule } from './Schedule'
 import { Entry } from './Entry'
+import { AccessRule } from './AccessRule'
 import { AccessRight } from './AccessRight'
-import { AccessRightGroup } from './AccessRightGroup'
 
 @Entity('company')
 export class Company extends MainEntity {
@@ -71,11 +71,11 @@ export class Company extends MainEntity {
     @OneToMany(type => Entry, entry => entry.companies)
     entries: Entry[];
 
+    @OneToMany(type => AccessRule, access_rule => access_rule.companies)
+    access_rules: AccessRule[];
+
     @OneToMany(type => AccessRight, access_right => access_right.companies)
     access_rights: AccessRight[];
-
-    @OneToMany(type => AccessRightGroup, access_right_group => access_right_group.companies)
-    access_right_groups: AccessRightGroup[];
 
     public static async addItem (data: Company) {
         const company = new Company()

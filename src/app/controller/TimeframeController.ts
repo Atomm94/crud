@@ -7,7 +7,7 @@ export default class TimeframeController {
      *  /schedule/timeframe:
      *      post:
      *          tags:
-     *              - Timeframe
+     *              - Schedule
      *          summary: Creates a timeframe.
      *          consumes:
      *              - application/json
@@ -70,7 +70,7 @@ export default class TimeframeController {
      *  /schedule/timeframe:
      *      put:
      *          tags:
-     *              - Timeframe
+     *              - Schedule
      *          summary: Update a timeframe.
      *          consumes:
      *              - application/json
@@ -139,7 +139,7 @@ export default class TimeframeController {
      * /schedule/timeframe/{id}:
      *      get:
      *          tags:
-     *              - Timeframe
+     *              - Schedule
      *          summary: Return timeframe by ID
      *          parameters:
      *              - name: id
@@ -180,7 +180,7 @@ export default class TimeframeController {
      *  /schedule/timeframe:
      *      delete:
      *          tags:
-     *              - Timeframe
+     *              - Schedule
      *          summary: Delete a timeframe.
      *          consumes:
      *              - application/json
@@ -234,13 +234,25 @@ export default class TimeframeController {
      * /schedule/timeframe:
      *      get:
      *          tags:
-     *              - Timeframe
+     *              - Schedule
      *          summary: Return timeframe list
      *          parameters:
      *              - in: header
      *                name: Authorization
      *                required: true
      *                description: Authentication token
+     *                schema:
+     *                    type: string
+     *              - in: query
+     *                name: schedule_id
+     *                required: true
+     *                description: schedule id
+     *                schema:
+     *                    type: number
+     *              - in: query
+     *                name: name
+     *                required: true
+     *                description: name
      *                schema:
      *                    type: string
      *          responses:
@@ -253,7 +265,12 @@ export default class TimeframeController {
         try {
             const req_data = ctx.query
             const user = ctx.user
-            req_data.where = { company: { '=': user.company ? user.company : null } }
+
+            req_data.where = {
+                company: { '=': user.company ? user.company : null },
+                schedule: { '=': Number(req_data.schedule_id) },
+                name: { '=': req_data.name }
+            }
             ctx.body = await Timeframe.getAllItems(req_data)
         } catch (error) {
             ctx.status = error.status || 400

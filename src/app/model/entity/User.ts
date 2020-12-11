@@ -9,7 +9,7 @@ import { userStatus } from '../../enums/userStatus.enum'
 import { MainEntity } from './MainEntity'
 import { CarInfo } from './CarInfo'
 import { Limitation } from './Limitation'
-import { AccessRightGroup } from './AccessRightGroup'
+import { AccessRight } from './AccessRight'
 
 import { fileSave } from '../../functions/file'
 import { logger } from '../../../../modules/winston/logger'
@@ -80,9 +80,9 @@ export class User extends MainEntity {
     @JoinColumn({ name: 'limitation' })
     limitations: Limitation | null;
 
-    @ManyToOne(() => AccessRightGroup, access_right_group => access_right_group.user, { nullable: true })
-    @JoinColumn({ name: 'access_right_group' })
-    access_right_groups: AccessRightGroup;
+    @ManyToOne(() => AccessRight, access_right => access_right.user, { nullable: true })
+    @JoinColumn({ name: 'access_right' })
+    access_rights: AccessRight;
 
     public static resource: boolean = true
 

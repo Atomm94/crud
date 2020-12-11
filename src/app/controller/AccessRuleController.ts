@@ -1,14 +1,14 @@
 import { DefaultContext } from 'koa'
-import { AccessRightGroup } from '../model/entity/AccessRightGroup'
-export default class AccessRightGroupController {
+import { AccessRule } from '../model/entity/AccessRule'
+export default class AccessRuleController {
     /**
      *
      * @swagger
-     *  /accessRightGroup:
+     *  /accessRule:
      *      post:
      *          tags:
-     *              - AccessRightGroup
-     *          summary: Creates a accessRightGroup.
+     *              - AccessRule
+     *          summary: Creates a accessRule.
      *          consumes:
      *              - application/json
      *          parameters:
@@ -19,21 +19,31 @@ export default class AccessRightGroupController {
      *              schema:
      *                type: string
      *            - in: body
-     *              name: accessRightGroup
-     *              description: The accessRightGroup to create.
+     *              name: accessRule
+     *              description: The accessRule to create.
      *              schema:
      *                type: object
      *                required:
      *                properties:
-     *                  name:
-     *                      type: string
-     *                      example: APT 50
-     *                  description:
-     *                      type: string
-     *                      example: description
+     *                  access_right:
+     *                      type: number
+     *                      example: 1
+     *                      minimum: 1
+     *                  entry:
+     *                      type: number
+     *                      example: 1
+     *                      minimum: 1
+     *                  schedule:
+     *                      type: number
+     *                      example: 1
+     *                      minimum: 1
+     *                  limitation:
+     *                      type: number
+     *                      example: 1
+     *                      minimum: 1
      *          responses:
      *              '201':
-     *                  description: A accessRightGroup object
+     *                  description: A accessRule object
      *              '409':
      *                  description: Conflict
      *              '422':
@@ -45,7 +55,7 @@ export default class AccessRightGroupController {
             const req_data = ctx.request.body
             const user = ctx.user
             req_data.company = user.company ? user.company : null
-            ctx.body = await AccessRightGroup.addItem(req_data as AccessRightGroup)
+            ctx.body = await AccessRule.addItem(req_data as AccessRule)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -56,11 +66,11 @@ export default class AccessRightGroupController {
     /**
      *
      * @swagger
-     *  /accessRightGroup:
+     *  /accessRule:
      *      put:
      *          tags:
-     *              - AccessRightGroup
-     *          summary: Update a accessRightGroup.
+     *              - AccessRule
+     *          summary: Update a accessRule.
      *          consumes:
      *              - application/json
      *          parameters:
@@ -71,8 +81,8 @@ export default class AccessRightGroupController {
      *              schema:
      *                type: string
      *            - in: body
-     *              name: accessRightGroup
-     *              description: The accessRightGroup to create.
+     *              name: accessRule
+     *              description: The accessRule to create.
      *              schema:
      *                type: object
      *                required:
@@ -81,15 +91,25 @@ export default class AccessRightGroupController {
      *                  id:
      *                      type: number
      *                      example: 1
-     *                  name:
-     *                      type: string
-     *                      example: APT 50
-     *                  description:
-     *                      type: string
-     *                      example: description
+     *                  access_right:
+     *                      type: number
+     *                      example: 1
+     *                      minimum: 1
+     *                  entry:
+     *                      type: number
+     *                      example: 1
+     *                      minimum: 1
+     *                  schedule:
+     *                      type: number
+     *                      example: 1
+     *                      minimum: 1
+     *                  limitation:
+     *                      type: number
+     *                      example: 1
+     *                      minimum: 1
      *          responses:
      *              '201':
-     *                  description: A accessRightGroup updated object
+     *                  description: A accessRule updated object
      *              '409':
      *                  description: Conflict
      *              '422':
@@ -100,13 +120,13 @@ export default class AccessRightGroupController {
             const req_data = ctx.request.body
             const user = ctx.user
             const where = { id: req_data.id, company: user.company ? user.company : null }
-            const check_by_company = await AccessRightGroup.findOne(where)
+            const check_by_company = await AccessRule.findOne(where)
 
             if (!check_by_company) {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
             } else {
-                ctx.body = await AccessRightGroup.updateItem(req_data as AccessRightGroup)
+                ctx.body = await AccessRule.updateItem(req_data as AccessRule)
             }
         } catch (error) {
             ctx.status = error.status || 400
@@ -118,11 +138,11 @@ export default class AccessRightGroupController {
     /**
      *
      * @swagger
-     * /accessRightGroup/{id}:
+     * /accessRule/{id}:
      *      get:
      *          tags:
-     *              - AccessRightGroup
-     *          summary: Return accessRightGroup by ID
+     *              - AccessRule
+     *          summary: Return accessRule by ID
      *          parameters:
      *              - name: id
      *                in: path
@@ -148,7 +168,7 @@ export default class AccessRightGroupController {
         try {
             const user = ctx.user
             const where = { id: +ctx.params.id, company: user.company ? user.company : user.company }
-            ctx.body = await AccessRightGroup.getItem(where)
+            ctx.body = await AccessRule.getItem(where)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -159,11 +179,11 @@ export default class AccessRightGroupController {
     /**
      *
      * @swagger
-     *  /accessRightGroup:
+     *  /accessRule:
      *      delete:
      *          tags:
-     *              - AccessRightGroup
-     *          summary: Delete a accessRightGroup.
+     *              - AccessRule
+     *          summary: Delete a accessRule.
      *          consumes:
      *              - application/json
      *          parameters:
@@ -174,8 +194,8 @@ export default class AccessRightGroupController {
      *              schema:
      *                type: string
      *            - in: body
-     *              name: accessRightGroup
-     *              description: The accessRightGroup to create.
+     *              name: accessRule
+     *              description: The accessRule to create.
      *              schema:
      *                type: object
      *                required:
@@ -186,7 +206,7 @@ export default class AccessRightGroupController {
      *                      example: 1
      *          responses:
      *              '200':
-     *                  description: accessRightGroup has been deleted
+     *                  description: accessRule has been deleted
      *              '422':
      *                  description: Wrong data
      */
@@ -195,13 +215,13 @@ export default class AccessRightGroupController {
             const req_data = ctx.request.body
             const user = ctx.user
             const where = { id: req_data.id, company: user.company ? user.company : null }
-            const check_by_company = await AccessRightGroup.findOne(where)
+            const check_by_company = await AccessRule.findOne(where)
 
             if (!check_by_company) {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
             } else {
-                ctx.body = await AccessRightGroup.destroyItem(req_data as { id: number })
+                ctx.body = await AccessRule.destroyItem(req_data as { id: number })
             }
         } catch (error) {
             ctx.status = error.status || 400
@@ -213,11 +233,11 @@ export default class AccessRightGroupController {
     /**
      *
      * @swagger
-     * /accessRightGroup:
+     * /accessRule:
      *      get:
      *          tags:
-     *              - AccessRightGroup
-     *          summary: Return accessRightGroup list
+     *              - AccessRule
+     *          summary: Return accessRule list
      *          parameters:
      *              - in: header
      *                name: Authorization
@@ -227,7 +247,7 @@ export default class AccessRightGroupController {
      *                    type: string
      *          responses:
      *              '200':
-     *                  description: Array of accessRightGroup
+     *                  description: Array of accessRule
      *              '401':
      *                  description: Unauthorized
      */
@@ -236,7 +256,7 @@ export default class AccessRightGroupController {
             const req_data = ctx.query
             const user = ctx.user
             req_data.where = { company: { '=': user.company ? user.company : null } }
-            ctx.body = await AccessRightGroup.getAllItems(req_data)
+            ctx.body = await AccessRule.getAllItems(req_data)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

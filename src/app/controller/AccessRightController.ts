@@ -25,22 +25,12 @@ export default class AccessRightController {
      *                type: object
      *                required:
      *                properties:
-     *                  access_group:
-     *                      type: number
-     *                      example: 1
-     *                      minimum: 1
-     *                  entry:
-     *                      type: number
-     *                      example: 1
-     *                      minimum: 1
-     *                  schedule:
-     *                      type: number
-     *                      example: 1
-     *                      minimum: 1
-     *                  limitation:
-     *                      type: number
-     *                      example: 1
-     *                      minimum: 1
+     *                  name:
+     *                      type: string
+     *                      example: APT 50
+     *                  description:
+     *                      type: string
+     *                      example: description
      *          responses:
      *              '201':
      *                  description: A accessRight object
@@ -91,22 +81,12 @@ export default class AccessRightController {
      *                  id:
      *                      type: number
      *                      example: 1
-     *                  access_group:
-     *                      type: number
-     *                      example: 1
-     *                      minimum: 1
-     *                  entry:
-     *                      type: number
-     *                      example: 1
-     *                      minimum: 1
-     *                  schedule:
-     *                      type: number
-     *                      example: 1
-     *                      minimum: 1
-     *                  limitation:
-     *                      type: number
-     *                      example: 1
-     *                      minimum: 1
+     *                  name:
+     *                      type: string
+     *                      example: APT 50
+     *                  description:
+     *                      type: string
+     *                      example: description
      *          responses:
      *              '201':
      *                  description: A accessRight updated object

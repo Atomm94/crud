@@ -64,7 +64,7 @@ export default class UserController {
      *                            role:
      *                                type: number
      *                                example: 1
-     *                            access_right_group:
+     *                            access_right:
      *                                type: number
      *                                example: 1
      *                                minimum: 1
@@ -237,7 +237,7 @@ export default class UserController {
      *                            role:
      *                                type: number
      *                                example: 1
-     *                            access_right_group:
+     *                            access_right:
      *                                type: number
      *                                example: 1
      *                                minimum: 1

@@ -4,7 +4,7 @@ import {
     OneToMany,
     OneToOne
 } from 'typeorm'
-import { AccessRight } from './AccessRight'
+import { AccessRule } from './AccessRule'
 
 import { MainEntity } from './MainEntity'
 import { User } from './User'
@@ -50,8 +50,8 @@ export class Limitation extends MainEntity {
     @OneToOne(type => User, user => user.limitations, { nullable: true })
     user: User | null;
 
-    @OneToMany(type => AccessRight, access_right => access_right.limitations)
-    access_rights: AccessRight[];
+    @OneToMany(type => AccessRule, access_rule => access_rule.limitations)
+    access_rules: AccessRule[];
 
     public static gettingActions: boolean = false
     public static gettingAttributes: boolean = false

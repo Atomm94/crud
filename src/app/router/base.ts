@@ -1,8 +1,8 @@
 // import TimeframeController from '../controller/TimeframeController'
 import EntryController from '../controller/EntryController'
-import AccessRightGroupController from '../controller/AccessRightGroupController'
 import AccessRightController from '../controller/AccessRightController'
 // import ScheduleController from '../controller/ScheduleController'
+import AccessRuleController from '../controller/AccessRuleController'
 // import CarInfoController from '../controller/CarInfoController'
 import AccountGroupController from '../controller/AccountGroupController'
 import UserController from '../controller/UserController'
@@ -235,16 +235,16 @@ export default router
   .delete('entry', EntryController.destroy)
   .get('entry', EntryController.getAll)
 
+  // AccessRule controller CRUD endpoints
+  .post('accessRule', AccessRuleController.add)
+  .put('accessRule', AccessRuleController.update)
+  .get('accessRule/:id', AccessRuleController.get)
+  .delete('accessRule', AccessRuleController.destroy)
+  .get('accessRule', AccessRuleController.getAll)
+
   // AccessRight controller CRUD endpoints
   .post('accessRight', AccessRightController.add)
   .put('accessRight', AccessRightController.update)
   .get('accessRight/:id', AccessRightController.get)
   .delete('accessRight', AccessRightController.destroy)
   .get('accessRight', AccessRightController.getAll)
-
-  // AccessRightGroup controller CRUD endpoints
-  .post('accessRightGroup', AccessRightGroupController.add)
-  .put('accessRightGroup', AccessRightGroupController.update)
-  .get('accessRightGroup/:id', AccessRightGroupController.get)
-  .delete('accessRightGroup', AccessRightGroupController.destroy)
-  .get('accessRightGroup', AccessRightGroupController.getAll)
