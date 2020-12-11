@@ -51,8 +51,8 @@ export class User extends MainEntity {
     @Column('int', { name: 'role', nullable: true })
     role: number | null
 
-    @Column('int', { name: 'access_right_group', nullable: true })
-    access_right_group: number | null
+    @Column('int', { name: 'access_right', nullable: true })
+    access_right: number | null
 
     @Column('int', { name: 'user_group', nullable: true })
     user_group: number | null
@@ -99,7 +99,7 @@ export class User extends MainEntity {
         user.company = data.company
         user.company_name = data.company_name
         user.role = data.role
-        user.access_right_group = data.access_right_group
+        user.access_right = data.access_right
         user.user_group = data.user_group
         user.car_info = data.car_info
         user.limitation = data.limitation
@@ -131,7 +131,7 @@ export class User extends MainEntity {
         if ('company' in data) user.company = data.company
         if ('company_name' in data) user.company_name = data.company_name
         if ('role' in data) user.role = data.role
-        if ('access_right_group' in data) user.access_right_group = data.access_right_group
+        if ('access_right' in data) user.access_right = data.access_right
         if ('user_group' in data) user.user_group = data.user_group
         if ('status' in data) user.status = data.status
         if ('antipassback' in data) user.antipassback = data.antipassback
