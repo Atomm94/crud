@@ -22,11 +22,11 @@
                     "nullable": false
                 }
             },
-            "limitation": {
-                "type": "int",
+            "accessInHolidays": {
+                "type": "enum",
                 "params": {
-                    "name": "limitation",
-                    "nullable": true
+                    "name": "accessInHolidays",
+                    "nullable": false
                 }
             },
             "company": {

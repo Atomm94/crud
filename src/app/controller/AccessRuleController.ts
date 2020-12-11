@@ -30,17 +30,15 @@ export default class AccessRuleController {
      *                      example: 1
      *                      minimum: 1
      *                  entry:
-     *                      type: number
+     *                      type: number | Array<number>
      *                      example: 1
-     *                      minimum: 1
      *                  schedule:
      *                      type: number
      *                      example: 1
      *                      minimum: 1
-     *                  limitation:
-     *                      type: number
-     *                      example: 1
-     *                      minimum: 1
+     *                  access_in_holidays:
+     *                      type: enable | disable
+     *                      example: disable
      *          responses:
      *              '201':
      *                  description: A accessRule object
@@ -55,7 +53,19 @@ export default class AccessRuleController {
             const req_data = ctx.request.body
             const user = ctx.user
             req_data.company = user.company ? user.company : null
-            ctx.body = await AccessRule.addItem(req_data as AccessRule)
+            if (Array.isArray(req_data.entry)) {
+                const res_data: any = []
+
+                for (const entry of req_data.entry) {
+                    const data = req_data
+                    data.entry = entry
+                    const save = await AccessRule.addItem(data as AccessRule)
+                    res_data.push(save)
+                }
+                ctx.body = await res_data
+            } else {
+                ctx.body = await AccessRule.addItem(req_data as AccessRule)
+            }
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -91,22 +101,13 @@ export default class AccessRuleController {
      *                  id:
      *                      type: number
      *                      example: 1
-     *                  access_right:
-     *                      type: number
-     *                      example: 1
-     *                      minimum: 1
-     *                  entry:
-     *                      type: number
-     *                      example: 1
-     *                      minimum: 1
      *                  schedule:
      *                      type: number
      *                      example: 1
      *                      minimum: 1
-     *                  limitation:
-     *                      type: number
-     *                      example: 1
-     *                      minimum: 1
+     *                  access_in_holidays:
+     *                      type: enable | disable
+     *                      example: disable
      *          responses:
      *              '201':
      *                  description: A accessRule updated object

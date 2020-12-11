@@ -235,7 +235,6 @@ export default router
   .delete('Schedule-destroyItem', 'schedule', ScheduleController.destroy)
   .get('Schedule-getAllItems', 'schedule', ScheduleController.getAll)
   .get('Schedule-getAllItems', 'scheduleTree', ScheduleController.getTree)
-
   // Timeframe controller CRUD endpoints
   .post('Schedule-addItem', 'timeframe', TimeframeController.add)
   .put('Schedule-updateItem', 'timeframe', TimeframeController.update)
@@ -243,23 +242,22 @@ export default router
   .delete('Schedule-destroyItem', 'timeframe', TimeframeController.destroy)
   .get('Schedule-getAllItems', 'timeframe', TimeframeController.getAll)
 
+  // AccessRight controller CRUD endpoints
+  .post('AccessRight-addItem', 'accessRight', AccessRightController.add)
+  .put('AccessRight-updateItem', 'accessRight', AccessRightController.update)
+  .get('AccessRight-getItem', 'accessRight/:id', AccessRightController.get)
+  .delete('AccessRight-destroyItem', 'accessRight', AccessRightController.destroy)
+  .get('AccessRight-getAllItems', 'accessRight', AccessRightController.getAll)
+  // AccessRule controller CRUD endpoints
+  .post('AccessRight-addItem', 'accessRule', AccessRuleController.add)
+  .put('AccessRight-updateItem', 'accessRule', AccessRuleController.update)
+  .get('AccessRight-getItem', 'accessRule/:id', AccessRuleController.get)
+  .delete('AccessRight-destroyItem', 'accessRule', AccessRuleController.destroy)
+  .get('AccessRight-getAllItems', 'accessRule', AccessRuleController.getAll)
+
   // Entry controller CRUD endpoints
   .post('entry', EntryController.add)
   .put('entry', EntryController.update)
   .get('entry/:id', EntryController.get)
   .delete('entry', EntryController.destroy)
   .get('entry', EntryController.getAll)
-
-  // AccessRule controller CRUD endpoints
-  .post('accessRule', AccessRuleController.add)
-  .put('accessRule', AccessRuleController.update)
-  .get('accessRule/:id', AccessRuleController.get)
-  .delete('accessRule', AccessRuleController.destroy)
-  .get('accessRule', AccessRuleController.getAll)
-
-  // AccessRight controller CRUD endpoints
-  .post('accessRight', AccessRightController.add)
-  .put('accessRight', AccessRightController.update)
-  .get('accessRight/:id', AccessRightController.get)
-  .delete('accessRight', AccessRightController.destroy)
-  .get('accessRight', AccessRightController.getAll)

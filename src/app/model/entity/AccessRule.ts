@@ -5,12 +5,12 @@ import {
     JoinColumn
 } from 'typeorm'
 
+import { accessInHolidays } from '../../enums/accessInHolidays.enum'
 import { MainEntity } from './MainEntity'
 import { Company } from './Company'
 import { AccessRight } from './AccessRight'
 import { Entry } from './Entry'
 import { Schedule } from './Schedule'
-import { Limitation } from '.'
 
 @Entity('access_rule')
 export class AccessRule extends MainEntity {
@@ -23,8 +23,8 @@ export class AccessRule extends MainEntity {
     @Column('int', { name: 'schedule', nullable: false })
     schedule: number
 
-    @Column('int', { name: 'limitation', nullable: true })
-    limitation: number | null
+    @Column('enum', { name: 'access_in_holidays', enum: accessInHolidays, default: accessInHolidays.DISABLE })
+    access_in_holidays: accessInHolidays
 
     @Column('int', { name: 'company', nullable: false })
     company: number
@@ -45,9 +45,8 @@ export class AccessRule extends MainEntity {
     @JoinColumn({ name: 'schedule' })
     schedules: Schedule;
 
-    @ManyToOne(type => Limitation, limitation => limitation.access_rules)
-    @JoinColumn({ name: 'limitation' })
-    limitations: Limitation;
+    public static gettingActions: boolean = false
+    public static gettingAttributes: boolean = false
 
     public static async addItem (data: AccessRule) {
         const accessRule = new AccessRule()
@@ -55,7 +54,7 @@ export class AccessRule extends MainEntity {
         accessRule.access_right = data.access_right
         accessRule.entry = data.entry
         accessRule.schedule = data.schedule
-        accessRule.limitation = data.limitation
+        if ('access_in_holidays' in data) accessRule.access_in_holidays = data.access_in_holidays
         accessRule.company = data.company
 
         return new Promise((resolve, reject) => {
@@ -72,10 +71,10 @@ export class AccessRule extends MainEntity {
     public static async updateItem (data: AccessRule) {
         const accessRule = await this.findOneOrFail(data.id)
 
-        if ('access_right' in data) accessRule.access_right = data.access_right
-        if ('entry' in data) accessRule.entry = data.entry
+        // if ('access_right' in data) accessRule.access_right = data.access_right
+        // if ('entry' in data) accessRule.entry = data.entry
         if ('schedule' in data) accessRule.schedule = data.schedule
-        if ('limitation' in data) accessRule.limitation = data.limitation
+        if ('access_in_holidays' in data) accessRule.access_in_holidays = data.access_in_holidays
 
         if (!accessRule) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
