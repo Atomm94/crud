@@ -169,7 +169,8 @@ export default class AccessRuleController {
         try {
             const user = ctx.user
             const where = { id: +ctx.params.id, company: user.company ? user.company : user.company }
-            ctx.body = await AccessRule.getItem(where)
+            const relations = ['schedules']
+            ctx.body = await AccessRule.getItem(where, relations)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

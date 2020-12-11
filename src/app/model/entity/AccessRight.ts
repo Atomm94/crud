@@ -68,10 +68,11 @@ export class AccessRight extends MainEntity {
         })
     }
 
-    public static async getItem (where: any) {
+    public static async getItem (where: any, relations?: Array<string>) {
         return new Promise((resolve, reject) => {
             this.findOneOrFail({
-                where: where
+                where: where,
+                relations: relations || []
             })
                 .then((item: AccessRight) => {
                     resolve(item)

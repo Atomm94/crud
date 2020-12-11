@@ -88,10 +88,11 @@ export class AccessRule extends MainEntity {
         })
     }
 
-    public static async getItem (where: any) {
+    public static async getItem (where: any, relations?: Array<string>) {
         return new Promise((resolve, reject) => {
             this.findOneOrFail({
-                where: where
+                where: where,
+                relations: relations || []
             })
                 .then((item: AccessRule) => {
                     resolve(item)
