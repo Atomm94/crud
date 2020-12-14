@@ -15,6 +15,7 @@ import { fileSave } from '../../functions/file'
 import { logger } from '../../../../modules/winston/logger'
 import fs from 'fs'
 import { join } from 'path'
+import { CardholderGroup } from './CardholderGroup'
 const parentDir = join(__dirname, '../../..')
 
 @Entity('cardholder')
@@ -73,17 +74,21 @@ export class Cardholder extends MainEntity {
     @Column('timestamp', { name: 'last_login_date', nullable: true })
     last_login_date: string | null
 
-    @OneToOne(() => CarInfo, car_info => car_info.cardholder, { nullable: true })
+    @OneToOne(() => CarInfo, car_info => car_info.cardholders, { nullable: true })
     @JoinColumn({ name: 'car_info' })
     car_infos: CarInfo | null;
 
-    @OneToOne(() => Limitation, limitation => limitation.cardholder, { nullable: true })
+    @OneToOne(() => Limitation, limitation => limitation.cardholders, { nullable: true })
     @JoinColumn({ name: 'limitation' })
     limitations: Limitation | null;
 
-    @ManyToOne(() => AccessRight, access_right => access_right.cardholder, { nullable: true })
+    @ManyToOne(() => AccessRight, access_right => access_right.cardholders, { nullable: true })
     @JoinColumn({ name: 'access_right' })
-    access_rights: AccessRight;
+    access_rights: AccessRight | null;
+
+    @ManyToOne(() => CardholderGroup, cardholder_group => cardholder_group.cardholders, { nullable: true })
+    @JoinColumn({ name: 'cardholder_group' })
+    cardholder_groups: CardholderGroup | null;
 
     public static resource: boolean = true
 

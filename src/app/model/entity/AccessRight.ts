@@ -8,6 +8,7 @@ import {
 
 import { MainEntity } from './MainEntity'
 import { Company } from './Company'
+import { CardholderGroup } from './CardholderGroup'
 import { AccessRule } from './AccessRule'
 import { Cardholder } from './Cardholder'
 
@@ -29,8 +30,11 @@ export class AccessRight extends MainEntity {
     @OneToMany(type => AccessRule, access_rule => access_rule.access_rights)
     access_rules: AccessRule[];
 
-    @OneToMany(type => Cardholder, user => user.access_rights)
-    cardholder: Cardholder[];
+    @OneToMany(type => Cardholder, cardholder => cardholder.access_rights)
+    cardholders: Cardholder[];
+
+    @OneToMany(type => CardholderGroup, cardholder_group => cardholder_group.access_rights)
+    cardholder_groups: CardholderGroup[];
 
     public static async addItem (data: AccessRight) {
         const accessRight = new AccessRight()

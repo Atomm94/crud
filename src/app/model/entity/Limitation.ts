@@ -46,7 +46,7 @@ export class Limitation extends MainEntity {
     last_use_counter_current: number
 
     @OneToOne(type => Cardholder, user => user.limitations, { nullable: true })
-    cardholder: Cardholder | null;
+    cardholders: Cardholder | null;
 
     public static gettingActions: boolean = false
     public static gettingAttributes: boolean = false

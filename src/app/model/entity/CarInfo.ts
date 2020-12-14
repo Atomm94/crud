@@ -25,7 +25,7 @@ export class CarInfo extends MainEntity {
     car_event: boolean
 
     @OneToOne(type => Cardholder, user => user.car_infos, { nullable: true })
-    cardholder: Cardholder | null;
+    cardholders: Cardholder | null;
 
     public static gettingActions: boolean = false
     public static gettingAttributes: boolean = false

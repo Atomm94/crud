@@ -1,3 +1,4 @@
+import CardholderGroupController from '../controller/CardholderGroupController'
 import TimeframeController from '../controller/TimeframeController'
 import EntryController from '../controller/EntryController'
 import AccessRightController from '../controller/AccessRightController'
@@ -211,16 +212,6 @@ export default router
   .get('AccountGroup-getAllItems', 'accountGroup', AccountGroupController.getAll)
   .get('AccountGroup-getGroupAccountsCounts', 'accountGroupAccounts/:id', AccountGroupController.getGroupAccountsCounts)
 
-  // Cardholder controller CRUD endpoints
-  .get('Cardholder-getItem', 'cardholder/:id', CardholderController.get)
-  .post('Cardholder-addItem', 'cardholder', CardholderController.add)
-  .put('Cardholder-updateItem', 'cardholder', CardholderController.update)
-  .delete('Cardholder-destroyItem', 'cardholder', CardholderController.destroy)
-  .get('Cardholder-getAllItems', 'cardholder', CardholderController.getAll)
-
-  .post('Cardholder-saveImage', 'cardholderImageSave', CardholderController.cardholderImageSave)
-  .delete('Cardholder-deleteImage', 'cardholderImageDelete', CardholderController.cardholderImageDelete)
-
   // CarInfo controller CRUD endpoints
   // .post('CarInfo-addItem', 'carInfo', CarInfoController.add)
   // .put('CarInfo-updateItem', 'carInfo', CarInfoController.update)
@@ -256,8 +247,25 @@ export default router
   .get('AccessRight-getAllItems', 'accessRule', AccessRuleController.getAll)
 
   // Entry controller CRUD endpoints
-  .post('entry', EntryController.add)
-  .put('entry', EntryController.update)
-  .get('entry/:id', EntryController.get)
-  .delete('entry', EntryController.destroy)
-  .get('entry', EntryController.getAll)
+  .post('Entry-addItem', 'entry', EntryController.add)
+  .put('Entry-updateItem', 'entry', EntryController.update)
+  .get('Entry-getItem', 'entry/:id', EntryController.get)
+  .delete('Entry-destroyItem', 'entry', EntryController.destroy)
+  .get('Entry-getAllItems', 'entry', EntryController.getAll)
+
+  // CardholderGroup controller CRUD endpoints
+  .post('CardholderGroup-addItem', 'cardholderGroup', CardholderGroupController.add)
+  .put('CardholderGroup-updateItem', 'cardholderGroup', CardholderGroupController.update)
+  .get('CardholderGroup-getItem', 'cardholderGroup/:id', CardholderGroupController.get)
+  .delete('CardholderGroup-destroyItem', 'cardholderGroup', CardholderGroupController.destroy)
+  .get('CardholderGroup-getAllItems', 'cardholderGroup', CardholderGroupController.getAll)
+
+  // Cardholder controller CRUD endpoints
+  .get('Cardholder-getItem', 'cardholder/:id', CardholderController.get)
+  .post('Cardholder-addItem', 'cardholder', CardholderController.add)
+  .put('Cardholder-updateItem', 'cardholder', CardholderController.update)
+  .delete('Cardholder-destroyItem', 'cardholder', CardholderController.destroy)
+  .get('Cardholder-getAllItems', 'cardholder', CardholderController.getAll)
+
+  .post('Cardholder-saveImage', 'cardholderImageSave', CardholderController.cardholderImageSave)
+  .delete('Cardholder-deleteImage', 'cardholderImageDelete', CardholderController.cardholderImageDelete)

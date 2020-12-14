@@ -1,0 +1,83 @@
+{
+    "model": {
+        "columns": {
+            "name": {
+                "type": "varchar",
+                "params": {
+                    "name": "name",
+                    "nullable": false
+                }
+            },
+            "description": {
+                "type": "longtext",
+                "params": {
+                    "name": "description",
+                    "nullable": true
+                }
+            },
+            "parent_id": {
+                "type": "int",
+                "params": {
+                    "name": "parent_id",
+                    "nullable": true
+                }
+            },
+            "limitation": {
+                "type": "int",
+                "params": {
+                    "name": "limitation",
+                    "nullable": true
+                }
+            },
+            "limitationInherited": {
+                "type": "boolean",
+                "params": {
+                    "name": "limitationInherited",
+                    "default": false
+                }
+            },
+            "antiPassBack": {
+                "type": "int",
+                "params": {
+                    "name": "antiPassBack",
+                    "nullable": true
+                }
+            },
+            "antiPassBackInherited": {
+                "type": "boolean",
+                "params": {
+                    "name": "antiPassBackInherited",
+                    "default": false
+                }
+            },
+            "timeAttendance": {
+                "type": "int",
+                "params": {
+                    "name": "timeAttendance",
+                    "nullable": true
+                }
+            },
+            "timeAttendanceInherited": {
+                "type": "boolean",
+                "params": {
+                    "name": "timeAttendanceInherited",
+                    "default": false
+                }
+            },
+            "accessRights": {
+                "type": "int",
+                "params": {
+                    "name": "accessRights",
+                    "nullable": true
+                }
+            },
+            "accessRightsInherited": {
+                "type": "boolean",
+                "params": {
+                    "name": "accessRightsInherited",
+                    "default": false
+                }
+            }
+        }
+    }
+}
