@@ -17,7 +17,7 @@ import { Company } from './Company'
 import { CompanyDocuments } from './CompanyDocuments'
 import { CompanyResources } from './CompanyResources'
 import { RegistrationInvite } from './RegistrationInvite'
-import { User } from './User'
+import { Cardholder } from './Cardholder'
 import { CarInfo } from './CarInfo'
 import { Limitation } from './Limitation'
 
@@ -41,7 +41,7 @@ export {
     CompanyDocuments,
     CompanyResources,
     RegistrationInvite,
-    User,
+    Cardholder,
     CarInfo,
     Limitation
 }

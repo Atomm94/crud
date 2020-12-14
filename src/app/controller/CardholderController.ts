@@ -1,16 +1,16 @@
 import { DefaultContext } from 'koa'
 import { CarInfo } from '../model/entity/CarInfo'
 import { Limitation } from '../model/entity/Limitation'
-import { User } from '../model/entity/User'
-export default class UserController {
+import { Cardholder } from '../model/entity/Cardholder'
+export default class CardholderController {
     /**
      *
      * @swagger
-     *  /user:
+     *  /cardholder:
      *      post:
      *          tags:
-     *              - User
-     *          summary: Creates a user.
+     *              - Cardholder
+     *          summary: Creates a cardholder.
      *          consumes:
      *              - application/json
      *          parameters:
@@ -21,13 +21,13 @@ export default class UserController {
      *              schema:
      *                type: string
      *            - in: body
-     *              name: user
-     *              description: The user to create.
+     *              name: cardholder
+     *              description: The cardholder to create.
      *              schema:
      *                type: object
      *                required:
      *                properties:
-     *                    user:
+     *                    cardholder:
      *                        type: object
      *                        required:
      *                        - email
@@ -68,7 +68,7 @@ export default class UserController {
      *                                type: number
      *                                example: 1
      *                                minimum: 1
-     *                            user_group:
+     *                            cardholder_group:
      *                                type: number
      *                                example: 1
      *                            status:
@@ -138,7 +138,7 @@ export default class UserController {
      *                                example: 10
      *          responses:
      *              '201':
-     *                  description: A user object
+     *                  description: A cardholder object
      *              '409':
      *                  description: Conflict
      *              '422':
@@ -149,20 +149,20 @@ export default class UserController {
         try {
             const auth_user = ctx.user
             const req_data = ctx.request.body
-            const user_data = req_data.user
+            const cardholder_data = req_data.cardholder
             const limitation_data = req_data.limitation
             const car_info_data = req_data.car_info
 
             const limitation: any = await Limitation.addItem(limitation_data as Limitation)
             const car_info: any = await CarInfo.addItem(car_info_data as CarInfo)
-            user_data.limitation = limitation.id
-            user_data.car_info = car_info.id
+            cardholder_data.limitation = limitation.id
+            cardholder_data.car_info = car_info.id
 
-            user_data.company = auth_user.company ? auth_user.company : null
-            const user = await User.addItem(user_data as User)
+            cardholder_data.company = auth_user.company ? auth_user.company : null
+            const cardholder = await Cardholder.addItem(cardholder_data as Cardholder)
 
             ctx.body = {
-                user: user,
+                cardholder: cardholder,
                 car_info: car_info_data,
                 limitation_data: limitation_data
             }
@@ -176,11 +176,11 @@ export default class UserController {
     /**
      *
      * @swagger
-     *  /user:
+     *  /cardholder:
      *      put:
      *          tags:
-     *              - User
-     *          summary: Update a user.
+     *              - Cardholder
+     *          summary: Update a cardholder.
      *          consumes:
      *              - application/json
      *          parameters:
@@ -191,12 +191,12 @@ export default class UserController {
      *              schema:
      *                type: string
      *            - in: body
-     *              name: user
-     *              description: The user to create.
+     *              name: cardholder
+     *              description: The cardholder to create.
      *              schema:
      *                type: object
      *                properties:
-     *                    user:
+     *                    cardholder:
      *                        type: object
      *                        required:
      *                        - email
@@ -241,7 +241,7 @@ export default class UserController {
      *                                type: number
      *                                example: 1
      *                                minimum: 1
-     *                            user_group:
+     *                            cardholder_group:
      *                                type: number
      *                                example: 1
      *                            status:
@@ -311,7 +311,7 @@ export default class UserController {
      *                                example: 10
      *          responses:
      *              '201':
-     *                  description: A user updated object
+     *                  description: A cardholder updated object
      *              '409':
      *                  description: Conflict
      *              '422':
@@ -322,18 +322,18 @@ export default class UserController {
             const req_data = ctx.request.body
             const auth_user = ctx.user
             const where = { id: req_data.id, company: auth_user.company ? auth_user.company : null }
-            const check_by_company = await User.findOne(where)
+            const check_by_company = await Cardholder.findOne(where)
 
             if (!check_by_company) {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
             } else {
-                const user = ctx.request.body.user
-                const user_data: any = await User.updateItem(user as User)
+                const cardholder = ctx.request.body.cardholder
+                const cardholder_data: any = await Cardholder.updateItem(cardholder as Cardholder)
                 const car_info = await CarInfo.updateItem(ctx.request.body.car_info)
                 const limitation = await Limitation.updateItem(ctx.request.body.limitation)
                 ctx.body = {
-                    user: user_data,
+                    cardholder: cardholder_data,
                     car_info: car_info,
                     limitation: limitation
                 }
@@ -348,11 +348,11 @@ export default class UserController {
     /**
      *
      * @swagger
-     * /user/{id}:
+     * /cardholder/{id}:
      *      get:
      *          tags:
-     *              - User
-     *          summary: Return user by ID
+     *              - Cardholder
+     *          summary: Return cardholder by ID
      *          parameters:
      *              - name: id
      *                in: path
@@ -380,7 +380,7 @@ export default class UserController {
             const where = { id: +ctx.params.id, company: user.company ? user.company : user.company }
             const relations = ['car_infos', 'limitations']
 
-            ctx.body = await User.getItem(where, relations)
+            ctx.body = await Cardholder.getItem(where, relations)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -391,11 +391,11 @@ export default class UserController {
     /**
      *
      * @swagger
-     *  /user:
+     *  /cardholder:
      *      delete:
      *          tags:
-     *              - User
-     *          summary: Delete a user.
+     *              - Cardholder
+     *          summary: Delete a cardholder.
      *          consumes:
      *              - application/json
      *          parameters:
@@ -406,8 +406,8 @@ export default class UserController {
      *              schema:
      *                type: string
      *            - in: body
-     *              name: user
-     *              description: The user to create.
+     *              name: cardholder
+     *              description: The cardholder to create.
      *              schema:
      *                type: object
      *                required:
@@ -418,7 +418,7 @@ export default class UserController {
      *                      example: 1
      *          responses:
      *              '200':
-     *                  description: user has been deleted
+     *                  description: cardholder has been deleted
      *              '422':
      *                  description: Wrong data
      */
@@ -427,13 +427,13 @@ export default class UserController {
             const req_data = ctx.request.body
             const user = ctx.user
             const where = { id: user.role, company: user.company ? user.company : null }
-            const check_by_company = await User.findOne(where)
+            const check_by_company = await Cardholder.findOne(where)
 
             if (!check_by_company) {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
             } else {
-                ctx.body = await User.destroyItem(req_data as { id: number })
+                ctx.body = await Cardholder.destroyItem(req_data as { id: number })
             }
         } catch (error) {
             ctx.status = error.status || 400
@@ -445,11 +445,11 @@ export default class UserController {
     /**
      *
      * @swagger
-     * /user:
+     * /cardholder:
      *      get:
      *          tags:
-     *              - User
-     *          summary: Return user list
+     *              - Cardholder
+     *          summary: Return cardholder list
      *          parameters:
      *              - in: header
      *                name: Authorization
@@ -459,7 +459,7 @@ export default class UserController {
      *                    type: string
      *          responses:
      *              '200':
-     *                  description: Array of user
+     *                  description: Array of cardholder
      *              '401':
      *                  description: Unauthorized
      */
@@ -469,7 +469,7 @@ export default class UserController {
             const user = ctx.user
             req_data.where = { company: { '=': user.company ? user.company : null } }
             req_data.relations = ['car_infos', 'limitations']
-            ctx.body = await User.getAllItems(req_data)
+            ctx.body = await Cardholder.getAllItems(req_data)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -480,11 +480,11 @@ export default class UserController {
     /**
      *
      * @swagger
-     *  /userImageSave:
+     *  /cardholderImageSave:
      *      post:
      *          tags:
-     *              - User
-     *          summary: Upload user image.
+     *              - Cardholder
+     *          summary: Upload cardholder image.
      *          consumes:
      *              - multipart/form-data
      *          parameters:
@@ -497,7 +497,7 @@ export default class UserController {
      *            - in: formData
      *              name: file
      *              type: file
-     *              description: The upload user image.
+     *              description: The upload cardholder image.
      *          responses:
      *              '201':
      *                  description: image upload
@@ -506,20 +506,20 @@ export default class UserController {
      *              '422':
      *                  description: Wrong data
      */
-    public static async userImageSave (ctx: DefaultContext) {
+    public static async cardholderImageSave (ctx: DefaultContext) {
         const file = ctx.request.files.file
-        const savedFile = await User.saveImage(file)
+        const savedFile = await Cardholder.saveImage(file)
         return ctx.body = savedFile
     }
 
     /**
      *
      * @swagger
-     *  /userImageDelete:
+     *  /cardholderImageDelete:
      *      delete:
      *          tags:
-     *              - User
-     *          summary: Delete an user image.
+     *              - Cardholder
+     *          summary: Delete an cardholder image.
      *          consumes:
      *              - application/json
      *          parameters:
@@ -531,7 +531,7 @@ export default class UserController {
      *              type: string
      *            - in: body
      *              name: file
-     *              description: The user image name to delete.
+     *              description: The cardholder image name to delete.
      *              schema:
      *                type: string
      *                required:
@@ -541,17 +541,17 @@ export default class UserController {
      *                      type: string
      *          responses:
      *              '200':
-     *                  description: User image has been deleted
+     *                  description: Cardholder image has been deleted
      *              '409':
      *                  description: Conflict
      *              '422':
      *                  description: Wrong data
      */
-    public static async userImageDelete (ctx: DefaultContext) {
+    public static async cardholderImageDelete (ctx: DefaultContext) {
         const name = ctx.request.body.name
 
         try {
-            User.deleteImage(name)
+            Cardholder.deleteImage(name)
             ctx.body = {
                 success: true
             }

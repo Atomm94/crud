@@ -5,7 +5,7 @@ import {
     JoinColumn,
     ManyToOne
 } from 'typeorm'
-import { userStatus } from '../../enums/userStatus.enum'
+import { cardholderStatus } from '../../enums/cardholderStatus.enum'
 import { MainEntity } from './MainEntity'
 import { CarInfo } from './CarInfo'
 import { Limitation } from './Limitation'
@@ -16,8 +16,9 @@ import { logger } from '../../../../modules/winston/logger'
 import fs from 'fs'
 import { join } from 'path'
 const parentDir = join(__dirname, '../../..')
-@Entity('user')
-export class User extends MainEntity {
+
+@Entity('cardholder')
+export class Cardholder extends MainEntity {
     @Column('varchar', { name: 'email', length: '255', unique: true })
     email: string
 
@@ -54,8 +55,8 @@ export class User extends MainEntity {
     @Column('int', { name: 'access_right', nullable: true })
     access_right: number | null
 
-    @Column('int', { name: 'user_group', nullable: true })
-    user_group: number | null
+    @Column('int', { name: 'cardholder_group', nullable: true })
+    cardholder_group: number | null
 
     @Column('int', { name: 'car_info', nullable: false })
     car_info: number
@@ -63,8 +64,8 @@ export class User extends MainEntity {
     @Column('int', { name: 'limitation', nullable: false })
     limitation: number
 
-    @Column('enum', { name: 'status', enum: userStatus, default: userStatus.inactive })
-    status: userStatus
+    @Column('enum', { name: 'status', enum: cardholderStatus, default: cardholderStatus.inactive })
+    status: cardholderStatus
 
     @Column('boolean', { name: 'antipassback', default: false })
     antipassback: boolean
@@ -72,44 +73,44 @@ export class User extends MainEntity {
     @Column('timestamp', { name: 'last_login_date', nullable: true })
     last_login_date: string | null
 
-    @OneToOne(() => CarInfo, car_info => car_info.user, { nullable: true })
+    @OneToOne(() => CarInfo, car_info => car_info.cardholder, { nullable: true })
     @JoinColumn({ name: 'car_info' })
     car_infos: CarInfo | null;
 
-    @OneToOne(() => Limitation, limitation => limitation.user, { nullable: true })
+    @OneToOne(() => Limitation, limitation => limitation.cardholder, { nullable: true })
     @JoinColumn({ name: 'limitation' })
     limitations: Limitation | null;
 
-    @ManyToOne(() => AccessRight, access_right => access_right.user, { nullable: true })
+    @ManyToOne(() => AccessRight, access_right => access_right.cardholder, { nullable: true })
     @JoinColumn({ name: 'access_right' })
     access_rights: AccessRight;
 
     public static resource: boolean = true
 
-    public static async addItem (data: User) {
-        const user = new User()
+    public static async addItem (data: Cardholder) {
+        const cardholder = new Cardholder()
 
-        user.email = data.email
-        user.avatar = data.avatar
-        user.password = data.password
-        user.first_name = data.first_name
-        user.last_name = data.last_name
-        user.family_name = data.family_name
-        user.phone = data.phone
-        user.company = data.company
-        user.company_name = data.company_name
-        user.role = data.role
-        user.access_right = data.access_right
-        user.user_group = data.user_group
-        user.car_info = data.car_info
-        user.limitation = data.limitation
-        user.status = data.status
-        user.antipassback = data.antipassback
-        user.company = data.company
+        cardholder.email = data.email
+        cardholder.avatar = data.avatar
+        cardholder.password = data.password
+        cardholder.first_name = data.first_name
+        cardholder.last_name = data.last_name
+        cardholder.family_name = data.family_name
+        cardholder.phone = data.phone
+        cardholder.company = data.company
+        cardholder.company_name = data.company_name
+        cardholder.role = data.role
+        cardholder.access_right = data.access_right
+        cardholder.cardholder_group = data.cardholder_group
+        cardholder.car_info = data.car_info
+        cardholder.limitation = data.limitation
+        cardholder.status = data.status
+        cardholder.antipassback = data.antipassback
+        cardholder.company = data.company
 
         return new Promise((resolve, reject) => {
-            this.save(user)
-                .then((item: User) => {
+            this.save(cardholder)
+                .then((item: Cardholder) => {
                     resolve(item)
                 })
                 .catch((error: any) => {
@@ -118,28 +119,28 @@ export class User extends MainEntity {
         })
     }
 
-    public static async updateItem (data: User) {
-        const user = await this.findOneOrFail(data.id)
+    public static async updateItem (data: Cardholder) {
+        const cardholder = await this.findOneOrFail(data.id)
 
-        if ('email' in data) user.email = data.email
-        if ('avatar' in data) user.avatar = data.avatar
-        if ('password' in data) user.password = data.password
-        if ('first_name' in data) user.first_name = data.first_name
-        if ('last_name' in data) user.last_name = data.last_name
-        if ('family_name' in data) user.family_name = data.family_name
-        if ('phone' in data) user.phone = data.phone
-        if ('company' in data) user.company = data.company
-        if ('company_name' in data) user.company_name = data.company_name
-        if ('role' in data) user.role = data.role
-        if ('access_right' in data) user.access_right = data.access_right
-        if ('user_group' in data) user.user_group = data.user_group
-        if ('status' in data) user.status = data.status
-        if ('antipassback' in data) user.antipassback = data.antipassback
+        if ('email' in data) cardholder.email = data.email
+        if ('avatar' in data) cardholder.avatar = data.avatar
+        if ('password' in data) cardholder.password = data.password
+        if ('first_name' in data) cardholder.first_name = data.first_name
+        if ('last_name' in data) cardholder.last_name = data.last_name
+        if ('family_name' in data) cardholder.family_name = data.family_name
+        if ('phone' in data) cardholder.phone = data.phone
+        if ('company' in data) cardholder.company = data.company
+        if ('company_name' in data) cardholder.company_name = data.company_name
+        if ('role' in data) cardholder.role = data.role
+        if ('access_right' in data) cardholder.access_right = data.access_right
+        if ('cardholder_group' in data) cardholder.cardholder_group = data.cardholder_group
+        if ('status' in data) cardholder.status = data.status
+        if ('antipassback' in data) cardholder.antipassback = data.antipassback
 
-        if (!user) return { status: 400, messsage: 'Item not found' }
+        if (!cardholder) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(user)
-                .then((item: User) => {
+            this.save(cardholder)
+                .then((item: Cardholder) => {
                     resolve(item)
                 })
                 .catch((error: any) => {
@@ -154,7 +155,7 @@ export class User extends MainEntity {
                 where: where,
                 relations: relations || []
             })
-                .then((item: User) => {
+                .then((item: Cardholder) => {
                     resolve(item)
                 })
                 .catch((error: any) => {

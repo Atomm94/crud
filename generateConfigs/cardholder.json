@@ -86,10 +86,10 @@
                     "nullable": true
                 }
             },
-            "userGroup": {
+            "cardholderGroup": {
                 "type": "int",
                 "params": {
-                    "name": "userGroup",
+                    "name": "cardholderGroup",
                     "nullable": true
                 }
             },

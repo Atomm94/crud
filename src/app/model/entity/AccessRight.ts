@@ -9,7 +9,7 @@ import {
 import { MainEntity } from './MainEntity'
 import { Company } from './Company'
 import { AccessRule } from './AccessRule'
-import { User } from '.'
+import { Cardholder } from './Cardholder'
 
 @Entity('access_right')
 export class AccessRight extends MainEntity {
@@ -29,8 +29,8 @@ export class AccessRight extends MainEntity {
     @OneToMany(type => AccessRule, access_rule => access_rule.access_rights)
     access_rules: AccessRule[];
 
-    @OneToMany(type => User, user => user.access_rights)
-    user: User[];
+    @OneToMany(type => Cardholder, user => user.access_rights)
+    cardholder: Cardholder[];
 
     public static async addItem (data: AccessRight) {
         const accessRight = new AccessRight()

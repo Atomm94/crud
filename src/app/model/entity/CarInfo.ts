@@ -5,7 +5,7 @@ import {
 } from 'typeorm'
 
 import { MainEntity } from './MainEntity'
-import { User } from './User'
+import { Cardholder } from './Cardholder'
 
 @Entity('car_info')
 export class CarInfo extends MainEntity {
@@ -24,8 +24,8 @@ export class CarInfo extends MainEntity {
     @Column('boolean', { name: 'car_event', default: false })
     car_event: boolean
 
-    @OneToOne(type => User, user => user.car_infos, { nullable: true })
-    user: User | null;
+    @OneToOne(type => Cardholder, user => user.car_infos, { nullable: true })
+    cardholder: Cardholder | null;
 
     public static gettingActions: boolean = false
     public static gettingAttributes: boolean = false

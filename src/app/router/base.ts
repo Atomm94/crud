@@ -5,7 +5,7 @@ import AccessRuleController from '../controller/AccessRuleController'
 import ScheduleController from '../controller/ScheduleController'
 // import CarInfoController from '../controller/CarInfoController'
 import AccountGroupController from '../controller/AccountGroupController'
-import UserController from '../controller/UserController'
+import CardholderController from '../controller/CardholderController'
 import CompanyDocumentsController from '../controller/CompanyDocumentsController'
 import CompanyController from '../controller/CompanyController'
 import RegistrationInviteController from '../controller/RegistrationInviteController'
@@ -210,16 +210,16 @@ export default router
   .delete('AccountGroup-destroyItem', 'accountGroup', AccountGroupController.destroy)
   .get('AccountGroup-getAllItems', 'accountGroup', AccountGroupController.getAll)
   .get('AccountGroup-getGroupAccountsCounts', 'accountGroupAccounts/:id', AccountGroupController.getGroupAccountsCounts)
-  // User controller CRUD endpoints
 
-  .get('User-getItem', 'user/:id', UserController.get)
-  .post('User-addItem', 'user', UserController.add)
-  .put('User-updateItem', 'user', UserController.update)
-  .delete('User-destroyItem', 'user', UserController.destroy)
-  .get('User-getAllItems', 'user', UserController.getAll)
+  // Cardholder controller CRUD endpoints
+  .get('Cardholder-getItem', 'cardholder/:id', CardholderController.get)
+  .post('Cardholder-addItem', 'cardholder', CardholderController.add)
+  .put('Cardholder-updateItem', 'cardholder', CardholderController.update)
+  .delete('Cardholder-destroyItem', 'cardholder', CardholderController.destroy)
+  .get('Cardholder-getAllItems', 'cardholder', CardholderController.getAll)
 
-  .post('User-saveImage', 'userImageSave', UserController.userImageSave)
-  .delete('User-deleteImage', 'userImageDelete', UserController.userImageDelete)
+  .post('Cardholder-saveImage', 'cardholderImageSave', CardholderController.cardholderImageSave)
+  .delete('Cardholder-deleteImage', 'cardholderImageDelete', CardholderController.cardholderImageDelete)
 
   // CarInfo controller CRUD endpoints
   // .post('CarInfo-addItem', 'carInfo', CarInfoController.add)

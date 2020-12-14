@@ -1,5 +1,5 @@
 
-export enum userStatus {
+export enum cardholderStatus {
   inactive = 'inactive',
   active = 'active',
   expired = 'expired',

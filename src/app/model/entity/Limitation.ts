@@ -5,7 +5,7 @@ import {
 } from 'typeorm'
 
 import { MainEntity } from './MainEntity'
-import { User } from './User'
+import { Cardholder } from './Cardholder'
 
 @Entity('limitation')
 export class Limitation extends MainEntity {
@@ -45,8 +45,8 @@ export class Limitation extends MainEntity {
     @Column('int', { name: 'last_use_counter_current', nullable: false })
     last_use_counter_current: number
 
-    @OneToOne(type => User, user => user.limitations, { nullable: true })
-    user: User | null;
+    @OneToOne(type => Cardholder, user => user.limitations, { nullable: true })
+    cardholder: Cardholder | null;
 
     public static gettingActions: boolean = false
     public static gettingAttributes: boolean = false
