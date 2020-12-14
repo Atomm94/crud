@@ -1,0 +1,41 @@
+{
+    "model": {
+        "columns": {
+            "type": {
+                "type": "enum",
+                "params": {
+                    "name": "type",
+                    "nullable": false
+                }
+            },
+            "enableTimer": {
+                "type": "boolean",
+                "params": {
+                    "name": "enableTimer",
+                    "default": false
+                }
+            },
+            "time": {
+                "type": "int",
+                "params": {
+                    "name": "time",
+                    "nullable": true
+                }
+            },
+            "timeType": {
+                "type": "enum",
+                "params": {
+                    "name": "timeType",
+                    "nullable": false
+                }
+            },
+            "company": {
+                "type": "int",
+                "params": {
+                    "name": "company",
+                    "nullable": false
+                }
+            }
+        }
+    }
+}

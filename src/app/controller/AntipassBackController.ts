@@ -1,14 +1,14 @@
 import { DefaultContext } from 'koa'
-import { CardholderGroup } from '../model/entity/CardholderGroup'
-export default class CardholderGroupController {
+import { AntipassBack } from '../model/entity/AntipassBack'
+export default class AntipassBackController {
     /**
      *
      * @swagger
-     *  /cardholderGroup:
+     *  /antipassBack:
      *      post:
      *          tags:
-     *              - CardholderGroup
-     *          summary: Creates a cardholderGroup.
+     *              - AntipassBack
+     *          summary: Creates a antipassBack.
      *          consumes:
      *              - application/json
      *          parameters:
@@ -19,37 +19,25 @@ export default class CardholderGroupController {
      *              schema:
      *                type: string
      *            - in: body
-     *              name: cardholderGroup
-     *              description: The cardholderGroup to create.
+     *              name: antipassBack
+     *              description: The antipassBack to create.
      *              schema:
      *                type: object
      *                required:
      *                properties:
-     *                  name:
+     *                  type:
      *                      type: string
-     *                  description:
+     *                  enable_timer:
+     *                      type: boolean
+     *                  time:
+     *                      type: number
+     *                  time_type:
      *                      type: string
-     *                  parent_id:
+     *                  company:
      *                      type: number
-     *                  limitation:
-     *                      type: number
-     *                  limitation_inherited:
-     *                      type: boolean
-     *                  antipass_back:
-     *                      type: number
-     *                  antipass_back_inherited:
-     *                      type: boolean
-     *                  time_attendance:
-     *                      type: number
-     *                  time_attendance_inherited:
-     *                      type: boolean
-     *                  access_rights:
-     *                      type: number
-     *                  access_rights_inherited:
-     *                      type: boolean
      *          responses:
      *              '201':
-     *                  description: A cardholderGroup object
+     *                  description: A antipassBack object
      *              '409':
      *                  description: Conflict
      *              '422':
@@ -58,7 +46,7 @@ export default class CardholderGroupController {
 
     public static async add (ctx: DefaultContext) {
         try {
-            ctx.body = await CardholderGroup.addItem(ctx.request.body as CardholderGroup)
+            ctx.body = await AntipassBack.addItem(ctx.request.body as AntipassBack)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -69,11 +57,11 @@ export default class CardholderGroupController {
     /**
      *
      * @swagger
-     *  /cardholderGroup:
+     *  /antipassBack:
      *      put:
      *          tags:
-     *              - CardholderGroup
-     *          summary: Update a cardholderGroup.
+     *              - AntipassBack
+     *          summary: Update a antipassBack.
      *          consumes:
      *              - application/json
      *          parameters:
@@ -84,8 +72,8 @@ export default class CardholderGroupController {
      *              schema:
      *                type: string
      *            - in: body
-     *              name: cardholderGroup
-     *              description: The cardholderGroup to create.
+     *              name: antipassBack
+     *              description: The antipassBack to create.
      *              schema:
      *                type: object
      *                required:
@@ -94,31 +82,19 @@ export default class CardholderGroupController {
      *                  id:
      *                      type: number
      *                      example: 1
-     *                  name:
+     *                  type:
      *                      type: string
-     *                  description:
+     *                  enable_timer:
+     *                      type: boolean
+     *                  time:
+     *                      type: number
+     *                  time_type:
      *                      type: string
-     *                  parent_id:
+     *                  company:
      *                      type: number
-     *                  limitation:
-     *                      type: number
-     *                  limitation_inherited:
-     *                      type: boolean
-     *                  antipass_back:
-     *                      type: number
-     *                  antipass_back_inherited:
-     *                      type: boolean
-     *                  time_attendance:
-     *                      type: number
-     *                  time_attendance_inherited:
-     *                      type: boolean
-     *                  access_rights:
-     *                      type: number
-     *                  access_rights_inherited:
-     *                      type: boolean
      *          responses:
      *              '201':
-     *                  description: A cardholderGroup updated object
+     *                  description: A antipassBack updated object
      *              '409':
      *                  description: Conflict
      *              '422':
@@ -126,7 +102,7 @@ export default class CardholderGroupController {
      */
     public static async update (ctx: DefaultContext) {
         try {
-            ctx.body = await CardholderGroup.updateItem(ctx.request.body as CardholderGroup)
+            ctx.body = await AntipassBack.updateItem(ctx.request.body as AntipassBack)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -137,11 +113,11 @@ export default class CardholderGroupController {
     /**
      *
      * @swagger
-     * /cardholderGroup/{id}:
+     * /antipassBack/{id}:
      *      get:
      *          tags:
-     *              - CardholderGroup
-     *          summary: Return cardholderGroup by ID
+     *              - AntipassBack
+     *          summary: Return antipassBack by ID
      *          parameters:
      *              - name: id
      *                in: path
@@ -165,7 +141,7 @@ export default class CardholderGroupController {
      */
     public static async get (ctx: DefaultContext) {
         try {
-            ctx.body = await CardholderGroup.getItem(+ctx.params.id)
+            ctx.body = await AntipassBack.getItem(+ctx.params.id)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -176,11 +152,11 @@ export default class CardholderGroupController {
     /**
      *
      * @swagger
-     *  /cardholderGroup:
+     *  /antipassBack:
      *      delete:
      *          tags:
-     *              - CardholderGroup
-     *          summary: Delete a cardholderGroup.
+     *              - AntipassBack
+     *          summary: Delete a antipassBack.
      *          consumes:
      *              - application/json
      *          parameters:
@@ -191,8 +167,8 @@ export default class CardholderGroupController {
      *              schema:
      *                type: string
      *            - in: body
-     *              name: cardholderGroup
-     *              description: The cardholderGroup to create.
+     *              name: antipassBack
+     *              description: The antipassBack to create.
      *              schema:
      *                type: object
      *                required:
@@ -203,13 +179,13 @@ export default class CardholderGroupController {
      *                      example: 1
      *          responses:
      *              '200':
-     *                  description: cardholderGroup has been deleted
+     *                  description: antipassBack has been deleted
      *              '422':
      *                  description: Wrong data
      */
     public static async destroy (ctx: DefaultContext) {
         try {
-            ctx.body = await CardholderGroup.destroyItem(ctx.request.body as { id: number })
+            ctx.body = await AntipassBack.destroyItem(ctx.request.body as { id: number })
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -220,11 +196,11 @@ export default class CardholderGroupController {
     /**
      *
      * @swagger
-     * /cardholderGroup:
+     * /antipassBack:
      *      get:
      *          tags:
-     *              - CardholderGroup
-     *          summary: Return cardholderGroup list
+     *              - AntipassBack
+     *          summary: Return antipassBack list
      *          parameters:
      *              - in: header
      *                name: Authorization
@@ -234,13 +210,13 @@ export default class CardholderGroupController {
      *                    type: string
      *          responses:
      *              '200':
-     *                  description: Array of cardholderGroup
+     *                  description: Array of antipassBack
      *              '401':
      *                  description: Unauthorized
      */
     public static async getAll (ctx: DefaultContext) {
         try {
-            ctx.body = await CardholderGroup.getAllItems(ctx.query)
+            ctx.body = await AntipassBack.getAllItems(ctx.query)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

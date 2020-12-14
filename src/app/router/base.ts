@@ -1,3 +1,4 @@
+import AntipassBackController from '../controller/AntipassBackController'
 import CardholderGroupController from '../controller/CardholderGroupController'
 import TimeframeController from '../controller/TimeframeController'
 import EntryController from '../controller/EntryController'
@@ -269,3 +270,12 @@ export default router
 
   .post('Cardholder-saveImage', 'cardholderImageSave', CardholderController.cardholderImageSave)
   .delete('Cardholder-deleteImage', 'cardholderImageDelete', CardholderController.cardholderImageDelete)
+
+  
+  // AntipassBack controller CRUD endpoints   
+  .post('antipassBack', AntipassBackController.add)
+  .put('antipassBack', AntipassBackController.update)
+  .get('antipassBack/:id', AntipassBackController.get)
+  .delete('antipassBack', AntipassBackController.destroy)
+  .get('antipassBack', AntipassBackController.getAll)
+  

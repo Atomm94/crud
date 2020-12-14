@@ -10,6 +10,7 @@ import {
 import { MainEntity } from './MainEntity'
 import { AccessRight } from './AccessRight'
 import { Cardholder } from '.'
+import { AntipassBack } from './AntipassBack'
 // import { Cardholder } from './Cardholder'
 
 @Entity('cardholder_group')
@@ -20,8 +21,8 @@ export class CardholderGroup extends MainEntity {
     @Column('longtext', { name: 'description', nullable: true })
     description: string | null
 
-    @Column('int', { name: 'parent__id', nullable: true })
-    parent__id: number | null
+    @Column('int', { name: 'parent_id', nullable: true })
+    parent_id: number | null
 
     @Column('int', { name: 'limitation', nullable: true })
     limitation: number | null
@@ -29,11 +30,11 @@ export class CardholderGroup extends MainEntity {
     @Column('boolean', { name: 'limitation_inherited', default: false })
     limitation_inherited: boolean
 
-    @Column('int', { name: 'anti_pass_back', nullable: true })
-    anti_pass_back: number | null
+    @Column('int', { name: 'antipass_back', nullable: true })
+    antipass_back: number | null
 
-    @Column('boolean', { name: 'anti_pass_back_inherited', default: false })
-    anti_pass_back_inherited: boolean
+    @Column('boolean', { name: 'antipass_back_inherited', default: false })
+    antipass_back_inherited: boolean
 
     @Column('int', { name: 'time_attendance', nullable: true })
     time_attendance: number | null
@@ -51,19 +52,23 @@ export class CardholderGroup extends MainEntity {
     cardholders: Cardholder[];
 
     @ManyToOne(type => AccessRight, access_rights => access_rights.cardholder_groups, { nullable: true })
-    @JoinColumn({ name: 'access_rights' })
+    @JoinColumn({ name: 'access_right' })
     access_rights: AccessRight | null;
+
+    @ManyToOne(type => AntipassBack, antipass_back => antipass_back.cardholder_groups, { nullable: true })
+    @JoinColumn({ name: 'antipass_back' })
+    antipass_backs: AntipassBack | null;
 
     public static async addItem (data: CardholderGroup) {
         const cardholderGroup = new CardholderGroup()
 
         cardholderGroup.name = data.name
         cardholderGroup.description = data.description
-        cardholderGroup.parent__id = data.parent__id
+        cardholderGroup.parent_id = data.parent_id
         cardholderGroup.limitation = data.limitation
         cardholderGroup.limitation_inherited = data.limitation_inherited
-        cardholderGroup.anti_pass_back = data.anti_pass_back
-        cardholderGroup.anti_pass_back_inherited = data.anti_pass_back_inherited
+        cardholderGroup.antipass_back = data.antipass_back
+        cardholderGroup.antipass_back_inherited = data.antipass_back_inherited
         cardholderGroup.time_attendance = data.time_attendance
         cardholderGroup.time_attendance_inherited = data.time_attendance_inherited
         cardholderGroup.access_right = data.access_right
@@ -85,11 +90,11 @@ export class CardholderGroup extends MainEntity {
 
         if ('name' in data) cardholderGroup.name = data.name
         if ('description' in data) cardholderGroup.description = data.description
-        if ('parent__id' in data) cardholderGroup.parent__id = data.parent__id
+        if ('parent_id' in data) cardholderGroup.parent_id = data.parent_id
         if ('limitation' in data) cardholderGroup.limitation = data.limitation
         if ('limitation_inherited' in data) cardholderGroup.limitation_inherited = data.limitation_inherited
-        if ('anti_pass_back' in data) cardholderGroup.anti_pass_back = data.anti_pass_back
-        if ('anti_pass_back_inherited' in data) cardholderGroup.anti_pass_back_inherited = data.anti_pass_back_inherited
+        if ('antipass_back' in data) cardholderGroup.antipass_back = data.antipass_back
+        if ('antipass_back_inherited' in data) cardholderGroup.antipass_back_inherited = data.antipass_back_inherited
         if ('time_attendance' in data) cardholderGroup.time_attendance = data.time_attendance
         if ('time_attendance_inherited' in data) cardholderGroup.time_attendance_inherited = data.time_attendance_inherited
         if ('access_rights' in data) cardholderGroup.access_right = data.access_right

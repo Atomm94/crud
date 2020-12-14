@@ -15,10 +15,10 @@
                     "nullable": true
                 }
             },
-            "parent_id": {
+            "parentId": {
                 "type": "int",
                 "params": {
-                    "name": "parent_id",
+                    "name": "parentId",
                     "nullable": true
                 }
             },
@@ -36,17 +36,17 @@
                     "default": false
                 }
             },
-            "antiPassBack": {
+            "antipassBack": {
                 "type": "int",
                 "params": {
-                    "name": "antiPassBack",
+                    "name": "antipassBack",
                     "nullable": true
                 }
             },
-            "antiPassBackInherited": {
+            "antipassBackInherited": {
                 "type": "boolean",
                 "params": {
-                    "name": "antiPassBackInherited",
+                    "name": "antipassBackInherited",
                     "default": false
                 }
             },
