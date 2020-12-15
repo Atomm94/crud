@@ -52,24 +52,40 @@ export class Timeframe extends MainEntity {
         })
     }
 
-    public static async updateItem (data: Timeframe) {
-        const timeframe = await this.findOneOrFail(data.id)
+    public static async updateItem (data: any) {
+        const updateTimeframe: Timeframe[] = []
+        if (data.old_name && data.new_name) {
+            const timeframes = await this.find({ name: data.old_name, schedule: data.schedule })
+            if (timeframes.length) {
+                for (let i = 0; i < timeframes.length; i++) {
+                    const timeframe = timeframes[i]
+                    if ('new_name' in data) timeframe.name = data.new_name
+                    updateTimeframe.push(timeframe)
+                }
+            }
+        } else if (data.id) {
+            const timeframes = await this.findOneOrFail(data.id)
+            if ('start' in data) timeframes.start = data.start
+            if ('end' in data) timeframes.end = data.end
+            updateTimeframe.push(timeframes)
+        } else {
+            return { status: 400, message: 'Item not found' }
+        }
 
-        if ('name' in data) timeframe.name = data.name
-        if ('start' in data) timeframe.start = data.start
-        if ('end' in data) timeframe.end = data.end
-        if ('schedule' in data) timeframe.schedule = data.schedule
-
-        if (!timeframe) return { status: 400, messsage: 'Item not found' }
-        return new Promise((resolve, reject) => {
-            this.save(timeframe)
-                .then((item: Timeframe) => {
-                    resolve(item)
-                })
-                .catch((error: any) => {
-                    reject(error)
-                })
-        })
+        if (updateTimeframe.length) {
+            console.log(updateTimeframe)
+            return new Promise((resolve, reject) => {
+                this.save(updateTimeframe as Timeframe[])
+                    .then((item: Timeframe | Timeframe[]) => {
+                        resolve(item)
+                    })
+                    .catch((error: any) => {
+                        reject(error)
+                    })
+            })
+        } else {
+            return { status: 400, message: 'Item not found' }
+        }
     }
 
     public static async getItem (where: any, relations?: Array<string>) {
@@ -87,17 +103,30 @@ export class Timeframe extends MainEntity {
         })
     }
 
-    public static async destroyItem (data: { id: number }) {
-        const itemId: number = +data.id
-        return new Promise((resolve, reject) => {
-            this.delete(itemId)
-                .then(() => {
-                    resolve({ message: 'success' })
-                })
-                .catch((error: any) => {
-                    reject(error)
-                })
-        })
+    public static async destroyItem (data: any) {
+        if (data.name) {
+            return new Promise((resolve, reject) => {
+                this.delete({ name: data.name, schedule: data.schedule })
+                    .then(() => {
+                        resolve({ message: 'success' })
+                    })
+                    .catch((error: any) => {
+                        reject(error)
+                    })
+            })
+        } else if (data.id) {
+            return new Promise((resolve, reject) => {
+                this.delete(data.id)
+                    .then(() => {
+                        resolve({ message: 'success' })
+                    })
+                    .catch((error: any) => {
+                        reject(error)
+                    })
+            })
+        } else {
+            return { status: 400, message: 'Item not found' }
+        }
     }
 
     public static async getAllItems (params?: any) {

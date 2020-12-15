@@ -43,7 +43,7 @@ export class Language extends MainEntity {
         if ('iso' in data) language.iso = data.iso
         if ('status' in data) language.status = data.status
 
-        if (!language) return { status: 400, messsage: 'Item not found' }
+        if (!language) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
             this.save(language)
                 .then((item: Language) => {

@@ -59,7 +59,7 @@ export class CarInfo extends MainEntity {
         if ('car_credential' in data) carInfo.car_credential = data.car_credential
         if ('car_event' in data) carInfo.car_event = data.car_event
 
-        if (!carInfo) return { status: 400, messsage: 'Item not found' }
+        if (!carInfo) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
             this.save(carInfo)
                 .then((item: CarInfo) => {

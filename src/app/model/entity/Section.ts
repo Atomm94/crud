@@ -76,7 +76,7 @@ export class Section extends MainEntity {
         // if ('priority' in data) section.priority = data.priority
         // if ('status' in data) section.status = data.status
 
-        if (!section) return { status: 400, messsage: 'Item not found' }
+        if (!section) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
             this.save(section)
                 .then((item: Section) => {

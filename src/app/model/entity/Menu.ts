@@ -76,7 +76,7 @@ export class Menu extends MainEntity {
         if ('parent_id' in data) menu.parent_id = data.parent_id
         if ('page_id' in data) menu.page = data.page_id
 
-        if (!menu) return { status: 400, messsage: 'Item not found' }
+        if (!menu) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
             this.save(menu)
                 .then((item: Menu) => {

@@ -44,7 +44,7 @@ export class RegistrationInvite extends MainEntity {
     //     if ('token' in data) registrationInvite.token = data.token
     //     if ('used' in data) registrationInvite.used = data.used
 
-    //     if (!registrationInvite) return { status: 400, messsage: 'Item not found' }
+    //     if (!registrationInvite) return { status: 400, message: 'Item not found' }
     //     return new Promise((resolve, reject) => {
     //         this.save(registrationInvite)
     //             .then((item: RegistrationInvite) => {

@@ -48,7 +48,7 @@ export class Social extends MainEntity {
         if ('class' in data) social.class = data.class
         if ('icon_class' in data) social.icon_class = data.icon_class
 
-        if (!social) return { status: 400, messsage: 'Item not found' }
+        if (!social) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
             this.save(social)
                 .then((item: Social) => {

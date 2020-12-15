@@ -58,7 +58,7 @@ export class CompanyDocuments extends MainEntity {
         if ('company' in data) companyDocuments.company = data.company
         if ('file' in data) companyDocuments.file = data.file
 
-        if (!companyDocuments) return { status: 400, messsage: 'Item not found' }
+        if (!companyDocuments) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
             this.save(companyDocuments)
                 .then((item: CompanyDocuments) => {

@@ -85,7 +85,7 @@ export class Packet extends MainEntity {
         if ('status' in data) packet.status = data.status
         if ('extra_settings' in data) packet.extra_settings = data.extra_settings
 
-        if (!packet) return { status: 400, messsage: 'Item not found' }
+        if (!packet) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
             this.save(packet)
                 .then((item: Packet) => {

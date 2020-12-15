@@ -136,7 +136,7 @@ export class User extends MainEntity {
         if ('status' in data) user.status = data.status
         if ('antipassback' in data) user.antipassback = data.antipassback
 
-        if (!user) return { status: 400, messsage: 'Item not found' }
+        if (!user) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
             this.save(user)
                 .then((item: User) => {

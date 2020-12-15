@@ -77,7 +77,7 @@ export class AccessRule extends MainEntity {
         if ('schedule' in data) accessRule.schedule = data.schedule
         if ('limitation' in data) accessRule.limitation = data.limitation
 
-        if (!accessRule) return { status: 400, messsage: 'Item not found' }
+        if (!accessRule) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
             this.save(accessRule)
                 .then((item: AccessRule) => {

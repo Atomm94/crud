@@ -78,7 +78,7 @@ export class Department extends MainEntity {
         if ('name' in data) department.name = data.name
         if ('status' in data) department.status = data.status
 
-        if (!department) return { status: 400, messsage: 'Item not found' }
+        if (!department) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
             this.save(department)
                 .then((item: Department) => {

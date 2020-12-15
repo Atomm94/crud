@@ -259,7 +259,7 @@ export class Admin extends MainEntity {
     if ('avatar' in data) admin.avatar = data.avatar
     if ('account_group' in data) admin.account_group = data.account_group
 
-    if (!admin) return { status: 400, messsage: 'Item not found' }
+    if (!admin) return { status: 400, message: 'Item not found' }
     return new Promise((resolve, reject) => {
       this.save(admin)
         .then((item: Admin) => {
