@@ -269,7 +269,7 @@ export default class ScheduleController {
     /**
      *
      * @swagger
-     * /scheduleTree:
+     * /schedule/tree:
      *      get:
      *          tags:
      *              - Schedule

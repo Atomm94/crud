@@ -54,7 +54,7 @@ export class Slider extends MainEntity {
         if ('status' in data) slider.status = data.status === 'false' ? false : data.status === 'true' ? true : data.status
         if ('photo' in data) slider.photo = data.photo ? data.photo : null
 
-        if (!slider) return { status: 400, messsage: 'Item not found' }
+        if (!slider) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
             this.save(slider)
                 .then((item: Slider) => {

@@ -98,7 +98,7 @@ export class Limitation extends MainEntity {
         if ('last_use_counter_days' in data) limitation.last_use_counter_days = data.last_use_counter_days
         if ('last_use_counter_current' in data) limitation.last_use_counter_current = data.last_use_counter_current
 
-        if (!limitation) return { status: 400, messsage: 'Item not found' }
+        if (!limitation) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
             this.save(limitation)
                 .then((item: Limitation) => {

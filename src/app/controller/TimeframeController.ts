@@ -4,7 +4,7 @@ export default class TimeframeController {
     /**
      *
      * @swagger
-     *  /timeframe:
+     *  /schedule/timeframe:
      *      post:
      *          tags:
      *              - Schedule
@@ -67,7 +67,7 @@ export default class TimeframeController {
     /**
      *
      * @swagger
-     *  /timeframe:
+     *  /schedule/timeframe:
      *      put:
      *          tags:
      *              - Schedule
@@ -116,16 +116,7 @@ export default class TimeframeController {
     public static async update (ctx: DefaultContext) {
         try {
             const req_data = ctx.request.body
-            const user = ctx.user
-            const where = { id: req_data.id, company: user.company ? user.company : null }
-            const check_by_company = await Timeframe.findOne(where)
-
-            if (!check_by_company) {
-                ctx.status = 400
-                ctx.body = { message: 'something went wrong' }
-            } else {
-                ctx.body = await Timeframe.updateItem(req_data as Timeframe)
-            }
+            ctx.body = await Timeframe.updateItem(req_data as Timeframe)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -136,7 +127,7 @@ export default class TimeframeController {
     /**
      *
      * @swagger
-     * /timeframe/{id}:
+     * /schedule/timeframe/{id}:
      *      get:
      *          tags:
      *              - Schedule
@@ -177,7 +168,7 @@ export default class TimeframeController {
     /**
      *
      * @swagger
-     *  /timeframe:
+     *  /schedule/timeframe:
      *      delete:
      *          tags:
      *              - Schedule
@@ -211,16 +202,7 @@ export default class TimeframeController {
     public static async destroy (ctx: DefaultContext) {
         try {
             const req_data = ctx.request.body
-            const user = ctx.user
-            const where = { id: req_data.id, company: user.company ? user.company : null }
-            const check_by_company = await Timeframe.findOne(where)
-
-            if (!check_by_company) {
-                ctx.status = 400
-                ctx.body = { message: 'something went wrong' }
-            } else {
-                ctx.body = await Timeframe.destroyItem(req_data as { id: number })
-            }
+            ctx.body = await Timeframe.destroyItem(req_data as { id: number })
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -231,7 +213,7 @@ export default class TimeframeController {
     /**
      *
      * @swagger
-     * /timeframe:
+     * /schedule/timeframe:
      *      get:
      *          tags:
      *              - Schedule
@@ -272,6 +254,86 @@ export default class TimeframeController {
                 name: { '=': req_data.name }
             }
             ctx.body = await Timeframe.getAllItems(req_data)
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     *  /schedule/timeframe/clone:
+     *      put:
+     *          tags:
+     *              - Timeframe
+     *          summary: Clone a timeframe.
+     *          consumes:
+     *              - application/json
+     *          parameters:
+     *            - in: header
+     *              name: Authorization
+     *              required: true
+     *              description: Authentication token
+     *              schema:
+     *                type: string
+     *            - in: body
+     *              name: timeframe
+     *              description: The timeframe to create.
+     *              schema:
+     *                type: object
+     *                required:
+     *                  - copy_id
+     *                  - copy_name
+     *                  - paste_id
+     *                  - paste_name
+     *                properties:
+     *                  copy_id:
+     *                      type: number
+     *                      example: 1
+     *                  copy_name:
+     *                      type: string
+     *                      example: day1
+     *                  paste_id:
+     *                      type: number
+     *                      example: 1
+     *                  paste_name:
+     *                      type: string
+     *                      example: day2
+     *          responses:
+     *              '201':
+     *                  description: A timeframe updated object
+     *              '409':
+     *                  description: Conflict
+     *              '422':
+     *                  description: Wrong data
+     */
+    public static async clone (ctx: DefaultContext) {
+        try {
+            const req_data = ctx.request.body
+            const user = ctx.user
+            const where = { schedule: req_data.copy_id, name: req_data.copy_name, company: user.company }
+            const timeFrames = await Timeframe.find(where)
+            const deleteWhere = { schedule: req_data.paste_id, company: user.company, name: req_data.paste_name }
+            if (timeFrames.length) {
+                await Timeframe.delete(deleteWhere)
+                const newTimeFrames = []
+                for (let i = 0; i < timeFrames.length; i++) {
+                    const el = timeFrames[i]
+                    const timeframe = new Timeframe()
+                    timeframe.name = req_data.paste_name
+                    timeframe.start = el.start
+                    timeframe.end = el.end
+                    timeframe.schedule = req_data.paste_id
+                    timeframe.company = user.company
+                    newTimeFrames.push(timeframe)
+                }
+                ctx.body = await Timeframe.save(newTimeFrames)
+            } else {
+                ctx.status = 400
+                ctx.body = { message: 'something went wrong' }
+            }
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

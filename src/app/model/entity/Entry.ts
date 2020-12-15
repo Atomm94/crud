@@ -47,7 +47,7 @@ export class Entry extends MainEntity {
 
         if ('name' in data) entry.name = data.name
 
-        if (!entry) return { status: 400, messsage: 'Item not found' }
+        if (!entry) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
             this.save(entry)
                 .then((item: Entry) => {

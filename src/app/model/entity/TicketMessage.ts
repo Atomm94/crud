@@ -81,7 +81,7 @@ export class TicketMessage extends MainEntity {
         if ('image' in data) ticketMessage.image = data.image
         // if ('parent_id' in data) ticketMessage.parent_id = data.parent_id
 
-        if (!ticketMessage) return { status: 400, messsage: 'Item not found' }
+        if (!ticketMessage) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
             if (ticketMessage.user_id === user.id) {
                 this.save(ticketMessage)
@@ -117,7 +117,7 @@ export class TicketMessage extends MainEntity {
     public static async destroyItem (data: { id: number }, user: Admin) {
         const itemId: number = +data.id
         const ticketMessage = await this.findOneOrFail(itemId)
-        if (!ticketMessage) return { status: 400, messsage: 'Item not found' }
+        if (!ticketMessage) return { status: 400, message: 'Item not found' }
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
             if (ticketMessage.user_id === user.id) {

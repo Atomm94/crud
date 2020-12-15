@@ -60,7 +60,7 @@ export class AccessRight extends MainEntity {
         if ('name' in data) accessRight.name = data.name
         if ('description' in data) accessRight.description = data.description
 
-        if (!accessRight) return { status: 400, messsage: 'Item not found' }
+        if (!accessRight) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
             this.save(accessRight)
                 .then((item: AccessRight) => {

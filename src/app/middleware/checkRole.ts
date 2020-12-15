@@ -25,7 +25,6 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
         const actionName = ctx.actionName
         const actionModel = (ctx.user.company && ctx.actionFeature) ? ctx.actionFeature : ctx.actionModel
         check = await AccessControl.canAccess(roleId, actionModel, actionName)
-        console.log(actionName, actionModel)
     }
     try {
         // console.log('check', check)
