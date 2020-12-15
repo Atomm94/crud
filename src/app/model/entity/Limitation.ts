@@ -6,6 +6,7 @@ import {
 
 import { MainEntity } from './MainEntity'
 import { Cardholder } from './Cardholder'
+import { CardholderGroup } from './CardholderGroup'
 
 @Entity('limitation')
 export class Limitation extends MainEntity {
@@ -45,8 +46,11 @@ export class Limitation extends MainEntity {
     @Column('int', { name: 'last_use_counter_current', nullable: false })
     last_use_counter_current: number
 
-    @OneToOne(type => Cardholder, user => user.limitations, { nullable: true })
+    @OneToOne(type => Cardholder, cardholder => cardholder.limitations, { nullable: true })
     cardholders: Cardholder | null;
+
+    @OneToOne(type => CardholderGroup, cardholder_group => cardholder_group.limitations, { nullable: true })
+    cardholder_groups: CardholderGroup | null;
 
     public static gettingActions: boolean = false
     public static gettingAttributes: boolean = false

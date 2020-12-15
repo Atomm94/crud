@@ -64,17 +64,17 @@
                     "default": false
                 }
             },
-            "accessRights": {
+            "accessRight": {
                 "type": "int",
                 "params": {
-                    "name": "accessRights",
+                    "name": "accessRight",
                     "nullable": true
                 }
             },
-            "accessRightsInherited": {
+            "accessRightInherited": {
                 "type": "boolean",
                 "params": {
-                    "name": "accessRightsInherited",
+                    "name": "accessRightInherited",
                     "default": false
                 }
             }

@@ -28,13 +28,6 @@
                     "name": "timeType",
                     "nullable": false
                 }
-            },
-            "company": {
-                "type": "int",
-                "params": {
-                    "name": "company",
-                    "nullable": false
-                }
             }
         }
     }

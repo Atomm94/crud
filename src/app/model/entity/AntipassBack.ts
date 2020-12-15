@@ -3,12 +3,14 @@ import {
     Column,
     OneToMany
 } from 'typeorm'
+import { typeAntipassBack } from '../../enums/typeAntipassBack.enum'
+import { timeTypeAntipassBack } from '../../enums/timeTypeAntipassBack.enum'
 import { MainEntity } from './MainEntity'
 import { CardholderGroup } from './CardholderGroup'
 
 @Entity('antipass_back')
 export class AntipassBack extends MainEntity {
-    @Column('enum', { name: 'type', nullable: false })
+    @Column('enum', { name: 'type', enum: typeAntipassBack, default: typeAntipassBack.DISABLE })
     type: string
 
     @Column('boolean', { name: 'enable_timer', default: false })
@@ -17,14 +19,14 @@ export class AntipassBack extends MainEntity {
     @Column('int', { name: 'time', nullable: true })
     time: number | null
 
-    @Column('enum', { name: 'time_type', nullable: false })
+    @Column('enum', { name: 'time_type', enum: timeTypeAntipassBack, default: timeTypeAntipassBack.MINUTES })
     time_type: string
-
-    @Column('int', { name: 'company', nullable: false })
-    company: number
 
     @OneToMany(type => CardholderGroup, cardholder_group => cardholder_group.antipass_backs)
     cardholder_groups: CardholderGroup[];
+
+    public static gettingActions: boolean = false
+    public static gettingAttributes: boolean = false
 
     public static async addItem (data: AntipassBack) {
         const antipassBack = new AntipassBack()
@@ -33,7 +35,6 @@ export class AntipassBack extends MainEntity {
         antipassBack.enable_timer = data.enable_timer
         antipassBack.time = data.time
         antipassBack.time_type = data.time_type
-        antipassBack.company = data.company
 
         return new Promise((resolve, reject) => {
             this.save(antipassBack)
@@ -53,7 +54,6 @@ export class AntipassBack extends MainEntity {
         if ('enable_timer' in data) antipassBack.enable_timer = data.enable_timer
         if ('time' in data) antipassBack.time = data.time
         if ('time_type' in data) antipassBack.time_type = data.time_type
-        if ('company' in data) antipassBack.company = data.company
 
         if (!antipassBack) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {

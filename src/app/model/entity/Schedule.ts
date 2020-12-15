@@ -11,6 +11,7 @@ import { MainEntity } from './MainEntity'
 import { Company } from './Company'
 import { AccessRule } from './AccessRule'
 import { Timeframe } from './Timeframe'
+import { CardholderGroup } from './CardholderGroup'
 
 @Entity('schedule')
 export class Schedule extends MainEntity {
@@ -41,6 +42,9 @@ export class Schedule extends MainEntity {
 
     @OneToMany(type => Timeframe, timeframe => timeframe.schedules)
     timeframes: Timeframe[];
+
+    @OneToMany(type => CardholderGroup, cardholder_group => cardholder_group.time_attendances)
+    cardholder_groups: CardholderGroup[];
 
     public static async addItem (data: Schedule) {
         const schedule = new Schedule()
