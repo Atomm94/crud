@@ -1,5 +1,5 @@
 import { DefaultContext } from 'koa'
-import { Limitation } from '../model/entity'
+import { Cardholder, Limitation } from '../model/entity'
 import { AntipassBack } from '../model/entity/AntipassBack'
 import { CardholderGroup } from '../model/entity/CardholderGroup'
 export default class CardholderGroupController {
@@ -123,8 +123,8 @@ export default class CardholderGroupController {
     public static async add (ctx: DefaultContext) {
         try {
             const req_data = ctx.request.body
-            // const user = ctx.user
-            // req_data.company = user.company ? user.company : null
+            const user = ctx.user
+            req_data.company = user.company ? user.company : null
 
             let parent_data: any
             if (req_data.parent_id && (req_data.limitation_inherited || req_data.antipass_back_inherited || req_data.time_attendance_inherited || req_data.access_right_inherited)) {
@@ -145,12 +145,12 @@ export default class CardholderGroupController {
                 req_data.antipass_back = antipass_back_data.id
             }
 
-            if (req_data.time_attendance_inherited && parent_data) {
-                req_data.time_attendance = parent_data.time_attendance
-            }
-
             if (req_data.access_right_inherited && parent_data) {
                 req_data.access_right = parent_data.access_right
+            }
+
+            if (req_data.time_attendance_inherited && parent_data) {
+                req_data.time_attendance = parent_data.time_attendance
             }
 
             ctx.body = await CardholderGroup.addItem(req_data as CardholderGroup)
@@ -201,6 +201,9 @@ export default class CardholderGroupController {
      *                  limitations:
      *                      type: object
      *                      properties:
+     *                          id:
+     *                              type: number
+     *                              example: 1
      *                          enable_date:
      *                              type: boolean
      *                              example: true
@@ -278,46 +281,54 @@ export default class CardholderGroupController {
     public static async update (ctx: DefaultContext) {
         try {
             const req_data = ctx.request.body
-            // const user = ctx.user
-            // req_data.company = user.company ? user.company : null
+            const user = ctx.user
+            const where = { id: req_data.id, company: user.company ? user.company : null }
+            const check_by_company = await CardholderGroup.findOne(where)
 
-            let parent_data: any
-            if (req_data.parent_id && (req_data.limitation_inherited || req_data.antipass_back_inherited || req_data.time_attendance_inherited || req_data.access_right_inherited)) {
-                parent_data = await CardholderGroup.getItem(req_data.parent_id)
-            }
-
-            if (req_data.limitation_inherited && parent_data) {
-                req_data.limitation = parent_data.limitation
+            if (!check_by_company) {
+                ctx.status = 400
+                ctx.body = { message: 'something went wrong' }
             } else {
-                if (req_data.limitations.id) {
-                    await Limitation.updateItem(req_data.limitations as Limitation)
-                } else {
-                    const limitation_data: any = await Limitation.addItem(req_data.limitations as Limitation)
-                    req_data.limitation = limitation_data.id
+                let parent_data: any
+                if (req_data.limitation_inherited || req_data.antipass_back_inherited || req_data.time_attendance_inherited || req_data.access_right_inherited) {
+                    const data: any = await CardholderGroup.getItem(req_data.id)
+                    parent_data = await CardholderGroup.getItem(data.parent_id)
                 }
-            }
-
-            if (req_data.antipass_back_inherited && parent_data) {
-                req_data.antipass_back = parent_data.antipass_back
-            } else {
-                if (req_data.antipass_backs.id) {
-                    await AntipassBack.updateItem(req_data.antipass_backs as AntipassBack)
+                if (req_data.limitation_inherited && parent_data) {
+                    req_data.limitation = parent_data.limitation
                 } else {
-                    const antipass_back_data: any = await AntipassBack.addItem(req_data.antipass_backs as AntipassBack)
-                    req_data.antipass_back = antipass_back_data.id
+                    if (req_data.limitations.id) {
+                        await Limitation.updateItem(req_data.limitations as Limitation)
+                    } else {
+                        const limitation_data: any = await Limitation.addItem(req_data.limitations as Limitation)
+                        req_data.limitation = limitation_data.id
+                    }
                 }
-            }
 
-            if (req_data.time_attendance_inherited && parent_data) {
-                req_data.time_attendance = parent_data.time_attendance
-            }
+                if (req_data.antipass_back_inherited && parent_data) {
+                    req_data.antipass_back = parent_data.antipass_back
+                } else {
+                    if (req_data.antipass_backs.id) {
+                        await AntipassBack.updateItem(req_data.antipass_backs as AntipassBack)
+                    } else {
+                        const antipass_back_data: any = await AntipassBack.addItem(req_data.antipass_backs as AntipassBack)
+                        req_data.antipass_back = antipass_back_data.id
+                    }
+                }
 
-            if (req_data.access_right_inherited && parent_data) {
-                req_data.access_right = parent_data.access_right
-            }
+                if (req_data.access_right_inherited && parent_data) {
+                    req_data.access_right = parent_data.access_right
+                }
 
-            ctx.body = await CardholderGroup.updateItem(req_data as CardholderGroup)
+                if (req_data.time_attendance_inherited && parent_data) {
+                    req_data.time_attendance = parent_data.time_attendance
+                }
+
+                ctx.body = await CardholderGroup.updateItem(req_data as CardholderGroup)
+            }
         } catch (error) {
+            console.log('error', error)
+
             ctx.status = error.status || 400
             ctx.body = error
         }
@@ -355,7 +366,10 @@ export default class CardholderGroupController {
      */
     public static async get (ctx: DefaultContext) {
         try {
-            ctx.body = await CardholderGroup.getItem(+ctx.params.id)
+            const user = ctx.user
+            const where = { id: +ctx.params.id, company: user.company ? user.company : user.company }
+            const relations = ['limitations', 'antipass_backs', 'time_attendances', 'access_rights']
+            ctx.body = await CardholderGroup.getItem(where, relations)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -399,7 +413,30 @@ export default class CardholderGroupController {
      */
     public static async destroy (ctx: DefaultContext) {
         try {
-            ctx.body = await CardholderGroup.destroyItem(ctx.request.body as { id: number })
+            const id = ctx.request.body.id
+
+            const user = ctx.user
+            const where = { id: id, company: user.company ? user.company : null }
+            const check_by_company = await CardholderGroup.findOne(where)
+
+            if (!check_by_company) {
+                ctx.status = 400
+                ctx.body = { message: 'something went wrong' }
+            } else {
+                const childs = await CardholderGroup.find({ parent_id: id })
+                if (childs.length) {
+                    ctx.status = 400
+                    ctx.body = { message: 'Can\'t remove group with childs' }
+                } else {
+                    const cardholders = await Cardholder.find({ cardholder_group: id })
+                    if (cardholders.length) {
+                        ctx.status = 400
+                        ctx.body = { message: 'Can\'t remove group with cardholders' }
+                    } else {
+                        ctx.body = await CardholderGroup.destroyItem(id)
+                    }
+                }
+            }
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -430,7 +467,10 @@ export default class CardholderGroupController {
      */
     public static async getAll (ctx: DefaultContext) {
         try {
-            ctx.body = await CardholderGroup.getAllItems(ctx.query)
+            const req_data = ctx.query
+            const user = ctx.user
+            req_data.where = { company: { '=': user.company ? user.company : null } }
+            ctx.body = await CardholderGroup.getAllItems(req_data)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

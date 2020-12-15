@@ -77,6 +77,13 @@
                     "name": "accessRightInherited",
                     "default": false
                 }
+            },
+            "company": {
+                "type": "int",
+                "params": {
+                    "name": "company",
+                    "nullable": true
+                }
             }
         }
     }

@@ -49,6 +49,9 @@ export class CardholderGroup extends MainEntity {
     @Column('boolean', { name: 'access_right_inherited', default: false })
     access_right_inherited: boolean
 
+    @Column('int', { name: 'company', nullable: false })
+    company: number
+
     @OneToMany(type => Cardholder, cardholder => cardholder.cardholder_groups)
     cardholders: Cardholder[];
 
@@ -82,6 +85,7 @@ export class CardholderGroup extends MainEntity {
         if ('time_attendance_inherited' in data) cardholderGroup.time_attendance_inherited = data.time_attendance_inherited
         cardholderGroup.access_right = data.access_right
         if ('access_right_inherited' in data) cardholderGroup.access_right_inherited = data.access_right_inherited
+        cardholderGroup.company = data.company
 
         return new Promise((resolve, reject) => {
             this.save(cardholderGroup)
@@ -121,10 +125,12 @@ export class CardholderGroup extends MainEntity {
         })
     }
 
-    public static async getItem (id: number) {
-        const itemId: number = id
+    public static async getItem (where: any, relations?: Array<string>) {
         return new Promise((resolve, reject) => {
-            this.findOneOrFail(itemId)
+            this.findOneOrFail({
+                where: where,
+                relations: relations || []
+            })
                 .then((item: CardholderGroup) => {
                     resolve(item)
                 })
