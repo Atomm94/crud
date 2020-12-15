@@ -208,9 +208,9 @@ export default class CardholderController {
             await Cardholder.addItem(req_data as Cardholder)
 
             // ctx.body = {
-                // cardholder: cardholder
-                // car_info: car_info_data,/
-                // limitation_data: limitation_data
+            //     cardholder: cardholder,
+            //     car_info: car_info_data,
+            //     limitation_data: limitation_data
             // }
 
             ctx.body = {
