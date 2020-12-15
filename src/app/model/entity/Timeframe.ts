@@ -54,7 +54,7 @@ export class Timeframe extends MainEntity {
 
     public static async updateItem (data: any) {
         const updateTimeframe: Timeframe[] = []
-        if (data.old_name && data.new_name) {
+        if (data.old_name && data.new_name && data.schedule) {
             const timeframes = await this.find({ name: data.old_name, schedule: data.schedule })
             if (timeframes.length) {
                 for (let i = 0; i < timeframes.length; i++) {
@@ -104,7 +104,7 @@ export class Timeframe extends MainEntity {
     }
 
     public static async destroyItem (data: any) {
-        if (data.name) {
+        if (data.name && data.schedule) {
             return new Promise((resolve, reject) => {
                 this.delete({ name: data.name, schedule: data.schedule })
                     .then(() => {
