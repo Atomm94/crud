@@ -7,6 +7,7 @@ import { typeAntipassBack } from '../../enums/typeAntipassBack.enum'
 import { timeTypeAntipassBack } from '../../enums/timeTypeAntipassBack.enum'
 import { MainEntity } from './MainEntity'
 import { CardholderGroup } from './CardholderGroup'
+import { Cardholder } from '.'
 
 @Entity('antipass_back')
 export class AntipassBack extends MainEntity {
@@ -24,6 +25,9 @@ export class AntipassBack extends MainEntity {
 
     @OneToMany(type => CardholderGroup, cardholder_group => cardholder_group.antipass_backs)
     cardholder_groups: CardholderGroup[];
+
+    @OneToMany(type => Cardholder, cardholder => cardholder.antipass_backs)
+    cardholders: Cardholder[];
 
     public static gettingActions: boolean = false
     public static gettingAttributes: boolean = false

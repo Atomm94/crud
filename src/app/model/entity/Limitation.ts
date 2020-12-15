@@ -1,7 +1,7 @@
 import {
     Entity,
     Column,
-    OneToOne
+    OneToMany
 } from 'typeorm'
 
 import { MainEntity } from './MainEntity'
@@ -46,11 +46,11 @@ export class Limitation extends MainEntity {
     @Column('int', { name: 'last_use_counter_current', nullable: false })
     last_use_counter_current: number
 
-    @OneToOne(type => Cardholder, cardholder => cardholder.limitations, { nullable: true })
-    cardholders: Cardholder | null;
+    @OneToMany(type => CardholderGroup, cardholder_group => cardholder_group.limitations)
+    cardholder_groups: CardholderGroup[];
 
-    @OneToOne(type => CardholderGroup, cardholder_group => cardholder_group.limitations, { nullable: true })
-    cardholder_groups: CardholderGroup | null;
+    @OneToMany(type => Cardholder, cardholder => cardholder.limitations)
+    cardholders: Cardholder[];
 
     public static gettingActions: boolean = false
     public static gettingAttributes: boolean = false

@@ -16,6 +16,8 @@ import { logger } from '../../../../modules/winston/logger'
 import fs from 'fs'
 import { join } from 'path'
 import { CardholderGroup } from './CardholderGroup'
+import { AntipassBack } from './AntipassBack'
+import { Schedule } from './Schedule'
 const parentDir = join(__dirname, '../../..')
 
 @Entity('cardholder')
@@ -44,51 +46,77 @@ export class Cardholder extends MainEntity {
     @Column('varchar', { name: 'phone', nullable: false })
     phone: string
 
-    @Column('int', { name: 'company', nullable: true })
-    company: number | null
-
     @Column('varchar', { name: 'company_name', nullable: true })
     company_name: string | null
 
-    @Column('int', { name: 'role', nullable: true })
-    role: number | null
+    @Column('boolean', { name: 'user_account', default: false })
+    user_account: boolean
 
-    @Column('int', { name: 'access_right', nullable: true })
-    access_right: number | null
-
-    @Column('int', { name: 'cardholder_group', nullable: true })
-    cardholder_group: number | null
+    @Column('int', { name: 'cardholder_group', nullable: false })
+    cardholder_group: number
 
     @Column('int', { name: 'car_info', nullable: false })
     car_info: number
 
-    @Column('int', { name: 'limitation', nullable: false })
-    limitation: number
-
     @Column('enum', { name: 'status', enum: cardholderStatus, default: cardholderStatus.inactive })
     status: cardholderStatus
 
-    @Column('boolean', { name: 'antipassback', default: false })
-    antipassback: boolean
+    @Column('longtext', { name: 'extra_features', nullable: true })
+    extra_features: string | null
+
+    @Column('int', { name: 'limitation', nullable: false })
+    limitation: number
+
+    @Column('boolean', { name: 'limitation_inherited', default: false })
+    limitation_inherited: boolean
+
+    @Column('boolean', { name: 'antipass_back', default: false })
+    antipass_back: boolean
+
+    @Column('boolean', { name: 'antipass_back_inherited', default: false })
+    antipass_back_inherited: boolean
+
+    @Column('int', { name: 'time_attendance', nullable: false })
+    time_attendance: number
+
+    @Column('boolean', { name: 'time_attendance_inherited', default: false })
+    time_attendance_inherited: boolean
+
+    @Column('int', { name: 'access_right', nullable: false })
+    access_right: number
+
+    @Column('boolean', { name: 'access_right_inherited', default: false })
+    access_right_inherited: boolean
 
     @Column('timestamp', { name: 'last_login_date', nullable: true })
     last_login_date: string | null
+
+    @Column('int', { name: 'company', nullable: false })
+    company: number
 
     @OneToOne(() => CarInfo, car_info => car_info.cardholders, { nullable: true })
     @JoinColumn({ name: 'car_info' })
     car_infos: CarInfo | null;
 
-    @OneToOne(() => Limitation, limitation => limitation.cardholders, { nullable: true })
+    @ManyToOne(() => CardholderGroup, cardholder_group => cardholder_group.cardholders, { nullable: true })
+    @JoinColumn({ name: 'cardholder_group' })
+    cardholder_groups: CardholderGroup | null;
+
+    @ManyToOne(type => Limitation, limitation => limitation.cardholders, { nullable: true })
     @JoinColumn({ name: 'limitation' })
     limitations: Limitation | null;
+
+    @ManyToOne(type => AntipassBack, antipass_back => antipass_back.cardholders, { nullable: true })
+    @JoinColumn({ name: 'antipass_back' })
+    antipass_backs: AntipassBack | null;
+
+    @ManyToOne(type => Schedule, schedule => schedule.cardholders, { nullable: true })
+    @JoinColumn({ name: 'time_attendance' })
+    time_attendances: Schedule | null;
 
     @ManyToOne(() => AccessRight, access_right => access_right.cardholders, { nullable: true })
     @JoinColumn({ name: 'access_right' })
     access_rights: AccessRight | null;
-
-    @ManyToOne(() => CardholderGroup, cardholder_group => cardholder_group.cardholders, { nullable: true })
-    @JoinColumn({ name: 'cardholder_group' })
-    cardholder_groups: CardholderGroup | null;
 
     public static resource: boolean = true
 
@@ -96,21 +124,26 @@ export class Cardholder extends MainEntity {
         const cardholder = new Cardholder()
 
         cardholder.email = data.email
-        cardholder.avatar = data.avatar
+        if ('avatar' in data) cardholder.avatar = data.avatar
         cardholder.password = data.password
         cardholder.first_name = data.first_name
         cardholder.last_name = data.last_name
         cardholder.family_name = data.family_name
         cardholder.phone = data.phone
-        cardholder.company = data.company
-        cardholder.company_name = data.company_name
-        cardholder.role = data.role
-        cardholder.access_right = data.access_right
+        if ('company_name' in data) cardholder.company_name = data.company_name
+        if ('user_account' in data) cardholder.user_account = data.user_account
         cardholder.cardholder_group = data.cardholder_group
-        cardholder.car_info = data.car_info
-        cardholder.limitation = data.limitation
+        if ('car_info' in data) cardholder.car_info = data.car_info
         cardholder.status = data.status
-        cardholder.antipassback = data.antipassback
+        if ('extra_features' in data) cardholder.extra_features = data.extra_features
+        cardholder.limitation = data.limitation
+        if ('limitation_inherited' in data) cardholder.limitation_inherited = data.limitation_inherited
+        cardholder.antipass_back = data.antipass_back
+        if ('antipass_back_inherited' in data) cardholder.antipass_back_inherited = data.antipass_back_inherited
+        cardholder.time_attendance = data.time_attendance
+        if ('time_attendance_inherited' in data) cardholder.time_attendance_inherited = data.time_attendance_inherited
+        cardholder.access_right = data.access_right
+        if ('access_right_inherited' in data) cardholder.access_right_inherited = data.access_right_inherited
         cardholder.company = data.company
 
         return new Promise((resolve, reject) => {
@@ -136,11 +169,18 @@ export class Cardholder extends MainEntity {
         if ('phone' in data) cardholder.phone = data.phone
         if ('company' in data) cardholder.company = data.company
         if ('company_name' in data) cardholder.company_name = data.company_name
-        if ('role' in data) cardholder.role = data.role
-        if ('access_right' in data) cardholder.access_right = data.access_right
+        if ('user_account' in data) cardholder.user_account = data.user_account
         if ('cardholder_group' in data) cardholder.cardholder_group = data.cardholder_group
         if ('status' in data) cardholder.status = data.status
-        if ('antipassback' in data) cardholder.antipassback = data.antipassback
+        if ('extra_features' in data) cardholder.extra_features = data.extra_features
+        if ('limitation' in data) cardholder.limitation = data.limitation
+        if ('limitation_inherited' in data) cardholder.limitation_inherited = data.limitation_inherited
+        if ('antipass_back' in data) cardholder.antipass_back = data.antipass_back
+        if ('antipass_back_inherited' in data) cardholder.antipass_back_inherited = data.antipass_back_inherited
+        if ('time_attendance' in data) cardholder.time_attendance = data.time_attendance
+        if ('time_attendance_inherited' in data) cardholder.time_attendance_inherited = data.time_attendance_inherited
+        if ('access_right' in data) cardholder.access_right = data.access_right
+        if ('access_right_inherited' in data) cardholder.access_right_inherited = data.access_right_inherited
 
         if (!cardholder) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {

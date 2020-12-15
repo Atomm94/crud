@@ -128,7 +128,7 @@ export default class CardholderGroupController {
 
             let parent_data: any
             if (req_data.parent_id && (req_data.limitation_inherited || req_data.antipass_back_inherited || req_data.time_attendance_inherited || req_data.access_right_inherited)) {
-                parent_data = await CardholderGroup.getItem(req_data.parent_id)
+                parent_data = await CardholderGroup.getItem({ id: req_data.parent_id, company: req_data.company })
             }
 
             if (req_data.limitation_inherited && parent_data) {
@@ -291,9 +291,10 @@ export default class CardholderGroupController {
             } else {
                 let parent_data: any
                 if (req_data.limitation_inherited || req_data.antipass_back_inherited || req_data.time_attendance_inherited || req_data.access_right_inherited) {
-                    const data: any = await CardholderGroup.getItem(req_data.id)
-                    parent_data = await CardholderGroup.getItem(data.parent_id)
+                    const data: any = await CardholderGroup.getItem({ id: req_data.parent_id, company: req_data.company })
+                    parent_data = await CardholderGroup.getItem({ id: data.id, company: req_data.company })
                 }
+
                 if (req_data.limitation_inherited && parent_data) {
                     req_data.limitation = parent_data.limitation
                 } else {

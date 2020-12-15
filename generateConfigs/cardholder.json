@@ -58,13 +58,6 @@
                     "nullable": false
                 }
             },
-            "company": {
-                "type": "int",
-                "params": {
-                    "name": "company",
-                    "nullable": true
-                }
-            },
             "companyName": {
                 "type": "varchar",
                 "params": {
@@ -76,13 +69,6 @@
                 "type": "int",
                 "params": {
                     "name": "role",
-                    "nullable": true
-                }
-            },
-            "accessRight": {
-                "type": "int",
-                "params": {
-                    "name": "accessRight",
                     "nullable": true
                 }
             },
@@ -100,13 +86,6 @@
                     "nullable": true
                 }
             },
-            "limitation": {
-                "type": "int",
-                "params": {
-                    "name": "limitation",
-                    "nullable": true
-                }
-            },
             "status": {
                 "type": "enum",
                 "params": {
@@ -114,10 +93,66 @@
                     "default": "Inactive"
                 }
             },
-            "antipassback": {
+            "extraFeatures": {
+                "type": "longtext",
+                "params": {
+                    "name": "extraFeatures",
+                    "nullable": true
+                }
+            },
+            "limitation": {
+                "type": "int",
+                "params": {
+                    "name": "limitation",
+                    "nullable": true
+                }
+            },
+            "limitationInherited": {
                 "type": "boolean",
                 "params": {
-                    "name": "antipassback",
+                    "name": "limitationInherited",
+                    "default": false
+                }
+            },
+            "antipassBack": {
+                "type": "int",
+                "params": {
+                    "name": "antipassBack",
+                    "nullable": true
+                }
+            },
+            "antipassBackInherited": {
+                "type": "boolean",
+                "params": {
+                    "name": "antipassBackInherited",
+                    "default": false
+                }
+            },
+            "timeAttendance": {
+                "type": "int",
+                "params": {
+                    "name": "timeAttendance",
+                    "nullable": true
+                }
+            },
+            "timeAttendanceInherited": {
+                "type": "boolean",
+                "params": {
+                    "name": "timeAttendanceInherited",
+                    "default": false
+                }
+            },
+            "accessRight": {
+                "type": "int",
+                "params": {
+                    "name": "accessRight",
+                    "nullable": true
+                }
+            },
+            "accessRightInherited": {
+                "type": "boolean",
+                "params": {
+                    "name": "accessRightInherited",
                     "default": false
                 }
             },
@@ -125,6 +160,13 @@
                 "type": "timestamp",
                 "params": {
                     "name": "lastLoginDate",
+                    "nullable": true
+                }
+            },
+            "company": {
+                "type": "int",
+                "params": {
+                    "name": "company",
                     "nullable": true
                 }
             }

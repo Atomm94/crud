@@ -30,11 +30,11 @@ export class AccessRight extends MainEntity {
     @OneToMany(type => AccessRule, access_rule => access_rule.access_rights)
     access_rules: AccessRule[];
 
-    @OneToMany(type => Cardholder, cardholder => cardholder.access_rights)
-    cardholders: Cardholder[];
-
     @OneToMany(type => CardholderGroup, cardholder_group => cardholder_group.access_rights)
     cardholder_groups: CardholderGroup[];
+
+    @OneToMany(type => Cardholder, cardholder => cardholder.access_rights)
+    cardholders: Cardholder[];
 
     public static async addItem (data: AccessRight) {
         const accessRight = new AccessRight()

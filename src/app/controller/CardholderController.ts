@@ -2,6 +2,9 @@ import { DefaultContext } from 'koa'
 import { CarInfo } from '../model/entity/CarInfo'
 import { Limitation } from '../model/entity/Limitation'
 import { Cardholder } from '../model/entity/Cardholder'
+import { CardholderGroup } from '../model/entity/CardholderGroup'
+import { AntipassBack } from '../model/entity/AntipassBack'
+
 export default class CardholderController {
     /**
      *
@@ -26,58 +29,47 @@ export default class CardholderController {
      *              schema:
      *                type: object
      *                required:
+     *                  - email
+     *                  - first_name
+     *                  - last_name
+     *                  - family_name
+     *                  - phone
+     *                  - cardholder_group
      *                properties:
-     *                    cardholder:
-     *                        type: object
-     *                        required:
-     *                        - email
-     *                        - first_name
-     *                        - last_name
-     *                        properties:
-     *                            email:
-     *                                type: string
-     *                                example: example@gmail.com
-     *                            avatar:
-     *                                type: string
-     *                                example: some_avatar
-     *                            password:
-     *                                type: string
-     *                                example: some_password
-     *                            first_name:
-     *                                type: string
-     *                                example: some_first_name
-     *                            last_name:
-     *                                type: string
-     *                                example: some_last_name
-     *                            family_name:
-     *                                type: string
-     *                                example: some_family_name
-     *                            phone:
-     *                                type: string
-     *                                example: +374 XX XXX XXX
-     *                            company:
-     *                                type: number
-     *                                example: 1
-     *                            company_name:
-     *                                type: string
-     *                                example: some_company_name
-     *                            role:
-     *                                type: number
-     *                                example: 1
-     *                            access_right:
-     *                                type: number
-     *                                example: 1
-     *                                minimum: 1
-     *                            cardholder_group:
-     *                                type: number
-     *                                example: 1
-     *                            status:
-     *                                type: inactive | active | expired | noCredential | pending
-     *                                example: active
-     *                            antipassback:
-     *                                type: boolean
-     *                                example: false
-     *                    car_info:
+     *                    email:
+     *                        type: string
+     *                        example: example@gmail.com
+     *                    avatar:
+     *                        type: string
+     *                        example: some_avatar
+     *                    password:
+     *                        type: string
+     *                        example: some_password
+     *                    first_name:
+     *                        type: string
+     *                        example: some_first_name
+     *                    last_name:
+     *                        type: string
+     *                        example: some_last_name
+     *                    family_name:
+     *                        type: string
+     *                        example: some_family_name
+     *                    phone:
+     *                        type: string
+     *                        example: +374 XX XXX XXX
+     *                    company_name:
+     *                        type: string
+     *                        example: some_company_name
+     *                    user_account:
+     *                        type: boolean
+     *                        example: false
+     *                    cardholder_group:
+     *                        type: number
+     *                        example: 1
+     *                    status:
+     *                        type: inactive | active | expired | noCredential | pending
+     *                        example: active
+     *                    car_infos:
      *                        type: object
      *                        required:
      *                        properties:
@@ -96,9 +88,11 @@ export default class CardholderController {
      *                            car_event:
      *                                type: boolean
      *                                example: true
-     *                    limitation:
+     *                    limitation_inherited:
+     *                        type: boolean
+     *                        example: true
+     *                    limitations:
      *                        type: object
-     *                        required:
      *                        properties:
      *                            enable_date:
      *                                type: boolean
@@ -136,6 +130,36 @@ export default class CardholderController {
      *                            last_use_counter_current:
      *                                type: number
      *                                example: 10
+     *                    antipass_back_inherited:
+     *                        type: boolean
+     *                        example: false
+     *                    antipass_backs:
+     *                        type: object
+     *                        properties:
+     *                            type:
+     *                                type: disable | soft | semi_soft | hard | extra_hard
+     *                                example: disable
+     *                            enable_timer:
+     *                                type: boolean
+     *                                example: false
+     *                            time:
+     *                                type: number
+     *                                example: 60
+     *                            time_type:
+     *                                type: seconds | minutes | hours
+     *                                example: minutes
+     *                    time_attendance_inherited:
+     *                        type: boolean
+     *                        example: false
+     *                    time_attendance:
+     *                        type: number
+     *                        example: 1
+     *                    access_right_inherited:
+     *                        type: boolean
+     *                        example: false
+     *                    access_right:
+     *                        type: number
+     *                        example: 1
      *          responses:
      *              '201':
      *                  description: A cardholder object
@@ -147,24 +171,50 @@ export default class CardholderController {
 
     public static async add (ctx: DefaultContext) {
         try {
-            const auth_user = ctx.user
             const req_data = ctx.request.body
-            const cardholder_data = req_data.cardholder
-            const limitation_data = req_data.limitation
-            const car_info_data = req_data.car_info
+            const auth_user = ctx.user
+            req_data.company = auth_user.company ? auth_user.company : null
 
-            const limitation: any = await Limitation.addItem(limitation_data as Limitation)
-            const car_info: any = await CarInfo.addItem(car_info_data as CarInfo)
-            cardholder_data.limitation = limitation.id
-            cardholder_data.car_info = car_info.id
+            let group_data: any
+            if (req_data.limitation_inherited || req_data.antipass_back_inherited || req_data.time_attendance_inherited || req_data.access_right_inherited) {
+                group_data = await CardholderGroup.getItem({ id: req_data.cardholder_group, company: req_data.company })
+            }
 
-            cardholder_data.company = auth_user.company ? auth_user.company : null
-            const cardholder = await Cardholder.addItem(cardholder_data as Cardholder)
+            if (req_data.limitation_inherited && group_data) {
+                req_data.limitation = group_data.limitation
+            } else {
+                const limitation_data: any = await Limitation.addItem(req_data.limitations as Limitation)
+                req_data.limitation = limitation_data.id
+            }
+
+            if (req_data.antipass_back_inherited && group_data) {
+                req_data.antipass_back = group_data.antipass_back
+            } else {
+                const antipass_back_data: any = await AntipassBack.addItem(req_data.antipass_backs as AntipassBack)
+                req_data.antipass_back = antipass_back_data.id
+            }
+
+            if (req_data.access_right_inherited && group_data) {
+                req_data.access_right = group_data.access_right
+            }
+
+            if (req_data.time_attendance_inherited && group_data) {
+                req_data.time_attendance = group_data.time_attendance
+            }
+
+            const car_info: any = await CarInfo.addItem(req_data.car_infos as CarInfo)
+            req_data.car_info = car_info.id
+
+            await Cardholder.addItem(req_data as Cardholder)
+
+            // ctx.body = {
+                // cardholder: cardholder
+                // car_info: car_info_data,/
+                // limitation_data: limitation_data
+            // }
 
             ctx.body = {
-                cardholder: cardholder,
-                car_info: car_info_data,
-                limitation_data: limitation_data
+                success: true
             }
         } catch (error) {
             ctx.status = error.status || 400
@@ -199,9 +249,6 @@ export default class CardholderController {
      *                    cardholder:
      *                        type: object
      *                        required:
-     *                        - email
-     *                        - first_name
-     *                        - last_name
      *                        - id
      *                        properties:
      *                            id:
@@ -228,87 +275,118 @@ export default class CardholderController {
      *                            phone:
      *                                type: string
      *                                example: +374 XX XXX XXX
-     *                            company:
-     *                                type: number
-     *                                example: 1
      *                            company_name:
      *                                type: string
      *                                example: some_company_name
-     *                            role:
-     *                                type: number
-     *                                example: 1
-     *                            access_right:
-     *                                type: number
-     *                                example: 1
-     *                                minimum: 1
+     *                            user_account:
+     *                                type: boolean
+     *                                example: false
      *                            cardholder_group:
      *                                type: number
      *                                example: 1
      *                            status:
      *                                type: inactive | active | expired | noCredential | pending
      *                                example: active
-     *                            antipassback:
+     *                            car_infos:
+     *                                type: object
+     *                                required:
+     *                                properties:
+     *                                    id:
+     *                                        type: number
+     *                                        example: 1
+     *                                    model:
+     *                                        type: string
+     *                                        example: bmw
+     *                                    color:
+     *                                        type: string
+     *                                        example: some_color
+     *                                    lp_number:
+     *                                        type: number
+     *                                        example: 1
+     *                                    car_credential:
+     *                                        type: string
+     *                                        example: some_car_credential
+     *                                    car_event:
+     *                                        type: boolean
+     *                                        example: true
+     *                            limitation_inherited:
+     *                                type: boolean
+     *                                example: true
+     *                            limitations:
+     *                                type: object
+     *                                properties:
+     *                                    id:
+     *                                        type: number
+     *                                        example: 1
+     *                                    enable_date:
+     *                                        type: boolean
+     *                                        example: true
+     *                                    valid_from:
+     *                                        type: string
+     *                                        example: 2020-04-04 00:00:00
+     *                                    valid_due:
+     *                                        type: string
+     *                                        example: 2020-05-05 15:00:00
+     *                                    pass_counter_enable:
+     *                                        type: boolean
+     *                                        example: true
+     *                                    pass_counter_passes:
+     *                                        type: number
+     *                                        example: 25
+     *                                    pass_counter_current:
+     *                                        type: number
+     *                                        example: 10
+     *                                    first_use_counter_enable:
+     *                                        type: boolean
+     *                                        example: true
+     *                                    first_use_counter_days:
+     *                                        type: number
+     *                                        example: 25
+     *                                    first_use_counter_current:
+     *                                        type: number
+     *                                        example: 10
+     *                                    last_use_counter_enable:
+     *                                        type: boolean
+     *                                        example: true
+     *                                    last_use_counter_days:
+     *                                        type: number
+     *                                        example: 25
+     *                                    last_use_counter_current:
+     *                                        type: number
+     *                                        example: 10
+     *                            antipass_back_inherited:
      *                                type: boolean
      *                                example: false
-     *                    car_info:
-     *                        type: object
-     *                        required:
-     *                        properties:
-     *                            model:
-     *                                type: string
-     *                                example: bmw
-     *                            color:
-     *                                type: string
-     *                                example: some_color
-     *                            lp_number:
+     *                            antipass_backs:
+     *                                type: object
+     *                                properties:
+     *                                    id:
+     *                                        type: number
+     *                                        example: 1
+     *                                    type:
+     *                                        type: disable | soft | semi_soft | hard | extra_hard
+     *                                        example: disable
+     *                                    enable_timer:
+     *                                        type: boolean
+     *                                        example: false
+     *                                    time:
+     *                                        type: number
+     *                                        example: 60
+     *                                    time_type:
+     *                                        type: seconds | minutes | hours
+     *                                        example: minutes
+     *                            time_attendance_inherited:
+     *                                type: boolean
+     *                                example: false
+     *                            time_attendance:
      *                                type: number
      *                                example: 1
-     *                            car_credential:
-     *                                type: string
-     *                                example: some_car_credential
-     *                            car_event:
+     *                            access_right_inherited:
      *                                type: boolean
-     *                                example: true
-     *                    limitation:
-     *                        type: object
-     *                        required:
-     *                        properties:
-     *                            enable_date:
-     *                                type: boolean
-     *                                example: true
-     *                            valid_from:
-     *                                type: string
-     *                                example: 2020-04-04 00:00:00
-     *                            valid_due:
-     *                                type: string
-     *                                example: 2020-05-05 15:00:00
-     *                            pass_counter_enable:
-     *                                type: boolean
-     *                                example: true
-     *                            pass_counter_passes:
+     *                                example: false
+     *                            access_right:
      *                                type: number
-     *                                example: 25
-     *                            pass_counter_current:
-     *                                type: number
-     *                                example: 10
-     *                            first_use_counter_enable:
-     *                                type: boolean
-     *                                example: true
-     *                            first_use_counter_days:
-     *                                type: number
-     *                                example: 25
-     *                            first_use_counter_current:
-     *                                type: number
-     *                                example: 10
-     *                            last_use_counter_enable:
-     *                                type: boolean
-     *                                example: true
-     *                            last_use_counter_days:
-     *                                type: number
-     *                                example: 25
-     *                            last_use_counter_current:
-     *                                type: number
-     *                                example: 10
+     *                                example: 1
      *          responses:
      *              '201':
      *                  description: A cardholder updated object
@@ -328,14 +406,59 @@ export default class CardholderController {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
             } else {
-                const cardholder = ctx.request.body.cardholder
-                const cardholder_data: any = await Cardholder.updateItem(cardholder as Cardholder)
-                const car_info = await CarInfo.updateItem(ctx.request.body.car_info)
-                const limitation = await Limitation.updateItem(ctx.request.body.limitation)
+                let group_data: any
+                if (req_data.limitation_inherited || req_data.antipass_back_inherited || req_data.time_attendance_inherited || req_data.access_right_inherited) {
+                    if (req_data.cardholder_group) {
+                        group_data = await CardholderGroup.getItem({ id: req_data.cardholder_group, company: req_data.company })
+                    } else {
+                        const data: any = await Cardholder.getItem({ id: req_data.id, company: req_data.company })
+                        group_data = await CardholderGroup.getItem({ id: data.cardholder_group, company: req_data.company })
+                    }
+                }
+
+                if (req_data.limitation_inherited && group_data) {
+                    req_data.limitation = group_data.limitation
+                } else {
+                    if (req_data.limitations.id) {
+                        await Limitation.updateItem(req_data.limitations as Limitation)
+                    } else {
+                        const limitation_data: any = await Limitation.addItem(req_data.limitations as Limitation)
+                        req_data.limitation = limitation_data.id
+                    }
+                }
+
+                if (req_data.antipass_back_inherited && group_data) {
+                    req_data.antipass_back = group_data.antipass_back
+                } else {
+                    if (req_data.antipass_backs.id) {
+                        await AntipassBack.updateItem(req_data.antipass_backs as AntipassBack)
+                    } else {
+                        const antipass_back_data: any = await AntipassBack.addItem(req_data.antipass_backs as AntipassBack)
+                        req_data.antipass_back = antipass_back_data.id
+                    }
+                }
+
+                if (req_data.access_right_inherited && group_data) {
+                    req_data.access_right = group_data.access_right
+                }
+
+                if (req_data.time_attendance_inherited && group_data) {
+                    req_data.time_attendance = group_data.time_attendance
+                }
+
+                if (req_data.car_infos) {
+                    await CarInfo.updateItem(req_data.car_infos)
+                }
+
+                await Cardholder.updateItem(req_data as Cardholder)
+
+                // ctx.body = {
+                //     cardholder: cardholder_data,
+                //     car_info: car_info,
+                //     limitation: limitation
+                // }
                 ctx.body = {
-                    cardholder: cardholder_data,
-                    car_info: car_info,
-                    limitation: limitation
+                    success: true
                 }
             }
         } catch (error) {
