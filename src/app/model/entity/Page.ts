@@ -97,7 +97,7 @@ export class Page extends MainEntity {
         if ('image' in data) page.image = data.image
         if ('parent_id' in data) page.parent_id = data.parent_id
 
-        if (!page) return { status: 400, messsage: 'Item not found' }
+        if (!page) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
             this.save(page)
                 .then((item: Page) => {

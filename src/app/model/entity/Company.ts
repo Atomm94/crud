@@ -106,7 +106,7 @@ export class Company extends MainEntity {
         if ('message' in data) company.message = data.message
         if ('status' in data) company.status = data.status
 
-        if (!company) return { status: 400, messsage: 'Item not found' }
+        if (!company) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
             this.save(company)
                 .then((item: Company) => {

@@ -36,7 +36,7 @@ export class Translation extends MainEntity {
         if ('term' in data) translations.term = data.term
         if ('translations' in data) translations.translations = data.translations
 
-        if (!translations) return { status: 400, messsage: 'Item not found' }
+        if (!translations) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
             this.save(translations)
                 .then((item: Translation) => {

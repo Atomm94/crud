@@ -80,7 +80,7 @@ export class Schedule extends MainEntity {
         if ('start_from' in data) schedule.start_from = data.start_from
         if ('circle' in data) schedule.circle = data.circle
 
-        if (!schedule) return { status: 400, messsage: 'Item not found' }
+        if (!schedule) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
             this.save(schedule)
                 .then((item: Schedule) => {

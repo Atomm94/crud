@@ -38,7 +38,7 @@ export class CompanyResources extends MainEntity {
         if ('company' in data) companyResources.company = data.company
         if ('used' in data) companyResources.used = data.used
 
-        if (!companyResources) return { status: 400, messsage: 'Item not found' }
+        if (!companyResources) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
             this.save(companyResources)
                 .then((item: CompanyResources) => {

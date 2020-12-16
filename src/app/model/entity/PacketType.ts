@@ -50,7 +50,7 @@ export class PacketType extends MainEntity {
         if ('status' in data) packetType.status = data.status
         if ('description' in data) packetType.description = data.description
 
-        if (!packetType) return { status: 400, messsage: 'Item not found' }
+        if (!packetType) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
             this.save(packetType)
                 .then((item: PacketType) => {

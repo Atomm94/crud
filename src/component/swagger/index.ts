@@ -3,10 +3,10 @@ import swaggerJSDoc from 'swagger-jsdoc'
 const path = require('path')
 
 const info: any = {
-  title: 'Bet & Mix',
-  description: 'Bet & Mix description',
+  title: 'UNICONS',
+  description: 'Unicons description',
   version: 0.1,
-  contact: 'Gegham Israelyan',
+  contact: 'Unicons',
   termsOfService: ''
 }
 const servers: Array<string> = []
