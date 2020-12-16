@@ -1,6 +1,7 @@
 import { DefaultContext } from 'koa'
 import { Schedule } from '../model/entity/Schedule'
-import { Timeframe } from '../model/entity/Timeframe'
+// import { Timeframe } from '../model/entity/Timeframe'
+
 export default class ScheduleController {
     /**
      *
@@ -291,8 +292,8 @@ export default class ScheduleController {
         try {
             const user = ctx.user
             const company = user.company ? user.company : null
-            ctx.body = await Timeframe.createQueryBuilder('timeframe')
-                    .innerJoinAndSelect('timeframe.schedules', 'schedule')
+            ctx.body = await Schedule.createQueryBuilder('schedule')
+                    .leftJoinAndSelect('schedule.timeframes', 'timeframe')
                     .select('schedule.*')
                     .addSelect('timeframe.name')
                     .where(`schedule.company = ${company}`)
