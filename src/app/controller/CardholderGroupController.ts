@@ -282,8 +282,7 @@ export default class CardholderGroupController {
         try {
             const req_data = ctx.request.body
             const user = ctx.user
-            const where = { id: req_data.id, company: user.company ? user.company : null }
-            const check_by_company = await CardholderGroup.findOne(where)
+            const check_by_company = await CardholderGroup.getItem({ id: req_data.id, company: user.company ? user.company : null })
 
             if (!check_by_company) {
                 ctx.status = 400
@@ -291,8 +290,8 @@ export default class CardholderGroupController {
             } else {
                 let parent_data: any
                 if (req_data.limitation_inherited || req_data.antipass_back_inherited || req_data.time_attendance_inherited || req_data.access_right_inherited) {
-                    const data: any = await CardholderGroup.getItem({ id: req_data.parent_id, company: req_data.company })
-                    parent_data = await CardholderGroup.getItem({ id: data.id, company: req_data.company })
+                    const data: any = await CardholderGroup.getItem({ id: req_data.id, company: user.company ? user.company : null })
+                    parent_data = await CardholderGroup.getItem({ id: data.parent_id, company: user.company ? user.company : null })
                 }
 
                 if (req_data.limitation_inherited && parent_data) {

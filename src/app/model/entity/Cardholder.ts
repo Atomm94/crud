@@ -70,8 +70,8 @@ export class Cardholder extends MainEntity {
     @Column('boolean', { name: 'limitation_inherited', default: false })
     limitation_inherited: boolean
 
-    @Column('boolean', { name: 'antipass_back', default: false })
-    antipass_back: boolean
+    @Column('int', { name: 'antipass_back', nullable: false })
+    antipass_back: number
 
     @Column('boolean', { name: 'antipass_back_inherited', default: false })
     antipass_back_inherited: boolean
@@ -167,7 +167,6 @@ export class Cardholder extends MainEntity {
         if ('last_name' in data) cardholder.last_name = data.last_name
         if ('family_name' in data) cardholder.family_name = data.family_name
         if ('phone' in data) cardholder.phone = data.phone
-        if ('company' in data) cardholder.company = data.company
         if ('company_name' in data) cardholder.company_name = data.company_name
         if ('user_account' in data) cardholder.user_account = data.user_account
         if ('cardholder_group' in data) cardholder.cardholder_group = data.cardholder_group
