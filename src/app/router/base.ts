@@ -1,8 +1,6 @@
 import CardholderGroupController from '../controller/CardholderGroupController'
-import TimeframeController from '../controller/TimeframeController'
 import EntryController from '../controller/EntryController'
 import AccessRightController from '../controller/AccessRightController'
-import ScheduleController from '../controller/ScheduleController'
 import AccessRuleController from '../controller/AccessRuleController'
 // import CarInfoController from '../controller/CarInfoController'
 import AccountGroupController from '../controller/AccountGroupController'
@@ -218,20 +216,6 @@ export default router
   // .get('CarInfo-getItem', 'carInfo/:id', CarInfoController.get)
   // .delete('CarInfo-destroyItem', 'carInfo', CarInfoController.destroy)
   // .get('CarInfo-getAllItems', 'carInfo', CarInfoController.getAll)
-
-  // Schedule controller CRUD endpoints
-  .post('Schedule-addItem', 'schedule', ScheduleController.add)
-  .put('Schedule-updateItem', 'schedule', ScheduleController.update)
-  .get('Schedule-getItem', 'schedule/:id', ScheduleController.get)
-  .delete('Schedule-destroyItem', 'schedule', ScheduleController.destroy)
-  .get('Schedule-getAllItems', 'schedule', ScheduleController.getAll)
-  .get('Schedule-getAllItems', 'scheduleTree', ScheduleController.getTree)
-  // Timeframe controller CRUD endpoints
-  .post('Schedule-addItem', 'timeframe', TimeframeController.add)
-  .put('Schedule-updateItem', 'timeframe', TimeframeController.update)
-  .get('Schedule-getItem', 'timeframe/:id', TimeframeController.get)
-  .delete('Schedule-destroyItem', 'timeframe', TimeframeController.destroy)
-  .get('Schedule-getAllItems', 'timeframe', TimeframeController.getAll)
 
   // AccessRight controller CRUD endpoints
   .post('AccessRight-addItem', 'accessRight', AccessRightController.add)
