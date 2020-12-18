@@ -11,4 +11,7 @@ export default router
   .delete('Schedule-destroyItem', '/', ScheduleController.destroy)
   .get('Schedule-getAllItems', '/', ScheduleController.getAll)
   .get('Schedule-getAllItems', '/tree', ScheduleController.getTree)
+  .get('Schedule-getAllItems', '/relations/:id', ScheduleController.getRelations)
+
+  .use('/timeframe', timeframe.routes(), timeframe.allowedMethods())
   .get('Schedule-getItem', '/:id', ScheduleController.get)
