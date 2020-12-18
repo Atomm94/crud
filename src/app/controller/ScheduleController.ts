@@ -298,7 +298,7 @@ export default class ScheduleController {
                     .addSelect('timeframe.name')
                     .where(`schedule.company = ${company}`)
                     .groupBy('timeframe.name')
-                    .addGroupBy('timeframe.schedule')
+                    .addGroupBy('schedule.id')
                     .getRawMany()
         } catch (error) {
             ctx.status = error.status || 400
