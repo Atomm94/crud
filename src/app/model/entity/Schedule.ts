@@ -16,6 +16,8 @@ import { Cardholder } from '.'
 
 @Entity('schedule')
 export class Schedule extends MainEntity {
+    public static resource: boolean = true
+
     @Column('varchar', { name: 'name', nullable: false })
     name: string
 
