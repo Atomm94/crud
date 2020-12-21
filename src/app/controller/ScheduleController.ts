@@ -1,4 +1,5 @@
 import { DefaultContext } from 'koa'
+import { CardholderGroup } from '../model/entity/CardholderGroup'
 import { Schedule } from '../model/entity/Schedule'
 // import { Timeframe } from '../model/entity/Timeframe'
 
@@ -298,8 +299,56 @@ export default class ScheduleController {
                     .addSelect('timeframe.name')
                     .where(`schedule.company = ${company}`)
                     .groupBy('timeframe.name')
-                    .addGroupBy('timeframe.schedule')
+                    .addGroupBy('schedule.id')
                     .getRawMany()
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     * /schedule/relations/{id}:
+     *      get:
+     *          tags:
+     *              - Schedule
+     *          summary: Return scheduleRelations by ID
+     *          parameters:
+     *              - name: id
+     *                in: path
+     *                required: true
+     *                description: Parameter description
+     *                schema:
+     *                    type: integer
+     *                    format: int64
+     *                    minimum: 1
+     *              - in: header
+     *                name: Authorization
+     *                required: true
+     *                description: Authentication token
+     *                schema:
+     *                    type: string
+     *          responses:
+     *              '200':
+     *                  description: Data object
+     *              '404':
+     *                  description: Data not found
+     */
+    public static async getRelations (ctx: DefaultContext) {
+        try {
+            const user = ctx.user
+            const company = user.company ? user.company : null
+            ctx.body = await CardholderGroup.createQueryBuilder('cardholder_group')
+            .innerJoin('cardholder_group.cardholders', 'cardholder')
+            .select('cardholder_group.name')
+            .addSelect('COUNT(cardholder.id) as cardholders_qty')
+            .where(`cardholder_group.company = ${company}`)
+            .andWhere(`cardholder_group.time_attendance = ${ctx.params.id}`)
+            .groupBy('cardholder.cardholder_group')
+            .getRawMany()
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

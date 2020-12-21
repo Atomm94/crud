@@ -409,10 +409,10 @@ export default class CardholderController {
                 let group_data: any
                 if (req_data.limitation_inherited || req_data.antipass_back_inherited || req_data.time_attendance_inherited || req_data.access_right_inherited) {
                     if (req_data.cardholder_group) {
-                        group_data = await CardholderGroup.getItem({ id: req_data.cardholder_group, company: req_data.company })
+                        group_data = await CardholderGroup.getItem({ id: req_data.cardholder_group, company: auth_user.company ? auth_user.company : null })
                     } else {
-                        const data: any = await Cardholder.getItem({ id: req_data.id, company: req_data.company })
-                        group_data = await CardholderGroup.getItem({ id: data.cardholder_group, company: req_data.company })
+                        const data: any = await Cardholder.getItem({ id: req_data.id, company: auth_user.company ? auth_user.company : null })
+                        group_data = await CardholderGroup.getItem({ id: data.cardholder_group, company: auth_user.company ? auth_user.company : null })
                     }
                 }
 
