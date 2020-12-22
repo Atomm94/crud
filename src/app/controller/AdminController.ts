@@ -655,7 +655,11 @@ export default class AdminController {
         const role = {}
         try {
             const user = ctx.user
-            const where = { id: adminId, company: user.company ? user.company : null }
+            const where: any = { id: adminId, company: user.company ? user.company : null }
+
+        if (!user.company && !user.super) {
+            where.super = false
+        }
             const relations = ['departments']
             admin = await Admin.features.AdminOperation.getItem(where, relations)
         } catch (error) {
@@ -764,7 +768,11 @@ export default class AdminController {
 
         const req_data = ctx.query
         req_data.relations = ['departments']
-        req_data.where = { company: { '=': user.company ? user.company : null } }
+        const where: any = { company: { '=': user.company ? user.company : null } }
+        if (!user.company && !user.super) {
+            where.super = { '=': false }
+        }
+        req_data.where = where
 
         if (name) {
             req_data.orWhere = [
