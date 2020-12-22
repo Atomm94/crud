@@ -5,7 +5,7 @@
 	"main": "dist/index.js",
 	"readmeFilename": "README.md",
 	"scripts": {
-		"postbuild": "copyfiles -a **/Module.json dist/",
+		"postbuild": "copyfiles -a **/Module.json dist/ && copyfiles -a **/*.template dist/",
 		"lint": "eslint --fix ./src/**/*.{ts,tsx}",
 		"build": "npm run lint && npm run clean && tsc",
 		"clean": "npm run clean:build",
