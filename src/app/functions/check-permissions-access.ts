@@ -17,7 +17,7 @@ export async function checkPermissionsAccess (user: any, permissions: any) {
                         check = false
                     } else {
                         Object.keys(permissions[model].actions).forEach(action => {
-                            if (!user_permissions[model].actions[action]) {
+                            if (!(action in user_permissions[model].actions)) {
                                 check = false
                             }
                         })
