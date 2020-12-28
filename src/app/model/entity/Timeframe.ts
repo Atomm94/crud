@@ -25,7 +25,7 @@ export class Timeframe extends MainEntity {
     @Column('int', { name: 'company', nullable: false })
     company: number
 
-    @ManyToOne(type => Schedule, schedule => schedule.timeframes)
+    @ManyToOne(type => Schedule, schedule => schedule.timeframes, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'schedule' })
     schedules: Schedule;
 
