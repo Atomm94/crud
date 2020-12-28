@@ -64,7 +64,10 @@ export class AccessRight extends MainEntity {
         return new Promise((resolve, reject) => {
             this.save(accessRight)
                 .then((item: AccessRight) => {
-                    resolve(item)
+                    resolve({
+                        old: accessRight,
+                        new: item
+                    })
                 })
                 .catch((error: any) => {
                     reject(error)

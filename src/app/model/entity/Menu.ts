@@ -80,7 +80,10 @@ export class Menu extends MainEntity {
         return new Promise((resolve, reject) => {
             this.save(menu)
                 .then((item: Menu) => {
-                    resolve(item)
+                    resolve({
+                        old: menu,
+                        new: item
+                    })
                 })
                 .catch((error: any) => {
                     reject(error)

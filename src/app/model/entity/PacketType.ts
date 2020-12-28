@@ -54,7 +54,10 @@ export class PacketType extends MainEntity {
         return new Promise((resolve, reject) => {
             this.save(packetType)
                 .then((item: PacketType) => {
-                    resolve(item)
+                    resolve({
+                        old: packetType,
+                        new: item
+                    })
                 })
                 .catch((error: any) => {
                     reject(error)

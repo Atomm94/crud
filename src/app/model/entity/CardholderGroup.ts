@@ -117,7 +117,10 @@ export class CardholderGroup extends MainEntity {
         return new Promise((resolve, reject) => {
             this.save(cardholderGroup)
                 .then((item: CardholderGroup) => {
-                    resolve(item)
+                    resolve({
+                        old: cardholderGroup,
+                        new: item
+                    })
                 })
                 .catch((error: any) => {
                     reject(error)

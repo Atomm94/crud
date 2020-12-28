@@ -99,7 +99,10 @@ export class Ticket extends MainEntity {
         return new Promise((resolve, reject) => {
             this.save(ticket)
                 .then((item: Ticket) => {
-                    resolve(item)
+                    resolve({
+                        old: ticket,
+                        new: item
+                    })
                 })
                 .catch((error: any) => {
                     reject(error)

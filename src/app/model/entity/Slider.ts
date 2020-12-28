@@ -58,7 +58,10 @@ export class Slider extends MainEntity {
         return new Promise((resolve, reject) => {
             this.save(slider)
                 .then((item: Slider) => {
-                    resolve(item)
+                    resolve({
+                        old: slider,
+                        new: item
+                    })
                 })
                 .catch((error: any) => {
                     reject(error)

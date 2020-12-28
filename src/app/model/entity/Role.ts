@@ -160,7 +160,10 @@ export class Role extends MainEntity {
     return new Promise((resolve, reject) => {
       this.save(role)
         .then((item: Role) => {
-          resolve(item)
+          resolve({
+            old: role,
+            new: item
+        })
         })
         .catch((error: any) => {
           reject(error)

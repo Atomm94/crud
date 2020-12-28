@@ -185,7 +185,10 @@ export class Cardholder extends MainEntity {
         return new Promise((resolve, reject) => {
             this.save(cardholder)
                 .then((item: Cardholder) => {
-                    resolve(item)
+                    resolve({
+                        old: cardholder,
+                        new: item
+                    })
                 })
                 .catch((error: any) => {
                     reject(error)

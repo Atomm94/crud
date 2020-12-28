@@ -79,7 +79,10 @@ export class AccessRule extends MainEntity {
         return new Promise((resolve, reject) => {
             this.save(accessRule)
                 .then((item: AccessRule) => {
-                    resolve(item)
+                    resolve({
+                        old: accessRule,
+                        new: item
+                    })
                 })
                 .catch((error: any) => {
                     reject(error)

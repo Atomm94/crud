@@ -86,7 +86,10 @@ export class TicketMessage extends MainEntity {
             if (ticketMessage.user_id === user.id) {
                 this.save(ticketMessage)
                     .then((item: TicketMessage) => {
-                        resolve(item)
+                        resolve({
+                            old: ticketMessage,
+                            new: item
+                        })
                     })
                     .catch((error: any) => {
                         reject(error)

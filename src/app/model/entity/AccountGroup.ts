@@ -71,7 +71,10 @@ export class AccountGroup extends MainEntity {
         return new Promise((resolve, reject) => {
             this.save(accountGroup)
                 .then((item: AccountGroup) => {
-                    resolve(item)
+                    resolve({
+                        old: accountGroup,
+                        new: item
+                    })
                 })
                 .catch((error: any) => {
                     reject(error)

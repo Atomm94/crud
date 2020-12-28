@@ -82,7 +82,10 @@ export class Department extends MainEntity {
         return new Promise((resolve, reject) => {
             this.save(department)
                 .then((item: Department) => {
-                    resolve(item)
+                    resolve({
+                        old: department,
+                        new: item
+                    })
                 })
                 .catch((error: any) => {
                     reject(error)

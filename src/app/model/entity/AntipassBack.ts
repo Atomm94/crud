@@ -63,7 +63,10 @@ export class AntipassBack extends MainEntity {
         return new Promise((resolve, reject) => {
             this.save(antipassBack)
                 .then((item: AntipassBack) => {
-                    resolve(item)
+                    resolve({
+                        old: antipassBack,
+                        new: item
+                    })
                 })
                 .catch((error: any) => {
                     reject(error)

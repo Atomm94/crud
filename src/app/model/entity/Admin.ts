@@ -263,7 +263,10 @@ export class Admin extends MainEntity {
     return new Promise((resolve, reject) => {
       this.save(admin)
         .then((item: Admin) => {
-          resolve(item)
+          resolve({
+            old: admin,
+            new: item
+        })
         })
         .catch((error: any) => {
           reject(error)
