@@ -74,7 +74,10 @@ export class Page extends MainEntity {
         return new Promise((resolve, reject) => {
             this.save(page)
                 .then((item: Page) => {
-                    resolve(item)
+                    resolve({
+                        old: page,
+                        new: item
+                    })
                 })
                 .catch((error: any) => {
                     reject(error)

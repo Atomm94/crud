@@ -86,7 +86,10 @@ export class Schedule extends MainEntity {
         return new Promise((resolve, reject) => {
             this.save(schedule)
                 .then((item: Schedule) => {
-                    resolve(item)
+                    resolve({
+                        old: schedule,
+                        new: item
+                    })
                 })
                 .catch((error: any) => {
                     reject(error)

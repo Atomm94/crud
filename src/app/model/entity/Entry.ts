@@ -51,7 +51,10 @@ export class Entry extends MainEntity {
         return new Promise((resolve, reject) => {
             this.save(entry)
                 .then((item: Entry) => {
-                    resolve(item)
+                    resolve({
+                        old: entry,
+                        new: item
+                    })
                 })
                 .catch((error: any) => {
                     reject(error)

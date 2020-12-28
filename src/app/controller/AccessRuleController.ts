@@ -37,8 +37,8 @@ export default class AccessRuleController {
      *                      example: 1
      *                      minimum: 1
      *                  access_in_holidays:
-     *                      type: enable | disable
-     *                      example: disable
+     *                      type: boolean
+     *                      example: false
      *          responses:
      *              '201':
      *                  description: A accessRule object

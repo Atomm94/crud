@@ -110,7 +110,10 @@ export class Company extends MainEntity {
         return new Promise((resolve, reject) => {
             this.save(company)
                 .then((item: Company) => {
-                    resolve(item)
+                    resolve({
+                        old: company,
+                        new: item
+                    })
                 })
                 .catch((error: any) => {
                     reject(error)

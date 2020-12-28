@@ -80,7 +80,10 @@ export class Section extends MainEntity {
         return new Promise((resolve, reject) => {
             this.save(section)
                 .then((item: Section) => {
-                    resolve(item)
+                    resolve({
+                        old: section,
+                        new: item
+                    })
                 })
                 .catch((error: any) => {
                     reject(error)

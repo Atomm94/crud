@@ -47,7 +47,10 @@ export class Language extends MainEntity {
         return new Promise((resolve, reject) => {
             this.save(language)
                 .then((item: Language) => {
-                    resolve(item)
+                    resolve({
+                        old: language,
+                        new: item
+                    })
                 })
                 .catch((error: any) => {
                     reject(error)

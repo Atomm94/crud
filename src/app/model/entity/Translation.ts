@@ -40,7 +40,10 @@ export class Translation extends MainEntity {
         return new Promise((resolve, reject) => {
             this.save(translations)
                 .then((item: Translation) => {
-                    resolve(item)
+                    resolve({
+                        old: translations,
+                        new: item
+                    })
                 })
                 .catch((error: any) => {
                     reject(error)

@@ -1,11 +1,10 @@
-import {
+ import {
     Entity,
     Column,
     ManyToOne,
     JoinColumn
 } from 'typeorm'
 
-import { accessInHolidays } from '../../enums/accessInHolidays.enum'
 import { MainEntity } from './MainEntity'
 import { Company } from './Company'
 import { AccessRight } from './AccessRight'
@@ -23,8 +22,8 @@ export class AccessRule extends MainEntity {
     @Column('int', { name: 'schedule', nullable: false })
     schedule: number
 
-    @Column('enum', { name: 'access_in_holidays', enum: accessInHolidays, default: accessInHolidays.DISABLE })
-    access_in_holidays: accessInHolidays
+    @Column('boolean', { name: 'access_in_holidays', default: false })
+    access_in_holidays: boolean
 
     @Column('int', { name: 'company', nullable: false })
     company: number
@@ -80,7 +79,10 @@ export class AccessRule extends MainEntity {
         return new Promise((resolve, reject) => {
             this.save(accessRule)
                 .then((item: AccessRule) => {
-                    resolve(item)
+                    resolve({
+                        old: accessRule,
+                        new: item
+                    })
                 })
                 .catch((error: any) => {
                     reject(error)

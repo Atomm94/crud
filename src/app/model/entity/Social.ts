@@ -52,7 +52,10 @@ export class Social extends MainEntity {
         return new Promise((resolve, reject) => {
             this.save(social)
                 .then((item: Social) => {
-                    resolve(item)
+                    resolve({
+                        old: social,
+                        new: item
+                    })
                 })
                 .catch((error: any) => {
                     reject(error)

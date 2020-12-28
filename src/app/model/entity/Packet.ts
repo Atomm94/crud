@@ -89,7 +89,10 @@ export class Packet extends MainEntity {
         return new Promise((resolve, reject) => {
             this.save(packet)
                 .then((item: Packet) => {
-                    resolve(item)
+                    resolve({
+                        old: packet,
+                        new: item
+                    })
                 })
                 .catch((error: any) => {
                     reject(error)

@@ -102,7 +102,10 @@ export class Limitation extends MainEntity {
         return new Promise((resolve, reject) => {
             this.save(limitation)
                 .then((item: Limitation) => {
-                    resolve(item)
+                    resolve({
+                        old: limitation,
+                        new: item
+                    })
                 })
                 .catch((error: any) => {
                     reject(error)
