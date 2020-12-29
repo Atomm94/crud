@@ -17,6 +17,13 @@ export interface IConfig {
         port: number | boolean,
         root: string
     };
+    mqtt: {
+        protocol: string,
+        host: string,
+        port: number | boolean
+        username: string,
+        password: string,
+    };
     db: {
         type: string,
         user: string,
@@ -59,6 +66,13 @@ const config: IConfig = {
     server: {
         port: normalizePort(_.defaultTo(process.env.PORT, 3000)),
         root: ROOT
+    },
+    mqtt: {
+        protocol: _.defaultTo(process.env.MQTT_PROTOCOL, 'wxs'),
+        host: _.defaultTo(process.env.MQTT_HOST, 'localhost'),
+        port: normalizePort(_.defaultTo(process.env.MQTT_PORT, 5432)),
+        username: _.defaultTo(process.env.MQTT_USERNAME, 'unimacs'),
+        password: _.defaultTo(process.env.MQTT_PASSWORD, '123456')
     },
     db: {
         type: _.defaultTo(process.env.DB_TYPE, 'postgres'),

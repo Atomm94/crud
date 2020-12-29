@@ -45,8 +45,9 @@ export class Slider extends MainEntity {
         })
     }
 
-    public static async updateItem (data: any) {
+    public static async updateItem (data: any): Promise<{ [key: string]: any }> {
         const slider = await this.findOneOrFail(data.id)
+        const oldData = Object.assign({}, slider)
 
         if ('title' in data) slider.title = data.title
         if ('url' in data) slider.url = data.url
@@ -58,7 +59,10 @@ export class Slider extends MainEntity {
         return new Promise((resolve, reject) => {
             this.save(slider)
                 .then((item: Slider) => {
-                    resolve(item)
+                    resolve({
+                        old: oldData,
+                        new: item
+                    })
                 })
                 .catch((error: any) => {
                     reject(error)

@@ -40,8 +40,9 @@ export class Social extends MainEntity {
         })
     }
 
-    public static async updateItem (data: Social) {
+    public static async updateItem (data: Social): Promise<{ [key: string]: any }> {
         const social = await this.findOneOrFail(data.id)
+        const oldData = Object.assign({}, social)
 
         if ('title' in data) social.title = data.title
         if ('url' in data) social.url = data.url
@@ -52,7 +53,10 @@ export class Social extends MainEntity {
         return new Promise((resolve, reject) => {
             this.save(social)
                 .then((item: Social) => {
-                    resolve(item)
+                    resolve({
+                        old: oldData,
+                        new: item
+                    })
                 })
                 .catch((error: any) => {
                     reject(error)

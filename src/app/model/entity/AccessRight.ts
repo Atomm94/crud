@@ -56,9 +56,9 @@ export class AccessRight extends MainEntity {
         })
     }
 
-    public static async updateItem (data: AccessRight) {
+    public static async updateItem (data: AccessRight): Promise<{ [key: string]: any }> {
         const accessRight = await this.findOneOrFail(data.id)
-
+        const oldData = Object.assign({}, accessRight)
         if ('name' in data) accessRight.name = data.name
         if ('description' in data) accessRight.description = data.description
 
@@ -66,7 +66,10 @@ export class AccessRight extends MainEntity {
         return new Promise((resolve, reject) => {
             this.save(accessRight)
                 .then((item: AccessRight) => {
-                    resolve(item)
+                    resolve({
+                        old: oldData,
+                        new: item
+                    })
                 })
                 .catch((error: any) => {
                     reject(error)

@@ -30,8 +30,9 @@ export class Translation extends MainEntity {
         })
     }
 
-    public static async updateItem (data: Translation) {
+    public static async updateItem (data: Translation): Promise<{ [key: string]: any }> {
         const translations = await this.findOneOrFail(data.id)
+        const oldData = Object.assign({}, translations)
 
         if ('term' in data) translations.term = data.term
         if ('translations' in data) translations.translations = data.translations
@@ -40,7 +41,10 @@ export class Translation extends MainEntity {
         return new Promise((resolve, reject) => {
             this.save(translations)
                 .then((item: Translation) => {
-                    resolve(item)
+                    resolve({
+                        old: oldData,
+                        new: item
+                    })
                 })
                 .catch((error: any) => {
                     reject(error)

@@ -450,16 +450,15 @@ export default class CardholderController {
                     await CarInfo.updateItem(req_data.car_infos)
                 }
 
-                await Cardholder.updateItem(req_data as Cardholder)
-
+                const res_data = await Cardholder.updateItem(req_data as Cardholder)
+                ctx.oldData = res_data.old
+                ctx.body = res_data.new
                 // ctx.body = {
                 //     cardholder: cardholder_data,
                 //     car_info: car_info,
                 //     limitation: limitation
                 // }
-                ctx.body = {
-                    success: true
-                }
+                ctx.body = res_data
             }
         } catch (error) {
             ctx.status = error.status || 400

@@ -152,8 +152,9 @@ class SocialController {
     public static async updateSocialLink (ctx: DefaultContext) {
         const body = ctx.request.body
         try {
-            const updatedSocialLink = await Social.updateItem(body)
-            ctx.body = updatedSocialLink
+            const updated = await Social.updateItem(body)
+            ctx.oldData = updated.old
+            ctx.body = updated.new
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

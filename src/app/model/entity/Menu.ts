@@ -65,8 +65,9 @@ export class Menu extends MainEntity {
         })
     }
 
-    public static async updateItem (data: any) {
+    public static async updateItem (data: any): Promise<{ [key: string]: any }> {
         const menu = await this.findOneOrFail(data.id)
+        const oldData = Object.assign({}, menu)
 
         if ('title' in data) menu.title = data.title
         if ('url' in data) menu.url = data.url
@@ -80,7 +81,10 @@ export class Menu extends MainEntity {
         return new Promise((resolve, reject) => {
             this.save(menu)
                 .then((item: Menu) => {
-                    resolve(item)
+                    resolve({
+                        old: oldData,
+                        new: item
+                    })
                 })
                 .catch((error: any) => {
                     reject(error)

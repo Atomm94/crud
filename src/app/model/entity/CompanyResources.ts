@@ -32,7 +32,7 @@ export class CompanyResources extends MainEntity {
         })
     }
 
-    public static async updateItem (data: CompanyResources) {
+    public static async updateItem (data: CompanyResources): Promise<{ [key: string]: any }> {
         const companyResources = await this.findOneOrFail(data.id)
 
         if ('company' in data) companyResources.company = data.company

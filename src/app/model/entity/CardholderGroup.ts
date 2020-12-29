@@ -98,8 +98,9 @@ export class CardholderGroup extends MainEntity {
         })
     }
 
-    public static async updateItem (data: CardholderGroup) {
+    public static async updateItem (data: CardholderGroup): Promise<{ [key: string]: any }> {
         const cardholderGroup = await this.findOneOrFail(data.id)
+        const oldData = Object.assign({}, cardholderGroup)
 
         if ('name' in data) cardholderGroup.name = data.name
         if ('description' in data) cardholderGroup.description = data.description
@@ -117,7 +118,10 @@ export class CardholderGroup extends MainEntity {
         return new Promise((resolve, reject) => {
             this.save(cardholderGroup)
                 .then((item: CardholderGroup) => {
-                    resolve(item)
+                    resolve({
+                        old: oldData,
+                        new: item
+                    })
                 })
                 .catch((error: any) => {
                     reject(error)

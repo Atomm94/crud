@@ -44,7 +44,7 @@ class AdminOperation extends BaseClass {
     return await Admin.destroyItem(data)
   }
 
-  public static async updateItem (data: any) {
+  public static async updateItem (data: any): Promise<{ [key: string]: any }> {
     return await Admin.updateItem(data)
   }
 
@@ -237,8 +237,9 @@ export class Admin extends MainEntity {
     })
   }
 
-  public static async updateItem (data: any) {
+  public static async updateItem (data: any): Promise<{ [key: string]: any }> {
     const admin = await this.findOneOrFail(data.id)
+    const oldData = Object.assign({}, admin)
     delete admin.password
 
     if ('username' in data) admin.username = data.username
@@ -263,7 +264,10 @@ export class Admin extends MainEntity {
     return new Promise((resolve, reject) => {
       this.save(admin)
         .then((item: Admin) => {
-          resolve(item)
+          resolve({
+            old: oldData,
+            new: item
+        })
         })
         .catch((error: any) => {
           reject(error)

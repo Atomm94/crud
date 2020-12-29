@@ -74,8 +74,9 @@ export class TicketMessage extends MainEntity {
         })
     }
 
-    public static async updateItem (data: TicketMessage, user: Admin) {
+    public static async updateItem (data: TicketMessage, user: Admin): Promise<{ [key: string]: any }> {
         const ticketMessage = await this.findOneOrFail(data.id)
+        const oldData = Object.assign({}, ticketMessage)
 
         if ('text' in data) ticketMessage.text = data.text
         if ('image' in data) ticketMessage.image = data.image
@@ -86,7 +87,10 @@ export class TicketMessage extends MainEntity {
             if (ticketMessage.user_id === user.id) {
                 this.save(ticketMessage)
                     .then((item: TicketMessage) => {
-                        resolve(item)
+                        resolve({
+                            old: oldData,
+                            new: item
+                        })
                     })
                     .catch((error: any) => {
                         reject(error)

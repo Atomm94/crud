@@ -50,8 +50,9 @@ export class CompanyDocuments extends MainEntity {
         })
     }
 
-    public static async updateItem (data: CompanyDocuments) {
+    public static async updateItem (data: CompanyDocuments): Promise<{ [key: string]: any }> {
         const companyDocuments = await this.findOneOrFail(data.id)
+        const oldData = Object.assign({}, companyDocuments)
 
         if ('name' in data) companyDocuments.name = data.name
         if ('date' in data) companyDocuments.date = data.date
@@ -62,7 +63,10 @@ export class CompanyDocuments extends MainEntity {
         return new Promise((resolve, reject) => {
             this.save(companyDocuments)
                 .then((item: CompanyDocuments) => {
-                    resolve(item)
+                    resolve({
+                        old: oldData,
+                        new: item
+                    })
                 })
                 .catch((error: any) => {
                     reject(error)
@@ -87,7 +91,7 @@ export class CompanyDocuments extends MainEntity {
         const itemId: number = +data.id
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
-              this.remove(await this.findByIds([itemId]))
+            this.remove(await this.findByIds([itemId]))
                 .then(() => {
                     resolve({ message: 'success' })
                 })
@@ -111,12 +115,12 @@ export class CompanyDocuments extends MainEntity {
 
     public static async saveFile (file: any) {
         return fileSave(file)
-      }
+    }
 
-      public static async deleteFile (file: any) {
+    public static async deleteFile (file: any) {
         return fs.unlink(`${parentDir}/public/${file}`, (err) => {
-          if (err) throw err
-          logger.info('Delete complete!')
+            if (err) throw err
+            logger.info('Delete complete!')
         })
-      }
+    }
 }

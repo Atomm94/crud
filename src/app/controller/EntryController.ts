@@ -100,7 +100,9 @@ export default class EntryController {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
             } else {
-                ctx.body = await Entry.updateItem(req_data as Entry)
+                const updated = await Entry.updateItem(req_data as Entry)
+                ctx.oldData = updated.old
+                ctx.body = updated.new
             }
         } catch (error) {
             ctx.status = error.status || 400

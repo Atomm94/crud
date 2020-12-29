@@ -126,7 +126,9 @@ export default class CompanyController {
             if (ctx.user && ctx.user.company) {
                 ctx.request.body.id = ctx.user.company
             }
-            ctx.body = await Company.updateItem(ctx.request.body as Company)
+            const updated = await Company.updateItem(ctx.request.body as Company)
+            ctx.oldData = updated.old
+            ctx.body = updated.new
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

@@ -116,7 +116,9 @@ export default class TimeframeController {
     public static async update (ctx: DefaultContext) {
         try {
             const req_data = ctx.request.body
-            ctx.body = await Timeframe.updateItem(req_data as Timeframe)
+            const updated = await Timeframe.updateItem(req_data as Timeframe)
+            ctx.oldData = updated.old
+            ctx.body = updated.new
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

@@ -324,11 +324,11 @@ export default class CardholderGroupController {
                     req_data.time_attendance = parent_data.time_attendance
                 }
 
-                ctx.body = await CardholderGroup.updateItem(req_data as CardholderGroup)
+                const updated = await CardholderGroup.updateItem(req_data as CardholderGroup)
+                ctx.oldData = updated.old
+                ctx.body = updated.new
             }
         } catch (error) {
-            console.log('error', error)
-
             ctx.status = error.status || 400
             ctx.body = error
         }

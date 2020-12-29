@@ -72,8 +72,9 @@ export class Department extends MainEntity {
         })
     }
 
-    public static async updateItem (data: Department) {
+    public static async updateItem (data: Department): Promise<{ [key: string]: any }> {
         const department = await this.findOneOrFail(data.id)
+        const oldData = Object.assign({}, department)
 
         if ('name' in data) department.name = data.name
         if ('status' in data) department.status = data.status
@@ -82,7 +83,10 @@ export class Department extends MainEntity {
         return new Promise((resolve, reject) => {
             this.save(department)
                 .then((item: Department) => {
-                    resolve(item)
+                    resolve({
+                        old: oldData,
+                        new: item
+                    })
                 })
                 .catch((error: any) => {
                     reject(error)

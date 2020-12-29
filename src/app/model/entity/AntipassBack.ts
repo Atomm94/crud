@@ -51,8 +51,9 @@ export class AntipassBack extends MainEntity {
         })
     }
 
-    public static async updateItem (data: AntipassBack) {
+    public static async updateItem (data: AntipassBack): Promise<{ [key: string]: any }> {
         const antipassBack = await this.findOneOrFail(data.id)
+        const oldData = Object.assign({}, antipassBack)
 
         if ('type' in data) antipassBack.type = data.type
         if ('enable_timer' in data) antipassBack.enable_timer = data.enable_timer
@@ -63,7 +64,10 @@ export class AntipassBack extends MainEntity {
         return new Promise((resolve, reject) => {
             this.save(antipassBack)
                 .then((item: AntipassBack) => {
-                    resolve(item)
+                    resolve({
+                        old: oldData,
+                        new: item
+                    })
                 })
                 .catch((error: any) => {
                     reject(error)
