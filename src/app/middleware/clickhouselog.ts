@@ -31,18 +31,21 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
         }
         break
       case 'POST': // create
-        const dataLog = {
-          account: ctx.user.id,
-          account_name: `${ctx.user.first_name} ${ctx.user.last_name}`,
-          event: 'create',
-          target: ctx.actionName,
-          value: null,
-          company: (ctx.user.company) ? ctx.user.company : null
+        if (ctx.user) {
+          const dataLog = {
+            account: ctx.user.id,
+            account_name: `${ctx.user.first_name} ${ctx.user.last_name}`,
+            event: 'create',
+            target: ctx.actionName,
+            value: null,
+            company: (ctx.user.company) ? ctx.user.company : null
+          }
+
+          MQTTBroker.client.publish('userlog', JSON.stringify(dataLog), (error: any) => {
+            if (error) console.log('publish error', error)
+          })
         }
 
-        MQTTBroker.client.publish('userlog', JSON.stringify(dataLog), (error: any) => {
-          if (error) console.log('publish error', error)
-        })
         break
       case 'DELETE': // delete
         console.log(request.method, ctx.user)
