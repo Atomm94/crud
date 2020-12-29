@@ -329,8 +329,6 @@ export default class CardholderGroupController {
                 ctx.body = updated.new
             }
         } catch (error) {
-            console.log('error', error)
-
             ctx.status = error.status || 400
             ctx.body = error
         }

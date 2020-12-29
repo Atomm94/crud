@@ -73,7 +73,6 @@ export class Timeframe extends MainEntity {
         }
 
         if (updateTimeframe.length) {
-            console.log(updateTimeframe)
             return new Promise((resolve, reject) => {
                 this.save(updateTimeframe as Timeframe[])
                     .then((item: Timeframe | Timeframe[]) => {
