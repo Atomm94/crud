@@ -477,4 +477,48 @@ export default class CardholderGroupController {
         }
         return ctx.body
     }
+
+    /**
+     *
+     * @swagger
+     * /cardholderGroup/relations/{id}:
+     *      get:
+     *          tags:
+     *              - CardholderGroup
+     *          summary: Return CardholderGroupRelations by ID
+     *          parameters:
+     *              - name: id
+     *                in: path
+     *                required: true
+     *                description: Parameter description
+     *                schema:
+     *                    type: integer
+     *                    format: int64
+     *                    minimum: 1
+     *              - in: header
+     *                name: Authorization
+     *                required: true
+     *                description: Authentication token
+     *                schema:
+     *                    type: string
+     *          responses:
+     *              '200':
+     *                  description: Data object
+     *              '404':
+     *                  description: Data not found
+     */
+    public static async getRelations (ctx: DefaultContext) {
+        try {
+            const user = ctx.user
+            const where = {
+                company: { '=': user.company ? user.company : null },
+                cardholder_group: { '=': ctx.params.id }
+            }
+            ctx.body = await Cardholder.getAllItems({ where: where })
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
 }
