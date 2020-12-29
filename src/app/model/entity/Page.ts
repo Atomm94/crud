@@ -85,7 +85,7 @@ export class Page extends MainEntity {
         })
     }
 
-    public static async updateItem (data: any) {
+    public static async updateItem (data: any): Promise<{ [key: string]: any }> {
         const page = await this.findOneOrFail(+data.id)
 
         if ('body' in data) page.body = data.body

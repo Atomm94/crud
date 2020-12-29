@@ -90,7 +90,9 @@ export default class DepartmentController {
      */
     public static async update (ctx: DefaultContext) {
         try {
-            ctx.body = await Department.updateItem(ctx.request.body as Department)
+            const updated = await Department.updateItem(ctx.request.body as Department)
+            ctx.oldData = updated.old
+            ctx.body = updated.new
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

@@ -118,7 +118,9 @@ export default class AccountGroupController {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
             } else {
-                ctx.body = await AccountGroup.updateItem(ctx.request.body as AccountGroup)
+                const updated = await AccountGroup.updateItem(ctx.request.body as AccountGroup)
+                ctx.oldData = updated.old
+                ctx.body = updated.new
             }
         } catch (error) {
             ctx.status = error.status || 400

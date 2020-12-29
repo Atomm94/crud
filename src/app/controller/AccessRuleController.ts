@@ -127,7 +127,9 @@ export default class AccessRuleController {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
             } else {
-                ctx.body = await AccessRule.updateItem(req_data as AccessRule)
+                const updated = await AccessRule.updateItem(req_data as AccessRule)
+                ctx.oldData = updated.old
+                ctx.body = updated.new
             }
         } catch (error) {
             ctx.status = error.status || 400

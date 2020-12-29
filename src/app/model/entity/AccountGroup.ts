@@ -59,8 +59,9 @@ export class AccountGroup extends MainEntity {
         })
     }
 
-    public static async updateItem (data: AccountGroup) {
+    public static async updateItem (data: AccountGroup): Promise<{ [key: string]: any }> {
         const accountGroup = await this.findOneOrFail(data.id)
+        const oldData = Object.assign({}, accountGroup)
 
         if ('name' in data) accountGroup.name = data.name
         if ('description' in data) accountGroup.description = data.description
@@ -72,7 +73,7 @@ export class AccountGroup extends MainEntity {
             this.save(accountGroup)
                 .then((item: AccountGroup) => {
                     resolve({
-                        old: accountGroup,
+                        old: oldData,
                         new: item
                     })
                 })

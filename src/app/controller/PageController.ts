@@ -245,9 +245,9 @@ class PageController {
     public static async updatePage (ctx: DefaultContext) {
         const reqData = ctx.request.body
         try {
-            const updatedPage = await Page.updateItem(reqData)
-
-            ctx.body = updatedPage
+            const updated = await Page.updateItem(reqData)
+            ctx.oldData = updated.old
+            ctx.body = updated.new
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -298,8 +298,9 @@ class PageController {
     public static async updatePageStatus (ctx: DefaultContext) {
         const reqData = ctx.request.body
         try {
-            const sendBack = await Page.updateItem({ id: +reqData.id, status: reqData.status })
-            ctx.body = sendBack
+            const updated = await Page.updateItem({ id: +reqData.id, status: reqData.status })
+            ctx.oldData = updated.old
+            ctx.body = updated.new
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

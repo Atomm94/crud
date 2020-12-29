@@ -73,8 +73,9 @@ export class Schedule extends MainEntity {
         })
     }
 
-    public static async updateItem (data: Schedule) {
+    public static async updateItem (data: Schedule): Promise<{ [key: string]: any }> {
         const schedule = await this.findOneOrFail(data.id)
+        const oldData = Object.assign({}, schedule)
 
         if ('name' in data) schedule.name = data.name
         if ('description' in data) schedule.description = data.description
@@ -87,7 +88,7 @@ export class Schedule extends MainEntity {
             this.save(schedule)
                 .then((item: Schedule) => {
                     resolve({
-                        old: schedule,
+                        old: oldData,
                         new: item
                     })
                 })

@@ -52,7 +52,7 @@ export class Timeframe extends MainEntity {
         })
     }
 
-    public static async updateItem (data: any) {
+    public static async updateItem (data: any): Promise<{ [key: string]: any }> {
         const updateTimeframe: Timeframe[] = []
         if (data.old_name && data.new_name && data.schedule) {
             const timeframes = await this.find({ name: data.old_name, schedule: data.schedule })

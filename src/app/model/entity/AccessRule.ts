@@ -1,4 +1,4 @@
- import {
+import {
     Entity,
     Column,
     ManyToOne,
@@ -67,8 +67,9 @@ export class AccessRule extends MainEntity {
         })
     }
 
-    public static async updateItem (data: AccessRule) {
+    public static async updateItem (data: AccessRule): Promise<{ [key: string]: any }> {
         const accessRule = await this.findOneOrFail(data.id)
+        const oldData = Object.assign({}, accessRule)
 
         // if ('access_right' in data) accessRule.access_right = data.access_right
         // if ('entry' in data) accessRule.entry = data.entry
@@ -80,7 +81,7 @@ export class AccessRule extends MainEntity {
             this.save(accessRule)
                 .then((item: AccessRule) => {
                     resolve({
-                        old: accessRule,
+                        old: oldData,
                         new: item
                     })
                 })

@@ -365,7 +365,7 @@ export default class AdminController {
         let checkPass
         try {
             user = await userRepository.findOneOrFail({ id: reqData.id })
-
+            ctx.oldData = Object.assign({}, user)
             checkPass = bcrypt.compareSync(reqData.password, user.password)
 
             if (checkPass) {
@@ -458,6 +458,7 @@ export default class AdminController {
                 user = await userRepository.findOneOrFail({ id: id })
 
                 if (user && user.password) {
+                    ctx.oldData = Object.assign({}, user)
                     checkPass = bcrypt.compareSync(old_password, user.password)
 
                     if (checkPass) {
@@ -573,7 +574,6 @@ export default class AdminController {
     public static async update (ctx: DefaultContext) {
         const reqData = ctx.request.body
         const user = ctx.user
-        let edAdmin
 
         try {
             const admin = Admin.findOne({
@@ -588,8 +588,9 @@ export default class AdminController {
                     })
                     if (role) {
                         if (await checkPermissionsAccess(user, role.permissions)) {
-                            edAdmin = await Admin.features.AdminOperation.updateItem(reqData)
-                            ctx.body = edAdmin
+                            const updated = await Admin.features.AdminOperation.updateItem(reqData)
+                            ctx.oldData = updated.old
+                            ctx.body = updated.new
                         } else {
                             ctx.status = 400
                             ctx.body = {
@@ -601,8 +602,9 @@ export default class AdminController {
                         ctx.body = { message: 'something with role went wrong' }
                     }
                 } else {
-                    edAdmin = await Admin.features.AdminOperation.updateItem(reqData)
-                    ctx.body = edAdmin
+                    const updated = await Admin.features.AdminOperation.updateItem(reqData)
+                    ctx.oldData = updated.old
+                    ctx.body = updated.new
                 }
             } else {
                 ctx.status = 400
@@ -657,9 +659,9 @@ export default class AdminController {
             const user = ctx.user
             const where: any = { id: adminId, company: user.company ? user.company : null }
 
-        if (!user.company && !user.super) {
-            where.super = false
-        }
+            if (!user.company && !user.super) {
+                where.super = false
+            }
             const relations = ['departments']
             admin = await Admin.features.AdminOperation.getItem(where, relations)
         } catch (error) {

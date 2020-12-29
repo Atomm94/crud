@@ -162,8 +162,9 @@ class SliderController {
     public static async updateSlider (ctx: DefaultContext) {
         const reqData = ctx.request.body
         try {
-            const updatedSlider = await Slider.updateItem(reqData)
-            ctx.body = updatedSlider
+            const updated = await Slider.updateItem(reqData)
+            ctx.oldData = updated.old
+            ctx.body = updated.new
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

@@ -219,8 +219,9 @@ class RoleController {
         ctx.body = { message: 'something went wrong' }
       } else {
         if (await checkPermissionsAccess(user, body.permissions)) {
-          const updatedRole = await Role.updateItem(body)
-          ctx.body = updatedRole
+          const updated = await Role.updateItem(body)
+          ctx.oldData = updated.old
+          ctx.body = updated.new
         } else {
           ctx.status = 400
           ctx.body = {

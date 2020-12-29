@@ -451,7 +451,8 @@ export default class CardholderController {
                 }
 
                 const res_data = await Cardholder.updateItem(req_data as Cardholder)
-
+                ctx.oldData = res_data.old
+                ctx.body = res_data.new
                 // ctx.body = {
                 //     cardholder: cardholder_data,
                 //     car_info: car_info,
