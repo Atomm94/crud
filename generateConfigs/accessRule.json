@@ -23,10 +23,10 @@
                 }
             },
             "accessInHolidays": {
-                "type": "enum",
+                "type": "boolean",
                 "params": {
                     "name": "accessInHolidays",
-                    "nullable": false
+                    "default": false
                 }
             },
             "company": {
