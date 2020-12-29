@@ -36,6 +36,8 @@ export class AccessRight extends MainEntity {
     @OneToMany(type => Cardholder, cardholder => cardholder.access_rights)
     cardholders: Cardholder[];
 
+    public static resource: boolean = true
+
     public static async addItem (data: AccessRight) {
         const accessRight = new AccessRight()
 
