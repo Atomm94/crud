@@ -1,14 +1,11 @@
 import { DefaultContext } from 'koa'
-import { getRequest } from '../services/requestUtil'
-const clickhouse_server: string = process.env.CLICKHOUSE_SERVER ? process.env.CLICKHOUSE_SERVER : 'http://localhost:4143'
-const getUserLogsUrl = `${clickhouse_server}/userLog`
-const getEventLogsUrl = `${clickhouse_server}/eventLog`
+import { Log } from '../model/entity/Log'
 
 export default class LogController {
     /**
      *
      * @swagger
-     * /userLogs:
+     * /userLog:
      *      get:
      *          tags:
      *              - Log
@@ -29,10 +26,7 @@ export default class LogController {
     public static async getUserLogs (ctx: DefaultContext) {
         try {
             const user = ctx.user
-            await getRequest(`${getUserLogsUrl}?company=${user.company ? user.company : 0}&limit=100`) // limit HARDCODE!!
-                .then((resolve: string) => {
-                    ctx.body = resolve
-                })
+            ctx.body = await Log.getUserLogs(user)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -64,10 +58,7 @@ export default class LogController {
     public static async getEventLogs (ctx: DefaultContext) {
         try {
             const user = ctx.user
-            await getRequest(`${getEventLogsUrl}?company=${user.company ? user.company : 0}&limit=100`) // limit HARDCODE!!
-                .then((resolve: string) => {
-                    ctx.body = resolve
-                })
+            ctx.body = await Log.getEventLogs(user)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

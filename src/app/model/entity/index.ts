@@ -20,6 +20,7 @@ import { RegistrationInvite } from './RegistrationInvite'
 import { Cardholder } from './Cardholder'
 import { CarInfo } from './CarInfo'
 import { Limitation } from './Limitation'
+import { Log } from './Log'
 
 export {
     Admin,
@@ -43,5 +44,6 @@ export {
     RegistrationInvite,
     Cardholder,
     CarInfo,
-    Limitation
+    Limitation,
+    Log
 }

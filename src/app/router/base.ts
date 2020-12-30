@@ -256,5 +256,5 @@ export default router
   .delete('Cardholder-deleteImage', 'cardholderImageDelete', CardholderController.cardholderImageDelete)
 
   // Log controller CRUD endpoints
-  .get('userLogs', LogController.getUserLogs)
-  .get('eventLog', LogController.getEventLogs)
+  .get('Log-getUserLogs', 'userLog', LogController.getUserLogs)
+  .get('Log-getEventLogs', 'eventLog', LogController.getEventLogs)
