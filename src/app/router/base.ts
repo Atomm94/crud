@@ -30,6 +30,7 @@ import {
 
 import Router from 'koa-router'
 import swaggerSpec from '../../component/swagger'
+import logController from '../controller/LogController'
 
 const swaggerUi = require('swagger-ui-koa')
 
@@ -253,3 +254,7 @@ export default router
 
   .post('Cardholder-saveImage', 'cardholderImageSave', CardholderController.cardholderImageSave)
   .delete('Cardholder-deleteImage', 'cardholderImageDelete', CardholderController.cardholderImageDelete)
+
+  // Log controller CRUD endpoints
+  .get('userLogs', logController.getUserLogs)
+  .get('eventLog', logController.getEventLogs)
