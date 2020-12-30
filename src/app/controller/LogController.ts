@@ -4,7 +4,7 @@ const clickhouse_server: string = process.env.CLICKHOUSE_SERVER ? process.env.CL
 const getUserLogsUrl = `${clickhouse_server}/userLog`
 const getEventLogsUrl = `${clickhouse_server}/eventLog`
 
-export default class logController {
+export default class LogController {
     /**
      *
      * @swagger
