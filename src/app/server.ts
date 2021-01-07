@@ -4,6 +4,7 @@ import { Database } from '../component/db'
 import { Sendgrid } from '../component/sendgrid/sendgrid'
 // import { logger } from '../../modules/winston/logger'
 import { AccessControl } from './functions/access-control'
+import MQTTBroker from '../app/mqtt/mqtt'
 
 const database = new Database();
 // create connection with database
@@ -15,6 +16,7 @@ const database = new Database();
         await AccessControl.GrantAccess()
         await AccessControl.GrantCompanyAccess()
         await Sendgrid.init(config.sendgrid.apiKey)
+        await MQTTBroker.init()
         app.listen(
             config.server.port, () => console.log('APP listening at port %d', config.server.port)
         )

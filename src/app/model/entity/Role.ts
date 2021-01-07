@@ -148,8 +148,9 @@ export class Role extends MainEntity {
     })
   }
 
-  public static async updateItem (data: Role) {
+  public static async updateItem (data: Role): Promise<{ [key: string]: any }> {
     const role = await this.findOneOrFail(data.id)
+    const oldData = Object.assign({}, role)
 
     if ('slug' in data) role.slug = data.slug
     if ('permissions' in data) role.permissions = data.permissions
@@ -161,7 +162,7 @@ export class Role extends MainEntity {
       this.save(role)
         .then((item: Role) => {
           resolve({
-            old: role,
+            old: oldData,
             new: item
         })
         })

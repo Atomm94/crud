@@ -157,8 +157,9 @@ export class Cardholder extends MainEntity {
         })
     }
 
-    public static async updateItem (data: Cardholder) {
+    public static async updateItem (data: Cardholder): Promise<{ [key: string]: any }> {
         const cardholder = await this.findOneOrFail(data.id)
+        const oldData = Object.assign({}, cardholder)
 
         if ('email' in data) cardholder.email = data.email
         if ('avatar' in data) cardholder.avatar = data.avatar
@@ -186,7 +187,7 @@ export class Cardholder extends MainEntity {
             this.save(cardholder)
                 .then((item: Cardholder) => {
                     resolve({
-                        old: cardholder,
+                        old: oldData,
                         new: item
                     })
                 })

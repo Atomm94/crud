@@ -82,8 +82,9 @@ export class Limitation extends MainEntity {
         })
     }
 
-    public static async updateItem (data: Limitation) {
+    public static async updateItem (data: Limitation): Promise<{ [key: string]: any }> {
         const limitation = await this.findOneOrFail(data.id)
+        const oldData = Object.assign({}, limitation)
 
         if ('enable_date' in data) limitation.enable_date = data.enable_date
         if ('valid_from' in data) limitation.valid_from = data.valid_from
@@ -103,7 +104,7 @@ export class Limitation extends MainEntity {
             this.save(limitation)
                 .then((item: Limitation) => {
                     resolve({
-                        old: limitation,
+                        old: oldData,
                         new: item
                     })
                 })

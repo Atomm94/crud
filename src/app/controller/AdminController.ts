@@ -139,6 +139,7 @@ export default class AdminController {
 
         let newAdmin
         let role
+        let check_group
 
         if (validate(reqData.password).success) {
             try {
@@ -147,36 +148,46 @@ export default class AdminController {
                         id: reqData.account_group,
                         company: user.company ? user.company : null
                     })
-                    reqData.role = account_group.role
+                    if (account_group && account_group.role) {
+                        reqData.role = account_group.role
+                        check_group = false
+                    }
                 }
 
-                if (reqData.role) {
-                    role = await Role.findOne({
-                        id: reqData.role,
-                        company: user.company ? user.company : null
-                    })
-                    if (role) {
-                        if (await checkPermissionsAccess(user, role.permissions)) {
-                            newAdmin = await Admin.features.AdminOperation.addItem(reqData, user)
+                if (!check_group) {
+                    ctx.status = 400
+                    ctx.body = {
+                        message: 'AccountGroup was not found!!'
+                    }
+                } else {
+                    if (reqData.role) {
+                        role = await Role.findOne({
+                            id: reqData.role,
+                            company: user.company ? user.company : null
+                        })
+                        if (role) {
+                            if (await checkPermissionsAccess(user, role.permissions)) {
+                                newAdmin = await Admin.features.AdminOperation.addItem(reqData, user)
 
-                            if (newAdmin && role) {
-                                ctx.body = { newAdmin }
+                                if (newAdmin && role) {
+                                    ctx.body = { newAdmin }
+                                }
+                            } else {
+                                ctx.status = 400
+                                ctx.body = {
+                                    message: 'Permissions access denied!!'
+                                }
                             }
                         } else {
                             ctx.status = 400
-                            ctx.body = {
-                                message: 'Permissions access denied!!'
-                            }
+                            ctx.body = { message: 'something went wrong' }
                         }
                     } else {
-                        ctx.status = 400
-                        ctx.body = { message: 'something went wrong' }
-                    }
-                } else {
-                    newAdmin = await Admin.features.AdminOperation.addItem(reqData, user)
+                        newAdmin = await Admin.features.AdminOperation.addItem(reqData, user)
 
-                    if (newAdmin && role) {
-                        ctx.body = { newAdmin }
+                        if (newAdmin && role) {
+                            ctx.body = { newAdmin }
+                        }
                     }
                 }
             } catch (error) {
@@ -379,7 +390,7 @@ export default class AdminController {
         let checkPass
         try {
             user = await userRepository.findOneOrFail({ id: reqData.id })
-
+            ctx.oldData = Object.assign({}, user)
             checkPass = bcrypt.compareSync(reqData.password, user.password)
 
             if (checkPass) {
@@ -472,6 +483,7 @@ export default class AdminController {
                 user = await userRepository.findOneOrFail({ id: id })
 
                 if (user && user.password) {
+                    ctx.oldData = Object.assign({}, user)
                     checkPass = bcrypt.compareSync(old_password, user.password)
 
                     if (checkPass) {
@@ -593,7 +605,6 @@ export default class AdminController {
     public static async update (ctx: DefaultContext) {
         const reqData = ctx.request.body
         const user = ctx.user
-        let edAdmin
         let check_group = true
 
         try {
@@ -616,7 +627,7 @@ export default class AdminController {
                 if (!check_group) {
                     ctx.status = 400
                     ctx.body = {
-                        message: 'Permissions access denied!!'
+                        message: 'AccountGroup was not found!!'
                     }
                 } else {
                     if (reqData.role) {
@@ -626,8 +637,9 @@ export default class AdminController {
                         })
                         if (role) {
                             if (await checkPermissionsAccess(user, role.permissions)) {
-                                edAdmin = await Admin.features.AdminOperation.updateItem(reqData)
-                                ctx.body = edAdmin
+                                const updated = await Admin.features.AdminOperation.updateItem(reqData)
+                                ctx.oldData = updated.old
+                                ctx.body = updated.new
                             } else {
                                 ctx.status = 400
                                 ctx.body = {
@@ -639,8 +651,9 @@ export default class AdminController {
                             ctx.body = { message: 'something with role went wrong' }
                         }
                     } else {
-                        edAdmin = await Admin.features.AdminOperation.updateItem(reqData)
-                        ctx.body = edAdmin
+                        const updated = await Admin.features.AdminOperation.updateItem(reqData)
+                        ctx.oldData = updated.old
+                        ctx.body = updated.new
                     }
                 }
             } else {
@@ -693,7 +706,11 @@ export default class AdminController {
         const role = {}
         try {
             const user = ctx.user
-            const where = { id: adminId, company: user.company ? user.company : null }
+            const where: any = { id: adminId, company: user.company ? user.company : null }
+
+            if (!user.company && !user.super) {
+                where.super = false
+            }
             const relations = ['departments']
             admin = await Admin.features.AdminOperation.getItem(where, relations)
         } catch (error) {
@@ -802,7 +819,11 @@ export default class AdminController {
 
         const req_data = ctx.query
         req_data.relations = ['departments']
-        req_data.where = { company: { '=': user.company ? user.company : null } }
+        const where: any = { company: { '=': user.company ? user.company : null } }
+        if (!user.company && !user.super) {
+            where.super = { '=': false }
+        }
+        req_data.where = where
 
         if (name) {
             req_data.orWhere = [

@@ -170,8 +170,9 @@ class MenuController {
     public static async updateMenu (ctx: DefaultContext) {
         const body = ctx.request.body
         try {
-            const updatedSocialLink = await Menu.updateItem(body)
-            ctx.body = updatedSocialLink
+            const updated = await Menu.updateItem(body)
+            ctx.oldData = updated.old
+            ctx.body = updated.new
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

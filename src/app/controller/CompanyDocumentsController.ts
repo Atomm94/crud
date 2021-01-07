@@ -98,7 +98,9 @@ export default class CompanyDocumentsController {
      */
     public static async update (ctx: DefaultContext) {
         try {
-            ctx.body = await CompanyDocuments.updateItem(ctx.request.body as CompanyDocuments)
+            const updated = await CompanyDocuments.updateItem(ctx.request.body as CompanyDocuments)
+            ctx.oldData = updated.old
+            ctx.body = updated.new
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

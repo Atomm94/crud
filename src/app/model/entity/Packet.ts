@@ -73,8 +73,9 @@ export class Packet extends MainEntity {
         })
     }
 
-    public static async updateItem (data: Packet) {
+    public static async updateItem (data: Packet): Promise<{ [key: string]: any }> {
         const packet = await this.findOneOrFail(data.id)
+        const oldData = Object.assign({}, packet)
 
         if ('name' in data) packet.name = data.name
         if ('description' in data) packet.description = data.description
@@ -90,7 +91,7 @@ export class Packet extends MainEntity {
             this.save(packet)
                 .then((item: Packet) => {
                     resolve({
-                        old: packet,
+                        old: oldData,
                         new: item
                     })
                 })

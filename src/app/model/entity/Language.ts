@@ -36,8 +36,9 @@ export class Language extends MainEntity {
         })
     }
 
-    public static async updateItem (data: Language) {
+    public static async updateItem (data: Language): Promise<{ [key: string]: any }> {
         const language = await this.findOneOrFail(data.id)
+        const oldData = Object.assign({}, language)
 
         if ('title' in data) language.title = data.title
         if ('iso' in data) language.iso = data.iso
@@ -48,7 +49,7 @@ export class Language extends MainEntity {
             this.save(language)
                 .then((item: Language) => {
                     resolve({
-                        old: language,
+                        old: oldData,
                         new: item
                     })
                 })

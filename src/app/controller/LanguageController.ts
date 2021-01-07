@@ -94,7 +94,9 @@ export default class LanguageController {
      */
     public static async update (ctx: DefaultContext) {
         try {
-            ctx.body = await Language.updateItem(ctx.request.body as Language)
+            const updated = await Language.updateItem(ctx.request.body as Language)
+            ctx.oldData = updated.old
+            ctx.body = updated.new
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

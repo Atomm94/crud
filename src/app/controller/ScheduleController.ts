@@ -129,7 +129,9 @@ export default class ScheduleController {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
             } else {
-                ctx.body = await Schedule.updateItem(req_data as Schedule)
+                const updated = await Schedule.updateItem(req_data as Schedule)
+                ctx.oldData = updated.old
+                ctx.body = updated.new
             }
         } catch (error) {
             ctx.status = error.status || 400
@@ -294,13 +296,13 @@ export default class ScheduleController {
             const user = ctx.user
             const company = user.company ? user.company : null
             ctx.body = await Schedule.createQueryBuilder('schedule')
-                    .leftJoinAndSelect('schedule.timeframes', 'timeframe')
-                    .select('schedule.*')
-                    .addSelect('timeframe.name')
-                    .where(`schedule.company = ${company}`)
-                    .groupBy('timeframe.name')
-                    .addGroupBy('schedule.id')
-                    .getRawMany()
+                .leftJoinAndSelect('schedule.timeframes', 'timeframe')
+                .select('schedule.*')
+                .addSelect('timeframe.name')
+                .where(`schedule.company = ${company}`)
+                .groupBy('timeframe.name')
+                .addGroupBy('schedule.id')
+                .getRawMany()
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -342,13 +344,13 @@ export default class ScheduleController {
             const user = ctx.user
             const company = user.company ? user.company : null
             ctx.body = await CardholderGroup.createQueryBuilder('cardholder_group')
-            .innerJoin('cardholder_group.cardholders', 'cardholder')
-            .select('cardholder_group.name')
-            .addSelect('COUNT(cardholder.id) as cardholders_qty')
-            .where(`cardholder_group.company = ${company}`)
-            .andWhere(`cardholder_group.time_attendance = ${ctx.params.id}`)
-            .groupBy('cardholder.cardholder_group')
-            .getRawMany()
+                .innerJoin('cardholder_group.cardholders', 'cardholder')
+                .select('cardholder_group.name')
+                .addSelect('COUNT(cardholder.id) as cardholders_qty')
+                .where(`cardholder_group.company = ${company}`)
+                .andWhere(`cardholder_group.time_attendance = ${ctx.params.id}`)
+                .groupBy('cardholder.cardholder_group')
+                .getRawMany()
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

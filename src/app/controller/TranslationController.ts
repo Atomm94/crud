@@ -136,8 +136,9 @@ class TranslationController {
     public static async updateTrans (ctx: DefaultContext) {
         const body = ctx.request.body
         try {
-            const updatedTrans = await Translation.updateItem(body)
-            return ctx.body = updatedTrans
+            const updated = await Translation.updateItem(body)
+            ctx.oldData = updated.old
+            ctx.body = updated.new
         } catch (error) {
             logger.info(error.message)
             ctx.status = error.statusCode || 409
@@ -147,6 +148,7 @@ class TranslationController {
                 message: error.message
             }
         }
+        return ctx
     }
 
     /**

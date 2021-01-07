@@ -117,7 +117,9 @@ export default class PacketController {
      */
     public static async update (ctx: DefaultContext) {
         try {
-            ctx.body = await Packet.updateItem(ctx.request.body as Packet)
+            const updated = await Packet.updateItem(ctx.request.body as Packet)
+            ctx.oldData = updated.old
+            ctx.body = updated.new
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -242,6 +244,7 @@ export default class PacketController {
     public static async getAll (ctx: DefaultContext) {
         try {
             const req_data = ctx.query
+            req_data.relations = ['packet_types']
             const user = ctx.user
             if (user.company) {
                 const company: any = await Company.getItem(user.company)
@@ -250,9 +253,14 @@ export default class PacketController {
                         '=': company.packet_type
                     }
                 }
+                const data = await Packet.getAllItems(req_data)
+                ctx.body = {
+                    data: data,
+                    selected: company.packet
+                }
+            } else {
+                ctx.body = await Packet.getAllItems(req_data)
             }
-            req_data.relations = ['packet_types']
-            ctx.body = await Packet.getAllItems(req_data)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

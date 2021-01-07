@@ -105,7 +105,9 @@ export default class TicketController {
      */
     public static async update (ctx: DefaultContext) {
         try {
-            ctx.body = await Ticket.updateItem(ctx.request.body as Ticket)
+            const updated = await Ticket.updateItem(ctx.request.body as Ticket)
+            ctx.oldData = updated.old
+            ctx.body = updated.new
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

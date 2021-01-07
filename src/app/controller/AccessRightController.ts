@@ -107,7 +107,9 @@ export default class AccessRightController {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
             } else {
-                ctx.body = await AccessRight.updateItem(req_data as AccessRight)
+                const updated = await AccessRight.updateItem(req_data as AccessRight)
+                ctx.oldData = updated.old
+                ctx.body = updated.new
             }
         } catch (error) {
             ctx.status = error.status || 400
@@ -280,13 +282,13 @@ export default class AccessRightController {
             const user = ctx.user
             const company = user.company ? user.company : null
             ctx.body = await CardholderGroup.createQueryBuilder('cardholder_group')
-                    .innerJoin('cardholder_group.cardholders', 'cardholder')
-                    .select('cardholder_group.name')
-                    .addSelect('COUNT(cardholder.id) as cardholders_qty')
-                    .where(`cardholder_group.company = ${company}`)
-                    .andWhere(`cardholder_group.access_right = ${ctx.params.id}`)
-                    .groupBy('cardholder.cardholder_group')
-                    .getRawMany()
+                .innerJoin('cardholder_group.cardholders', 'cardholder')
+                .select('cardholder_group.name')
+                .addSelect('COUNT(cardholder.id) as cardholders_qty')
+                .where(`cardholder_group.company = ${company}`)
+                .andWhere(`cardholder_group.access_right = ${ctx.params.id}`)
+                .groupBy('cardholder.cardholder_group')
+                .getRawMany()
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

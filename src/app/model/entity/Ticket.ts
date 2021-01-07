@@ -85,8 +85,9 @@ export class Ticket extends MainEntity {
         })
     }
 
-    public static async updateItem (data: Ticket) {
+    public static async updateItem (data: Ticket): Promise<{ [key: string]: any }> {
         const ticket = await this.findOneOrFail(data.id)
+        const oldData = Object.assign({}, ticket)
 
         if ('department' in data) ticket.department = data.department
         if ('subject' in data) ticket.subject = data.subject
@@ -100,7 +101,7 @@ export class Ticket extends MainEntity {
             this.save(ticket)
                 .then((item: Ticket) => {
                     resolve({
-                        old: ticket,
+                        old: oldData,
                         new: item
                     })
                 })
@@ -141,9 +142,9 @@ export class Ticket extends MainEntity {
                         })
                         if (item.ticket_messages.length && item.ticket_messages.slice(-1)[0].users.id !== user.id) {
                             const ticket_data: any = { id: id, read: true }
-                            const update: any = await this.updateItem(ticket_data)
-                            if (update) {
-                                item.read = update.read
+                            const updated = await this.updateItem(ticket_data)
+                            if (updated.new) {
+                                item.read = updated.new.read
                             }
                         }
                     }
@@ -159,7 +160,7 @@ export class Ticket extends MainEntity {
         const itemId: number = +data.id
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
-              this.remove(await this.findByIds([itemId]))
+            this.remove(await this.findByIds([itemId]))
                 .then(() => {
                     resolve({ message: 'success' })
                 })

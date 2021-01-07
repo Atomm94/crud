@@ -22,6 +22,7 @@ import helmet from 'koa-helmet'
 import cors from 'koa2-cors'
 
 import Koa from 'koa'
+import clickhouselog from './middleware/clickhouselog'
 
 const koaBody = require('koa-body')
 const parentDir = join(__dirname, '../')
@@ -89,6 +90,7 @@ app.use(swaggerUi.serve)
 app.use(compress())
 app.use(options())
 
+app.use(clickhouselog())
 // routers
 app.use(router.routes()).use(router.allowedMethods())
 
