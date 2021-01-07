@@ -11,6 +11,7 @@ import { validate } from '../functions/passValidator'
 import { Sendgrid } from '../../component/sendgrid/sendgrid'
 import { uid } from 'uid'
 import { checkPermissionsAccess } from '../functions/check-permissions-access'
+import { AccountGroup } from '../model/entity/AccountGroup'
 
 const parentDir = join(__dirname, '../..')
 
@@ -117,7 +118,12 @@ export default class AdminController {
      *                  comment:
      *                      type: string
      *                      example: comment
-
+     *                  account_group:
+     *                      type: number
+     *                      example: 1
+     *                  role_inherited:
+     *                      type: boolean
+     *                      example: false
      *          responses:
      *              '201':
      *                  description: A admin object
@@ -136,6 +142,14 @@ export default class AdminController {
 
         if (validate(reqData.password).success) {
             try {
+                if (reqData.role_inherited && reqData.account_group) {
+                    const account_group: any = await AccountGroup.findOne({
+                        id: reqData.account_group,
+                        company: user.company ? user.company : null
+                    })
+                    reqData.role = account_group.role
+                }
+
                 if (reqData.role) {
                     role = await Role.findOne({
                         id: reqData.role,
@@ -561,6 +575,12 @@ export default class AdminController {
      *                  comment:
      *                      type: string
      *                      example: comment
+     *                  account_group:
+     *                      type: number
+     *                      example: 1
+     *                  role_inherited:
+     *                      type: boolean
+     *                      example: false
      *          responses:
      *              '201':
      *                  description: A market updated object
@@ -574,35 +594,54 @@ export default class AdminController {
         const reqData = ctx.request.body
         const user = ctx.user
         let edAdmin
+        let check_group = true
 
         try {
-            const admin = Admin.findOne({
+            const admin: any = Admin.findOne({
                 id: reqData.id,
                 company: user.company ? user.company : null
             })
             if (admin) {
-                if (reqData.role) {
-                    const role = await Role.findOne({
-                        id: reqData.role,
+                if (reqData.role_inherited && reqData.account_group) {
+                    const account_group: any = await AccountGroup.findOne({
+                        id: reqData.account_group,
                         company: user.company ? user.company : null
                     })
-                    if (role) {
-                        if (await checkPermissionsAccess(user, role.permissions)) {
-                            edAdmin = await Admin.features.AdminOperation.updateItem(reqData)
-                            ctx.body = edAdmin
-                        } else {
-                            ctx.status = 400
-                            ctx.body = {
-                                message: 'Permissions access denied!!'
-                            }
-                        }
+                    if (account_group && account_group.role) {
+                        reqData.role = account_group.role
                     } else {
-                        ctx.status = 400
-                        ctx.body = { message: 'something with role went wrong' }
+                        check_group = false
+                    }
+                }
+                if (!check_group) {
+                    ctx.status = 400
+                    ctx.body = {
+                        message: 'Permissions access denied!!'
                     }
                 } else {
-                    edAdmin = await Admin.features.AdminOperation.updateItem(reqData)
-                    ctx.body = edAdmin
+                    if (reqData.role) {
+                        const role = await Role.findOne({
+                            id: reqData.role,
+                            company: user.company ? user.company : null
+                        })
+                        if (role) {
+                            if (await checkPermissionsAccess(user, role.permissions)) {
+                                edAdmin = await Admin.features.AdminOperation.updateItem(reqData)
+                                ctx.body = edAdmin
+                            } else {
+                                ctx.status = 400
+                                ctx.body = {
+                                    message: 'Permissions access denied!!'
+                                }
+                            }
+                        } else {
+                            ctx.status = 400
+                            ctx.body = { message: 'something with role went wrong' }
+                        }
+                    } else {
+                        edAdmin = await Admin.features.AdminOperation.updateItem(reqData)
+                        ctx.body = edAdmin
+                    }
                 }
             } else {
                 ctx.status = 400
@@ -611,11 +650,10 @@ export default class AdminController {
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
-
-            if (error.detail.includes('username')) {
+            if (error.detail && error.detail.includes('username')) {
                 ctx.body.errorMsg = `username ${reqData.username} already exists.`
                 ctx.body.err = 'username'
-            } else if (error.detail.includes('email')) {
+            } else if (error.detail && error.detail.includes('email')) {
                 ctx.body.err = 'email'
                 ctx.body.errorMsg = `email ${reqData.email} already exists.`
             }

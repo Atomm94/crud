@@ -162,6 +162,20 @@
                     "name": "company",
                     "nullable": true
                 }
+            },
+            "accountGroup": {
+                "type": "int",
+                "params": {
+                    "name": "accountGroup",
+                    "nullable": true
+                }
+            },
+            "roleInherited": {
+                "type": "boolean",
+                "params": {
+                    "name": "roleInherited",
+                    "default": false
+                }
             }
         }
     }
