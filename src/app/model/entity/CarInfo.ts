@@ -42,10 +42,7 @@ export class CarInfo extends MainEntity {
         return new Promise((resolve, reject) => {
             this.save(carInfo)
                 .then((item: CarInfo) => {
-                    resolve({
-                        old: carInfo,
-                        new: item
-                    })
+                    resolve(item)
                 })
                 .catch((error: any) => {
                     reject(error)
@@ -66,7 +63,10 @@ export class CarInfo extends MainEntity {
         return new Promise((resolve, reject) => {
             this.save(carInfo)
                 .then((item: CarInfo) => {
-                    resolve(item)
+                    resolve({
+                        old: carInfo,
+                        new: item
+                    })
                 })
                 .catch((error: any) => {
                     reject(error)

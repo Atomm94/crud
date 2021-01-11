@@ -94,10 +94,12 @@ export class Department extends MainEntity {
         })
     }
 
-    public static async getItem (id: number) {
-        const itemId: number = id
+    public static async getItem (where: any, relations?: Array<string>) {
         return new Promise((resolve, reject) => {
-            this.findOneOrFail(itemId)
+            this.findOneOrFail({
+                where: where,
+                relations: relations || []
+            })
                 .then((item: Department) => {
                     resolve(item)
                 })

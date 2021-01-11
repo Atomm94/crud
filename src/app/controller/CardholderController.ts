@@ -203,6 +203,9 @@ export default class CardholderController {
             }
 
             const car_info: any = await CarInfo.addItem(req_data.car_infos as CarInfo)
+            console.log('req_data.car_infos', req_data.car_infos)
+            console.log('car_info', car_info)
+
             req_data.car_info = car_info.id
 
             await Cardholder.addItem(req_data as Cardholder)
@@ -217,6 +220,8 @@ export default class CardholderController {
                 success: true
             }
         } catch (error) {
+            console.log('error', error)
+
             ctx.status = error.status || 400
             ctx.body = error
         }
@@ -676,6 +681,88 @@ export default class CardholderController {
             Cardholder.deleteImage(name)
             ctx.body = {
                 success: true
+            }
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     *  /updateMultipleCardholders:
+     *      put:
+     *          tags:
+     *              - Cardholder
+     *          summary: Update a multiple cardholders.
+     *          consumes:
+     *              - application/json
+     *          parameters:
+     *            - in: header
+     *              name: Authorization
+     *              required: true
+     *              description: Authentication token
+     *              schema:
+     *                type: string
+     *            - in: body
+     *              name: multiple cardholders
+     *              description: The multiple cardholders to update.
+     *              schema:
+     *                type: object
+     *                required:
+     *                  - ids
+     *                  - data
+     *                properties:
+     *                    ids:
+     *                        type: array
+     *                        items: number
+     *                        example: [1, 2]
+     *                    data:
+     *                        type: object
+     *                        properties:
+     *                            status:
+     *                                type: inactive | active | expired | noCredential | pending
+     *                                example: active
+     *                            cardholder_group:
+     *                                type: number
+     *                                example: 1
+     *          responses:
+     *              '201':
+     *                  description: A multiple cardholders update
+     *              '409':
+     *                  description: Conflict
+     *              '422':
+     *                  description: Wrong data
+     */
+    public static async updateMultipleCardholders (ctx: DefaultContext) {
+        try {
+            const req_data = ctx.request.body
+
+            if (!req_data.ids || !req_data.data || !(req_data.data.status || req_data.data.cardholder_group)) {
+                ctx.status = 400
+                ctx.body = {
+                    message: 'Incorrect params!!'
+                }
+            } else {
+                const user = ctx.user
+                const where = {
+                    company: { '=': user.company ? user.company : null },
+                    id: { in: req_data.ids }
+                }
+                const cardholders: any = await Cardholder.getAllItems({ where: where })
+                for (const cardholder of cardholders) {
+                    if (req_data.data.status) {
+                        cardholder.status = req_data.data.status
+                    }
+                    if (req_data.data.cardholder_group) {
+                        cardholder.cardholder_group = req_data.data.cardholder_group
+                    }
+                    await cardholder.save()
+                }
+
+                ctx.body = { success: true }
             }
         } catch (error) {
             ctx.status = error.status || 400

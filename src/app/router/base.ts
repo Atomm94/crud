@@ -251,6 +251,7 @@ export default router
   .put('Cardholder-updateItem', 'cardholder', CardholderController.update)
   .delete('Cardholder-destroyItem', 'cardholder', CardholderController.destroy)
   .get('Cardholder-getAllItems', 'cardholder', CardholderController.getAll)
+  .put('Cardholder-updateItem', 'updateMultipleCardholders', CardholderController.updateMultipleCardholders)
 
   .post('Cardholder-saveImage', 'cardholderImageSave', CardholderController.cardholderImageSave)
   .delete('Cardholder-deleteImage', 'cardholderImageDelete', CardholderController.cardholderImageDelete)

@@ -131,7 +131,12 @@ export default class DepartmentController {
      */
     public static async get (ctx: DefaultContext) {
         try {
-            ctx.body = await Department.getItem(+ctx.params.id)
+            const where: any = { id: +ctx.params.id }
+            const user = ctx.user
+            if (user.company) {
+                where.status = true
+            }
+            ctx.body = await Department.getItem(where)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -206,7 +211,14 @@ export default class DepartmentController {
      */
     public static async getAll (ctx: DefaultContext) {
         try {
-            ctx.body = await Department.getAllItems(ctx.query)
+            const req_data = ctx.query
+            const user = ctx.user
+            if (user.company) {
+                req_data.where = {
+                    status: { '=': true }
+                }
+            }
+            ctx.body = await Department.getAllItems(req_data)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
