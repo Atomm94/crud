@@ -71,6 +71,8 @@ export class CardholderGroup extends MainEntity {
     @JoinColumn({ name: 'access_right' })
     access_rights: AccessRight | null;
 
+    public static resource: boolean = true
+
     public static async addItem (data: CardholderGroup) {
         const cardholderGroup = new CardholderGroup()
 
