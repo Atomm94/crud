@@ -5,69 +5,76 @@
                 "type": "varchar",
                 "params": {
                     "name": "name",
-                    "nullable": false
+                    "nullable": true
                 }
             },
-            "description": {
+            "serialNumber": {
                 "type": "varchar",
                 "params": {
                     "name": "description",
                     "nullable": true
                 }
             },
-            "type": {
-                "type": "longtext",
+            "model": {
+                "type": "varchar",
                 "params": {
-                    "name": "type",
+                    "name": "model",
                     "nullable": false
                 }
             },
             "status": {
-                "type": "boolean",
-                "params": {
-                    "name": "status",
-                    "default": false
-                }
-            },
-            "actualPassage": {
-                "type": "boolean",
-                "params": {
-                    "name": "actualPassage",
-                    "default": false
-                }
-            },
-            "mode": {
                 "type": "enum",
                 "params": {
-                    "name": "mode",
-                    "default": "N/A"
+                    "name": "status",
+                    "default": "pending"
                 }
             },
-            "apbEnableLocal": {
-                "type": "boolean",
+            "ipAddress": {
+                "type": "varchar",
                 "params": {
-                    "name": "enableLocalApb",
-                    "default": false
-                }
-            },
-            "apbEnableTimer": {
-                "type": "boolean",
-                "params": {
-                    "name": "enableTimer",
-                    "default": false
-                }
-            },
-            "accessPointGroup": {
-                "type": "int",
-                "params": {
-                    "name": "accessPointGroup",
+                    "name": "ipAddress",
                     "nullable": true
                 }
             },
-            "accessPointZone": {
-                "type": "int",
+            "cloudStatus": {
+                "type": "boolean",
                 "params": {
-                    "name": "accessPointZone",
+                    "name": "cloudStatus",
+                    "default": false
+                }
+            },
+            "fwVersion": {
+                "type": "varchar",
+                "params": {
+                    "name": "fwVersion",
+                    "nullable": true
+                }
+            },
+            "sharedResourceMode": {
+                "type": "boolean",
+                "params": {
+                    "name": "sharedResourceMode",
+                    "default": false
+                }
+            },
+            "connectionType": {
+                "type": "enum",
+                "params": {
+                    "name": "connectionType",
+                    "default": "ethernet"
+                }
+            },
+            "network": {
+                "type": "longtext",
+                "params": {
+                    "name": "network",
+                    "nullable": true
+                }
+            },
+            "interface": {
+                "type": "longtext",
+                "params": {
+                    "name": "interface",
                     "nullable": true
                 }
             },

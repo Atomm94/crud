@@ -1,3 +1,4 @@
+import AcuController from '../controller/AcuController'
 import AccessPointZoneController from '../controller/AccessPointZoneController'
 import AccessPointGroupController from '../controller/AccessPointGroupController'
 import CardholderGroupController from '../controller/CardholderGroupController'
@@ -282,3 +283,10 @@ export default router
   .get('accessPoint/:id', AccessPointController.get)
   .delete('accessPoint', AccessPointController.destroy)
   .get('accessPoint', AccessPointController.getAll)
+
+  // Acu controller CRUD endpoints
+  .post('acu', AcuController.add)
+  .put('acu', AcuController.update)
+  .get('acu/:id', AcuController.get)
+  .delete('acu', AcuController.destroy)
+  .get('acu', AcuController.getAll)
