@@ -1,6 +1,6 @@
 import AccessPointGroupController from '../controller/AccessPointGroupController'
 import CardholderGroupController from '../controller/CardholderGroupController'
-import EntryController from '../controller/EntryController'
+import AccessPointController from '../controller/AccessPointController'
 import AccessRightController from '../controller/AccessRightController'
 import AccessRuleController from '../controller/AccessRuleController'
 // import CarInfoController from '../controller/CarInfoController'
@@ -232,12 +232,12 @@ export default router
   .delete('AccessRight-destroyItem', 'accessRule', AccessRuleController.destroy)
   .get('AccessRight-getAllItems', 'accessRule', AccessRuleController.getAll)
 
-  // Entry controller CRUD endpoints
-  .post('Entry-addItem', 'entry', EntryController.add)
-  .put('Entry-updateItem', 'entry', EntryController.update)
-  .get('Entry-getItem', 'entry/:id', EntryController.get)
-  .delete('Entry-destroyItem', 'entry', EntryController.destroy)
-  .get('Entry-getAllItems', 'entry', EntryController.getAll)
+  // AccessPoint controller CRUD endpoints
+  .post('accessPoint-addItem', 'accessPoint', AccessPointController.add)
+  .put('accessPoint-updateItem', 'accessPoint', AccessPointController.update)
+  .get('accessPoint-getItem', 'accessPoint/:id', AccessPointController.get)
+  .delete('accessPoint-destroyItem', 'accessPoint', AccessPointController.destroy)
+  .get('accessPoint-getAllItems', 'accessPoint', AccessPointController.getAll)
 
   // CardholderGroup controller CRUD endpoints
   .post('CardholderGroup-addItem', 'cardholderGroup', CardholderGroupController.add)

@@ -29,7 +29,7 @@ export default class AccessRuleController {
      *                      type: number
      *                      example: 1
      *                      minimum: 1
-     *                  entry:
+     *                  access_point:
      *                      type: number | Array<number>
      *                      example: 1
      *                  schedule:
@@ -53,12 +53,12 @@ export default class AccessRuleController {
             const req_data = ctx.request.body
             const user = ctx.user
             req_data.company = user.company ? user.company : null
-            if (Array.isArray(req_data.entry)) {
+            if (Array.isArray(req_data.access_point)) {
                 const res_data: any = []
 
-                for (const entry of req_data.entry) {
+                for (const access_point of req_data.access_point) {
                     const data = req_data
-                    data.entry = entry
+                    data.access_point = access_point
                     const save = await AccessRule.addItem(data as AccessRule)
                     res_data.push(save)
                 }

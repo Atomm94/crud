@@ -203,8 +203,6 @@ export default class CardholderController {
             }
 
             const car_info: any = await CarInfo.addItem(req_data.car_infos as CarInfo)
-            console.log('req_data.car_infos', req_data.car_infos)
-            console.log('car_info', car_info)
 
             req_data.car_info = car_info.id
 
@@ -220,8 +218,6 @@ export default class CardholderController {
                 success: true
             }
         } catch (error) {
-            console.log('error', error)
-
             ctx.status = error.status || 400
             ctx.body = error
         }

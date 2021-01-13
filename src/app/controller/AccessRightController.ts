@@ -151,7 +151,7 @@ export default class AccessRightController {
         try {
             const user = ctx.user
             const where = { id: +ctx.params.id, company: user.company ? user.company : user.company }
-            const relations = ['access_rules', 'access_rules.entries', 'access_rules.schedules']
+            const relations = ['access_rules', 'access_rules.access_points', 'access_rules.schedules']
             ctx.body = await AccessRight.getItem(where, relations)
         } catch (error) {
             ctx.status = error.status || 400
