@@ -6,6 +6,7 @@ import {
     JoinColumn
 } from 'typeorm'
 
+import { accessPointMode } from '../../enums/accessPointMode.enum'
 import { MainEntity } from './MainEntity'
 import { Company } from './Company'
 import { AccessRule } from './AccessRule'
@@ -17,11 +18,32 @@ export class AccessPoint extends MainEntity {
     @Column('varchar', { name: 'name', nullable: false })
     name: string
 
+    @Column('varchar', { name: 'description', nullable: true })
+    description: string | null
+
+    @Column('longtext', { name: 'type', nullable: false })
+    type: string | null
+
+    @Column('boolean', { name: 'status', default: false })
+    status: boolean
+
+    @Column('boolean', { name: 'actual_passage', default: false })
+    actual_passage: boolean
+
+    @Column('enum', { name: 'mode', nullable: false, enum: accessPointMode, default: accessPointMode.NOT_AVAILABLE })
+    mode: accessPointMode
+
+    @Column('boolean', { name: 'enable_local_apb', default: false })
+    enable_local_apb: boolean
+
+    @Column('boolean', { name: 'enable_timer', default: false })
+    enable_timer: boolean
+
     @Column('int', { name: 'access_point_group', nullable: true })
-    access_point_group: number
+    access_point_group: number | null
 
     @Column('int', { name: 'access_point_zone', nullable: true })
-    access_point_zone: number
+    access_point_zone: number | null
 
     @Column('int', { name: 'company', nullable: false })
     company: number
@@ -42,13 +64,21 @@ export class AccessPoint extends MainEntity {
     access_point_zones: AccessPointGroup | null;
 
     public static async addItem (data: AccessPoint) {
-        const access_point: AccessPoint = new AccessPoint()
+        const accessPoint = new AccessPoint()
 
-        access_point.name = data.name
-        access_point.company = data.company
+        accessPoint.name = data.name
+        if ('description' in data) accessPoint.description = data.description
+        accessPoint.type = data.type
+        if ('status' in data) accessPoint.status = data.status
+        if ('actual_passage' in data) accessPoint.actual_passage = data.actual_passage
+        if ('mode' in data) accessPoint.mode = data.mode
+        if ('enable_local_apb' in data) accessPoint.enable_local_apb = data.enable_local_apb
+        if ('enable_timer' in data) accessPoint.enable_timer = data.enable_timer
+        if ('access_point_group' in data) accessPoint.access_point_group = data.access_point_group
+        if ('access_point_zone' in data) accessPoint.access_point_zone = data.access_point_zone
 
         return new Promise((resolve, reject) => {
-            this.save(access_point)
+            this.save(accessPoint)
                 .then((item: AccessPoint) => {
                     resolve(item)
                 })
@@ -59,14 +89,23 @@ export class AccessPoint extends MainEntity {
     }
 
     public static async updateItem (data: AccessPoint): Promise<{ [key: string]: any }> {
-        const access_point = await this.findOneOrFail(data.id)
-        const oldData = Object.assign({}, access_point)
+        const accessPoint = await this.findOneOrFail(data.id)
+        const oldData = Object.assign({}, accessPoint)
 
-        if ('name' in data) access_point.name = data.name
+        if ('name' in data) accessPoint.name = data.name
+        if ('description' in data) accessPoint.description = data.description
+        if ('type' in data) accessPoint.type = data.type
+        if ('status' in data) accessPoint.status = data.status
+        if ('actual_passage' in data) accessPoint.actual_passage = data.actual_passage
+        if ('mode' in data) accessPoint.mode = data.mode
+        if ('enable_local_apb' in data) accessPoint.enable_local_apb = data.enable_local_apb
+        if ('enable_timer' in data) accessPoint.enable_timer = data.enable_timer
+        if ('access_point_group' in data) accessPoint.access_point_group = data.access_point_group
+        if ('access_point_zone' in data) accessPoint.access_point_zone = data.access_point_zone
 
-        if (!access_point) return { status: 400, message: 'Item not found' }
+        if (!accessPoint) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(access_point)
+            this.save(accessPoint)
                 .then((item: AccessPoint) => {
                     resolve({
                         old: oldData,
@@ -79,10 +118,11 @@ export class AccessPoint extends MainEntity {
         })
     }
 
-    public static async getItem (where: any) {
+    public static async getItem (where: any, relations?: Array<string>) {
         return new Promise((resolve, reject) => {
             this.findOneOrFail({
-                where: where
+                where: where,
+                relations: relations || []
             })
                 .then((item: AccessPoint) => {
                     resolve(item)

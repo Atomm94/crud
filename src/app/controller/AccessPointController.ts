@@ -7,7 +7,7 @@ export default class AccessPointController {
      *  /accessPoint:
      *      post:
      *          tags:
-     *              - accessPoint
+     *              - AccessPoint
      *          summary: Creates a accessPoint.
      *          consumes:
      *              - application/json
@@ -27,7 +27,24 @@ export default class AccessPointController {
      *                properties:
      *                  name:
      *                      type: string
-     *                      example: Elevator 1
+     *                  description:
+     *                      type: string
+     *                  type:
+     *                      type: string
+     *                  status:
+     *                      type: boolean
+     *                  actual_passage:
+     *                      type: boolean
+     *                  mode:
+     *                      type: string
+     *                  enable_local_apb:
+     *                      type: boolean
+     *                  enable_timer:
+     *                      type: boolean
+     *                  access_point_group:
+     *                      type: number
+     *                  access_point_zone:
+     *                      type: number
      *          responses:
      *              '201':
      *                  description: A accessPoint object
@@ -56,7 +73,7 @@ export default class AccessPointController {
      *  /accessPoint:
      *      put:
      *          tags:
-     *              - accessPoint
+     *              - AccessPoint
      *          summary: Update a accessPoint.
      *          consumes:
      *              - application/json
@@ -80,7 +97,24 @@ export default class AccessPointController {
      *                      example: 1
      *                  name:
      *                      type: string
-     *                      example: Elevator 1
+     *                  description:
+     *                      type: string
+     *                  type:
+     *                      type: string
+     *                  status:
+     *                      type: boolean
+     *                  actual_passage:
+     *                      type: boolean
+     *                  mode:
+     *                      type: string
+     *                  enable_local_apb:
+     *                      type: boolean
+     *                  enable_timer:
+     *                      type: boolean
+     *                  access_point_group:
+     *                      type: number
+     *                  access_point_zone:
+     *                      type: number
      *          responses:
      *              '201':
      *                  description: A accessPoint updated object
@@ -114,10 +148,10 @@ export default class AccessPointController {
     /**
      *
      * @swagger
-     *  /accessPoint/{id}:
+     * /accessPoint/{id}:
      *      get:
      *          tags:
-     *              - accessPoint
+     *              - AccessPoint
      *          summary: Return accessPoint by ID
      *          parameters:
      *              - name: id
@@ -158,7 +192,7 @@ export default class AccessPointController {
      *  /accessPoint:
      *      delete:
      *          tags:
-     *              - accessPoint
+     *              - AccessPoint
      *          summary: Delete a accessPoint.
      *          consumes:
      *              - application/json
@@ -209,10 +243,10 @@ export default class AccessPointController {
     /**
      *
      * @swagger
-     *  /accessPoint:
+     * /accessPoint:
      *      get:
      *          tags:
-     *              - accessPoint
+     *              - AccessPoint
      *          summary: Return accessPoint list
      *          parameters:
      *              - in: header

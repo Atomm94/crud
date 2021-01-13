@@ -19,7 +19,7 @@
                 "type": "longtext",
                 "params": {
                     "name": "type",
-                    "nullable": true
+                    "nullable": false
                 }
             },
             "status": {

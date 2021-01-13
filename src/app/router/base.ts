@@ -269,11 +269,18 @@ export default router
   .delete('accessPointGroup', AccessPointGroupController.destroy)
   .get('accessPointGroup', AccessPointGroupController.getAll)
 
-  
-  // AccessPointZone controller CRUD endpoints   
+  // AccessPointZone controller CRUD endpoints
   .post('accessPointZone', AccessPointZoneController.add)
   .put('accessPointZone', AccessPointZoneController.update)
   .get('accessPointZone/:id', AccessPointZoneController.get)
   .delete('accessPointZone', AccessPointZoneController.destroy)
   .get('accessPointZone', AccessPointZoneController.getAll)
+
+  
+  // AccessPoint controller CRUD endpoints   
+  .post('accessPoint', AccessPointController.add)
+  .put('accessPoint', AccessPointController.update)
+  .get('accessPoint/:id', AccessPointController.get)
+  .delete('accessPoint', AccessPointController.destroy)
+  .get('accessPoint', AccessPointController.getAll)
   
