@@ -19,8 +19,8 @@ export class AccessPointGroup extends MainEntity {
     @Column('int', { name: 'company', nullable: false })
     company: number
 
-    @OneToMany(type => AccessPoint, accessPoint => accessPoint.accessPointGroups)
-    accessPoints: AccessPoint[];
+    @OneToMany(type => AccessPoint, access_point => access_point.access_point_groups)
+    access_points: AccessPoint[];
 
     public static async addItem (data: AccessPointGroup) {
         const accessPointGroup = new AccessPointGroup()

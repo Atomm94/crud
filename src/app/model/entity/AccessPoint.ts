@@ -10,14 +10,18 @@ import { MainEntity } from './MainEntity'
 import { Company } from './Company'
 import { AccessRule } from './AccessRule'
 import { AccessPointGroup } from './AccessPointGroup'
+import { AccessPointZone } from './AccessPointZone'
 
 @Entity('access_point')
 export class AccessPoint extends MainEntity {
-    @Column('varchar', { name: 'name' })
+    @Column('varchar', { name: 'name', nullable: false })
     name: string
 
     @Column('int', { name: 'access_point_group', nullable: true })
     access_point_group: number
+
+    @Column('int', { name: 'access_point_zone', nullable: true })
+    access_point_zone: number
 
     @Column('int', { name: 'company', nullable: false })
     company: number
@@ -29,9 +33,13 @@ export class AccessPoint extends MainEntity {
     @OneToMany(type => AccessRule, access_rule => access_rule.access_points)
     access_rules: AccessRule[];
 
-    @ManyToOne(type => AccessPointGroup, accessPointGroup => accessPointGroup.accessPoints, { nullable: true })
+    @ManyToOne(type => AccessPointGroup, access_point_group => access_point_group.access_points, { nullable: true })
     @JoinColumn({ name: 'access_point_group' })
-    accessPointGroups: AccessPointGroup | null;
+    access_point_groups: AccessPointGroup | null;
+
+    @ManyToOne(type => AccessPointZone, access_point_zone => access_point_zone.access_points, { nullable: true })
+    @JoinColumn({ name: 'access_point_zone' })
+    access_point_zones: AccessPointGroup | null;
 
     public static async addItem (data: AccessPoint) {
         const access_point: AccessPoint = new AccessPoint()
