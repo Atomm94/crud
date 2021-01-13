@@ -9,13 +9,14 @@ import {
 import { MainEntity } from './MainEntity'
 import { Company } from './Company'
 import { AccessRule } from './AccessRule'
+import { AccessPointGroup } from './AccessPointGroup'
 
 @Entity('access_point')
 export class AccessPoint extends MainEntity {
     @Column('varchar', { name: 'name' })
     name: string
 
-    @Column('int', { name: 'access_point_group', nullable: false })
+    @Column('int', { name: 'access_point_group', nullable: true })
     access_point_group: number
 
     @Column('int', { name: 'company', nullable: false })
@@ -27,6 +28,10 @@ export class AccessPoint extends MainEntity {
 
     @OneToMany(type => AccessRule, access_rule => access_rule.access_points)
     access_rules: AccessRule[];
+
+    @ManyToOne(type => AccessPointGroup, accessPointGroup => accessPointGroup.accessPoints, { nullable: true })
+    @JoinColumn({ name: 'access_point_group' })
+    accessPointGroups: AccessPointGroup | null;
 
     public static async addItem (data: AccessPoint) {
         const access_point: AccessPoint = new AccessPoint()

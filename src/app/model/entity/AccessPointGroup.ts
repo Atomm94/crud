@@ -1,11 +1,12 @@
 import {
     Entity,
-    Column
+    Column,
+    OneToMany
 } from 'typeorm'
 
 import { MainEntity } from './MainEntity'
 
-// import { AccessPoint } from './AccessPoint'
+import { AccessPoint } from './AccessPoint'
 
 @Entity('access_point_group')
 export class AccessPointGroup extends MainEntity {
@@ -18,12 +19,8 @@ export class AccessPointGroup extends MainEntity {
     @Column('int', { name: 'company', nullable: false })
     company: number
 
-    // @OneToMany(type => AccessPoint, accessPoint => accessPoint.accessPointGroups)
-    // accessPoints: AccessPoint[];
-
-    // @ManyToOne(type => AccessPointGroup, accessPointGroup => accessPointGroup.accessPoints, { nullable: true })
-    // @JoinColumn({ name: 'access_point_group' })
-    // accessPointGroups: AccessPointGroup | null;
+    @OneToMany(type => AccessPoint, accessPoint => accessPoint.accessPointGroups)
+    accessPoints: AccessPoint[];
 
     public static async addItem (data: AccessPointGroup) {
         const accessPointGroup = new AccessPointGroup()
@@ -43,8 +40,9 @@ export class AccessPointGroup extends MainEntity {
         })
     }
 
-    public static async updateItem (data: AccessPointGroup) {
+    public static async updateItem (data: AccessPointGroup): Promise<{ [key: string]: any }> {
         const accessPointGroup = await this.findOneOrFail(data.id)
+        const oldData = Object.assign({}, accessPointGroup)
 
         if ('name' in data) accessPointGroup.name = data.name
         if ('description' in data) accessPointGroup.description = data.description
@@ -54,7 +52,10 @@ export class AccessPointGroup extends MainEntity {
         return new Promise((resolve, reject) => {
             this.save(accessPointGroup)
                 .then((item: AccessPointGroup) => {
-                    resolve(item)
+                    resolve({
+                        old: oldData,
+                        new: item
+                    })
                 })
                 .catch((error: any) => {
                     reject(error)
