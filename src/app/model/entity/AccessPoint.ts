@@ -33,11 +33,11 @@ export class AccessPoint extends MainEntity {
     @Column('enum', { name: 'mode', nullable: false, enum: accessPointMode, default: accessPointMode.NOT_AVAILABLE })
     mode: accessPointMode
 
-    @Column('boolean', { name: 'enable_local_apb', default: false })
-    enable_local_apb: boolean
+    @Column('boolean', { name: 'apb_enable_local', default: false })
+    apb_enable_local: boolean
 
-    @Column('boolean', { name: 'enable_timer', default: false })
-    enable_timer: boolean
+    @Column('boolean', { name: 'apb_enable_timer', default: false })
+    apb_enable_timer: boolean
 
     @Column('int', { name: 'access_point_group', nullable: true })
     access_point_group: number | null
@@ -72,8 +72,8 @@ export class AccessPoint extends MainEntity {
         if ('status' in data) accessPoint.status = data.status
         if ('actual_passage' in data) accessPoint.actual_passage = data.actual_passage
         if ('mode' in data) accessPoint.mode = data.mode
-        if ('enable_local_apb' in data) accessPoint.enable_local_apb = data.enable_local_apb
-        if ('enable_timer' in data) accessPoint.enable_timer = data.enable_timer
+        if ('apb_enable_local' in data) accessPoint.apb_enable_local = data.apb_enable_local
+        if ('apb_enable_timer' in data) accessPoint.apb_enable_timer = data.apb_enable_timer
         if ('access_point_group' in data) accessPoint.access_point_group = data.access_point_group
         if ('access_point_zone' in data) accessPoint.access_point_zone = data.access_point_zone
 
@@ -98,8 +98,8 @@ export class AccessPoint extends MainEntity {
         if ('status' in data) accessPoint.status = data.status
         if ('actual_passage' in data) accessPoint.actual_passage = data.actual_passage
         if ('mode' in data) accessPoint.mode = data.mode
-        if ('enable_local_apb' in data) accessPoint.enable_local_apb = data.enable_local_apb
-        if ('enable_timer' in data) accessPoint.enable_timer = data.enable_timer
+        if ('apb_enable_local' in data) accessPoint.apb_enable_local = data.apb_enable_local
+        if ('apb_enable_timer' in data) accessPoint.apb_enable_timer = data.apb_enable_timer
         if ('access_point_group' in data) accessPoint.access_point_group = data.access_point_group
         if ('access_point_zone' in data) accessPoint.access_point_zone = data.access_point_zone
 

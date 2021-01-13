@@ -37,9 +37,9 @@ export default class AccessPointController {
      *                      type: boolean
      *                  mode:
      *                      type: string
-     *                  enable_local_apb:
+     *                  apb_enable_local:
      *                      type: boolean
-     *                  enable_timer:
+     *                  apb_enable_timer:
      *                      type: boolean
      *                  access_point_group:
      *                      type: number
@@ -107,9 +107,9 @@ export default class AccessPointController {
      *                      type: boolean
      *                  mode:
      *                      type: string
-     *                  enable_local_apb:
+     *                  apb_enable_local:
      *                      type: boolean
-     *                  enable_timer:
+     *                  apb_enable_timer:
      *                      type: boolean
      *                  access_point_group:
      *                      type: number
