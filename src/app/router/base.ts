@@ -1,3 +1,4 @@
+import AccessPointGroupController from '../controller/AccessPointGroupController'
 import CardholderGroupController from '../controller/CardholderGroupController'
 import EntryController from '../controller/EntryController'
 import AccessRightController from '../controller/AccessRightController'
@@ -259,3 +260,10 @@ export default router
   // Log controller CRUD endpoints
   .get('Log-getUserLogs', 'userLog', LogController.getUserLogs)
   .get('Log-getEventLogs', 'eventLog', LogController.getEventLogs)
+
+  // AccessPointGroup controller CRUD endpoints
+  .post('accessPointGroup', AccessPointGroupController.add)
+  .put('accessPointGroup', AccessPointGroupController.update)
+  .get('accessPointGroup/:id', AccessPointGroupController.get)
+  .delete('accessPointGroup', AccessPointGroupController.destroy)
+  .get('accessPointGroup', AccessPointGroupController.getAll)
