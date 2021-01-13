@@ -46,7 +46,6 @@ export class AccessPointGroup extends MainEntity {
 
         if ('name' in data) accessPointGroup.name = data.name
         if ('description' in data) accessPointGroup.description = data.description
-        if ('company' in data) accessPointGroup.company = data.company
 
         if (!accessPointGroup) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {

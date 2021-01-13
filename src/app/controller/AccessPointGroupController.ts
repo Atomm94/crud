@@ -29,8 +29,6 @@ export default class AccessPointGroupController {
      *                      type: string
      *                  description:
      *                      type: string
-     *                  company:
-     *                      type: number
      *          responses:
      *              '201':
      *                  description: A accessPointGroup object
@@ -85,8 +83,6 @@ export default class AccessPointGroupController {
      *                      type: string
      *                  description:
      *                      type: string
-     *                  company:
-     *                      type: number
      *          responses:
      *              '201':
      *                  description: A accessPointGroup updated object
