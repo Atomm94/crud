@@ -10,30 +10,33 @@ import { MainEntity } from './MainEntity'
 import { Company } from './Company'
 import { AccessRule } from './AccessRule'
 
-@Entity('entry')
-export class Entry extends MainEntity {
+@Entity('access_point')
+export class AccessPoint extends MainEntity {
     @Column('varchar', { name: 'name' })
     name: string
+
+    @Column('int', { name: 'access_point_group', nullable: false })
+    access_point_group: number
 
     @Column('int', { name: 'company', nullable: false })
     company: number
 
-    @ManyToOne(type => Company, company => company.entries)
+    @ManyToOne(type => Company, company => company.access_points)
     @JoinColumn({ name: 'company' })
     companies: Company;
 
-    @OneToMany(type => AccessRule, access_rule => access_rule.entries)
+    @OneToMany(type => AccessRule, access_rule => access_rule.access_points)
     access_rules: AccessRule[];
 
-    public static async addItem (data: Entry) {
-        const entry = new Entry()
+    public static async addItem (data: AccessPoint) {
+        const access_point: AccessPoint = new AccessPoint()
 
-        entry.name = data.name
-        entry.company = data.company
+        access_point.name = data.name
+        access_point.company = data.company
 
         return new Promise((resolve, reject) => {
-            this.save(entry)
-                .then((item: Entry) => {
+            this.save(access_point)
+                .then((item: AccessPoint) => {
                     resolve(item)
                 })
                 .catch((error: any) => {
@@ -42,16 +45,16 @@ export class Entry extends MainEntity {
         })
     }
 
-    public static async updateItem (data: Entry): Promise<{ [key: string]: any }> {
-        const entry = await this.findOneOrFail(data.id)
-        const oldData = Object.assign({}, entry)
+    public static async updateItem (data: AccessPoint): Promise<{ [key: string]: any }> {
+        const access_point = await this.findOneOrFail(data.id)
+        const oldData = Object.assign({}, access_point)
 
-        if ('name' in data) entry.name = data.name
+        if ('name' in data) access_point.name = data.name
 
-        if (!entry) return { status: 400, message: 'Item not found' }
+        if (!access_point) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(entry)
-                .then((item: Entry) => {
+            this.save(access_point)
+                .then((item: AccessPoint) => {
                     resolve({
                         old: oldData,
                         new: item
@@ -68,7 +71,7 @@ export class Entry extends MainEntity {
             this.findOneOrFail({
                 where: where
             })
-                .then((item: Entry) => {
+                .then((item: AccessPoint) => {
                     resolve(item)
                 })
                 .catch((error: any) => {

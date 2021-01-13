@@ -8,7 +8,7 @@ import {
 import { MainEntity } from './MainEntity'
 import { Company } from './Company'
 import { AccessRight } from './AccessRight'
-import { Entry } from './Entry'
+import { AccessPoint } from './AccessPoint'
 import { Schedule } from './Schedule'
 
 @Entity('access_rule')
@@ -16,8 +16,8 @@ export class AccessRule extends MainEntity {
     @Column('int', { name: 'access_right', nullable: false })
     access_right: number
 
-    @Column('int', { name: 'entry', nullable: false })
-    entry: number
+    @Column('int', { name: 'access_point', nullable: false })
+    access_point: number
 
     @Column('int', { name: 'schedule', nullable: false })
     schedule: number
@@ -36,9 +36,9 @@ export class AccessRule extends MainEntity {
     @JoinColumn({ name: 'access_right' })
     access_rights: AccessRight;
 
-    @ManyToOne(type => Entry, entry => entry.access_rules)
-    @JoinColumn({ name: 'entry' })
-    entries: Entry;
+    @ManyToOne(type => AccessPoint, access_point => access_point.access_rules)
+    @JoinColumn({ name: 'access_point' })
+    access_points: AccessPoint;
 
     @ManyToOne(type => Schedule, schedule => schedule.access_rules)
     @JoinColumn({ name: 'schedule' })
@@ -51,7 +51,7 @@ export class AccessRule extends MainEntity {
         const accessRule = new AccessRule()
 
         accessRule.access_right = data.access_right
-        accessRule.entry = data.entry
+        accessRule.access_point = data.access_point
         accessRule.schedule = data.schedule
         if ('access_in_holidays' in data) accessRule.access_in_holidays = data.access_in_holidays
         accessRule.company = data.company
@@ -72,7 +72,7 @@ export class AccessRule extends MainEntity {
         const oldData = Object.assign({}, accessRule)
 
         // if ('access_right' in data) accessRule.access_right = data.access_right
-        // if ('entry' in data) accessRule.entry = data.entry
+        // if ('access_point' in data) accessRule.access_point = data.access_point
         if ('schedule' in data) accessRule.schedule = data.schedule
         if ('access_in_holidays' in data) accessRule.access_in_holidays = data.access_in_holidays
 

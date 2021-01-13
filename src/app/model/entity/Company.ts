@@ -17,7 +17,7 @@ import { statusCompany } from '../../enums/statusCompany.enum'
 import { CompanyDocuments } from './CompanyDocuments'
 import { AccountGroup } from './AccountGroup'
 import { Schedule } from './Schedule'
-import { Entry } from './Entry'
+import { AccessPoint } from './AccessPoint'
 import { AccessRule } from './AccessRule'
 import { AccessRight } from './AccessRight'
 
@@ -68,8 +68,8 @@ export class Company extends MainEntity {
     @OneToMany(type => Schedule, schedule => schedule.companies)
     schedules: Schedule[];
 
-    @OneToMany(type => Entry, entry => entry.companies)
-    entries: Entry[];
+    @OneToMany(type => AccessPoint, access_point => access_point.companies)
+    access_points: AccessPoint[];
 
     @OneToMany(type => AccessRule, access_rule => access_rule.companies)
     access_rules: AccessRule[];
