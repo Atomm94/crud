@@ -27,26 +27,100 @@ export default class AcuController {
      *                properties:
      *                  name:
      *                      type: string
+     *                      example: Door328 HUB
      *                  description:
      *                      type: string
+     *                      example: ujexc device
      *                  model:
      *                      type: string
+     *                      example: LRM-2CRS
      *                  status:
-     *                      type: string
+     *                      type: active | pending | no_hardware
+     *                      example: pending
      *                  ip_address:
-     *                      type: string
+     *                      type: number
+     *                      example: 192.168.99.232
      *                  cloud_status:
      *                      type: boolean
+     *                      example: true
      *                  fw_version:
      *                      type: string
+     *                      example: 1.3.4
+     *                  maintain_update_manual:
+     *                      type: boolean
+     *                      example: true
      *                  shared_resource_mode:
      *                      type: boolean
+     *                      example: false
      *                  connection_type:
-     *                      type: string
+     *                      type: wi-fi | ethernet
+     *                      example: wi-fi
      *                  network:
-     *                      type: string
+     *                      type: object
+     *                      properties:
+     *                          ssid:
+     *                              type: string
+     *                              example: MYOF0987
+     *                          password:
+     *                              type: boolean
+     *                              example: false
+     *                          signal_level:
+     *                              type: number
+     *                              example: 55
+     *                          fixed:
+     *                              type: boolean
+     *                              example: false
+     *                          dhcp:
+     *                              type: boolean
+     *                              example: true
+     *                          ip_address:
+     *                              type: string
+     *                              example: 192.168.99.232
+     *                          gateway:
+     *                              type: string
+     *                              example: 255.255.255.0
+     *                          subnet_mask:
+     *                              type: string
+     *                              example: 192.168.99.1
+     *                          dns_server:
+     *                              type: string
+     *                              example: 192.168.99.1
+     *                          port:
+     *                              type: number
+     *                              example: 2777
      *                  interface:
-     *                      type: string
+     *                      type: object
+     *                      properties:
+     *                          rs485_port_1:
+     *                              type: object
+     *                              properties:
+     *                                  enable:
+     *                                      type: boolean
+     *                                      example: true
+     *                                  mode:
+     *                                      type: master | disable | slave
+     *                                      example: master
+     *                                  uart_mode:
+     *                                      type: string
+     *                                      example: 8n1
+     *                                  baud_rate:
+     *                                      type: 2400 | 4800 | 9600 | 14400 | 19200 | 28800 | 38400 | 56000
+     *                                      example: 19200
+     *                          rs485_port_2:
+     *                              type: object
+     *                              properties:
+     *                                  enable:
+     *                                      type: boolean
+     *                                      example: false
+     *                                  mode:
+     *                                      type: master | disable | slave
+     *                                      example: master
+     *                                  uart_mode:
+     *                                      type: string
+     *                                      example: 8n1
+     *                                  baud_rate:
+     *                                      type: 2400 | 4800 | 9600 | 14400 | 19200 | 28800 | 38400 | 56000
+     *                                      example: 19200
      *          responses:
      *              '201':
      *                  description: A acu object
@@ -99,26 +173,91 @@ export default class AcuController {
      *                      example: 1
      *                  name:
      *                      type: string
+     *                      example: Door328 HUB
      *                  description:
      *                      type: string
+     *                      example: ujexc device
      *                  model:
      *                      type: string
+     *                      example: LRM-2CRS
      *                  status:
-     *                      type: string
+     *                      type: active | pending | no_hardware
+     *                      example: pending
      *                  ip_address:
-     *                      type: string
+     *                      type: number
+     *                      example: 192.168.99.232
      *                  cloud_status:
      *                      type: boolean
+     *                      example: true
      *                  fw_version:
      *                      type: string
+     *                      example: 1.3.4
+     *                  maintain_update_manual:
+     *                      type: boolean
+     *                      example: true
      *                  shared_resource_mode:
      *                      type: boolean
+     *                      example: false
      *                  connection_type:
-     *                      type: string
+     *                      type: wi-fi | ethernet
+     *                      example: ethernet
      *                  network:
-     *                      type: string
+     *                      type: object
+     *                      properties:
+     *                          fixed:
+     *                              type: boolean
+     *                              example: false
+     *                          dhcp:
+     *                              type: boolean
+     *                              example: true
+     *                          ip_address:
+     *                              type: string
+     *                              example: 192.168.99.232
+     *                          gateway:
+     *                              type: string
+     *                              example: 255.255.255.0
+     *                          subnet_mask:
+     *                              type: string
+     *                              example: 192.168.99.1
+     *                          dns_server:
+     *                              type: string
+     *                              example: 192.168.99.1
+     *                          port:
+     *                              type: number
+     *                              example: 2777
      *                  interface:
-     *                      type: string
+     *                      type: object
+     *                      properties:
+     *                          rs485_port_1:
+     *                              type: object
+     *                              properties:
+     *                                  enable:
+     *                                      type: boolean
+     *                                      example: true
+     *                                  mode:
+     *                                      type: master | disable | slave
+     *                                      example: master
+     *                                  uart_mode:
+     *                                      type: string
+     *                                      example: 8n1
+     *                                  baud_rate:
+     *                                      type: 2400 | 4800 | 9600 | 14400 | 19200 | 28800 | 38400 | 56000
+     *                                      example: 19200
+     *                          rs485_port_2:
+     *                              type: object
+     *                              properties:
+     *                                  enable:
+     *                                      type: boolean
+     *                                      example: false
+     *                                  mode:
+     *                                      type: master | disable | slave
+     *                                      example: master
+     *                                  uart_mode:
+     *                                      type: string
+     *                                      example: 8n1
+     *                                  baud_rate:
+     *                                      type: 2400 | 4800 | 9600 | 14400 | 19200 | 28800 | 38400 | 56000
+     *                                      example: 19200
      *          responses:
      *              '201':
      *                  description: A acu updated object

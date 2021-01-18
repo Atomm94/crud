@@ -50,6 +50,13 @@
                     "nullable": true
                 }
             },
+            "maintainUpdateManual": {
+                "type": "boolean",
+                "params": {
+                    "name": "maintainUpdateManual",
+                    "default": true
+                }
+            },
             "sharedResourceMode": {
                 "type": "boolean",
                 "params": {

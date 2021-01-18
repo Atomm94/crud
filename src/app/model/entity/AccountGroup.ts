@@ -29,6 +29,9 @@ export class AccountGroup extends MainEntity {
     @Column('int', { name: 'company', nullable: false })
     company: number
 
+    @Column('boolean', { name: 'role_inherited', default: false })
+    role_inherited: boolean;
+
     @ManyToOne(type => Company, company => company.account_groups)
     @JoinColumn({ name: 'company' })
     companies: Company;

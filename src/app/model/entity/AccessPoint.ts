@@ -12,6 +12,7 @@ import { Company } from './Company'
 import { AccessRule } from './AccessRule'
 import { AccessPointGroup } from './AccessPointGroup'
 import { AccessPointZone } from './AccessPointZone'
+import { Acu } from './Acu'
 
 @Entity('access_point')
 export class AccessPoint extends MainEntity {
@@ -45,6 +46,9 @@ export class AccessPoint extends MainEntity {
     @Column('int', { name: 'access_point_zone', nullable: true })
     access_point_zone: number | null
 
+    @Column('int', { name: 'acu', nullable: true })
+    acu: number | null
+
     @Column('int', { name: 'company', nullable: false })
     company: number
 
@@ -63,6 +67,10 @@ export class AccessPoint extends MainEntity {
     @JoinColumn({ name: 'access_point_zone' })
     access_point_zones: AccessPointGroup | null;
 
+    @ManyToOne(type => Acu, acu => acu.access_points, { nullable: true })
+    @JoinColumn({ name: 'acu' })
+    acus: Acu | null;
+
     public static async addItem (data: AccessPoint) {
         const accessPoint = new AccessPoint()
 
@@ -76,6 +84,7 @@ export class AccessPoint extends MainEntity {
         if ('apb_enable_timer' in data) accessPoint.apb_enable_timer = data.apb_enable_timer
         if ('access_point_group' in data) accessPoint.access_point_group = data.access_point_group
         if ('access_point_zone' in data) accessPoint.access_point_zone = data.access_point_zone
+        if ('acu' in data) accessPoint.acu = data.acu
 
         return new Promise((resolve, reject) => {
             this.save(accessPoint)
@@ -102,6 +111,7 @@ export class AccessPoint extends MainEntity {
         if ('apb_enable_timer' in data) accessPoint.apb_enable_timer = data.apb_enable_timer
         if ('access_point_group' in data) accessPoint.access_point_group = data.access_point_group
         if ('access_point_zone' in data) accessPoint.access_point_zone = data.access_point_zone
+        if ('acu' in data) accessPoint.acu = data.acu
 
         if (!accessPoint) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {

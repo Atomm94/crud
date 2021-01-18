@@ -34,6 +34,13 @@
                     "name": "company",
                     "nullable": false
                 }
+            },
+            "roleInherited": {
+                "type": "boolean",
+                "params": {
+                    "name": "roleInherited",
+                    "default": false
+                }
             }
         }
     }

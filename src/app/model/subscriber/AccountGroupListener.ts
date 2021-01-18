@@ -23,16 +23,14 @@ export class PostSubscriber implements EntitySubscriberInterface<AccountGroup> {
     async afterUpdate (event: UpdateEvent<AccountGroup>) {
         const { entity: New, databaseEntity: Old }: any = event
 
-        // role
         if ((New.role !== Old.role)) {
-            // const childs = await AccountGroup.find({ parent_id: New.id })
-
-            // for (const child of childs) {
-            //     if (child.role_inherited === true) {
-            //         child.role = New.role
-            //         await child.save()
-            //     }
-            // }
+            const childs = await AccountGroup.find({ parent_id: New.id })
+            for (const child of childs) {
+                if (child.role_inherited === true) {
+                    child.role = New.role
+                    await child.save()
+                }
+            }
 
             const accounts = await Admin.find({ account_group: New.id })
             for (const account of accounts) {

@@ -1,11 +1,14 @@
 import {
     Entity,
-    Column
+    Column,
+    OneToMany
 } from 'typeorm'
 
 import { acuStatus } from '../../enums/acuStatus.enum'
+import { networkValidation, interfaceValidation, timeValidation } from '../../functions/validator'
 import { acuConnectionType } from '../../enums/acuConnectionType.enum'
 import { MainEntity } from './MainEntity'
+import { AccessPoint } from './AccessPoint'
 
 @Entity('acu')
 export class Acu extends MainEntity {
@@ -30,6 +33,9 @@ export class Acu extends MainEntity {
     @Column('varchar', { name: 'fw_version', nullable: true })
     fw_version: string | null
 
+    @Column('boolean', { name: 'maintain_update_manual', default: true })
+    maintain_update_manual: boolean
+
     @Column('boolean', { name: 'shared_resource_mode', default: false })
     shared_resource_mode: boolean
 
@@ -42,26 +48,51 @@ export class Acu extends MainEntity {
     @Column('longtext', { name: 'interface', nullable: true })
     interface: string | null
 
+    @Column('longtext', { name: 'time', nullable: true })
+    time: string | null
+
     @Column('int', { name: 'company', nullable: false })
     company: number
+
+    @OneToMany(type => AccessPoint, access_point => access_point.acus)
+    access_points: AccessPoint[];
 
     public static async addItem (data: Acu) {
         const acu = new Acu()
 
         acu.name = data.name
-        acu.description = data.description
+        if ('description' in data) acu.description = data.description
         acu.model = data.model
         acu.status = data.status
         acu.ip_address = data.ip_address
         acu.cloud_status = data.cloud_status
         acu.fw_version = data.fw_version
+        if ('maintain_update_manual' in data) acu.maintain_update_manual = data.maintain_update_manual
         acu.shared_resource_mode = data.shared_resource_mode
-        acu.connection_type = data.connection_type
-        acu.network = data.network
-        acu.interface = data.interface
+        if ('connection_type' in data) acu.connection_type = data.connection_type
+        if ('network' in data) acu.network = data.network
+        if ('interface' in data) acu.interface = data.interface
         acu.company = data.company
 
         return new Promise((resolve, reject) => {
+            if (data.network) {
+                const check_network = networkValidation(data.network)
+                if (!check_network) {
+                    reject(check_network)
+                }
+            }
+            if (data.interface) {
+                const check_interface = interfaceValidation(data.interface)
+                if (!check_interface) {
+                    reject(check_interface)
+                }
+            }
+            if (data.time) {
+                const check_time = timeValidation(data.time)
+                if (!check_time) {
+                    reject(check_time)
+                }
+            }
             this.save(acu)
                 .then((item: Acu) => {
                     resolve(item)
@@ -83,6 +114,7 @@ export class Acu extends MainEntity {
         if ('ip_address' in data) acu.ip_address = data.ip_address
         if ('cloud_status' in data) acu.cloud_status = data.cloud_status
         if ('fw_version' in data) acu.fw_version = data.fw_version
+        if ('maintain_update_manual' in data) acu.maintain_update_manual = data.maintain_update_manual
         if ('shared_resource_mode' in data) acu.shared_resource_mode = data.shared_resource_mode
         if ('connection_type' in data) acu.connection_type = data.connection_type
         if ('network' in data) acu.network = data.network

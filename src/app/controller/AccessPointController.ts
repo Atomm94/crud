@@ -27,24 +27,37 @@ export default class AccessPointController {
      *                properties:
      *                  name:
      *                      type: string
+     *                      example: Door328
      *                  description:
      *                      type: string
+     *                      example: some_description
      *                  type:
      *                      type: string
+     *                      example: Door
      *                  status:
      *                      type: boolean
+     *                      example: true
      *                  actual_passage:
      *                      type: boolean
+     *                      example: true
      *                  mode:
-     *                      type: string
+     *                      type: N/A | credential | locked | unlocked | free_entry_block_exit | block_entry_free_exit
+     *                      example: credential
      *                  apb_enable_local:
      *                      type: boolean
+     *                      example: true
      *                  apb_enable_timer:
      *                      type: boolean
+     *                      example: true
      *                  access_point_group:
      *                      type: number
+     *                      example: 1
      *                  access_point_zone:
      *                      type: number
+     *                      example: 1
+     *                  acu:
+     *                      type: number
+     *                      example: 1
      *          responses:
      *              '201':
      *                  description: A accessPoint object
@@ -97,24 +110,37 @@ export default class AccessPointController {
      *                      example: 1
      *                  name:
      *                      type: string
+     *                      example: Door328
      *                  description:
      *                      type: string
+     *                      example: some_description
      *                  type:
      *                      type: string
+     *                      example: Door
      *                  status:
      *                      type: boolean
+     *                      example: true
      *                  actual_passage:
      *                      type: boolean
+     *                      example: true
      *                  mode:
-     *                      type: string
+     *                      type: N/A | credential | locked | unlocked | free_entry_block_exit | block_entry_free_exit
+     *                      example: credential
      *                  apb_enable_local:
      *                      type: boolean
+     *                      example: true
      *                  apb_enable_timer:
      *                      type: boolean
+     *                      example: true
      *                  access_point_group:
      *                      type: number
+     *                      example: 1
      *                  access_point_zone:
      *                      type: number
+     *                      example: 1
+     *                  acu:
+     *                      type: number
+     *                      example: 1
      *          responses:
      *              '201':
      *                  description: A accessPoint updated object

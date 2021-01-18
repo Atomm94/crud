@@ -71,6 +71,13 @@
                     "nullable": true
                 }
             },
+            "acu": {
+                "type": "int",
+                "params": {
+                    "name": "acu",
+                    "nullable": true
+                }
+            },
             "company": {
                 "type": "int",
                 "params": {
