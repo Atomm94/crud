@@ -2,6 +2,7 @@ import { DefaultContext } from 'koa'
 import * as Models from '../model/entity/index'
 import { Packet } from '../model/entity/Packet'
 import { Company } from '../model/entity/Company'
+import { Feature } from '../middleware/feature'
 
 export default class PacketController {
     /**
@@ -291,6 +292,7 @@ export default class PacketController {
      */
     public static async getExtraSettings (ctx: DefaultContext) {
         try {
+            const feature: any = Feature
             const models: any = Models
             const data: any = {
                 resources: [],
@@ -301,16 +303,17 @@ export default class PacketController {
                 if (models[model].resource) {
                     data.resources.push(model)
                 }
-                if (models[model].features) {
-                    Object.keys(models[model].features).forEach((feature: string) => {
-                        if (features[model]) {
-                            features[model].push(feature)
-                        } else {
-                            features[model] = [feature]
-                        }
-                    })
-                }
             })
+            const featuresList = Object.getOwnPropertyNames(feature)
+            if (featuresList.length) {
+                featuresList.forEach((key: any) => {
+                    if (feature[key] && typeof feature[key] === 'object' && key !== 'prototype') {
+                        if (Object.getOwnPropertyNames(feature[key]).length) {
+                            features[key] = Object.getOwnPropertyNames(feature[key])
+                        }
+                    }
+                })
+            }
             if (Object.keys(features).length) data.features = features
 
             ctx.body = data

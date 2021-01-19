@@ -1,6 +1,6 @@
 import * as _ from 'lodash'
 import { DefaultContext } from 'koa'
-import { Admin } from '../model/entity/index'
+import { Admin, Company } from '../model/entity/index'
 import * as jwt from 'jsonwebtoken'
 import * as bcrypt from 'bcrypt'
 
@@ -77,10 +77,14 @@ export default class AuthController {
                 return ctx.body = error
             }
         }
+        if (user.company) {
+            const company = await Company.findOne(user.company)
+            ctx.companyData = (company) || null
+        }
 
-        const adminFiltered = _.pick(user, ['id', 'username', 'last_name', 'first_name', 'email', 'avatar', 'role', 'super', 'department', 'company'])
+        const adminFiltered = _.pick(user, ['id', 'username', 'last_name', 'first_name', 'email', 'avatar', 'role', 'super', 'department', 'company', 'companyData'])
         const expireTime = process.env.TOKEN_EXPIRE_TIME ? process.env.TOKEN_EXPIRE_TIME : 2
-        const token = jwt.sign(adminFiltered, 'jwtSecret', { expiresIn: `${expireTime}h` }) // , { expiresIn: '1h' }
+        const token = jwt.sign({ companyData: ctx.companyData, ...adminFiltered }, 'jwtSecret', { expiresIn: `${expireTime}h` }) // , { expiresIn: '1h' }
 
         if (user.status) {
             ctx.body = { user: adminFiltered, token: token }
@@ -125,12 +129,12 @@ export default class AuthController {
                 }
             } else {
                 ctx.status = 403
-                ctx.body = { message: 'Unauthorizated' }
+                ctx.body = { message: 'Unauthorized' }
             }
         } catch (error) {
             ctx.status = error.status || 403
             ctx.body = error
-            ctx.body = { message: 'Unauthorizated' }
+            ctx.body = { message: 'Unauthorized' }
         }
         return ctx.body
     }

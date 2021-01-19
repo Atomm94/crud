@@ -8,7 +8,9 @@ import {
 import * as Models from '../entity'
 import { Admin, CompanyResources, Role } from '../entity'
 import { Company } from '../entity/Company'
-
+import { statusCompany } from '../../enums/statusCompany.enum'
+import { Feature } from '../../middleware/feature'
+const featureList: any = Feature
 @EventSubscriber()
 export class PostSubscriber implements EntitySubscriberInterface<Company> {
     /**
@@ -65,18 +67,38 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
                                 }
                             }
                         })
-
                         Object.keys(extra_settings.features).forEach(model => {
                             Object.keys(extra_settings.features[model]).forEach(feature => {
                                 if (extra_settings.features[model][feature]) {
-                                    if (models[model] && models[model].features) {
-                                        if (models[model].features[feature]) {
-                                            const actions = models[model].features[feature].getActions()
+                                    if (featureList[model] && featureList[model][feature]) {
+                                        const modelName = (featureList[model][feature].model) ? featureList[model][feature].model : model
+                                        if (featureList[model][feature].module) {
+                                            const actions = models[modelName].getActions()
                                             Object.keys(actions).forEach(action => {
                                                 actions[action] = true
                                             })
-                                            permissions[feature] = {
-                                                actions: actions
+                                            if (permissions[modelName]) {
+                                                permissions[modelName].action = actions
+                                            } else {
+                                                permissions[modelName] = {
+                                                    actions: actions
+                                                }
+                                            }
+                                        } else {
+                                            if (permissions[modelName]) {
+                                                if (permissions[modelName].features) {
+                                                    permissions[modelName].features[feature] = true
+                                                } else {
+                                                    permissions[modelName].features = {
+                                                        [feature]: true
+                                                    }
+                                                }
+                                            } else {
+                                                permissions[modelName] = {
+                                                    features: {
+                                                        [feature]: true
+                                                    }
+                                                }
                                             }
                                         }
                                     }
@@ -95,6 +117,16 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * Called after entity update.
+     */
+    async beforeUpdate (event: UpdateEvent<Company>) {
+        const { entity: New, databaseEntity: Old } = event
+        if (New.packet !== Old.packet && Old.status === 'enabled') {
+            New.status = statusCompany.PENDING
         }
     }
 }

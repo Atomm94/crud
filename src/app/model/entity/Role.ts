@@ -164,7 +164,7 @@ export class Role extends MainEntity {
           resolve({
             old: oldData,
             new: item
-        })
+          })
         })
         .catch((error: any) => {
           reject(error)
@@ -226,18 +226,28 @@ export class Role extends MainEntity {
   public static async getAllAccess (user: any) {
     const models: any = Models
     const accesses: any = {}
-    if (user.company) {
-      const role: any = await Role.findOne({ id: user.role, company: user.company })
+    if (!user.super) {
+      const where: { id: number, company?: number } = { id: user.role }
+      if (user.company) where.company = user.company
+      const role: any = await Role.findOne(where)
       if (role) {
         const permissions = JSON.parse(role.permissions)
         Object.keys(permissions).forEach((model: string) => {
-          Object.keys(permissions[model].actions).forEach(action => {
-            if (accesses[model]) {
-              accesses[model].actions[action] = false
-            } else {
-              accesses[model] = { actions: { [action]: false } }
-            }
-          })
+          if (permissions[model].actions) {
+            Object.keys(permissions[model].actions).forEach(action => {
+              if (accesses[model]) {
+                if (accesses[model].actions) {
+                  accesses[model].actions[action] = false
+                } else {
+                  accesses[model].actions = {
+                    [action]: false
+                  }
+                }
+              } else {
+                accesses[model] = { actions: { [action]: false } }
+              }
+            })
+          }
         })
       }
     } else {

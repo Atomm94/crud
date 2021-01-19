@@ -30,6 +30,7 @@ import {
 
 import Router from 'koa-router'
 import swaggerSpec from '../../component/swagger'
+import { Feature } from '../middleware/feature'
 
 const swaggerUi = require('swagger-ui-koa')
 
@@ -43,12 +44,12 @@ export default router
   .get('auth', AuthController.checkAuth)
   .post('login', AuthController.login)
 
-  .post('Admin-AdminOperation-addItem', 'users', AdminController.createAdmin)
-  .post('Admin-AdminOperation-addItem', 'inviteUsers', AdminController.inviteAdmin)
-  .delete('Admin-AdminOperation-destroyItem', 'users', AdminController.destroy)
-  .put('Admin-AdminOperation-updateItem', 'users', AdminController.update)
-  .get('Admin-AdminOperation-getItem', 'users/:id', AdminController.get)
-  .get('Admin-AdminOperation-getAllItems', 'users', AdminController.getAll)
+  .post('Admin-addItem', 'users', AdminController.createAdmin)
+  .post('Admin-addItem', 'inviteUsers', AdminController.inviteAdmin)
+  .delete('Admin-destroyItem', 'users', AdminController.destroy)
+  .put('Admin-updateItem', 'users', AdminController.update)
+  .get('Admin-getItem', 'users/:id', AdminController.get)
+  .get('Admin-getAllItems', 'users', AdminController.getAll)
   .put('Admin-updateItem', 'changePass', AdminController.changePass)
   .put('Admin-updateItem', 'changeMyPass', AdminController.changeMyPass)
   .get('Admin-getItem', 'getUserData', AdminController.getUserData)
@@ -238,16 +239,40 @@ export default router
   .get('Entry-getAllItems', 'entry', EntryController.getAll)
 
   // CardholderGroup controller CRUD endpoints
-  .post('CardholderGroup-addItem', 'cardholderGroup', CardholderGroupController.add)
-  .put('CardholderGroup-updateItem', 'cardholderGroup', CardholderGroupController.update)
+  .post('CardholderGroup-addItem', 'cardholderGroup',
+    Feature.Cardholder.CardholderGroupOperation.check,
+    Feature.Cardholder.CardholderGroupAccessRight.check,
+    CardholderGroupController.add
+  )
+  .put('CardholderGroup-updateItem', 'cardholderGroup',
+    Feature.Cardholder.CardholderGroupOperation.check,
+    Feature.Cardholder.CardholderGroupAccessRight.check,
+    CardholderGroupController.update
+  )
   .get('CardholderGroup-getItem', 'cardholderGroup/:id', CardholderGroupController.get)
   .delete('CardholderGroup-destroyItem', 'cardholderGroup', CardholderGroupController.destroy)
   .get('CardholderGroup-getAllItems', 'cardholderGroup', CardholderGroupController.getAll)
 
   // Cardholder controller CRUD endpoints
   .get('Cardholder-getItem', 'cardholder/:id', CardholderController.get)
-  .post('Cardholder-addItem', 'cardholder', CardholderController.add)
-  .put('Cardholder-updateItem', 'cardholder', CardholderController.update)
+  .post('Cardholder-addItem', 'cardholder',
+    Feature.Cardholder.CardholderDeactivationByDate.check,
+    Feature.Cardholder.CardholderDeactivationByLimit.check,
+    Feature.Cardholder.KeyStatus.check,
+    Feature.AntiPassBack.HardAntiPassBack.check,
+    Feature.AntiPassBack.SoftAntiPassBack.check,
+    Feature.AntiPassBack.TimedAntiPassBack.check,
+    CardholderController.add
+  )
+  .put('Cardholder-updateItem', 'cardholder',
+    Feature.Cardholder.CardholderDeactivationByDate.check,
+    Feature.Cardholder.CardholderDeactivationByLimit.check,
+    Feature.Cardholder.KeyStatus.check,
+    Feature.AntiPassBack.HardAntiPassBack.check,
+    Feature.AntiPassBack.SoftAntiPassBack.check,
+    Feature.AntiPassBack.TimedAntiPassBack.check,
+    CardholderController.update
+  )
   .delete('Cardholder-destroyItem', 'cardholder', CardholderController.destroy)
   .get('Cardholder-getAllItems', 'cardholder', CardholderController.getAll)
 

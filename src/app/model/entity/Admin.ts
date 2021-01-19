@@ -25,7 +25,6 @@ import {
 } from './index'
 import * as bcrypt from 'bcrypt'
 import { MainEntity } from './MainEntity'
-import { BaseClass } from './BaseClass'
 import { fileSave } from '../../functions/file'
 import fs from 'fs'
 import { join } from 'path'
@@ -34,28 +33,6 @@ import { logger } from '../../../../modules/winston/logger'
 import { AccountGroup } from './AccountGroup'
 
 const parentDir = join(__dirname, '../../..')
-
-class AdminOperation extends BaseClass {
-  public static async addItem (data: any, user: any = null):Promise<Admin> {
-    return await Admin.addItem(data, user)
-  }
-
-  public static async destroyItem (data: { id: number }) {
-    return await Admin.destroyItem(data)
-  }
-
-  public static async updateItem (data: any): Promise<{ [key: string]: any }> {
-    return await Admin.updateItem(data)
-  }
-
-  public static async getItem (where: any, relations?: Array<string>) {
-    return await Admin.getItem(where, relations)
-  }
-
-  public static async getAllItems (params: any) {
-    return await Admin.getAllItems(params)
-  }
-}
 
 @Entity('admin')
 export class Admin extends MainEntity {
@@ -180,9 +157,6 @@ export class Admin extends MainEntity {
   }
 
   public static resource: boolean = true
-  public static features = {
-    AdminOperation: AdminOperation
-  }
 
   public static async addItem (data: any, user: any = null):Promise<Admin> {
     const admin = new Admin()
@@ -223,7 +197,7 @@ export class Admin extends MainEntity {
 
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve, reject) => {
-      if (!user || !user.company || await this.canCreate(user.company, this.name)) {
+      if (!user || !user.company) {
         this.save(admin)
           .then((item: Admin) => {
             resolve(item)

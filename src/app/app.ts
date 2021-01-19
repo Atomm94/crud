@@ -23,6 +23,7 @@ import cors from 'koa2-cors'
 
 import Koa from 'koa'
 import clickhouselog from './middleware/clickhouselog'
+import resource from './middleware/resource'
 
 const koaBody = require('koa-body')
 const parentDir = join(__dirname, '../')
@@ -91,6 +92,7 @@ app.use(compress())
 app.use(options())
 
 app.use(clickhouselog())
+app.use(resource())
 // routers
 app.use(router.routes()).use(router.allowedMethods())
 

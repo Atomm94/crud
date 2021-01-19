@@ -24,9 +24,13 @@ export class PostSubscriber implements EntitySubscriberInterface<Packet> {
         const { entity: New, databaseEntity: Old } = event
         if (Old.extra_settings !== New.extra_settings) {
             event.entity = Old
-            await Packet.softRemove(await Packet.find({ id: Old.id }))
-            delete New.name
-            await Packet.save(New)
+            delete New.id
+            try {
+                await Packet.addItem(New)
+                await Packet.softRemove(await Packet.find({ id: Old.id }))
+            } catch (error) {
+                throw new Error(error)
+            }
         }
     }
 

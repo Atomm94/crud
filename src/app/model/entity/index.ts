@@ -22,6 +22,7 @@ import { CarInfo } from './CarInfo'
 import { Limitation } from './Limitation'
 import { Schedule } from './Schedule'
 import { AccessRight } from './AccessRight'
+import { CardholderGroup } from './CardholderGroup'
 
 export {
     Admin,
@@ -47,5 +48,6 @@ export {
     CarInfo,
     Limitation,
     Schedule,
-    AccessRight
+    AccessRight,
+    CardholderGroup
 }
