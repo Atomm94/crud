@@ -115,6 +115,9 @@ export class Admin extends MainEntity {
   @Column('int', { name: 'account_group', nullable: true })
   account_group: number | null;
 
+  @Column('boolean', { name: 'role_inherited', default: false })
+  role_inherited: boolean;
+
   @ManyToOne(type => Department, department => department.users, { nullable: true })
   @JoinColumn({ name: 'department' })
   departments: Department | null;
@@ -188,6 +191,7 @@ export class Admin extends MainEntity {
     if ('whatsapp' in data) admin.whatsapp = data.whatsapp
     if ('comment' in data) admin.comment = data.comment
     if ('account_group' in data) admin.account_group = data.account_group
+    if ('role_inherited' in data) admin.role_inherited = data.role_inherited
 
     if ('company' in data) {
       admin.company = data.company
@@ -233,6 +237,7 @@ export class Admin extends MainEntity {
     if ('comment' in data) admin.comment = data.comment
     if ('avatar' in data) admin.avatar = data.avatar
     if ('account_group' in data) admin.account_group = data.account_group
+    if ('role_inherited' in data) admin.role_inherited = data.role_inherited
 
     if (!admin) return { status: 400, message: 'Item not found' }
     return new Promise((resolve, reject) => {
