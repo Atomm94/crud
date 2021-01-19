@@ -5,18 +5,18 @@ import { ScheduleType } from '../middleware/feature'
 const router = new Router()
 export default router
   // Timeframe controller CRUD endpoints
-  .use('/timeframe', timeframe.routes(), timeframe.allowedMethods())
+  .use('/', timeframe.routes(), timeframe.allowedMethods())
 
-  .post('Schedule-addItem', '/',
+  .post('Schedule-addItem', 'schedule',
+
     ScheduleType,
     ScheduleController.add
   )
-  .put('Schedule-updateItem', '/',
+  .put('Schedule-updateItem', 'schedule',
     ScheduleType,
     ScheduleController.update
   )
-  .delete('Schedule-destroyItem', '/', ScheduleController.destroy)
-  .get('Schedule-getAllItems', '/', ScheduleController.getAll)
-  .get('Schedule-getAllItems', '/tree', ScheduleController.getTree)
-  .get('Schedule-getAllItems', '/relations/:id', ScheduleController.getRelations)
-  .get('Schedule-getItem', '/:id', ScheduleController.get)
+  .delete('Schedule-destroyItem', 'schedule', ScheduleController.destroy)
+  .get('Schedule-getAllItems', 'schedule', ScheduleController.getAll)
+  .get('Schedule-getAllItems', 'schedule/tree', ScheduleController.getTree)
+  .get('Schedule-getItem', 'schedule/:id', ScheduleController.get)
