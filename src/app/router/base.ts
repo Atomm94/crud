@@ -16,6 +16,7 @@ import {
 
 import Router from 'koa-router'
 import swaggerSpec from '../../component/swagger'
+import LogController from '../controller/LogController'
 
 const swaggerUi = require('swagger-ui-koa')
 
@@ -101,11 +102,6 @@ export default router
   .post('registration/:token', CompanyController.regValidation)
   .put('registration/:token', CompanyController.resendNewPassEmail)
 
-  // -----------------------------------------------------
-
-  // CarInfo controller CRUD endpoints
-  // .post('CarInfo-addItem', 'carInfo', CarInfoController.add)
-  // .put('CarInfo-updateItem', 'carInfo', CarInfoController.update)
-  // .get('CarInfo-getItem', 'carInfo/:id', CarInfoController.get)
-  // .delete('CarInfo-destroyItem', 'carInfo', CarInfoController.destroy)
-  // .get('CarInfo-getAllItems', 'carInfo', CarInfoController.getAll)
+  // Log controller CRUD endpoints
+  .get('Log-getUserLogs', 'userLog', LogController.getUserLogs)
+  .get('Log-getEventLogs', 'eventLog', LogController.getEventLogs)
