@@ -203,19 +203,13 @@ export default class CardholderController {
             }
 
             const car_info: any = await CarInfo.addItem(req_data.car_infos as CarInfo)
+
             req_data.car_info = car_info.id
+            const cardholder: any = await Cardholder.addItem(req_data as Cardholder)
 
-            await Cardholder.addItem(req_data as Cardholder)
-
-            // ctx.body = {
-            //     cardholder: cardholder,
-            //     car_info: car_info_data,
-            //     limitation_data: limitation_data
-            // }
-
-            ctx.body = {
-                success: true
-            }
+            const where = { id: cardholder.id }
+            const relations = ['car_infos', 'limitations', 'antipass_backs', 'time_attendances', 'access_rights', 'cardholder_groups']
+            ctx.body = await Cardholder.getItem(where, relations)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -450,12 +444,12 @@ export default class CardholderController {
                 const res_data = await Cardholder.updateItem(req_data as Cardholder)
                 ctx.oldData = res_data.old
                 ctx.body = res_data.new
-                // ctx.body = {
-                //     cardholder: cardholder_data,
-                //     car_info: car_info,
-                //     limitation: limitation
-                // }
+
                 // ctx.body = res_data
+                const cardholder: any = await Cardholder.addItem(req_data as Cardholder)
+                const where = { id: cardholder.id }
+                const relations = ['car_infos', 'limitations', 'antipass_backs', 'time_attendances', 'access_rights', 'cardholder_groups']
+                ctx.body = await Cardholder.getItem(where, relations)
             }
         } catch (error) {
             ctx.status = error.status || 400
@@ -497,7 +491,7 @@ export default class CardholderController {
         try {
             const user = ctx.user
             const where = { id: +ctx.params.id, company: user.company ? user.company : user.company }
-            const relations = ['car_infos', 'limitations']
+            const relations = ['car_infos', 'limitations', 'antipass_backs', 'time_attendances', 'access_rights', 'cardholder_groups']
 
             ctx.body = await Cardholder.getItem(where, relations)
         } catch (error) {
@@ -587,7 +581,7 @@ export default class CardholderController {
             const req_data = ctx.query
             const user = ctx.user
             req_data.where = { company: { '=': user.company ? user.company : null } }
-            req_data.relations = ['car_infos', 'limitations']
+            req_data.relations = ['car_infos', 'limitations', 'antipass_backs', 'time_attendances', 'access_rights', 'cardholder_groups']
             ctx.body = await Cardholder.getAllItems(req_data)
         } catch (error) {
             ctx.status = error.status || 400
