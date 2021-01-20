@@ -246,148 +246,145 @@ export default class CardholderController {
      *              description: The cardholder to create.
      *              schema:
      *                type: object
+     *                required:
+     *                  - id
      *                properties:
-     *                    cardholder:
-     *                        type: object
-     *                        required:
-     *                        - id
-     *                        properties:
-     *                            id:
-     *                                type: number
-     *                                example: 1
-     *                            email:
-     *                                type: string
-     *                                example: example@gmail.com
-     *                            avatar:
-     *                                type: string
-     *                                example: some_avatar
-     *                            password:
-     *                                type: string
-     *                                example: some_password
-     *                            first_name:
-     *                                type: string
-     *                                example: some_first_name
-     *                            last_name:
-     *                                type: string
-     *                                example: some_last_name
-     *                            family_name:
-     *                                type: string
-     *                                example: some_family_name
-     *                            phone:
-     *                                type: string
-     *                                example: +374 XX XXX XXX
-     *                            company_name:
-     *                                type: string
-     *                                example: some_company_name
-     *                            user_account:
-     *                                type: boolean
-     *                                example: false
-     *                            cardholder_group:
-     *                                type: number
-     *                                example: 1
-     *                            status:
-     *                                type: inactive | active | expired | noCredential | pending
-     *                                example: active
-     *                            car_infos:
-     *                                type: object
-     *                                required:
-     *                                properties:
-     *                                    id:
-     *                                        type: number
-     *                                        example: 1
-     *                                    model:
-     *                                        type: string
-     *                                        example: bmw
-     *                                    color:
-     *                                        type: string
-     *                                        example: some_color
-     *                                    lp_number:
-     *                                        type: number
-     *                                        example: 1
-     *                                    car_credential:
-     *                                        type: string
-     *                                        example: some_car_credential
-     *                                    car_event:
-     *                                        type: boolean
-     *                                        example: true
-     *                            limitation_inherited:
-     *                                type: boolean
-     *                                example: true
-     *                            limitations:
-     *                                type: object
-     *                                properties:
-     *                                    id:
-     *                                        type: number
-     *                                        example: 1
-     *                                    enable_date:
-     *                                        type: boolean
-     *                                        example: true
-     *                                    valid_from:
-     *                                        type: string
-     *                                        example: 2020-04-04 00:00:00
-     *                                    valid_due:
-     *                                        type: string
-     *                                        example: 2020-05-05 15:00:00
-     *                                    pass_counter_enable:
-     *                                        type: boolean
-     *                                        example: true
-     *                                    pass_counter_passes:
-     *                                        type: number
-     *                                        example: 25
-     *                                    pass_counter_current:
-     *                                        type: number
-     *                                        example: 10
-     *                                    first_use_counter_enable:
-     *                                        type: boolean
-     *                                        example: true
-     *                                    first_use_counter_days:
-     *                                        type: number
-     *                                        example: 25
-     *                                    first_use_counter_current:
-     *                                        type: number
-     *                                        example: 10
-     *                                    last_use_counter_enable:
-     *                                        type: boolean
-     *                                        example: true
-     *                                    last_use_counter_days:
-     *                                        type: number
-     *                                        example: 25
-     *                                    last_use_counter_current:
-     *                                        type: number
-     *                                        example: 10
-     *                            antipass_back_inherited:
-     *                                type: boolean
-     *                                example: false
-     *                            antipass_backs:
-     *                                type: object
-     *                                properties:
-     *                                    id:
-     *                                        type: number
-     *                                        example: 1
-     *                                    type:
-     *                                        type: disable | soft | semi_soft | hard | extra_hard
-     *                                        example: disable
-     *                                    enable_timer:
-     *                                        type: boolean
-     *                                        example: false
-     *                                    time:
-     *                                        type: number
-     *                                        example: 60
-     *                                    time_type:
-     *                                        type: seconds | minutes | hours
-     *                                        example: minutes
-     *                            time_attendance_inherited:
-     *                                type: boolean
-     *                                example: false
-     *                            time_attendance:
-     *                                type: number
-     *                                example: 1
-     *                            access_right_inherited:
-     *                                type: boolean
-     *                                example: false
-     *                            access_right:
-     *                                type: number
-     *                                example: 1
+     *                  id:
+     *                      type: number
+     *                      example: 1
+     *                  email:
+     *                      type: string
+     *                      example: example@gmail.com
+     *                  avatar:
+     *                      type: string
+     *                      example: some_avatar
+     *                  password:
+     *                      type: string
+     *                      example: some_password
+     *                  first_name:
+     *                      type: string
+     *                      example: some_first_name
+     *                  last_name:
+     *                      type: string
+     *                      example: some_last_name
+     *                  family_name:
+     *                      type: string
+     *                      example: some_family_name
+     *                  phone:
+     *                      type: string
+     *                      example: +374 XX XXX XXX
+     *                  company_name:
+     *                      type: string
+     *                      example: some_company_name
+     *                  user_account:
+     *                      type: boolean
+     *                      example: false
+     *                  cardholder_group:
+     *                      type: number
+     *                      example: 1
+     *                  status:
+     *                      type: inactive | active | expired | noCredential | pending
+     *                      example: active
+     *                  car_infos:
+     *                      type: object
+     *                      required:
+     *                      properties:
+     *                          id:
+     *                              type: number
+     *                              example: 1
+     *                          model:
+     *                              type: string
+     *                              example: bmw
+     *                          color:
+     *                              type: string
+     *                              example: some_color
+     *                          lp_number:
+     *                              type: number
+     *                              example: 1
+     *                          car_credential:
+     *                              type: string
+     *                              example: some_car_credential
+     *                          car_event:
+     *                              type: boolean
+     *                              example: true
+     *                  limitation_inherited:
+     *                      type: boolean
+     *                      example: true
+     *                  limitations:
+     *                      type: object
+     *                      properties:
+     *                          id:
+     *                              type: number
+     *                              example: 1
+     *                          enable_date:
+     *                              type: boolean
+     *                              example: true
+     *                          valid_from:
+     *                              type: string
+     *                              example: 2020-04-04 00:00:00
+     *                          valid_due:
+     *                              type: string
+     *                              example: 2020-05-05 15:00:00
+     *                          pass_counter_enable:
+     *                              type: boolean
+     *                              example: true
+     *                          pass_counter_passes:
+     *                              type: number
+     *                              example: 25
+     *                          pass_counter_current:
+     *                              type: number
+     *                              example: 10
+     *                          first_use_counter_enable:
+     *                              type: boolean
+     *                              example: true
+     *                          first_use_counter_days:
+     *                              type: number
+     *                              example: 25
+     *                          first_use_counter_current:
+     *                              type: number
+     *                              example: 10
+     *                          last_use_counter_enable:
+     *                              type: boolean
+     *                              example: true
+     *                          last_use_counter_days:
+     *                              type: number
+     *                              example: 25
+     *                          last_use_counter_current:
+     *                              type: number
+     *                              example: 10
+     *                  antipass_back_inherited:
+     *                      type: boolean
+     *                      example: false
+     *                  antipass_backs:
+     *                      type: object
+     *                      properties:
+     *                          id:
+     *                              type: number
+     *                              example: 1
+     *                          type:
+     *                              type: disable | soft | semi_soft | hard | extra_hard
+     *                              example: disable
+     *                          enable_timer:
+     *                              type: boolean
+     *                              example: false
+     *                          time:
+     *                              type: number
+     *                              example: 60
+     *                          time_type:
+     *                              type: seconds | minutes | hours
+     *                              example: minutes
+     *                  time_attendance_inherited:
+     *                      type: boolean
+     *                      example: false
+     *                  time_attendance:
+     *                      type: number
+     *                      example: 1
+     *                  access_right_inherited:
+     *                      type: boolean
+     *                      example: false
+     *                  access_right:
+     *                      type: number
+     *                      example: 1
      *          responses:
      *              '201':
      *                  description: A cardholder updated object
@@ -459,7 +456,7 @@ export default class CardholderController {
                 //     car_info: car_info,
                 //     limitation: limitation
                 // }
-                ctx.body = res_data
+                // ctx.body = res_data
             }
         } catch (error) {
             ctx.status = error.status || 400
