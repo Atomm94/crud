@@ -1,15 +1,14 @@
 import { DefaultContext } from 'koa'
-import { AccessRight } from '../model/entity/AccessRight'
-import { CardholderGroup } from '../model/entity/CardholderGroup'
-export default class AccessRightController {
+import { AccessPointGroup } from '../model/entity/AccessPointGroup'
+export default class AccessPointGroupController {
     /**
      *
      * @swagger
-     *  /accessRight:
+     *  /accessPointGroup:
      *      post:
      *          tags:
-     *              - AccessRight
-     *          summary: Creates a accessRight.
+     *              - AccessPointGroup
+     *          summary: Creates a accessPointGroup.
      *          consumes:
      *              - application/json
      *          parameters:
@@ -20,21 +19,19 @@ export default class AccessRightController {
      *              schema:
      *                type: string
      *            - in: body
-     *              name: accessRight
-     *              description: The accessRight to create.
+     *              name: accessPointGroup
+     *              description: The accessPointGroup to create.
      *              schema:
      *                type: object
      *                required:
      *                properties:
      *                  name:
      *                      type: string
-     *                      example: APT 50
      *                  description:
      *                      type: string
-     *                      example: description
      *          responses:
      *              '201':
-     *                  description: A accessRight object
+     *                  description: A accessPointGroup object
      *              '409':
      *                  description: Conflict
      *              '422':
@@ -46,7 +43,7 @@ export default class AccessRightController {
             const req_data = ctx.request.body
             const user = ctx.user
             req_data.company = user.company ? user.company : null
-            ctx.body = await AccessRight.addItem(req_data as AccessRight)
+            ctx.body = await AccessPointGroup.addItem(req_data as AccessPointGroup)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -57,11 +54,11 @@ export default class AccessRightController {
     /**
      *
      * @swagger
-     *  /accessRight:
+     *  /accessPointGroup:
      *      put:
      *          tags:
-     *              - AccessRight
-     *          summary: Update a accessRight.
+     *              - AccessPointGroup
+     *          summary: Update a accessPointGroup.
      *          consumes:
      *              - application/json
      *          parameters:
@@ -72,8 +69,8 @@ export default class AccessRightController {
      *              schema:
      *                type: string
      *            - in: body
-     *              name: accessRight
-     *              description: The accessRight to create.
+     *              name: accessPointGroup
+     *              description: The accessPointGroup to create.
      *              schema:
      *                type: object
      *                required:
@@ -84,13 +81,11 @@ export default class AccessRightController {
      *                      example: 1
      *                  name:
      *                      type: string
-     *                      example: APT 50
      *                  description:
      *                      type: string
-     *                      example: description
      *          responses:
      *              '201':
-     *                  description: A accessRight updated object
+     *                  description: A accessPointGroup updated object
      *              '409':
      *                  description: Conflict
      *              '422':
@@ -101,13 +96,13 @@ export default class AccessRightController {
             const req_data = ctx.request.body
             const user = ctx.user
             const where = { id: req_data.id, company: user.company ? user.company : null }
-            const check_by_company = await AccessRight.findOne(where)
+            const check_by_company = await AccessPointGroup.findOne(where)
 
             if (!check_by_company) {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
             } else {
-                const updated = await AccessRight.updateItem(req_data as AccessRight)
+                const updated = await AccessPointGroup.updateItem(req_data as AccessPointGroup)
                 ctx.oldData = updated.old
                 ctx.body = updated.new
             }
@@ -121,11 +116,11 @@ export default class AccessRightController {
     /**
      *
      * @swagger
-     * /accessRight/{id}:
+     * /accessPointGroup/{id}:
      *      get:
      *          tags:
-     *              - AccessRight
-     *          summary: Return accessRight by ID
+     *              - AccessPointGroup
+     *          summary: Return accessPointGroup by ID
      *          parameters:
      *              - name: id
      *                in: path
@@ -151,8 +146,9 @@ export default class AccessRightController {
         try {
             const user = ctx.user
             const where = { id: +ctx.params.id, company: user.company ? user.company : user.company }
-            const relations = ['access_rules', 'access_rules.access_points', 'access_rules.schedules']
-            ctx.body = await AccessRight.getItem(where, relations)
+            const relations = ['access_points']
+
+            ctx.body = await AccessPointGroup.getItem(where, relations)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -163,11 +159,11 @@ export default class AccessRightController {
     /**
      *
      * @swagger
-     *  /accessRight:
+     *  /accessPointGroup:
      *      delete:
      *          tags:
-     *              - AccessRight
-     *          summary: Delete a accessRight.
+     *              - AccessPointGroup
+     *          summary: Delete a accessPointGroup.
      *          consumes:
      *              - application/json
      *          parameters:
@@ -178,8 +174,8 @@ export default class AccessRightController {
      *              schema:
      *                type: string
      *            - in: body
-     *              name: accessRight
-     *              description: The accessRight to create.
+     *              name: accessPointGroup
+     *              description: The accessPointGroup to create.
      *              schema:
      *                type: object
      *                required:
@@ -190,7 +186,7 @@ export default class AccessRightController {
      *                      example: 1
      *          responses:
      *              '200':
-     *                  description: accessRight has been deleted
+     *                  description: accessPointGroup has been deleted
      *              '422':
      *                  description: Wrong data
      */
@@ -199,13 +195,13 @@ export default class AccessRightController {
             const req_data = ctx.request.body
             const user = ctx.user
             const where = { id: req_data.id, company: user.company ? user.company : null }
-            const check_by_company = await AccessRight.findOne(where)
+            const check_by_company = await AccessPointGroup.findOne(where)
 
             if (!check_by_company) {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
             } else {
-                ctx.body = await AccessRight.destroyItem(req_data as { id: number })
+                ctx.body = await AccessPointGroup.destroyItem(req_data as { id: number })
             }
         } catch (error) {
             ctx.status = error.status || 400
@@ -217,11 +213,11 @@ export default class AccessRightController {
     /**
      *
      * @swagger
-     * /accessRight:
+     * /accessPointGroup:
      *      get:
      *          tags:
-     *              - AccessRight
-     *          summary: Return accessRight list
+     *              - AccessPointGroup
+     *          summary: Return accessPointGroup list
      *          parameters:
      *              - in: header
      *                name: Authorization
@@ -231,7 +227,7 @@ export default class AccessRightController {
      *                    type: string
      *          responses:
      *              '200':
-     *                  description: Array of accessRight
+     *                  description: Array of accessPointGroup
      *              '401':
      *                  description: Unauthorized
      */
@@ -240,55 +236,7 @@ export default class AccessRightController {
             const req_data = ctx.query
             const user = ctx.user
             req_data.where = { company: { '=': user.company ? user.company : null } }
-            ctx.body = await AccessRight.getAllItems(req_data)
-        } catch (error) {
-            ctx.status = error.status || 400
-            ctx.body = error
-        }
-        return ctx.body
-    }
-
-    /**
-     *
-     * @swagger
-     * /accessRight/relations/{id}:
-     *      get:
-     *          tags:
-     *              - AccessRight
-     *          summary: Return accessRightRelations by ID
-     *          parameters:
-     *              - name: id
-     *                in: path
-     *                required: true
-     *                description: Parameter description
-     *                schema:
-     *                    type: integer
-     *                    format: int64
-     *                    minimum: 1
-     *              - in: header
-     *                name: Authorization
-     *                required: true
-     *                description: Authentication token
-     *                schema:
-     *                    type: string
-     *          responses:
-     *              '200':
-     *                  description: Data object
-     *              '404':
-     *                  description: Data not found
-     */
-    public static async getRelations (ctx: DefaultContext) {
-        try {
-            const user = ctx.user
-            const company = user.company ? user.company : null
-            ctx.body = await CardholderGroup.createQueryBuilder('cardholder_group')
-                .innerJoin('cardholder_group.cardholders', 'cardholder')
-                .select('cardholder_group.name')
-                .addSelect('COUNT(cardholder.id) as cardholders_qty')
-                .where(`cardholder_group.company = ${company}`)
-                .andWhere(`cardholder_group.access_right = ${ctx.params.id}`)
-                .groupBy('cardholder.cardholder_group')
-                .getRawMany()
+            ctx.body = await AccessPointGroup.getAllItems(req_data)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

@@ -1,39 +1,37 @@
 import {
     Entity,
     Column,
-    ManyToOne,
-    OneToMany,
-    JoinColumn
+    OneToMany
 } from 'typeorm'
 
 import { MainEntity } from './MainEntity'
-import { Company } from './Company'
-import { AccessRule } from './AccessRule'
 
-@Entity('entry')
-export class Entry extends MainEntity {
-    @Column('varchar', { name: 'name' })
+import { AccessPoint } from './AccessPoint'
+
+@Entity('access_point_group')
+export class AccessPointGroup extends MainEntity {
+    @Column('varchar', { name: 'name', nullable: false })
     name: string
+
+    @Column('varchar', { name: 'description', nullable: true })
+    description: string | null
 
     @Column('int', { name: 'company', nullable: false })
     company: number
 
-    @ManyToOne(type => Company, company => company.entries)
-    @JoinColumn({ name: 'company' })
-    companies: Company;
+    @OneToMany(type => AccessPoint, access_point => access_point.access_point_groups)
+    access_points: AccessPoint[];
 
-    @OneToMany(type => AccessRule, access_rule => access_rule.entries)
-    access_rules: AccessRule[];
+    public static async addItem (data: AccessPointGroup) {
+        const accessPointGroup = new AccessPointGroup()
 
-    public static async addItem (data: Entry) {
-        const entry = new Entry()
-
-        entry.name = data.name
-        entry.company = data.company
+        accessPointGroup.name = data.name
+        accessPointGroup.description = data.description
+        accessPointGroup.company = data.company
 
         return new Promise((resolve, reject) => {
-            this.save(entry)
-                .then((item: Entry) => {
+            this.save(accessPointGroup)
+                .then((item: AccessPointGroup) => {
                     resolve(item)
                 })
                 .catch((error: any) => {
@@ -42,16 +40,17 @@ export class Entry extends MainEntity {
         })
     }
 
-    public static async updateItem (data: Entry): Promise<{ [key: string]: any }> {
-        const entry = await this.findOneOrFail(data.id)
-        const oldData = Object.assign({}, entry)
+    public static async updateItem (data: AccessPointGroup): Promise<{ [key: string]: any }> {
+        const accessPointGroup = await this.findOneOrFail(data.id)
+        const oldData = Object.assign({}, accessPointGroup)
 
-        if ('name' in data) entry.name = data.name
+        if ('name' in data) accessPointGroup.name = data.name
+        if ('description' in data) accessPointGroup.description = data.description
 
-        if (!entry) return { status: 400, message: 'Item not found' }
+        if (!accessPointGroup) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(entry)
-                .then((item: Entry) => {
+            this.save(accessPointGroup)
+                .then((item: AccessPointGroup) => {
                     resolve({
                         old: oldData,
                         new: item
@@ -63,12 +62,13 @@ export class Entry extends MainEntity {
         })
     }
 
-    public static async getItem (where: any) {
+    public static async getItem (where: any, relations?: Array<string>) {
         return new Promise((resolve, reject) => {
             this.findOneOrFail({
-                where: where
+                where: where,
+                relations: relations || []
             })
-                .then((item: Entry) => {
+                .then((item: AccessPointGroup) => {
                     resolve(item)
                 })
                 .catch((error: any) => {

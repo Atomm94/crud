@@ -4,7 +4,15 @@
             "name": {
                 "type": "varchar",
                 "params": {
-                    "name": "name"
+                    "name": "name",
+                    "nullable": false
+                }
+            },
+            "description": {
+                "type": "varchar",
+                "params": {
+                    "name": "description",
+                    "nullable": true
                 }
             },
             "company": {

@@ -1,15 +1,14 @@
 import { DefaultContext } from 'koa'
-import { AccessRight } from '../model/entity/AccessRight'
-import { CardholderGroup } from '../model/entity/CardholderGroup'
-export default class AccessRightController {
+import { AccessPointZone } from '../model/entity/AccessPointZone'
+export default class AccessPointZoneController {
     /**
      *
      * @swagger
-     *  /accessRight:
+     *  /accessPointZone:
      *      post:
      *          tags:
-     *              - AccessRight
-     *          summary: Creates a accessRight.
+     *              - AccessPointZone
+     *          summary: Creates a accessPointZone.
      *          consumes:
      *              - application/json
      *          parameters:
@@ -20,21 +19,27 @@ export default class AccessRightController {
      *              schema:
      *                type: string
      *            - in: body
-     *              name: accessRight
-     *              description: The accessRight to create.
+     *              name: accessPointZone
+     *              description: The accessPointZone to create.
      *              schema:
      *                type: object
      *                required:
      *                properties:
      *                  name:
      *                      type: string
-     *                      example: APT 50
      *                  description:
      *                      type: string
-     *                      example: description
+     *                  parent_id:
+     *                      type: number
+     *                  apb_reset_timer:
+     *                      type: string
+     *                  people_limits_min:
+     *                      type: string
+     *                  people_limits_max:
+     *                      type: string
      *          responses:
      *              '201':
-     *                  description: A accessRight object
+     *                  description: A accessPointZone object
      *              '409':
      *                  description: Conflict
      *              '422':
@@ -46,7 +51,7 @@ export default class AccessRightController {
             const req_data = ctx.request.body
             const user = ctx.user
             req_data.company = user.company ? user.company : null
-            ctx.body = await AccessRight.addItem(req_data as AccessRight)
+            ctx.body = await AccessPointZone.addItem(req_data as AccessPointZone)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -57,11 +62,11 @@ export default class AccessRightController {
     /**
      *
      * @swagger
-     *  /accessRight:
+     *  /accessPointZone:
      *      put:
      *          tags:
-     *              - AccessRight
-     *          summary: Update a accessRight.
+     *              - AccessPointZone
+     *          summary: Update a accessPointZone.
      *          consumes:
      *              - application/json
      *          parameters:
@@ -72,8 +77,8 @@ export default class AccessRightController {
      *              schema:
      *                type: string
      *            - in: body
-     *              name: accessRight
-     *              description: The accessRight to create.
+     *              name: accessPointZone
+     *              description: The accessPointZone to create.
      *              schema:
      *                type: object
      *                required:
@@ -84,13 +89,19 @@ export default class AccessRightController {
      *                      example: 1
      *                  name:
      *                      type: string
-     *                      example: APT 50
      *                  description:
      *                      type: string
-     *                      example: description
+     *                  parent_id:
+     *                      type: number
+     *                  apb_reset_timer:
+     *                      type: string
+     *                  people_limits_min:
+     *                      type: string
+     *                  people_limits_max:
+     *                      type: string
      *          responses:
      *              '201':
-     *                  description: A accessRight updated object
+     *                  description: A accessPointZone updated object
      *              '409':
      *                  description: Conflict
      *              '422':
@@ -101,13 +112,13 @@ export default class AccessRightController {
             const req_data = ctx.request.body
             const user = ctx.user
             const where = { id: req_data.id, company: user.company ? user.company : null }
-            const check_by_company = await AccessRight.findOne(where)
+            const check_by_company = await AccessPointZone.findOne(where)
 
             if (!check_by_company) {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
             } else {
-                const updated = await AccessRight.updateItem(req_data as AccessRight)
+                const updated = await AccessPointZone.updateItem(req_data as AccessPointZone)
                 ctx.oldData = updated.old
                 ctx.body = updated.new
             }
@@ -121,11 +132,11 @@ export default class AccessRightController {
     /**
      *
      * @swagger
-     * /accessRight/{id}:
+     * /accessPointZone/{id}:
      *      get:
      *          tags:
-     *              - AccessRight
-     *          summary: Return accessRight by ID
+     *              - AccessPointZone
+     *          summary: Return accessPointZone by ID
      *          parameters:
      *              - name: id
      *                in: path
@@ -151,8 +162,9 @@ export default class AccessRightController {
         try {
             const user = ctx.user
             const where = { id: +ctx.params.id, company: user.company ? user.company : user.company }
-            const relations = ['access_rules', 'access_rules.access_points', 'access_rules.schedules']
-            ctx.body = await AccessRight.getItem(where, relations)
+            const relations = ['access_points']
+
+            ctx.body = await AccessPointZone.getItem(where, relations)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -163,11 +175,11 @@ export default class AccessRightController {
     /**
      *
      * @swagger
-     *  /accessRight:
+     *  /accessPointZone:
      *      delete:
      *          tags:
-     *              - AccessRight
-     *          summary: Delete a accessRight.
+     *              - AccessPointZone
+     *          summary: Delete a accessPointZone.
      *          consumes:
      *              - application/json
      *          parameters:
@@ -178,8 +190,8 @@ export default class AccessRightController {
      *              schema:
      *                type: string
      *            - in: body
-     *              name: accessRight
-     *              description: The accessRight to create.
+     *              name: accessPointZone
+     *              description: The accessPointZone to create.
      *              schema:
      *                type: object
      *                required:
@@ -190,7 +202,7 @@ export default class AccessRightController {
      *                      example: 1
      *          responses:
      *              '200':
-     *                  description: accessRight has been deleted
+     *                  description: accessPointZone has been deleted
      *              '422':
      *                  description: Wrong data
      */
@@ -199,13 +211,13 @@ export default class AccessRightController {
             const req_data = ctx.request.body
             const user = ctx.user
             const where = { id: req_data.id, company: user.company ? user.company : null }
-            const check_by_company = await AccessRight.findOne(where)
+            const check_by_company = await AccessPointZone.findOne(where)
 
             if (!check_by_company) {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
             } else {
-                ctx.body = await AccessRight.destroyItem(req_data as { id: number })
+                ctx.body = await AccessPointZone.destroyItem(req_data as { id: number })
             }
         } catch (error) {
             ctx.status = error.status || 400
@@ -217,11 +229,11 @@ export default class AccessRightController {
     /**
      *
      * @swagger
-     * /accessRight:
+     * /accessPointZone:
      *      get:
      *          tags:
-     *              - AccessRight
-     *          summary: Return accessRight list
+     *              - AccessPointZone
+     *          summary: Return accessPointZone list
      *          parameters:
      *              - in: header
      *                name: Authorization
@@ -231,7 +243,7 @@ export default class AccessRightController {
      *                    type: string
      *          responses:
      *              '200':
-     *                  description: Array of accessRight
+     *                  description: Array of accessPointZone
      *              '401':
      *                  description: Unauthorized
      */
@@ -240,55 +252,7 @@ export default class AccessRightController {
             const req_data = ctx.query
             const user = ctx.user
             req_data.where = { company: { '=': user.company ? user.company : null } }
-            ctx.body = await AccessRight.getAllItems(req_data)
-        } catch (error) {
-            ctx.status = error.status || 400
-            ctx.body = error
-        }
-        return ctx.body
-    }
-
-    /**
-     *
-     * @swagger
-     * /accessRight/relations/{id}:
-     *      get:
-     *          tags:
-     *              - AccessRight
-     *          summary: Return accessRightRelations by ID
-     *          parameters:
-     *              - name: id
-     *                in: path
-     *                required: true
-     *                description: Parameter description
-     *                schema:
-     *                    type: integer
-     *                    format: int64
-     *                    minimum: 1
-     *              - in: header
-     *                name: Authorization
-     *                required: true
-     *                description: Authentication token
-     *                schema:
-     *                    type: string
-     *          responses:
-     *              '200':
-     *                  description: Data object
-     *              '404':
-     *                  description: Data not found
-     */
-    public static async getRelations (ctx: DefaultContext) {
-        try {
-            const user = ctx.user
-            const company = user.company ? user.company : null
-            ctx.body = await CardholderGroup.createQueryBuilder('cardholder_group')
-                .innerJoin('cardholder_group.cardholders', 'cardholder')
-                .select('cardholder_group.name')
-                .addSelect('COUNT(cardholder.id) as cardholders_qty')
-                .where(`cardholder_group.company = ${company}`)
-                .andWhere(`cardholder_group.access_right = ${ctx.params.id}`)
-                .groupBy('cardholder.cardholder_group')
-                .getRawMany()
+            ctx.body = await AccessPointZone.getAllItems(req_data)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

@@ -1,14 +1,10 @@
+
 import CompanyController from '../controller/CompanyController'
 import RegistrationInviteController from '../controller/RegistrationInviteController'
-import SectionController from '../controller/SectionController'
 
 import {
   AuthController,
   TranslationController,
-  SliderController,
-  SocialController,
-  PageController,
-  MenuController,
   LanguageController,
   ModuleController,
   FileController
@@ -26,7 +22,7 @@ export default router
   .get('/', swaggerUi.setup(swaggerSpec))
   .get('swagger', swaggerUi.setup(swaggerSpec))
 
-  // Admin
+  // Auth
   .get('auth', AuthController.checkAuth)
   .post('login', AuthController.login)
 
@@ -36,46 +32,11 @@ export default router
   .delete('Translation-destroyItem', 'translations', TranslationController.deleteTrans)
   .get('Translation-getAllItems', 'translations', TranslationController.getTrans)
 
-  // Slider
-  .post('Slider-addItem', 'slider', SliderController.createSlider)
-  .delete('Slider-destroyItem', 'slider', SliderController.deleteSlider)
-  .put('Slider-updateItem', 'slider', SliderController.updateSlider)
-  .get('Slider-getAllItems', 'slider', SliderController.getSlider)
-
-  // Social
-  .post('Social-addItem', 'social', SocialController.createSocialLink)
-  .delete('Social-destroyItem', 'social', SocialController.deleteSocialLink)
-  .put('Social-updateItem', 'social', SocialController.updateSocialLink)
-  .get('Social-getAllItems', 'social', SocialController.getSocialLink)
-
-  // Page
-  .post('Page-addItem', 'page', PageController.createPage)
-  .delete('Page-destroyItem', 'page', PageController.deletePage)
-
-  .put('Page-updateItem', 'page', PageController.updatePage)
-  .get('Page-getPageWithSection', 'page', PageController.getPage)
-  .get('Page-getPageById', 'page/:pageId', PageController.getPageById)
-  .put('Page-updateItem', 'updatePageStatus', PageController.updatePageStatus)
-
-  // Section
-  .delete('Section-destroyItem', 'section', SectionController.deleteSection)
-  .get('Section-getItem', 'section/:id', SectionController.getSectionById)
-  .post('Section-addItem', 'createSection', SectionController.createSection)
-  .put('Section-updateItem', 'section', SectionController.updateSection)
-
   // Module
   .get('Module-findModule', 'findModule', ModuleController.findModule)
   .get('Module-getModule', 'module', ModuleController.getModule)
   .get('Module-getModuleSelections', 'getSelections/:name', ModuleController.getModuleSelections)
   .post('Module-createModuleData', 'createModuleData', ModuleController.createModuleData)
-
-  // Menu
-
-  .post('Menu-addItem', 'menu', MenuController.createMenu)
-  .delete('Menu-destroyItem', 'menu', MenuController.deleteMenu)
-  .put('Menu-updateItem', 'menu', MenuController.updateMenu)
-  .get('Menu-getAllItems', 'menu', MenuController.getMenu)
-  .put('Menu-updateItem', 'updateMenuStatus', MenuController.updateMenuStatus)
 
   // Files
 

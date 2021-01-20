@@ -8,10 +8,10 @@
                     "nullable": false
                 }
             },
-            "entry": {
+            "accessPoint": {
                 "type": "int",
                 "params": {
-                    "name": "entry",
+                    "name": "accessPoint",
                     "nullable": false
                 }
             },

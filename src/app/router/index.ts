@@ -10,7 +10,9 @@ import cardholder from './cardholder'
 import cardholdersGroup from './cardholdersGroup'
 import company from './company'
 import department from './department'
-import entry from './entry'
+import accessPoint from './accessPoint'
+import accessPointGroup from './accessPointGroup'
+import accessPointZone from './accessPointZone'
 import ticket from './ticket'
 
 import Router from 'koa-router'
@@ -29,8 +31,10 @@ router.use('/', cardholder.routes(), cardholder.allowedMethods())
 router.use('/', cardholdersGroup.routes(), cardholdersGroup.allowedMethods())
 router.use('/', company.routes(), company.allowedMethods())
 router.use('/', department.routes(), department.allowedMethods())
-router.use('/', entry.routes(), entry.allowedMethods())
 router.use('/', ticket.routes(), ticket.allowedMethods())
+router.use('/', accessPoint.routes(), accessPoint.allowedMethods())
+router.use('/', accessPointGroup.routes(), accessPointGroup.allowedMethods())
+router.use('/', accessPointZone.routes(), accessPointZone.allowedMethods())
 
 export {
     router

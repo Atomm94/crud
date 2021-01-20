@@ -12,7 +12,7 @@ import { Cardholder } from '.'
 @Entity('antipass_back')
 export class AntipassBack extends MainEntity {
     @Column('enum', { name: 'type', enum: typeAntipassBack, default: typeAntipassBack.DISABLE })
-    type: string
+    type: typeAntipassBack
 
     @Column('boolean', { name: 'enable_timer', default: false })
     enable_timer: boolean
@@ -21,7 +21,7 @@ export class AntipassBack extends MainEntity {
     time: number | null
 
     @Column('enum', { name: 'time_type', enum: timeTypeAntipassBack, default: timeTypeAntipassBack.MINUTES })
-    time_type: string
+    time_type: timeTypeAntipassBack
 
     @OneToMany(type => CardholderGroup, cardholder_group => cardholder_group.antipass_backs)
     cardholder_groups: CardholderGroup[];
