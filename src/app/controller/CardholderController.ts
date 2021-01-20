@@ -445,9 +445,7 @@ export default class CardholderController {
                 ctx.oldData = res_data.old
                 ctx.body = res_data.new
 
-                // ctx.body = res_data
-                const cardholder: any = await Cardholder.addItem(req_data as Cardholder)
-                const where = { id: cardholder.id }
+                const where = { id: req_data.id }
                 const relations = ['car_infos', 'limitations', 'antipass_backs', 'time_attendances', 'access_rights', 'cardholder_groups']
                 ctx.body = await Cardholder.getItem(where, relations)
             }
