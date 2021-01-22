@@ -49,6 +49,9 @@ export class AccessPoint extends MainEntity {
     @Column('int', { name: 'acu', nullable: true })
     acu: number | null
 
+    @Column('longtext', { name: 'resources', nullable: true })
+    resources: string | null
+
     @Column('int', { name: 'company', nullable: false })
     company: number
 
@@ -85,6 +88,8 @@ export class AccessPoint extends MainEntity {
         if ('access_point_group' in data) accessPoint.access_point_group = data.access_point_group
         if ('access_point_zone' in data) accessPoint.access_point_zone = data.access_point_zone
         if ('acu' in data) accessPoint.acu = data.acu
+        if ('resources' in data) accessPoint.resources = data.resources
+        accessPoint.company = data.company
 
         return new Promise((resolve, reject) => {
             this.save(accessPoint)
@@ -112,6 +117,7 @@ export class AccessPoint extends MainEntity {
         if ('access_point_group' in data) accessPoint.access_point_group = data.access_point_group
         if ('access_point_zone' in data) accessPoint.access_point_zone = data.access_point_zone
         if ('acu' in data) accessPoint.acu = data.acu
+        if ('resources' in data) accessPoint.resources = data.resources
 
         if (!accessPoint) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {

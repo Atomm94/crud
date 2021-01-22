@@ -1,5 +1,3 @@
-import { acuInterfaceMode } from '../enums/acuInterfaceMode.enum'
-
 export function ipValidation (string: string) {
     const ipformat = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
     if (string.match(ipformat)) {
@@ -43,18 +41,6 @@ export function networkValidation (data: any, connection_type?: string) {
     }
 }
 
-export function checkAcuInterfaceMode (mode: string) {
-    const values: any = Object.values(acuInterfaceMode)
-    const check = values.includes(mode)
-    return check
-}
-
-export function checkAcuInterfaceBaudRate (baud_rate: number) {
-    const values: Array<number> = [2400, 4800, 9600, 14400, 19200, 28800, 38400, 56000]
-    const check = values.includes(baud_rate)
-    return check
-}
-
 export function interfaceValidation (data: any) {
     if (!('rs485_port_1' in data) || !('rs485_port_2' in data)) {
         return new Error('Invalid interface data')
@@ -62,17 +48,10 @@ export function interfaceValidation (data: any) {
         if (typeof data.rs485_port_1 !== 'boolean' || typeof data.rs485_port_2 !== 'boolean') {
             return new Error('Invalid rs485_port status')
         } else {
-            if (!checkAcuInterfaceMode(data.rs485_port_1.mode) || !checkAcuInterfaceMode(data.rs485_port_2.mode)) {
-                return new Error('Invalid interface mode')
-            } else {
-                if (!checkAcuInterfaceBaudRate(data.rs485_port_1.baud_rate) || !checkAcuInterfaceBaudRate(data.rs485_port_2.baud_rate)) {
-                    return new Error('Invalid interface Baud Rate')
-                }
+            return true
             }
         }
     }
-    return true
-}
 
 export function timeValidation (data: any) {
     if (!('user_timezone' in data)) {
@@ -88,4 +67,16 @@ export function timeValidation (data: any) {
         }
     }
     return true
+}
+
+export function maintainValidation (data: any) {
+    if (!('maintain_update_manual' in data)) {
+        return new Error('Invalid maintain data')
+    } else {
+        if (typeof data.maintain_update_manual !== 'boolean') {
+            return new Error('Invalid rs485_time status')
+        } else {
+            return true
+        }
+    }
 }

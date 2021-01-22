@@ -163,7 +163,6 @@ export default class AccessPointZoneController {
             const user = ctx.user
             const where = { id: +ctx.params.id, company: user.company ? user.company : user.company }
             const relations = ['access_points']
-
             ctx.body = await AccessPointZone.getItem(where, relations)
         } catch (error) {
             ctx.status = error.status || 400

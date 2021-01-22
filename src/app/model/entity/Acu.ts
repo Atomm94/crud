@@ -93,6 +93,13 @@ export class Acu extends MainEntity {
                     reject(check_time)
                 }
             }
+            // if (data.maintain) {
+            //     const check_maintain = maintainValidation(data.time)
+            //     if (!check_maintain) {
+            //         reject(check_maintain)
+            //     }
+            // }
+
             this.save(acu)
                 .then((item: Acu) => {
                     resolve(item)

@@ -58,6 +58,9 @@ export default class AccessPointController {
      *                  acu:
      *                      type: number
      *                      example: 1
+     *                  resources:
+     *                      type: string
+     *                      example: resources
      *          responses:
      *              '201':
      *                  description: A accessPoint object
@@ -141,6 +144,9 @@ export default class AccessPointController {
      *                  acu:
      *                      type: number
      *                      example: 1
+     *                  resources:
+     *                      type: string
+     *                      example: resources
      *          responses:
      *              '201':
      *                  description: A accessPoint updated object

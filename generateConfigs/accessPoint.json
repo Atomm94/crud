@@ -78,6 +78,13 @@
                     "nullable": true
                 }
             },
+            "resources": {
+                "type": "longtext",
+                "params": {
+                    "name": "resources",
+                    "nullable": true
+                }
+            },
             "company": {
                 "type": "int",
                 "params": {
