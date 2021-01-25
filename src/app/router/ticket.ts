@@ -1,21 +1,17 @@
 import TicketController from '../controller/TicketController'
 import Router from 'koa-router'
+import ticketMessage from './ticketMessage'
+import checkRole from '../middleware/checkRole'
+import resource from '../middleware/resource'
 const router = new Router()
 export default router
   // Ticket controller CRUD endpoints
-  .post('Ticket-addItem', 'ticket', TicketController.add)
-  .put('Ticket-updateItem', 'ticket', TicketController.update)
-  .get('Ticket-getItem', 'ticket/:id', TicketController.get)
-  .delete('Ticket-destroyItem', 'ticket', TicketController.destroy)
-  .get('Ticket-getAllItems', 'ticket', TicketController.getAll)
-  .post('Ticket-saveImage', 'ticketImage', TicketController.saveImage)
-  .delete('Ticket-deleteImage', 'ticketImage', TicketController.deleteImage)
+  .use('ticket/', ticketMessage.routes(), ticketMessage.allowedMethods())
 
-  .post('Ticket-addMessage', 'addTicketMessage', TicketController.addTicketMessage)
-  .put('Ticket-updateMessage', 'updateTicketMessage', TicketController.updateTicketMessage)
-  .get('Ticket-getMessage', 'getTicketMessage/:id', TicketController.getTicketMessage)
-  .delete('Ticket-destroyMessage', 'destroyTicketMessage', TicketController.destroyTicketMessage)
-  .get('Ticket-getAllMessages', 'getAllTicketMessages', TicketController.getAllTicketMessages)
-
-  .post('Ticket-saveMessageImage', 'ticketMessageImage', TicketController.ticketMessageImageSave)
-  .delete('Ticket-deleteMessageImage', 'ticketMessageImage', TicketController.ticketMessageImageDelete)
+  .post('Ticket-addItem', 'ticket', checkRole(), resource(), TicketController.add)
+  .put('Ticket-updateItem', 'ticket', checkRole(), resource(), TicketController.update)
+  .delete('Ticket-destroyItem', 'ticket', checkRole(), resource(), TicketController.destroy)
+  .get('Ticket-getAllItems', 'ticket', checkRole(), resource(), TicketController.getAll)
+  .post('Ticket-saveImage', 'ticket/file', checkRole(), resource(), TicketController.saveImage)
+  .delete('Ticket-deleteImage', 'ticket/file', checkRole(), resource(), TicketController.deleteImage)
+  .get('Ticket-getItem', 'ticket/:id', checkRole(), resource(), TicketController.get)

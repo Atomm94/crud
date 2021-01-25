@@ -1,3 +1,4 @@
+import { MainEntity } from './MainEntity'
 import { Admin } from './Admin'
 import { Role } from './Role'
 import { Translation } from './Translation'
@@ -19,8 +20,14 @@ import { Schedule } from './Schedule'
 import { AccessRight } from './AccessRight'
 import { CardholderGroup } from './CardholderGroup'
 import { Log } from './Log'
+import { AccountGroup } from './AccountGroup'
+import { AccessPointGroup } from './AccessPointGroup'
+import { AccessPointZone } from './AccessPointZone'
+import { AccessPoint } from './AccessPoint'
+import { AccessRule } from './AccessRule'
 
 export {
+    MainEntity,
     Admin,
     Role,
     Translation,
@@ -41,5 +48,10 @@ export {
     Schedule,
     AccessRight,
     CardholderGroup,
-    Log
+    Log,
+    AccountGroup,
+    AccessPointGroup,
+    AccessPointZone,
+    AccessPoint,
+    AccessRule
 }

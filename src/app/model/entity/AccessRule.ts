@@ -47,7 +47,7 @@ export class AccessRule extends MainEntity {
     public static gettingActions: boolean = false
     public static gettingAttributes: boolean = false
 
-    public static async addItem (data: AccessRule) {
+    public static async addItem (data: AccessRule):Promise<AccessRule> {
         const accessRule = new AccessRule()
 
         accessRule.access_right = data.access_right

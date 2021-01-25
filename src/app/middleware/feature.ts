@@ -11,12 +11,12 @@ interface IFeatureModel {
 class Feature {
     public static Cardholder: IFeatureModel = {
         CardholderGroupOperation: {
-            check: CardHolderGroupOperationCheck,
+            check: CardholderGroupOperationCheck,
             model: 'CardholderGroup',
             module: true
         },
         CardholderGroupAccessRight: {
-            check: CardHolderGroupAccessRightCheck,
+            check: CardholderGroupAccessRightCheck,
             model: 'CardholderGroup'
         },
         CardholderDeactivationByDate: {
@@ -83,8 +83,8 @@ async function HaveAccess (ctx: DefaultContext, actionName: string, next: () => 
     }
 }
 
-async function CardHolderGroupOperationCheck (ctx: DefaultContext, next: () => Promise<void>) {
-    const actionName = 'CardHolderOperation'
+async function CardholderGroupOperationCheck (ctx: DefaultContext, next: () => Promise<void>) {
+    const actionName = 'CardholderGroupOperation'
     if (ctx.user.super) {
         await next()
     } else {
@@ -92,8 +92,8 @@ async function CardHolderGroupOperationCheck (ctx: DefaultContext, next: () => P
     }
 }
 
-async function CardHolderGroupAccessRightCheck (ctx: DefaultContext, next: () => Promise<void>) {
-    const actionName = 'CardHolderGroupAccessRight'
+async function CardholderGroupAccessRightCheck (ctx: DefaultContext, next: () => Promise<void>) {
+    const actionName = 'CardholderGroupAccessRight'
     const data = ctx.request.body
     if (ctx.user.super || !data.access_right) {
         await next()

@@ -21,16 +21,16 @@ import {
   TicketMessage,
   Department,
   Ticket,
-  Company
+  AccountGroup
 } from './index'
 import * as bcrypt from 'bcrypt'
 import { MainEntity } from './MainEntity'
+import { Company } from './Company'
 import { fileSave } from '../../functions/file'
 import fs from 'fs'
 import { join } from 'path'
 import { IAdmins } from '../../Interfaces/Admins'
 import { logger } from '../../../../modules/winston/logger'
-import { AccountGroup } from './AccountGroup'
 
 const parentDir = join(__dirname, '../../..')
 
@@ -161,7 +161,7 @@ export class Admin extends MainEntity {
 
   public static resource: boolean = true
 
-  public static async addItem (data: any, user: any = null):Promise<Admin> {
+  public static async addItem (data: any, user: any = null): Promise<Admin> {
     const admin = new Admin()
 
     admin.username = data.username
@@ -246,7 +246,7 @@ export class Admin extends MainEntity {
           resolve({
             old: oldData,
             new: item
-        })
+          })
         })
         .catch((error: any) => {
           reject(error)

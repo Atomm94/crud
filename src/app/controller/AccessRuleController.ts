@@ -60,9 +60,11 @@ export default class AccessRuleController {
                     const data = req_data
                     data.access_point = access_point
                     const save = await AccessRule.addItem(data as AccessRule)
-                    res_data.push(save)
+                    const relation = ['access_points']
+                    const returnData = AccessRule.getItem(save.id, relation)
+                    res_data.push(returnData)
                 }
-                ctx.body = await res_data
+                ctx.body = await Promise.all(res_data)
             } else {
                 ctx.body = await AccessRule.addItem(req_data as AccessRule)
             }

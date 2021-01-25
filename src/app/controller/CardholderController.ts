@@ -201,10 +201,10 @@ export default class CardholderController {
             if (req_data.time_attendance_inherited && group_data) {
                 req_data.time_attendance = group_data.time_attendance
             }
-
-            const car_info: any = await CarInfo.addItem(req_data.car_infos as CarInfo)
-
-            req_data.car_info = car_info.id
+            if (req_data.car_info) {
+                const car_info: any = await CarInfo.addItem(req_data.car_infos as CarInfo)
+                req_data.car_info = car_info.id
+            }
 
             await Cardholder.addItem(req_data as Cardholder)
 
@@ -498,8 +498,7 @@ export default class CardholderController {
         try {
             const user = ctx.user
             const where = { id: +ctx.params.id, company: user.company ? user.company : user.company }
-            const relations = ['car_infos', 'limitations']
-
+            const relations = ['car_infos', 'limitations', 'antipass_backs', 'time_attendances', 'access_rights', 'cardholder_groups']
             ctx.body = await Cardholder.getItem(where, relations)
         } catch (error) {
             ctx.status = error.status || 400

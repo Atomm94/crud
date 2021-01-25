@@ -5,6 +5,16 @@ import { DefaultContext } from 'koa'
 import { AccessControl } from '../functions/access-control'
 
 export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
+    const route_args = ctx.routerName.split('-')
+
+    if (route_args.length === 3) {
+      ctx.actionModel = route_args[0]
+      ctx.actionFeature = route_args[1]
+      ctx.actionName = route_args[2]
+    } else {
+      ctx.actionModel = route_args[0]
+      ctx.actionName = route_args[1]
+    }
     // const path = ctx.request.url.split('/')[1]
     // const swagger = ctx.request.url.split('/')[1].split('-')[0]
 

@@ -8,8 +8,7 @@ import {
 
 import { MainEntity } from './MainEntity'
 import { Company } from './Company'
-import { Admin } from './Admin'
-import { Role } from './Role'
+import { Role, Admin } from './index'
 import * as _ from 'lodash'
 
 @Entity('account_group')

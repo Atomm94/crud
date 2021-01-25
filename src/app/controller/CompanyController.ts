@@ -1,10 +1,12 @@
 import { DefaultContext } from 'koa'
 import { uid } from 'uid'
 import { Sendgrid } from '../../component/sendgrid/sendgrid'
-import { Company } from '../model/entity/Company'
-import { Admin } from '../model/entity/Admin'
-import { Role } from '../model/entity/Role'
-import { RegistrationInvite } from '../model/entity/RegistrationInvite'
+import {
+    RegistrationInvite,
+    Company,
+    Admin,
+    Role
+} from '../model/entity/index'
 
 export default class CompanyController {
     /**
@@ -200,7 +202,7 @@ export default class CompanyController {
     public static async getServiceCompany (ctx: DefaultContext) {
         try {
             if (ctx.user && ctx.user.company) {
-                const relations = ['company_account']
+                const relations = ['company_account', 'company_documents']
                 ctx.body = await Company.getItem(+ctx.user.company, relations)
             } else {
                 ctx.status = 400

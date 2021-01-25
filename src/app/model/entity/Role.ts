@@ -74,6 +74,7 @@ export class Role extends MainEntity {
       actions: {
         updateItem: true,
         getItem: true,
+        getAllItems: true,
         destroyItem: true
       }
     },
@@ -89,7 +90,7 @@ export class Role extends MainEntity {
     },
     Department: {
       actions: {
-        getItem: true
+        getAllItems: true
       }
     },
     Admin: {

@@ -5,8 +5,8 @@ import requestId from './middleware/requestId'
 import logging from './middleware/logging'
 import options from './middleware/options'
 import checkJwt from './middleware/checkJwt'
-import addNameToRoute from './middleware/addNameToRoute'
-import checkRole from './middleware/checkRole'
+// import addNameToRoute from './middleware/addNameToRoute'
+// import checkRole from './middleware/checkRole'
 
 import { join } from 'path'
 
@@ -23,7 +23,8 @@ import cors from 'koa2-cors'
 
 import Koa from 'koa'
 import clickhouselog from './middleware/clickhouselog'
-import resource from './middleware/resource'
+// console.log(checkRole)
+// import resource from './middleware/resource'
 
 const koaBody = require('koa-body')
 const parentDir = join(__dirname, '../')
@@ -53,7 +54,7 @@ app.use(cors(config.cors))
 // Enable bodyParser with default options
 // app.use(bodyParser(config.bodyParser))
 
-app.use(addNameToRoute(router))
+// app.use(addNameToRoute(router))
 app.use(koaBody(
     {
         multipart: true,
@@ -80,7 +81,7 @@ app.use(logging())
 // Check Jwt Middleware
 
 app.use(checkJwt())
-app.use(checkRole())
+// app.use(checkRole())
 
 // handler
 app.use(responseHandler())
@@ -92,7 +93,7 @@ app.use(compress())
 app.use(options())
 
 app.use(clickhouselog())
-app.use(resource())
+// app.use(resource())
 // routers
 app.use(router.routes()).use(router.allowedMethods())
 
