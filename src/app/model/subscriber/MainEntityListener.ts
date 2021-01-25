@@ -46,27 +46,34 @@ export class PostSubscriber implements EntitySubscriberInterface<MainEntity> {
         if (file_path) {
             file_path = JSON.parse(file_path).path
 
-            if (!fs.existsSync(`${public_path}/${upload_files_path}${model_name}`)) {
-                fs.mkdirSync(`${public_path}/${upload_files_path}${model_name}`, { recursive: true })
-            }
-            if (!fs.existsSync(`${public_path}/${upload_files_path}${model_name}/${New.id}`)) {
-                fs.mkdirSync(`${public_path}/${upload_files_path}${model_name}/${New.id}`)
-            }
-            const new_path = {
-                path: `${public_path}/${upload_files_path}${model_name}/${New.id}/${file_path}`
-            }
-            try {
-                fs.renameSync(`${public_path}/${file_path}`, new_path.path)
-            } catch (error) {
-                console.log(error)
-            }
+            if (!fs.existsSync(file_path)) {
+                if (New.avatar) {
+                    New.avatar = Old.avatar
+                } else if (New.file) {
+                    New.file = Old.file
+                } else if (New.image) {
+                    New.image = Old.image
+                }
+            } else {
+                if (!fs.existsSync(`${public_path}/${upload_files_path}${model_name}/${New.id}`)) {
+                    fs.mkdirSync(`${public_path}/${upload_files_path}${model_name}/${New.id}`, { recursive: true })
+                }
+                const new_path = {
+                    path: `${public_path}/${upload_files_path}${model_name}/${New.id}/${path.basename(file_path)}`
+                }
+                try {
+                    fs.renameSync(`${file_path}`, new_path.path)
+                } catch (error) {
+                    console.log(error)
+                }
 
-            if (New.avatar) {
-                New.avatar = JSON.stringify(new_path)
-            } else if (New.file) {
-                New.file = JSON.stringify(new_path)
-            } else if (New.image) {
-                New.image = JSON.stringify(new_path)
+                if (New.avatar) {
+                    New.avatar = JSON.stringify(new_path)
+                } else if (New.file) {
+                    New.file = JSON.stringify(new_path)
+                } else if (New.image) {
+                    New.image = JSON.stringify(new_path)
+                }
             }
         }
     }
