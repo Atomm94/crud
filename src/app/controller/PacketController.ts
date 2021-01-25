@@ -163,7 +163,8 @@ export default class PacketController {
             if (user.company) {
                 const company: any = await Company.getItem(user.company)
                 where = {
-                    packet_type: company.packet_type
+                    packet_type: company.packet_type,
+                    status: true
                 }
             }
 
@@ -251,6 +252,9 @@ export default class PacketController {
                 req_data.where = {
                     packet_type: {
                         '=': company.packet_type
+                    },
+                    status: {
+                        '=': true
                     }
                 }
                 const data = await Packet.getAllItems(req_data)
