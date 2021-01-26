@@ -10,8 +10,8 @@ export default router
 
   // AccessRight controller CRUD endpoints
   .post('AccessRight-addItem', 'accessRight', checkRole(), resource(), AccessRightController.add)
-  .put('AccessRight-updateItem', 'accessRight', checkRole(), resource(), AccessRightController.update)
-  .delete('AccessRight-destroyItem', 'accessRight', checkRole(), resource(), AccessRightController.destroy)
-  .get('AccessRight-getAllItems', 'accessRight', checkRole(), resource(), AccessRightController.getAll)
-  .get('AccessRight-getAllItems', 'accessRight/relations/:id', checkRole(), resource(), AccessRightController.getRelations)
-  .get('AccessRight-getItem', 'accessRight/:id', checkRole(), resource(), AccessRightController.get)
+  .put('AccessRight-updateItem', 'accessRight', checkRole(), AccessRightController.update)
+  .delete('AccessRight-destroyItem', 'accessRight', checkRole(), AccessRightController.destroy)
+  .get('AccessRight-getAllItems', 'accessRight', checkRole(), AccessRightController.getAll)
+  .get('AccessRight-getAllItems', 'accessRight/relations/:id', checkRole(), AccessRightController.getRelations)
+  .get('AccessRight-getItem', 'accessRight/:id', checkRole(), AccessRightController.get)

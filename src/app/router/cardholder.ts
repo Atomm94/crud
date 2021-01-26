@@ -19,7 +19,6 @@ export default router
     )
     .put('Cardholder-updateItem', 'cardholder',
         checkRole(),
-        resource(),
         Feature.Cardholder.CardholderDeactivationByDate.check,
         Feature.Cardholder.CardholderDeactivationByLimit.check,
         Feature.Cardholder.KeyStatus.check,
@@ -28,9 +27,9 @@ export default router
         Feature.AntiPassBack.TimedAntiPassBack.check,
         CardholderController.update
     )
-    .delete('Cardholder-destroyItem', 'cardholder', resource(), CardholderController.destroy)
-    .get('Cardholder-getAllItems', 'cardholder', resource(), CardholderController.getAll)
+    .delete('Cardholder-destroyItem', 'cardholder', checkRole(), CardholderController.destroy)
+    .get('Cardholder-getAllItems', 'cardholder', checkRole(), CardholderController.getAll)
 
-    .post('Cardholder-saveImage', 'cardholder/image', resource(), CardholderController.cardholderImageSave)
-    .delete('Cardholder-deleteImage', 'cardholder/image', resource(), CardholderController.cardholderImageDelete)
-    .get('Cardholder-getItem', 'cardholder/:id', resource(), CardholderController.get)
+    .post('Cardholder-saveImage', 'cardholder/image', checkRole(), CardholderController.cardholderImageSave)
+    .delete('Cardholder-deleteImage', 'cardholder/image', checkRole(), CardholderController.cardholderImageDelete)
+    .get('Cardholder-getItem', 'cardholder/:id', checkRole(), CardholderController.get)

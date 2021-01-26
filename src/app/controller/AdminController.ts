@@ -167,7 +167,7 @@ export default class AdminController {
                         })
                         if (role) {
                             if (await checkPermissionsAccess(user, role.permissions)) {
-                                newAdmin = await Admin.features.AdminOperation.addItem(reqData, user)
+                                newAdmin = await Admin.addItem(reqData, user)
 
                                 if (newAdmin && role) {
                                     ctx.body = { newAdmin }
@@ -183,7 +183,7 @@ export default class AdminController {
                             ctx.body = { message: 'something went wrong' }
                         }
                     } else {
-                        newAdmin = await Admin.features.AdminOperation.addItem(reqData, user)
+                        newAdmin = await Admin.addItem(reqData, user)
 
                         if (newAdmin && role) {
                             ctx.body = { newAdmin }
@@ -637,7 +637,7 @@ export default class AdminController {
                         })
                         if (role) {
                             if (await checkPermissionsAccess(user, role.permissions)) {
-                                const updated = await Admin.features.AdminOperation.updateItem(reqData)
+                                const updated = await Admin.updateItem(reqData)
                                 ctx.oldData = updated.old
                                 ctx.body = updated.new
                             } else {
@@ -651,7 +651,7 @@ export default class AdminController {
                             ctx.body = { message: 'something with role went wrong' }
                         }
                     } else {
-                        const updated = await Admin.features.AdminOperation.updateItem(reqData)
+                        const updated = await Admin.updateItem(reqData)
                         ctx.oldData = updated.old
                         ctx.body = updated.new
                     }

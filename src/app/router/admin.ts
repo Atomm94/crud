@@ -6,17 +6,17 @@ const router = new Router()
 export default router
 
   .post('Admin-addItem', 'account', checkRole(), resource(), AdminController.createAdmin)
-  .post('Admin-addItem', 'account/invite', checkRole(), resource(), AdminController.inviteAdmin)
-  .delete('Admin-destroyItem', 'account', checkRole(), resource(), AdminController.destroy)
-  .put('Admin-updateItem', 'account', checkRole(), resource(), AdminController.update)
-  .get('Admin-getAllItems', 'account', checkRole(), resource(), AdminController.getAll)
-  .put('Admin-updateItem', 'account/changePass', checkRole(), resource(), AdminController.changePass) /// ???????????
-  .put('Admin-updateItem', 'account/changeMyPass', checkRole(), resource(), AdminController.changeMyPass) /// ???????????
-  .get('Admin-getItem', 'account/getUserData', checkRole(), resource(), AdminController.getUserData) /// ???????????
-  .put('Admin-updateItem', 'account/myProfile', checkRole(), resource(), AdminController.update) /// ???????????
+  .post('Admin-addItem', 'account/invite', checkRole(), AdminController.inviteAdmin)
+  .delete('Admin-destroyItem', 'account', checkRole(), AdminController.destroy)
+  .put('Admin-updateItem', 'account', checkRole(), AdminController.update)
+  .get('Admin-getAllItems', 'account', checkRole(), AdminController.getAll)
+  .put('Admin-updateItem', 'account/changePass', checkRole(), AdminController.changePass) /// ???????????
+  .put('Admin-updateItem', 'account/changeMyPass', checkRole(), AdminController.changeMyPass) /// ???????????
+  .get('Admin-getItem', 'account/getUserData', checkRole(), AdminController.getUserData) /// ???????????
+  .put('Admin-updateItem', 'account/myProfile', checkRole(), AdminController.update) /// ???????????
 
-  .post('Admin-saveImage', 'account/image', checkRole(), resource(), AdminController.accountImageSave)
-  .delete('Admin-deleteImage', 'account/image', checkRole(), resource(), AdminController.accountImageDelete)
+  .post('Admin-saveImage', 'account/image', checkRole(), AdminController.accountImageSave)
+  .delete('Admin-deleteImage', 'account/image', checkRole(), AdminController.accountImageDelete)
 
   .get('account/invite/:token', AdminController.getUserByToken)
   .put('account/invite/:token', AdminController.setPassword)

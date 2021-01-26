@@ -15,17 +15,16 @@ export default router
     )
     .put('CardholderGroup-updateItem', 'cardholderGroup',
         checkRole(),
-        resource(),
         Feature.Cardholder.CardholderGroupOperation.check,
         Feature.Cardholder.CardholderGroupAccessRight.check,
         CardholderGroupController.update
     )
     .delete('CardholderGroup-destroyItem', 'cardholderGroup',
         checkRole(),
-        resource(), CardholderGroupController.destroy)
+        CardholderGroupController.destroy)
     .get('CardholderGroup-getAllItems', 'cardholderGroup',
         checkRole(),
-        resource(), CardholderGroupController.getAll)
+        CardholderGroupController.getAll)
     .get('CardholderGroup-getItem', 'cardholderGroup/:id',
         checkRole(),
-        resource(), CardholderGroupController.get)
+        CardholderGroupController.get)

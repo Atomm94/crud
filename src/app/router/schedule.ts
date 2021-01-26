@@ -15,11 +15,11 @@ export default router
     ScheduleController.add
   )
   .put('Schedule-updateItem', 'schedule',
-    checkRole(), resource(),
+    checkRole(),
     ScheduleType,
     ScheduleController.update
   )
-  .delete('Schedule-destroyItem', 'schedule', checkRole(), resource(), ScheduleController.destroy)
-  .get('Schedule-getAllItems', 'schedule', checkRole(), resource(), ScheduleController.getAll)
-  .get('Schedule-getAllItems', 'schedule/tree', checkRole(), resource(), ScheduleController.getTree)
-  .get('Schedule-getItem', 'schedule/:id', checkRole(), resource(), ScheduleController.get)
+  .delete('Schedule-destroyItem', 'schedule', checkRole(), ScheduleController.destroy)
+  .get('Schedule-getAllItems', 'schedule', checkRole(), ScheduleController.getAll)
+  .get('Schedule-getAllItems', 'schedule/tree', checkRole(), ScheduleController.getTree)
+  .get('Schedule-getItem', 'schedule/:id', checkRole(), ScheduleController.get)
