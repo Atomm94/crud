@@ -63,6 +63,8 @@ export class AccessPoint extends MainEntity {
     @JoinColumn({ name: 'access_point_zone' })
     access_point_zones: AccessPointGroup | null;
 
+    public static resource: boolean = true
+
     public static async addItem (data: AccessPoint) {
         const accessPoint = new AccessPoint()
 

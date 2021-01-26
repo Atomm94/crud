@@ -205,8 +205,6 @@ export default class CardholderController {
                 const car_info: any = await CarInfo.addItem(req_data.car_infos as CarInfo)
                 req_data.car_info = car_info.id
             }
-
-            await Cardholder.addItem(req_data as Cardholder)
             const cardholder: any = await Cardholder.addItem(req_data as Cardholder)
 
             const where = { id: cardholder.id }
