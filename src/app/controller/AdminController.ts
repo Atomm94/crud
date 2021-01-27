@@ -1,7 +1,7 @@
 import * as _ from 'lodash'
 import { DefaultContext } from 'koa'
 import { getRepository } from 'typeorm'
-import { Admin, Role } from '../model/entity/index'
+import { Admin, Packet, Role } from '../model/entity/index'
 import * as jwt from 'jsonwebtoken'
 import * as bcrypt from 'bcrypt'
 import fs from 'fs'
@@ -327,8 +327,20 @@ export default class AdminController {
         try {
             if (ctx.user) {
                 admin = await Admin.findOneOrFail(ctx.user.id)
+
+                admin = await Admin.findOneOrFail(ctx.user.id)
                 const adminFiltered = _.omit(admin, ['password', 'super', 'verify_token'])
                 ctx.body = adminFiltered
+                if (ctx.user && ctx.user.company && ctx.user.companyData && ctx.user.companyData.packet) {
+                    const packetData = await Packet.findOne(ctx.user.companyData.packet)
+
+                    if (packetData && packetData.extra_settings) {
+                        const extra_settings = JSON.parse(packetData.extra_settings)
+                        if (extra_settings.features) {
+                            ctx.body.features = extra_settings.features
+                        }
+                    }
+                }
             } else {
                 ctx.status = 401
             }
