@@ -94,7 +94,11 @@ class RoleController {
 
       const req_data = ctx.query
       req_data.relations = ['admins']
-      req_data.where = { company: { '=': user.company ? user.company : null } }
+      req_data.where = {
+        company: { '=': user.company ? user.company : null },
+        id: { '!=': user.role },
+        main: { '!=': true }
+      }
 
       const roles: any = await Role.getAllItems(req_data)
 
@@ -208,24 +212,34 @@ class RoleController {
    *                  description: Wrong data
    */
   public static async updateRole (ctx: DefaultContext) {
-    const body = ctx.request.body
+    const req_data = ctx.request.body
     try {
       const user = ctx.user
-      const where = { id: user.role, company: user.company ? user.company : null }
-      const role = await Role.findOne(where)
 
-      if (!role) {
+      if (user.role === req_data.id) {
         ctx.status = 400
-        ctx.body = { message: 'something went wrong' }
+        ctx.body = { message: 'cant change your role!!' }
       } else {
-        if (await checkPermissionsAccess(user, body.permissions)) {
-          const updated = await Role.updateItem(body)
-          ctx.oldData = updated.old
-          ctx.body = updated.new
-        } else {
+        const where = {
+          id: user.role,
+          company: user.company ? user.company : null,
+          main: false
+        }
+        const role = await Role.findOne(where)
+
+        if (!role) {
           ctx.status = 400
-          ctx.body = {
-            message: 'Permissions access denied!!'
+          ctx.body = { message: 'something went wrong' }
+        } else {
+          if (await checkPermissionsAccess(user, req_data.permissions)) {
+            const updated = await Role.updateItem(req_data)
+            ctx.oldData = updated.old
+            ctx.body = updated.new
+          } else {
+            ctx.status = 400
+            ctx.body = {
+              message: 'Permissions access denied!!'
+            }
           }
         }
       }
@@ -277,36 +291,46 @@ class RoleController {
     const id = ctx.request.body.id
     try {
       const user = ctx.user
-      const where = { id: user.role, company: user.company ? user.company : null }
-      const check_role_by_company = await Role.findOne(where)
 
-      if (!check_role_by_company) {
+      if (user.role === id) {
         ctx.status = 400
-        ctx.body = { message: 'something went wrong' }
+        ctx.body = { message: 'cant delete your role!!' }
       } else {
-        if (await checkPermissionsAccess(user, check_role_by_company.permissions)) {
-          const admin = await Admin.find({ role: id })
-          if (admin.length) {
-            for (let i = 0; i < admin.length; i++) {
-              admin[i].role = null
-              admin[i].status = false
-              delete admin[i].password
-              await Admin.updateItem(admin[i])
-            }
+        const where = {
+          id: user.role,
+          company: user.company ? user.company : null,
+          main: false
+        }
+        const check_role_by_company = await Role.findOne(where)
 
-            role = await Role.destroyItem(id)
+        if (!check_role_by_company) {
+          ctx.status = 400
+          ctx.body = { message: 'something went wrong' }
+        } else {
+          if (await checkPermissionsAccess(user, check_role_by_company.permissions)) {
+            const admin = await Admin.find({ role: id })
+            if (admin.length) {
+              for (let i = 0; i < admin.length; i++) {
+                admin[i].role = null
+                admin[i].status = false
+                delete admin[i].password
+                await Admin.updateItem(admin[i])
+              }
 
-            if (role) {
+              role = await Role.destroyItem(id)
+
+              if (role) {
+                ctx.body = 'Deleted'
+              }
+            } else {
+              role = await Role.destroyItem(id)
               ctx.body = 'Deleted'
             }
           } else {
-            role = await Role.destroyItem(id)
-            ctx.body = 'Deleted'
-          }
-        } else {
-          ctx.status = 400
-          ctx.body = {
-            message: 'Permissions access denied!!'
+            ctx.status = 400
+            ctx.body = {
+              message: 'Permissions access denied!!'
+            }
           }
         }
       }

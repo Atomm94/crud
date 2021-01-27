@@ -397,51 +397,7 @@ export default class CardholderController {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
             } else {
-                let group_data: any
-                if (req_data.limitation_inherited || req_data.antipass_back_inherited || req_data.time_attendance_inherited || req_data.access_right_inherited) {
-                    if (req_data.cardholder_group) {
-                        group_data = await CardholderGroup.getItem({ id: req_data.cardholder_group, company: auth_user.company ? auth_user.company : null })
-                    } else {
-                        const data: any = await Cardholder.getItem({ id: req_data.id, company: auth_user.company ? auth_user.company : null })
-                        group_data = await CardholderGroup.getItem({ id: data.cardholder_group, company: auth_user.company ? auth_user.company : null })
-                    }
-                }
-
-                if (req_data.limitation_inherited && group_data) {
-                    req_data.limitation = group_data.limitation
-                } else {
-                    if (req_data.limitations.id) {
-                        await Limitation.updateItem(req_data.limitations as Limitation)
-                    } else {
-                        const limitation_data: any = await Limitation.addItem(req_data.limitations as Limitation)
-                        req_data.limitation = limitation_data.id
-                    }
-                }
-
-                if (req_data.antipass_back_inherited && group_data) {
-                    req_data.antipass_back = group_data.antipass_back
-                } else {
-                    if (req_data.antipass_backs.id) {
-                        await AntipassBack.updateItem(req_data.antipass_backs as AntipassBack)
-                    } else {
-                        const antipass_back_data: any = await AntipassBack.addItem(req_data.antipass_backs as AntipassBack)
-                        req_data.antipass_back = antipass_back_data.id
-                    }
-                }
-
-                if (req_data.access_right_inherited && group_data) {
-                    req_data.access_right = group_data.access_right
-                }
-
-                if (req_data.time_attendance_inherited && group_data) {
-                    req_data.time_attendance = group_data.time_attendance
-                }
-
-                if (req_data.car_infos) {
-                    await CarInfo.updateItem(req_data.car_infos)
-                }
-
-                const res_data = await Cardholder.updateItem(req_data as Cardholder)
+                const res_data = await Cardholder.updateItem(req_data as Cardholder, auth_user)
                 ctx.oldData = res_data.old
                 ctx.body = res_data.new
 
@@ -536,7 +492,7 @@ export default class CardholderController {
         try {
             const req_data = ctx.request.body
             const user = ctx.user
-            const where = { id: user.role, company: user.company ? user.company : null }
+            const where = { id: req_data.id, company: user.company ? user.company : null }
             const check_by_company = await Cardholder.findOne(where)
 
             if (!check_by_company) {

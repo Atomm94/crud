@@ -157,9 +157,52 @@ export class Cardholder extends MainEntity {
         })
     }
 
-    public static async updateItem (data: Cardholder): Promise<{ [key: string]: any }> {
+    public static async updateItem (data: any, auth_user: any): Promise<{ [key: string]: any }> {
         const cardholder = await this.findOneOrFail(data.id)
         const oldData = Object.assign({}, cardholder)
+
+        let group_data: any
+        if (data.limitation_inherited || data.antipass_back_inherited || data.time_attendance_inherited || data.access_right_inherited) {
+            if (data.cardholder_group) {
+                group_data = await CardholderGroup.getItem({ id: data.cardholder_group, company: auth_user.company ? auth_user.company : null })
+            } else {
+                group_data = await CardholderGroup.getItem({ id: oldData.cardholder_group, company: auth_user.company ? auth_user.company : null })
+            }
+        }
+
+        if (data.limitation_inherited && group_data) {
+            data.limitation = group_data.limitation
+        } else {
+            if (data.limitation_inherited === oldData.limitation_inherited) {
+                await Limitation.updateItem(data.limitations as Limitation)
+            } else {
+                const limitation_data: any = await Limitation.addItem(data.limitations as Limitation)
+                data.limitation = limitation_data.id
+            }
+        }
+
+        if (data.antipass_back_inherited && group_data) {
+            data.antipass_back = group_data.antipass_back
+        } else {
+            if (data.antipass_back_inherited === oldData.antipass_back_inherited) {
+                await AntipassBack.updateItem(data.antipass_backs as AntipassBack)
+            } else {
+                const antipass_back_data: any = await AntipassBack.addItem(data.antipass_backs as AntipassBack)
+                data.antipass_back = antipass_back_data.id
+            }
+        }
+
+        if (data.access_right_inherited && group_data) {
+            data.access_right = group_data.access_right
+        }
+
+        if (data.time_attendance_inherited && group_data) {
+            data.time_attendance = group_data.time_attendance
+        }
+
+        if (data.car_infos) {
+            await CarInfo.updateItem(data.car_infos)
+        }
 
         if ('email' in data) cardholder.email = data.email
         if ('avatar' in data) cardholder.avatar = data.avatar
