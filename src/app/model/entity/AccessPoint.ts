@@ -78,6 +78,7 @@ export class AccessPoint extends MainEntity {
         if ('apb_enable_timer' in data) accessPoint.apb_enable_timer = data.apb_enable_timer
         if ('access_point_group' in data) accessPoint.access_point_group = data.access_point_group
         if ('access_point_zone' in data) accessPoint.access_point_zone = data.access_point_zone
+        accessPoint.company = data.company
 
         return new Promise((resolve, reject) => {
             this.save(accessPoint)
