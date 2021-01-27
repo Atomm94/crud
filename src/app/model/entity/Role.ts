@@ -156,7 +156,7 @@ export class Role extends MainEntity {
     if ('slug' in data) role.slug = data.slug
     if ('permissions' in data) role.permissions = data.permissions
     if ('status' in data) role.status = data.status
-    if ('main' in data) role.main = data.main
+    // if ('main' in data) role.main = data.main
 
     if (!role) return { status: 400, message: 'Item not found' }
     return new Promise((resolve, reject) => {
