@@ -69,11 +69,7 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
                         })
                         Object.keys(extra_settings.features).forEach(model => {
                             Object.keys(extra_settings.features[model]).forEach(feature => {
-                                console.log(feature)
-
                                 if (extra_settings.features[model][feature]) {
-                                    console.log('extra_settings', extra_settings.features[model][feature])
-
                                     if (featureList[model] && featureList[model][feature]) {
                                         const modelName = (featureList[model][feature].model) ? featureList[model][feature].model : model
                                         if (featureList[model][feature].module) {
@@ -115,7 +111,6 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
                                 permissions[model] = default_permissions[model]
                             }
                         })
-                        console.log(permissions)
 
                         account_role.permissions = JSON.stringify(permissions)
 
