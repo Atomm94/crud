@@ -65,5 +65,5 @@ export default router
   .put('registration/:token', CompanyController.resendNewPassEmail)
 
   // Log controller CRUD endpoints
-  .get('Log-getUserLogs', 'userLog', checkRole(), LogController.getUserLogs)
-  .get('Log-getEventLogs', 'eventLog', checkRole(), LogController.getEventLogs)
+  .get('UserLog-get', 'userLog', checkRole(), LogController.getUserLogs)
+  .get('EventLog-get', 'eventLog', checkRole(), LogController.getEventLogs)

@@ -1,5 +1,6 @@
 import { DefaultContext } from 'koa'
-import { Log } from '../model/entity/Log'
+import { EventLog } from '../model/entity/EventLog'
+import { UserLog } from '../model/entity/UserLog'
 
 export default class LogController {
     /**
@@ -26,7 +27,7 @@ export default class LogController {
     public static async getUserLogs (ctx: DefaultContext) {
         try {
             const user = ctx.user
-            ctx.body = await Log.getUserLogs(user)
+            ctx.body = await UserLog.get(user)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -58,7 +59,7 @@ export default class LogController {
     public static async getEventLogs (ctx: DefaultContext) {
         try {
             const user = ctx.user
-            ctx.body = await Log.getEventLogs(user)
+            ctx.body = await EventLog.get(user)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

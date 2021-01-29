@@ -19,7 +19,8 @@ import { Limitation } from './Limitation'
 import { Schedule } from './Schedule'
 import { AccessRight } from './AccessRight'
 import { CardholderGroup } from './CardholderGroup'
-import { Log } from './Log'
+import { EventLog } from './EventLog'
+import { UserLog } from './UserLog'
 import { AccountGroup } from './AccountGroup'
 import { AccessPointGroup } from './AccessPointGroup'
 import { AccessPointZone } from './AccessPointZone'
@@ -48,7 +49,8 @@ export {
     Schedule,
     AccessRight,
     CardholderGroup,
-    Log,
+    EventLog,
+    UserLog,
     AccountGroup,
     AccessPointGroup,
     AccessPointZone,

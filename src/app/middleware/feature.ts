@@ -1,7 +1,7 @@
 import { DefaultContext } from 'koa'
 import { AccessControl } from '../functions/access-control'
 interface IFeature {
-    check: (ctx: DefaultContext, next: () => Promise<void>)=>void,
+    check: (ctx: DefaultContext, next: () => Promise<void>) => void,
     model?: string,
     module?: boolean
 }
@@ -49,22 +49,22 @@ class Feature {
 
     public static AntiPassBack: IFeatureModel = {
         LocalAntiPassBack: {
-            check: APB
+            check: LocalAPB
         },
         HardAntiPassBack: {
-            check: APB
+            check: HardAPB
         },
         SoftAntiPassBack: {
-            check: APB
+            check: SoftAPB
         },
         TimedAntiPassBack: {
-            check: APB
+            check: TimedAPB
         },
         ZoneAntiPassBack: {
-            check: APB
+            check: ZoneAPB
         },
         ApartAntiPassBack: {
-            check: APB
+            check: ApartAPB
         }
     }
 }
@@ -137,8 +137,29 @@ async function ScheduleType (ctx: DefaultContext, next: () => Promise<void>) {
     return await HaveAccess(ctx, actionName, next)
 }
 
-async function APB (ctx: DefaultContext, next: () => Promise<void>) {
-    await next()
+async function LocalAPB (ctx: DefaultContext, next: () => Promise<void>) {
+    const actionName = 'LocalAntiPassBack'
+    return await HaveAccess(ctx, actionName, next)
+}
+async function HardAPB (ctx: DefaultContext, next: () => Promise<void>) {
+    const actionName = 'HardAntiPassBack'
+    return await HaveAccess(ctx, actionName, next)
+}
+async function SoftAPB (ctx: DefaultContext, next: () => Promise<void>) {
+    const actionName = 'SoftAntiPassBack'
+    return await HaveAccess(ctx, actionName, next)
+}
+async function TimedAPB (ctx: DefaultContext, next: () => Promise<void>) {
+    const actionName = 'TimedAntiPassBack'
+    return await HaveAccess(ctx, actionName, next)
+}
+async function ZoneAPB (ctx: DefaultContext, next: () => Promise<void>) {
+    const actionName = 'ZoneAntiPassBack'
+    return await HaveAccess(ctx, actionName, next)
+}
+async function ApartAPB (ctx: DefaultContext, next: () => Promise<void>) {
+    const actionName = 'ApartAntiPassBack'
+    return await HaveAccess(ctx, actionName, next)
 }
 
 // async function NotificationEmailCheck (ctx: DefaultContext, next: () => Promise<void>) {
@@ -155,4 +176,4 @@ async function APB (ctx: DefaultContext, next: () => Promise<void>) {
 // }
 // async function NotificationGuestCabinetCheck (ctx: DefaultContext, next: () => Promise<void>) {
 //     await next()
-export { Feature, APB, ScheduleType }
+export { Feature, ScheduleType }
