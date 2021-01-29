@@ -11,20 +11,12 @@ export default router
         resource(),
         Feature.Cardholder.CardholderDeactivationByDate.check,
         Feature.Cardholder.CardholderDeactivationByLimit.check,
-        Feature.Cardholder.KeyStatus.check,
-        Feature.AntiPassBack.HardAntiPassBack.check,
-        Feature.AntiPassBack.SoftAntiPassBack.check,
-        Feature.AntiPassBack.TimedAntiPassBack.check,
         CardholderController.add
     )
     .put('Cardholder-updateItem', 'cardholder',
         checkRole(),
         Feature.Cardholder.CardholderDeactivationByDate.check,
         Feature.Cardholder.CardholderDeactivationByLimit.check,
-        Feature.Cardholder.KeyStatus.check,
-        Feature.AntiPassBack.HardAntiPassBack.check,
-        Feature.AntiPassBack.SoftAntiPassBack.check,
-        Feature.AntiPassBack.TimedAntiPassBack.check,
         CardholderController.update
     )
     .delete('Cardholder-destroyItem', 'cardholder', checkRole(), CardholderController.destroy)
