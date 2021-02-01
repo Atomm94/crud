@@ -34,6 +34,7 @@ import {
 import Router from 'koa-router'
 import swaggerSpec from '../../component/swagger'
 import LogController from '../controller/LogController'
+import MqttController from '../controller/MqttController'
 
 const swaggerUi = require('swagger-ui-koa')
 
@@ -290,3 +291,6 @@ export default router
   .get('acu/:id', AcuController.get)
   .delete('acu', AcuController.destroy)
   .get('acu', AcuController.getAll)
+
+  // Mqtt controller endpoints
+  .get('mqttGetRequest/:id', MqttController.get)
