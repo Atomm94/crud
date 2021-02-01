@@ -265,7 +265,7 @@ export default class AccountGroupController {
     /**
      *
      * @swagger
-     * /accountGroupAccounts/{id}:
+     * /accountGroup/relations/{id}:
      *      get:
      *          tags:
      *              - AccountGroup

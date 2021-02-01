@@ -237,7 +237,7 @@ export default class TicketController {
     /**
      *
      * @swagger
-     *  /ticketImage:
+     *  /ticket/file:
      *      post:
      *          tags:
      *              - Ticket
@@ -272,7 +272,7 @@ export default class TicketController {
     /**
      *
      * @swagger
-     *  /ticketImage:
+     *  /ticket/file:
      *      delete:
      *          tags:
      *              - Ticket
@@ -322,7 +322,7 @@ export default class TicketController {
     /**
      *
      * @swagger
-     *  /addTicketMessage:
+     *  /ticket/message:
      *      post:
      *          tags:
      *              - Ticket
@@ -372,7 +372,7 @@ export default class TicketController {
     /**
      *
      * @swagger
-     *  /updateTicketMessage:
+     *  /ticket/message:
      *      put:
      *          tags:
      *              - Ticket
@@ -425,7 +425,7 @@ export default class TicketController {
     /**
      *
      * @swagger
-     * /getTicketMessage/{id}:
+     * /ticket/message/{id}:
      *      get:
      *          tags:
      *              - Ticket
@@ -464,7 +464,7 @@ export default class TicketController {
     /**
      *
      * @swagger
-     *  /destroyTicketMessage:
+     *  /ticket/message:
      *      delete:
      *          tags:
      *              - Ticket
@@ -510,7 +510,7 @@ export default class TicketController {
     /**
      *
      * @swagger
-     * /getAllTicketMessages:
+     * /ticket/message:
      *      get:
      *          tags:
      *              - Ticket
@@ -541,7 +541,7 @@ export default class TicketController {
     /**
  *
  * @swagger
- *  /ticketMessageImage:
+ *  /ticket/message/file:
  *      post:
  *          tags:
  *              - Ticket
@@ -576,7 +576,7 @@ export default class TicketController {
     /**
      *
      * @swagger
-     *  /ticketMessageImage:
+     *  /ticket/message/file:
      *      delete:
      *          tags:
      *              - Ticket

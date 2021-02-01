@@ -546,7 +546,7 @@ export default class CardholderController {
     /**
      *
      * @swagger
-     *  /cardholderImageSave:
+     *  /cardholder/image:
      *      post:
      *          tags:
      *              - Cardholder
@@ -581,7 +581,7 @@ export default class CardholderController {
     /**
      *
      * @swagger
-     *  /cardholderImageDelete:
+     *  /cardholder/image:
      *      delete:
      *          tags:
      *              - Cardholder
@@ -631,7 +631,7 @@ export default class CardholderController {
     /**
      *
      * @swagger
-     *  /updateMultipleCardholders:
+     *  /cardholder/bulk:
      *      put:
      *          tags:
      *              - Cardholder

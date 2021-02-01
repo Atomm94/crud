@@ -32,7 +32,7 @@ export default class AdminController {
     /**
      *
      * @swagger
-     *  /users:
+     *  /account:
      *      post:
      *          tags:
      *              - Admin
@@ -219,7 +219,7 @@ export default class AdminController {
     /**
      *
      * @swagger
-     *  /inviteUsers:
+     *  /account/invite:
      *      post:
      *          tags:
      *              - Admin
@@ -305,7 +305,7 @@ export default class AdminController {
     /**
      *
      * @swagger
-     * /getUserData:
+     * /account/getUserData:
      *      get:
      *          tags:
      *              - Admin
@@ -354,7 +354,7 @@ export default class AdminController {
     /**
        *
        * @swagger
-       *  /changePass:
+       *  /account/changePass:
        *      put:
        *          tags:
        *              - Admin
@@ -434,7 +434,7 @@ export default class AdminController {
     /**
        *
        * @swagger
-       *  /changeMyPass:
+       *  /account/changeMyPass:
        *      put:
        *          tags:
        *              - Admin
@@ -520,7 +520,7 @@ export default class AdminController {
     /**
      *
      * @swagger
-     *  /users:
+     *  /account:
      *      put:
      *          tags:
      *              - Admin
@@ -689,7 +689,7 @@ export default class AdminController {
     /**
      *
      * @swagger
-     * /users/{id}:
+     * /account/{id}:
      *      get:
      *          tags:
      *              - Admin
@@ -740,7 +740,7 @@ export default class AdminController {
     /**
      *
      * @swagger
-     *  /users:
+     *  /account:
      *      delete:
      *          tags:
      *              - Admin
@@ -801,7 +801,7 @@ export default class AdminController {
     /**
      *
      * @swagger
-     * /users:
+     * /account:
      *      get:
      *          tags:
      *              - Admin
@@ -851,7 +851,7 @@ export default class AdminController {
     /**
      *
      * @swagger
-     *  /accountImageSave:
+     *  /account/image:
      *      post:
      *          tags:
      *              - Admin
@@ -886,7 +886,7 @@ export default class AdminController {
     /**
      *
      * @swagger
-     *  /accountImageDelete:
+     *  /account/image:
      *      delete:
      *          tags:
      *              - Admin
@@ -936,7 +936,7 @@ export default class AdminController {
     /**
      *
      * @swagger
-     * /account/{token}:
+     * /account/invite/{token}:
      *      get:
      *          tags:
      *              - Admin
@@ -976,7 +976,7 @@ export default class AdminController {
     /**
      *
      * @swagger
-     * /account/{token}:
+     * /account/invite/{token}:
      *      put:
      *          tags:
      *              - Admin
