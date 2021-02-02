@@ -34,13 +34,13 @@ export default class AccessRuleController {
      *                      type: number
      *                      example: 1
      *                      minimum: 1
-     *                  access_point:
+     *                  access_points:
      *                      type: Array<number>
      *                      example: [1]
-     *                  access_group:
+     *                  access_point_groups:
      *                      type: Array<number>
      *                      example: [1]
-     *                  access_zone:
+     *                  access_point_zones:
      *                      type: Array<number>
      *                      example: [1]
      *                  schedule:
@@ -65,12 +65,12 @@ export default class AccessRuleController {
             const user = ctx.user
             req_data.company = user.company ? user.company : null
             const where: any = { company: req_data.company }
-            if (req_data.access_point) {
-                where.id = In(req_data.access_point)
-            } else if (req_data.access_group) {
-                where.access_group = In(req_data.access_group)
-            } else if (req_data.access_zone) {
-                where.access_zone = In(req_data.access_zone)
+            if (req_data.access_points) {
+                where.id = In(req_data.access_points)
+            } else if (req_data.access_point_groups) {
+                where.access_point_groups = In(req_data.access_point_groups)
+            } else if (req_data.access_point_zones) {
+                where.access_point_zones = In(req_data.access_point_zones)
             }
             const access_points: AccessPoint[] = await AccessPoint.find(where)
             const res_data: any = []
