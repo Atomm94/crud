@@ -1,6 +1,6 @@
 import { DefaultContext } from 'koa'
-import { IsNull, Not } from 'typeorm'
-import { Admin } from '../model/entity/Admin'
+import { Company } from '../model/entity'
+
 export default class MqttController {
     /**
      *
@@ -27,11 +27,25 @@ export default class MqttController {
      */
     public static async get (ctx: DefaultContext) {
         try {
-            const id = +ctx.params.id
-            const where = { id: id, company: Not(IsNull()) }
-            const account: any = await Admin.getItem(where)
-            ctx.body = {
-                Location: `${id}/${account.company}`
+            const main_id = +ctx.params.id
+            const where = { account: main_id }
+            const company: any = await Company.findOne({ where: where })
+            if (!company) {
+                ctx.status = 400
+                ctx.body = {
+                    message: 'Invalid id!!'
+                }
+            } else {
+                ctx.body = {
+                    BrokerAdr: 'lumiring.msg.th',
+                    BrokerPort: 3285,
+                    ClientID: '101FRE1111325665454RETV123355',
+                    Use_SSL: false,
+                    use_enryption: false,
+                    User_Name: 'TR2584567452121TFD',
+                    User_Pass: 'ASTR565VFDF8787fdtrtJ76p',
+                    Location: `${main_id}/${company.id}`
+                }
             }
         } catch (error) {
             ctx.status = error.status || 400
