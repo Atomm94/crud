@@ -1,10 +1,13 @@
 import { DefaultContext } from 'koa'
+import { In } from 'typeorm'
+import { AccessPoint } from '../model/entity/AccessPoint'
 import { AccessRule } from '../model/entity/AccessRule'
+
 export default class AccessRuleController {
     /**
      *
      * @swagger
-     *  /accessRule:
+     *  /accessRight/accessRule:
      *      post:
      *          tags:
      *              - AccessRule
@@ -24,14 +27,22 @@ export default class AccessRuleController {
      *              schema:
      *                type: object
      *                required:
+     *                  - access_right
+     *                  - schedule
      *                properties:
      *                  access_right:
      *                      type: number
      *                      example: 1
      *                      minimum: 1
      *                  access_point:
-     *                      type: number | Array<number>
-     *                      example: 1
+     *                      type: Array<number>
+     *                      example: [1]
+     *                  access_group:
+     *                      type: Array<number>
+     *                      example: [1]
+     *                  access_zone:
+     *                      type: Array<number>
+     *                      example: [1]
      *                  schedule:
      *                      type: number
      *                      example: 1
@@ -53,21 +64,26 @@ export default class AccessRuleController {
             const req_data = ctx.request.body
             const user = ctx.user
             req_data.company = user.company ? user.company : null
-            if (Array.isArray(req_data.access_point)) {
-                const res_data: any = []
 
-                for (const access_point of req_data.access_point) {
-                    const data = req_data
-                    data.access_point = access_point
-                    const save = await AccessRule.addItem(data as AccessRule)
-                    const relation = ['access_points']
-                    const returnData = AccessRule.getItem(save.id, relation)
-                    res_data.push(returnData)
-                }
-                ctx.body = await Promise.all(res_data)
-            } else {
-                ctx.body = await AccessRule.addItem(req_data as AccessRule)
+            const where: any = { company: req_data.company }
+            if (req_data.access_point) {
+                where.id = In(req_data.access_point)
+            } else if (req_data.access_group) {
+                where.access_group = In(req_data.access_group)
+            } else if (req_data.access_zone) {
+                where.access_zone = In(req_data.access_zone)
             }
+            const access_points: AccessPoint[] = await AccessPoint.find(where)
+            const res_data: any = []
+            for (const access_point of access_points) {
+                const data = req_data
+                data.access_point = access_point
+                const save = await AccessRule.addItem(data as AccessRule)
+                const relation = ['access_points']
+                const returnData = AccessRule.getItem(save.id, relation)
+                res_data.push(returnData)
+            }
+            ctx.body = await Promise.all(res_data)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
