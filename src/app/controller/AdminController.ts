@@ -154,11 +154,12 @@ export default class AdminController {
                     }
                 }
 
-                if (!check_group) {
+                if (ctx.user.company && !check_group) {
                     ctx.status = 400
                     ctx.body = {
                         message: 'AccountGroup was not found!!'
                     }
+                    return ctx
                 } else {
                     if (reqData.role) {
                         role = await Role.findOne({

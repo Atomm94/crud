@@ -5,7 +5,7 @@ import { AccessControl } from '../functions/access-control'
 import { DefaultContext } from 'koa'
 export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
     const modelList: any = Model
-    if (ctx.actionModel && ctx.actionName && ctx.actionName === 'addItem' && modelList[ctx.actionModel] && modelList[ctx.actionModel].resource) {
+    if (ctx.user.company && ctx.actionModel && ctx.actionName && ctx.actionName === 'addItem' && modelList[ctx.actionModel] && modelList[ctx.actionModel].resource) {
         const canCreateResource: boolean = await canCreate(ctx.user.company, ctx.actionModel)
         if (canCreateResource) {
             await next()
