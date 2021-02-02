@@ -1,5 +1,8 @@
 import { DefaultContext } from 'koa'
 import { Company } from '../model/entity'
+import MQTTBroker from '../mqtt/mqtt'
+import { TopicCodes } from '../mqtt/Topics'
+import { OperatorType } from '../mqtt/Operators'
 
 export default class MqttController {
     /**
@@ -36,6 +39,7 @@ export default class MqttController {
                     message: 'Invalid id!!'
                 }
             } else {
+                const location = `${main_id}/${company.id}`
                 ctx.body = {
                     BrokerAdr: 'lumiring.msg.th',
                     BrokerPort: 3285,
@@ -44,8 +48,13 @@ export default class MqttController {
                     use_enryption: false,
                     User_Name: 'TR2584567452121TFD',
                     User_Pass: 'ASTR565VFDF8787fdtrtJ76p',
-                    Location: `${main_id}/${company.id}`
+                    Location: location
                 }
+                const send_message = {
+                    operator: OperatorType.REGISTRATION,
+                    location: location
+                }
+                MQTTBroker.publishMessage(TopicCodes.SUB_TOPIC, JSON.stringify(send_message))
             }
         } catch (error) {
             ctx.status = error.status || 400
