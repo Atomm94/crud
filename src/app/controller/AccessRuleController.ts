@@ -64,7 +64,6 @@ export default class AccessRuleController {
             const req_data = ctx.request.body
             const user = ctx.user
             req_data.company = user.company ? user.company : null
-
             const where: any = { company: req_data.company }
             if (req_data.access_point) {
                 where.id = In(req_data.access_point)
@@ -77,10 +76,10 @@ export default class AccessRuleController {
             const res_data: any = []
             for (const access_point of access_points) {
                 const data = req_data
-                data.access_point = access_point
+                data.access_point = access_point.id
                 const save = await AccessRule.addItem(data as AccessRule)
                 const relation = ['access_points']
-                const returnData = AccessRule.getItem(save.id, relation)
+                const returnData = AccessRule.getItem({ id: save.id }, relation)
                 res_data.push(returnData)
             }
             ctx.body = await Promise.all(res_data)
