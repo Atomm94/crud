@@ -54,19 +54,25 @@ export function interfaceValidation (data: any) {
     }
 
 export function timeValidation (data: any) {
-    if (!('user_timezone' in data)) {
+    if (!('timezone_from_facility' in data) ||
+    !('enable_daylight_saving_time' in data) ||
+    !('daylight_saving_time_from_user_account' in data) ||
+    typeof data.timezone_from_facility !== 'boolean' ||
+    typeof data.enable_daylight_saving_time !== 'boolean' ||
+    typeof data.daylight_saving_time_from_user_account !== 'boolean') {
         return new Error('Invalid time data')
     } else {
-        if (typeof data.user_timezone !== 'boolean') {
-            return new Error('Invalid rs485_time status')
-        } else {
+        if (data.timezone_from_facility === false) {
+            if (!('time_zone' in data)) {
+                return new Error('Invalid time_zone data')
+            }
+        }
+    }
+    return true
             // const date = new Date()
             // const time_zone_default = Intl.DateTimeFormat().resolvedOptions().timeZone
             // const gmt = new Intl.DateTimeFormat('en-US', { timeZoneName: 'short' }).format(date).split(' ')[1]
             // const time_zone = time_zone_default + ' ' + gmt
-        }
-    }
-    return true
 }
 
 export function maintainValidation (data: any) {
