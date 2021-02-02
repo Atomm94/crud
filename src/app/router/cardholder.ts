@@ -24,4 +24,5 @@ export default router
 
     .post('Cardholder-saveImage', 'cardholder/image', checkRole(), CardholderController.cardholderImageSave)
     .delete('Cardholder-deleteImage', 'cardholder/image', checkRole(), CardholderController.cardholderImageDelete)
+    .put('Cardholder-updateItem', 'cardholder/update/bulk', checkRole(), CardholderController.updateMultipleCardholders)
     .get('Cardholder-getItem', 'cardholder/:id', checkRole(), CardholderController.get)

@@ -4,7 +4,7 @@ export default class CompanyDocumentsController {
     /**
      *
      * @swagger
-     *  /companyDocuments:
+     *  /company/document:
      *      post:
      *          tags:
      *              - CompanyDocuments
@@ -55,7 +55,7 @@ export default class CompanyDocumentsController {
     /**
      *
      * @swagger
-     *  /companyDocuments:
+     *  /company/document:
      *      put:
      *          tags:
      *              - CompanyDocuments
@@ -111,7 +111,7 @@ export default class CompanyDocumentsController {
     /**
      *
      * @swagger
-     * /companyDocuments/{id}:
+     * /company/document/{id}:
      *      get:
      *          tags:
      *              - CompanyDocuments
@@ -150,7 +150,7 @@ export default class CompanyDocumentsController {
     /**
      *
      * @swagger
-     *  /companyDocuments:
+     *  /company/document:
      *      delete:
      *          tags:
      *              - CompanyDocuments
@@ -194,7 +194,7 @@ export default class CompanyDocumentsController {
     /**
      *
      * @swagger
-     * /companyDocuments:
+     * /company/document:
      *      get:
      *          tags:
      *              - CompanyDocuments
@@ -225,7 +225,7 @@ export default class CompanyDocumentsController {
     /**
      *
      * @swagger
-     *  /companyFileUpload:
+     *  /company/document/file:
      *      post:
      *          tags:
      *              - CompanyDocuments
@@ -260,7 +260,7 @@ export default class CompanyDocumentsController {
     /**
      *
      * @swagger
-     *  /companyFileDelete:
+     *  /company/document/file:
      *      delete:
      *          tags:
      *              - CompanyDocuments

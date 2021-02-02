@@ -4,7 +4,7 @@ export default class AccessRuleController {
     /**
      *
      * @swagger
-     *  /accessRule:
+     *  /accessRight/accessRule:
      *      post:
      *          tags:
      *              - AccessRule
@@ -78,7 +78,7 @@ export default class AccessRuleController {
     /**
      *
      * @swagger
-     *  /accessRule:
+     *  /accessRight/accessRule:
      *      put:
      *          tags:
      *              - AccessRule
@@ -143,7 +143,7 @@ export default class AccessRuleController {
     /**
      *
      * @swagger
-     * /accessRule/{id}:
+     * /accessRight/accessRule/{id}:
      *      get:
      *          tags:
      *              - AccessRule
@@ -185,7 +185,7 @@ export default class AccessRuleController {
     /**
      *
      * @swagger
-     *  /accessRule:
+     *  /accessRight/accessRule:
      *      delete:
      *          tags:
      *              - AccessRule
@@ -239,7 +239,7 @@ export default class AccessRuleController {
     /**
      *
      * @swagger
-     * /accessRule:
+     * /accessRight/accessRule:
      *      get:
      *          tags:
      *              - AccessRule

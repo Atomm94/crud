@@ -7,6 +7,8 @@ export default router
 
   .post('Ticket-addMessage', 'message', checkRole(), TicketController.addTicketMessage)
   .put('Ticket-updateMessage', 'message', checkRole(), TicketController.updateTicketMessage)
-  .get('Ticket-getMessage', 'message/:id', checkRole(), TicketController.getTicketMessage)
   .delete('Ticket-destroyMessage', 'message', checkRole(), TicketController.destroyTicketMessage)
   .get('Ticket-getAllMessages', 'message', checkRole(), TicketController.getAllTicketMessages)
+  .post('Ticket-saveImage', 'message/file', checkRole(), TicketController.ticketMessageImageSave)
+  .delete('Ticket-deleteImage', 'message/file', checkRole(), TicketController.ticketMessageImageDelete)
+  .get('Ticket-getMessage', 'message/:id', checkRole(), TicketController.getTicketMessage)
