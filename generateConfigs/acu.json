@@ -9,6 +9,13 @@
                 }
             },
             "serialNumber": {
+                "type": "int",
+                "params": {
+                    "name": "serialNumber",
+                    "nullable": true
+                }
+            },
+            "description": {
                 "type": "varchar",
                 "params": {
                     "name": "description",

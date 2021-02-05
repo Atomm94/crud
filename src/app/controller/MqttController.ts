@@ -1,8 +1,7 @@
 import { DefaultContext } from 'koa'
 import { Company } from '../model/entity'
-import MQTTBroker from '../mqtt/mqtt'
-import { TopicCodes } from '../mqtt/Topics'
-import { OperatorType } from '../mqtt/Operators'
+// import MQTTBroker from '../mqtt/mqtt'
+// import { TopicCodes } from '../mqtt/Topics'
 
 export default class MqttController {
     /**
@@ -50,11 +49,33 @@ export default class MqttController {
                     User_Pass: 'ASTR565VFDF8787fdtrtJ76p',
                     Location: location
                 }
-                const send_message = {
-                    operator: OperatorType.REGISTRATION,
-                    location: location
-                }
-                MQTTBroker.publishMessage(TopicCodes.SUB_TOPIC, JSON.stringify(send_message))
+                // const send_message = {
+                //     operator: 'registration',
+                //     info: {
+                //         model: 'sdfsdf',
+                //         device_id: 1221
+                //     }
+                // }
+
+                // '587123122/54854123/Registration/123456789/Operate/Ack'
+                // MQTTBroker.publishMessage('12548799/5/registration/Events', JSON.stringify(send_message))
+
+                // const send_message1 = {
+                //     operator: 'accept-ack',
+                //     session_Id: '0',
+                //     message_Id: '0',
+                //     info: 'none',
+                //     result:
+                //         {
+                //         errorNo: 0,
+                //         description: 'ok',
+                //                   time: 1599904641
+                //         }
+                //     }
+
+                // MQTTBroker.publishMessage('587123122/5/Registration/123456789/Operate/Ack', JSON.stringify(send_message1))
+
+                // MQTTBroker.subscribe('PING', JSON.stringify({ a: 1 }))
             }
         } catch (error) {
             ctx.status = error.status || 400

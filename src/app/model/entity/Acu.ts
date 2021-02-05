@@ -15,6 +15,9 @@ export class Acu extends MainEntity {
     @Column('varchar', { name: 'name', nullable: true })
     name: string | null
 
+    @Column('int', { name: 'serial_number', nullable: true })
+    serial_number: number
+
     @Column('varchar', { name: 'description', nullable: true })
     description: string | null
 
@@ -60,15 +63,16 @@ export class Acu extends MainEntity {
     public static async addItem (data: Acu) {
         const acu = new Acu()
 
-        acu.name = data.name
+        if ('name' in data) acu.name = data.name
         if ('description' in data) acu.description = data.description
+        if ('serial_number' in data) acu.serial_number = data.serial_number
         acu.model = data.model
-        acu.status = data.status
-        acu.ip_address = data.ip_address
-        acu.cloud_status = data.cloud_status
-        acu.fw_version = data.fw_version
+        if ('status' in data) acu.status = data.status
+        if ('ip_address' in data) acu.ip_address = data.ip_address
+        if ('cloud_status' in data) acu.cloud_status = data.cloud_status
+        if ('fw_version' in data) acu.fw_version = data.fw_version
         if ('maintain_update_manual' in data) acu.maintain_update_manual = data.maintain_update_manual
-        acu.shared_resource_mode = data.shared_resource_mode
+        if ('shared_resource_mode' in data) acu.shared_resource_mode = data.shared_resource_mode
         if ('connection_type' in data) acu.connection_type = data.connection_type
         if ('network' in data) acu.network = data.network
         if ('interface' in data) acu.interface = data.interface
@@ -116,6 +120,7 @@ export class Acu extends MainEntity {
 
         if ('name' in data) acu.name = data.name
         if ('description' in data) acu.description = data.description
+        if ('serial_number' in data) acu.serial_number = data.serial_number
         if ('model' in data) acu.model = data.model
         if ('status' in data) acu.status = data.status
         if ('ip_address' in data) acu.ip_address = data.ip_address

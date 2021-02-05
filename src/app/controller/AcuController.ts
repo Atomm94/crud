@@ -28,9 +28,12 @@ export default class AcuController {
      *                  name:
      *                      type: string
      *                      example: Door328 HUB
-     *                  description:
+     *                  serial_number:
      *                      type: string
      *                      example: ujexc device
+     *                  description:
+     *                      type: string
+     *                      example: some description
      *                  model:
      *                      type: string
      *                      example: LRM-2CRS
@@ -174,9 +177,12 @@ export default class AcuController {
      *                  name:
      *                      type: string
      *                      example: Door328 HUB
+     *                  serial_number:
+     *                      type: string
+     *                      example: device
      *                  description:
      *                      type: string
-     *                      example: ujexc device
+     *                      example: some description
      *                  model:
      *                      type: string
      *                      example: LRM-2CRS

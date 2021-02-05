@@ -1,5 +1,8 @@
-export enum TopicCodes {
+export enum ReceiveTopics {
     USER_LOG = 'userlog',
-    SUB_TOPIC = 'sub_topic',
-    UNSUB_TOPIC = 'unsub_topic'
+    MQTT_CRUD = 'mqtt_crud'
+}
+
+export enum SendTopics {
+    CRUD_MQTT = 'crud_mqtt'
 }

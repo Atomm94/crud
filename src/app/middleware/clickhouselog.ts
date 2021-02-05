@@ -2,12 +2,12 @@
 import { DefaultContext } from 'koa'
 import { getObjectDiff } from '../functions/checkDifference'
 import MQTTBroker from '../mqtt/mqtt'
-import { TopicCodes } from '../mqtt/Topics'
+import { ReceiveTopics } from '../mqtt/Topics'
 import { logger } from '../../../modules/winston/logger'
 
 export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
     const request = ctx.request
-    MQTTBroker.subscribe(TopicCodes.USER_LOG)
+    MQTTBroker.subscribe(ReceiveTopics.USER_LOG)
 
     try {
         await next()
@@ -27,7 +27,7 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
                             value: diff,
                             company: (ctx.user.company) ? ctx.user.company : null
                         }
-                        MQTTBroker.publishMessage(TopicCodes.USER_LOG, JSON.stringify(dataLog))
+                        MQTTBroker.publishMessage(ReceiveTopics.USER_LOG, JSON.stringify(dataLog))
                     }
                     break
                 case 'POST': // create
@@ -40,7 +40,7 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
                             value: null,
                             company: (ctx.user.company) ? ctx.user.company : null
                         }
-                        MQTTBroker.publishMessage(TopicCodes.USER_LOG, JSON.stringify(dataLog))
+                        MQTTBroker.publishMessage(ReceiveTopics.USER_LOG, JSON.stringify(dataLog))
                     }
                     break
                 case 'DELETE': // delete
@@ -53,7 +53,7 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
                             value: ctx.request.body.id,
                             company: (ctx.user.company) ? ctx.user.company : null
                         }
-                        MQTTBroker.publishMessage(TopicCodes.USER_LOG, JSON.stringify(dataLog))
+                        MQTTBroker.publishMessage(ReceiveTopics.USER_LOG, JSON.stringify(dataLog))
                     }
                     break
                 default:
