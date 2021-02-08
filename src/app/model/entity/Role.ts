@@ -125,8 +125,25 @@ export class Role extends MainEntity {
         getAllItems: true,
         getGroupAccountsCounts: true
       }
+    },
+    AccessPointGroup: {
+      actions: {
+        addItem: true,
+        updateItem: true,
+        getItem: true,
+        destroyItem: true,
+        getAllItems: true
+      }
+    },
+    AccessPointZone: {
+      actions: {
+        addItem: true,
+        updateItem: true,
+        getItem: true,
+        destroyItem: true,
+        getAllItems: true
+      }
     }
-
   }
 
   public static async addItem (data: Role) {
