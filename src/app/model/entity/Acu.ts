@@ -54,6 +54,15 @@ export class Acu extends MainEntity {
     @Column('longtext', { name: 'time', nullable: true })
     time: string | null
 
+    @Column('varchar', { name: 'session_id', nullable: true })
+    session_id: string | null
+
+    @Column('varchar', { name: 'username', nullable: true })
+    username: string | null
+
+    @Column('varchar', { name: 'password', nullable: true })
+    password: string | null
+
     @Column('int', { name: 'company', nullable: false })
     company: number
 
@@ -76,6 +85,8 @@ export class Acu extends MainEntity {
         if ('connection_type' in data) acu.connection_type = data.connection_type
         if ('network' in data) acu.network = data.network
         if ('interface' in data) acu.interface = data.interface
+        if ('interface' in data) acu.interface = data.interface
+
         acu.company = data.company
 
         return new Promise((resolve, reject) => {

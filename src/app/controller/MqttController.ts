@@ -62,20 +62,63 @@ export default class MqttController {
 
                 // const send_message1 = {
                 //     operator: 'accept-ack',
-                //     session_Id: '0',
-                //     message_Id: '0',
+                //     session_id: '0',
+                //     message_id: '0',
                 //     info: 'none',
                 //     result:
-                //         {
+                //     {
                 //         errorNo: 0,
                 //         description: 'ok',
-                //                   time: 1599904641
-                //         }
+                //         time: 1599904641
                 //     }
+                // }
 
-                // MQTTBroker.publishMessage('587123122/5/Registration/123456789/Operate/Ack', JSON.stringify(send_message1))
+                // MQTTBroker.publishMessage('587123122/1/Registration/12/Operate/Ack', JSON.stringify(send_message1))
 
-                // MQTTBroker.subscribe('PING', JSON.stringify({ a: 1 }))
+                /// ///////////////// login_ack message
+                // const login_ack = {
+                //     operator: 'login-Ack',
+                //     sessionId: 2222222222,
+                //     messageId: 1111111111,
+                //     result:
+                //     {
+                //         errorNo: 0,
+                //         description: 'Error',
+                //         time: 159990464
+                //     }
+                // }
+                // MQTTBroker.publishMessage('587123122/5/Registration/123456789/Operate/Ack', JSON.stringify(login_ack))
+
+                /// ////////////// logout_ack message
+                // const logout_ack = {
+                //     operator: 'logout-Ack',
+                //     session_Id: 2222222222,
+                //     message_Id: 1111111111,
+                //     info: 'none',
+                //     result:
+                //                 {
+                //                errorNo: 0,
+                //                description: 'ok',
+                //                time: 1599904641
+                //                 }
+                //     }
+                // MQTTBroker.publishMessage('587123122/5/Registration/123456789/Operate/Ack', JSON.stringify(logout_ack))
+
+                /// ////////////// setpass_ack message
+
+                // const setPass_ack = {
+                //     operator: 'SetPass-Ack',
+                //     session_Id: 2222222222,
+                //     message_Id: 1111111111,
+                //     info: 'none',
+                //     result:
+                //                 {
+                //                errorNo: 0,
+                //                description: 'ok',
+                //                time: 1599904641
+                //                 }
+                //     }
+                // MQTTBroker.publishMessage('587123122/5/Registration/123456789/Operate/Ack', JSON.stringify(setPass_ack))
             }
         } catch (error) {
             ctx.status = error.status || 400
