@@ -68,11 +68,11 @@ export default class AccessRuleController {
             if (req_data.access_points) {
                 where.id = In(req_data.access_points)
             } else if (req_data.access_group) {
-                where.access_point_groups = In(req_data.access_group)
+                where.access_point_group = In(req_data.access_group)
             } else if (req_data.access_zone) {
-                where.access_point_zones = In(req_data.access_zone)
+                where.access_point_zone = In(req_data.access_zone)
             }
-            const access_points: AccessPoint[] = await AccessPoint.find(where)
+            const access_points: AccessPoint[] = await AccessPoint.find({ ...where })
             const res_data: any = []
             for (const access_point of access_points) {
                 const data = req_data
