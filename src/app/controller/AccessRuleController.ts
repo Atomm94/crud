@@ -65,8 +65,8 @@ export default class AccessRuleController {
             const user = ctx.user
             req_data.company = user.company ? user.company : null
             const where: any = { company: req_data.company }
-            if (req_data.access_points) {
-                where.id = In(req_data.access_points)
+            if (req_data.access_point) {
+                where.id = In(req_data.access_point)
             } else if (req_data.access_group) {
                 where.access_point_group = In(req_data.access_group)
             } else if (req_data.access_zone) {
