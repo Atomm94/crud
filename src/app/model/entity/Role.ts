@@ -74,6 +74,7 @@ export class Role extends MainEntity {
       actions: {
         updateItem: true,
         getItem: true,
+        getAllItems: true,
         destroyItem: true
       }
     },
@@ -89,7 +90,7 @@ export class Role extends MainEntity {
     },
     Department: {
       actions: {
-        getItem: true
+        getAllItems: true
       }
     },
     Admin: {
@@ -124,8 +125,25 @@ export class Role extends MainEntity {
         getAllItems: true,
         getGroupAccountsCounts: true
       }
+    },
+    AccessPointGroup: {
+      actions: {
+        addItem: true,
+        updateItem: true,
+        getItem: true,
+        destroyItem: true,
+        getAllItems: true
+      }
+    },
+    AccessPointZone: {
+      actions: {
+        addItem: true,
+        updateItem: true,
+        getItem: true,
+        destroyItem: true,
+        getAllItems: true
+      }
     }
-
   }
 
   public static async addItem (data: Role) {
@@ -155,7 +173,7 @@ export class Role extends MainEntity {
     if ('slug' in data) role.slug = data.slug
     if ('permissions' in data) role.permissions = data.permissions
     if ('status' in data) role.status = data.status
-    if ('main' in data) role.main = data.main
+    // if ('main' in data) role.main = data.main
 
     if (!role) return { status: 400, message: 'Item not found' }
     return new Promise((resolve, reject) => {
@@ -164,7 +182,7 @@ export class Role extends MainEntity {
           resolve({
             old: oldData,
             new: item
-        })
+          })
         })
         .catch((error: any) => {
           reject(error)
@@ -226,18 +244,28 @@ export class Role extends MainEntity {
   public static async getAllAccess (user: any) {
     const models: any = Models
     const accesses: any = {}
-    if (user.company) {
-      const role: any = await Role.findOne({ id: user.role, company: user.company })
+    if (!user.super) {
+      const where: { id: number, company?: number } = { id: user.role }
+      if (user.company) where.company = user.company
+      const role: any = await Role.findOne(where)
       if (role) {
         const permissions = JSON.parse(role.permissions)
         Object.keys(permissions).forEach((model: string) => {
-          Object.keys(permissions[model].actions).forEach(action => {
-            if (accesses[model]) {
-              accesses[model].actions[action] = false
-            } else {
-              accesses[model] = { actions: { [action]: false } }
-            }
-          })
+          if (permissions[model].actions) {
+            Object.keys(permissions[model].actions).forEach(action => {
+              if (accesses[model]) {
+                if (accesses[model].actions) {
+                  accesses[model].actions[action] = false
+                } else {
+                  accesses[model].actions = {
+                    [action]: false
+                  }
+                }
+              } else {
+                accesses[model] = { actions: { [action]: false } }
+              }
+            })
+          }
         })
       }
     } else {

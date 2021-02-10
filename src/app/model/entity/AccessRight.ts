@@ -6,11 +6,13 @@ import {
     JoinColumn
 } from 'typeorm'
 
-import { MainEntity } from './MainEntity'
-import { Company } from './Company'
-import { CardholderGroup } from './CardholderGroup'
-import { AccessRule } from './AccessRule'
-import { Cardholder } from './Cardholder'
+import {
+    MainEntity,
+    Company,
+    CardholderGroup,
+    AccessRule,
+    Cardholder
+} from './index'
 
 @Entity('access_right')
 export class AccessRight extends MainEntity {

@@ -22,29 +22,29 @@ export class Limitation extends MainEntity {
     @Column('boolean', { name: 'pass_counter_enable', default: false })
     pass_counter_enable: boolean
 
-    @Column('int', { name: 'pass_counter_passes', nullable: false })
-    pass_counter_passes: number
+    @Column('int', { name: 'pass_counter_passes', nullable: true })
+    pass_counter_passes: number | null
 
-    @Column('int', { name: 'pass_counter_current', nullable: false })
-    pass_counter_current: number
+    @Column('int', { name: 'pass_counter_current', nullable: true })
+    pass_counter_current: number | null
 
     @Column('boolean', { name: 'first_use_counter_enable', default: false })
     first_use_counter_enable: boolean
 
-    @Column('int', { name: 'first_use_counter_days', nullable: false })
-    first_use_counter_days: number
+    @Column('int', { name: 'first_use_counter_days', nullable: true })
+    first_use_counter_days: number | null
 
-    @Column('int', { name: 'first_use_counter_current', nullable: false })
-    first_use_counter_current: number
+    @Column('int', { name: 'first_use_counter_current', nullable: true })
+    first_use_counter_current: number | null
 
     @Column('boolean', { name: 'last_use_counter_enable', default: false })
     last_use_counter_enable: boolean
 
-    @Column('int', { name: 'last_use_counter_days', nullable: false })
-    last_use_counter_days: number
+    @Column('int', { name: 'last_use_counter_days', nullable: true })
+    last_use_counter_days: number | null
 
-    @Column('int', { name: 'last_use_counter_current', nullable: false })
-    last_use_counter_current: number
+    @Column('int', { name: 'last_use_counter_current', nullable: true })
+    last_use_counter_current: number | null
 
     @OneToMany(type => CardholderGroup, cardholder_group => cardholder_group.limitations)
     cardholder_groups: CardholderGroup[];

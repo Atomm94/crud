@@ -7,8 +7,7 @@ import {
 import { acuStatus } from '../../enums/acuStatus.enum'
 import { networkValidation, interfaceValidation, timeValidation } from '../../functions/validator'
 import { acuConnectionType } from '../../enums/acuConnectionType.enum'
-import { MainEntity } from './MainEntity'
-import { AccessPoint } from './AccessPoint'
+import { MainEntity, AccessPoint } from './index'
 
 @Entity('acu')
 export class Acu extends MainEntity {

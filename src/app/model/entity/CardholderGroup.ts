@@ -6,12 +6,15 @@ import {
     JoinColumn,
     OneToMany
 } from 'typeorm'
-
-import { MainEntity } from './MainEntity'
-import { AccessRight } from './AccessRight'
-import { Cardholder, Limitation } from '.'
 import { AntipassBack } from './AntipassBack'
-import { Schedule } from './Schedule'
+
+import {
+    Cardholder,
+    Limitation,
+    MainEntity,
+    AccessRight,
+    Schedule
+} from './index'
 // import { Cardholder } from './Cardholder'
 
 @Entity('cardholder_group')
@@ -100,9 +103,44 @@ export class CardholderGroup extends MainEntity {
         })
     }
 
-    public static async updateItem (data: CardholderGroup): Promise<{ [key: string]: any }> {
+    public static async updateItem (data: any, user: any): Promise<{ [key: string]: any }> {
         const cardholderGroup = await this.findOneOrFail(data.id)
         const oldData = Object.assign({}, cardholderGroup)
+
+        let parent_data: any
+        if (data.limitation_inherited || data.antipass_back_inherited || data.time_attendance_inherited || data.access_right_inherited) {
+            parent_data = await CardholderGroup.getItem({ id: oldData.parent_id, company: user.company ? user.company : null })
+        }
+
+        if (data.limitation_inherited && parent_data) {
+            data.limitation = parent_data.limitation
+        } else {
+            if (data.limitation_inherited === oldData.limitation_inherited) {
+                await Limitation.updateItem(data.limitations as Limitation)
+            } else {
+                const limitation_data: any = await Limitation.addItem(data.limitations as Limitation)
+                data.limitation = limitation_data.id
+            }
+        }
+
+        if (data.antipass_back_inherited && parent_data) {
+            data.antipass_back = parent_data.antipass_back
+        } else {
+            if (data.antipass_back_inherited === oldData.antipass_back_inherited) {
+                await AntipassBack.updateItem(data.antipass_backs as AntipassBack)
+            } else {
+                const antipass_back_data: any = await AntipassBack.addItem(data.antipass_backs as AntipassBack)
+                data.antipass_back = antipass_back_data.id
+            }
+        }
+
+        if (data.access_right_inherited && parent_data) {
+            data.access_right = parent_data.access_right
+        }
+
+        if (data.time_attendance_inherited && parent_data) {
+            data.time_attendance = parent_data.time_attendance
+        }
 
         if ('name' in data) cardholderGroup.name = data.name
         if ('description' in data) cardholderGroup.description = data.description

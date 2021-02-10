@@ -1,12 +1,8 @@
+import { MainEntity } from './MainEntity'
 import { Admin } from './Admin'
 import { Role } from './Role'
 import { Translation } from './Translation'
-import { Slider } from './Slider'
-import { Social } from './Social'
-import { Page } from './Page'
-import { Menu } from './Menu'
 import { Language } from './Language'
-import { Section } from './Section'
 import { Ticket } from './Ticket'
 import { Department } from './Department'
 import { TicketMessage } from './TicketMessage'
@@ -22,18 +18,21 @@ import { CarInfo } from './CarInfo'
 import { Limitation } from './Limitation'
 import { Schedule } from './Schedule'
 import { AccessRight } from './AccessRight'
-import { Log } from './Log'
-
+import { CardholderGroup } from './CardholderGroup'
+import { EventLog } from './EventLog'
+import { UserLog } from './UserLog'
+import { AccountGroup } from './AccountGroup'
+import { AccessPointGroup } from './AccessPointGroup'
+import { AccessPointZone } from './AccessPointZone'
+import { AccessPoint } from './AccessPoint'
+import { AccessRule } from './AccessRule'
+import { Acu } from './Acu'
 export {
+    MainEntity,
     Admin,
     Role,
     Translation,
-    Slider,
-    Social,
-    Page,
-    Menu,
     Language,
-    Section,
     Module,
     Ticket,
     Department,
@@ -49,5 +48,13 @@ export {
     Limitation,
     Schedule,
     AccessRight,
-    Log
+    CardholderGroup,
+    EventLog,
+    UserLog,
+    AccountGroup,
+    AccessPointGroup,
+    AccessPointZone,
+    AccessPoint,
+    AccessRule,
+    Acu
 }

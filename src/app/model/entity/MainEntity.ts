@@ -5,12 +5,6 @@ import {
     PrimaryGeneratedColumn,
     Index,
     getRepository,
-    // BeforeInsert,
-    // BeforeUpdate,
-    // JoinTable,
-    // OneToMany,
-    // ObjectIdColumn,
-    // ObjectID
     Not,
     LessThan,
     LessThanOrEqual,
@@ -24,9 +18,7 @@ import {
     AfterInsert,
     AfterRemove
 } from 'typeorm'
-import { Company, CompanyResources } from '.'
-import { logger } from '../../../../modules/winston/logger'
-import { AccessControl } from '../../functions/access-control'
+import { CompanyResources } from '.'
 import * as Models from './index'
 
 export abstract class MainEntity extends BaseEntity {
@@ -216,24 +208,6 @@ export abstract class MainEntity extends BaseEntity {
         return {
             actions: this.getActions(),
             attributes: this.getAttributes()
-        }
-    }
-
-    public static async canCreate (company_id: number, resource: string) {
-        try {
-            const company = await Company.findOneOrFail({ id: company_id })
-            if (company && company.packet) {
-                const companyResources = await CompanyResources.findOneOrFail({ company: company_id })
-                if (companyResources && companyResources.used) {
-                    const usedRes = JSON.parse(companyResources.used)
-                    const canAccess = await AccessControl.companyCanAccess(company.packet, resource, (resource in usedRes) ? +usedRes[resource] : 0)
-                    return canAccess
-                }
-            }
-            return false
-        } catch (error) {
-            logger.info(error)
-            return false
         }
     }
 }

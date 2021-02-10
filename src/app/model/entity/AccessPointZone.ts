@@ -4,8 +4,7 @@ import {
     OneToMany
 } from 'typeorm'
 
-import { MainEntity } from './MainEntity'
-import { AccessPoint } from './AccessPoint'
+import { MainEntity, AccessPoint } from './index'
 
 @Entity('access_point_zone')
 export class AccessPointZone extends MainEntity {

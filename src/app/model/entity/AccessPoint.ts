@@ -7,13 +7,15 @@ import {
 } from 'typeorm'
 
 import { accessPointMode } from '../../enums/accessPointMode.enum'
-import { MainEntity } from './MainEntity'
-import { Company } from './Company'
-import { AccessRule } from './AccessRule'
-import { AccessPointGroup } from './AccessPointGroup'
-import { AccessPointZone } from './AccessPointZone'
-import { Acu } from './Acu'
 
+import {
+    MainEntity,
+    Company,
+    AccessRule,
+    AccessPointGroup,
+    AccessPointZone
+} from './index'
+import { Acu } from './Acu'
 @Entity('access_point')
 export class AccessPoint extends MainEntity {
     @Column('varchar', { name: 'name', nullable: false })
@@ -73,6 +75,8 @@ export class AccessPoint extends MainEntity {
     @ManyToOne(type => Acu, acu => acu.access_points, { nullable: true })
     @JoinColumn({ name: 'acu' })
     acus: Acu | null;
+
+    public static resource: boolean = true
 
     public static async addItem (data: AccessPoint) {
         const accessPoint = new AccessPoint()

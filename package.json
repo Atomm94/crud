@@ -33,7 +33,7 @@
 		"@types/request-promise-native": "^1.0.17",
 		"app-root-path": "^3.0.0",
 		"async-request": "^1.2.0",
-		"bcrypt": "^3.0.8",
+		"bcrypt": "^5.0.0",
 		"class-validator": "^0.9.1",
 		"copyfiles": "^2.3.0",
 		"date-fns": "^2.12.0",

@@ -288,43 +288,7 @@ export default class CardholderGroupController {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
             } else {
-                let parent_data: any
-                if (req_data.limitation_inherited || req_data.antipass_back_inherited || req_data.time_attendance_inherited || req_data.access_right_inherited) {
-                    const data: any = await CardholderGroup.getItem({ id: req_data.id, company: user.company ? user.company : null })
-                    parent_data = await CardholderGroup.getItem({ id: data.parent_id, company: user.company ? user.company : null })
-                }
-
-                if (req_data.limitation_inherited && parent_data) {
-                    req_data.limitation = parent_data.limitation
-                } else {
-                    if (req_data.limitations.id) {
-                        await Limitation.updateItem(req_data.limitations as Limitation)
-                    } else {
-                        const limitation_data: any = await Limitation.addItem(req_data.limitations as Limitation)
-                        req_data.limitation = limitation_data.id
-                    }
-                }
-
-                if (req_data.antipass_back_inherited && parent_data) {
-                    req_data.antipass_back = parent_data.antipass_back
-                } else {
-                    if (req_data.antipass_backs.id) {
-                        await AntipassBack.updateItem(req_data.antipass_backs as AntipassBack)
-                    } else {
-                        const antipass_back_data: any = await AntipassBack.addItem(req_data.antipass_backs as AntipassBack)
-                        req_data.antipass_back = antipass_back_data.id
-                    }
-                }
-
-                if (req_data.access_right_inherited && parent_data) {
-                    req_data.access_right = parent_data.access_right
-                }
-
-                if (req_data.time_attendance_inherited && parent_data) {
-                    req_data.time_attendance = parent_data.time_attendance
-                }
-
-                const updated = await CardholderGroup.updateItem(req_data as CardholderGroup)
+                const updated = await CardholderGroup.updateItem(req_data as CardholderGroup, user)
                 ctx.oldData = updated.old
                 ctx.body = updated.new
             }
@@ -414,7 +378,6 @@ export default class CardholderGroupController {
     public static async destroy (ctx: DefaultContext) {
         try {
             const id = ctx.request.body.id
-
             const user = ctx.user
             const where = { id: id, company: user.company ? user.company : null }
             const check_by_company = await CardholderGroup.findOne(where)
@@ -433,7 +396,7 @@ export default class CardholderGroupController {
                         ctx.status = 400
                         ctx.body = { message: 'Can\'t remove group with cardholders' }
                     } else {
-                        ctx.body = await CardholderGroup.destroyItem(id)
+                        ctx.body = await CardholderGroup.destroyItem({ id: id })
                     }
                 }
             }
