@@ -25,6 +25,9 @@ export default router
     .get('CardholderGroup-getAllItems', 'cardholderGroup',
         checkRole(),
         CardholderGroupController.getAll)
+    .get('CardholderGroup-getItem', 'cardholderGroup/relations/{id}',
+        checkRole(),
+        CardholderGroupController.getRelations)
     .get('CardholderGroup-getItem', 'cardholderGroup/:id',
         checkRole(),
         CardholderGroupController.get)
