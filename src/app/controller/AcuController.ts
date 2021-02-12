@@ -1,5 +1,6 @@
 import { DefaultContext } from 'koa'
 import { Acu } from '../model/entity/Acu'
+import * as acuModels from '../model/entity/acuModels.json'
 export default class AcuController {
     /**
      *
@@ -410,6 +411,37 @@ export default class AcuController {
             const user = ctx.user
             req_data.where = { company: { '=': user.company ? user.company : null } }
             ctx.body = await Acu.getAllItems(req_data)
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     * /acu/models:
+     *      get:
+     *          tags:
+     *              - Acu
+     *          summary: Return acuModels list
+     *          parameters:
+     *              - in: header
+     *                name: Authorization
+     *                required: true
+     *                description: Authentication token
+     *                schema:
+     *                    type: string
+     *          responses:
+     *              '200':
+     *                  description: acuModels
+     *              '401':
+     *                  description: Unauthorized
+     */
+    public static async getAcuModels (ctx: DefaultContext) {
+        try {
+            ctx.body = acuModels
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
