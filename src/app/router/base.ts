@@ -1,4 +1,3 @@
-import AcuController from '../controller/AcuController'
 import CompanyController from '../controller/CompanyController'
 import RegistrationInviteController from '../controller/RegistrationInviteController'
 
@@ -64,13 +63,6 @@ export default router
   .get('registration/:token', RegistrationInviteController.get)
   .post('registration/:token', CompanyController.regValidation)
   .put('registration/:token', CompanyController.resendNewPassEmail)
-
-  // Acu controller CRUD endpoints
-  .post('acu', AcuController.add)
-  .put('acu', AcuController.update)
-  .get('acu/:id', AcuController.get)
-  .delete('acu', AcuController.destroy)
-  .get('acu', AcuController.getAll)
 
   // Mqtt controller endpoints
   .get('mqttGetRequest/:id', MqttController.get)

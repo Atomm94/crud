@@ -1,5 +1,6 @@
 import { DefaultContext } from 'koa'
 import { AccessPoint } from '../model/entity/AccessPoint'
+import * as accessPointResources from '../model/entity/accessPointResources.json'
 export default class AccessPointController {
     /**
      *
@@ -299,6 +300,37 @@ export default class AccessPointController {
             const user = ctx.user
             req_data.where = { company: { '=': user.company ? user.company : null } }
             ctx.body = await AccessPoint.getAllItems(req_data)
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     * /accessPoint/resources:
+     *      get:
+     *          tags:
+     *              - AccessPoint
+     *          summary: Return accessPointResources
+     *          parameters:
+     *              - in: header
+     *                name: Authorization
+     *                required: true
+     *                description: Authentication token
+     *                schema:
+     *                    type: string
+     *          responses:
+     *              '200':
+     *                  description: accessPointResources
+     *              '401':
+     *                  description: Unauthorized
+     */
+    public static async getAccessPointResources (ctx: DefaultContext) {
+        try {
+            ctx.body = accessPointResources
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
