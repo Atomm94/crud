@@ -1,6 +1,8 @@
 import { DefaultContext } from 'koa'
 import { AccessPoint } from '../model/entity/AccessPoint'
-import * as accessPointResources from '../model/entity/accessPointResources.json'
+import accessPointResources from '../model/entity/accessPointResources.json'
+import { accessPointType } from '../enums/accessPointType.enum'
+
 export default class AccessPointController {
     /**
      *
@@ -310,7 +312,7 @@ export default class AccessPointController {
     /**
      *
      * @swagger
-     * /accessPoint/resources:
+     * /accessPoint/types:
      *      get:
      *          tags:
      *              - AccessPoint
@@ -328,9 +330,67 @@ export default class AccessPointController {
      *              '401':
      *                  description: Unauthorized
      */
+    public static async getAccessPointTypes (ctx: DefaultContext) {
+        try {
+            ctx.body = Object.values(accessPointType)
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     * /accessPoint/resources/{type}:
+     *      get:
+     *          tags:
+     *              - AccessPoint
+     *          summary: Return accessPointResources
+     *          parameters:
+     *              - in: header
+     *                name: Authorization
+     *                required: true
+     *                description: Authentication token
+     *                schema:
+     *                    type: string
+     *              - name: type
+     *                in: path
+     *                required: true
+     *                description: AccessPoint type
+     *                schema:
+     *                    type: string
+     *          responses:
+     *              '200':
+     *                  description: accessPointResources
+     *              '401':
+     *                  description: Unauthorized
+     */
     public static async getAccessPointResources (ctx: DefaultContext) {
         try {
-            ctx.body = accessPointResources
+            const type = ctx.params.type
+            const ap_resources: any = accessPointResources
+            console.log(ap_resources.access_point_type[type])
+
+            if (!ap_resources.access_point_type[type]) {
+                ctx.status = 400
+                ctx.body = {
+                    message: 'not correct access point type!'
+                }
+            } else {
+                console.log(ap_resources.access_point_type[type])
+                const resource_data = ap_resources.access_point_type[type]
+                Object.keys(resource_data.resources).forEach(rio => { // rio - reader input output
+                    Object.keys(resource_data.resources[rio]).forEach(rio_key => {
+                        if (typeof resource_data.resources[rio][rio_key] === 'string') {
+                            const default_configs_key = resource_data.resources[rio][rio_key]
+                            resource_data.resources[rio][rio_key] = ap_resources.default_configs[default_configs_key]
+                        }
+                    })
+                })
+                ctx.body = resource_data
+            }
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

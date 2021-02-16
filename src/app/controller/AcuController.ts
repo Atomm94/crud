@@ -1,6 +1,6 @@
 import { DefaultContext } from 'koa'
 import { Acu } from '../model/entity/Acu'
-import * as acuModels from '../model/entity/acuModels.json'
+import acuModels from '../model/entity/acuModels.json'
 export default class AcuController {
     /**
      *
