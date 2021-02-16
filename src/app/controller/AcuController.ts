@@ -1,6 +1,8 @@
 import { DefaultContext } from 'koa'
 import { Acu } from '../model/entity/Acu'
 import acuModels from '../model/entity/acuModels.json'
+import { acuStatus } from '../enums/acuStatus.enum'
+
 export default class AcuController {
     /**
      *
@@ -442,6 +444,119 @@ export default class AcuController {
     public static async getAcuModels (ctx: DefaultContext) {
         try {
             ctx.body = acuModels
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     * /acu/attach/hardware:
+     *      get:
+     *          tags:
+     *              - Acu
+     *          summary: Return acu list
+     *          parameters:
+     *              - in: header
+     *                name: Authorization
+     *                required: true
+     *                description: Authentication token
+     *                schema:
+     *                    type: string
+     *          responses:
+     *              '200':
+     *                  description: Array of acu with pending status
+     *              '401':
+     *                  description: Unauthorized
+     */
+    public static async getDevicesForAttach (ctx: DefaultContext) {
+        try {
+            const req_data = ctx.query
+            const user = ctx.user
+            req_data.where = {
+                company: { '=': user.company ? user.company : null },
+                status: { '=': acuStatus.PENDING }
+            }
+            ctx.body = await Acu.getAllItems(req_data)
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
+
+    /**
+ *
+ * @swagger
+ *  /acu/attach/hardware:
+ *      post:
+ *          tags:
+ *              - Acu
+ *          summary: Creates a acu.
+ *          consumes:
+ *              - application/json
+ *          parameters:
+ *            - in: header
+ *              name: Authorization
+ *              required: true
+ *              description: Authentication token
+ *              schema:
+ *                type: string
+ *            - in: body
+ *              name: acu
+ *              description: The acu to create.
+ *              schema:
+ *                type: object
+ *                required:
+ *                 - device
+ *                 - attached_hardware
+ *                properties:
+ *                  device:
+ *                      type: number
+ *                      example: 1
+ *                  attached_hardware:
+ *                      type: number
+ *                      example: 2
+ *          responses:
+ *              '201':
+ *                  description: A acu object
+ *              '409':
+ *                  description: Conflict
+ *              '422':
+ *                  description: Wrong data
+ */
+
+    public static async attachHardware (ctx: DefaultContext) {
+        try {
+            const req_data = ctx.request.body
+            const user = ctx.user
+            const device = await Acu.findOneOrFail({
+                id: req_data.device,
+                status: acuStatus.NO_HARDWARE,
+                company: user.company ? user.company : null
+            })
+            const hardware = await Acu.findOneOrFail({
+                id: req_data.attached_hardware,
+                status: acuStatus.PENDING,
+                company: user.company ? user.company : null
+            })
+            if (device.model !== hardware.model) {
+                ctx.status = 400
+                ctx.body = {
+                    message: 'device models are not same'
+                }
+            } else {
+                device.status = acuStatus.ACTIVE
+                device.network = hardware.network
+                device.interface = hardware.interface
+                // device.time = hardware.time
+                const updated = await device.save()
+                // await Acu.destroyItem({ id: hardware.id }) // accessPoints ??
+                ctx.body = updated
+            }
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

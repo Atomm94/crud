@@ -23,9 +23,6 @@ export class Acu extends MainEntity {
     @Column('enum', { name: 'status', nullable: false, enum: acuStatus, default: acuStatus.PENDING })
     status: acuStatus
 
-    @Column('varchar', { name: 'ip_address', nullable: true })
-    ip_address: string | null
-
     @Column('boolean', { name: 'cloud_status', default: false })
     cloud_status: boolean
 
@@ -63,14 +60,11 @@ export class Acu extends MainEntity {
         if ('description' in data) acu.description = data.description
         acu.model = data.model
         acu.status = data.status
-        acu.ip_address = data.ip_address
         acu.cloud_status = data.cloud_status
         acu.fw_version = data.fw_version
         if ('maintain_update_manual' in data) acu.maintain_update_manual = data.maintain_update_manual
         acu.shared_resource_mode = data.shared_resource_mode
         if ('connection_type' in data) acu.connection_type = data.connection_type
-        if ('network' in data) acu.network = data.network
-        if ('interface' in data) acu.interface = data.interface
         acu.company = data.company
 
         return new Promise((resolve, reject) => {
@@ -78,18 +72,24 @@ export class Acu extends MainEntity {
                 const check_network = networkValidation(data.network)
                 if (!check_network) {
                     reject(check_network)
+                } else {
+                    acu.network = JSON.stringify(data.network)
                 }
             }
             if (data.interface) {
                 const check_interface = interfaceValidation(data.interface)
                 if (!check_interface) {
                     reject(check_interface)
+                } else {
+                    acu.interface = JSON.stringify(data.interface)
                 }
             }
             if (data.time) {
                 const check_time = timeValidation(data.time)
                 if (!check_time) {
                     reject(check_time)
+                } else {
+                    acu.time = JSON.stringify(data.time)
                 }
             }
             // if (data.maintain) {
@@ -117,17 +117,45 @@ export class Acu extends MainEntity {
         if ('description' in data) acu.description = data.description
         if ('model' in data) acu.model = data.model
         if ('status' in data) acu.status = data.status
-        if ('ip_address' in data) acu.ip_address = data.ip_address
         if ('cloud_status' in data) acu.cloud_status = data.cloud_status
         if ('fw_version' in data) acu.fw_version = data.fw_version
         if ('maintain_update_manual' in data) acu.maintain_update_manual = data.maintain_update_manual
         if ('shared_resource_mode' in data) acu.shared_resource_mode = data.shared_resource_mode
         if ('connection_type' in data) acu.connection_type = data.connection_type
-        if ('network' in data) acu.network = data.network
-        if ('interface' in data) acu.interface = data.interface
 
         if (!acu) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
+            if (data.network) {
+                const check_network = networkValidation(data.network)
+                if (!check_network) {
+                    reject(check_network)
+                } else {
+                    acu.network = JSON.stringify(data.network)
+                }
+            }
+            if (data.interface) {
+                const check_interface = interfaceValidation(data.interface)
+                if (!check_interface) {
+                    reject(check_interface)
+                } else {
+                    acu.interface = JSON.stringify(data.interface)
+                }
+            }
+            if (data.time) {
+                const check_time = timeValidation(data.time)
+                if (!check_time) {
+                    reject(check_time)
+                } else {
+                    acu.time = JSON.stringify(data.time)
+                }
+            }
+            // if (data.maintain) {
+            //     const check_maintain = maintainValidation(data.time)
+            //     if (!check_maintain) {
+            //         reject(check_maintain)
+            //     }
+            // }
+
             this.save(acu)
                 .then((item: Acu) => {
                     resolve({
