@@ -6,7 +6,7 @@ import {
     RemoveEvent
     // UpdateEvent
 } from 'typeorm'
-import Parse from '../../mqtt/Parse'
+import SendDevice from '../../mqtt/SendDevice'
 import { Company } from '../entity'
 import { Acu } from '../entity/Acu'
 
@@ -35,7 +35,7 @@ export class PostSubscriber implements EntitySubscriberInterface<Acu> {
         if (Old.session_id == null && New.session_id !== Old.session_id) {
             const company: any = await Company.findOne({ id: New.company })
             const location = `${company.account}`
-            Parse.setPass(location, New.serial_number, New.session_id)
+            SendDevice.setPass(location, New.serial_number, New.session_id)
         }
     }
 
