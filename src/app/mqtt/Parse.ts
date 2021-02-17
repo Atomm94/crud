@@ -56,6 +56,9 @@ export default class Parse {
             case OperatorType.GET_RD_ACK:
                 this.deviceGetRdAck(data)
                 break
+            case OperatorType.SET_OUTPUT_ACK:
+                this.deviceSetOutputAck(data)
+                break
             case OperatorType.GET_OUTPUT_ACK:
                 this.deviceGetOutputAck(data)
                 break
@@ -79,6 +82,54 @@ export default class Parse {
                 break
             case OperatorType.SINGLE_PASS_ACK:
                 this.deviceSinglePassAck(topic)
+                break
+            case OperatorType.SET_CARD_KEYS_ACK:
+                this.setCardKeysAck(data)
+                break
+            case OperatorType.ADD_CARD_KEY_ACK:
+                this.addCardKeyAck(data)
+                break
+            case OperatorType.EDIT_KEY_ACK:
+                this.editKeyAck(data)
+                break
+            case OperatorType.DELL_KEYS_ACK:
+                this.dellKeysAck(data)
+                break
+            case OperatorType.DELL_ALL_KEYS_ACK:
+                this.dellAllKeysAck(data)
+                break
+            case OperatorType.SET_SDL_DAILY_ACK:
+                this.setSdlDailyAck(data)
+                break
+            case OperatorType.SET_SDL_WEEKLY_ACK:
+                this.setSdlWeeklyAck(data)
+                break
+            case OperatorType.SET_SDL_FLEXI_TIME_ACK:
+                this.setSdlFlexiTimeAck(data)
+                break
+            case OperatorType.ADD_DAY_FLEXI_TIME_ACK:
+                this.addDayFlexiTimeAck(data)
+                break
+            case OperatorType.END_SDL_FLEXI_TIME_ACK:
+                this.endSdlFlexiTimeAck(data)
+                break
+            case OperatorType.DEL_DAY_FLEXI_TIME_ACK:
+                this.delDayFlexiTimeAck(data)
+                break
+            case OperatorType.SET_SDL_SPECIFIED_ACK:
+                this.setSdlSpecifiedAck(data)
+                break
+            case OperatorType.ADD_DAY_SPECIFIED_ACK:
+                this.addDaySpecifiedAck(data)
+                break
+            case OperatorType.END_SDL_SPECIFIED_ACK:
+                this.endSdlSpecifiedAck(data)
+                break
+                case OperatorType.DELL_DAY_SPECIFIED_ACK:
+                    this.dellDaySpecifiedAck(data)
+                    break
+            case OperatorType.DELL_SHEDULE_ACK:
+                this.dellSheduleAck(data)
                 break
             case OperatorType.DEV_TEST_ACK:
                 this.deviceDevTestAck(topic)
@@ -290,6 +341,13 @@ export default class Parse {
         }
     }
 
+    public static deviceSetOutputAck (data: any): void {
+        console.log('deviceGetRdAck', data)
+        if (data.result.errorNo === 0) {
+            console.log('deviceGetRdAck complete')
+        }
+    }
+
     public static deviceGetOutputAck (data: any): void {
         console.log('deviceGetOutputAck', data)
         if (data.result.errorNo === 0) {
@@ -343,6 +401,118 @@ export default class Parse {
         console.log('deviceSinglePassAck', data)
         if (data.result.errorNo === 0) {
             console.log('deviceSinglePassAck complete')
+        }
+    }
+
+    public static setCardKeysAck (data: any): void {
+        console.log('deviceDevTestAck', data)
+        if (data.result.errorNo === 0) {
+            console.log('deviceDevTestAck complete')
+        }
+    }
+
+    public static addCardKeyAck (data: any): void {
+        console.log('deviceDevTestAck', data)
+        if (data.result.errorNo === 0) {
+            console.log('deviceDevTestAck complete')
+        }
+    }
+
+    public static editKeyAck (data: any): void {
+        console.log('deviceDevTestAck', data)
+        if (data.result.errorNo === 0) {
+            console.log('deviceDevTestAck complete')
+        }
+    }
+
+    public static dellKeysAck (data: any): void {
+        console.log('deviceDevTestAck', data)
+        if (data.result.errorNo === 0) {
+            console.log('deviceDevTestAck complete')
+        }
+    }
+
+    public static dellAllKeysAck (data: any): void {
+        console.log('deviceDevTestAck', data)
+        if (data.result.errorNo === 0) {
+            console.log('deviceDevTestAck complete')
+        }
+    }
+
+    public static setSdlDailyAck (data: any): void {
+        console.log('deviceDevTestAck', data)
+        if (data.result.errorNo === 0) {
+            console.log('deviceDevTestAck complete')
+        }
+    }
+
+    public static setSdlWeeklyAck (data: any): void {
+        console.log('deviceDevTestAck', data)
+        if (data.result.errorNo === 0) {
+            console.log('deviceDevTestAck complete')
+        }
+    }
+
+    public static setSdlFlexiTimeAck (data: any): void {
+        console.log('deviceDevTestAck', data)
+        if (data.result.errorNo === 0) {
+            console.log('deviceDevTestAck complete')
+        }
+    }
+
+    public static addDayFlexiTimeAck (data: any): void {
+        console.log('deviceDevTestAck', data)
+        if (data.result.errorNo === 0) {
+            console.log('deviceDevTestAck complete')
+        }
+    }
+
+    public static endSdlFlexiTimeAck (data: any): void {
+        console.log('deviceDevTestAck', data)
+        if (data.result.errorNo === 0) {
+            console.log('deviceDevTestAck complete')
+        }
+    }
+
+    public static delDayFlexiTimeAck (data: any): void {
+        console.log('deviceDevTestAck', data)
+        if (data.result.errorNo === 0) {
+            console.log('deviceDevTestAck complete')
+        }
+    }
+
+    public static setSdlSpecifiedAck (data: any): void {
+        console.log('deviceDevTestAck', data)
+        if (data.result.errorNo === 0) {
+            console.log('deviceDevTestAck complete')
+        }
+    }
+
+    public static addDaySpecifiedAck (data: any): void {
+        console.log('deviceDevTestAck', data)
+        if (data.result.errorNo === 0) {
+            console.log('deviceDevTestAck complete')
+        }
+    }
+
+    public static endSdlSpecifiedAck (data: any): void {
+        console.log('deviceDevTestAck', data)
+        if (data.result.errorNo === 0) {
+            console.log('deviceDevTestAck complete')
+        }
+    }
+
+    public static dellDaySpecifiedAck (data: any): void {
+        console.log('deviceDevTestAck', data)
+        if (data.result.errorNo === 0) {
+            console.log('deviceDevTestAck complete')
+        }
+    }
+
+    public static dellSheduleAck (data: any): void {
+        console.log('deviceDevTestAck', data)
+        if (data.result.errorNo === 0) {
+            console.log('deviceDevTestAck complete')
         }
     }
 

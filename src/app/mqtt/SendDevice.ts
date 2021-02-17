@@ -736,6 +736,22 @@ export default class SendDevice {
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 
+    public static dellDaySpecified (topic: any, session_id: string): void {
+        const send_data: any = {
+            operator: OperatorType.DELL_DAY_SPECIFIED,
+            location: topic.split('/').slice(0, 2).join('/'),
+            device_id: topic.split('/')[3],
+            session_id: session_id,
+            message_id: '11111111',
+            info: {
+                Shedule_id: 1254844,
+                Ctp_idx: 0,
+                Day_idx: 3
+            }
+        }
+        MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
+    }
+
     public static dellShedule (topic: any, session_id: string): void {
         const send_data: any = {
             operator: OperatorType.DELL_SHEDULE,
