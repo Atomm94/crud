@@ -40,14 +40,16 @@ export enum OperatorType {
     SET_CTP_DOOR_ACK = 'SetCtpDoor-Ack',
 
     SET_EVENTS_MOD = 'SetEventsMod',
-    // SET_EVENTS_MOD_ACK = 'SetEventsMod-Ack', ??
+    SET_EVENTS_MOD_ACK = 'SetEventsMod-Ack',
+
     GET_EVENTS_MOD = 'GetEventsMod',
     GET_EVENTS_MOD_ACK = 'GetEventsMod-Ack',
     EVENT = 'Event',
     GET_EVENTS = 'GetEvents',
     GET_EVENTS_ACK = 'GetEvents-Ack',
     SET_ACCESS_MODE = 'SetAccessMode',
-    // SET_ACCESS_MODE_ACK = 'SetAccessMode-Ack', ??
+    SET_ACCESS_MODE_ACK = 'SetAccessMode-Ack',
+
     GET_ACCESS_MODE = 'GetAccessMode',
     GET_ACCESS_MODE_ACK = 'GetAccessMode-Ack',
     SINGLE_PASS = 'Single_pass',

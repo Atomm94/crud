@@ -71,11 +71,17 @@ export default class Parse {
             case OperatorType.EVENT:
                 this.deviceEvent(data)
                 break
+            case OperatorType.SET_EVENTS_MOD_ACK:
+                this.deviceSetEventsModAck(topic)
+                break
             case OperatorType.GET_EVENTS_MOD_ACK:
                 this.deviceGetEventsModAck(topic)
                 break
             case OperatorType.GET_EVENTS_ACK:
                 this.deviceGetEventsAck(topic)
+                break
+            case OperatorType.SET_ACCESS_MODE_ACK:
+                this.deviceSetAccessModeAck(topic)
                 break
             case OperatorType.GET_ACCESS_MODE_ACK:
                 this.deviceGetAccessModeAck(topic)
@@ -376,6 +382,13 @@ export default class Parse {
         }
     }
 
+    public static deviceSetEventsModAck (data: any): void {
+        console.log('deviceSetEventsModAck', data)
+        if (data.result.errorNo === 0) {
+            console.log('deviceSetEventsModAck complete')
+        }
+    }
+
     public static deviceGetEventsModAck (data: any): void {
         console.log('deviceGetEventsModAck', data)
         if (data.result.errorNo === 0) {
@@ -387,6 +400,13 @@ export default class Parse {
         console.log('deviceGetEventsAck', data)
         if (data.result.errorNo === 0) {
             console.log('deviceGetEventsAck complete')
+        }
+    }
+
+    public static deviceSetAccessModeAck (data: any): void {
+        console.log('deviceSetAccessModeAck', data)
+        if (data.result.errorNo === 0) {
+            console.log('deviceSetAccessModeAck complete')
         }
     }
 
