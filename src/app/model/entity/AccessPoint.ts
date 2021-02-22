@@ -7,6 +7,7 @@ import {
 } from 'typeorm'
 
 import { accessPointMode } from '../../enums/accessPointMode.enum'
+import { accessPointType } from '../../enums/accessPointType.enum'
 
 import {
     MainEntity,
@@ -24,8 +25,8 @@ export class AccessPoint extends MainEntity {
     @Column('varchar', { name: 'description', nullable: true })
     description: string | null
 
-    @Column('longtext', { name: 'type', nullable: false })
-    type: string | null
+    @Column('enum', { name: 'type', nullable: false, enum: accessPointType })
+    type: accessPointType
 
     @Column('boolean', { name: 'status', default: false })
     status: boolean

@@ -9,5 +9,6 @@ export default router
     .put('AccessPoint-updateItem', 'accessPoint', checkRole(), AccessPointController.update)
     .delete('AccessPoint-destroyItem', 'accessPoint', checkRole(), AccessPointController.destroy)
     .get('AccessPoint-getAllItems', 'accessPoint', checkRole(), AccessPointController.getAll)
-    .get('AccessPoint-getAllItems', 'accessPoint/resources', checkRole(), AccessPointController.getAccessPointResources)
+    .get('AccessPoint-getAllItems', 'accessPoint/resources/:type', checkRole(), AccessPointController.getAccessPointResources)
+    .get('AccessPoint-getAllItems', 'accessPoint/types', checkRole(), AccessPointController.getAccessPointTypes)
     .get('AccessPoint-getItem', 'accessPoint/:id', checkRole(), AccessPointController.get)
