@@ -6,9 +6,9 @@ import {
 
 import { acuStatus } from '../../enums/acuStatus.enum'
 import { networkValidation, interfaceValidation, timeValidation } from '../../functions/validator'
-import { acuConnectionType } from '../../enums/acuConnectionType.enum'
 import { MainEntity } from './MainEntity'
 import { AccessPoint } from './AccessPoint'
+import { ExtDevice } from './ExtDevice'
 
 @Entity('acu')
 export class Acu extends MainEntity {
@@ -27,12 +27,6 @@ export class Acu extends MainEntity {
     @Column('enum', { name: 'status', nullable: false, enum: acuStatus, default: acuStatus.PENDING })
     status: acuStatus
 
-    @Column('varchar', { name: 'ip_address', nullable: true })
-    ip_address: string | null
-
-    @Column('boolean', { name: 'cloud_status', default: false })
-    cloud_status: boolean
-
     @Column('varchar', { name: 'fw_version', nullable: true })
     fw_version: string | null
 
@@ -41,9 +35,6 @@ export class Acu extends MainEntity {
 
     @Column('boolean', { name: 'shared_resource_mode', default: false })
     shared_resource_mode: boolean
-
-    @Column('enum', { name: 'connection_type', nullable: false, enum: acuConnectionType, default: acuConnectionType.ETHERNET })
-    connection_type: acuConnectionType
 
     @Column('longtext', { name: 'network', nullable: true })
     network: string | null
@@ -69,26 +60,55 @@ export class Acu extends MainEntity {
     @OneToMany(type => AccessPoint, access_point => access_point.acus)
     access_points: AccessPoint[];
 
-    public static async addItem (data: Acu) {
+    @OneToMany(type => ExtDevice, ext_device => ext_device.acus)
+    ext_boards : ExtDevice[];
+
+    public static async addItem (data: any) {
         const acu = new Acu()
+
+        acu.name = data.name
+        acu.description = data.note
+        acu.serial_number = data.serial_number
+        acu.model = data.model // check or no ??
+        acu.status = acuStatus.PENDING
+        acu.fw_version = data.fw_version
+        acu.company = data.company
+
+        return new Promise((resolve, reject) => {
+            if (data.time) {
+                const check_time = timeValidation(data.time)
+                if (!check_time) {
+                    reject(check_time)
+                } else {
+                    acu.time = data.time
+                }
+            }
+            this.save(acu)
+                .then((item: Acu) => {
+                    resolve(item)
+                })
+                .catch((error: any) => {
+                    reject(error)
+                })
+        })
+    }
+
+    public static async updateItem (data: Acu): Promise<{ [key: string]: any }> {
+        const acu = await this.findOneOrFail(data.id)
+        const oldData = Object.assign({}, acu)
 
         if ('name' in data) acu.name = data.name
         if ('description' in data) acu.description = data.description
         if ('serial_number' in data) acu.serial_number = data.serial_number
-        acu.model = data.model
+        if ('model' in data) acu.model = data.model
         if ('status' in data) acu.status = data.status
-        if ('ip_address' in data) acu.ip_address = data.ip_address
-        if ('cloud_status' in data) acu.cloud_status = data.cloud_status
         if ('fw_version' in data) acu.fw_version = data.fw_version
         if ('maintain_update_manual' in data) acu.maintain_update_manual = data.maintain_update_manual
         if ('shared_resource_mode' in data) acu.shared_resource_mode = data.shared_resource_mode
-        if ('connection_type' in data) acu.connection_type = data.connection_type
         if ('network' in data) acu.network = data.network
         if ('interface' in data) acu.interface = data.interface
-        if ('interface' in data) acu.interface = data.interface
 
-        acu.company = data.company
-
+        if (!acu) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
             if (data.network) {
                 const check_network = networkValidation(data.network)
@@ -115,36 +135,6 @@ export class Acu extends MainEntity {
             //     }
             // }
 
-            this.save(acu)
-                .then((item: Acu) => {
-                    resolve(item)
-                })
-                .catch((error: any) => {
-                    reject(error)
-                })
-        })
-    }
-
-    public static async updateItem (data: Acu): Promise<{ [key: string]: any }> {
-        const acu = await this.findOneOrFail(data.id)
-        const oldData = Object.assign({}, acu)
-
-        if ('name' in data) acu.name = data.name
-        if ('description' in data) acu.description = data.description
-        if ('serial_number' in data) acu.serial_number = data.serial_number
-        if ('model' in data) acu.model = data.model
-        if ('status' in data) acu.status = data.status
-        if ('ip_address' in data) acu.ip_address = data.ip_address
-        if ('cloud_status' in data) acu.cloud_status = data.cloud_status
-        if ('fw_version' in data) acu.fw_version = data.fw_version
-        if ('maintain_update_manual' in data) acu.maintain_update_manual = data.maintain_update_manual
-        if ('shared_resource_mode' in data) acu.shared_resource_mode = data.shared_resource_mode
-        if ('connection_type' in data) acu.connection_type = data.connection_type
-        if ('network' in data) acu.network = data.network
-        if ('interface' in data) acu.interface = data.interface
-
-        if (!acu) return { status: 400, messsage: 'Item not found' }
-        return new Promise((resolve, reject) => {
             this.save(acu)
                 .then((item: Acu) => {
                     resolve({

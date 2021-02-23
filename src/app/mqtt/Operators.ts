@@ -1,7 +1,7 @@
 export enum OperatorType {
     REGISTRATION = 'registration',
     ACCEPT = 'accept',
-    ACCEPT_ACK = 'accept-ack',
+    ACCEPT_ACK = 'accept-Ack',
     LOGIN = 'login',
     LOGIN_ACK = 'login-Ack',
     LOGOUT = 'logout',
@@ -20,7 +20,7 @@ export enum OperatorType {
     GET_MQTT_SETTINGS = 'GetMQTTSettings',
     GET_MQTT_SETTINGS_ACK = 'GetMQTTSettings-Ack',
     GET_STATUS_ACU = 'GetStatusACU',
-    GET_STATUS_ACU_ACK = 'GetStatusACU-ack',
+    GET_STATUS_ACU_ACK = 'GetStatusACU-Ack',
     SET_EXT_BRD = 'SetExtBrd',
     SET_EXT_BRD_ACK = 'SetExtBrd-Ack',
     GET_EXT_BRD = 'GetExtBrd',
