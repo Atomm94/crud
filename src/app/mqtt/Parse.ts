@@ -1,8 +1,7 @@
-import MQTTBroker from './mqtt'
-import { SendTopics } from './Topics'
 import { OperatorType } from './Operators'
 import { Acu } from '../model/entity/Acu'
 import SendDevice from './SendDevice'
+import { acuConnectionType } from '../enums/acuConnectionType.enum'
 
 export default class Parse {
     public static deviceData (topic: string, message: string) {
@@ -131,9 +130,9 @@ export default class Parse {
             case OperatorType.END_SDL_SPECIFIED_ACK:
                 this.endSdlSpecifiedAck(data)
                 break
-                case OperatorType.DELL_DAY_SPECIFIED_ACK:
-                    this.dellDaySpecifiedAck(data)
-                    break
+            case OperatorType.DELL_DAY_SPECIFIED_ACK:
+                this.dellDaySpecifiedAck(data)
+                break
             case OperatorType.DELL_SHEDULE_ACK:
                 this.dellSheduleAck(data)
                 break
@@ -148,32 +147,29 @@ export default class Parse {
 
     public static async deviceRegistration (topic: string, data: any) {
         try {
-            const acu_data = data.info
+            const acu_data: any = {}
             const company = Number(data.topic.split('/')[1])
-            acu_data.company = company
+            acu_data.name = data.name
+            acu_data.description = data.note
             acu_data.serial_number = acu_data.device_id
+            acu_data.fw_version = data.firmware_ver
             acu_data.time = JSON.stringify({
                 time_zone: acu_data.gmt,
                 timezone_from_facility: false,
                 enable_daylight_saving_time: false,
                 daylight_saving_time_from_user_account: false
             })
+            acu_data.company = company
 
-            const add: any = await Acu.addItem(acu_data)
-            console.log('success:true', add)
-            const send_data = {
-                operator: OperatorType.ACCEPT,
-                location: data.topic.split('/').slice(0, 2).join('/'),
-                device_id: acu_data.serial_number
-            }
-
-            MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
+            await Acu.addItem(acu_data)
+            SendDevice.accept(data.topic)
+            console.log('success:true')
         } catch (error) {
             console.log('error deviceRegistrion ', error)
         }
     }
 
-    public static async deviceAcceptAck (data: any) {
+    public static deviceAcceptAck (data: any) {
         console.log('deviceAcceptAck', data)
         if (data.result.errorNo === 0) {
             SendDevice.login(data.topic)
@@ -183,12 +179,20 @@ export default class Parse {
     public static async deviceLoginAck (data: any) {
         console.log('deviceLoginAck', data)
         if (data.result.errorNo === 0) {
+            const location = data.topic.split('/').slice(0, 2).join('/')
             const company = Number(data.topic.split('/')[1])
             const device_id = data.topic.split('/')[3]
             const acu: any = await Acu.findOne({ serial_number: device_id, company: company })
-            acu.session_id = data.session_id
-            acu.save()
-            console.log('login complete')
+            if (acu) {
+                if (acu.session_id == null) {
+                    SendDevice.setPass(location, device_id, data.session_id)
+                }
+                acu.session_id = data.session_id
+                await acu.save()
+                console.log('login complete')
+            } else {
+                console.log('error deviceLoginAck', data)
+            }
         }
     }
 
@@ -205,10 +209,19 @@ export default class Parse {
         }
     }
 
-    public static deviceSetPassAck (data: any): void {
+    public static async deviceSetPassAck (data: any) {
         console.log('deviceSetPassAck', data)
         if (data.result.errorNo === 0) {
-            console.log('deviceSetPass complete')
+            const company = Number(data.topic.split('/')[1])
+            const device_id = Number(data.topic.split('/')[3])
+            const acu: any = await Acu.findOne({ serial_number: device_id, company: company })
+            if (acu) {
+                acu.password = data.send_data.info.password
+                await acu.save()
+                console.log('deviceSetPass complete')
+            } else {
+                console.log('error deviceSetPass', data)
+            }
         }
     }
 
@@ -218,14 +231,18 @@ export default class Parse {
             const company = Number(data.topic.split('/')[1])
             const device_id = data.topic.split('/')[3]
             const acu: any = await Acu.findOne({ serial_number: device_id, company: company })
-            acu.session_id = '0'
-            await acu.save()
-            SendDevice.login(data.topic)
-            console.log('deviceLogOutEvent complete')
+            if (acu) {
+                acu.session_id = '0'
+                await acu.save()
+                SendDevice.login(data.topic)
+                console.log('deviceLogOutEvent complete')
+            } else {
+                console.log('error deviceLogOutEvent', data)
+            }
         }
     }
 
-    public static deviceSetNetSettingsAck (data: any): void {
+    public static async deviceSetNetSettingsAck (data: any) {
         // "operator":" SetNetSettings -Ack",
         // "session_Id": 1111111111,
         // "message_Id": 3333333333,
@@ -238,6 +255,33 @@ export default class Parse {
         //             }
         // }
 
+        console.log('deviceSetNetSettingsAck', data)
+        try {
+            if (data.result.errorNo === 0) {
+                const company = Number(data.topic.split('/')[1])
+                const device_id = data.topic.split('/')[3]
+                const acu: any = await Acu.findOne({ serial_number: device_id, company: company })
+                if (acu) {
+                    const info = data.send_data.info
+                    const dhcp = (info.connection_mod === 0)
+                    acu.network = {
+                        connection_type: (info.connection_type === 0) ? acuConnectionType.WI_FI : acuConnectionType.ETHERNET,
+                        dhcp: dhcp,
+                        fixed: !dhcp,
+                        ip_address: info.ip_address,
+                        subnet_mask: info.mask,
+                        gateway: info.Gate,
+                        dns_server: info.DNS1
+                    }
+                    await Acu.updateItem({ id: acu.id, network: acu.network } as Acu)
+                    console.log('deviceSetNetSettingsAck complete')
+                } else {
+                    console.log('error deviceSetNetSettingsAck', data)
+                }
+            }
+        } catch (error) {
+            console.log('error deviceSetNetSettingsAck', error)
+        }
     }
 
     public static deviceGetNetSettingsAck (data: any): void {
@@ -276,7 +320,7 @@ export default class Parse {
         // }
     }
 
-    public static deviceSetDateTimeAck (data: any): void {
+    public static async deviceSetDateTimeAck (data: any) {
         // receive data from mqtt
         // {
         //     "operator": "SetDateTime-Ack",
@@ -294,7 +338,23 @@ export default class Parse {
         console.log('deviceSetDateTimeAck')
 
         if (data.result.errorNo === 0) {
-            // prcanq aperik
+            const company = Number(data.topic.split('/')[1])
+            const device_id = data.topic.split('/')[3]
+            const acu: any = await Acu.findOne({ serial_number: device_id, company: company })
+            if (acu) {
+                const info = data.send_data.info
+                acu.time = JSON.stringify({
+                    time_zone: info.GMT,
+                    // ?????????????
+                    timezone_from_facility: false,
+                    enable_daylight_saving_time: false,
+                    daylight_saving_time_from_user_account: false
+                })
+                await Acu.updateItem({ id: acu.id, network: acu.network } as Acu)
+                console.log('deviceSetDateTimeAck complete')
+            } else {
+                console.log('error deviceSetDateTimeAck', data)
+            }
         }
     }
 

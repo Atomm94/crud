@@ -2,36 +2,58 @@ import MQTTBroker from './mqtt'
 import { SendTopics } from './Topics'
 import { OperatorType } from './Operators'
 import { Acu } from '../model/entity/Acu'
-import { uid } from 'uid'
+// import { uid } from 'uid'
+import { acuConnectionType } from '../enums/acuConnectionType.enum'
 
 export default class SendDevice {
+    public static async accept (topic: any) {
+        const location = topic.split('/').slice(0, 2).join('/')
+        const device_id = topic.split('/')[3]
+
+        const send_data: any = {
+            operator: OperatorType.ACCEPT,
+            location: location,
+            device_id: device_id,
+            session_id: '0',
+            message_id: '0',
+            info: 'none'
+
+        }
+        MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
+    }
+
     public static async login (topic: any) {
+        console.log(99999999999)
+
         const location = topic.split('/').slice(0, 2).join('/')
         const company = Number(topic.split('/')[1])
         const device_id = topic.split('/')[3]
         const acu: any = await Acu.findOne({ serial_number: device_id, company: company })
 
         // when admin deleted this acu what we do ???
+        const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.LOGIN,
+            session_id: '0',
+            message_id: message_id.toString(),
             location: location,
             device_id: device_id,
-            username: acu.username ? acu.username : 'admin',
-            password: acu.password ? acu.password : ''
-            // "info":
-            //     {
-            //     " username ":"admin",
-            //     " password ":""
-            //     }
+            info: {
+                username: acu.username ? acu.username : 'admin',
+                password: acu.password ? acu.password : ''
+            }
         }
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 
-    public static logOut (topic: any): void {
+    public static logOut (location: string, device_id: any, session_id: string): void {
+        const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.LOGOUT,
-            location: topic.split('/').slice(0, 2).join('/'),
-            device_id: topic.split('/')[3],
+            session_id: session_id,
+            message_id: message_id.toString(),
+            location: location,
+            device_id: device_id,
             info: 'none'
         }
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
@@ -40,50 +62,50 @@ export default class SendDevice {
     public static async setPass (location: string, device_id: any, session_id: string) {
         // const location = topic.split('/').slice(0, 2).join('/')
         // const device_id = topic.split('/')[3]
+        const message_id = new Date().getTime()
 
-        const generate_pass = uid(32)
+        // const generate_pass = uid(32)
         const send_data = {
             operator: OperatorType.SET_PASS,
             session_id: session_id,
+            message_id: message_id.toString(),
             location: location,
             device_id: device_id,
             info: {
                 username: 'admin',
-                password: generate_pass,
+                password: 'admin',
                 use_sha: 0
             }
         }
-        const company = Number(location.split('/')[1])
-        const acu: any = await Acu.findOne({ serial_number: device_id, company: company })
-        acu.password = generate_pass
-        await acu.save()
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 
-    public static setNetSettings (location: string, device_id: string, session_id: string, net_data: any): void {
+    public static setNetSettings (location: string, device_id: number, session_id: string, net_data: any): void {
+        if (typeof net_data === 'string') net_data = JSON.parse(net_data)
+        const message_id = new Date().getTime()
         const send_data = {
             operator: OperatorType.SET_NET_SETTINGS,
             location: location,
             device_id: device_id,
             session_id: session_id,
-            message_id: '11111111',
+            message_id: message_id.toString(),
             info:
             {
-                connection_type: 0,
-                connection_mod: 1,
-                SSID: 'Office242',
-                Pass: '12346789',
-                ip_address: '192.168.1.100',
-                mask: '255.255.255.0',
-                Gate: '192.168.1.1',
-                DNS1: '192.168.1.1',
-                DNS2: '8.8.8.8',
-                AP_SSID: 'LmWf123456789',
-                AP_PASS: '123456',
-                HideSSID: false,
-                time_ap_on: 80,
-                MAC_Wr: 'none',
-                MAC_Eth: 'none'
+                connection_type: (net_data.connection_type === acuConnectionType.WI_FI) ? 0 : 1,
+                connection_mod: (net_data.dhcp) ? 0 : 1,
+                // SSID: 'Office242',
+                // Pass: '12346789',
+                ip_address: net_data.ip_address,
+                mask: net_data.subnet_mask,
+                Gate: net_data.gateway,
+                DNS1: net_data.dns_server
+                // DNS2: '8.8.8.8',
+                // AP_SSID: 'LmWf123456789',
+                // AP_PASS: '123456',
+                // HideSSID: false,
+                // time_ap_on: 80,
+                // MAC_Wr: 'none',
+                // MAC_Eth: 'none'
             }
 
         }
@@ -92,28 +114,31 @@ export default class SendDevice {
     }
 
     public static getNetSettings (location: string, device_id: string, session_id: string): void {
+        const message_id = new Date().getTime()
         const send_data = {
             operator: OperatorType.GET_NET_SETTINGS,
             location: location,
             device_id: device_id,
             session_id: session_id,
-            message_id: '11111111',
+            message_id: message_id.toString(),
             info: 'none'
         }
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 
-    public static setDateTime (location: string, device_id: string, session_id: string, gmt: number): void {
+    public static setDateTime (location: string, device_id: number, session_id: string, date_data: any): void {
+        if (typeof date_data === 'string') date_data = JSON.parse(date_data)
+        const message_id = new Date().getTime()
         const send_data = {
             operator: OperatorType.SET_DATE_TIME,
             location: location,
             device_id: device_id,
             session_id: session_id,
-            message_id: '11111111',
+            message_id: message_id.toString(),
             info:
             {
                 DateTime: 1583636400,
-                GMT: gmt,
+                GMT: date_data.time_zone,
                 NTP1: 'pool.ntp.org',
                 NTP2: 'pool2.ntp.org:123',
                 DST_GMT: false,
@@ -125,13 +150,16 @@ export default class SendDevice {
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 
-    public static setMqttSettings (topic: any, session_id: string): void {
+    public static setMqttSettings (location: string, device_id: number, session_id: string): void {
+        const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.SET_MQTT_SETTINGS,
-            location: topic.split('/').slice(0, 2).join('/'),
-            device_id: topic.split('/')[3],
+            // location: topic.split('/').slice(0, 2).join('/'),
+            // device_id: topic.split('/')[3],
+            location: location,
+            device_id: device_id,
             session_id: session_id,
-            message_id: '11111111',
+            message_id: message_id.toString(),
             info:
             {
                 BrokerAdr: 'lumiring.msg.th',
@@ -148,73 +176,88 @@ export default class SendDevice {
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 
-    public static getMqttSettings (topic: any, session_id: string): void {
+    public static getMqttSettings (location: string, device_id: number, session_id: string): void {
+        const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.GET_MQTT_SETTINGS,
-            location: topic.split('/').slice(0, 2).join('/'),
-            device_id: topic.split('/')[3],
+            // location: topic.split('/').slice(0, 2).join('/'),
+            // device_id: topic.split('/')[3],
+            location: location,
+            device_id: device_id,
             session_id: session_id,
+            message_id: message_id.toString(),
             info: 'none'
         }
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 
-    public static getStatusAcu (topic: any, session_id: string): void {
+    public static getStatusAcu (location: string, device_id: number, session_id: string): void {
+        const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.GET_STATUS_ACU,
-            location: topic.split('/').slice(0, 2).join('/'),
-            device_id: topic.split('/')[3],
+            // location: topic.split('/').slice(0, 2).join('/'),
+            // device_id: topic.split('/')[3],
+            location: location,
+            device_id: device_id,
             session_id: session_id,
+            message_id: message_id.toString(),
             info: 'none'
         }
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 
-    public static setExtBrd (topic: any, session_id: string): void {
+    public static setExtBrd (location: string, device_id: number, session_id: string, ext_device_data: any): void {
+        const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.SET_EXT_BRD,
-            location: topic.split('/').slice(0, 2).join('/'),
-            device_id: topic.split('/')[3],
+            // location: topic.split('/').slice(0, 2).join('/'),
+            // device_id: topic.split('/')[3],
+            location: location,
+            device_id: device_id,
             session_id: session_id,
+            message_id: message_id.toString(),
             info:
             {
-                Brd_inteface_type: 0,
-                Brd_idx: 1,
-                Brd_inputs: 0,
-                Brd_outputs: 16,
-                RS485_Idx: 0,
-                Brd_RS45_adr: 0,
-                RS485_Uart_Mode: 'none',
-                RS485_Baud_Rate: 9600,
-                Brd_prot: 0,
-                Brd_Eth_adr: 'none',
-                Brd_Eth_port: 3775
+                // Brd_inteface_type: 0,
+                Brd_idx: ext_device_data.ext_board,
+                Brd_inputs: ext_device_data.ext_boards.input,
+                Brd_outputs: ext_device_data.ext_boards.output,
+                // RS485_Idx: 0,
+                // Brd_RS45_adr: 0,
+                // RS485_Uart_Mode: 'none',
+                RS485_Baud_Rate: ext_device_data.baud_rate,
+                // Brd_prot: 0,
+                Brd_Eth_adr: ext_device_data.address ? ext_device_data.address : 'none',
+                Brd_Eth_port: ext_device_data.port
             }
         }
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 
-    public static getExtBrd (topic: any, session_id: string): void {
+    public static getExtBrd (location: string, device_id: number, session_id: string, id: number): void {
+        const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.GET_EXT_BRD,
-            location: topic.split('/').slice(0, 2).join('/'),
-            device_id: topic.split('/')[3],
+            location: location,
+            device_id: device_id,
             session_id: session_id,
+            message_id: message_id.toString(),
             info:
             {
-                Brd_idx: 1
+                Brd_idx: id
             }
         }
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 
     public static setRd (topic: any, session_id: string): void {
+        const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.SET_RD,
             location: topic.split('/').slice(0, 2).join('/'),
             device_id: topic.split('/')[3],
             session_id: session_id,
-            message_Id: '222222222222',
+            message_id: message_id.toString(),
             info:
             {
                 Rd_idx: 0,
@@ -247,12 +290,13 @@ export default class SendDevice {
     }
 
     public static getRd (topic: any, session_id: string): void {
+        const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.GET_RD,
             location: topic.split('/').slice(0, 2).join('/'),
             device_id: topic.split('/')[3],
             session_id: session_id,
-            message_Id: '222222222222',
+            message_id: message_id.toString(),
             info:
             {
                 Rd_idx: 0
@@ -262,12 +306,13 @@ export default class SendDevice {
     }
 
     public static setOutput (topic: any, session_id: string): void {
+        const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.SET_OUTPUT,
             location: topic.split('/').slice(0, 2).join('/'),
             device_id: topic.split('/')[3],
             session_id: session_id,
-            message_Id: '222222222222',
+            message_id: message_id.toString(),
             info:
             {
                 Gpio_opt: 0,
@@ -282,12 +327,13 @@ export default class SendDevice {
     }
 
     public static getOutput (topic: any, session_id: string): void {
+        const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.GET_OUTPUT,
             location: topic.split('/').slice(0, 2).join('/'),
             device_id: topic.split('/')[3],
             session_id: session_id,
-            message_Id: '222222222222',
+            message_id: message_id.toString(),
             info:
             {
                 Gpio_opt: 0,
@@ -298,12 +344,13 @@ export default class SendDevice {
     }
 
     public static getIntput (topic: any, session_id: string): void {
+        const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.GET_INPUT,
             location: topic.split('/').slice(0, 2).join('/'),
             device_id: topic.split('/')[3],
             session_id: session_id,
-            message_Id: '222222222222',
+            message_id: message_id.toString(),
             info:
             {
                 Gpio_opt: 0,
@@ -314,12 +361,13 @@ export default class SendDevice {
     }
 
     public static cardProtection (topic: any, session_id: string): void {
+        const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.CARD_PROTECTION,
             location: topic.split('/').slice(0, 2).join('/'),
             device_id: topic.split('/')[3],
             session_id: session_id,
-            message_Id: '222222222222',
+            message_id: message_id.toString(),
             info:
             {
                 Card_Protection: true,
@@ -335,12 +383,13 @@ export default class SendDevice {
     }
 
     public static setCtpDoor (topic: any, session_id: string): void {
+        const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.SET_CTP_DOOR,
             location: topic.split('/').slice(0, 2).join('/'),
             device_id: topic.split('/')[3],
             session_id: session_id,
-            message_Id: '222222222222',
+            message_id: message_id.toString(),
             info:
             {
                 Control_point_idx: 1,
@@ -389,13 +438,14 @@ export default class SendDevice {
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 
-    public static setEventsMod (topic: any, session_id: string): void {
+    public static setEventsMod (location: string, device_id: number, session_id: string): void {
+        const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.SET_EVENTS_MOD,
-            location: topic.split('/').slice(0, 2).join('/'),
-            device_id: topic.split('/')[3],
+            location: location,
+            device_id: device_id,
             session_id: session_id,
-            message_id: '11111111',
+            message_id: message_id.toString(),
             info: {
                 User_Event: true,
                 User_Event_Save: true,
@@ -408,11 +458,11 @@ export default class SendDevice {
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 
-    public static getEventsMod (topic: any, session_id: string): void {
+    public static getEventsMod (location: string, device_id: number, session_id: string): void {
         const send_data: any = {
             operator: OperatorType.GET_EVENTS_MOD,
-            location: topic.split('/').slice(0, 2).join('/'),
-            device_id: topic.split('/')[3],
+            location: location,
+            device_id: device_id,
             session_id: session_id,
             message_id: '11111111',
             info: 'none'
@@ -421,12 +471,13 @@ export default class SendDevice {
     }
 
     public static getEvents (topic: any, session_id: string): void {
+        const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.GET_EVENTS,
             location: topic.split('/').slice(0, 2).join('/'),
             device_id: topic.split('/')[3],
             session_id: session_id,
-            message_id: '11111111',
+            message_id: message_id.toString(),
             info: {
                 StartDate: 1599904641,
                 EndDate: 0
@@ -436,12 +487,13 @@ export default class SendDevice {
     }
 
     public static setAccessMode (topic: any, session_id: string): void {
+        const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.SET_ACCESS_MODE,
             location: topic.split('/').slice(0, 2).join('/'),
             device_id: topic.split('/')[3],
             session_id: session_id,
-            message_id: '11111111',
+            message_id: message_id.toString(),
             info: {
                 Control_point_idx: 1,
                 Control_point_gId: 'none',
@@ -452,12 +504,13 @@ export default class SendDevice {
     }
 
     public static getAccessMode (topic: any, session_id: string): void {
+        const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.GET_ACCESS_MODE,
             location: topic.split('/').slice(0, 2).join('/'),
             device_id: topic.split('/')[3],
             session_id: session_id,
-            message_id: '11111111',
+            message_id: message_id.toString(),
             info: {
                 Control_point_idx: 1,
                 Control_point_gId: 'none'
@@ -467,12 +520,13 @@ export default class SendDevice {
     }
 
     public static single_pass (topic: any, session_id: string): void {
+        const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.SINGLE_PASS,
             location: topic.split('/').slice(0, 2).join('/'),
             device_id: topic.split('/')[3],
             session_id: session_id,
-            message_id: '11111111',
+            message_id: message_id.toString(),
             info: {
                 Control_Point_GId: 'none',
                 Control_point_idx: 12,
@@ -483,12 +537,13 @@ export default class SendDevice {
     }
 
     public static setCardKeys (topic: any, session_id: string): void {
+        const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.SET_CARD_KEYS,
             location: topic.split('/').slice(0, 2).join('/'),
             device_id: topic.split('/')[3],
             session_id: session_id,
-            message_id: '11111111',
+            message_id: message_id.toString(),
             info: {
                 KeysDataLength: 49,
                 KeysCount: 1,
@@ -506,12 +561,13 @@ export default class SendDevice {
     }
 
     public static addCardKey (topic: any, session_id: string): void {
+        const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.ADD_CARD_KEY,
             location: topic.split('/').slice(0, 2).join('/'),
             device_id: topic.split('/')[3],
             session_id: session_id,
-            message_id: '11111111',
+            message_id: message_id.toString(),
             info: {
                 KeysDataLength: 49,
                 KeysCount: 1,
@@ -522,12 +578,13 @@ export default class SendDevice {
     }
 
     public static editKey (topic: any, session_id: string): void {
+        const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.EDIT_KEY,
             location: topic.split('/').slice(0, 2).join('/'),
             device_id: topic.split('/')[3],
             session_id: session_id,
-            message_id: '11111111',
+            message_id: message_id.toString(),
             info: {
                 Key_id: 111113,
                 Key_len: 4,
@@ -546,12 +603,13 @@ export default class SendDevice {
     }
 
     public static dellKeys (topic: any, session_id: string): void {
+        const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.DELL_KEYS,
             location: topic.split('/').slice(0, 2).join('/'),
             device_id: topic.split('/')[3],
             session_id: session_id,
-            message_id: '11111111',
+            message_id: message_id.toString(),
             info: {
                 KeysDataLength: 15,
                 Keys_count: 2,
@@ -562,24 +620,26 @@ export default class SendDevice {
     }
 
     public static dellAllKeys (topic: any, session_id: string): void {
+        const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.DELL_ALL_KEYS,
             location: topic.split('/').slice(0, 2).join('/'),
             device_id: topic.split('/')[3],
             session_id: session_id,
-            message_id: '11111111',
+            message_id: message_id.toString(),
             info: 'none'
         }
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 
     public static setSdlDaily (topic: any, session_id: string): void {
+        const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.SET_SDL_DAILY,
             location: topic.split('/').slice(0, 2).join('/'),
             device_id: topic.split('/')[3],
             session_id: session_id,
-            message_id: '11111111',
+            message_id: message_id.toString(),
             info: {
                 Shedule_id: 1254889,
                 Ctp_idx: 0,
@@ -591,12 +651,13 @@ export default class SendDevice {
     }
 
     public static setSdlWeekly (topic: any, session_id: string): void {
+        const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.SET_SDL_WEEKLY,
             location: topic.split('/').slice(0, 2).join('/'),
             device_id: topic.split('/')[3],
             session_id: session_id,
-            message_id: '11111111',
+            message_id: message_id.toString(),
             info: {
                 Shedule_id: 1254890,
                 Ctp_idx: 0,
@@ -620,12 +681,13 @@ export default class SendDevice {
     }
 
     public static setSdlFlexiTime (topic: any, session_id: string): void {
+        const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.SET_SDL_FLEXI_TIME,
             location: topic.split('/').slice(0, 2).join('/'),
             device_id: topic.split('/')[3],
             session_id: session_id,
-            message_id: '11111111',
+            message_id: message_id.toString(),
             info: {
                 Shedule_id: 1254899,
                 Ctp_idx: 0,
@@ -637,12 +699,13 @@ export default class SendDevice {
     }
 
     public static addDayFlexiTime (topic: any, session_id: string): void {
+        const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.ADD_DAY_FLEXI_TIME,
             location: topic.split('/').slice(0, 2).join('/'),
             device_id: topic.split('/')[3],
             session_id: session_id,
-            message_id: '11111111',
+            message_id: message_id.toString(),
             info: {
                 Shedule_id: 1254899,
                 Ctp_idx: 0,
@@ -655,12 +718,13 @@ export default class SendDevice {
     }
 
     public static endSdlFlexiTime (topic: any, session_id: string): void {
+        const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.END_SDL_FLEXI_TIME,
             location: topic.split('/').slice(0, 2).join('/'),
             device_id: topic.split('/')[3],
             session_id: session_id,
-            message_id: '11111111',
+            message_id: message_id.toString(),
             info: {
                 Shedule_id: 1254899,
                 Ctp_idx: 0,
@@ -671,12 +735,13 @@ export default class SendDevice {
     }
 
     public static delDayFlexiTime (topic: any, session_id: string): void {
+        const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.DEL_DAY_FLEXI_TIME,
             location: topic.split('/').slice(0, 2).join('/'),
             device_id: topic.split('/')[3],
             session_id: session_id,
-            message_id: '11111111',
+            message_id: message_id.toString(),
             info: {
                 Shedule_id: 1254899,
                 Ctp_idx: 0,
@@ -687,12 +752,13 @@ export default class SendDevice {
     }
 
     public static setSdlSpecified (topic: any, session_id: string): void {
+        const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.SET_SDL_SPECIFIED,
             location: topic.split('/').slice(0, 2).join('/'),
             device_id: topic.split('/')[3],
             session_id: session_id,
-            message_id: '11111111',
+            message_id: message_id.toString(),
             info: {
                 Shedule_id: 1254844,
                 Ctp_idx: 0,
@@ -703,12 +769,13 @@ export default class SendDevice {
     }
 
     public static addDaySpecified (topic: any, session_id: string): void {
+        const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.ADD_DAY_SPECIFIED,
             location: topic.split('/').slice(0, 2).join('/'),
             device_id: topic.split('/')[3],
             session_id: session_id,
-            message_id: '11111111',
+            message_id: message_id.toString(),
             info: {
                 Shedule_id: 1254844,
                 Ctp_idx: 0,
@@ -721,12 +788,13 @@ export default class SendDevice {
     }
 
     public static endSdlSpecified (topic: any, session_id: string): void {
+        const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.END_SDL_SPECIFIED,
             location: topic.split('/').slice(0, 2).join('/'),
             device_id: topic.split('/')[3],
             session_id: session_id,
-            message_id: '11111111',
+            message_id: message_id.toString(),
             info: {
                 Shedule_id: 1254844,
                 Ctp_idx: 0,
@@ -737,12 +805,13 @@ export default class SendDevice {
     }
 
     public static dellDaySpecified (topic: any, session_id: string): void {
+        const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.DELL_DAY_SPECIFIED,
             location: topic.split('/').slice(0, 2).join('/'),
             device_id: topic.split('/')[3],
             session_id: session_id,
-            message_id: '11111111',
+            message_id: message_id.toString(),
             info: {
                 Shedule_id: 1254844,
                 Ctp_idx: 0,
@@ -753,12 +822,13 @@ export default class SendDevice {
     }
 
     public static dellShedule (topic: any, session_id: string): void {
+        const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.DELL_SHEDULE,
             location: topic.split('/').slice(0, 2).join('/'),
             device_id: topic.split('/')[3],
             session_id: session_id,
-            message_id: '11111111',
+            message_id: message_id.toString(),
             info: {
                 Shedule_id: 1254844,
                 Ctp_idx: 0
@@ -768,12 +838,13 @@ export default class SendDevice {
     }
 
     public static devTest (topic: any, session_id: string): void {
+        const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.DEV_TEST,
             location: topic.split('/').slice(0, 2).join('/'),
             device_id: topic.split('/')[3],
             session_id: session_id,
-            message_id: '11111111',
+            message_id: message_id.toString(),
             info: {
                 inteface_type: 0,
                 RS485_Idx: 0,

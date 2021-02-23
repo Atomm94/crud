@@ -1,5 +1,9 @@
 import { DefaultContext } from 'koa'
 import { Acu } from '../model/entity/Acu'
+import { timeValidation, networkValidation } from '../functions/validator'
+import { acuStatus } from '../enums/acuStatus.enum'
+import SendDevice from '../mqtt/SendDevice'
+
 export default class AcuController {
     /**
      *
@@ -40,12 +44,6 @@ export default class AcuController {
      *                  status:
      *                      type: active | pending | no_hardware
      *                      example: pending
-     *                  ip_address:
-     *                      type: number
-     *                      example: 192.168.99.232
-     *                  cloud_status:
-     *                      type: boolean
-     *                      example: true
      *                  fw_version:
      *                      type: string
      *                      example: 1.3.4
@@ -139,6 +137,26 @@ export default class AcuController {
             const user = ctx.user
             req_data.company = user.company ? user.company : null
             ctx.body = await Acu.addItem(req_data as Acu)
+
+            const acu = new Acu()
+
+            if ('name' in req_data) acu.name = req_data.name
+            if ('description' in req_data) acu.description = req_data.description
+            acu.model = req_data.model // check or no ??
+            acu.status = acuStatus.NO_HARDWARE
+            if ('shared_resource_mode' in req_data) acu.shared_resource_mode = req_data.shared_resource_mode
+
+            if (req_data.time) {
+                const check_time = timeValidation(req_data.time)
+                if (!check_time) {
+                    ctx.status = 400
+                    return ctx.body = { message: check_time }
+                } else {
+                    acu.time = JSON.stringify(req_data.time)
+                }
+            }
+            const save = await acu.save()
+            ctx.body = save
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -277,12 +295,41 @@ export default class AcuController {
             const req_data = ctx.request.body
             const user = ctx.user
             const where = { id: req_data.id, company: user.company ? user.company : null }
-            const check_by_company = await Acu.findOne(where)
+            const acu = await Acu.findOne(where)
+            const location = `${user.company_main}/${user.company}`
 
-            if (!check_by_company) {
+            if (!acu) {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
             } else {
+                if (acu.status === acuStatus.PENDING || acu.status === acuStatus.ACTIVE) {
+                    if (req_data.network && req_data.network !== acu.network) {
+                        const check_network = networkValidation(req_data.network)
+                        if (!check_network) {
+                            ctx.status = 400
+                            return ctx.body = { message: check_network }
+                        }
+                        // else {
+                        //     acu.network = JSON.stringify(req_data.network)
+                        // }
+                        const network = req_data.network
+                        delete req_data.network
+                        SendDevice.setNetSettings(`${user.company_main}/${user.company}`, acu.serial_number, acu.session_id ? acu.session_id : '0', network)
+                    }
+                    if (req_data.time && req_data.time !== acu.time) {
+                        const check_time = networkValidation(req_data.time)
+                        if (!check_time) {
+                            ctx.status = 400
+                            return ctx.body = { message: check_time }
+                        }
+                        // else {
+                        //     acu.network = JSON.stringify(req_data.network)
+                        // }
+                        const time = req_data.time
+                        delete req_data.time
+                        SendDevice.setDateTime(location, acu.serial_number, acu.session_id ? acu.session_id : '0', time)
+                    }
+                }
                 const updated = await Acu.updateItem(req_data as Acu)
                 ctx.oldData = updated.old
                 ctx.body = updated.new
@@ -327,7 +374,10 @@ export default class AcuController {
         try {
             const user = ctx.user
             const where = { id: +ctx.params.id, company: user.company ? user.company : user.company }
-            ctx.body = await Acu.getItem(where)
+            const acu: any = await Acu.getItem(where)
+            const location = `${user.company_main}/${user.company}`
+            SendDevice.getStatusAcu(location, acu.serial_number, acu.session_id)
+            ctx.body = acu
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
