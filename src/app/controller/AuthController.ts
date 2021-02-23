@@ -54,6 +54,7 @@ export default class AuthController {
         const { username, password } = ctx.request.body
         let checkPass
         let user: Admin
+        let user_data: any = {}
 
         try {
             user = await Admin.findOneOrFail({ where: [{ username }, { email: username }] })
@@ -72,8 +73,10 @@ export default class AuthController {
                         message: 'Wrong password'
                     })
                 } else {
+                    user_data.company_main = null
                     if (user.company) {
                         const company: any = await Company.findOne({ id: user.company })
+                        user_data.company_main = company.account
                         if (company.status === statusCompany.DISABLE || (company.status === statusCompany.PENDING && company.account !== user.id)) {
                             ctx.status = 400
                             return ctx.body = {
@@ -81,6 +84,7 @@ export default class AuthController {
                             }
                         }
                     }
+
                     user.last_login_date = new Date().toISOString().slice(0, 19).replace('T', ' ')
                     delete user.password
                     Admin.save(user)
@@ -90,8 +94,8 @@ export default class AuthController {
                 return ctx.body = error
             }
         }
-
-        const adminFiltered = _.pick(user, ['id', 'username', 'last_name', 'first_name', 'email', 'avatar', 'role', 'super', 'department', 'company'])
+        user_data = { ...user_data, ...user }
+        const adminFiltered = _.pick(user_data, ['id', 'username', 'last_name', 'first_name', 'email', 'avatar', 'role', 'super', 'department', 'company', 'company_main'])
         const expireTime = process.env.TOKEN_EXPIRE_TIME ? process.env.TOKEN_EXPIRE_TIME : 2
         const token = jwt.sign(adminFiltered, 'jwtSecret', { expiresIn: `${expireTime}h` }) // , { expiresIn: '1h' }
 
