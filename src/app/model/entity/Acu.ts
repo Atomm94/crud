@@ -9,6 +9,7 @@ import { networkValidation, interfaceValidation, timeValidation } from '../../fu
 import { MainEntity } from './MainEntity'
 import { AccessPoint } from './AccessPoint'
 import { ExtDevice } from './ExtDevice'
+import { acuModel } from '../../enums/acuModel.enum'
 
 @Entity('acu')
 export class Acu extends MainEntity {
@@ -21,7 +22,7 @@ export class Acu extends MainEntity {
     @Column('varchar', { name: 'description', nullable: true })
     description: string | null
 
-    @Column('varchar', { name: 'model', nullable: false })
+    @Column('enum', { name: 'model', nullable: false, enum: acuModel })
     model: string
 
     @Column('enum', { name: 'status', nullable: false, enum: acuStatus, default: acuStatus.PENDING })

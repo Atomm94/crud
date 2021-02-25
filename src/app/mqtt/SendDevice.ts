@@ -459,23 +459,24 @@ export default class SendDevice {
     }
 
     public static getEventsMod (location: string, device_id: number, session_id: string): void {
+        const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.GET_EVENTS_MOD,
             location: location,
             device_id: device_id,
             session_id: session_id,
-            message_id: '11111111',
+            message_id: message_id.toString(),
             info: 'none'
         }
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 
-    public static getEvents (topic: any, session_id: string): void {
+    public static getEvents (location: string, device_id: number, session_id: string): void {
         const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.GET_EVENTS,
-            location: topic.split('/').slice(0, 2).join('/'),
-            device_id: topic.split('/')[3],
+            location: location,
+            device_id: device_id,
             session_id: session_id,
             message_id: message_id.toString(),
             info: {

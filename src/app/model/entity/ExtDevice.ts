@@ -7,7 +7,7 @@ import {
 
 import { MainEntity } from './MainEntity'
 import { Acu } from './Acu'
-import { ExtBoard } from './ExtBoard'
+import { expBrd } from '../../enums/expBrd.enum'
 
 @Entity('ext_device')
 export class ExtDevice extends MainEntity {
@@ -17,8 +17,8 @@ export class ExtDevice extends MainEntity {
     @Column('int', { name: 'acu', nullable: false })
     acu: number
 
-    @Column('int', { name: 'ext_board', nullable: false })
-    ext_board: number
+    @Column('enum', { name: 'ext_board', nullable: false, enum: expBrd })
+    ext_board: string
 
     @Column('int', { name: 'baud_rate', nullable: false })
     baud_rate: number
@@ -35,10 +35,6 @@ export class ExtDevice extends MainEntity {
     @ManyToOne(type => Acu, acu => acu.ext_boards, { nullable: true })
     @JoinColumn({ name: 'acu' })
     acus: Acu | null;
-
-    @ManyToOne(type => ExtBoard, ext_board => ext_board.ext_devices, { nullable: true })
-    @JoinColumn({ name: 'ext_board' })
-    ext_boards: ExtBoard | null;
 
     public static gettingActions: boolean = false
     public static gettingAttributes: boolean = false
