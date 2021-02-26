@@ -71,9 +71,9 @@ export default class AccessRuleController {
                 } else if (schedule.type === scheduleType.WEEKLY) {
                     SendDevice.setSdlWeekly(location, acu.serial_number, acu.session_id, req_data)
                 } else if (schedule.type === scheduleType.FLEXITIME) {
-                    SendDevice.setSdlFlexiTime(location, acu.serial_number, acu.session_id)
+                    SendDevice.setSdlFlexiTime(location, acu.serial_number, acu.session_id, req_data, schedule)
                 } else if (schedule.type === scheduleType.SPECIFIC) {
-                    SendDevice.setSdlSpecified(location, acu.serial_number, acu.session_id)
+                    SendDevice.setSdlSpecified(location, acu.serial_number, acu.session_id, req_data)
                 }
                 ctx.body = true
             } else {

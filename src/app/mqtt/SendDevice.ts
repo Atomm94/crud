@@ -7,6 +7,7 @@ import { acuConnectionType } from '../enums/acuConnectionType.enum'
 import { weekDays } from '../enums/weekDays.enum'
 import { dateTimeToSeconds } from '../functions/changeTime'
 import { Timeframe } from '../model/entity/Timeframe'
+import { Schedule } from '../model/entity'
 
 export default class SendDevice {
     public static async accept (topic: any) {
@@ -644,7 +645,7 @@ export default class SendDevice {
             TmEnd: 'none'
         }
 
-        timeframe.forEach((time: any) => {
+        timeframe.forEach((time: Timeframe) => {
             const start_time = dateTimeToSeconds(time.start)
             const end_time = dateTimeToSeconds(time.end)
             tms.TmStart = (tms.TmStart === 'none') ? start_time.toString() : `${tms.TmStart};${start_time}`
@@ -686,7 +687,7 @@ export default class SendDevice {
             Tm6_Start: 'none',
             Tm6_End: 'none'
         }
-        timeframe.forEach((time: any) => {
+        timeframe.forEach((time: Timeframe) => {
             console.log(time)
             const start_time = dateTimeToSeconds(time.start)
             const end_time = dateTimeToSeconds(time.end)
@@ -734,7 +735,12 @@ export default class SendDevice {
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 
-    public static setSdlFlexiTime (location: string, device_id: number, session_id: string): void {
+    public static async setSdlFlexiTime (location: string, device_id: number, session_id: string, data: any, schedule: Schedule) {
+        const timeframe: any = await Timeframe.find({ schedule: data.schedule })
+        const days: any = {}
+        timeframe.forEach((time: Timeframe) => {
+            days[time.name] = true
+        })
         const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.SET_SDL_FLEXI_TIME,
@@ -743,10 +749,10 @@ export default class SendDevice {
             session_id: session_id,
             message_id: message_id.toString(),
             info: {
-                Shedule_id: 1254899,
-                Ctp_idx: 0,
-                DayStart: 1611598042,
-                DaysCount: 4
+                Shedule_id: data.schedule,
+                Ctp_idx: data.access_point,
+                DayStart: schedule.start_from,
+                DaysCount: Object.keys(days).length
             }
         }
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
@@ -805,7 +811,12 @@ export default class SendDevice {
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 
-    public static setSdlSpecified (location: string, device_id: number, session_id: string): void {
+    public static async setSdlSpecified (location: string, device_id: number, session_id: string, data: any) {
+        const timeframe: any = await Timeframe.find({ schedule: data.schedule })
+        const days: any = {}
+        timeframe.forEach((time: Timeframe) => {
+            days[time.name] = true
+        })
         const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.SET_SDL_SPECIFIED,
@@ -816,7 +827,7 @@ export default class SendDevice {
             info: {
                 Shedule_id: 1254844,
                 Ctp_idx: 0,
-                DaysCount: 3
+                DaysCount: Object.keys(days).length
             }
         }
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
