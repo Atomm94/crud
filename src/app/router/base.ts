@@ -1,3 +1,4 @@
+import ExtDeviceController from '../controller/ExtDeviceController'
 import CompanyController from '../controller/CompanyController'
 import RegistrationInviteController from '../controller/RegistrationInviteController'
 
@@ -68,3 +69,10 @@ export default router
   .get('mqttGetRequest/:id', MqttController.get)
   .get('UserLog-get', 'userLog', checkRole(), LogController.getUserLogs)
   .get('EventLog-get', 'eventLog', checkRole(), LogController.getEventLogs)
+
+  // ExtDevice controller CRUD endpoints
+  .post('extDevice', ExtDeviceController.add)
+  .put('extDevice', ExtDeviceController.update)
+  .get('extDevice/:id', ExtDeviceController.get)
+  .delete('extDevice', ExtDeviceController.destroy)
+  .get('extDevice', ExtDeviceController.getAll)
