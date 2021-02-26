@@ -1,5 +1,10 @@
 import { DefaultContext } from 'koa'
+import { Schedule } from '../model/entity'
+import { AccessPoint } from '../model/entity/AccessPoint'
 import { AccessRule } from '../model/entity/AccessRule'
+import { Acu } from '../model/entity/Acu'
+import SendDevice from '../mqtt/SendDevice'
+
 export default class AccessRuleController {
     /**
      *
@@ -52,21 +57,39 @@ export default class AccessRuleController {
         try {
             const req_data = ctx.request.body
             const user = ctx.user
+            const location = `${user.company_main}/${user.company}`
             req_data.company = user.company ? user.company : null
-            if (Array.isArray(req_data.access_point)) {
-                const res_data: any = []
-
-                for (const access_point of req_data.access_point) {
-                    const data = req_data
-                    data.access_point = access_point
-                    const save = await AccessRule.addItem(data as AccessRule)
-                    res_data.push(save)
+            const access_point: any = await AccessPoint.findOne({ id: req_data.access_point })
+            const acu: any = await Acu.findOne({ id: access_point.acu })
+            if (acu.status === 'active' || acu.status === 'pending') {
+                const schedule: any = await Schedule.findOne({ id: req_data.schedule })
+                if (schedule.type === 'daily') {
+                    SendDevice.setSdlDaily(location, acu.serial_number, acu.session_id, req_data)
+                } else if (schedule.type === 'weekly') {
+                    SendDevice.setSdlWeekly(location, acu.serial_number, acu.session_id, req_data)
+                } else if (schedule.type === 'flexitime') {
+                    SendDevice.setSdlFlexiTime(location, acu.serial_number, acu.session_id)
+                } else if (schedule.type === 'specific') {
+                    SendDevice.setSdlSpecified(location, acu.serial_number, acu.session_id)
                 }
-                ctx.body = await res_data
+                ctx.body = true
             } else {
-                ctx.body = await AccessRule.addItem(req_data as AccessRule)
-            }
+                    if (Array.isArray(req_data.access_point)) {
+                        const res_data: any = []
+                        for (const access_point of req_data.access_point) {
+                            const data = req_data
+                            data.access_point = access_point
+                            const save = await AccessRule.addItem(data as AccessRule)
+                            res_data.push(save)
+                        }
+                        ctx.body = await res_data
+                    } else {
+                        ctx.body = await AccessRule.addItem(req_data as AccessRule)
+                    }
+                }
         } catch (error) {
+            console.log('error', error)
+
             ctx.status = error.status || 400
             ctx.body = error
         }

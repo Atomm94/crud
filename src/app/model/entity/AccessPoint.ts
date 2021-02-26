@@ -46,7 +46,7 @@ export class AccessPoint extends MainEntity {
     @Column('int', { name: 'access_point_zone', nullable: true })
     access_point_zone: number | null
 
-    @Column('int', { name: 'acu', nullable: true })
+    @Column('int', { name: 'acu', nullable: false })
     acu: number | null
 
     @Column('longtext', { name: 'resources', nullable: true })
@@ -70,9 +70,9 @@ export class AccessPoint extends MainEntity {
     @JoinColumn({ name: 'access_point_zone' })
     access_point_zones: AccessPointGroup | null;
 
-    @ManyToOne(type => Acu, acu => acu.access_points, { nullable: true })
+    @ManyToOne(type => Acu, acu => acu.access_points)
     @JoinColumn({ name: 'acu' })
-    acus: Acu | null;
+    acus: Acu;
 
     public static async addItem (data: AccessPoint) {
         const accessPoint = new AccessPoint()
@@ -87,7 +87,7 @@ export class AccessPoint extends MainEntity {
         if ('apb_enable_timer' in data) accessPoint.apb_enable_timer = data.apb_enable_timer
         if ('access_point_group' in data) accessPoint.access_point_group = data.access_point_group
         if ('access_point_zone' in data) accessPoint.access_point_zone = data.access_point_zone
-        if ('acu' in data) accessPoint.acu = data.acu
+        accessPoint.acu = data.acu
         if ('resources' in data) accessPoint.resources = data.resources
         accessPoint.company = data.company
 

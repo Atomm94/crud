@@ -146,21 +146,33 @@ export default class MqttController {
                 //     info: 'none'
                 // }
                 // MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(get_mqtt))
-
-                const get_status = {
-                    operator: 'GetStatusACU',
+                const send_data: any = {
+                    operator: 'SetCtpDoor',
                     location: '5/5',
                     device_id: '1073493824',
-                    session_id: '1111111111',
-                    message_id: '222222222222',
-                    info: 'none'
+                    session_id: '52831102448461152410103211553534',
+                    message_id: (new Date().getTime()).toString(),
+                    info:
+                    {
+                        Control_point_idx: 3
+                    }
                 }
-                MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(get_status))
+                    MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
+
+                // const get_status = {
+                //         operator: 'GetStatusACU',
+                //         location: '5/5',
+                //         device_id: '1073493824',
+                //         session_id: '1111111111',
+                //         message_id: '222222222222',
+                //         info: 'none'
+                //     }
+                // MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(get_status))
+                }
+            } catch (error) {
+                ctx.status = error.status || 400
+                ctx.body = error
             }
-        } catch (error) {
-            ctx.status = error.status || 400
-            ctx.body = error
+            return ctx.body
         }
-        return ctx.body
-    }
 }

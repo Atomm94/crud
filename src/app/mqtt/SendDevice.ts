@@ -4,6 +4,9 @@ import { OperatorType } from './Operators'
 import { Acu } from '../model/entity/Acu'
 // import { uid } from 'uid'
 import { acuConnectionType } from '../enums/acuConnectionType.enum'
+import { weekDays } from '../enums/weekDays.enum'
+import { dateTimeToSeconds } from '../functions/changeTime'
+import { Timeframe } from '../model/entity/Timeframe'
 
 export default class SendDevice {
     public static async accept (topic: any) {
@@ -633,60 +636,99 @@ export default class SendDevice {
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 
-    public static setSdlDaily (topic: any, session_id: string): void {
+    public static setSdlDaily (location: string, device_id: number, session_id: string, data: any): void {
         const message_id = new Date().getTime()
+        const timeframe: any = Timeframe.find({ schedule: data.schedule })
         const send_data: any = {
             operator: OperatorType.SET_SDL_DAILY,
-            location: topic.split('/').slice(0, 2).join('/'),
-            device_id: topic.split('/')[3],
+            location: location,
+            device_id: device_id,
             session_id: session_id,
             message_id: message_id.toString(),
             info: {
-                Shedule_id: 1254889,
-                Ctp_idx: 0,
-                TmStart: '32400;50400',
-                TmEnd: '46800;64800'
+                Shedule_id: data.schedule,
+                Ctp_idx: data.access_point,
+                TmStart: timeframe.start,
+                TmEnd: timeframe.end
             }
         }
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 
-    public static setSdlWeekly (topic: any, session_id: string): void {
+    public static async setSdlWeekly (location: string, device_id: number, session_id: string, data: any) {
         const message_id = new Date().getTime()
+        const timeframe: any = await Timeframe.find({ schedule: data.schedule })
+
+        const week_tms: any = {
+            Tm0_Start: 'none',
+            Tm0_End: 'none',
+            Tm1_Start: 'none',
+            Tm1_End: 'none',
+            Tm2_Start: 'none',
+            Tm2_End: 'none',
+            Tm3_Start: 'none',
+            Tm3_End: 'none',
+            Tm4_Start: 'none',
+            Tm4_End: 'none',
+            Tm5_Start: 'none',
+            Tm5_End: 'none',
+            Tm6_Start: 'none',
+            Tm6_End: 'none'
+        }
+        timeframe.forEach((time :any) => {
+            console.log(time)
+            const start_time = dateTimeToSeconds(time.start)
+            const end_time = dateTimeToSeconds(time.end)
+            if (time.name === weekDays.MON) {
+                week_tms.Tm0_Start = (week_tms.Tm0_Start === 'none') ? start_time.toString() : `${week_tms.Tm0_Start};${start_time}`
+                week_tms.Tm0_End = (week_tms.Tm0_End === 'none') ? end_time.toString() : `${week_tms.Tm0_End};${end_time}`
+            }
+            if (time.name === weekDays.TUE) {
+                week_tms.Tm1_Start = (week_tms.Tm1_Start === 'none') ? start_time.toString() : `${week_tms.Tm1_Start};${start_time}`
+                week_tms.Tm1_End = (week_tms.Tm1_End === 'none') ? end_time.toString() : `${week_tms.Tm1_End};${end_time}`
+            }
+            if (time.name === weekDays.WED) {
+                week_tms.Tm2_Start = (week_tms.Tm2_Start === 'none') ? start_time.toString() : `${week_tms.Tm2_Start};${start_time}`
+                week_tms.Tm2_End = (week_tms.Tm2_End === 'none') ? end_time.toString() : `${week_tms.Tm2_End};${end_time}`
+            }
+            if (time.name === weekDays.THU) {
+                week_tms.Tm3_Start = (week_tms.Tm3_Start === 'none') ? start_time.toString() : `${week_tms.Tm3_Start};${start_time}`
+                week_tms.Tm3_End = (week_tms.Tm3_End === 'none') ? end_time.toString() : `${week_tms.Tm3_End};${end_time}`
+            }
+            if (time.name === weekDays.FRI) {
+                week_tms.Tm4_Start = (week_tms.Tm4_Start === 'none') ? start_time.toString() : `${week_tms.Tm4_Start};${start_time}`
+                week_tms.Tm4_End = (week_tms.Tm4_End === 'none') ? end_time.toString() : `${week_tms.Tm4_End};${end_time}`
+            }
+            if (time.name === weekDays.SAT) {
+                week_tms.Tm5_Start = (week_tms.Tm5_Start === 'none') ? start_time.toString() : `${week_tms.Tm5_Start};${start_time}`
+                week_tms.Tm5_End = (week_tms.Tm5_End === 'none') ? end_time.toString() : `${week_tms.Tm5_End};${end_time}`
+            }
+            if (time.name === weekDays.SUN) {
+                week_tms.Tm6_Start = (week_tms.Tm6_Start === 'none') ? start_time.toString() : `${week_tms.Tm6_Start};${start_time}`
+                week_tms.Tm6_End = (week_tms.Tm6_End === 'none') ? end_time.toString() : `${week_tms.Tm6_End};${end_time}`
+            }
+        })
         const send_data: any = {
             operator: OperatorType.SET_SDL_WEEKLY,
-            location: topic.split('/').slice(0, 2).join('/'),
-            device_id: topic.split('/')[3],
+            location: '5/5',
+            device_id: '1073493824',
             session_id: session_id,
             message_id: message_id.toString(),
             info: {
-                Shedule_id: 1254890,
-                Ctp_idx: 0,
-                Tm0_Start: '32400;50400',
-                Tm0_End: '46800;64800',
-                Tm1_Start: '32400;50400',
-                Tm1_End: '46800;64800',
-                Tm2_Start: '32400;50400',
-                Tm2_End: '46800;64800',
-                Tm3_Start: '32400;50400',
-                Tm3_End: '46800;64800',
-                Tm4_Start: '32400;50400',
-                Tm4_End: '46800;64800',
-                Tm5_Start: 'none',
-                Tm5_End: 'none',
-                Tm6_Start: 'none',
-                Tm6_End: 'none'
+                Shedule_id: data.schedule,
+                Ctp_idx: data.access_point,
+                ...week_tms
             }
         }
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 
-    public static setSdlFlexiTime (topic: any, session_id: string): void {
+    public static setSdlFlexiTime (location: string, device_id: number, session_id: string): void {
         const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.SET_SDL_FLEXI_TIME,
-            location: topic.split('/').slice(0, 2).join('/'),
-            device_id: topic.split('/')[3],
+            location: location,
+            device_id: device_id,
             session_id: session_id,
             message_id: message_id.toString(),
             info: {
@@ -699,12 +741,12 @@ export default class SendDevice {
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 
-    public static addDayFlexiTime (topic: any, session_id: string): void {
+    public static addDayFlexiTime (location: string, device_id: number, session_id: string): void {
         const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.ADD_DAY_FLEXI_TIME,
-            location: topic.split('/').slice(0, 2).join('/'),
-            device_id: topic.split('/')[3],
+            location: location,
+            device_id: device_id,
             session_id: session_id,
             message_id: message_id.toString(),
             info: {
@@ -718,12 +760,12 @@ export default class SendDevice {
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 
-    public static endSdlFlexiTime (topic: any, session_id: string): void {
+    public static endSdlFlexiTime (location: string, device_id: number, session_id: string): void {
         const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.END_SDL_FLEXI_TIME,
-            location: topic.split('/').slice(0, 2).join('/'),
-            device_id: topic.split('/')[3],
+            location: location,
+            device_id: device_id,
             session_id: session_id,
             message_id: message_id.toString(),
             info: {
@@ -735,12 +777,12 @@ export default class SendDevice {
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 
-    public static delDayFlexiTime (topic: any, session_id: string): void {
+    public static delDayFlexiTime (location: string, device_id: number, session_id: string): void {
         const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.DEL_DAY_FLEXI_TIME,
-            location: topic.split('/').slice(0, 2).join('/'),
-            device_id: topic.split('/')[3],
+            location: location,
+            device_id: device_id,
             session_id: session_id,
             message_id: message_id.toString(),
             info: {
@@ -752,12 +794,12 @@ export default class SendDevice {
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 
-    public static setSdlSpecified (topic: any, session_id: string): void {
+    public static setSdlSpecified (location: string, device_id: number, session_id: string): void {
         const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.SET_SDL_SPECIFIED,
-            location: topic.split('/').slice(0, 2).join('/'),
-            device_id: topic.split('/')[3],
+            location: location,
+            device_id: device_id,
             session_id: session_id,
             message_id: message_id.toString(),
             info: {
@@ -769,12 +811,12 @@ export default class SendDevice {
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 
-    public static addDaySpecified (topic: any, session_id: string): void {
+    public static addDaySpecified (location: string, device_id: number, session_id: string): void {
         const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.ADD_DAY_SPECIFIED,
-            location: topic.split('/').slice(0, 2).join('/'),
-            device_id: topic.split('/')[3],
+            location: location,
+            device_id: device_id,
             session_id: session_id,
             message_id: message_id.toString(),
             info: {
@@ -788,12 +830,12 @@ export default class SendDevice {
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 
-    public static endSdlSpecified (topic: any, session_id: string): void {
+    public static endSdlSpecified (location: string, device_id: number, session_id: string): void {
         const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.END_SDL_SPECIFIED,
-            location: topic.split('/').slice(0, 2).join('/'),
-            device_id: topic.split('/')[3],
+            location: location,
+            device_id: device_id,
             session_id: session_id,
             message_id: message_id.toString(),
             info: {
@@ -805,12 +847,12 @@ export default class SendDevice {
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 
-    public static dellDaySpecified (topic: any, session_id: string): void {
+    public static dellDaySpecified (location: string, device_id: number, session_id: string): void {
         const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.DELL_DAY_SPECIFIED,
-            location: topic.split('/').slice(0, 2).join('/'),
-            device_id: topic.split('/')[3],
+            location: location,
+            device_id: device_id,
             session_id: session_id,
             message_id: message_id.toString(),
             info: {
