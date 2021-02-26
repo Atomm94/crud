@@ -77,15 +77,18 @@
             "outputs": 9
         }
     },
-
     "expansion_boards": {
-        "LR-RB16": {
-            "inputs": 0,
-            "outputs": 8
+        "relay_board": {
+            "LR-RB16": {
+                "inputs": 0,
+                "outputs": 8
+            }
         },
-        "LR-IB16": {
-            "inputs": 16,
-            "outputs": 0
+        "alarm_board": {
+            "LR-IB16": {
+                "inputs": 16,
+                "outputs": 0
+            }
         }
     }
 }
