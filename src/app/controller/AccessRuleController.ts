@@ -4,6 +4,8 @@ import { AccessPoint } from '../model/entity/AccessPoint'
 import { AccessRule } from '../model/entity/AccessRule'
 import { Acu } from '../model/entity/Acu'
 import SendDevice from '../mqtt/SendDevice'
+import { acuStatus } from '../enums/acuStatus.enum'
+import { scheduleType } from '../enums/scheduleType.enum'
 
 export default class AccessRuleController {
     /**
@@ -61,15 +63,16 @@ export default class AccessRuleController {
             req_data.company = user.company ? user.company : null
             const access_point: any = await AccessPoint.findOne({ id: req_data.access_point })
             const acu: any = await Acu.findOne({ id: access_point.acu })
-            if (acu.status === 'active' || acu.status === 'pending') {
+            if (acu.status === acuStatus.ACTIVE || acu.status === acuStatus.PENDING) {
+                await AccessRule.addItem(req_data as AccessRule)
                 const schedule: any = await Schedule.findOne({ id: req_data.schedule })
-                if (schedule.type === 'daily') {
+                if (schedule.type === scheduleType.DAILY) {
                     SendDevice.setSdlDaily(location, acu.serial_number, acu.session_id, req_data)
-                } else if (schedule.type === 'weekly') {
+                } else if (schedule.type === scheduleType.WEEKLY) {
                     SendDevice.setSdlWeekly(location, acu.serial_number, acu.session_id, req_data)
-                } else if (schedule.type === 'flexitime') {
+                } else if (schedule.type === scheduleType.FLEXITIME) {
                     SendDevice.setSdlFlexiTime(location, acu.serial_number, acu.session_id)
-                } else if (schedule.type === 'specific') {
+                } else if (schedule.type === scheduleType.SPECIFIC) {
                     SendDevice.setSdlSpecified(location, acu.serial_number, acu.session_id)
                 }
                 ctx.body = true

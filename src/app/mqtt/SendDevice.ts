@@ -636,20 +636,31 @@ export default class SendDevice {
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 
-    public static setSdlDaily (location: string, device_id: number, session_id: string, data: any): void {
+    public static async setSdlDaily (location: string, device_id: number, session_id: string, data: any) {
         const message_id = new Date().getTime()
-        const timeframe: any = Timeframe.find({ schedule: data.schedule })
+        const timeframe: any = await Timeframe.find({ schedule: data.schedule })
+        const tms: any = {
+            TmStart: 'none',
+            TmEnd: 'none'
+        }
+
+        timeframe.forEach((time: any) => {
+            const start_time = dateTimeToSeconds(time.start)
+            const end_time = dateTimeToSeconds(time.end)
+            tms.TmStart = (tms.TmStart === 'none') ? start_time.toString() : `${tms.TmStart};${start_time}`
+            tms.TmEnd = (tms.TmEnd === 'none') ? end_time.toString() : `${tms.TmEnd};${end_time}`
+        })
         const send_data: any = {
             operator: OperatorType.SET_SDL_DAILY,
-            location: location,
-            device_id: device_id,
+            location: '5/5',
+            device_id: '1073493824',
+
             session_id: session_id,
             message_id: message_id.toString(),
             info: {
                 Shedule_id: data.schedule,
                 Ctp_idx: data.access_point,
-                TmStart: timeframe.start,
-                TmEnd: timeframe.end
+                ...tms
             }
         }
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
@@ -675,7 +686,7 @@ export default class SendDevice {
             Tm6_Start: 'none',
             Tm6_End: 'none'
         }
-        timeframe.forEach((time :any) => {
+        timeframe.forEach((time: any) => {
             console.log(time)
             const start_time = dateTimeToSeconds(time.start)
             const end_time = dateTimeToSeconds(time.end)
