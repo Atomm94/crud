@@ -755,10 +755,28 @@ export default class SendDevice {
                 DaysCount: Object.keys(days).length
             }
         }
+        send_data.days = days
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 
-    public static addDayFlexiTime (location: string, device_id: number, session_id: string): void {
+    public static async addDayFlexiTime (location: string, device_id: number, session_id: string, set_params: any) {
+        const schedule = set_params.info.Shedule_id
+        const access_point = set_params.info.Ctp_idx
+        const dayx = Object.keys(set_params.days)[0]
+
+        const timeframe: any = await Timeframe.find({ schedule: schedule, name: dayx })
+        const tms: any = {
+            TmStart: 'none',
+            TmEnd: 'none'
+        }
+
+        timeframe.forEach((time: Timeframe) => {
+            const start_time = dateTimeToSeconds(time.start)
+            const end_time = dateTimeToSeconds(time.end)
+            tms.TmStart = (tms.TmStart === 'none') ? start_time.toString() : `${tms.TmStart};${start_time}`
+            tms.TmEnd = (tms.TmEnd === 'none') ? end_time.toString() : `${tms.TmEnd};${end_time}`
+        })
+
         const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.ADD_DAY_FLEXI_TIME,
@@ -767,17 +785,20 @@ export default class SendDevice {
             session_id: session_id,
             message_id: message_id.toString(),
             info: {
-                Shedule_id: 1254899,
-                Ctp_idx: 0,
-                Day_idx: 0,
-                TmStart: '32400;50400',
-                TmEnd: '46800;64800'
+                Shedule_id: schedule,
+                Ctp_idx: access_point,
+                Day_idx: dayx,
+                ...tms
             }
         }
+        delete set_params.days[dayx]
+
+        send_data.set_params = set_params
+
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 
-    public static endSdlFlexiTime (location: string, device_id: number, session_id: string): void {
+    public static endSdlFlexiTime (location: string, device_id: number, session_id: string, set_params: any): void {
         const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.END_SDL_FLEXI_TIME,
@@ -786,9 +807,9 @@ export default class SendDevice {
             session_id: session_id,
             message_id: message_id.toString(),
             info: {
-                Shedule_id: 1254899,
-                Ctp_idx: 0,
-                DaysCount: 4
+                Shedule_id: set_params.info.Shedule_id,
+                Ctp_idx: set_params.info.Ctp_idx,
+                DaysCount: set_params.info.DaysCount
             }
         }
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))

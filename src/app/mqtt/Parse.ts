@@ -485,114 +485,140 @@ export default class Parse {
     }
 
     public static setCardKeysAck (data: any): void {
-        console.log('deviceDevTestAck', data)
+        console.log('setCardKeysAck', data)
         if (data.result.errorNo === 0) {
-            console.log('deviceDevTestAck complete')
+            console.log('setCardKeysAck complete')
         }
     }
 
     public static addCardKeyAck (data: any): void {
-        console.log('deviceDevTestAck', data)
+        console.log('addCardKeyAck', data)
         if (data.result.errorNo === 0) {
-            console.log('deviceDevTestAck complete')
+            console.log('addCardKeyAck complete')
         }
     }
 
     public static editKeyAck (data: any): void {
-        console.log('deviceDevTestAck', data)
+        console.log('editKeyAck', data)
         if (data.result.errorNo === 0) {
-            console.log('deviceDevTestAck complete')
+            console.log('editKeyAck complete')
         }
     }
 
     public static dellKeysAck (data: any): void {
-        console.log('deviceDevTestAck', data)
+        console.log('dellKeysAck', data)
         if (data.result.errorNo === 0) {
-            console.log('deviceDevTestAck complete')
+            console.log('dellKeysAck complete')
         }
     }
 
     public static dellAllKeysAck (data: any): void {
-        console.log('deviceDevTestAck', data)
+        console.log('dellAllKeysAck', data)
         if (data.result.errorNo === 0) {
-            console.log('deviceDevTestAck complete')
+            console.log('dellAllKeysAck complete')
         }
     }
 
     public static setSdlDailyAck (data: any): void {
-        console.log('deviceDevTestAck', data)
+        console.log('setSdlDailyAck', data)
         if (data.result.errorNo === 0) {
-            console.log('deviceDevTestAck complete')
+            console.log('setSdlDailyAck complete')
         }
     }
 
     public static setSdlWeeklyAck (data: any): void {
-        console.log('deviceDevTestAck', data)
+        console.log('setSdlWeeklyAck', data)
         if (data.result.errorNo === 0) {
-            console.log('deviceDevTestAck complete')
+            console.log('setSdlWeeklyAck complete')
         }
     }
 
-    public static setSdlFlexiTimeAck (data: any): void {
-        console.log('deviceDevTestAck', data)
+    public static async setSdlFlexiTimeAck (data: any) {
+        console.log('setSdlFlexiTimeAck', data)
         if (data.result.errorNo === 0) {
-            console.log('deviceDevTestAck complete')
+            console.log('setSdlFlexiTimeAck complete')
+            const location = data.topic.split('/').slice(0, 2).join('/')
+            const device_id = data.topic.split('/')[3]
+            const company = data.topic.split('/')[1]
+            const acu: any = await Acu.findOne({ serial_number: device_id, company: company })
+            if (acu) {
+                data.send_data.adds_count = 0
+                SendDevice.addDayFlexiTime(location, device_id, acu.session_id, data.send_data)
+            } else {
+                console.log('error setSdlFlexiTimeAck', data)
+            }
         }
     }
 
-    public static addDayFlexiTimeAck (data: any): void {
-        console.log('deviceDevTestAck', data)
+    public static async addDayFlexiTimeAck (data: any) {
+        console.log('addDayFlexiTimeAck', data)
         if (data.result.errorNo === 0) {
-            console.log('deviceDevTestAck complete')
+            console.log('addDayFlexiTimeAck complete')
+            const location = data.topic.split('/').slice(0, 2).join('/')
+            const device_id = data.topic.split('/')[3]
+            const company = data.topic.split('/')[1]
+            const acu: any = await Acu.findOne({ serial_number: device_id, company: company })
+
+            if (acu) {
+                const set_params = data.send_data.set_params
+                set_params.adds_count++
+                if (set_params.adds_count === set_params.info.DaysCount) {
+                    SendDevice.endSdlFlexiTime(location, device_id, acu.session_id, set_params)
+                } else {
+                    SendDevice.addDayFlexiTime(location, device_id, acu.session_id, set_params)
+                }
+            } else {
+                console.log('error setSdlFlexiTimeAck', data)
+            }
         }
     }
 
     public static endSdlFlexiTimeAck (data: any): void {
-        console.log('deviceDevTestAck', data)
+        console.log('endSdlFlexiTimeAck', data)
         if (data.result.errorNo === 0) {
-            console.log('deviceDevTestAck complete')
+            console.log('endSdlFlexiTimeAck complete')
         }
     }
 
     public static delDayFlexiTimeAck (data: any): void {
-        console.log('deviceDevTestAck', data)
+        console.log('delDayFlexiTimeAck', data)
         if (data.result.errorNo === 0) {
-            console.log('deviceDevTestAck complete')
+            console.log('delDayFlexiTimeAck complete')
         }
     }
 
     public static setSdlSpecifiedAck (data: any): void {
-        console.log('deviceDevTestAck', data)
+        console.log('setSdlSpecifiedAck', data)
         if (data.result.errorNo === 0) {
-            console.log('deviceDevTestAck complete')
+            console.log('setSdlSpecifiedAck complete')
         }
     }
 
     public static addDaySpecifiedAck (data: any): void {
-        console.log('deviceDevTestAck', data)
+        console.log('addDaySpecifiedAck', data)
         if (data.result.errorNo === 0) {
-            console.log('deviceDevTestAck complete')
+            console.log('addDaySpecifiedAck complete')
         }
     }
 
     public static endSdlSpecifiedAck (data: any): void {
-        console.log('deviceDevTestAck', data)
+        console.log('endSdlSpecifiedAck', data)
         if (data.result.errorNo === 0) {
-            console.log('deviceDevTestAck complete')
+            console.log('endSdlSpecifiedAck complete')
         }
     }
 
     public static dellDaySpecifiedAck (data: any): void {
-        console.log('deviceDevTestAck', data)
+        console.log('dellDaySpecifiedAck', data)
         if (data.result.errorNo === 0) {
-            console.log('deviceDevTestAck complete')
+            console.log('dellDaySpecifiedAck complete')
         }
     }
 
     public static dellSheduleAck (data: any): void {
-        console.log('deviceDevTestAck', data)
+        console.log('dellSheduleAck', data)
         if (data.result.errorNo === 0) {
-            console.log('deviceDevTestAck complete')
+            console.log('dellSheduleAck complete')
         }
     }
 
