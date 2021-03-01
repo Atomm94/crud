@@ -659,11 +659,12 @@ export default class SendDevice {
             session_id: session_id,
             message_id: message_id.toString(),
             info: {
-                Shedule_id: data.schedule,
-                Ctp_idx: data.access_point,
+                Shedule_id: (data.send_data.info.schedule) ? data.send_data.info.schedule : data.schedule,
+                Ctp_idx: (data.send_data.info.access_point) ? data.send_data.info.access_point : data.access_point,
                 ...tms
             }
         }
+        send_data.new_data = data
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 
@@ -727,11 +728,12 @@ export default class SendDevice {
             session_id: session_id,
             message_id: message_id.toString(),
             info: {
-                Shedule_id: data.schedule,
-                Ctp_idx: data.access_point,
+                Shedule_id: (data.send_data.info.schedule) ? data.send_data.info.schedule : data.schedule,
+                Ctp_idx: (data.send_data.info.access_point) ? data.send_data.info.access_point : data.access_point,
                 ...week_tms
             }
         }
+        send_data.new_data = data
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 
@@ -749,13 +751,14 @@ export default class SendDevice {
             session_id: session_id,
             message_id: message_id.toString(),
             info: {
-                Shedule_id: data.schedule,
-                Ctp_idx: data.access_point,
+                Shedule_id: (data.send_data.info.schedule) ? data.send_data.info.schedule : data.schedule,
+                Ctp_idx: (data.send_data.info.access_point) ? data.send_data.info.access_point : data.access_point,
                 DayStart: schedule.start_from,
                 DaysCount: Object.keys(days).length
             }
         }
         send_data.days = days
+        send_data.new_data = data
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 
@@ -846,11 +849,12 @@ export default class SendDevice {
             session_id: session_id,
             message_id: message_id.toString(),
             info: {
-                Shedule_id: 1254844,
-                Ctp_idx: 0,
+                Shedule_id: (data.send_data.info.schedule) ? data.send_data.info.schedule : data.schedule,
+                Ctp_idx: (data.send_data.info.access_point) ? data.send_data.info.access_point : data.access_point,
                 DaysCount: Object.keys(days).length
             }
         }
+        send_data.new_data = data
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 
@@ -907,19 +911,22 @@ export default class SendDevice {
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 
-    public static dellShedule (topic: any, session_id: string): void {
+    public static dellShedule (location: string, device_id: number, session_id: string, old_data: any, data: any, type: string) {
         const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.DELL_SHEDULE,
-            location: topic.split('/').slice(0, 2).join('/'),
-            device_id: topic.split('/')[3],
+            location: location,
+            device_id: device_id,
             session_id: session_id,
             message_id: message_id.toString(),
             info: {
-                Shedule_id: 1254844,
-                Ctp_idx: 0
+                Shedule_id: old_data.schedule,
+                Ctp_idx: old_data.access_point
             }
         }
+
+        send_data.new_data = data
+        send_data.schedule_type = type
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 

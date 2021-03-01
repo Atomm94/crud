@@ -77,19 +77,19 @@ export default class AccessRuleController {
                 }
                 ctx.body = true
             } else {
-                    if (Array.isArray(req_data.access_point)) {
-                        const res_data: any = []
-                        for (const access_point of req_data.access_point) {
-                            const data = req_data
-                            data.access_point = access_point
-                            const save = await AccessRule.addItem(data as AccessRule)
-                            res_data.push(save)
-                        }
-                        ctx.body = await res_data
-                    } else {
-                        ctx.body = await AccessRule.addItem(req_data as AccessRule)
+                if (Array.isArray(req_data.access_point)) {
+                    const res_data: any = []
+                    for (const access_point of req_data.access_point) {
+                        const data = req_data
+                        data.access_point = access_point
+                        const save = await AccessRule.addItem(data as AccessRule)
+                        res_data.push(save)
                     }
+                    ctx.body = await res_data
+                } else {
+                    ctx.body = await AccessRule.addItem(req_data as AccessRule)
                 }
+            }
         } catch (error) {
             console.log('error', error)
 
@@ -148,11 +148,22 @@ export default class AccessRuleController {
             const user = ctx.user
             const where = { id: req_data.id, company: user.company ? user.company : null }
             const check_by_company = await AccessRule.findOne(where)
-
+            const location = `${user.company_main}/${user.company}`
             if (!check_by_company) {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
             } else {
+                const access_point: any = await AccessPoint.findOne({ id: req_data.access_point })
+                const acu: any = await Acu.findOne({ id: access_point.acu })
+                if (acu.status === acuStatus.ACTIVE || acu.status === acuStatus.PENDING) {
+                    const schedule: any = await Schedule.findOne({ id: req_data.schedule })
+                    if (check_by_company.schedule !== req_data.schedule) {
+                            const old_data: any = await AccessRule.findOne({ id: req_data.id })
+                            SendDevice.dellShedule(location, acu.serial_number, acu.session_id, old_data, req_data, schedule.type)
+                    }
+                    ctx.body = true
+                }
+
                 const updated = await AccessRule.updateItem(req_data as AccessRule)
                 ctx.oldData = updated.old
                 ctx.body = updated.new

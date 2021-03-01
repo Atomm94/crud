@@ -3,6 +3,9 @@ import { Acu } from '../model/entity/Acu'
 import SendDevice from './SendDevice'
 import { acuConnectionType } from '../enums/acuConnectionType.enum'
 
+import { scheduleType } from '../enums/scheduleType.enum'
+import { Schedule } from '../model/entity'
+import { AccessRule } from '../model/entity/AccessRule'
 export default class Parse {
     public static deviceData (topic: string, message: string) {
         const data = JSON.parse(message)
@@ -519,9 +522,10 @@ export default class Parse {
         }
     }
 
-    public static setSdlDailyAck (data: any): void {
+    public static async setSdlDailyAck (data: any) {
         console.log('setSdlDailyAck', data)
         if (data.result.errorNo === 0) {
+            await AccessRule.updateItem(data.send_data.new_data as AccessRule)
             console.log('setSdlDailyAck complete')
         }
     }
@@ -615,10 +619,26 @@ export default class Parse {
         }
     }
 
-    public static dellSheduleAck (data: any): void {
+    public static async dellSheduleAck (data: any) {
         console.log('dellSheduleAck', data)
+        const location = data.topic.split('/').slice(0, 2).join('/')
+        const device_id = data.topic.split('/')[3]
+        const company = data.topic.split('/')[1]
+        const acu: any = await Acu.findOne({ serial_number: device_id, company: company })
+        const schedule: any = await Schedule.findOne({ id: data.new_data.schedule })
         if (data.result.errorNo === 0) {
-            console.log('dellSheduleAck complete')
+            if (data.schedule_type) {
+                if (data.schedule_type === scheduleType.DAILY) {
+                    SendDevice.setSdlDaily(location, acu.serial_number, acu.session_id, data)
+                } else if (data.schedule_type === scheduleType.WEEKLY) {
+                    SendDevice.setSdlWeekly(location, acu.serial_number, acu.session_id, data)
+                } else if (data.schedule_type === scheduleType.FLEXITIME) {
+                    SendDevice.setSdlFlexiTime(location, acu.serial_number, acu.session_id, data, schedule)
+                } else if (data.schedule_type === scheduleType.SPECIFIC) {
+                    SendDevice.setSdlSpecified(location, acu.serial_number, acu.session_id, data)
+                }
+                console.log('dellSheduleAck complete')
+            }
         }
     }
 
