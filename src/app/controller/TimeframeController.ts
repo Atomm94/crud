@@ -1,5 +1,11 @@
 import { DefaultContext } from 'koa'
+import { acuStatus } from '../enums/acuStatus.enum'
+import { scheduleType } from '../enums/scheduleType.enum'
+import { Schedule } from '../model/entity'
+import { AccessRule } from '../model/entity/AccessRule'
 import { Timeframe } from '../model/entity/Timeframe'
+import SendDevice from '../mqtt/SendDevice'
+
 export default class TimeframeController {
     /**
      *
@@ -56,8 +62,30 @@ export default class TimeframeController {
             const req_data = ctx.request.body
             const user = ctx.user
             req_data.company = user.company ? user.company : null
-            ctx.body = await Timeframe.addItem(req_data as Timeframe)
+            const save: any = await Timeframe.addItem(req_data as Timeframe)
+            ctx.body = save
+
+            const access_rules: any = await AccessRule.createQueryBuilder('access_rule')
+                .innerJoinAndSelect('access_rule.access_points', 'access_point')
+                .innerJoinAndSelect('access_point.acus', 'acu')
+                .where(`acu.status = '${acuStatus.ACTIVE}'`)
+                .getMany()
+            const location = `${user.company_main}/${user.company}`
+            const schedule: any = await Schedule.findOne({ id: save.schedule })
+            for (const access_rule of access_rules) {
+                if (schedule.type === scheduleType.DAILY) {
+                    SendDevice.setSdlDaily(location, access_rule.access_points.acus.serial_number, access_rule.access_points.acus.session_id, req_data, false)
+                } else if (schedule.type === scheduleType.WEEKLY) {
+                    SendDevice.setSdlWeekly(location, access_rule.access_points.acus.serial_number, access_rule.access_points.acus.session_id, req_data, false)
+                } else if (schedule.type === scheduleType.FLEXITIME) {
+                    SendDevice.setSdlFlexiTime(location, access_rule.access_points.acus.serial_number, access_rule.access_points.acus.session_id, req_data, schedule, false)
+                } else if (schedule.type === scheduleType.SPECIFIC) {
+                    SendDevice.setSdlSpecified(location, access_rule.access_points.acus.serial_number, access_rule.access_points.acus.session_id, req_data, false)
+                }
+            }
         } catch (error) {
+            console.log(111211, error)
+
             ctx.status = error.status || 400
             ctx.body = error
         }
@@ -116,9 +144,29 @@ export default class TimeframeController {
     public static async update (ctx: DefaultContext) {
         try {
             const req_data = ctx.request.body
+            const user = ctx.user
             const updated = await Timeframe.updateItem(req_data as Timeframe)
             ctx.oldData = updated.old
             ctx.body = updated.new
+
+            const access_rules: any = await AccessRule.createQueryBuilder('access_rule')
+                .innerJoinAndSelect('access_rule.access_points', 'access_point')
+                .innerJoinAndSelect('access_point.acus', 'acu')
+                .where(`acu.status = '${acuStatus.ACTIVE}'`)
+                .getMany()
+            const location = `${user.company_main}/${user.company}`
+            const schedule: any = await Schedule.findOne({ id: updated.schedule })
+            for (const access_rule of access_rules) {
+                if (schedule.type === scheduleType.DAILY) {
+                    SendDevice.setSdlDaily(location, access_rule.access_points.acus.serial_number, access_rule.access_points.acus.session_id, req_data, true)
+                } else if (schedule.type === scheduleType.WEEKLY) {
+                    SendDevice.setSdlWeekly(location, access_rule.access_points.acus.serial_number, access_rule.access_points.acus.session_id, req_data, true)
+                } else if (schedule.type === scheduleType.FLEXITIME) {
+                    SendDevice.setSdlFlexiTime(location, access_rule.access_points.acus.serial_number, access_rule.access_points.acus.session_id, req_data, schedule, true)
+                } else if (schedule.type === scheduleType.SPECIFIC) {
+                    SendDevice.setSdlSpecified(location, access_rule.access_points.acus.serial_number, access_rule.access_points.acus.session_id, req_data, true)
+                }
+            }
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

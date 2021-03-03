@@ -101,9 +101,6 @@ export default class ScheduleController {
      *                  description:
      *                      type: string
      *                      example: description
-     *                  type:
-     *                      type: daily | weekly | specific | flexitime | ordinal
-     *                      example: daily
      *                  start_from:
      *                      type: string | null
      *                      example: 2020-12-31

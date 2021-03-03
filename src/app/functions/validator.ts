@@ -1,4 +1,5 @@
 import { acuConnectionType } from '../enums/acuConnectionType.enum'
+// import { AccessPoint } from '../model/entity/AccessPoint'
 
 export function ipValidation (string: string) {
     const ipformat = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
@@ -92,4 +93,46 @@ export function maintainValidation (data: any) {
             return true
         }
     }
+}
+export function accessPointsValidation (data: any) {
+    const ports: any = {}
+    const inputs: any = {}
+    const outputs: any = {}
+    for (const access_point of data) {
+        let resources: any = access_point.resources
+        if (typeof resources === 'string') resources = JSON.parse(resources)
+        for (const resource of resources) {
+            if ('input' in resource) {
+                if (inputs[resource.input]) {
+                    return new Error('inputs must be different!')
+                } else {
+                    inputs[resource.input] = true
+                }
+            }
+            if ('output' in resource) {
+                if (outputs[resource.output]) {
+                    return new Error('outputs must be different!')
+                } else {
+                    outputs[resource.output] = true
+                }
+            }
+        }
+
+        for (const reader of access_point.readers) {
+            if ('port' in reader) {
+                if (reader.port < 1 || reader.port > 4) {
+                    return new Error(`reader port cant be ${reader.port}!`)
+                } else {
+                    if (ports[reader.port]) {
+                        return new Error('readers ports must be different!')
+                    } else {
+                        ports[reader.port] = true
+                    }
+                }
+            }
+        }
+        // Object.values(resources).forEach((resource: any) => {
+        // })
+    }
+    return true
 }

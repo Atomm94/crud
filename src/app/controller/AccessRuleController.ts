@@ -67,13 +67,13 @@ export default class AccessRuleController {
                 await AccessRule.addItem(req_data as AccessRule)
                 const schedule: any = await Schedule.findOne({ id: req_data.schedule })
                 if (schedule.type === scheduleType.DAILY) {
-                    SendDevice.setSdlDaily(location, acu.serial_number, acu.session_id, req_data)
+                    SendDevice.setSdlDaily(location, acu.serial_number, acu.session_id, req_data, false)
                 } else if (schedule.type === scheduleType.WEEKLY) {
-                    SendDevice.setSdlWeekly(location, acu.serial_number, acu.session_id, req_data)
+                    SendDevice.setSdlWeekly(location, acu.serial_number, acu.session_id, req_data, false)
                 } else if (schedule.type === scheduleType.FLEXITIME) {
-                    SendDevice.setSdlFlexiTime(location, acu.serial_number, acu.session_id, req_data, schedule)
+                    SendDevice.setSdlFlexiTime(location, acu.serial_number, acu.session_id, req_data, schedule, false)
                 } else if (schedule.type === scheduleType.SPECIFIC) {
-                    SendDevice.setSdlSpecified(location, acu.serial_number, acu.session_id, req_data)
+                    SendDevice.setSdlSpecified(location, acu.serial_number, acu.session_id, req_data, false)
                 }
                 ctx.body = true
             } else {

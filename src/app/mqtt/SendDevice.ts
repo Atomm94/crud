@@ -637,7 +637,7 @@ export default class SendDevice {
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 
-    public static async setSdlDaily (location: string, device_id: number, session_id: string, data: any) {
+    public static async setSdlDaily (location: string, device_id: number, session_id: string, data: any, update: boolean) {
         const message_id = new Date().getTime()
         const timeframe: any = await Timeframe.find({ schedule: data.schedule })
         const tms: any = {
@@ -664,11 +664,12 @@ export default class SendDevice {
                 ...tms
             }
         }
-        send_data.new_data = data
+        if (update) send_data.new_data = data
+
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 
-    public static async setSdlWeekly (location: string, device_id: number, session_id: string, data: any) {
+    public static async setSdlWeekly (location: string, device_id: number, session_id: string, data: any, update: boolean) {
         const message_id = new Date().getTime()
         const timeframe: any = await Timeframe.find({ schedule: data.schedule })
 
@@ -733,11 +734,11 @@ export default class SendDevice {
                 ...week_tms
             }
         }
-        send_data.new_data = data
+        if (update) send_data.new_data = data
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 
-    public static async setSdlFlexiTime (location: string, device_id: number, session_id: string, data: any, schedule: Schedule) {
+    public static async setSdlFlexiTime (location: string, device_id: number, session_id: string, data: any, schedule: Schedule, update: boolean) {
         const timeframe: any = await Timeframe.find({ schedule: data.schedule })
         const days: any = {}
         timeframe.forEach((time: Timeframe) => {
@@ -758,7 +759,8 @@ export default class SendDevice {
             }
         }
         send_data.days = days
-        send_data.new_data = data
+        if (update) send_data.new_data = data
+
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 
@@ -835,7 +837,7 @@ export default class SendDevice {
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 
-    public static async setSdlSpecified (location: string, device_id: number, session_id: string, data: any) {
+    public static async setSdlSpecified (location: string, device_id: number, session_id: string, data: any, update: boolean) {
         const timeframe: any = await Timeframe.find({ schedule: data.schedule })
         const days: any = {}
         timeframe.forEach((time: Timeframe) => {
@@ -854,7 +856,7 @@ export default class SendDevice {
                 DaysCount: Object.keys(days).length
             }
         }
-        send_data.new_data = data
+        if (update) send_data.new_data = data
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 

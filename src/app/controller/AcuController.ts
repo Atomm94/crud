@@ -3,6 +3,7 @@ import { Acu } from '../model/entity/Acu'
 import { timeValidation, networkValidation } from '../functions/validator'
 import { acuStatus } from '../enums/acuStatus.enum'
 import SendDevice from '../mqtt/SendDevice'
+import { AccessPoint } from '../model/entity/AccessPoint'
 
 export default class AcuController {
     /**
@@ -153,6 +154,15 @@ export default class AcuController {
                     return ctx.body = { message: check_time }
                 } else {
                     acu.time = JSON.stringify(req_data.time)
+                }
+            }
+            if (req_data.access_points) {
+                for (const access_point of req_data.access_points) {
+                    if (access_point.id) {
+                        await AccessPoint.updateItem(access_point)
+                    } else {
+                        await AccessPoint.addItem(access_point)
+                    }
                 }
             }
             const save = await acu.save()

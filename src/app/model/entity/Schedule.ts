@@ -79,7 +79,6 @@ export class Schedule extends MainEntity {
 
         if ('name' in data) schedule.name = data.name
         if ('description' in data) schedule.description = data.description
-        if ('type' in data) schedule.type = data.type
         if ('start_from' in data) schedule.start_from = data.start_from
         if ('circle' in data) schedule.circle = data.circle
 

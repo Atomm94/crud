@@ -629,13 +629,13 @@ export default class Parse {
         if (data.result.errorNo === 0) {
             if (data.schedule_type) {
                 if (data.schedule_type === scheduleType.DAILY) {
-                    SendDevice.setSdlDaily(location, acu.serial_number, acu.session_id, data)
+                    SendDevice.setSdlDaily(location, acu.serial_number, acu.session_id, data, true)
                 } else if (data.schedule_type === scheduleType.WEEKLY) {
-                    SendDevice.setSdlWeekly(location, acu.serial_number, acu.session_id, data)
+                    SendDevice.setSdlWeekly(location, acu.serial_number, acu.session_id, data, true)
                 } else if (data.schedule_type === scheduleType.FLEXITIME) {
-                    SendDevice.setSdlFlexiTime(location, acu.serial_number, acu.session_id, data, schedule)
+                    SendDevice.setSdlFlexiTime(location, acu.serial_number, acu.session_id, data, schedule, true)
                 } else if (data.schedule_type === scheduleType.SPECIFIC) {
-                    SendDevice.setSdlSpecified(location, acu.serial_number, acu.session_id, data)
+                    SendDevice.setSdlSpecified(location, acu.serial_number, acu.session_id, data, true)
                 }
                 console.log('dellSheduleAck complete')
             }
