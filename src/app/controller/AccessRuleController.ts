@@ -158,8 +158,8 @@ export default class AccessRuleController {
                 if (acu.status === acuStatus.ACTIVE || acu.status === acuStatus.PENDING) {
                     const schedule: any = await Schedule.findOne({ id: req_data.schedule })
                     if (check_by_company.schedule !== req_data.schedule) {
-                            const old_data: any = await AccessRule.findOne({ id: req_data.id })
-                            SendDevice.dellShedule(location, acu.serial_number, acu.session_id, old_data, req_data, schedule.type)
+                        const old_data: any = await AccessRule.findOne({ id: req_data.id })
+                        SendDevice.dellShedule(location, acu.serial_number, acu.session_id, req_data, schedule.type, old_data)
                     }
                     ctx.body = true
                 }
@@ -257,12 +257,22 @@ export default class AccessRuleController {
             const user = ctx.user
             const where = { id: req_data.id, company: user.company ? user.company : null }
             const check_by_company = await AccessRule.findOne(where)
-
+            const location = `${user.company_main}/${user.company}`
             if (!check_by_company) {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
             } else {
-                ctx.body = await AccessRule.destroyItem(req_data as { id: number })
+                const access_point: any = await AccessPoint.findOne({ id: req_data.access_point })
+                const acu: any = await Acu.findOne({ id: access_point.acu })
+                if (acu.status === acuStatus.ACTIVE || acu.status === acuStatus.PENDING) {
+                    const schedule: any = await Schedule.findOne({ id: req_data.schedule })
+                    const old_data: any = await AccessRule.findOne({ id: req_data.id })
+                    if (check_by_company.schedule !== req_data.schedule) {
+                        SendDevice.dellShedule(location, acu.serial_number, acu.session_id, null, schedule.type, old_data)
+                    }
+                    ctx.body = true
+                    ctx.body = await AccessRule.destroyItem(req_data as { id: number })
+                }
             }
         } catch (error) {
             ctx.status = error.status || 400

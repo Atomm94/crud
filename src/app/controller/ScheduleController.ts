@@ -42,9 +42,6 @@ export default class ScheduleController {
      *                  start_from:
      *                      type: string | null
      *                      example: 2020-12-31
-     *                  circle:
-     *                      type: boolean | null
-     *                      example: false
      *          responses:
      *              '201':
      *                  description: A schedule object
@@ -104,9 +101,6 @@ export default class ScheduleController {
      *                  start_from:
      *                      type: string | null
      *                      example: 2020-12-31
-     *                  circle:
-     *                      type: boolean | null
-     *                      example: false
      *          responses:
      *              '201':
      *                  description: A schedule updated object

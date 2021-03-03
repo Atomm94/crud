@@ -4,7 +4,7 @@ import { OperatorType } from './Operators'
 import { Acu } from '../model/entity/Acu'
 // import { uid } from 'uid'
 import { acuConnectionType } from '../enums/acuConnectionType.enum'
-import { weekDays } from '../enums/weekDays.enum'
+// import { weekDays } from '../enums/weekDays.enum'
 import { dateTimeToSeconds } from '../functions/changeTime'
 import { Timeframe } from '../model/entity/Timeframe'
 import { Schedule } from '../model/entity'
@@ -27,8 +27,6 @@ export default class SendDevice {
     }
 
     public static async login (topic: any) {
-        console.log(99999999999)
-
         const location = topic.split('/').slice(0, 2).join('/')
         const company = Number(topic.split('/')[1])
         const device_id = topic.split('/')[3]
@@ -386,59 +384,78 @@ export default class SendDevice {
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 
-    public static setCtpDoor (topic: any, session_id: string): void {
+    public static setCtpDoor (location: any, device_id: number, session_id: string, data: any): void {
         const message_id = new Date().getTime()
+        console.log(555, data)
         const send_data: any = {
             operator: OperatorType.SET_CTP_DOOR,
-            location: topic.split('/').slice(0, 2).join('/'),
-            device_id: topic.split('/')[3],
-            session_id: session_id,
+            location: '5/5',
+            device_id: '1073493824',
+            session_id: '52831102448461152410103211553534',
             message_id: message_id.toString(),
             info:
             {
-                Control_point_idx: 1,
-                Control_point_gId: '12548789522',
-                Leaving_Zone: 'Hall',
-                Came_To_Zone: 'Meeting room',
-                Ctp_Apb_Group: 'Meeting room/ABP',
-                Control_type: 1,
-                APB_Wrk_type: 0,
-                APB_Mode: -1,
-                APB_Time: 0,
-                Work_Mode: 0,
-                Door_Allarm: 1,
-                Door_Allarm_Tm: 1500,
-                Door_Delay: 6,
-                Door_Lock_mode: 0,
-                Door_Lock_type: 1,
-                Door_Lock_pulse: 500,
-                Lock_Relay_opt: 0,
-                Lock_Relay_idx: 0,
-                Alarm_out_opt: 0,
-                Alarm_out_idx: 2,
-                Button_rex_opt: 0,
-                Button_rex_idx: 0,
-                Button_rex_sens: 20,
-                Door_sens_opt: 0,
-                Door_sens_idx: 1,
-                Rex_release_tm: 255,
-                Alarm_In_opt: 0,
-                Alarm_In_idx: 1,
-                Acc_mod: 0,
-                Ctp_auto_mod: -1,
-                Shedul_auto_mod: 'none',
-                Owner_mod: -1,
-                Owner_keys: 'none',
-                Rd0_idx: 0,
-                Rd0_dir: 1,
-                Rd1_idx: 1,
-                Rd1_dir: 0,
-                Rd2_idx: -1,
-                Rd2_dir: -1,
-                Rd3_idx: -1,
-                Rd3_dir: -1
+                Control_point_idx: data.id
+                // Control_point_gId: '12548789522',
+                // Leaving_Zone: 'Hall',
+                // Came_To_Zone: 'Meeting room',
+                // Ctp_Apb_Group: 'Meeting room/ABP',
+                // Control_type: 1,
+                // APB_Wrk_type: 0,
+                // APB_Mode: -1,
+                // APB_Time: 0,
+                // Work_Mode: 0,
+                // Door_Allarm: 1,
+                // Door_Allarm_Tm: 1500,
+                // Door_Delay: 6,
+                // Door_Lock_mode: 0,
+                // Door_Lock_type: 1,
+                // Door_Lock_pulse: 500,
+                // Lock_Relay_opt: 0,
+                // Lock_Relay_idx: 0,
+                // Alarm_out_opt: 0,
+                // Alarm_out_idx: 2,
+                // Button_rex_opt: 0,
+                // Button_rex_idx: 0,
+                // Button_rex_sens: 20,
+                // Door_sens_opt: 0,
+                // Door_sens_idx: 1,
+                // Rex_release_tm: 255,
+                // Alarm_In_opt: 0,
+                // Alarm_In_idx: 1,
+                // Acc_mod: 0,
+                // Ctp_auto_mod: -1,
+                // Shedul_auto_mod: 'none',
+                // Owner_mod: -1,
+                // Owner_keys: 'none',
+                // Rd0_idx: 0,
+                // Rd0_dir: 1,
+                // Rd1_idx: 1,
+                // Rd1_dir: 0,
+                // Rd2_idx: -1,
+                // Rd2_dir: -1,
+                // Rd3_idx: -1,
+                // Rd3_dir: -1
             }
         }
+        MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
+    }
+
+    public static delCtpDoor (location: any, device_id: number, session_id: any, data: any): void {
+        const message_id = new Date().getTime()
+        const send_data: any = {
+            operator: OperatorType.DEL_CTP_DOOR,
+            location: '5/5',
+            device_id: '1073493824',
+            session_id: '52831102448461152410103211553534',
+            message_id: message_id.toString(),
+            info:
+            {
+                Control_point_idx: data.id
+            }
+        }
+        console.log(send_data)
+
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 
@@ -651,16 +668,18 @@ export default class SendDevice {
             tms.TmStart = (tms.TmStart === 'none') ? start_time.toString() : `${tms.TmStart};${start_time}`
             tms.TmEnd = (tms.TmEnd === 'none') ? end_time.toString() : `${tms.TmEnd};${end_time}`
         })
+        console.log('data', data)
+
         const send_data: any = {
             operator: OperatorType.SET_SDL_DAILY,
-            location: '5/5',
-            device_id: '1073493824',
+            location: location,
+            device_id: device_id,
 
             session_id: session_id,
             message_id: message_id.toString(),
             info: {
-                Shedule_id: (data.send_data.info.schedule) ? data.send_data.info.schedule : data.schedule,
-                Ctp_idx: (data.send_data.info.access_point) ? data.send_data.info.access_point : data.access_point,
+                Shedule_id: (data.send_data && data.send_data.info.Shedule_id) ? data.send_data.info.Shedule_id : data.schedule,
+                Ctp_idx: (data.send_data && data.send_data.info.Ctp_idx) ? data.send_data.info.Ctp_idx : data.access_point,
                 ...tms
             }
         }
@@ -689,43 +708,44 @@ export default class SendDevice {
             Tm6_Start: 'none',
             Tm6_End: 'none'
         }
+
         timeframe.forEach((time: Timeframe) => {
             console.log(time)
             const start_time = dateTimeToSeconds(time.start)
             const end_time = dateTimeToSeconds(time.end)
-            if (time.name === weekDays.MON) {
+            if (Number(time.name) === 0) {
                 week_tms.Tm0_Start = (week_tms.Tm0_Start === 'none') ? start_time.toString() : `${week_tms.Tm0_Start};${start_time}`
                 week_tms.Tm0_End = (week_tms.Tm0_End === 'none') ? end_time.toString() : `${week_tms.Tm0_End};${end_time}`
             }
-            if (time.name === weekDays.TUE) {
+            if (Number(time.name) === 1) {
                 week_tms.Tm1_Start = (week_tms.Tm1_Start === 'none') ? start_time.toString() : `${week_tms.Tm1_Start};${start_time}`
                 week_tms.Tm1_End = (week_tms.Tm1_End === 'none') ? end_time.toString() : `${week_tms.Tm1_End};${end_time}`
             }
-            if (time.name === weekDays.WED) {
+            if (Number(time.name) === 2) {
                 week_tms.Tm2_Start = (week_tms.Tm2_Start === 'none') ? start_time.toString() : `${week_tms.Tm2_Start};${start_time}`
                 week_tms.Tm2_End = (week_tms.Tm2_End === 'none') ? end_time.toString() : `${week_tms.Tm2_End};${end_time}`
             }
-            if (time.name === weekDays.THU) {
+            if (Number(time.name) === 3) {
                 week_tms.Tm3_Start = (week_tms.Tm3_Start === 'none') ? start_time.toString() : `${week_tms.Tm3_Start};${start_time}`
                 week_tms.Tm3_End = (week_tms.Tm3_End === 'none') ? end_time.toString() : `${week_tms.Tm3_End};${end_time}`
             }
-            if (time.name === weekDays.FRI) {
+            if (Number(time.name) === 4) {
                 week_tms.Tm4_Start = (week_tms.Tm4_Start === 'none') ? start_time.toString() : `${week_tms.Tm4_Start};${start_time}`
                 week_tms.Tm4_End = (week_tms.Tm4_End === 'none') ? end_time.toString() : `${week_tms.Tm4_End};${end_time}`
             }
-            if (time.name === weekDays.SAT) {
+            if (Number(time.name) === 5) {
                 week_tms.Tm5_Start = (week_tms.Tm5_Start === 'none') ? start_time.toString() : `${week_tms.Tm5_Start};${start_time}`
                 week_tms.Tm5_End = (week_tms.Tm5_End === 'none') ? end_time.toString() : `${week_tms.Tm5_End};${end_time}`
             }
-            if (time.name === weekDays.SUN) {
+            if (Number(time.name) === 6) {
                 week_tms.Tm6_Start = (week_tms.Tm6_Start === 'none') ? start_time.toString() : `${week_tms.Tm6_Start};${start_time}`
                 week_tms.Tm6_End = (week_tms.Tm6_End === 'none') ? end_time.toString() : `${week_tms.Tm6_End};${end_time}`
             }
         })
         const send_data: any = {
             operator: OperatorType.SET_SDL_WEEKLY,
-            location: '5/5',
-            device_id: '1073493824',
+            location: location,
+            device_id: device_id,
             session_id: session_id,
             message_id: message_id.toString(),
             info: {
@@ -913,7 +933,7 @@ export default class SendDevice {
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 
-    public static dellShedule (location: string, device_id: number, session_id: string, old_data: any, data: any, type: string) {
+    public static dellShedule (location: string, device_id: number, session_id: string, data: any, type: string, old_data: any) {
         const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.DELL_SHEDULE,
@@ -927,8 +947,10 @@ export default class SendDevice {
             }
         }
 
-        send_data.new_data = data
-        send_data.schedule_type = type
+        if (data) {
+            send_data.new_data = data
+            send_data.schedule_type = type
+        }
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 

@@ -6,6 +6,7 @@ import { acuConnectionType } from '../enums/acuConnectionType.enum'
 import { scheduleType } from '../enums/scheduleType.enum'
 import { Schedule } from '../model/entity'
 import { AccessRule } from '../model/entity/AccessRule'
+import { AccessPoint } from '../model/entity/AccessPoint'
 export default class Parse {
     public static deviceData (topic: string, message: string) {
         const data = JSON.parse(message)
@@ -69,6 +70,9 @@ export default class Parse {
                 break
             case OperatorType.SET_CTP_DOOR_ACK:
                 this.deviceSetCtpDoorAck(data)
+                break
+            case OperatorType.DEL_CTP_DOOR_ACK:
+                this.deviceDelCtpDoorAck(data)
                 break
             case OperatorType.EVENT:
                 this.deviceEvent(data)
@@ -431,10 +435,20 @@ export default class Parse {
         }
     }
 
-    public static deviceSetCtpDoorAck (data: any): void {
+    public static async deviceSetCtpDoorAck (data: any) {
         console.log('deviceSetCtpDoorAck', data)
         if (data.result.errorNo === 0) {
-            console.log('deviceSetCtpDoorAck complete')
+            const save: any = await AccessPoint.addItem(data.send_data as AccessPoint)
+            if (save) {
+                console.log('deviceSetCtpDoor insert completed')
+            }
+        }
+    }
+
+    public static async deviceDelCtpDoorAck (data: any) {
+        console.log('deviceDelCtpDoorAck', data)
+        if (data.result.errorNo === 0) {
+                console.log('deviceDelCtpDoorAck insert completed')
         }
     }
 

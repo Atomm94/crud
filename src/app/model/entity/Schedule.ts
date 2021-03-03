@@ -30,9 +30,6 @@ export class Schedule extends MainEntity {
     @Column('date', { name: 'start_from', nullable: true })
     start_from: Date
 
-    @Column('boolean', { name: 'circle', nullable: true })
-    circle: boolean
-
     @Column('int', { name: 'company', nullable: false })
     company: number
 
@@ -59,7 +56,6 @@ export class Schedule extends MainEntity {
         schedule.description = data.description
         schedule.type = data.type
         if ('start_from' in data) schedule.start_from = data.start_from
-        if ('circle' in data) schedule.circle = data.circle
         schedule.company = data.company
 
         return new Promise((resolve, reject) => {
@@ -80,7 +76,6 @@ export class Schedule extends MainEntity {
         if ('name' in data) schedule.name = data.name
         if ('description' in data) schedule.description = data.description
         if ('start_from' in data) schedule.start_from = data.start_from
-        if ('circle' in data) schedule.circle = data.circle
 
         if (!schedule) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
