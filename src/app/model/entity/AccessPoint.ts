@@ -47,7 +47,7 @@ export class AccessPoint extends MainEntity {
     access_point_zone: number | null
 
     @Column('int', { name: 'acu', nullable: false })
-    acu: number | null
+    acu: number
 
     @Column('longtext', { name: 'resources', nullable: true })
     resources: string | null

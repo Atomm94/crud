@@ -1,5 +1,10 @@
 import { DefaultContext } from 'koa'
 import { AccessPoint } from '../model/entity/AccessPoint'
+import { Acu } from '../model/entity/Acu'
+import { acuStatus } from '../enums/acuStatus.enum'
+import { doorType } from '../enums/doorType.enum'
+
+import SendDevice from '../mqtt/SendDevice'
 export default class AccessPointController {
     /**
      *
@@ -74,7 +79,25 @@ export default class AccessPointController {
         try {
             const req_data = ctx.request.body
             const user = ctx.user
+            const location = `${user.company_main}/${user.company}`
             req_data.company = user.company ? user.company : null
+            const acu: any = await Acu.findOne({ id: req_data.acu })
+            if (acu.status === acuStatus.ACTIVE) {
+                if (req_data.type === doorType.DOOR) {
+                    const access_point: any = await AccessPoint.addItem(req_data as AccessPoint)
+                    SendDevice.setCtpDoor(location, acu.serial_number, acu.session_id, access_point)
+                }
+                //  else if (req_data.type === doorType.TURNSTILE) {
+                //     SendDevice.SetCtpTurnstile(location, acu.serial_number, acu.session_id, req_data)
+                // } else if (req_data.type === doorType.GATE) {
+                //     SendDevice.SetCtpGate(location, acu.serial_number, acu.session_id, req_data, schedule)
+                // } else if (req_data.type === doorType.GATEWAY) {
+                //     SendDevice.SetCtpGateWay(location, acu.serial_number, acu.session_id, req_data)
+                // } else if (req_data.type === doorType.FLOOR) {
+                //     SendDevice.SetCtpFloor(location, acu.serial_number, acu.session_id, req_data)
+                // }
+            }
+
             ctx.body = await AccessPoint.addItem(req_data as AccessPoint)
         } catch (error) {
             ctx.status = error.status || 400
@@ -139,9 +162,6 @@ export default class AccessPointController {
      *                      type: number
      *                      example: 1
      *                  access_point_zone:
-     *                      type: number
-     *                      example: 1
-     *                  acu:
      *                      type: number
      *                      example: 1
      *                  resources:
@@ -257,13 +277,19 @@ export default class AccessPointController {
             const req_data = ctx.request.body
             const user = ctx.user
             const where = { id: req_data.id, company: user.company ? user.company : null }
-            const check_by_company = await AccessPoint.findOne(where)
-
-            if (!check_by_company) {
+            const access_point = await AccessPoint.findOne({ relations: ['acus'], where: where })
+            const location = `${user.company_main}/${user.company}`
+            console.log(access_point)
+            if (!access_point) {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
             } else {
                 ctx.body = await AccessPoint.destroyItem(req_data as { id: number })
+                if (access_point.acus.status === acuStatus.ACTIVE) {
+                    if (access_point.type === doorType.DOOR) {
+                        SendDevice.delCtpDoor(location, access_point.acus.serial_number, access_point.acus.session_id, req_data)
+                    }
+                }
             }
         } catch (error) {
             ctx.status = error.status || 400

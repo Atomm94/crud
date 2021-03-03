@@ -39,6 +39,9 @@ export enum OperatorType {
     SET_CTP_DOOR = 'SetCtpDoor',
     SET_CTP_DOOR_ACK = 'SetCtpDoor-Ack',
 
+    DEL_CTP_DOOR = 'DelCtpDoor',
+    DEL_CTP_DOOR_ACK = 'DelCtpDoor-Ack',
+
     SET_EVENTS_MOD = 'SetEventsMod',
     SET_EVENTS_MOD_ACK = 'SetEventsMod-Ack',
 
