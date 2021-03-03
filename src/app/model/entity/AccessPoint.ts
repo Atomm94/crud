@@ -13,6 +13,7 @@ import { AccessRule } from './AccessRule'
 import { AccessPointGroup } from './AccessPointGroup'
 import { AccessPointZone } from './AccessPointZone'
 import { Acu } from './Acu'
+import { Reader } from './Reader'
 
 @Entity('access_point')
 export class AccessPoint extends MainEntity {
@@ -73,6 +74,9 @@ export class AccessPoint extends MainEntity {
     @ManyToOne(type => Acu, acu => acu.access_points)
     @JoinColumn({ name: 'acu' })
     acus: Acu;
+
+    @OneToMany(type => Reader, reader => reader.accessPoints)
+    readers: Reader[];
 
     public static async addItem (data: AccessPoint) {
         const accessPoint = new AccessPoint()
