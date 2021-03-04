@@ -7,6 +7,7 @@ import { scheduleType } from '../enums/scheduleType.enum'
 import { Schedule } from '../model/entity'
 import { AccessRule } from '../model/entity/AccessRule'
 import { AccessPoint } from '../model/entity/AccessPoint'
+import { ExtDevice } from '../model/entity/ExtDevice'
 export default class Parse {
     public static deviceData (topic: string, message: string) {
         const data = JSON.parse(message)
@@ -386,17 +387,21 @@ export default class Parse {
         }
     }
 
-    public static deviceSetExtBrdAck (data: any): void {
+    public static async deviceSetExtBrdAck (data: any) {
         console.log('deviceSetExtBrdAck', data)
         if (data.result.errorNo === 0) {
-            console.log('deviceSetExtBrdAck complete')
+            console.log('ssss', data.send_data)
+            const save: any = await ExtDevice.updateItem(data.send_data as ExtDevice)
+            if (save) {
+                console.log('ExtDevice insert completed')
+            }
         }
     }
 
-    public static deviceGetExtBrdAck (data: any): void {
+    public static deviceGetExtBrdAck (data: any) {
         console.log('deviceGetExtBrdAck', data)
         if (data.result.errorNo === 0) {
-            console.log('deviceGetExtBrdAck complete')
+            console.log('ExtDevice complete')
         }
     }
 

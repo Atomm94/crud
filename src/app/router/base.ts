@@ -1,3 +1,4 @@
+import ExtDeviceController from '../controller/ExtDeviceController'
 import AcuController from '../controller/AcuController'
 import AccessPointZoneController from '../controller/AccessPointZoneController'
 import AccessPointGroupController from '../controller/AccessPointGroupController'
@@ -294,3 +295,20 @@ export default router
 
   // Mqtt controller endpoints
   .get('mqttGetRequest/:id', MqttController.get)
+
+  
+  // ExtDevice controller CRUD endpoints   
+  .post('extDevice', ExtDeviceController.add)
+  .put('extDevice', ExtDeviceController.update)
+  .get('extDevice/:id', ExtDeviceController.get)
+  .delete('extDevice', ExtDeviceController.destroy)
+  .get('extDevice', ExtDeviceController.getAll)
+  
+  
+  // ExtDevice controller CRUD endpoints   
+  .post('extDevice', ExtDeviceController.add)
+  .put('extDevice', ExtDeviceController.update)
+  .get('extDevice/:id', ExtDeviceController.get)
+  .delete('extDevice', ExtDeviceController.destroy)
+  .get('extDevice', ExtDeviceController.getAll)
+  

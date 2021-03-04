@@ -20,10 +20,10 @@ export class ExtDevice extends MainEntity {
     @Column('enum', { name: 'ext_board', nullable: false, enum: expBrd })
     ext_board: string
 
-    @Column('int', { name: 'baud_rate', nullable: false })
+    @Column('int', { name: 'baud_rate', nullable: true })
     baud_rate: number
 
-    @Column('int', { name: 'uart_mode', nullable: false })
+    @Column('int', { name: 'uart_mode', nullable: true })
     uart_mode: number
 
     @Column('varchar', { name: 'address', nullable: false })
@@ -31,6 +31,9 @@ export class ExtDevice extends MainEntity {
 
     @Column('int', { name: 'port', nullable: false })
     port: number
+
+    @Column('int', { name: 'protocol', nullable: false })
+    protocol: number
 
     @ManyToOne(type => Acu, acu => acu.ext_boards, { nullable: true })
     @JoinColumn({ name: 'acu' })
@@ -49,6 +52,7 @@ export class ExtDevice extends MainEntity {
         if ('address' in data) extDevice.address = data.address
         if ('port' in data) extDevice.port = data.port
         if ('uart_mode' in data) extDevice.uart_mode = data.uart_mode
+        if ('protocol' in data) extDevice.protocol = data.protocol
 
         return new Promise((resolve, reject) => {
             this.save(extDevice)
@@ -72,6 +76,7 @@ export class ExtDevice extends MainEntity {
         if ('address' in data) extDevice.address = data.address
         if ('port' in data) extDevice.port = data.port
         if ('uart_mode' in data) extDevice.uart_mode = data.uart_mode
+        if ('protocol' in data) extDevice.protocol = data.protocol
 
         if (!extDevice) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {

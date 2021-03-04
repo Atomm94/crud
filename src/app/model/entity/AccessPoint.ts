@@ -75,7 +75,7 @@ export class AccessPoint extends MainEntity {
     @JoinColumn({ name: 'acu' })
     acus: Acu;
 
-    @OneToMany(type => Reader, reader => reader.accessPoints)
+    @OneToMany(type => Reader, reader => reader.access_points)
     readers: Reader[];
 
     public static async addItem (data: AccessPoint) {
