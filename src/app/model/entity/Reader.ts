@@ -6,7 +6,6 @@ import {
 } from 'typeorm'
 
 import { MainEntity } from './MainEntity'
-import { Acu } from './Acu'
 import { readerTypes } from '../../enums/readerTypes'
 import { wiegandTypes } from '../../enums/wiegandTypes'
 import { AccessPoint } from './AccessPoint'
@@ -14,8 +13,8 @@ import { readerModes } from '../../enums/readerModes'
 
 @Entity('reader')
 export class Reader extends MainEntity {
-    @Column('int', { name: 'acu', nullable: false })
-    acu: number
+    @Column('int', { name: 'access_point', nullable: false })
+    access_point: number
 
     @Column('enum', { name: 'type', nullable: false, enum: readerTypes })
     type: string
@@ -38,13 +37,9 @@ export class Reader extends MainEntity {
     @Column('boolean', { name: 'reverse', default: false })
     reverse: boolean
 
-    @ManyToOne(type => Acu, acu => acu.ext_boards, { nullable: true })
-    @JoinColumn({ name: 'acu' })
-    acus: Acu | null;
-
     @ManyToOne(type => AccessPoint, accessPoint => accessPoint.readers, { nullable: true })
-    @JoinColumn({ name: 'accessPoint' })
-    accessPoints: AccessPoint | null;
+    @JoinColumn({ name: 'access_point' })
+    access_points: AccessPoint | null;
 
     public static gettingActions: boolean = false
     public static gettingAttributes: boolean = false
@@ -52,7 +47,7 @@ export class Reader extends MainEntity {
     public static async addItem (data: Reader) {
         const reader = new Reader()
 
-        if ('acu' in data) reader.acu = data.acu
+        if ('access_point' in data) reader.access_point = data.access_point
         if ('type' in data) reader.type = data.type
         if ('port' in data) reader.port = data.port
         if ('wg_type' in data) reader.wg_type = data.wg_type
@@ -76,7 +71,7 @@ export class Reader extends MainEntity {
         const reader = await this.findOneOrFail(data.id)
         const oldData = Object.assign({}, reader)
 
-        if ('acu' in data) reader.acu = data.acu
+        if ('access_point' in data) reader.access_point = data.access_point
         if ('type' in data) reader.type = data.type
         if ('port' in data) reader.port = data.port
         if ('wg_type' in data) reader.wg_type = data.wg_type
