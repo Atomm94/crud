@@ -214,25 +214,26 @@ export default class SendDevice {
             operator: OperatorType.SET_EXT_BRD,
             // location: topic.split('/').slice(0, 2).join('/'),
             // device_id: topic.split('/')[3],
-            location: location,
-            device_id: device_id,
-            session_id: session_id,
+            location: '5/5',
+            device_id: '1073493824',
+            session_id: '1111111111',
             message_id: message_id.toString(),
             info:
             {
                 // Brd_inteface_type: 0,
-                Brd_idx: ext_device_data.ext_board,
-                Brd_inputs: ext_device_data.ext_boards.input,
-                Brd_outputs: ext_device_data.ext_boards.output,
-                // RS485_Idx: 0,
-                // Brd_RS45_adr: 0,
-                // RS485_Uart_Mode: 'none',
+                Brd_idx: ext_device_data.id,
+                Brd_inputs: ext_device_data.resources.input,
+                Brd_outputs: ext_device_data.resources.output,
+                RS485_Idx: ext_device_data.port,
+                Brd_RS45_adr: ext_device_data.address ? ext_device_data.address : 'none',
+                RS485_Uart_Mode: ext_device_data.uart_mode,
                 RS485_Baud_Rate: ext_device_data.baud_rate,
-                // Brd_prot: 0,
-                Brd_Eth_adr: ext_device_data.address ? ext_device_data.address : 'none',
-                Brd_Eth_port: ext_device_data.port
+                Brd_prot: ext_device_data.protocol
+                // Brd_Eth_adr: ext_device_data.address ? ext_device_data.address : 'none'
+                // Brd_Eth_port: ext_device_data.port
             }
         }
+        send_data.new_data = ext_device_data
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 
@@ -672,10 +673,9 @@ export default class SendDevice {
 
         const send_data: any = {
             operator: OperatorType.SET_SDL_DAILY,
-            location: location,
-            device_id: device_id,
-
-            session_id: session_id,
+            location: '5/5',
+            device_id: '1073493824',
+            session_id: '1111111111',
             message_id: message_id.toString(),
             info: {
                 Shedule_id: (data.send_data && data.send_data.info.Shedule_id) ? data.send_data.info.Shedule_id : data.schedule,
@@ -744,13 +744,13 @@ export default class SendDevice {
         })
         const send_data: any = {
             operator: OperatorType.SET_SDL_WEEKLY,
-            location: location,
-            device_id: device_id,
-            session_id: session_id,
+            location: '5/5',
+            device_id: '1073493824',
+            session_id: '45451202021',
             message_id: message_id.toString(),
             info: {
-                Shedule_id: (data.send_data.info.schedule) ? data.send_data.info.schedule : data.schedule,
-                Ctp_idx: (data.send_data.info.access_point) ? data.send_data.info.access_point : data.access_point,
+                Shedule_id: (data.send_data && data.send_data.info.schedule) ? data.send_data.info.schedule : data.schedule,
+                Ctp_idx: (data.send_data && data.send_data.info.access_point) ? data.send_data.info.access_point : data.access_point,
                 ...week_tms
             }
         }
@@ -772,8 +772,8 @@ export default class SendDevice {
             session_id: session_id,
             message_id: message_id.toString(),
             info: {
-                Shedule_id: (data.send_data.info.schedule) ? data.send_data.info.schedule : data.schedule,
-                Ctp_idx: (data.send_data.info.access_point) ? data.send_data.info.access_point : data.access_point,
+                Shedule_id: (data.send_data && data.send_data.info.schedule) ? data.send_data.info.schedule : data.schedule,
+                Ctp_idx: (data.send_data && data.send_data.info.access_point) ? data.send_data.info.access_point : data.access_point,
                 DayStart: schedule.start_from,
                 DaysCount: Object.keys(days).length
             }
@@ -866,13 +866,13 @@ export default class SendDevice {
         const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.SET_SDL_SPECIFIED,
-            location: location,
-            device_id: device_id,
-            session_id: session_id,
+            location: '5/5',
+            device_id: '1073493824',
+            session_id: '45451202021',
             message_id: message_id.toString(),
             info: {
-                Shedule_id: (data.send_data.info.schedule) ? data.send_data.info.schedule : data.schedule,
-                Ctp_idx: (data.send_data.info.access_point) ? data.send_data.info.access_point : data.access_point,
+                Shedule_id: (data.send_data && data.send_data.info.schedule) ? data.send_data.info.schedule : data.schedule,
+                Ctp_idx: (data.send_data && data.send_data.info.access_point) ? data.send_data.info.access_point : data.access_point,
                 DaysCount: Object.keys(days).length
             }
         }

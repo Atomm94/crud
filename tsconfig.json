@@ -13,6 +13,7 @@
         "strictNullChecks": true,
         "noImplicitReturns": true,
         "noUnusedLocals": true,
+        "resolveJsonModule":true,
         // "noUnusedParameters": true,
         "allowUnusedLabels": true,
         "alwaysStrict": true,

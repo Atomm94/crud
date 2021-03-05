@@ -96,8 +96,8 @@ export default class MqttController {
 
                 // const get_status = {
                 //     operator: 'GetMQTTSettings',
-                //     location: '5/5/registration',
-                //     device_id: '1073493652',
+                //     location: '5/5',
+                //     device_id: '1073493824',
                 //     session_id: '0',
                 //     message_id: '222222222222',
                 //     info: 'none'
@@ -167,7 +167,7 @@ export default class MqttController {
                     message_id: '5464545',
                     info: {
                         Shedule_id: 3,
-                        Ctp_idx: 3,
+                        Ctp_idx: 32,
                         TmStart: '3600',
                         TmEnd: '7200'
                     }
