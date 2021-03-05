@@ -8,6 +8,7 @@ import { acuConnectionType } from '../enums/acuConnectionType.enum'
 import { dateTimeToSeconds } from '../functions/changeTime'
 import { Timeframe } from '../model/entity/Timeframe'
 import { Schedule } from '../model/entity'
+import SendDeviceMessage from './SendDeviceMessage'
 
 export default class SendDevice {
     public static async accept (topic: any) {
@@ -21,7 +22,6 @@ export default class SendDevice {
             session_id: '0',
             message_id: '0',
             info: 'none'
-
         }
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
@@ -298,17 +298,17 @@ export default class SendDevice {
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 
-    public static getRd (topic: any, session_id: string): void {
+    public static getRd (location: string, device_id: number, session_id: string, reader_id: number): void {
         const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.GET_RD,
-            location: topic.split('/').slice(0, 2).join('/'),
-            device_id: topic.split('/')[3],
+            location: location,
+            device_id: device_id,
             session_id: session_id,
             message_id: message_id.toString(),
             info:
             {
-                Rd_idx: 0
+                Rd_idx: reader_id
             }
         }
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
@@ -748,7 +748,8 @@ export default class SendDevice {
         }
         if (update) send_data.new_data = data
 
-        MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
+        new SendDeviceMessage(OperatorType.SET_SDL_DAILY, location, device_id, send_data)
+        // MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 
     public static async setSdlWeekly (location: string, device_id: number, session_id: string, data: any, update: boolean) {

@@ -1,7 +1,9 @@
 import { DefaultContext } from 'koa'
 import { Company } from '../model/entity'
-import MQTTBroker from '../mqtt/mqtt'
-import { SendTopics } from '../mqtt/Topics'
+import { OperatorType } from '../mqtt/Operators'
+import SendDeviceMessage from '../mqtt/SendDeviceMessage'
+// import MQTTBroker from '../mqtt/mqtt'
+// import { SendTopics } from '../mqtt/Topics'
 // import { TopicCodes } from '../mqtt/Topics'
 
 export default class MqttController {
@@ -39,17 +41,17 @@ export default class MqttController {
                     message: 'Invalid id!!'
                 }
             } else {
-                const location = `${main_id}/${company.id}`
-                ctx.body = {
-                    BrokerAdr: 'lumiring.msg.th',
-                    BrokerPort: 3285,
-                    ClientID: '101FRE1111325665454RETV123355',
-                    Use_SSL: false,
-                    use_enryption: false,
-                    User_Name: 'TR2584567452121TFD',
-                    User_Pass: 'ASTR565VFDF8787fdtrtJ76p',
-                    Location: location
-                }
+                // const location = `${main_id}/${company.id}`
+                // ctx.body = {
+                //     BrokerAdr: 'lumiring.msg.th',
+                //     BrokerPort: 3285,
+                //     ClientID: '101FRE1111325665454RETV123355',
+                //     Use_SSL: false,
+                //     use_enryption: false,
+                //     User_Name: 'TR2584567452121TFD',
+                //     User_Pass: 'ASTR565VFDF8787fdtrtJ76p',
+                //     Location: location
+                // }
                 // const send_message = {
                 //     operator: 'registration',
                 //     info: {
@@ -159,21 +161,34 @@ export default class MqttController {
                 // }
                 //     MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
 
-                const send_data: any = {
-                    operator: 'SetSdlDaily',
-                    location: '5/5',
-                    device_id: '1073493824',
-                    session_id: '52831102448461152410103211553534',
-                    message_id: '5464545',
-                    info: {
-                        Shedule_id: 3,
-                        Ctp_idx: 32,
-                        TmStart: '3600',
-                        TmEnd: '7200'
-                    }
-                }
+                // const send_data: any = {
+                //     operator: 'SetSdlDaily',
+                //     location: '5/5',
+                //     device_id: '1073493824',
+                //     session_id: '52831102448461152410103211553534',
+                //     message_id: '5464545',
+                //     info: {
+                //         Shedule_id: 3,
+                //         Ctp_idx: 32,
+                //         TmStart: '3600',
+                //         TmEnd: '7200'
+                //     }
+                // }
+                // const send_data: any = {
+                //     operator: 'SetSdlDaily',
+                //     location: '5/5',
+                //     device_id: '1073493824',
+                //     session_id: '52831102448461152410103211553534',
+                //     message_id: '5464545',
+                //     info: {
+                //         Shedule_id: 3,
+                //         Ctp_idx: 3,
+                //         TmStart: '3600',
+                //         TmEnd: '7200'
+                //     }
+                // }
 
-                MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
+                // MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
                 // const get_status = {
                 //         operator: 'GetStatusACU',
                 //         location: '5/5',
@@ -184,6 +199,13 @@ export default class MqttController {
                 //     }
                 // MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(get_status))
             }
+
+            const loginData = {
+                username: 'admin',
+                password: ''
+            }
+            const message = new SendDeviceMessage(OperatorType.LOGIN, `${main_id}/${company.id}`, 1073493824, loginData)
+            ctx.body = message
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

@@ -2,10 +2,11 @@ import { DefaultContext } from 'koa'
 import { Acu } from '../model/entity/Acu'
 import { timeValidation, networkValidation, checkAccessPointsValidation } from '../functions/validator'
 import { acuStatus } from '../enums/acuStatus.enum'
-import { accessPointType } from '../enums/accessPointType.enum'
-import SendDevice from '../mqtt/SendDevice'
 import { AccessPoint } from '../model/entity/AccessPoint'
+import SendDeviceMessage from '../mqtt/SendDeviceMessage'
+import { OperatorType } from '../mqtt/Operators'
 import { Reader } from '../model/entity/Reader'
+import { accessPointType } from '../enums/accessPointType.enum'
 
 export default class AcuController {
     /**
@@ -329,9 +330,14 @@ export default class AcuController {
                         return ctx.body = { message: check_network }
                     } else {
                         if (acu.status === acuStatus.ACTIVE) {
-                            SendDevice.setNetSettings(`${user.company_main}/${user.company}`, acu.serial_number, acu.session_id ? acu.session_id : '0', req_data)
+                            new SendDeviceMessage(OperatorType.SET_NET_SETTINGS, location, acu.serial_number, req_data)
                             delete req_data.network
                         }
+                        // else {
+                        //     acu.network = JSON.stringify(req_data.network)
+                        // }
+
+                        // SendDevice.setNetSettings(`${user.company_main}/${user.company}`, acu.serial_number, acu.session_id ? acu.session_id : '0', network)
                     }
                 }
 
@@ -342,9 +348,13 @@ export default class AcuController {
                         return ctx.body = { message: check_time }
                     } else {
                         if (acu.status === acuStatus.ACTIVE || acu.status === acuStatus.PENDING) {
-                            SendDevice.setDateTime(location, acu.serial_number, acu.session_id ? acu.session_id : '0', req_data)
+                            new SendDeviceMessage(OperatorType.SET_DATE_TIME, location, acu.serial_number, req_data)
                             delete req_data.time
                         }
+                        // else {
+                        //     acu.network = JSON.stringify(req_data.network)
+                        // }
+                        // SendDevice.setDateTime(location, acu.serial_number, acu.session_id ? acu.session_id : '0', time)
                     }
                 }
 
@@ -366,7 +376,7 @@ export default class AcuController {
 
                             if (acu.status === acuStatus.ACTIVE) {
                                 if (access_point.type === accessPointType.DOOR) {
-                                    SendDevice.setCtpDoor(location, acu.serial_number, acu.session_id ? acu.session_id : '0', access_point)
+                                    new SendDeviceMessage(OperatorType.SET_CTP_DOOR, location, acu.serial_number, acu.session_id, access_point)
                                 }
                                 //  else if (access_point.type === doorType.TURNSTILE) {
                                 //     SendDevice.SetCtpTurnstile(location, acu.serial_number, acu.session_id, req_data)
@@ -390,7 +400,7 @@ export default class AcuController {
                                 }
 
                                 if (acu.status === acuStatus.ACTIVE) {
-                                    SendDevice.setRd(location, acu.serial_number, acu.session_id ? acu.session_id : '0', reader)
+                                    new SendDeviceMessage(OperatorType.SET_RD, location, acu.serial_number, acu.session_id, reader)
                                 } else {
                                     if (reader_update) await Reader.updateItem(reader)
                                 }
@@ -442,9 +452,10 @@ export default class AcuController {
         try {
             const user = ctx.user
             const where = { id: +ctx.params.id, company: user.company ? user.company : user.company }
-            const acu: any = await Acu.getItem(where)
+            const acu: Acu = await Acu.getItem(where)
             const location = `${user.company_main}/${user.company}`
-            SendDevice.getStatusAcu(location, acu.serial_number, acu.session_id)
+            new SendDeviceMessage(OperatorType.GET_STATUS_ACU, location, acu.serial_number, 'none', acu.session_id)
+            // SendDevice.getStatusAcu(location, acu.serial_number, acu.session_id)
             ctx.body = acu
         } catch (error) {
             ctx.status = error.status || 400

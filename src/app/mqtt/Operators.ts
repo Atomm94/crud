@@ -74,9 +74,13 @@ export enum OperatorType {
 
     SET_SDL_DAILY = 'SetSdlDaily',
     SET_SDL_DAILY_ACK = 'SetSdlDaily-Ack',
+    DEL_SDL_DAILY = 'DelSdlDaily',
+    DEL_SDL_DAILY_ACK = 'DelSdlDaily-Ack',
 
     SET_SDL_WEEKLY = 'SetSdlWeekly',
     SET_SDL_WEEKLY_ACK = 'SetSdlWeekly-Ack',
+    DEL_SDL_WEEKLY = 'DelSdlWeekly',
+    DEL_SDL_WEEKLY_ACK = 'DelSdlWeekly-Ack',
 
     SET_SDL_FLEXI_TIME = 'SetSdlFlexiTime',
     SET_SDL_FLEXI_TIME_ACK = 'SetSdlFlexiTime-Ack',
@@ -86,6 +90,8 @@ export enum OperatorType {
 
     END_SDL_FLEXI_TIME = 'EndSdlFlexiTime',
     END_SDL_FLEXI_TIME_ACK = 'EndSdlFlexiTime-Ack',
+    DEL_SDL_FLEXI_TIME = 'DelSdlFlexiTime',
+    DEL_SDL_FLEXI_TIME_ACK = 'DelSdlFlexiTime-Ack',
 
     DEL_DAY_FLEXI_TIME = 'DelDayFlexiTime',
     DEL_DAY_FLEXI_TIME_ACK = 'DelDayFlexiTime-Ack',
@@ -98,6 +104,8 @@ export enum OperatorType {
 
     END_SDL_SPECIFIED = 'EndSdlSpecified',
     END_SDL_SPECIFIED_ACK = 'EndSdlSpecified-Ack',
+    DEL_SDL_SPECIFIED = 'DelSdlSpecified',
+    DEL_SDL_SPECIFIED_ACK = 'DelSdlSpecified-Ack',
 
     DELL_DAY_SPECIFIED = 'DellDaySpecified',
     DELL_DAY_SPECIFIED_ACK = 'DellDaySpecified-Ack',

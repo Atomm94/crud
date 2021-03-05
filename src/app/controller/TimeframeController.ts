@@ -4,7 +4,8 @@ import { scheduleType } from '../enums/scheduleType.enum'
 import { Schedule } from '../model/entity'
 import { AccessRule } from '../model/entity/AccessRule'
 import { Timeframe } from '../model/entity/Timeframe'
-import SendDevice from '../mqtt/SendDevice'
+import { OperatorType } from '../mqtt/Operators'
+import SendDeviceMessage from '../mqtt/SendDeviceMessage'
 
 export default class TimeframeController {
     /**
@@ -72,14 +73,22 @@ export default class TimeframeController {
                 .getMany()
             const location = `${user.company_main}/${user.company}`
             const schedule: any = await Schedule.findOne({ id: save.schedule })
+            const timeframes = await Timeframe.find({ schedule: schedule.id })
+            const send_data = { ...req_data, timeframes: timeframes }
+
             for (const access_rule of access_rules) {
-                if (schedule.type === scheduleType.DAILY) {
-                    SendDevice.setSdlDaily(location, access_rule.access_points.acus.serial_number, access_rule.access_points.acus.session_id, req_data, false)
-                } else if (schedule.type === scheduleType.WEEKLY) {
-                    SendDevice.setSdlWeekly(location, access_rule.access_points.acus.serial_number, access_rule.access_points.acus.session_id, req_data, false)
-                } else if (schedule.type === scheduleType.FLEXITIME || schedule.type === scheduleType.SPECIFIC) {
-                    SendDevice.dellShedule(location, access_rule.access_points.acus.serial_number, access_rule.access_points.acus.session_id, req_data, schedule.type, access_rule)
+                let operator: OperatorType = OperatorType.SET_SDL_DAILY
+                if (schedule.type === scheduleType.WEEKLY) {
+                    operator = OperatorType.SET_SDL_WEEKLY
+                } else if (schedule.type === scheduleType.FLEXITIME) {
+                    send_data.start_from = schedule.start_from
+                    send_data.schedule_type = schedule.type
+                    operator = OperatorType.DELL_SHEDULE
+                } else if (schedule.type === scheduleType.SPECIFIC) {
+                    send_data.schedule_type = schedule.type
+                    operator = OperatorType.DELL_SHEDULE
                 }
+                new SendDeviceMessage(operator, location, access_rule.access_points.acus.serial_number, send_data, access_rule.access_points.acus.session_id)
             }
         } catch (error) {
             ctx.status = error.status || 400
@@ -154,14 +163,22 @@ export default class TimeframeController {
                 .getMany()
             const location = `${user.company_main}/${user.company}`
             const schedule: any = await Schedule.findOne({ id: timeframe.schedule })
+            const timeframes = await Timeframe.find({ schedule: schedule.id })
+            const send_data = { ...req_data, timeframes: timeframes }
+
             for (const access_rule of access_rules) {
-                if (schedule.type === scheduleType.DAILY) {
-                    SendDevice.setSdlDaily(location, access_rule.access_points.acus.serial_number, access_rule.access_points.acus.session_id, req_data, true)
-                } else if (schedule.type === scheduleType.WEEKLY) {
-                    SendDevice.setSdlWeekly(location, access_rule.access_points.acus.serial_number, access_rule.access_points.acus.session_id, req_data, true)
-                } else if (schedule.type === scheduleType.FLEXITIME || schedule.type === scheduleType.SPECIFIC) {
-                    SendDevice.dellShedule(location, access_rule.access_points.acus.serial_number, access_rule.access_points.acus.session_id, req_data, schedule.type, access_rule)
+                let operator: OperatorType = OperatorType.SET_SDL_DAILY
+                if (schedule.type === scheduleType.WEEKLY) {
+                    operator = OperatorType.SET_SDL_WEEKLY
+                } else if (schedule.type === scheduleType.FLEXITIME) {
+                    send_data.start_from = schedule.start_from
+                    send_data.type = schedule.type
+                    operator = OperatorType.DELL_SHEDULE
+                } else if (schedule.type === scheduleType.SPECIFIC) {
+                    send_data.type = schedule.type
+                    operator = OperatorType.DELL_SHEDULE
                 }
+                new SendDeviceMessage(operator, location, access_rule.access_points.acus.serial_number, send_data, access_rule.access_points.acus.session_id)
             }
         } catch (error) {
             ctx.status = error.status || 400
@@ -260,14 +277,22 @@ export default class TimeframeController {
                 .getMany()
             const location = `${user.company_main}/${user.company}`
             const schedule: any = await Schedule.findOne({ id: timeframe.schedule })
+            const timeframes = await Timeframe.find({ schedule: schedule.id })
+            const send_data = { ...req_data, timeframes: timeframes }
+
             for (const access_rule of access_rules) {
-                if (schedule.type === scheduleType.DAILY) {
-                    SendDevice.setSdlDaily(location, access_rule.access_points.acus.serial_number, access_rule.access_points.acus.session_id, req_data, false)
-                } else if (schedule.type === scheduleType.WEEKLY) {
-                    SendDevice.setSdlWeekly(location, access_rule.access_points.acus.serial_number, access_rule.access_points.acus.session_id, req_data, false)
-                } else if (schedule.type === scheduleType.FLEXITIME || schedule.type === scheduleType.SPECIFIC) {
-                    SendDevice.dellShedule(location, access_rule.access_points.acus.serial_number, access_rule.access_points.acus.session_id, req_data, schedule.type, access_rule)
+                let operator: OperatorType = OperatorType.SET_SDL_DAILY
+                if (schedule.type === scheduleType.WEEKLY) {
+                    operator = OperatorType.SET_SDL_WEEKLY
+                } else if (schedule.type === scheduleType.FLEXITIME) {
+                    send_data.start_from = schedule.start_from
+                    send_data.type = schedule.type
+                    operator = OperatorType.DELL_SHEDULE
+                } else if (schedule.type === scheduleType.SPECIFIC) {
+                    send_data.type = schedule.type
+                    operator = OperatorType.DELL_SHEDULE
                 }
+                new SendDeviceMessage(operator, location, access_rule.access_points.acus.serial_number, send_data, access_rule.access_points.acus.session_id)
             }
         } catch (error) {
             ctx.status = error.status || 400

@@ -149,7 +149,7 @@ export class Acu extends MainEntity {
         })
     }
 
-    public static async getItem (where: any, relations?: Array<string>) {
+    public static async getItem (where: any, relations?: Array<string>):Promise<Acu> {
         return new Promise((resolve, reject) => {
             this.findOneOrFail({
                 where: where,

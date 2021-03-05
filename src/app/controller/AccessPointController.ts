@@ -4,7 +4,9 @@ import { Acu } from '../model/entity/Acu'
 import { acuStatus } from '../enums/acuStatus.enum'
 import { accessPointType } from '../enums/accessPointType.enum'
 
-import SendDevice from '../mqtt/SendDevice'
+// import SendDevice from '../mqtt/SendDevice'
+import SendDeviceMessage from '../mqtt/SendDeviceMessage'
+import { OperatorType } from '../mqtt/Operators'
 export default class AccessPointController {
     /**
      *
@@ -81,11 +83,12 @@ export default class AccessPointController {
             const user = ctx.user
             const location = `${user.company_main}/${user.company}`
             req_data.company = user.company ? user.company : null
-            const acu: any = await Acu.findOne({ id: req_data.acu })
+            const acu: Acu = await Acu.getItem({ id: req_data.acu })
             if (acu.status === acuStatus.ACTIVE) {
                 if (req_data.type === accessPointType.DOOR) {
                     const access_point: any = await AccessPoint.addItem(req_data as AccessPoint)
-                    SendDevice.setCtpDoor(location, acu.serial_number, acu.session_id, access_point)
+                    new SendDeviceMessage(OperatorType.SET_CTP_DOOR, location, acu.serial_number, acu.session_id, access_point)
+                    // SendDevice.setCtpDoor(location, acu.serial_number, acu.session_id, access_point)
                 }
                 //  else if (req_data.type === doorType.TURNSTILE) {
                 //     SendDevice.SetCtpTurnstile(location, acu.serial_number, acu.session_id, req_data)
@@ -287,7 +290,8 @@ export default class AccessPointController {
                 ctx.body = await AccessPoint.destroyItem(req_data as { id: number })
                 if (access_point.acus.status === acuStatus.ACTIVE) {
                     if (access_point.type === accessPointType.DOOR) {
-                        SendDevice.delCtpDoor(location, access_point.acus.serial_number, access_point.acus.session_id, req_data)
+                        new SendDeviceMessage(OperatorType.DEL_CTP_DOOR, location, access_point.acus.serial_number, access_point.acus.session_id, req_data)
+                        // SendDevice.delCtpDoor(location, access_point.acus.serial_number, access_point.acus.session_id, req_data)
                     }
                 }
             }

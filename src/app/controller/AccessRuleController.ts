@@ -3,9 +3,11 @@ import { Schedule } from '../model/entity'
 import { AccessPoint } from '../model/entity/AccessPoint'
 import { AccessRule } from '../model/entity/AccessRule'
 import { Acu } from '../model/entity/Acu'
-import SendDevice from '../mqtt/SendDevice'
 import { acuStatus } from '../enums/acuStatus.enum'
 import { scheduleType } from '../enums/scheduleType.enum'
+import SendDeviceMessage from '../mqtt/SendDeviceMessage'
+import { OperatorType } from '../mqtt/Operators'
+import { Timeframe } from '../model/entity/Timeframe'
 
 export default class AccessRuleController {
     /**
@@ -62,20 +64,26 @@ export default class AccessRuleController {
             const location = `${user.company_main}/${user.company}`
             req_data.company = user.company ? user.company : null
             const access_point: any = await AccessPoint.findOne({ id: req_data.access_point })
-            const acu: any = await Acu.findOne({ id: access_point.acu })
-            if (acu.status === acuStatus.ACTIVE || acu.status === acuStatus.PENDING) {
-                await AccessRule.addItem(req_data as AccessRule)
-                const schedule: any = await Schedule.findOne({ id: req_data.schedule })
-                if (schedule.type === scheduleType.DAILY) {
-                    SendDevice.setSdlDaily(location, acu.serial_number, acu.session_id, req_data, false)
-                } else if (schedule.type === scheduleType.WEEKLY) {
-                    SendDevice.setSdlWeekly(location, acu.serial_number, acu.session_id, req_data, false)
-                } else if (schedule.type === scheduleType.FLEXITIME) {
-                    SendDevice.setSdlFlexiTime(location, acu.serial_number, acu.session_id, req_data, schedule, false)
-                } else if (schedule.type === scheduleType.SPECIFIC) {
-                    SendDevice.setSdlSpecified(location, acu.serial_number, acu.session_id, req_data, false)
+            const acu: Acu = await Acu.getItem({ id: access_point.acu })
+            if (acu.status === acuStatus.ACTIVE) {
+                const access_rule = await AccessRule.addItem(req_data as AccessRule)
+                if (access_rule) {
+                    const schedule: Schedule = await Schedule.findOneOrFail({ id: req_data.schedule })
+                    const timeframes = await Timeframe.find({ schedule: schedule.id })
+                    const send_data: any = { ...access_rule, timeframes: timeframes }
+                    let operator: OperatorType = OperatorType.SET_SDL_DAILY
+                    if (schedule.type === scheduleType.WEEKLY) {
+                        operator = OperatorType.SET_SDL_WEEKLY
+                    } else if (schedule.type === scheduleType.FLEXITIME) {
+                        send_data.start_from = schedule.start_from
+                        operator = OperatorType.SET_SDL_FLEXI_TIME
+                    } else if (schedule.type === scheduleType.SPECIFIC) {
+                        operator = OperatorType.SET_SDL_SPECIFIED
+                    }
+                    new SendDeviceMessage(operator, location, acu.serial_number, send_data, acu.session_id)
+
+                    ctx.body = true
                 }
-                ctx.body = true
             } else {
                 if (Array.isArray(req_data.access_point)) {
                     const res_data: any = []
@@ -153,22 +161,34 @@ export default class AccessRuleController {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
             } else {
-                const access_point: any = await AccessPoint.findOne({ id: req_data.access_point })
-                const acu: any = await Acu.findOne({ id: access_point.acu })
-                if (acu.status === acuStatus.ACTIVE || acu.status === acuStatus.PENDING) {
-                    const schedule: any = await Schedule.findOne({ id: req_data.schedule })
+                const access_point: AccessPoint = await AccessPoint.findOneOrFail({ id: check_by_company.access_point })
+                const acu: Acu = await Acu.findOneOrFail({ id: access_point.acu })
+                if (acu.status === acuStatus.ACTIVE) {
+                    const schedule: Schedule = await Schedule.findOneOrFail({ id: req_data.schedule })
+                    const timeframes = await Timeframe.find({ schedule: schedule.id })
+                    const send_data = { ...req_data, schedule_type: schedule.type, start_from: schedule.start_from, timeframes: timeframes, access_point: access_point.id }
                     if (check_by_company.schedule !== req_data.schedule) {
-                        const old_data: any = await AccessRule.findOne({ id: req_data.id })
-                        SendDevice.dellShedule(location, acu.serial_number, acu.session_id, req_data, schedule.type, old_data)
+                        let operator: OperatorType = OperatorType.DEL_SDL_DAILY
+                        if (schedule.type === scheduleType.WEEKLY) {
+                            operator = OperatorType.DEL_SDL_WEEKLY
+                        } else if (schedule.type === scheduleType.FLEXITIME) {
+                            send_data.start_from = schedule.start_from
+                            operator = OperatorType.DELL_SHEDULE
+                        } else if (schedule.type === scheduleType.SPECIFIC) {
+                            operator = OperatorType.DELL_SHEDULE
+                        }
+                        new SendDeviceMessage(operator, location, acu.serial_number, send_data, acu.session_id)
                     }
                     ctx.body = true
+                } else {
+                    const updated = await AccessRule.updateItem(req_data as AccessRule)
+                    ctx.oldData = updated.old
+                    ctx.body = updated.new
                 }
-
-                const updated = await AccessRule.updateItem(req_data as AccessRule)
-                ctx.oldData = updated.old
-                ctx.body = updated.new
             }
         } catch (error) {
+            console.log(error)
+
             ctx.status = error.status || 400
             ctx.body = error
         }
@@ -263,12 +283,22 @@ export default class AccessRuleController {
                 ctx.body = { message: 'something went wrong' }
             } else {
                 const access_point: any = await AccessPoint.findOne({ id: req_data.access_point })
-                const acu: any = await Acu.findOne({ id: access_point.acu })
-                if (acu.status === acuStatus.ACTIVE || acu.status === acuStatus.PENDING) {
+                const acu: Acu = await Acu.findOneOrFail({ id: access_point.acu })
+                if (acu.status === acuStatus.ACTIVE) {
                     const schedule: any = await Schedule.findOne({ id: req_data.schedule })
-                    const old_data: any = await AccessRule.findOne({ id: req_data.id })
+                    const send_data = { ...req_data, schedule_type: schedule.type, start_from: schedule.start_from, access_point: access_point.id }
+
                     if (check_by_company.schedule !== req_data.schedule) {
-                        SendDevice.dellShedule(location, acu.serial_number, acu.session_id, null, schedule.type, old_data)
+                        let operator: OperatorType = OperatorType.DEL_SDL_DAILY
+                        if (schedule.type === scheduleType.WEEKLY) {
+                            operator = OperatorType.DEL_SDL_WEEKLY
+                        } else if (schedule.type === scheduleType.FLEXITIME) {
+                            send_data.start_from = schedule.start_from
+                            operator = OperatorType.DELL_SHEDULE
+                        } else if (schedule.type === scheduleType.SPECIFIC) {
+                            operator = OperatorType.DELL_SHEDULE
+                        }
+                        new SendDeviceMessage(operator, location, acu.serial_number, send_data, acu.session_id)
                     }
                     ctx.body = true
                     ctx.body = await AccessRule.destroyItem(req_data as { id: number })
