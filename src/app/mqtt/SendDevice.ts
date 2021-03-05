@@ -253,40 +253,46 @@ export default class SendDevice {
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 
-    public static setRd (topic: any, session_id: string): void {
+    public static setRd (location: string, device_id: number, session_id: string, data: any): void {
         const message_id = new Date().getTime()
         const send_data: any = {
             operator: OperatorType.SET_RD,
-            location: topic.split('/').slice(0, 2).join('/'),
-            device_id: topic.split('/')[3],
+            location: location,
+            device_id: device_id,
             session_id: session_id,
             message_id: message_id.toString(),
             info:
+            // Enable CRC ?
+
+            // Offline Mode ?
+            // Enable OSDP Secure Channel ?
+            // Enable OSDP Tracing ?
+
             {
-                Rd_idx: 0,
-                Rd_opt: 0,
+                Rd_idx: data.id,
+                Rd_opt: (data.interface_type === 'Wiegand') ? 1 : 2,
                 Rd_type: 0,
-                Rd_Wg_idx: -1,
-                Rd_Wg_type: 2,
-                Rd_Key_endian: 0,
-                Rd_WG_RG: -1,
-                Rd_WG_Red: -1,
-                Rd_WG_Green: -1,
-                Rd_RS485_idx: -1,
-                Rd_OSDP_adr: 0,
-                Rd_OSDP_bd: 9600,
-                Rd_OSDP_WgPuls: 0,
-                Rd_OSDP_KeyPad: 0,
-                Rd_OSDP_singl: 0,
-                Rd_OSDP_tracing: 0,
-                Rd_MQTT: 'none',
-                Rd_ind_var: 0,
-                Rd_beep: 0,
-                Rd_bt_prox: 10,
-                Rd_sens_act: 50,
-                Rd_mode: 0,
-                Rd_Eth: 'none',
-                Rd_Eth_port: 0
+                Rd_Wg_idx: data.port,
+                Rd_Wg_type: data.interface_type,
+                Rd_Key_endian: data.reverse,
+                // Rd_WG_RG: -1,
+                // Rd_WG_Red: -1,
+                // Rd_WG_Green: -1,
+                // Rd_RS485_idx: -1,
+                Rd_OSDP_adr: data.osdp_address,
+                Rd_OSDP_bd: data.baud_rate,
+                Rd_OSDP_WgPuls: data.card_data_format_flags,
+                Rd_OSDP_KeyPad: data.keypad_mode,
+                Rd_OSDP_singl: data.configuration,
+                // Rd_OSDP_tracing: 0,
+                // Rd_MQTT: 'none',
+                // Rd_ind_var: 0,
+                Rd_beep: data.beep,
+                // Rd_bt_prox: 10,
+                // Rd_sens_act: 50,
+                Rd_mode: data.mode
+                // Rd_Eth: 'none',
+                // Rd_Eth_port: 0
             }
         }
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
@@ -388,18 +394,73 @@ export default class SendDevice {
     public static setCtpDoor (location: any, device_id: number, session_id: string, data: any): void {
         const message_id = new Date().getTime()
         console.log(555, data)
+        const info: any = {
+            Control_point_idx: (data.send_data && data.send_data.info.Control_point_idx) ? data.send_data.info.Control_point_idx : data.id
+        }
+        if (data.resources) {
+            const resources = data.resources
+            for (const resource in resources) {
+                const element = resources[resource]
+                switch (element.name) {
+                    case 'Door_sensor':
+                        info.Door_sens_opt = element.component_source
+                        info.Door_sens_idx = element.input
+                        // condition ?
+                        break
+                    case 'Exit_button':
+                        info.Button_rex_opt = element.component_source
+                        info.Button_rex_idx = element.input
+                        info.Button_Input_Condition = element.condition
+                        break
+                    case 'ACU_Tamper':
+                        // ??????
+                        break
+                    case 'Fire_Alarm_in':
+                        info.Alarm_In_opt = element.component_source
+                        info.Alarm_In_idx = element.input
+                        info.Allarm_Input_Condition = element.condition
+                        break
+                    case 'Lock':
+                        info.Lock_Relay_opt = element.component_source
+                        info.Lock_Relay_idx = element.output
+                        info.Door_Lock_mode = element.relay_mode
+                        info.Door_Lock_type = element.type
+                        info.Door_Lock_puls = element.impulse_time
+                        info.Door_Delay = element.entry_exit_open_durations
+                        // door_sensor_autolock ?
+
+                        break
+                    case 'Alarm_out':
+                        info.Alarm_out_opt = element.component_source
+                        info.Alarm_out_idx = element.output
+                        info.Alarm_out_tm = element.impulse_time
+                        info.Button_Input_Condition = element.condition
+                        // type ?
+                        // relay_mode ?
+                        break
+                    default:
+                        break
+                }
+            }
+        }
+        if (data.reader) {
+            const reader = data.reader
+            info[`Rd${reader.port - 1}_idx`] = reader.port
+            info[`Rd${reader.port - 1}_dir`] = reader.direction
+        }
+
         const send_data: any = {
             operator: OperatorType.SET_CTP_DOOR,
             location: '5/5',
             device_id: '1073493824',
             session_id: '52831102448461152410103211553534',
             message_id: message_id.toString(),
-            info:
-            {
-                Control_point_idx: data.id
+            info: info
+            // {
+                // Control_point_idx: data.id,
                 // Control_point_gId: '12548789522',
-                // Leaving_Zone: 'Hall',
-                // Came_To_Zone: 'Meeting room',
+                // Leaving_Zone: data.leave_zone,
+                // Came_To_Zone: data.coming_zone
                 // Ctp_Apb_Group: 'Meeting room/ABP',
                 // Control_type: 1,
                 // APB_Wrk_type: 0,
@@ -419,11 +480,13 @@ export default class SendDevice {
                 // Button_rex_opt: 0,
                 // Button_rex_idx: 0,
                 // Button_rex_sens: 20,
+                // Button_Input_Condition: 1,
                 // Door_sens_opt: 0,
                 // Door_sens_idx: 1,
                 // Rex_release_tm: 255,
                 // Alarm_In_opt: 0,
                 // Alarm_In_idx: 1,
+                // Allarm_Input_Condition: 1,
                 // Acc_mod: 0,
                 // Ctp_auto_mod: -1,
                 // Shedul_auto_mod: 'none',
@@ -437,7 +500,7 @@ export default class SendDevice {
                 // Rd2_dir: -1,
                 // Rd3_idx: -1,
                 // Rd3_dir: -1
-            }
+            // }
         }
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }

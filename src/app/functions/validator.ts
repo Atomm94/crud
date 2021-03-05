@@ -1,5 +1,6 @@
 import { acuConnectionType } from '../enums/acuConnectionType.enum'
 // import { AccessPoint } from '../model/entity/AccessPoint'
+import acuModel from '../model/entity/acuModels.json'
 
 export function ipValidation (string: string) {
     const ipformat = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
@@ -94,45 +95,107 @@ export function maintainValidation (data: any) {
         }
     }
 }
-export function accessPointsValidation (data: any) {
+export function checkAccessPointsValidation (data: any, acu_model: string) {
+    const acu_models: any = acuModel
+
     const ports: any = {}
     const inputs: any = {}
+    let inputs_count = 0
     const outputs: any = {}
-    for (const access_point of data) {
-        let resources: any = access_point.resources
-        if (typeof resources === 'string') resources = JSON.parse(resources)
-        for (const resource of resources) {
-            if ('input' in resource) {
-                if (inputs[resource.input]) {
-                    return new Error('inputs must be different!')
-                } else {
-                    inputs[resource.input] = true
-                }
-            }
-            if ('output' in resource) {
-                if (outputs[resource.output]) {
-                    return new Error('outputs must be different!')
-                } else {
-                    outputs[resource.output] = true
-                }
-            }
-        }
+    let outputs_count = 0
+    const ext_devices: any = {}
 
-        for (const reader of access_point.readers) {
-            if ('port' in reader) {
-                if (reader.port < 1 || reader.port > 4) {
-                    return new Error(`reader port cant be ${reader.port}!`)
-                } else {
-                    if (ports[reader.port]) {
-                        return new Error('readers ports must be different!')
+    for (const access_point of data) {
+        const type = access_point.type
+        if (!acu_models.controllers[acu_model].access_point_types[type]) {
+            return new Error(`device ${acu_model} cant have accessPoint like ${type}!`)
+        } else {
+            let resources: any = access_point.resources
+            if (typeof resources === 'string') resources = JSON.parse(resources)
+            for (const resource in resources) {
+                if ('input' in resources[resource]) {
+                    if (inputs[resources[resource].input]) {
+                        return new Error('inputs must be different!')
                     } else {
-                        ports[reader.port] = true
+                        inputs[resources[resource].input] = true
+                        const component_source = resources[resource].component_source
+                        if (component_source === 0) {
+                            inputs_count++
+                        } else {
+                            const ext_device_input = resources[resource].input
+
+                            if (ext_device_input > acu_models.expansion_boards.alarm_board['LR-IB16'].inputs) {
+                                return new Error(`input cant be ${ext_device_input} of extention device ${component_source}!`)
+                            } else {
+                                if (!ext_devices[component_source]) {
+                                    ext_devices[component_source] = { [ext_device_input]: true }
+                                } else {
+                                    if (ext_devices[component_source][ext_device_input]) {
+                                        return new Error(`input ${ext_device_input} of extention device ${component_source} must be different!`)
+                                    } else {
+                                        ext_devices[component_source][ext_device_input] = true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if (inputs_count > acu_models.controllers[acu_model].inputs) {
+                    return new Error(`device model ${acu_model} inputs_count ${inputs_count} more than limit!`)
+                }
+
+                if ('output' in resources[resource]) {
+                    if (outputs[resources[resource].output]) {
+                        return new Error('outputs must be different!')
+                    } else {
+                        outputs[resources[resource].output] = true
+                        const component_source = resources[resource].component_source
+                        if (component_source === 0) {
+                            outputs_count++
+                        } else {
+                            const ext_device_output = resources[resource].output
+
+                            if (ext_device_output > acu_models.expansion_boards.relay_board['LR-RB16'].outputs) {
+                                return new Error(`output cant be ${ext_device_output} of extention device ${component_source}!`)
+                            } else {
+                                if (!ext_devices[component_source]) {
+                                    ext_devices[component_source] = { [ext_device_output]: true }
+                                } else {
+                                    if (ext_devices[component_source][ext_device_output]) {
+                                        return new Error(`output ${ext_device_output} of extention device ${component_source} must be different!`)
+                                    } else {
+                                        ext_devices[component_source][ext_device_output] = true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if (outputs_count > acu_models.controllers[acu_model].outputs) {
+                    return new Error(`device model ${acu_model} outputs_count ${outputs_count} more than limit!`)
+                }
+            }
+
+            for (const reader of access_point.readers) {
+                if (!acu_models.controllers[acu_model].readers[reader.name]) {
+                    return new Error(`device model ${acu_model} cant have reader ${reader.name}!`)
+                } else {
+                    if ('port' in reader) {
+                        if (reader.port < 1 || reader.port > 4) {
+                            return new Error(`reader port cant be ${reader.port}!`)
+                        } else {
+                            if (ports[reader.port]) {
+                                return new Error('readers ports must be different!')
+                            } else {
+                                ports[reader.port] = true
+                            }
+                        }
                     }
                 }
             }
+            // Object.values(resources).forEach((resource: any) => {
+            // })
         }
-        // Object.values(resources).forEach((resource: any) => {
-        // })
     }
     return true
 }

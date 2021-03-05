@@ -2,7 +2,7 @@ import { DefaultContext } from 'koa'
 import { AccessPoint } from '../model/entity/AccessPoint'
 import { Acu } from '../model/entity/Acu'
 import { acuStatus } from '../enums/acuStatus.enum'
-import { doorType } from '../enums/doorType.enum'
+import { accessPointType } from '../enums/accessPointType.enum'
 
 import SendDevice from '../mqtt/SendDevice'
 export default class AccessPointController {
@@ -83,7 +83,7 @@ export default class AccessPointController {
             req_data.company = user.company ? user.company : null
             const acu: any = await Acu.findOne({ id: req_data.acu })
             if (acu.status === acuStatus.ACTIVE) {
-                if (req_data.type === doorType.DOOR) {
+                if (req_data.type === accessPointType.DOOR) {
                     const access_point: any = await AccessPoint.addItem(req_data as AccessPoint)
                     SendDevice.setCtpDoor(location, acu.serial_number, acu.session_id, access_point)
                 }
@@ -286,7 +286,7 @@ export default class AccessPointController {
             } else {
                 ctx.body = await AccessPoint.destroyItem(req_data as { id: number })
                 if (access_point.acus.status === acuStatus.ACTIVE) {
-                    if (access_point.type === doorType.DOOR) {
+                    if (access_point.type === accessPointType.DOOR) {
                         SendDevice.delCtpDoor(location, access_point.acus.serial_number, access_point.acus.session_id, req_data)
                     }
                 }
