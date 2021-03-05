@@ -77,15 +77,11 @@ export default class TimeframeController {
                     SendDevice.setSdlDaily(location, access_rule.access_points.acus.serial_number, access_rule.access_points.acus.session_id, req_data, false)
                 } else if (schedule.type === scheduleType.WEEKLY) {
                     SendDevice.setSdlWeekly(location, access_rule.access_points.acus.serial_number, access_rule.access_points.acus.session_id, req_data, false)
-                } else if (schedule.type === scheduleType.FLEXITIME) {
-                    SendDevice.setSdlFlexiTime(location, access_rule.access_points.acus.serial_number, access_rule.access_points.acus.session_id, req_data, schedule, false)
-                } else if (schedule.type === scheduleType.SPECIFIC) {
-                    SendDevice.setSdlSpecified(location, access_rule.access_points.acus.serial_number, access_rule.access_points.acus.session_id, req_data, false)
+                } else if (schedule.type === scheduleType.FLEXITIME || schedule.type === scheduleType.SPECIFIC) {
+                    SendDevice.dellShedule(location, access_rule.access_points.acus.serial_number, access_rule.access_points.acus.session_id, req_data, schedule.type, access_rule)
                 }
             }
         } catch (error) {
-            console.log(111211, error)
-
             ctx.status = error.status || 400
             ctx.body = error
         }
@@ -145,9 +141,11 @@ export default class TimeframeController {
         try {
             const req_data = ctx.request.body
             const user = ctx.user
-            const updated = await Timeframe.updateItem(req_data as Timeframe)
-            ctx.oldData = updated.old
-            ctx.body = updated.new
+            // const updated = await Timeframe.updateItem(req_data as Timeframe)
+            // ctx.oldData = updated.old
+            // ctx.body = updated.new
+
+            const timeframe: any = await Timeframe.findOne({ id: req_data.id })
 
             const access_rules: any = await AccessRule.createQueryBuilder('access_rule')
                 .innerJoinAndSelect('access_rule.access_points', 'access_point')
@@ -155,16 +153,14 @@ export default class TimeframeController {
                 .where(`acu.status = '${acuStatus.ACTIVE}'`)
                 .getMany()
             const location = `${user.company_main}/${user.company}`
-            const schedule: any = await Schedule.findOne({ id: updated.schedule })
+            const schedule: any = await Schedule.findOne({ id: timeframe.schedule })
             for (const access_rule of access_rules) {
                 if (schedule.type === scheduleType.DAILY) {
                     SendDevice.setSdlDaily(location, access_rule.access_points.acus.serial_number, access_rule.access_points.acus.session_id, req_data, true)
                 } else if (schedule.type === scheduleType.WEEKLY) {
                     SendDevice.setSdlWeekly(location, access_rule.access_points.acus.serial_number, access_rule.access_points.acus.session_id, req_data, true)
-                } else if (schedule.type === scheduleType.FLEXITIME) {
-                    SendDevice.setSdlFlexiTime(location, access_rule.access_points.acus.serial_number, access_rule.access_points.acus.session_id, req_data, schedule, true)
-                } else if (schedule.type === scheduleType.SPECIFIC) {
-                    SendDevice.setSdlSpecified(location, access_rule.access_points.acus.serial_number, access_rule.access_points.acus.session_id, req_data, true)
+                } else if (schedule.type === scheduleType.FLEXITIME || schedule.type === scheduleType.SPECIFIC) {
+                    SendDevice.dellShedule(location, access_rule.access_points.acus.serial_number, access_rule.access_points.acus.session_id, req_data, schedule.type, access_rule)
                 }
             }
         } catch (error) {
@@ -252,7 +248,27 @@ export default class TimeframeController {
     public static async destroy (ctx: DefaultContext) {
         try {
             const req_data = ctx.request.body
+            const user = ctx.user
+            const timeframe: any = await Timeframe.findOne(req_data.id)
+
             ctx.body = await Timeframe.destroyItem(req_data as { id: number })
+
+            const access_rules: any = await AccessRule.createQueryBuilder('access_rule')
+                .innerJoinAndSelect('access_rule.access_points', 'access_point')
+                .innerJoinAndSelect('access_point.acus', 'acu')
+                .where(`acu.status = '${acuStatus.ACTIVE}'`)
+                .getMany()
+            const location = `${user.company_main}/${user.company}`
+            const schedule: any = await Schedule.findOne({ id: timeframe.schedule })
+            for (const access_rule of access_rules) {
+                if (schedule.type === scheduleType.DAILY) {
+                    SendDevice.setSdlDaily(location, access_rule.access_points.acus.serial_number, access_rule.access_points.acus.session_id, req_data, false)
+                } else if (schedule.type === scheduleType.WEEKLY) {
+                    SendDevice.setSdlWeekly(location, access_rule.access_points.acus.serial_number, access_rule.access_points.acus.session_id, req_data, false)
+                } else if (schedule.type === scheduleType.FLEXITIME || schedule.type === scheduleType.SPECIFIC) {
+                    SendDevice.dellShedule(location, access_rule.access_points.acus.serial_number, access_rule.access_points.acus.session_id, req_data, schedule.type, access_rule)
+                }
+            }
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

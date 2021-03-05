@@ -1,9 +1,11 @@
 import { DefaultContext } from 'koa'
 import { Acu } from '../model/entity/Acu'
-import { timeValidation, networkValidation } from '../functions/validator'
+import { timeValidation, networkValidation, checkAccessPointsValidation } from '../functions/validator'
 import { acuStatus } from '../enums/acuStatus.enum'
+import { accessPointType } from '../enums/accessPointType.enum'
 import SendDevice from '../mqtt/SendDevice'
 import { AccessPoint } from '../model/entity/AccessPoint'
+import { Reader } from '../model/entity/Reader'
 
 export default class AcuController {
     /**
@@ -137,7 +139,19 @@ export default class AcuController {
             const req_data = ctx.request.body
             const user = ctx.user
             req_data.company = user.company ? user.company : null
-            ctx.body = await Acu.addItem(req_data as Acu)
+            // ctx.body = await Acu.addItem(req_data as Acu)
+
+            const check_time = timeValidation(req_data.time)
+            if (!check_time) {
+                ctx.status = 400
+                return ctx.body = { message: check_time }
+            }
+
+            const check_access_points = checkAccessPointsValidation(req_data.access_points, req_data.model)
+            if (!check_access_points) {
+                ctx.status = 400
+                return ctx.body = { message: check_access_points }
+            }
 
             const acu = new Acu()
 
@@ -146,27 +160,23 @@ export default class AcuController {
             acu.model = req_data.model // check or no ??
             acu.status = acuStatus.NO_HARDWARE
             if ('shared_resource_mode' in req_data) acu.shared_resource_mode = req_data.shared_resource_mode
+            acu.company = user.company ? user.company : null
 
-            if (req_data.time) {
-                const check_time = timeValidation(req_data.time)
-                if (!check_time) {
-                    ctx.status = 400
-                    return ctx.body = { message: check_time }
-                } else {
-                    acu.time = JSON.stringify(req_data.time)
-                }
-            }
+            acu.time = JSON.stringify(req_data.time)
+            const save_acu = await acu.save()
+
             if (req_data.access_points) {
                 for (const access_point of req_data.access_points) {
-                    if (access_point.id) {
-                        await AccessPoint.updateItem(access_point)
-                    } else {
-                        await AccessPoint.addItem(access_point)
+                    access_point.acu = save_acu.id
+                    const save_access_point: any = await AccessPoint.addItem(access_point)
+                    for (const reader of access_point.readers) {
+                        reader.access_point = save_access_point.id
+                        await Reader.addItem(reader)
                     }
                 }
             }
-            const save = await acu.save()
-            ctx.body = save
+
+            ctx.body = save_acu
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -312,35 +322,83 @@ export default class AcuController {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
             } else {
-                if (acu.status === acuStatus.PENDING || acu.status === acuStatus.ACTIVE) {
-                    if (req_data.network && req_data.network !== acu.network) {
-                        const check_network = networkValidation(req_data.network)
-                        if (!check_network) {
-                            ctx.status = 400
-                            return ctx.body = { message: check_network }
+                if (req_data.network && JSON.stringify(req_data.network) !== acu.network) {
+                    const check_network = networkValidation(req_data.network)
+                    if (!check_network) {
+                        ctx.status = 400
+                        return ctx.body = { message: check_network }
+                    } else {
+                        if (acu.status === acuStatus.ACTIVE) {
+                            SendDevice.setNetSettings(`${user.company_main}/${user.company}`, acu.serial_number, acu.session_id ? acu.session_id : '0', req_data)
+                            delete req_data.network
                         }
-                        // else {
-                        //     acu.network = JSON.stringify(req_data.network)
-                        // }
-                        const network = req_data.network
-                        delete req_data.network
-                        SendDevice.setNetSettings(`${user.company_main}/${user.company}`, acu.serial_number, acu.session_id ? acu.session_id : '0', network)
-                    }
-                    if (req_data.time && req_data.time !== acu.time) {
-                        const check_time = networkValidation(req_data.time)
-                        if (!check_time) {
-                            ctx.status = 400
-                            return ctx.body = { message: check_time }
-                        }
-                        // else {
-                        //     acu.network = JSON.stringify(req_data.network)
-                        // }
-                        const time = req_data.time
-                        delete req_data.time
-                        SendDevice.setDateTime(location, acu.serial_number, acu.session_id ? acu.session_id : '0', time)
                     }
                 }
+
+                if (req_data.time && JSON.stringify(req_data.time) !== acu.time) {
+                    const check_time = timeValidation(req_data.time)
+                    if (!check_time) {
+                        ctx.status = 400
+                        return ctx.body = { message: check_time }
+                    } else {
+                        if (acu.status === acuStatus.ACTIVE || acu.status === acuStatus.PENDING) {
+                            SendDevice.setDateTime(location, acu.serial_number, acu.session_id ? acu.session_id : '0', req_data)
+                            delete req_data.time
+                        }
+                    }
+                }
+
                 const updated = await Acu.updateItem(req_data as Acu)
+
+                if (req_data.access_points) {
+                    const check_access_points = checkAccessPointsValidation(req_data.access_points, acu.model)
+                    if (!check_access_points) {
+                        ctx.status = 400
+                        return ctx.body = { message: check_access_points }
+                    } else {
+                        for (let access_point of req_data.access_points) {
+                            let access_point_update = true
+                            if (!access_point.id) {
+                                access_point_update = false
+                                access_point.acu = acu.id
+                                access_point = await AccessPoint.addItem(access_point)
+                            }
+
+                            if (acu.status === acuStatus.ACTIVE) {
+                                if (access_point.type === accessPointType.DOOR) {
+                                    SendDevice.setCtpDoor(location, acu.serial_number, acu.session_id ? acu.session_id : '0', access_point)
+                                }
+                                //  else if (access_point.type === doorType.TURNSTILE) {
+                                //     SendDevice.SetCtpTurnstile(location, acu.serial_number, acu.session_id, req_data)
+                                // } else if (access_point.type === doorType.GATE) {
+                                //     SendDevice.SetCtpGate(location, acu.serial_number, acu.session_id, req_data, schedule)
+                                // } else if (access_point.type === doorType.GATEWAY) {
+                                //     SendDevice.SetCtpGateWay(location, acu.serial_number, acu.session_id, req_data)
+                                // } else if (access_point.type === doorType.FLOOR) {
+                                //     SendDevice.SetCtpFloor(location, acu.serial_number, acu.session_id, req_data)
+                                // }
+                            } else {
+                                if (access_point_update) access_point = await AccessPoint.updateItem(access_point)
+                            }
+
+                            for (const reader of access_point.readers) {
+                                let reader_update = true
+                                if (!reader.id) {
+                                    reader_update = false
+                                    reader.access_point = access_point.id
+                                    await Reader.addItem(reader)
+                                }
+
+                                if (acu.status === acuStatus.ACTIVE) {
+                                    SendDevice.setRd(location, acu.serial_number, acu.session_id ? acu.session_id : '0', reader)
+                                } else {
+                                    if (reader_update) await Reader.updateItem(reader)
+                                }
+                            }
+                        }
+                    }
+                }
+
                 ctx.oldData = updated.old
                 ctx.body = updated.new
             }
