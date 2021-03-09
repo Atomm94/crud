@@ -238,7 +238,15 @@ export default class ExtDeviceController {
      */
     public static async destroy (ctx: DefaultContext) {
         try {
+            const ext_device: ExtDevice = await ExtDevice.findOneOrFail({ id: ctx.request.body.id })
             ctx.body = await ExtDevice.destroyItem(ctx.request.body as { id: number })
+            const req_data: any = ctx.request.body
+            const user = ctx.user
+            const location = `${user.company_main}/${user.company}`
+            const acu: Acu = await Acu.findOneOrFail({ id: ext_device.acu })
+            if (acu.status === acuStatus.ACTIVE) {
+                new SendDeviceMessage(OperatorType.DEL_EXT_BRD, location, acu.serial_number, req_data, acu.session_id)
+            }
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

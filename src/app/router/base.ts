@@ -3,7 +3,6 @@ import AcuController from '../controller/AcuController'
 import AccessPointZoneController from '../controller/AccessPointZoneController'
 import AccessPointGroupController from '../controller/AccessPointGroupController'
 import CardholderGroupController from '../controller/CardholderGroupController'
-import AccessPointController from '../controller/AccessPointController'
 import AccessRightController from '../controller/AccessRightController'
 import AccessRuleController from '../controller/AccessRuleController'
 // import CarInfoController from '../controller/CarInfoController'
@@ -236,12 +235,12 @@ export default router
   .delete('AccessRight-destroyItem', 'accessRule', AccessRuleController.destroy)
   .get('AccessRight-getAllItems', 'accessRule', AccessRuleController.getAll)
 
-  // AccessPoint controller CRUD endpoints
-  .post('accessPoint-addItem', 'accessPoint', AccessPointController.add)
-  .put('accessPoint-updateItem', 'accessPoint', AccessPointController.update)
-  .get('accessPoint-getItem', 'accessPoint/:id', AccessPointController.get)
-  .delete('accessPoint-destroyItem', 'accessPoint', AccessPointController.destroy)
-  .get('accessPoint-getAllItems', 'accessPoint', AccessPointController.getAll)
+  // // AccessPoint controller CRUD endpoints
+  // .post('accessPoint-addItem', 'accessPoint', AccessPointController.add)
+  // .put('accessPoint-updateItem', 'accessPoint', AccessPointController.update)
+  // .get('accessPoint-getItem', 'accessPoint/:id', AccessPointController.get)
+  // .delete('accessPoint-destroyItem', 'accessPoint', AccessPointController.destroy)
+  // .get('accessPoint-getAllItems', 'accessPoint', AccessPointController.getAll)
 
   // CardholderGroup controller CRUD endpoints
   .post('CardholderGroup-addItem', 'cardholderGroup', CardholderGroupController.add)
@@ -278,13 +277,6 @@ export default router
   .get('accessPointZone/:id', AccessPointZoneController.get)
   .delete('accessPointZone', AccessPointZoneController.destroy)
   .get('accessPointZone', AccessPointZoneController.getAll)
-
-  // AccessPoint controller CRUD endpoints
-  .post('accessPoint', AccessPointController.add)
-  .put('accessPoint', AccessPointController.update)
-  .get('accessPoint/:id', AccessPointController.get)
-  .delete('accessPoint', AccessPointController.destroy)
-  .get('accessPoint', AccessPointController.getAll)
 
   // Acu controller CRUD endpoints
   .post('acu', AcuController.add)

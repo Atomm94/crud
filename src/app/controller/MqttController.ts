@@ -202,7 +202,7 @@ export default class MqttController {
 
             const loginData = {
                 username: 'admin',
-                password: ''
+                password: 'admin'
             }
             const message = new SendDeviceMessage(OperatorType.LOGIN, `${main_id}/${company.id}`, 1073493824, loginData)
             ctx.body = message

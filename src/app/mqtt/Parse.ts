@@ -9,6 +9,7 @@ import { ExtDevice } from '../model/entity/ExtDevice'
 import SendDeviceMessage from './SendDeviceMessage'
 import { IMqttCrudMessaging } from '../Interfaces/messaging.interface'
 import { Reader } from '../model/entity/Reader'
+import { accessPointType } from '../enums/accessPointType.enum'
 // import { uid } from 'uid'
 
 export default class Parse {
@@ -60,12 +61,20 @@ export default class Parse {
             case OperatorType.GET_EXT_BRD_ACK:
                 this.deviceGetExtBrdAck(message)
                 break
+            case OperatorType.DEL_EXT_BRD_ACK:
+                this.deviceDelExtBrdAck(message)
+                break
+
             case OperatorType.SET_RD_ACK:
                 this.deviceSetRdAck(message)
                 break
             case OperatorType.GET_RD_ACK:
                 this.deviceGetRdAck(message)
                 break
+            case OperatorType.DEL_RD_ACK:
+                this.deviceDelRdAck(message)
+                break
+
             case OperatorType.SET_OUTPUT_ACK:
                 this.deviceSetOutputAck(message)
                 break
@@ -409,10 +418,34 @@ export default class Parse {
         }
     }
 
+    public static async deviceDelExtBrdAck (message: IMqttCrudMessaging) {
+        console.log('deviceDelExtBrdAck', message)
+        if (message.result.errorNo === 0) {
+            await ExtDevice.destroyItem(message.send_data.data.id)
+            console.log('DelExtDevice complete')
+        }
+    }
+
     public static async deviceSetRdAck (message: IMqttCrudMessaging) {
         console.log('deviceSetRd', message)
         if (message.result.errorNo === 0) {
             if (message.send_data.update) {
+            const access_point: any = {
+                id: message.send_data.data.access_point,
+                readers: message.send_data.data
+            }
+                if (message.send_data.data.access_point_type === accessPointType.DOOR) {
+                    new SendDeviceMessage(OperatorType.SET_CTP_DOOR, message.location, message.device_id, message.session_id, access_point)
+                    // } else if (message.send_data.data.access_point_type === accessPointType.GATE) {
+                    // new SendDeviceMessage(OperatorType.SET_CTP_GATE, message.location, message.device_id, message.session_id, access_point)
+                    // } else if (message.send_data.data.access_point_type === accessPointType.GATEWAY) {
+                    // new SendDeviceMessage(OperatorType.SET_CTP_GATEWAY, message.location, message.device_id, message.session_id, access_point)
+                    // } else if (message.send_data.data.access_point_type === accessPointType.FLOOR) {
+                    // new SendDeviceMessage(OperatorType.SET_CTP_FLOOR, message.location, message.device_id, message.session_id, access_point)
+                    // } else if (message.send_data.data.access_point_type === accessPointType.TURNSTILE) {
+                    // new SendDeviceMessage(OperatorType.SET_CTP_TURNSTILE, message.location, message.device_id, message.session_id, access_point)
+                    // }
+                }
                 const save: any = await Reader.updateItem(message.send_data.data as Reader)
                 if (save) {
                     console.log('Reader update completed')
@@ -431,6 +464,30 @@ export default class Parse {
         console.log('deviceGetRdAck', message)
         if (message.result.errorNo === 0) {
             console.log('deviceGetRdAck complete')
+        }
+    }
+
+    public static async deviceDelRdAck (message: IMqttCrudMessaging) {
+        console.log('deviceDelRdAck', message)
+        if (message.result.errorNo === 0) {
+            await Reader.destroyItem(message.send_data.data.id)
+            console.log('deviceDelRdAck complete')
+            const access_point: any = {
+                id: message.send_data.data.access_point,
+                readers: message.send_data.data
+            }
+            if (message.send_data.data.access_point_type === accessPointType.DOOR) {
+                new SendDeviceMessage(OperatorType.SET_CTP_DOOR, message.location, message.device_id, message.session_id, access_point)
+                // } else if (message.send_data.data.access_point_type === accessPointType.GATE) {
+                // new SendDeviceMessage(OperatorType.SET_CTP_GATE, message.location, message.device_id, message.session_id, access_point)
+                // } else if (message.send_data.data.access_point_type === accessPointType.GATEWAY) {
+                // new SendDeviceMessage(OperatorType.SET_CTP_GATEWAY, message.location, message.device_id, message.session_id, access_point)
+                // } else if (message.send_data.data.access_point_type === accessPointType.FLOOR) {
+                // new SendDeviceMessage(OperatorType.SET_CTP_FLOOR, message.location, message.device_id, message.session_id, access_point)
+                // } else if (message.send_data.data.access_point_type === accessPointType.TURNSTILE) {
+                // new SendDeviceMessage(OperatorType.SET_CTP_TURNSTILE, message.location, message.device_id, message.session_id, access_point)
+                // }
+            }
         }
     }
 

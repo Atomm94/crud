@@ -41,6 +41,9 @@ export class Reader extends MainEntity {
     @Column('boolean', { name: 'reverse', default: false })
     reverse: boolean
 
+    @Column('int', { name: 'company', nullable: false })
+    company: number
+
     @ManyToOne(type => AccessPoint, accessPoint => accessPoint.readers, { nullable: true })
     @JoinColumn({ name: 'access_point' })
     access_points: AccessPoint | null;
@@ -60,6 +63,7 @@ export class Reader extends MainEntity {
         if ('beep' in data) reader.beep = data.beep
         if ('crc' in data) reader.crc = data.crc
         if ('reverse' in data) reader.reverse = data.reverse
+        reader.company = data.company
 
         return new Promise((resolve, reject) => {
             this.save(reader)

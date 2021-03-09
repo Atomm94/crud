@@ -7,6 +7,8 @@ import { accessPointType } from '../enums/accessPointType.enum'
 // import SendDevice from '../mqtt/SendDevice'
 import SendDeviceMessage from '../mqtt/SendDeviceMessage'
 import { OperatorType } from '../mqtt/Operators'
+import { Reader } from '../model/entity/Reader'
+// import { Reader } from '../model/entity/Reader'
 export default class AccessPointController {
     /**
      *
@@ -329,6 +331,66 @@ export default class AccessPointController {
             const user = ctx.user
             req_data.where = { company: { '=': user.company ? user.company : null } }
             ctx.body = await AccessPoint.getAllItems(req_data)
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     *  /accessPoint/reader:
+     *      delete:
+     *          tags:
+     *              - AccessPoint
+     *          summary: Delete a accessPoint.
+     *          consumes:
+     *              - application/json
+     *          parameters:
+     *            - in: header
+     *              name: Authorization
+     *              required: true
+     *              description: Authentication token
+     *              schema:
+     *                type: string
+     *            - in: body
+     *              name: accessPoint
+     *              description: The accessPoint to create.
+     *              schema:
+     *                type: object
+     *                required:
+     *                  - id
+     *                properties:
+     *                  id:
+     *                      type: number
+     *                      example: 1
+     *          responses:
+     *              '200':
+     *                  description: accessPoint has been deleted
+     *              '422':
+     *                  description: Wrong data
+     */
+    public static async readerDestroy (ctx: DefaultContext) {
+        try {
+            const req_data: any = ctx.request.body
+            const user = ctx.user
+            const location = `${user.company_main}/${user.company}`
+            const where = { id: req_data.id, company: user.company ? user.company : null }
+            const reader: any = await Reader.findOne({ relations: ['access_points', 'access_points.acus'], where: where })
+            req_data.direction = reader.direction
+            req_data.port = reader.port
+            req_data.access_point = reader.access_points.id
+            req_data.access_point_type = reader.access_points.type
+            if (reader.acus.status === acuStatus.ACTIVE) {
+                new SendDeviceMessage(OperatorType.DEL_EXT_BRD, location, reader.acus.serial_number, req_data, reader.acus.session_id)
+            } else if (reader.acus.status === acuStatus.NO_HARDWARE) {
+                ctx.body = await Reader.destroyItem(ctx.request.body as { id: number })
+            } else {
+                ctx.status = 400
+                ctx.body = { message: 'You need to activate hardware' }
+            }
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
