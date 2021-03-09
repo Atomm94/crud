@@ -62,7 +62,7 @@ export class Acu extends MainEntity {
     access_points: AccessPoint[];
 
     @OneToMany(type => ExtDevice, ext_device => ext_device.acus)
-    ext_boards : ExtDevice[];
+    ext_devices : ExtDevice[];
 
     public static async addItem (data: any) {
         const acu = new Acu()
