@@ -173,9 +173,9 @@ export default class AccessRuleController {
                             operator = OperatorType.DEL_SDL_WEEKLY
                         } else if (schedule.type === scheduleType.FLEXITIME) {
                             send_data.start_from = schedule.start_from
-                            operator = OperatorType.DELL_SHEDULE
+                            operator = OperatorType.DEL_SDL_FLEXI_TIME
                         } else if (schedule.type === scheduleType.SPECIFIC) {
-                            operator = OperatorType.DELL_SHEDULE
+                            operator = OperatorType.DEL_SDL_SPECIFIED
                         }
                         new SendDeviceMessage(operator, location, acu.serial_number, send_data, acu.session_id)
                     }
@@ -294,9 +294,9 @@ export default class AccessRuleController {
                             operator = OperatorType.DEL_SDL_WEEKLY
                         } else if (schedule.type === scheduleType.FLEXITIME) {
                             send_data.start_from = schedule.start_from
-                            operator = OperatorType.DELL_SHEDULE
+                            operator = OperatorType.DEL_SDL_FLEXI_TIME
                         } else if (schedule.type === scheduleType.SPECIFIC) {
-                            operator = OperatorType.DELL_SHEDULE
+                            operator = OperatorType.DEL_SDL_SPECIFIED
                         }
                         new SendDeviceMessage(operator, location, acu.serial_number, send_data, acu.session_id)
                     }

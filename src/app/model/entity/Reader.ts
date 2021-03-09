@@ -10,6 +10,7 @@ import { readerTypes } from '../../enums/readerTypes'
 import { wiegandTypes } from '../../enums/wiegandTypes'
 import { AccessPoint } from './AccessPoint'
 import { readerModes } from '../../enums/readerModes'
+import { readerDirections } from '../../enums/readerDirection'
 
 @Entity('reader')
 export class Reader extends MainEntity {
@@ -27,6 +28,9 @@ export class Reader extends MainEntity {
 
     @Column('enum', { name: 'mode', nullable: false, default: 0, enum: readerModes })
     mode: number
+
+    @Column('enum', { name: 'direction', nullable: false, default: 0, enum: readerDirections })
+    direction: number
 
     @Column('boolean', { name: 'beep', default: false })
     beep: boolean
@@ -52,6 +56,7 @@ export class Reader extends MainEntity {
         if ('port' in data) reader.port = data.port
         if ('wg_type' in data) reader.wg_type = data.wg_type
         if ('mode' in data) reader.mode = data.mode
+        if ('direction' in data) reader.direction = data.direction
         if ('beep' in data) reader.beep = data.beep
         if ('crc' in data) reader.crc = data.crc
         if ('reverse' in data) reader.reverse = data.reverse
@@ -76,6 +81,7 @@ export class Reader extends MainEntity {
         if ('port' in data) reader.port = data.port
         if ('wg_type' in data) reader.wg_type = data.wg_type
         if ('mode' in data) reader.mode = data.mode
+        if ('direction' in data) reader.direction = data.direction
         if ('beep' in data) reader.beep = data.beep
         if ('crc' in data) reader.crc = data.crc
         if ('reverse' in data) reader.reverse = data.reverse

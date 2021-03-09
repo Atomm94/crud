@@ -330,7 +330,7 @@ export default class AcuController {
                         return ctx.body = { message: check_network }
                     } else {
                         if (acu.status === acuStatus.ACTIVE) {
-                            new SendDeviceMessage(OperatorType.SET_NET_SETTINGS, location, acu.serial_number, req_data)
+                            new SendDeviceMessage(OperatorType.SET_NET_SETTINGS, location, acu.serial_number, req_data, acu.session_id, true)
                             delete req_data.network
                         }
                         // else {
@@ -348,7 +348,7 @@ export default class AcuController {
                         return ctx.body = { message: check_time }
                     } else {
                         if (acu.status === acuStatus.ACTIVE || acu.status === acuStatus.PENDING) {
-                            new SendDeviceMessage(OperatorType.SET_DATE_TIME, location, acu.serial_number, req_data)
+                            new SendDeviceMessage(OperatorType.SET_DATE_TIME, location, acu.serial_number, req_data, acu.session_id, true)
                             delete req_data.time
                         }
                         // else {
@@ -376,7 +376,7 @@ export default class AcuController {
 
                             if (acu.status === acuStatus.ACTIVE) {
                                 if (access_point.type === accessPointType.DOOR) {
-                                    new SendDeviceMessage(OperatorType.SET_CTP_DOOR, location, acu.serial_number, acu.session_id, access_point)
+                                    new SendDeviceMessage(OperatorType.SET_CTP_DOOR, location, acu.serial_number, access_point, acu.session_id, access_point_update)
                                 }
                                 //  else if (access_point.type === doorType.TURNSTILE) {
                                 //     SendDevice.SetCtpTurnstile(location, acu.serial_number, acu.session_id, req_data)
@@ -400,7 +400,8 @@ export default class AcuController {
                                 }
 
                                 if (acu.status === acuStatus.ACTIVE) {
-                                    new SendDeviceMessage(OperatorType.SET_RD, location, acu.serial_number, acu.session_id, reader)
+                                    reader.access_point_type = access_point.type
+                                    new SendDeviceMessage(OperatorType.SET_RD, location, acu.serial_number, reader, acu.session_id, reader_update)
                                 } else {
                                     if (reader_update) await Reader.updateItem(reader)
                                 }

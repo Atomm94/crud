@@ -83,10 +83,10 @@ export default class TimeframeController {
                 } else if (schedule.type === scheduleType.FLEXITIME) {
                     send_data.start_from = schedule.start_from
                     send_data.schedule_type = schedule.type
-                    operator = OperatorType.DELL_SHEDULE
+                    operator = OperatorType.DEL_SDL_FLEXI_TIME
                 } else if (schedule.type === scheduleType.SPECIFIC) {
                     send_data.schedule_type = schedule.type
-                    operator = OperatorType.DELL_SHEDULE
+                    operator = OperatorType.DEL_SDL_SPECIFIED
                 }
                 new SendDeviceMessage(operator, location, access_rule.access_points.acus.serial_number, send_data, access_rule.access_points.acus.session_id)
             }
@@ -173,10 +173,10 @@ export default class TimeframeController {
                 } else if (schedule.type === scheduleType.FLEXITIME) {
                     send_data.start_from = schedule.start_from
                     send_data.type = schedule.type
-                    operator = OperatorType.DELL_SHEDULE
+                    operator = OperatorType.DEL_SDL_FLEXI_TIME
                 } else if (schedule.type === scheduleType.SPECIFIC) {
                     send_data.type = schedule.type
-                    operator = OperatorType.DELL_SHEDULE
+                    operator = OperatorType.DEL_SDL_SPECIFIED
                 }
                 new SendDeviceMessage(operator, location, access_rule.access_points.acus.serial_number, send_data, access_rule.access_points.acus.session_id)
             }
@@ -287,10 +287,10 @@ export default class TimeframeController {
                 } else if (schedule.type === scheduleType.FLEXITIME) {
                     send_data.start_from = schedule.start_from
                     send_data.type = schedule.type
-                    operator = OperatorType.DELL_SHEDULE
+                    operator = OperatorType.DEL_SDL_FLEXI_TIME
                 } else if (schedule.type === scheduleType.SPECIFIC) {
                     send_data.type = schedule.type
-                    operator = OperatorType.DELL_SHEDULE
+                    operator = OperatorType.DEL_SDL_SPECIFIED
                 }
                 new SendDeviceMessage(operator, location, access_rule.access_points.acus.serial_number, send_data, access_rule.access_points.acus.session_id)
             }

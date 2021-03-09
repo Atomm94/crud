@@ -2,9 +2,10 @@ import { DefaultContext } from 'koa'
 import { Acu } from '../model/entity/Acu'
 
 import { acuStatus } from '../enums/acuStatus.enum'
-import SendDevice from '../mqtt/SendDevice'
 import { ExtDevice } from '../model/entity/ExtDevice'
 import acuModels from '../model/entity/acuModels.json'
+import SendDeviceMessage from '../mqtt/SendDeviceMessage'
+import { OperatorType } from '../mqtt/Operators'
 export default class ExtDeviceController {
     /**
      *
@@ -61,8 +62,8 @@ export default class ExtDeviceController {
             ctx.body = ext_device
             const location = `${user.company_main}/${user.company}`
             const acu_models: any = acuModels
-            const acu: any = await Acu.findOne({ id: req_data.acu })
-            let inputs:Number, outputs: Number
+            const acu: Acu = await Acu.findOneOrFail({ id: req_data.acu })
+            let inputs: Number, outputs: Number
             switch (req_data.ext_board) {
                 case 'LR-RB16':
                     inputs = acu_models.expansion_boards.relay_board[req_data.ext_board].inputs
@@ -82,7 +83,7 @@ export default class ExtDeviceController {
                 output: outputs
             }
             if (acu.status === acuStatus.ACTIVE) {
-                SendDevice.setExtBrd(location, acu.serial_number, acu.session_id, ext_device)
+                new SendDeviceMessage(OperatorType.SET_EXT_BRD, location, acu.serial_number, ext_device, acu.session_id)
             }
         } catch (error) {
             ctx.status = error.status || 400
@@ -146,9 +147,14 @@ export default class ExtDeviceController {
             const req_data: any = ctx.request.body
             const user = ctx.user
             const location = `${user.company_main}/${user.company}`
-            const acu: any = await Acu.findOne({ id: req_data.acu })
+            const acu: Acu = await Acu.findOneOrFail({ id: req_data.acu })
             if (acu.status === acuStatus.ACTIVE) {
-                SendDevice.setExtBrd(location, acu.serial_number, acu.session_id, req_data)
+                new SendDeviceMessage(OperatorType.SET_EXT_BRD, location, acu.serial_number, req_data, acu.session_id, true)
+            } else if (acu.status === acuStatus.NO_HARDWARE) {
+                ctx.body = await ExtDevice.updateItem(req_data)
+            } else {
+                ctx.status = 400
+                ctx.body = { message: 'Activate ACU before changes' }
             }
         } catch (error) {
             ctx.status = error.status || 400

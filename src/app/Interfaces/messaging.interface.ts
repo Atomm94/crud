@@ -5,6 +5,7 @@ export interface ICrudMqttMessaging {
     topic: string
     message_id: string
     session_id: string
+    update: boolean
     data: any
 }
 
