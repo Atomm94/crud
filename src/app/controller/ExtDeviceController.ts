@@ -58,6 +58,9 @@ export default class ExtDeviceController {
         try {
             const req_data: any = ctx.request.body
             const user = ctx.user
+            const company = user.company ? user.company : null
+
+            req_data.company = company
             const ext_device: any = await ExtDevice.addItem(req_data as ExtDevice)
             ctx.body = ext_device
             const location = `${user.company_main}/${user.company}`

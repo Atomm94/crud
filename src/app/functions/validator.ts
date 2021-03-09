@@ -95,7 +95,7 @@ export function maintainValidation (data: any) {
         }
     }
 }
-export function checkAccessPointsValidation (data: any, acu_model: string) {
+export function checkAccessPointsValidation (data: any, acu_model: string, update: boolean) {
     const acu_models: any = acuModel
 
     const ports: any = {}
@@ -113,12 +113,15 @@ export function checkAccessPointsValidation (data: any, acu_model: string) {
             let resources: any = access_point.resources
             if (typeof resources === 'string') resources = JSON.parse(resources)
             for (const resource in resources) {
+                const component_source = resources[resource].component_source
+                if (!update && component_source !== 0) {
+                    return new Error('in Component Source you cant set ext_device before add ACU!')
+                }
                 if ('input' in resources[resource]) {
                     if (inputs[resources[resource].input]) {
                         return new Error('inputs must be different!')
                     } else {
                         inputs[resources[resource].input] = true
-                        const component_source = resources[resource].component_source
                         if (component_source === 0) {
                             inputs_count++
                         } else {
@@ -149,7 +152,6 @@ export function checkAccessPointsValidation (data: any, acu_model: string) {
                         return new Error('outputs must be different!')
                     } else {
                         outputs[resources[resource].output] = true
-                        const component_source = resources[resource].component_source
                         if (component_source === 0) {
                             outputs_count++
                         } else {

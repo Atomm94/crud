@@ -7,6 +7,7 @@ import SendDeviceMessage from '../mqtt/SendDeviceMessage'
 import { OperatorType } from '../mqtt/Operators'
 import { Reader } from '../model/entity/Reader'
 import { accessPointType } from '../enums/accessPointType.enum'
+import { ExtDevice } from '../model/entity/ExtDevice'
 
 export default class AcuController {
     /**
@@ -148,7 +149,7 @@ export default class AcuController {
                 return ctx.body = { message: check_time }
             }
 
-            const check_access_points = checkAccessPointsValidation(req_data.access_points, req_data.model)
+            const check_access_points = checkAccessPointsValidation(req_data.access_points, req_data.model, false)
             if (!check_access_points) {
                 ctx.status = 400
                 return ctx.body = { message: check_access_points }
@@ -315,8 +316,9 @@ export default class AcuController {
         try {
             const req_data = ctx.request.body
             const user = ctx.user
-            const where = { id: req_data.id, company: user.company ? user.company : null }
-            const acu = await Acu.findOne(where)
+            const company = user.company ? user.company : null
+            const where = { id: req_data.id, company: company }
+            const acu: Acu | undefined = await Acu.findOne(where)
             const location = `${user.company_main}/${user.company}`
 
             if (!acu) {
@@ -361,16 +363,28 @@ export default class AcuController {
                 const updated = await Acu.updateItem(req_data as Acu)
 
                 if (req_data.access_points) {
-                    const check_access_points = checkAccessPointsValidation(req_data.access_points, acu.model)
+                    const check_access_points = checkAccessPointsValidation(req_data.access_points, acu.model, true)
                     if (!check_access_points) {
                         ctx.status = 400
                         return ctx.body = { message: check_access_points }
                     } else {
                         for (let access_point of req_data.access_points) {
+                            for (const resource of access_point.resources) {
+                                const component_source: number = access_point.resources[resource].component_source
+                                if (component_source !== 0) {
+                                    const ext_device = await ExtDevice.findOne({ id: component_source, company: company })
+                                    if (!ext_device) {
+                                        ctx.status = 400
+                                        return ctx.body = { message: `Invalid Component Source ${component_source}!` }
+                                    }
+                                }
+                            }
+
                             let access_point_update = true
                             if (!access_point.id) {
                                 access_point_update = false
                                 access_point.acu = acu.id
+                                access_point.company = company
                                 access_point = await AccessPoint.addItem(access_point)
                             }
 
@@ -396,6 +410,7 @@ export default class AcuController {
                                 if (!reader.id) {
                                     reader_update = false
                                     reader.access_point = access_point.id
+                                    reader.company = company
                                     await Reader.addItem(reader)
                                 }
 

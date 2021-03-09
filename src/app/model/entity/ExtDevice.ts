@@ -35,9 +35,12 @@ export class ExtDevice extends MainEntity {
     @Column('int', { name: 'protocol', nullable: false })
     protocol: number
 
-    @ManyToOne(type => Acu, acu => acu.ext_boards, { nullable: true })
+    @Column('int', { name: 'company', nullable: false })
+    company: number
+
+    @ManyToOne(type => Acu, acu => acu.ext_devices, { nullable: false })
     @JoinColumn({ name: 'acu' })
-    acus: Acu | null;
+    acus: Acu;
 
     public static gettingActions: boolean = false
     public static gettingAttributes: boolean = false
@@ -46,13 +49,14 @@ export class ExtDevice extends MainEntity {
         const extDevice = new ExtDevice()
 
         if ('name' in data) extDevice.name = data.name
-        if ('acu' in data) extDevice.acu = data.acu
+        extDevice.acu = data.acu
         if ('ext_board' in data) extDevice.ext_board = data.ext_board
         if ('baud_rate' in data) extDevice.baud_rate = data.baud_rate
         if ('address' in data) extDevice.address = data.address
         if ('port' in data) extDevice.port = data.port
         if ('uart_mode' in data) extDevice.uart_mode = data.uart_mode
         if ('protocol' in data) extDevice.protocol = data.protocol
+        extDevice.company = data.company
 
         return new Promise((resolve, reject) => {
             this.save(extDevice)
