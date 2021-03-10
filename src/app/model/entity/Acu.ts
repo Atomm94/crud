@@ -62,7 +62,7 @@ export class Acu extends MainEntity {
     access_points: AccessPoint[];
 
     @OneToMany(type => ExtDevice, ext_device => ext_device.acus)
-    ext_devices : ExtDevice[];
+    ext_devices: ExtDevice[];
 
     public static async addItem (data: any) {
         const acu = new Acu()
@@ -81,7 +81,7 @@ export class Acu extends MainEntity {
                 if (!check_time) {
                     reject(check_time)
                 } else {
-                    acu.time = data.time
+                    acu.time = JSON.stringify(data.time)
                 }
             }
             this.save(acu)
@@ -115,18 +115,24 @@ export class Acu extends MainEntity {
                 const check_network = networkValidation(data.network)
                 if (!check_network) {
                     reject(check_network)
+                } else {
+                    acu.network = JSON.stringify(data.network)
                 }
             }
             if (data.interface) {
                 const check_interface = interfaceValidation(data.interface)
                 if (!check_interface) {
                     reject(check_interface)
+                } else {
+                    acu.interface = JSON.stringify(data.interface)
                 }
             }
             if (data.time) {
                 const check_time = timeValidation(data.time)
                 if (!check_time) {
                     reject(check_time)
+                } else {
+                    acu.time = JSON.stringify(data.time)
                 }
             }
             // if (data.maintain) {
@@ -149,7 +155,7 @@ export class Acu extends MainEntity {
         })
     }
 
-    public static async getItem (where: any, relations?: Array<string>):Promise<Acu> {
+    public static async getItem (where: any, relations?: Array<string>): Promise<Acu> {
         return new Promise((resolve, reject) => {
             this.findOneOrFail({
                 where: where,

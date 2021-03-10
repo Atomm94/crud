@@ -35,7 +35,7 @@ export class TicketMessage extends MainEntity {
     @Column('int', { name: 'parent_id', nullable: true })
     parent_id: number | null
 
-    @ManyToOne(type => Ticket, ticket => ticket.ticket_messages)
+    @ManyToOne(type => Ticket, ticket => ticket.ticket_messages, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'ticket_id' })
     tickets: Ticket;
 

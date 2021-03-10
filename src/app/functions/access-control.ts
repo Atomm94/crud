@@ -75,25 +75,12 @@ export class AccessControl {
         this.ac.registerConditionFunction('limit', this.limitCheck)
         if (packets) {
             packets.forEach((packet: Packet) => {
-                if (packet && packet.extra_settings) {
-                    const packet_id = packet.id
-                    const extra_settings: { resources: { [key: string]: boolean } } = JSON.parse(packet.extra_settings)
-                    if (extra_settings.resources) {
-                        Object.keys(extra_settings.resources).forEach(resource => {
-                            this.ac.grant(`packet${packet_id}`)
-                                .condition({
-                                    Fn: 'custom:limit',
-                                    args: { limit: +extra_settings.resources[resource] }
-                                })
-                                .execute('addItem').on(resource)
-                        })
-                    }
-                }
+                this.addCompanyGrant(packet)
             })
         }
     }
 
-    public static async companyCanAccess (packet_id: number, resource_name: string, used: number) {
+    public static async companyCanAccessResource (packet_id: number, resource_name: string, used: number) {
         const permission1 = await this.ac
             .can(`packet${packet_id}`)
             .context({ used: used })
@@ -102,10 +89,15 @@ export class AccessControl {
         return permission1.granted
     }
 
+    public static async companyCanAccess (packet_id: number, action: string) {
+        const permission1 = await this.ac.can(`packet${packet_id}`).execute(action).on('features')
+        return permission1.granted
+    }
+
     public static async addCompanyGrant (packet: Packet) {
-        const packet_id = packet.id
         if (packet.extra_settings) {
-            const extra_settings: { resources: { [key: string]: boolean } } = JSON.parse(packet.extra_settings)
+            const packet_id = packet.id
+            const extra_settings: { features: { [key: string]: boolean }, resources: { [key: string]: boolean } } = JSON.parse(packet.extra_settings)
             if (extra_settings.resources) {
                 Object.keys(extra_settings.resources).forEach(resource => {
                     this.ac.grant(`packet${packet_id}`)
@@ -114,6 +106,17 @@ export class AccessControl {
                             args: { limit: +extra_settings.resources[resource] }
                         })
                         .execute('addItem').on(resource)
+                })
+            }
+            if (extra_settings.features) {
+                Object.keys(extra_settings.features).forEach(model => {
+                    const modelFeatures: any = extra_settings.features[model]
+                    Object.keys(modelFeatures).forEach(feature => {
+                        if (modelFeatures[feature]) {
+                            this.ac.grant(`packet${packet_id}`)
+                                .execute(feature).on('features')
+                        }
+                    })
                 })
             }
         }

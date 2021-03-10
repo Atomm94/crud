@@ -1,7 +1,7 @@
 import * as _ from 'lodash'
 import { DefaultContext } from 'koa'
 import { getRepository } from 'typeorm'
-import { Admin, Role } from '../model/entity/index'
+import { Admin, Packet, Role } from '../model/entity/index'
 import * as jwt from 'jsonwebtoken'
 import * as bcrypt from 'bcrypt'
 import fs from 'fs'
@@ -32,7 +32,7 @@ export default class AdminController {
     /**
      *
      * @swagger
-     *  /users:
+     *  /account:
      *      post:
      *          tags:
      *              - Admin
@@ -154,11 +154,12 @@ export default class AdminController {
                     }
                 }
 
-                if (!check_group) {
+                if (ctx.user.company && !check_group) {
                     ctx.status = 400
                     ctx.body = {
                         message: 'AccountGroup was not found!!'
                     }
+                    return ctx
                 } else {
                     if (reqData.role) {
                         role = await Role.findOne({
@@ -167,7 +168,7 @@ export default class AdminController {
                         })
                         if (role) {
                             if (await checkPermissionsAccess(user, role.permissions)) {
-                                newAdmin = await Admin.features.AdminOperation.addItem(reqData, user)
+                                newAdmin = await Admin.addItem(reqData, user)
 
                                 if (newAdmin && role) {
                                     ctx.body = { newAdmin }
@@ -183,7 +184,7 @@ export default class AdminController {
                             ctx.body = { message: 'something went wrong' }
                         }
                     } else {
-                        newAdmin = await Admin.features.AdminOperation.addItem(reqData, user)
+                        newAdmin = await Admin.addItem(reqData, user)
 
                         if (newAdmin && role) {
                             ctx.body = { newAdmin }
@@ -219,7 +220,7 @@ export default class AdminController {
     /**
      *
      * @swagger
-     *  /inviteUsers:
+     *  /account/invite:
      *      post:
      *          tags:
      *              - Admin
@@ -277,7 +278,7 @@ export default class AdminController {
         let role
 
         try {
-            const newAdmin: Admin = await Admin.features.AdminOperation.addItem(reqData, user)
+            const newAdmin: Admin = await Admin.addItem(reqData, user)
             role = await Role.findOne({
                 id: reqData.role
             })
@@ -305,7 +306,7 @@ export default class AdminController {
     /**
      *
      * @swagger
-     * /getUserData:
+     * /account/getUserData:
      *      get:
      *          tags:
      *              - Admin
@@ -327,8 +328,20 @@ export default class AdminController {
         try {
             if (ctx.user) {
                 admin = await Admin.findOneOrFail(ctx.user.id)
+
+                admin = await Admin.findOneOrFail(ctx.user.id)
                 const adminFiltered = _.omit(admin, ['password', 'super', 'verify_token'])
                 ctx.body = adminFiltered
+                if (ctx.user && ctx.user.company && ctx.user.companyData && ctx.user.companyData.packet) {
+                    const packetData = await Packet.findOne(ctx.user.companyData.packet)
+
+                    if (packetData && packetData.extra_settings) {
+                        const extra_settings = JSON.parse(packetData.extra_settings)
+                        if (extra_settings.features) {
+                            ctx.body.features = extra_settings.features
+                        }
+                    }
+                }
             } else {
                 ctx.status = 401
             }
@@ -342,7 +355,7 @@ export default class AdminController {
     /**
        *
        * @swagger
-       *  /changePass:
+       *  /account/changePass:
        *      put:
        *          tags:
        *              - Admin
@@ -422,7 +435,7 @@ export default class AdminController {
     /**
        *
        * @swagger
-       *  /changeMyPass:
+       *  /account/changeMyPass:
        *      put:
        *          tags:
        *              - Admin
@@ -508,7 +521,7 @@ export default class AdminController {
     /**
      *
      * @swagger
-     *  /users:
+     *  /account:
      *      put:
      *          tags:
      *              - Admin
@@ -637,7 +650,7 @@ export default class AdminController {
                         })
                         if (role) {
                             if (await checkPermissionsAccess(user, role.permissions)) {
-                                const updated = await Admin.features.AdminOperation.updateItem(reqData)
+                                const updated = await Admin.updateItem(reqData)
                                 ctx.oldData = updated.old
                                 ctx.body = updated.new
                             } else {
@@ -651,7 +664,7 @@ export default class AdminController {
                             ctx.body = { message: 'something with role went wrong' }
                         }
                     } else {
-                        const updated = await Admin.features.AdminOperation.updateItem(reqData)
+                        const updated = await Admin.updateItem(reqData)
                         ctx.oldData = updated.old
                         ctx.body = updated.new
                     }
@@ -677,7 +690,7 @@ export default class AdminController {
     /**
      *
      * @swagger
-     * /users/{id}:
+     * /account/{id}:
      *      get:
      *          tags:
      *              - Admin
@@ -712,7 +725,7 @@ export default class AdminController {
                 where.super = false
             }
             const relations = ['departments']
-            admin = await Admin.features.AdminOperation.getItem(where, relations)
+            admin = await Admin.getItem(where, relations)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -728,7 +741,7 @@ export default class AdminController {
     /**
      *
      * @swagger
-     *  /users:
+     *  /account:
      *      delete:
      *          tags:
      *              - Admin
@@ -773,7 +786,7 @@ export default class AdminController {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
             } else {
-                result = await Admin.features.AdminOperation.destroyItem(reqData as { id: number })
+                result = await Admin.destroyItem(reqData as { id: number })
                 ctx.body = {
                     success: true,
                     result
@@ -789,7 +802,7 @@ export default class AdminController {
     /**
      *
      * @swagger
-     * /users:
+     * /account:
      *      get:
      *          tags:
      *              - Admin
@@ -831,7 +844,7 @@ export default class AdminController {
                 { email: { contains: name } }
             ]
         }
-        allAdmin = await Admin.features.AdminOperation.getAllItems(req_data)
+        allAdmin = await Admin.getAllItems(req_data)
 
         return (ctx.body = allAdmin)
     }
@@ -839,7 +852,7 @@ export default class AdminController {
     /**
      *
      * @swagger
-     *  /accountImageSave:
+     *  /account/image:
      *      post:
      *          tags:
      *              - Admin
@@ -874,7 +887,7 @@ export default class AdminController {
     /**
      *
      * @swagger
-     *  /accountImageDelete:
+     *  /account/image:
      *      delete:
      *          tags:
      *              - Admin
@@ -924,7 +937,7 @@ export default class AdminController {
     /**
      *
      * @swagger
-     * /account/{token}:
+     * /account/invite/{token}:
      *      get:
      *          tags:
      *              - Admin
@@ -964,7 +977,7 @@ export default class AdminController {
     /**
      *
      * @swagger
-     * /account/{token}:
+     * /account/invite/{token}:
      *      put:
      *          tags:
      *              - Admin

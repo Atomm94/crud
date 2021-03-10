@@ -5,11 +5,12 @@ import {
     JoinColumn
 } from 'typeorm'
 
-import { MainEntity } from './MainEntity'
-import { Company } from './Company'
-import { AccessRight } from './AccessRight'
-import { AccessPoint } from './AccessPoint'
-import { Schedule } from './Schedule'
+import {
+    MainEntity, Company,
+    AccessRight,
+    AccessPoint,
+    Schedule
+} from './index'
 
 @Entity('access_rule')
 export class AccessRule extends MainEntity {
@@ -47,7 +48,7 @@ export class AccessRule extends MainEntity {
     public static gettingActions: boolean = false
     public static gettingAttributes: boolean = false
 
-    public static async addItem (data: AccessRule):Promise<AccessRule|undefined> {
+    public static async addItem (data: AccessRule): Promise<AccessRule> {
         const accessRule = new AccessRule()
 
         accessRule.access_right = data.access_right

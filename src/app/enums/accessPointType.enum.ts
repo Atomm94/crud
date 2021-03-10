@@ -4,5 +4,5 @@ export enum accessPointType {
   TURNSTILE = 'turnstile',
   GATE = 'gate',
   GATEWAY = 'gateway',
-  FLOOR = 'floor',
+  FLOOR = 'floor'
 }

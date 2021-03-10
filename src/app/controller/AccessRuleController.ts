@@ -1,19 +1,20 @@
 import { DefaultContext } from 'koa'
 import { Schedule } from '../model/entity'
-import { AccessPoint } from '../model/entity/AccessPoint'
-import { AccessRule } from '../model/entity/AccessRule'
 import { Acu } from '../model/entity/Acu'
 import { acuStatus } from '../enums/acuStatus.enum'
 import { scheduleType } from '../enums/scheduleType.enum'
 import SendDeviceMessage from '../mqtt/SendDeviceMessage'
 import { OperatorType } from '../mqtt/Operators'
 import { Timeframe } from '../model/entity/Timeframe'
+import { In } from 'typeorm'
+import { AccessPoint } from '../model/entity/AccessPoint'
+import { AccessRule } from '../model/entity/AccessRule'
 
 export default class AccessRuleController {
     /**
      *
      * @swagger
-     *  /accessRule:
+     *  /accessRight/accessRule:
      *      post:
      *          tags:
      *              - AccessRule
@@ -33,14 +34,22 @@ export default class AccessRuleController {
      *              schema:
      *                type: object
      *                required:
+     *                  - access_right
+     *                  - schedule
      *                properties:
      *                  access_right:
      *                      type: number
      *                      example: 1
      *                      minimum: 1
-     *                  access_point:
-     *                      type: number | Array<number>
-     *                      example: 1
+     *                  access_points:
+     *                      type: Array<number>
+     *                      example: [1]
+     *                  access_point_groups:
+     *                      type: Array<number>
+     *                      example: [1]
+     *                  access_point_zones:
+     *                      type: Array<number>
+     *                      example: [1]
      *                  schedule:
      *                      type: number
      *                      example: 1
@@ -63,41 +72,47 @@ export default class AccessRuleController {
             const user = ctx.user
             const location = `${user.company_main}/${user.company}`
             req_data.company = user.company ? user.company : null
-            const access_point: any = await AccessPoint.findOne({ id: req_data.access_point })
-            const acu: Acu = await Acu.getItem({ id: access_point.acu })
-            if (acu.status === acuStatus.ACTIVE) {
-                const access_rule = await AccessRule.addItem(req_data as AccessRule)
-                if (access_rule) {
-                    const schedule: Schedule = await Schedule.findOneOrFail({ id: req_data.schedule })
-                    const timeframes = await Timeframe.find({ schedule: schedule.id })
-                    const send_data: any = { ...access_rule, timeframes: timeframes }
-                    let operator: OperatorType = OperatorType.SET_SDL_DAILY
-                    if (schedule.type === scheduleType.WEEKLY) {
-                        operator = OperatorType.SET_SDL_WEEKLY
-                    } else if (schedule.type === scheduleType.FLEXITIME) {
-                        send_data.start_from = schedule.start_from
-                        operator = OperatorType.SET_SDL_FLEXI_TIME
-                    } else if (schedule.type === scheduleType.SPECIFIC) {
-                        operator = OperatorType.SET_SDL_SPECIFIED
-                    }
-                    new SendDeviceMessage(operator, location, acu.serial_number, send_data, acu.session_id)
 
-                    ctx.body = true
-                }
-            } else {
-                if (Array.isArray(req_data.access_point)) {
-                    const res_data: any = []
-                    for (const access_point of req_data.access_point) {
-                        const data = req_data
-                        data.access_point = access_point
-                        const save = await AccessRule.addItem(data as AccessRule)
-                        res_data.push(save)
+            const where: any = { company: req_data.company }
+            if (req_data.access_point) {
+                where.id = In(req_data.access_point)
+            } else if (req_data.access_group) {
+                where.access_point_group = In(req_data.access_group)
+            } else if (req_data.access_zone) {
+                where.access_point_zone = In(req_data.access_zone)
+            }
+            const access_points: AccessPoint[] = await AccessPoint.find({ ...where })
+            const res_data: any = []
+            for (const access_point of access_points) {
+                const data = req_data
+                data.access_point = access_point.id
+                const save:AccessRule = await AccessRule.addItem(data as AccessRule)
+                const relation = ['access_points']
+                const returnData = AccessRule.getItem({ id: save.id }, relation)
+                res_data.push(returnData)
+                const acu: Acu = await Acu.getItem({ id: access_point.acu })
+                if (acu.status === acuStatus.ACTIVE) {
+                    const access_rule = await AccessRule.addItem(req_data as AccessRule)
+                    if (access_rule) {
+                        const schedule: Schedule = await Schedule.findOneOrFail({ id: req_data.schedule })
+                        const timeframes = await Timeframe.find({ schedule: schedule.id })
+                        const send_data: any = { ...access_rule, timeframes: timeframes }
+                        let operator: OperatorType = OperatorType.SET_SDL_DAILY
+                        if (schedule.type === scheduleType.WEEKLY) {
+                            operator = OperatorType.SET_SDL_WEEKLY
+                        } else if (schedule.type === scheduleType.FLEXITIME) {
+                            send_data.start_from = schedule.start_from
+                            operator = OperatorType.SET_SDL_FLEXI_TIME
+                        } else if (schedule.type === scheduleType.SPECIFIC) {
+                            operator = OperatorType.SET_SDL_SPECIFIED
+                        }
+                        new SendDeviceMessage(operator, location, acu.serial_number, send_data, acu.session_id)
+
+                        ctx.body = true
                     }
-                    ctx.body = await res_data
-                } else {
-                    ctx.body = await AccessRule.addItem(req_data as AccessRule)
                 }
             }
+            ctx.body = await Promise.all(res_data)
         } catch (error) {
             console.log('error', error)
 
@@ -110,7 +125,7 @@ export default class AccessRuleController {
     /**
      *
      * @swagger
-     *  /accessRule:
+     *  /accessRight/accessRule:
      *      put:
      *          tags:
      *              - AccessRule
@@ -198,7 +213,7 @@ export default class AccessRuleController {
     /**
      *
      * @swagger
-     * /accessRule/{id}:
+     * /accessRight/accessRule/{id}:
      *      get:
      *          tags:
      *              - AccessRule
@@ -240,7 +255,7 @@ export default class AccessRuleController {
     /**
      *
      * @swagger
-     *  /accessRule:
+     *  /accessRight/accessRule:
      *      delete:
      *          tags:
      *              - AccessRule
@@ -314,7 +329,7 @@ export default class AccessRuleController {
     /**
      *
      * @swagger
-     * /accessRule:
+     * /accessRight/accessRule:
      *      get:
      *          tags:
      *              - AccessRule

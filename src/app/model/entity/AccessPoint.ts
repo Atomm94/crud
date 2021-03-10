@@ -14,6 +14,7 @@ import { AccessPointGroup } from './AccessPointGroup'
 import { AccessPointZone } from './AccessPointZone'
 import { Acu } from './Acu'
 import { Reader } from './Reader'
+import { accessPointType } from '../../enums/accessPointType.enum'
 
 @Entity('access_point')
 export class AccessPoint extends MainEntity {
@@ -23,8 +24,8 @@ export class AccessPoint extends MainEntity {
     @Column('varchar', { name: 'description', nullable: true })
     description: string | null
 
-    @Column('longtext', { name: 'type', nullable: false })
-    type: string | null
+    @Column('enum', { name: 'type', nullable: false, enum: accessPointType })
+    type: accessPointType
 
     @Column('boolean', { name: 'status', default: false })
     status: boolean
@@ -77,6 +78,8 @@ export class AccessPoint extends MainEntity {
 
     @OneToMany(type => Reader, reader => reader.access_points)
     readers: Reader[];
+
+    public static resource: boolean = true
 
     public static async addItem (data: AccessPoint) {
         const accessPoint = new AccessPoint()

@@ -4,8 +4,7 @@ import {
     OneToOne
 } from 'typeorm'
 
-import { MainEntity } from './MainEntity'
-import { Cardholder } from './Cardholder'
+import { Cardholder, MainEntity } from './index'
 
 @Entity('car_info')
 export class CarInfo extends MainEntity {

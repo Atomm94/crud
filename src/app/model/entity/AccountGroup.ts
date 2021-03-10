@@ -6,10 +6,7 @@ import {
     OneToMany
 } from 'typeorm'
 
-import { MainEntity } from './MainEntity'
-import { Company } from './Company'
-import { Admin } from './Admin'
-import { Role } from './Role'
+import { Role, Admin, Company, MainEntity } from './index'
 import * as _ from 'lodash'
 
 @Entity('account_group')
@@ -42,6 +39,8 @@ export class AccountGroup extends MainEntity {
 
     @OneToMany(type => Admin, users => users.account_groups)
     users: Admin[];
+
+    static resource: boolean = true
 
     public static async addItem (data: AccountGroup) {
         const accountGroup = new AccountGroup()

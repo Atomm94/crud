@@ -54,7 +54,7 @@ export default class AuthController {
         const { username, password } = ctx.request.body
         let checkPass
         let user: Admin
-        let user_data: any = {}
+        let company_main_data: any = {}
 
         try {
             user = await Admin.findOneOrFail({ where: [{ username }, { email: username }] })
@@ -73,10 +73,10 @@ export default class AuthController {
                         message: 'Wrong password'
                     })
                 } else {
-                    user_data.company_main = null
+                    company_main_data.company_main = null
                     if (user.company) {
                         const company: any = await Company.findOne({ id: user.company })
-                        user_data.company_main = company.account
+                        company_main_data.company_main = company.account
                         if (company.status === statusCompany.DISABLE || (company.status === statusCompany.PENDING && company.account !== user.id)) {
                             ctx.status = 400
                             return ctx.body = {
@@ -94,10 +94,16 @@ export default class AuthController {
                 return ctx.body = error
             }
         }
-        user_data = { ...user_data, ...user }
-        const adminFiltered = _.pick(user_data, ['id', 'username', 'last_name', 'first_name', 'email', 'avatar', 'role', 'super', 'department', 'company', 'company_main'])
+        company_main_data = { ...company_main_data, ...user }
+        const adminFiltered = _.pick(company_main_data, ['id', 'username', 'last_name', 'first_name', 'email', 'avatar', 'role', 'super', 'department', 'company', 'company_main'])
+
+        if (user.company) {
+            const company = await Company.findOne(user.company)
+            ctx.companyData = (company) || null
+        }
+
         const expireTime = process.env.TOKEN_EXPIRE_TIME ? process.env.TOKEN_EXPIRE_TIME : 2
-        const token = jwt.sign(adminFiltered, 'jwtSecret', { expiresIn: `${expireTime}h` }) // , { expiresIn: '1h' }
+        const token = jwt.sign({ companyData: ctx.companyData, ...adminFiltered }, 'jwtSecret', { expiresIn: `${expireTime}h` }) // , { expiresIn: '1h' }
 
         if (user.status) {
             ctx.body = { user: adminFiltered, token: token }
@@ -142,12 +148,12 @@ export default class AuthController {
                 }
             } else {
                 ctx.status = 403
-                ctx.body = { message: 'Unauthorizated' }
+                ctx.body = { message: 'Unauthorized' }
             }
         } catch (error) {
             ctx.status = error.status || 403
             ctx.body = error
-            ctx.body = { message: 'Unauthorizated' }
+            ctx.body = { message: 'Unauthorized' }
         }
         return ctx.body
     }

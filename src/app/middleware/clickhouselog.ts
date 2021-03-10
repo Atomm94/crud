@@ -20,7 +20,7 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
                     if (ctx.oldData && ctx.user) {
                         const diff = getObjectDiff(ctx.body, ctx.oldData)
                         const dataLog = {
-                            account: ctx.user.id,
+                            account: ctx.user,
                             account_name: `${ctx.user.first_name} ${ctx.user.last_name}`,
                             event: 'change',
                             target: (ctx.user.company && ctx.actionFeature) ? ctx.actionFeature : ctx.actionModel,
@@ -33,7 +33,7 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
                 case 'POST': // create
                     if (ctx.user) {
                         const dataLog = {
-                            account: ctx.user.id,
+                            account: ctx.user,
                             account_name: `${ctx.user.first_name} ${ctx.user.last_name}`,
                             event: 'create',
                             target: (ctx.user.company && ctx.actionFeature) ? ctx.actionFeature : ctx.actionModel,
@@ -46,7 +46,7 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
                 case 'DELETE': // delete
                     if (ctx.user) {
                         const dataLog = {
-                            account: ctx.user.id,
+                            account: ctx.user,
                             account_name: `${ctx.user.first_name} ${ctx.user.last_name}`,
                             event: 'delete',
                             target: (ctx.user.company && ctx.actionFeature) ? ctx.actionFeature : ctx.actionModel,

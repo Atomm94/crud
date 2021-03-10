@@ -1,14 +1,15 @@
-import accessPointController from '../controller/AccessPointController'
+import AccessPointController from '../controller/AccessPointController'
 import Router from 'koa-router'
-import timeframe from './timeframe'
+import checkRole from '../middleware/checkRole'
+import resource from '../middleware/resource'
 const router = new Router()
 export default router
-// Timeframe controller CRUD endpoints
-  .use('/timeframe', timeframe.routes(), timeframe.allowedMethods())
-
-  .post('accessPoint-addItem', '/', accessPointController.add)
-  .put('accessPoint-updateItem', '/', accessPointController.update)
-  .delete('accessPoint-destroyItem', '/', accessPointController.destroy)
-  .get('accessPoint-getAllItems', '/', accessPointController.getAll)
-  .delete('accessPoint-destroyItem', '/reader', accessPointController.readerDestroy)
-  .get('accessPoint-getItem', '/:id', accessPointController.get)
+    // AccessPoint controller CRUD endpoints
+    .post('AccessPoint-addItem', 'accessPoint', checkRole(), resource(), AccessPointController.add)
+    .put('AccessPoint-updateItem', 'accessPoint', checkRole(), AccessPointController.update)
+    .delete('AccessPoint-destroyItem', 'accessPoint', checkRole(), AccessPointController.destroy)
+    .get('AccessPoint-getAllItems', 'accessPoint', checkRole(), AccessPointController.getAll)
+    .delete('AccessPoint-destroyItem', '/reader', AccessPointController.readerDestroy)
+    .get('AccessPoint-getAllItems', 'accessPoint/resources/:type', checkRole(), AccessPointController.getAccessPointResources)
+    .get('AccessPoint-getAllItems', 'accessPoint/types', checkRole(), AccessPointController.getAccessPointTypes)
+    .get('AccessPoint-getItem', 'accessPoint/:id', checkRole(), AccessPointController.get)

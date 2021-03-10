@@ -44,6 +44,8 @@ export class PostSubscriber implements EntitySubscriberInterface<Cardholder> {
         if (data.antipass_back_inherited === false) {
             AntipassBack.destroyItem(data.antipass_back)
         }
-        CarInfo.destroyItem(data.car_info)
+        if (data.car_info) {
+            CarInfo.destroyItem(data.car_info)
+        }
     }
 }

@@ -5,6 +5,7 @@ import { Sendgrid } from '../component/sendgrid/sendgrid'
 // import { logger } from '../../modules/winston/logger'
 import { AccessControl } from './functions/access-control'
 import MQTTBroker from '../app/mqtt/mqtt'
+import { logger } from '../../modules/winston/logger'
 
 const database = new Database();
 // create connection with database
@@ -18,7 +19,7 @@ const database = new Database();
         await Sendgrid.init(config.sendgrid.apiKey)
         await MQTTBroker.init()
         app.listen(
-            config.server.port, () => console.log('APP listening at port %d', config.server.port)
+            config.server.port, () => logger.info(`APP listening at port ${config.server.port}`)
         )
 
         process.on('SIGINT', async () => {

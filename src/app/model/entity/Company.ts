@@ -8,18 +8,20 @@ import {
 } from 'typeorm'
 import * as _ from 'lodash'
 
-import { MainEntity } from './MainEntity'
-import { Packet } from './Packet'
-import { Admin } from './Admin'
-import { Role } from './Role'
-import { PacketType } from './PacketType'
 import { statusCompany } from '../../enums/statusCompany.enum'
-import { CompanyDocuments } from './CompanyDocuments'
-import { AccountGroup } from './AccountGroup'
-import { Schedule } from './Schedule'
-import { AccessPoint } from './AccessPoint'
-import { AccessRule } from './AccessRule'
-import { AccessRight } from './AccessRight'
+import {
+    AccessRight,
+    MainEntity,
+    Packet,
+    Admin,
+    Role,
+    PacketType,
+    CompanyDocuments,
+    AccountGroup,
+    Schedule,
+    AccessPoint,
+    AccessRule
+} from './index'
 
 @Entity('company')
 export class Company extends MainEntity {
