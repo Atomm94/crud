@@ -143,6 +143,15 @@ export class Role extends MainEntity {
         destroyItem: true,
         getAllItems: true
       }
+    },
+    Acu: {
+      actions: {
+        addItem: true,
+        updateItem: true,
+        getItem: true,
+        destroyItem: true,
+        getAllItems: true
+      }
     }
   }
 
