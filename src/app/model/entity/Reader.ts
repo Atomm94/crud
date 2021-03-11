@@ -44,9 +44,9 @@ export class Reader extends MainEntity {
     @Column('int', { name: 'company', nullable: false })
     company: number
 
-    @ManyToOne(type => AccessPoint, accessPoint => accessPoint.readers, { nullable: true })
+    @ManyToOne(type => AccessPoint, accessPoint => accessPoint.readers)
     @JoinColumn({ name: 'access_point' })
-    access_points: AccessPoint | null;
+    access_points: AccessPoint;
 
     public static gettingActions: boolean = false
     public static gettingAttributes: boolean = false

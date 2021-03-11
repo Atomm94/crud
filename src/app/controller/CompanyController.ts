@@ -442,7 +442,7 @@ export default class CompanyController {
                             message: 'Duplicate email!!'
                         }
                     } else {
-                        const company: any = await Company.addItem(company_data as Company)
+                        const company = await Company.addItem(company_data as Company)
 
                         let permissions: string = JSON.stringify(Role.default_partner_role)
                         const default_role = await Role.findOne({ slug: 'default_partner' })
@@ -455,16 +455,16 @@ export default class CompanyController {
                             permissions: permissions,
                             main: true
                         }
-                        const new_company_role: any = await Role.addItem(role_save_data as Role)
+                        const new_company_role = await Role.addItem(role_save_data as Role)
 
                         account_data.company = company.id
                         account_data.verify_token = uid(32)
                         account_data.role = new_company_role.id
-                        const admin: any = await Admin.addItem(account_data as Admin)
+                        const admin = await Admin.addItem(account_data as Admin)
 
                         company.account = admin.id
                         await Company.save(company)
-                        await Sendgrid.sendNewPass(admin.email, admin.verify_token)
+                        await Sendgrid.sendNewPass(admin.email, admin.verify_token as string)
 
                         // set registration token to null
                         regToken.used = true

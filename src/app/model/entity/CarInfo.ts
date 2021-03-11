@@ -29,7 +29,7 @@ export class CarInfo extends MainEntity {
     public static gettingActions: boolean = false
     public static gettingAttributes: boolean = false
 
-    public static async addItem (data: CarInfo) {
+    public static async addItem (data: CarInfo):Promise<CarInfo> {
         const carInfo = new CarInfo()
 
         carInfo.model = data.model

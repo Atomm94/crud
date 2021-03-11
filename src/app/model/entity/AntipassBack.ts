@@ -32,7 +32,7 @@ export class AntipassBack extends MainEntity {
     public static gettingActions: boolean = false
     public static gettingAttributes: boolean = false
 
-    public static async addItem (data: AntipassBack) {
+    public static async addItem (data: AntipassBack): Promise<AntipassBack> {
         const antipassBack = new AntipassBack()
 
         antipassBack.type = data.type

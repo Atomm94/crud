@@ -55,7 +55,7 @@ export class Limitation extends MainEntity {
     public static gettingActions: boolean = false
     public static gettingAttributes: boolean = false
 
-    public static async addItem (data: Limitation) {
+    public static async addItem (data: Limitation):Promise<Limitation> {
         const limitation = new Limitation()
 
         limitation.enable_date = data.enable_date

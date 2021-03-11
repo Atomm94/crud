@@ -74,7 +74,7 @@ export class TicketMessage extends MainEntity {
         })
     }
 
-    public static async updateItem (data: TicketMessage, user: Admin): Promise<{ [key: string]: any }> {
+    public static async updateItem (data: TicketMessage, user: Admin): Promise<{old:TicketMessage, new:TicketMessage}|{[key: string]:any}> {
         const ticketMessage = await this.findOneOrFail(data.id)
         const oldData = Object.assign({}, ticketMessage)
 

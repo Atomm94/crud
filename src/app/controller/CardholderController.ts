@@ -183,15 +183,19 @@ export default class CardholderController {
             if (req_data.limitation_inherited && group_data) {
                 req_data.limitation = group_data.limitation
             } else {
-                const limitation_data: any = await Limitation.addItem(req_data.limitations as Limitation)
-                req_data.limitation = limitation_data.id
+                const limitation_data = await Limitation.addItem(req_data.limitations as Limitation)
+                if (limitation_data) {
+                    req_data.limitation = limitation_data.id
+                }
             }
 
             if (req_data.antipass_back_inherited && group_data) {
                 req_data.antipass_back = group_data.antipass_back
             } else {
-                const antipass_back_data: any = await AntipassBack.addItem(req_data.antipass_backs as AntipassBack)
-                req_data.antipass_back = antipass_back_data.id
+                const antipass_back_data = await AntipassBack.addItem(req_data.antipass_backs as AntipassBack)
+                if (antipass_back_data) {
+                    req_data.antipass_back = antipass_back_data.id
+                }
             }
 
             if (req_data.access_right_inherited && group_data) {
@@ -202,14 +206,17 @@ export default class CardholderController {
                 req_data.time_attendance = group_data.time_attendance
             }
             if (req_data.car_info) {
-                const car_info: any = await CarInfo.addItem(req_data.car_infos as CarInfo)
-                req_data.car_info = car_info.id
+                const car_info = await CarInfo.addItem(req_data.car_infos as CarInfo)
+                if (car_info) {
+                    req_data.car_info = car_info.id
+                }
             }
-            const cardholder: any = await Cardholder.addItem(req_data as Cardholder)
-
-            const where = { id: cardholder.id }
-            const relations = ['car_infos', 'limitations', 'antipass_backs', 'time_attendances', 'access_rights', 'cardholder_groups']
-            ctx.body = await Cardholder.getItem(where, relations)
+            const cardholder = await Cardholder.addItem(req_data as Cardholder)
+            if (cardholder) {
+                const where = { id: cardholder.id }
+                const relations = ['car_infos', 'limitations', 'antipass_backs', 'time_attendances', 'access_rights', 'cardholder_groups']
+                ctx.body = await Cardholder.getItem(where, relations)
+            }
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -690,7 +697,7 @@ export default class CardholderController {
                     company: { '=': user.company ? user.company : null },
                     id: { in: req_data.ids }
                 }
-                const cardholders: any = await Cardholder.getAllItems({ where: where })
+                const cardholders = await Cardholder.getAllItems({ where: where })
                 for (const cardholder of cardholders) {
                     if (req_data.data.status) {
                         cardholder.status = req_data.data.status

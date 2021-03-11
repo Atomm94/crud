@@ -44,8 +44,9 @@ export class ExtDevice extends MainEntity {
 
     public static gettingActions: boolean = false
     public static gettingAttributes: boolean = false
+    resources: { input: Number; output: Number }
 
-    public static async addItem (data: ExtDevice) {
+    public static async addItem (data: ExtDevice):Promise<ExtDevice> {
         const extDevice = new ExtDevice()
 
         if ('name' in data) extDevice.name = data.name

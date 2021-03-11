@@ -59,7 +59,7 @@ export class Ticket extends MainEntity {
 
     public static async addItem (data: Ticket) {
         const ticket = new Ticket()
-        const check: any = await Department.findOne({ id: data.department })
+        const check = await Department.findOne({ id: data.department })
         ticket.department = data.department
         ticket.subject = data.subject
         ticket.message = data.message
@@ -231,7 +231,7 @@ export class Ticket extends MainEntity {
     }
 
     public static async addMessage (data: TicketMessage) {
-        const check: any = await this.findOne({ id: data.ticket_id, active: true })
+        const check = await Ticket.findOne({ id: data.ticket_id, active: true })
         if (check) {
             return TicketMessage.addItem(data)
         } else {

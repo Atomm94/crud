@@ -32,7 +32,7 @@ export class Timeframe extends MainEntity {
     public static gettingActions: boolean = false
     public static gettingAttributes: boolean = false
 
-    public static async addItem (data: Timeframe) {
+    public static async addItem (data: Timeframe):Promise<Timeframe> {
         const timeframe = new Timeframe()
 
         timeframe.name = data.name

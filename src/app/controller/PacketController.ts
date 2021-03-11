@@ -162,7 +162,7 @@ export default class PacketController {
             const user = ctx.user
             let where: any = {}
             if (user.company) {
-                const company: any = await Company.getItem(user.company)
+                const company = await Company.getItem(user.company)
                 where = {
                     packet_type: company.packet_type,
                     status: true
@@ -249,7 +249,7 @@ export default class PacketController {
             req_data.relations = ['packet_types']
             const user = ctx.user
             if (user.company) {
-                const company: any = await Company.getItem(user.company)
+                const company = await Company.getItem(user.company)
                 req_data.where = {
                     packet_type: {
                         '=': company.packet_type

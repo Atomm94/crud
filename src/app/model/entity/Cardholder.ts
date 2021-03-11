@@ -120,7 +120,7 @@ export class Cardholder extends MainEntity {
 
     public static resource: boolean = true
 
-    public static async addItem (data: Cardholder) {
+    public static async addItem (data: Cardholder):Promise<Cardholder> {
         const cardholder = new Cardholder()
 
         cardholder.email = data.email
@@ -269,10 +269,10 @@ export class Cardholder extends MainEntity {
         })
     }
 
-    public static async getAllItems (params?: any) {
+    public static async getAllItems (params?: any):Promise<Cardholder[]|[]> {
         return new Promise((resolve, reject) => {
             this.findByParams(params)
-                .then((items) => {
+                .then((items:Cardholder[]) => {
                     resolve(items)
                 })
                 .catch((error: any) => {

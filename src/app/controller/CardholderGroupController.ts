@@ -134,15 +134,19 @@ export default class CardholderGroupController {
             if (req_data.limitation_inherited && parent_data) {
                 req_data.limitation = parent_data.limitation
             } else {
-                const limitation_data: any = await Limitation.addItem(req_data.limitations as Limitation)
-                req_data.limitation = limitation_data.id
+                const limitation_data = await Limitation.addItem(req_data.limitations as Limitation)
+                if (limitation_data) {
+                    req_data.limitation = limitation_data.id
+                }
             }
 
             if (req_data.antipass_back_inherited && parent_data) {
                 req_data.antipass_back = parent_data.antipass_back
             } else {
-                const antipass_back_data: any = await AntipassBack.addItem(req_data.antipass_backs as AntipassBack)
-                req_data.antipass_back = antipass_back_data.id
+                const antipass_back_data = await AntipassBack.addItem(req_data.antipass_backs as AntipassBack)
+                if (antipass_back_data) {
+                    req_data.antipass_back = antipass_back_data.id
+                }
             }
 
             if (req_data.access_right_inherited && parent_data) {

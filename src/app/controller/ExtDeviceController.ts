@@ -64,7 +64,7 @@ export default class ExtDeviceController {
             const company = user.company ? user.company : null
 
             req_data.company = company
-            const ext_device: any = await ExtDevice.addItem(req_data as ExtDevice)
+            const ext_device = await ExtDevice.addItem(req_data as ExtDevice)
             ctx.body = ext_device
             const location = `${user.company_main}/${user.company}`
             const acu_models: any = acuModels

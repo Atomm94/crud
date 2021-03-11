@@ -79,7 +79,7 @@ export class Company extends MainEntity {
     @OneToMany(type => AccessRight, access_right => access_right.companies)
     access_rights: AccessRight[];
 
-    public static async addItem (data: Company) {
+    public static async addItem (data: Company):Promise<Company> {
         const company = new Company()
 
         company.company_name = data.company_name
@@ -124,7 +124,7 @@ export class Company extends MainEntity {
         })
     }
 
-    public static async getItem (id: number, relations?: Array<string>) {
+    public static async getItem (id: number, relations?: Array<string>):Promise<Company> {
         const itemId: number = id
         return new Promise((resolve, reject) => {
             this.findOneOrFail({

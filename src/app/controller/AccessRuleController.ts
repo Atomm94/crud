@@ -296,10 +296,10 @@ export default class AccessRuleController {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
             } else {
-                const access_point: any = await AccessPoint.findOneOrFail({ id: access_rule.access_point })
+                const access_point: AccessPoint = await AccessPoint.findOneOrFail({ id: access_rule.access_point })
                 const acu: Acu = await Acu.findOneOrFail({ id: access_point.acu })
                 if (acu.status === acuStatus.ACTIVE) {
-                    const schedule: any = await Schedule.findOne({ id: access_rule.schedule })
+                    const schedule: Schedule = await Schedule.findOneOrFail({ id: access_rule.schedule })
                     const send_data = { id: access_rule.id, access_point: access_point.id }
                     let operator: OperatorType = OperatorType.DEL_SDL_DAILY
                     if (schedule.type === scheduleType.WEEKLY) {

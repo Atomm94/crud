@@ -144,7 +144,7 @@ export default class AdminController {
         if (validate(reqData.password).success) {
             try {
                 if (reqData.role_inherited && reqData.account_group) {
-                    const account_group: any = await AccountGroup.findOne({
+                    const account_group = await AccountGroup.findOne({
                         id: reqData.account_group,
                         company: user.company ? user.company : null
                     })
@@ -621,13 +621,13 @@ export default class AdminController {
         let check_group = true
 
         try {
-            const admin: any = Admin.findOne({
+            const admin = Admin.findOne({
                 id: reqData.id,
                 company: user.company ? user.company : null
             })
             if (admin) {
                 if (reqData.role_inherited && reqData.account_group) {
-                    const account_group: any = await AccountGroup.findOne({
+                    const account_group = await AccountGroup.findOne({
                         id: reqData.account_group,
                         company: user.company ? user.company : null
                     })

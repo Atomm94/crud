@@ -163,11 +163,13 @@ export default class AcuController {
                 for (const access_point of req_data.access_points) {
                     access_point.acu = save_acu.id
                     access_point.company = acu.company
-                    const save_access_point: any = await AccessPoint.addItem(access_point)
-                    for (const reader of access_point.readers) {
-                        reader.company = acu.company
-                        reader.access_point = save_access_point.id
-                        await Reader.addItem(reader)
+                    const save_access_point = await AccessPoint.addItem(access_point)
+                    if (save_access_point) {
+                        for (const reader of access_point.readers) {
+                            reader.company = acu.company
+                            reader.access_point = save_access_point.id
+                            await Reader.addItem(reader)
+                        }
                     }
                 }
             }

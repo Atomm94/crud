@@ -81,7 +81,7 @@ export class AccessPoint extends MainEntity {
 
     public static resource: boolean = true
 
-    public static async addItem (data: AccessPoint) {
+    public static async addItem (data: AccessPoint):Promise<AccessPoint> {
         const accessPoint = new AccessPoint()
 
         accessPoint.name = data.name

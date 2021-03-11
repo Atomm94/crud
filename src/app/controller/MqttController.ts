@@ -34,7 +34,7 @@ export default class MqttController {
         try {
             const main_id = +ctx.params.id
             const where = { account: main_id }
-            const company: any = await Company.findOne({ where: where })
+            const company = await Company.findOneOrFail({ where: where })
             if (!company) {
                 ctx.status = 400
                 ctx.body = {
