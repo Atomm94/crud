@@ -5,6 +5,7 @@ import { Schedule } from '../model/entity'
 import { AccessRule } from '../model/entity/AccessRule'
 import { Timeframe } from '../model/entity/Timeframe'
 import { OperatorType } from '../mqtt/Operators'
+import { CheckScheduleSettings } from '../functions/check-schedule-settings'
 import SendDeviceMessage from '../mqtt/SendDeviceMessage'
 
 export default class TimeframeController {
@@ -75,7 +76,11 @@ export default class TimeframeController {
             const location = `${user.company_main}/${user.company}`
             const schedule = await Schedule.findOneOrFail({ id: save.schedule })
             const timeframes = await Timeframe.find({ schedule: schedule.id })
-
+            const check_schedule = CheckScheduleSettings.checkSettings(schedule.type, schedule, save)
+            if (check_schedule !== true) {
+                ctx.status = 400
+                return ctx.body = { message: check_schedule }
+            }
             for (const access_rule of access_rules) {
                 const send_data: any = { id: access_rule.id, access_point: access_rule.access_point, timeframes: timeframes }
                 let operator: OperatorType = OperatorType.SET_SDL_DAILY
@@ -92,6 +97,8 @@ export default class TimeframeController {
                 new SendDeviceMessage(operator, location, access_rule.access_points.acus.serial_number, send_data, access_rule.access_points.acus.session_id)
             }
         } catch (error) {
+            console.log(error)
+
             ctx.status = error.status || 400
             ctx.body = error
         }

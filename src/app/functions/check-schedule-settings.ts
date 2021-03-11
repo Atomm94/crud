@@ -1,23 +1,23 @@
 
-import { isNumber } from 'lodash'
 import { scheduleType } from '../enums/scheduleType.enum'
+import { Schedule } from '../model/entity'
 import { Timeframe } from '../model/entity/Timeframe'
 
 export class CheckScheduleSettings {
-    public static checkSettings (type: scheduleType, schedule: any) {
+    public static checkSettings (type: scheduleType, schedule: Schedule, timeframe:Timeframe) {
         let check: any = false
         switch (type) {
             case 'daily':
-                check = this.checkDailysettings(schedule)
+                check = this.checkDailysettings(schedule, timeframe)
                 break
             case 'weekly':
-                check = this.checkWeeklysettings(schedule)
+                check = this.checkWeeklysettings(schedule, timeframe)
                 break
             case 'specific':
-                check = this.checkSpecificsettings(schedule)
+                check = this.checkSpecificsettings(schedule, timeframe)
                 break
             case 'flexitime':
-                check = this.checkFlexitimesettings(schedule)
+                check = this.checkFlexitimesettings(schedule, timeframe)
                 break
             default:
                 break
@@ -25,25 +25,24 @@ export class CheckScheduleSettings {
         return check
     }
 
-    public static async checkDailysettings (schedule: any) {
-        const timeframe: any = Timeframe.findOne({ schedule: schedule.id })
+    public static checkDailysettings (schedule: any, timeframe:any) {
         if (!('type' in schedule) ||
             !('name' in schedule) ||
             typeof schedule.type !== 'string' ||
             typeof schedule.name !== 'string') {
-            return new Error('Invalid schedule data')
+            return 'Invalid schedule data'
         } else {
             if (schedule.type !== scheduleType.DAILY) {
-                return new Error('Invalid schedule data')
+                return 'Invalid schedule data'
             } else {
                 //     if (Object.values(weekDays).indexOf(timeframe.name) === -1) {
-                //         return new Error('Invalid week days ')
+                //         return 'Invalid week days '
                 //     }
-                if (!isNumber(timeframe.name)) {
-                    return new Error('Invalid week days ')
+                if (!Number(timeframe.name)) {
+                    return 'Invalid week days '
                 } else {
                     if (timeframe.end < timeframe.start) {
-                        return new Error('End time cant be less than start')
+                        return 'End time cant be less than start'
                     } else {
                         return true
                     }
@@ -52,22 +51,21 @@ export class CheckScheduleSettings {
         }
     }
 
-    public static checkWeeklysettings (schedule: any) {
-        const timeframe: any = Timeframe.findOne({ schedule: schedule.id })
+    public static checkWeeklysettings (schedule: any, timeframe:any) {
         if (!('type' in schedule) ||
             !('name' in schedule) ||
             typeof schedule.type !== 'string' ||
             typeof schedule.name !== 'string') {
-            return new Error('Invalid schedule data')
+            return 'Invalid schedule data'
         } else {
             if (schedule.type !== scheduleType.WEEKLY) {
-                return new Error('Invalid schedule data')
+                return 'Invalid schedule data'
             } else {
-                if (!isNumber(timeframe.name)) {
-                    return new Error('Invalid week days ')
+                if (!Number(timeframe.name)) {
+                    return 'Invalid week days '
                 } else {
                     if (timeframe.end < timeframe.start) {
-                        return new Error('End time cant be less than start')
+                        return 'End time cant be less than start'
                     } else {
                         return true
                     }
@@ -76,23 +74,22 @@ export class CheckScheduleSettings {
         }
     }
 
-    public static checkSpecificsettings (schedule: any) {
-        const timeframe: any = Timeframe.findOne({ schedule: schedule.id })
+    public static checkSpecificsettings (schedule: any, timeframe:any) {
         if (!('type' in schedule) ||
             !('name' in schedule) ||
             typeof schedule.type !== 'string' ||
             typeof schedule.name !== 'string') {
-            return new Error('Invalid schedule data')
+            return 'Invalid schedule data'
         } else {
             if (schedule.type !== scheduleType.SPECIFIC) {
-                return new Error('Invalid schedule data')
+                return 'Invalid schedule data'
             } else {
                 // const date = timeframe.name.split('-').reverse().join('-')
                 if (!new Date(schedule.name)) {
-                    return new Error('Invalid week days ')
+                    return 'Invalid week days '
                 } else {
                     if (timeframe.end < timeframe.start) {
-                        return new Error('End time cant be less than start')
+                        return 'End time cant be less than start'
                     } else {
                         return true
                     }
@@ -101,26 +98,25 @@ export class CheckScheduleSettings {
         }
     }
 
-    public static checkFlexitimesettings (schedule: any) {
-        const timeframe: any = Timeframe.findOne({ schedule: schedule.id })
+    public static checkFlexitimesettings (schedule: any, timeframe:any) {
         if (!('type' in schedule) ||
             !('name' in schedule) ||
             typeof schedule.type !== 'string' ||
             typeof schedule.name !== 'string') {
-            return new Error('Invalid schedule data')
+            return 'Invalid schedule data'
         } else {
             if (schedule.type !== scheduleType.SPECIFIC) {
-                return new Error('Invalid schedule data')
+                return 'Invalid schedule data'
             } else {
                 // const start_from = schedule.name.split('-').reverse().join('-')
                 if (!new Date(schedule.name)) {
-                    return new Error('Invalid week days ')
+                    return 'Invalid week days '
                 } else {
-                    if (!isNumber(timeframe.name)) {
-                        return new Error('Invalid week days ')
+                    if (!Number(timeframe.name)) {
+                        return 'Invalid week days '
                     } else {
                         if (timeframe.end < timeframe.start) {
-                            return new Error('End time cant be less than start')
+                            return 'End time cant be less than start'
                         } else {
                             return true
                         }
