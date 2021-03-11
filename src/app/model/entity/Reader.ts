@@ -54,9 +54,9 @@ export class Reader extends MainEntity {
     public static async addItem (data: Reader) {
         const reader = new Reader()
 
-        if ('access_point' in data) reader.access_point = data.access_point
-        if ('type' in data) reader.type = data.type
-        if ('port' in data) reader.port = data.port
+        reader.access_point = data.access_point
+        reader.type = data.type
+        reader.port = data.port
         if ('wg_type' in data) reader.wg_type = data.wg_type
         if ('mode' in data) reader.mode = data.mode
         if ('direction' in data) reader.direction = data.direction
@@ -80,8 +80,6 @@ export class Reader extends MainEntity {
         const reader = await this.findOneOrFail(data.id)
         const oldData = Object.assign({}, reader)
 
-        if ('access_point' in data) reader.access_point = data.access_point
-        if ('type' in data) reader.type = data.type
         if ('port' in data) reader.port = data.port
         if ('wg_type' in data) reader.wg_type = data.wg_type
         if ('mode' in data) reader.mode = data.mode

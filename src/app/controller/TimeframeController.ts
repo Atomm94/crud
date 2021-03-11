@@ -70,13 +70,14 @@ export default class TimeframeController {
                 .innerJoinAndSelect('access_rule.access_points', 'access_point')
                 .innerJoinAndSelect('access_point.acus', 'acu')
                 .where(`acu.status = '${acuStatus.ACTIVE}'`)
+                .andWhere(`access_rule.schedule = ${req_data.schedule}`)
                 .getMany()
             const location = `${user.company_main}/${user.company}`
             const schedule: any = await Schedule.findOne({ id: save.schedule })
             const timeframes = await Timeframe.find({ schedule: schedule.id })
-            const send_data = { ...req_data, timeframes: timeframes }
 
             for (const access_rule of access_rules) {
+                const send_data: any = { id: access_rule.id, access_point: access_rule.access_point, timeframes: timeframes }
                 let operator: OperatorType = OperatorType.SET_SDL_DAILY
                 if (schedule.type === scheduleType.WEEKLY) {
                     operator = OperatorType.SET_SDL_WEEKLY
@@ -150,9 +151,9 @@ export default class TimeframeController {
         try {
             const req_data = ctx.request.body
             const user = ctx.user
-            // const updated = await Timeframe.updateItem(req_data as Timeframe)
-            // ctx.oldData = updated.old
-            // ctx.body = updated.new
+            const updated = await Timeframe.updateItem(req_data as Timeframe)
+            ctx.oldData = updated.old
+            ctx.body = updated.new
 
             const timeframe: any = await Timeframe.findOne({ id: req_data.id })
 
@@ -160,13 +161,14 @@ export default class TimeframeController {
                 .innerJoinAndSelect('access_rule.access_points', 'access_point')
                 .innerJoinAndSelect('access_point.acus', 'acu')
                 .where(`acu.status = '${acuStatus.ACTIVE}'`)
+                .andWhere(`access_rule.schedule = ${req_data.schedule}`)
                 .getMany()
             const location = `${user.company_main}/${user.company}`
             const schedule: any = await Schedule.findOne({ id: timeframe.schedule })
             const timeframes = await Timeframe.find({ schedule: schedule.id })
-            const send_data = { ...req_data, timeframes: timeframes }
 
             for (const access_rule of access_rules) {
+                const send_data: any = { id: access_rule.id, access_point: access_rule.access_point, timeframes: timeframes }
                 let operator: OperatorType = OperatorType.SET_SDL_DAILY
                 if (schedule.type === scheduleType.WEEKLY) {
                     operator = OperatorType.SET_SDL_WEEKLY
@@ -266,21 +268,22 @@ export default class TimeframeController {
         try {
             const req_data = ctx.request.body
             const user = ctx.user
-            const timeframe: any = await Timeframe.findOne(req_data.id)
+            const timeframe: Timeframe = await Timeframe.findOneOrFail(req_data.id)
 
             ctx.body = await Timeframe.destroyItem(req_data as { id: number })
+            const schedule: any = await Schedule.findOne({ id: timeframe.schedule })
 
             const access_rules: any = await AccessRule.createQueryBuilder('access_rule')
                 .innerJoinAndSelect('access_rule.access_points', 'access_point')
                 .innerJoinAndSelect('access_point.acus', 'acu')
                 .where(`acu.status = '${acuStatus.ACTIVE}'`)
+                .andWhere(`access_rule.schedule = ${schedule.id}`)
                 .getMany()
             const location = `${user.company_main}/${user.company}`
-            const schedule: any = await Schedule.findOne({ id: timeframe.schedule })
             const timeframes = await Timeframe.find({ schedule: schedule.id })
-            const send_data = { ...req_data, timeframes: timeframes }
 
             for (const access_rule of access_rules) {
+                const send_data: any = { id: access_rule.id, access_point: access_rule.access_point, timeframes: timeframes }
                 let operator: OperatorType = OperatorType.SET_SDL_DAILY
                 if (schedule.type === scheduleType.WEEKLY) {
                     operator = OperatorType.SET_SDL_WEEKLY

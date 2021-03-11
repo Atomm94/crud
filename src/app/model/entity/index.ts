@@ -27,6 +27,7 @@ import { AccessPointZone } from './AccessPointZone'
 import { AccessPoint } from './AccessPoint'
 import { AccessRule } from './AccessRule'
 import { Acu } from './Acu'
+import { ExtDevice } from './ExtDevice'
 export {
     MainEntity,
     Admin,
@@ -56,5 +57,6 @@ export {
     AccessPointZone,
     AccessPoint,
     AccessRule,
-    Acu
+    Acu,
+    ExtDevice
 }

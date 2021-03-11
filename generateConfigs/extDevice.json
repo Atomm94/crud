@@ -4,7 +4,8 @@
             "name": {
                 "type": "varchar",
                 "params": {
-                    "name": "name"
+                    "name": "name",
+                    "nullable": false
                 }
             },
             "acu": {
@@ -24,15 +25,13 @@
             "baudRate": {
                 "type": "int",
                 "params": {
-                    "name": "baudRate",
-                    "nullable": false
+                    "name": "baudRate"
                 }
             },
             "uartMode": {
                 "type": "int",
                 "params": {
-                    "name": "uartMode",
-                    "nullable": false
+                    "name": "uartMode"
                 }
             },
             "address": {

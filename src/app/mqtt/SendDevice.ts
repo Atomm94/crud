@@ -393,7 +393,6 @@ export default class SendDevice {
 
     public static setCtpDoor (location: any, device_id: number, session_id: string, data: any): void {
         const message_id = new Date().getTime()
-        console.log(555, data)
         const info: any = {
             Control_point_idx: (data.send_data && data.send_data.info.Control_point_idx) ? data.send_data.info.Control_point_idx : data.id
         }
@@ -518,7 +517,6 @@ export default class SendDevice {
                 Control_point_idx: data.id
             }
         }
-        console.log(send_data)
 
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
@@ -732,7 +730,6 @@ export default class SendDevice {
             tms.TmStart = (tms.TmStart === 'none') ? start_time.toString() : `${tms.TmStart};${start_time}`
             tms.TmEnd = (tms.TmEnd === 'none') ? end_time.toString() : `${tms.TmEnd};${end_time}`
         })
-        console.log('data', data)
 
         const send_data: any = {
             operator: OperatorType.SET_SDL_DAILY,
@@ -774,7 +771,6 @@ export default class SendDevice {
         }
 
         timeframe.forEach((time: Timeframe) => {
-            console.log(time)
             const start_time = dateTimeToSeconds(time.start)
             const end_time = dateTimeToSeconds(time.end)
             if (Number(time.name) === 0) {

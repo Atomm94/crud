@@ -38,96 +38,87 @@ export default class AcuController {
      *                  name:
      *                      type: string
      *                      example: Door328 HUB
-     *                  serial_number:
-     *                      type: string
-     *                      example: ujexc device
      *                  description:
      *                      type: string
      *                      example: some description
      *                  model:
      *                      type: string
      *                      example: LRM-2CRS
-     *                  status:
-     *                      type: active | pending | no_hardware
-     *                      example: pending
-     *                  fw_version:
-     *                      type: string
-     *                      example: 1.3.4
-     *                  maintain_update_manual:
-     *                      type: boolean
-     *                      example: true
      *                  shared_resource_mode:
      *                      type: boolean
      *                      example: false
-     *                  connection_type:
-     *                      type: wi-fi | ethernet
-     *                      example: wi-fi
-     *                  network:
+     *                  time:
      *                      type: object
      *                      properties:
-     *                          ssid:
-     *                              type: string
-     *                              example: MYOF0987
-     *                          password:
+     *                          enable_daylight_saving_time:
      *                              type: boolean
      *                              example: false
-     *                          signal_level:
-     *                              type: number
-     *                              example: 55
-     *                          fixed:
+     *                          timezone_from_facility:
      *                              type: boolean
      *                              example: false
-     *                          dhcp:
+     *                          time_zone:
+     *                              type: string
+     *                              example: +0
+     *                          daylight_saving_time_from_user_account:
      *                              type: boolean
-     *                              example: true
-     *                          ip_address:
-     *                              type: string
-     *                              example: 192.168.99.232
-     *                          gateway:
-     *                              type: string
-     *                              example: 255.255.255.0
-     *                          subnet_mask:
-     *                              type: string
-     *                              example: 192.168.99.1
-     *                          dns_server:
-     *                              type: string
-     *                              example: 192.168.99.1
-     *                          port:
-     *                              type: number
-     *                              example: 2777
-     *                  interface:
-     *                      type: object
-     *                      properties:
-     *                          rs485_port_1:
-     *                              type: object
-     *                              properties:
-     *                                  enable:
-     *                                      type: boolean
-     *                                      example: true
-     *                                  mode:
-     *                                      type: master | disable | slave
-     *                                      example: master
-     *                                  uart_mode:
-     *                                      type: string
-     *                                      example: 8n1
-     *                                  baud_rate:
-     *                                      type: 2400 | 4800 | 9600 | 14400 | 19200 | 28800 | 38400 | 56000
-     *                                      example: 19200
-     *                          rs485_port_2:
-     *                              type: object
-     *                              properties:
-     *                                  enable:
-     *                                      type: boolean
-     *                                      example: false
-     *                                  mode:
-     *                                      type: master | disable | slave
-     *                                      example: master
-     *                                  uart_mode:
-     *                                      type: string
-     *                                      example: 8n1
-     *                                  baud_rate:
-     *                                      type: 2400 | 4800 | 9600 | 14400 | 19200 | 28800 | 38400 | 56000
-     *                                      example: 19200
+     *                              example: false
+     *                  access_points:
+     *                      type: array
+     *                      items:
+     *                          type: object
+     *                          properties:
+     *                              name:
+     *                                  type: string
+     *                                  example: Door328
+     *                              description:
+     *                                  type: string
+     *                                  example: some_description
+     *                              type:
+     *                                  type: string
+     *                                  example: door
+     *                              actual_passage:
+     *                                  type: boolean
+     *                                  example: true
+     *                              mode:
+     *                                  type: N/A | credential | locked | unlocked | free_entry_block_exit | block_entry_free_exit
+     *                                  example: credential
+     *                              apb_enable_local:
+     *                                  type: boolean
+     *                                  example: true
+     *                              apb_enable_timer:
+     *                                  type: boolean
+     *                                  example: true
+     *                              access_point_group:
+     *                                  type: number
+     *                                  example: 1
+     *                              access_point_zone:
+     *                                  type: number
+     *                                  example: 1
+     *                              resources:
+     *                                  type: object
+     *                                  properties:
+     *                              readers:
+     *                                  type: array
+     *                                  items:
+     *                                      type: object
+     *                                      properties:
+     *                                          type:
+     *                                              type: string
+     *                                          port:
+     *                                              type: number
+     *                                              example: 1
+     *                                          wg_type:
+     *                                              type: number
+     *                                          mode:
+     *                                              type: number
+     *                                          direction:
+     *                                              type: number
+     *                                          beep:
+     *                                              type: boolean
+     *                                          crc:
+     *                                              type: boolean
+     *                                          reverse:
+     *                                              type: boolean
      *          responses:
      *              '201':
      *                  description: A acu object
@@ -151,7 +142,7 @@ export default class AcuController {
             }
 
             const check_access_points = checkAccessPointsValidation(req_data.access_points, req_data.model, false)
-            if (!check_access_points) {
+            if (check_access_points !== true) {
                 ctx.status = 400
                 return ctx.body = { message: check_access_points }
             }
@@ -171,8 +162,10 @@ export default class AcuController {
             if (req_data.access_points) {
                 for (const access_point of req_data.access_points) {
                     access_point.acu = save_acu.id
+                    access_point.company = acu.company
                     const save_access_point: any = await AccessPoint.addItem(access_point)
                     for (const reader of access_point.readers) {
+                        reader.company = acu.company
                         reader.access_point = save_access_point.id
                         await Reader.addItem(reader)
                     }
@@ -181,6 +174,8 @@ export default class AcuController {
 
             ctx.body = save_acu
         } catch (error) {
+            console.log(error)
+
             ctx.status = error.status || 400
             ctx.body = error
         }
@@ -218,36 +213,85 @@ export default class AcuController {
      *                  name:
      *                      type: string
      *                      example: Door328 HUB
-     *                  serial_number:
-     *                      type: string
-     *                      example: device
      *                  description:
      *                      type: string
      *                      example: some description
-     *                  model:
-     *                      type: string
-     *                      example: LRM-2CRS
-     *                  status:
-     *                      type: active | pending | no_hardware
-     *                      example: pending
-     *                  ip_address:
-     *                      type: number
-     *                      example: 192.168.99.232
-     *                  cloud_status:
-     *                      type: boolean
-     *                      example: true
-     *                  fw_version:
-     *                      type: string
-     *                      example: 1.3.4
-     *                  maintain_update_manual:
-     *                      type: boolean
-     *                      example: true
      *                  shared_resource_mode:
      *                      type: boolean
      *                      example: false
-     *                  connection_type:
-     *                      type: wi-fi | ethernet
-     *                      example: ethernet
+     *                  time:
+     *                      type: object
+     *                      properties:
+     *                          enable_daylight_saving_time:
+     *                              type: boolean
+     *                              example: false
+     *                          timezone_from_facility:
+     *                              type: boolean
+     *                              example: false
+     *                          time_zone:
+     *                              type: string
+     *                              example: +0
+     *                          daylight_saving_time_from_user_account:
+     *                              type: boolean
+     *                              example: false
+     *                  access_points:
+     *                      type: array
+     *                      items:
+     *                          type: object
+     *                          properties:
+     *                              id:
+     *                                  type: number
+     *                                  example: 1
+     *                              name:
+     *                                  type: string
+     *                                  example: Door328
+     *                              description:
+     *                                  type: string
+     *                                  example: some_description
+     *                              actual_passage:
+     *                                  type: boolean
+     *                                  example: true
+     *                              mode:
+     *                                  type: N/A | credential | locked | unlocked | free_entry_block_exit | block_entry_free_exit
+     *                                  example: credential
+     *                              apb_enable_local:
+     *                                  type: boolean
+     *                                  example: true
+     *                              apb_enable_timer:
+     *                                  type: boolean
+     *                                  example: true
+     *                              access_point_group:
+     *                                  type: number
+     *                                  example: 1
+     *                              access_point_zone:
+     *                                  type: number
+     *                                  example: 1
+     *                              resources:
+     *                                  type: object
+     *                                  properties:
+     *                              readers:
+     *                                  type: array
+     *                                  items:
+     *                                      type: object
+     *                                      properties:
+     *                                          id:
+     *                                              type: number
+     *                                              example: 1
+     *                                          port:
+     *                                              type: number
+     *                                              example: 1
+     *                                          wg_type:
+     *                                              type: number
+     *                                          mode:
+     *                                              type: number
+     *                                          direction:
+     *                                              type: number
+     *                                          beep:
+     *                                              type: boolean
+     *                                          crc:
+     *                                              type: boolean
+     *                                          reverse:
+     *                                              type: boolean
      *                  network:
      *                      type: object
      *                      properties:
@@ -269,42 +313,13 @@ export default class AcuController {
      *                          dns_server:
      *                              type: string
      *                              example: 192.168.99.1
-     *                          port:
-     *                              type: number
-     *                              example: 2777
      *                  interface:
      *                      type: object
      *                      properties:
      *                          rs485_port_1:
-     *                              type: object
-     *                              properties:
-     *                                  enable:
-     *                                      type: boolean
-     *                                      example: true
-     *                                  mode:
-     *                                      type: master | disable | slave
-     *                                      example: master
-     *                                  uart_mode:
-     *                                      type: string
-     *                                      example: 8n1
-     *                                  baud_rate:
-     *                                      type: 2400 | 4800 | 9600 | 14400 | 19200 | 28800 | 38400 | 56000
-     *                                      example: 19200
+     *                              type: boolean
      *                          rs485_port_2:
-     *                              type: object
-     *                              properties:
-     *                                  enable:
-     *                                      type: boolean
-     *                                      example: false
-     *                                  mode:
-     *                                      type: master | disable | slave
-     *                                      example: master
-     *                                  uart_mode:
-     *                                      type: string
-     *                                      example: 8n1
-     *                                  baud_rate:
-     *                                      type: 2400 | 4800 | 9600 | 14400 | 19200 | 28800 | 38400 | 56000
-     *                                      example: 19200
+     *                              type: boolean
      *          responses:
      *              '201':
      *                  description: A acu updated object
@@ -365,12 +380,12 @@ export default class AcuController {
 
                 if (req_data.access_points) {
                     const check_access_points = checkAccessPointsValidation(req_data.access_points, acu.model, true)
-                    if (!check_access_points) {
+                    if (check_access_points !== true) {
                         ctx.status = 400
                         return ctx.body = { message: check_access_points }
                     } else {
                         for (let access_point of req_data.access_points) {
-                            for (const resource of access_point.resources) {
+                            for (const resource in access_point.resources) {
                                 const component_source: number = access_point.resources[resource].component_source
                                 if (component_source !== 0) {
                                     const ext_device = await ExtDevice.findOne({ id: component_source, company: company })
@@ -382,11 +397,16 @@ export default class AcuController {
                             }
 
                             let access_point_update = true
+                            const readers = access_point.readers
+
                             if (!access_point.id) {
                                 access_point_update = false
                                 access_point.acu = acu.id
                                 access_point.company = company
                                 access_point = await AccessPoint.addItem(access_point)
+                            } else {
+                                const old_access_point = await AccessPoint.findOneOrFail({ id: access_point.id, company: company })
+                                access_point.type = old_access_point.type
                             }
 
                             if (acu.status === acuStatus.ACTIVE) {
@@ -403,16 +423,22 @@ export default class AcuController {
                                 //     SendDevice.SetCtpFloor(location, acu.serial_number, acu.session_id, req_data)
                                 // }
                             } else {
-                                if (access_point_update) access_point = await AccessPoint.updateItem(access_point)
+                                if (access_point_update) {
+                                    const access_point_update = await AccessPoint.updateItem(access_point)
+                                    access_point = access_point_update.new
+                                }
                             }
 
-                            for (const reader of access_point.readers) {
+                            for (let reader of readers) {
                                 let reader_update = true
                                 if (!reader.id) {
                                     reader_update = false
                                     reader.access_point = access_point.id
                                     reader.company = company
-                                    await Reader.addItem(reader)
+                                    reader = await Reader.addItem(reader)
+                                } else {
+                                    const old_reader = await Reader.findOneOrFail({ id: reader.id, company: company })
+                                    reader.access_point = old_reader.access_point
                                 }
 
                                 if (acu.status === acuStatus.ACTIVE) {

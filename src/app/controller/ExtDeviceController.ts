@@ -36,7 +36,8 @@ export default class ExtDeviceController {
      *                  acu:
      *                      type: number
      *                  ext_board:
-     *                      type: string
+     *                      type: LR-RB16 | LR-IB16
+     *                      example: LR-RB16
      *                  baud_rate:
      *                      type: number
      *                  uart_mode:
@@ -44,6 +45,8 @@ export default class ExtDeviceController {
      *                  address:
      *                      type: string
      *                  port:
+     *                      type: number
+     *                  protocol:
      *                      type: number
      *          responses:
      *              '201':
@@ -128,7 +131,8 @@ export default class ExtDeviceController {
      *                  acu:
      *                      type: number
      *                  ext_board:
-     *                      type: string
+     *                      type: LR-RB16 | LR-IB16
+     *                      example: LR-RB16
      *                  baud_rate:
      *                      type: number
      *                  uart_mode:
@@ -150,9 +154,11 @@ export default class ExtDeviceController {
             const req_data: any = ctx.request.body
             const user = ctx.user
             const location = `${user.company_main}/${user.company}`
-            const acu: Acu = await Acu.findOneOrFail({ id: req_data.acu })
+            const extDevice: ExtDevice = await ExtDevice.findOneOrFail(req_data.id)
+            const acu: Acu = await Acu.findOneOrFail({ id: extDevice.acu })
             if (acu.status === acuStatus.ACTIVE) {
                 new SendDeviceMessage(OperatorType.SET_EXT_BRD, location, acu.serial_number, req_data, acu.session_id, true)
+                ctx.body = { message: 'Update pending' }
             } else if (acu.status === acuStatus.NO_HARDWARE) {
                 ctx.body = await ExtDevice.updateItem(req_data)
             } else {
@@ -160,6 +166,8 @@ export default class ExtDeviceController {
                 ctx.body = { message: 'Activate ACU before changes' }
             }
         } catch (error) {
+            console.log(error)
+
             ctx.status = error.status || 400
             ctx.body = error
         }
@@ -242,13 +250,15 @@ export default class ExtDeviceController {
     public static async destroy (ctx: DefaultContext) {
         try {
             const ext_device: ExtDevice = await ExtDevice.findOneOrFail({ id: ctx.request.body.id })
-            ctx.body = await ExtDevice.destroyItem(ctx.request.body as { id: number })
             const req_data: any = ctx.request.body
             const user = ctx.user
             const location = `${user.company_main}/${user.company}`
             const acu: Acu = await Acu.findOneOrFail({ id: ext_device.acu })
             if (acu.status === acuStatus.ACTIVE) {
                 new SendDeviceMessage(OperatorType.DEL_EXT_BRD, location, acu.serial_number, req_data, acu.session_id)
+                ctx.body = { message: 'Destroy pending' }
+            } else {
+                ctx.body = await ExtDevice.destroyItem(ctx.request.body as { id: number })
             }
         } catch (error) {
             ctx.status = error.status || 400

@@ -25,16 +25,16 @@ export enum OperatorType {
     SET_EXT_BRD_ACK = 'SetExtBrd-Ack',
     GET_EXT_BRD = 'GetExtBrd',
     GET_EXT_BRD_ACK = 'GetExtBrd-Ack',
-    DEL_EXT_BRD = 'delExtBrd',
-    DEL_EXT_BRD_ACK = 'delExtBrd-Ack',
+    DEL_EXT_BRD = 'DelExtBrd',
+    DEL_EXT_BRD_ACK = 'DelExtBrd-Ack',
 
     SET_RD = 'SetRd',
     SET_RD_ACK = 'SetRd-Ack',
     GET_RD = 'GetRd',
     GET_RD_ACK = 'GetRd-Ack',
 
-    DEL_RD = 'delRd',
-    DEL_RD_ACK = 'delRd-Ack',
+    DEL_RD = 'DelRd',
+    DEL_RD_ACK = 'DelRd-Ack',
 
     SET_OUTPUT = 'SetOutput',
     SET_OUTPUT_ACK = 'SetOutput-Ack',

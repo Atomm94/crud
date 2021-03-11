@@ -286,7 +286,6 @@ export default class AccessPointController {
             const where = { id: req_data.id, company: user.company ? user.company : null }
             const access_point = await AccessPoint.findOne({ relations: ['acus'], where: where })
             const location = `${user.company_main}/${user.company}`
-            console.log(access_point)
             if (!access_point) {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
@@ -462,7 +461,6 @@ export default class AccessPointController {
         try {
             const type = ctx.params.type
             const ap_resources: any = accessPointResources
-            console.log(ap_resources.access_point_type[type])
 
             if (!ap_resources.access_point_type[type]) {
                 ctx.status = 400
@@ -470,7 +468,6 @@ export default class AccessPointController {
                     message: 'not correct access point type!'
                 }
             } else {
-                console.log(ap_resources.access_point_type[type])
                 const resource_data = ap_resources.access_point_type[type]
                 Object.keys(resource_data.resources).forEach(rio => { // rio - reader input output
                     Object.keys(resource_data.resources[rio]).forEach(rio_key => {

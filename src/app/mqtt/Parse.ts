@@ -197,14 +197,14 @@ export default class Parse {
 
             await Acu.addItem(acu_data)
             new SendDeviceMessage(OperatorType.ACCEPT, message.location, message.device_id, 'none')
-            console.log('success:true')
+            // console.log('success:true')
         } catch (error) {
-            console.log('error deviceRegistrion ', error)
+            // console.log('error deviceRegistrion ', error)
         }
     }
 
     public static deviceAcceptAck (message: IMqttCrudMessaging) {
-        console.log('deviceAcceptAck', message)
+        // console.log('deviceAcceptAck', message)
         if (message.result.errorNo === 0) {
             const company = message.company
             const device_id = message.device_id
@@ -220,7 +220,7 @@ export default class Parse {
     }
 
     public static async deviceLoginAck (message: IMqttCrudMessaging) {
-        console.log('deviceLoginAck', message)
+        // console.log('deviceLoginAck', message)
         if (message.result.errorNo === 0) {
             const acu: Acu = await Acu.findOneOrFail({ serial_number: message.device_id, company: message.company })
             if (acu) {
@@ -236,17 +236,17 @@ export default class Parse {
                 }
                 acu.session_id = message.session_id
                 await acu.save()
-                console.log('login complete')
+                // console.log('login complete')
             } else {
-                console.log('error deviceLoginAck', message)
+                // console.log('error deviceLoginAck', message)
             }
         }
     }
 
     public static async deviceLogOutAck (message: IMqttCrudMessaging) {
-        console.log('deviceLogOutAck', message)
+        // console.log('deviceLogOutAck', message)
         if (message.result.errorNo === 0) {
-            console.log('logout complete')
+            // console.log('logout complete')
             const company = message.company
             const device_id = message.device_id
             const acu: any = await Acu.findOne({ serial_number: device_id, company: company })
@@ -257,7 +257,7 @@ export default class Parse {
     }
 
     public static async deviceSetPassAck (message: IMqttCrudMessaging) {
-        console.log('deviceSetPassAck', message)
+        // console.log('deviceSetPassAck', message)
         if (message.result.errorNo === 0) {
             const company = message.company
             const device_id = message.device_id
@@ -265,15 +265,15 @@ export default class Parse {
             if (acu) {
                 acu.password = message.send_data.data.password
                 await acu.save()
-                console.log('deviceSetPass complete')
+                // console.log('deviceSetPass complete')
             } else {
-                console.log('error deviceSetPass', message)
+                // console.log('error deviceSetPass', message)
             }
         }
     }
 
     public static async deviceLogOutEvent (message: IMqttCrudMessaging) {
-        console.log('deviceLogOutEvent', message)
+        // console.log('deviceLogOutEvent', message)
         if (message.result.errorNo === 0) {
             const company = message.company
             const device_id = message.device_id
@@ -286,9 +286,9 @@ export default class Parse {
                     password: acu.password
                 }
                 new SendDeviceMessage(OperatorType.LOGIN, message.location, message.device_id, loginData)
-                console.log('deviceLogOutEvent complete')
+                // console.log('deviceLogOutEvent complete')
             } else {
-                console.log('error deviceLogOutEvent', message)
+                // console.log('error deviceLogOutEvent', message)
             }
         }
     }
@@ -311,13 +311,13 @@ export default class Parse {
                         dns_server: info.dns_server
                     }
                     await Acu.updateItem({ id: acu.id, network: acu.network } as Acu)
-                    console.log('deviceSetNetSettingsAck complete')
+                    // console.log('deviceSetNetSettingsAck complete')
                 } else {
-                    console.log('error deviceSetNetSettingsAck', message)
+                    // console.log('error deviceSetNetSettingsAck', message)
                 }
             }
         } catch (error) {
-            console.log('error deviceSetNetSettingsAck', error)
+            // console.log('error deviceSetNetSettingsAck', error)
         }
     }
 
@@ -365,75 +365,75 @@ export default class Parse {
             if (acu) {
                 acu.time = JSON.stringify(message.send_data.data)
                 await Acu.updateItem({ id: acu.id, network: acu.network } as Acu)
-                console.log('deviceSetDateTimeAck complete')
+                // console.log('deviceSetDateTimeAck complete')
             } else {
-                console.log('error deviceSetDateTimeAck', message)
+                // console.log('error deviceSetDateTimeAck', message)
             }
         }
     }
 
     public static deviceSetMqttSettingsAck (message: IMqttCrudMessaging): void {
-        console.log('deviceSetMqttSettingsAck', message)
+        // console.log('deviceSetMqttSettingsAck', message)
         if (message.result.errorNo === 0) {
-            console.log('deviceSetMqttSettingsAck complete')
+            // console.log('deviceSetMqttSettingsAck complete')
         }
     }
 
     public static deviceGetMqttSettingsAck (message: IMqttCrudMessaging): void {
-        console.log('deviceGetMqttSettingsAck', message)
+        // console.log('deviceGetMqttSettingsAck', message)
         if (message.result.errorNo === 0) {
-            console.log('deviceGetMqttSettingsAck complete')
+            // console.log('deviceGetMqttSettingsAck complete')
         }
     }
 
     public static deviceGetStatusAcuAck (message: IMqttCrudMessaging): void {
-        console.log('deviceGetStatusAcuAck', message)
+        // console.log('deviceGetStatusAcuAck', message)
         if (message.result.errorNo === 0) {
-            console.log('deviceGetStatusAcuAck complete')
+            // console.log('deviceGetStatusAcuAck complete')
         }
     }
 
     public static async deviceSetExtBrdAck (message: IMqttCrudMessaging) {
-        console.log('deviceSetExtBrdAck', message)
+        // console.log('deviceSetExtBrdAck', message)
         if (message.result.errorNo === 0) {
             if (message.send_data.update) {
                 const save: any = await ExtDevice.updateItem(message.send_data.data as ExtDevice)
                 if (save) {
-                    console.log('ExtDevice update completed')
+                    // console.log('ExtDevice update completed')
                 }
             } else {
-                console.log('ExtDevice insert completed')
+                // console.log('ExtDevice insert completed')
             }
         } else {
             if (!message.send_data.update) {
-                await ExtDevice.destroyItem(message.send_data.data.id)
+                await ExtDevice.destroyItem({ id: message.send_data.data.id })
             }
         }
     }
 
     public static deviceGetExtBrdAck (message: IMqttCrudMessaging) {
-        console.log('deviceGetExtBrdAck', message)
+        // console.log('deviceGetExtBrdAck', message)
         if (message.result.errorNo === 0) {
-            console.log('ExtDevice complete')
+            // console.log('ExtDevice complete')
         }
     }
 
     public static async deviceDelExtBrdAck (message: IMqttCrudMessaging) {
-        console.log('deviceDelExtBrdAck', message)
+        // console.log('deviceDelExtBrdAck', message)
         if (message.result.errorNo === 0) {
-            await ExtDevice.destroyItem(message.send_data.data.id)
-            console.log('DelExtDevice complete')
+            await ExtDevice.destroyItem({ id: message.send_data.data.id })
+            // console.log('DelExtDevice complete')
         }
     }
 
     public static async deviceSetRdAck (message: IMqttCrudMessaging) {
-        console.log('deviceSetRd', message)
+        // console.log('deviceSetRd', message)
         if (message.result.errorNo === 0) {
             if (message.send_data.update) {
-            const access_point: any = {
-                id: message.send_data.data.access_point,
-                readers: message.send_data.data
-            }
+                const access_point: any = {
+                    id: message.send_data.data.access_point,
+                    readers: message.send_data.data
+                }
                 if (message.send_data.data.access_point_type === accessPointType.DOOR) {
                     new SendDeviceMessage(OperatorType.SET_CTP_DOOR, message.location, message.device_id, message.session_id, access_point)
                     // } else if (message.send_data.data.access_point_type === accessPointType.GATE) {
@@ -448,30 +448,30 @@ export default class Parse {
                 }
                 const save: any = await Reader.updateItem(message.send_data.data as Reader)
                 if (save) {
-                    console.log('Reader update completed')
+                    // console.log('Reader update completed')
                 }
             } else {
-                console.log('Reader insert completed')
+                // console.log('Reader insert completed')
             }
         } else {
             if (!message.send_data.update) {
-                await Reader.destroyItem(message.send_data.data.id)
+                await Reader.destroyItem({ id: message.send_data.data.id })
             }
         }
     }
 
     public static deviceGetRdAck (message: IMqttCrudMessaging): void {
-        console.log('deviceGetRdAck', message)
+        // console.log('deviceGetRdAck', message)
         if (message.result.errorNo === 0) {
-            console.log('deviceGetRdAck complete')
+            // console.log('deviceGetRdAck complete')
         }
     }
 
     public static async deviceDelRdAck (message: IMqttCrudMessaging) {
-        console.log('deviceDelRdAck', message)
+        // console.log('deviceDelRdAck', message)
         if (message.result.errorNo === 0) {
-            await Reader.destroyItem(message.send_data.data.id)
-            console.log('deviceDelRdAck complete')
+            await Reader.destroyItem({ id: message.send_data.data.id })
+            // console.log('deviceDelRdAck complete')
             const access_point: any = {
                 id: message.send_data.data.access_point,
                 readers: message.send_data.data
@@ -492,202 +492,196 @@ export default class Parse {
     }
 
     public static deviceSetOutputAck (message: IMqttCrudMessaging): void {
-        console.log('deviceGetRdAck', message)
+        // console.log('deviceGetRdAck', message)
         if (message.result.errorNo === 0) {
-            console.log('deviceGetRdAck complete')
+            // console.log('deviceGetRdAck complete')
         }
     }
 
     public static deviceGetOutputAck (message: IMqttCrudMessaging): void {
-        console.log('deviceGetOutputAck', message)
+        // console.log('deviceGetOutputAck', message)
         if (message.result.errorNo === 0) {
-            console.log('deviceGetOutputAck complete')
+            // console.log('deviceGetOutputAck complete')
         }
     }
 
     public static deviceGetInputAck (message: IMqttCrudMessaging): void {
-        console.log('deviceGetInputAck', message)
+        // console.log('deviceGetInputAck', message)
         if (message.result.errorNo === 0) {
-            console.log('deviceGetInputAck complete')
+            // console.log('deviceGetInputAck complete')
         }
     }
 
     public static async deviceSetCtpDoorAck (message: IMqttCrudMessaging) {
-        console.log('deviceSetCtpDoorAck', message)
+        // console.log('deviceSetCtpDoorAck', message)
         if (message.result.errorNo === 0) {
             if (message.send_data.update) {
                 const save: any = await AccessPoint.updateItem(message.send_data.data as AccessPoint)
                 if (save) {
-                    console.log('AccessPoint update completed')
+                    // console.log('AccessPoint update completed')
                 }
             } else {
-                console.log('AccessPoint insert completed')
+                // console.log('AccessPoint insert completed')
             }
         } else {
             if (!message.send_data.update) {
-                await AccessPoint.destroyItem(message.send_data.data.id)
+                await AccessPoint.destroyItem({ id: message.send_data.data.id })
             }
         }
     }
 
     public static async deviceDelCtpDoorAck (message: IMqttCrudMessaging) {
-        console.log('deviceDelCtpDoorAck', message)
+        // console.log('deviceDelCtpDoorAck', message)
         if (message.result.errorNo === 0) {
-            await AccessPoint.destroyItem(message.send_data.data.id)
-            console.log('deviceDelCtpDoorAck insert completed')
+            await AccessPoint.destroyItem({ id: message.send_data.data.id })
+            // console.log('deviceDelCtpDoorAck insert completed')
         }
     }
 
     public static deviceEvent (message: IMqttCrudMessaging): void {
-        console.log('deviceEvent', message)
+        // console.log('deviceEvent', message)
         if (message.result.errorNo === 0) {
-            console.log('deviceEvent complete')
+            // console.log('deviceEvent complete')
         }
     }
 
     public static deviceSetEventsModAck (message: IMqttCrudMessaging): void {
-        console.log('deviceSetEventsModAck', message)
+        // console.log('deviceSetEventsModAck', message)
         if (message.result.errorNo === 0) {
-            console.log('deviceSetEventsModAck complete')
+            // console.log('deviceSetEventsModAck complete')
         }
     }
 
     public static deviceGetEventsModAck (message: IMqttCrudMessaging): void {
-        console.log('deviceGetEventsModAck', message)
+        // console.log('deviceGetEventsModAck', message)
         if (message.result.errorNo === 0) {
-            console.log('deviceGetEventsModAck complete')
+            // console.log('deviceGetEventsModAck complete')
         }
     }
 
     public static deviceGetEventsAck (message: IMqttCrudMessaging): void {
-        console.log('deviceGetEventsAck', message)
+        // console.log('deviceGetEventsAck', message)
         if (message.result.errorNo === 0) {
-            console.log('deviceGetEventsAck complete')
+            // console.log('deviceGetEventsAck complete')
         }
     }
 
     public static deviceSetAccessModeAck (message: IMqttCrudMessaging): void {
-        console.log('deviceSetAccessModeAck', message)
+        // console.log('deviceSetAccessModeAck', message)
         if (message.result.errorNo === 0) {
-            console.log('deviceSetAccessModeAck complete')
+            // console.log('deviceSetAccessModeAck complete')
         }
     }
 
     public static deviceGetAccessModeAck (message: IMqttCrudMessaging): void {
-        console.log('deviceGetAccessModeAck', message)
+        // console.log('deviceGetAccessModeAck', message)
         if (message.result.errorNo === 0) {
-            console.log('deviceGetAccessModeAck complete')
+            // console.log('deviceGetAccessModeAck complete')
         }
     }
 
     public static deviceSinglePassAck (message: IMqttCrudMessaging): void {
-        console.log('deviceSinglePassAck', message)
+        // console.log('deviceSinglePassAck', message)
         if (message.result.errorNo === 0) {
-            console.log('deviceSinglePassAck complete')
+            // console.log('deviceSinglePassAck complete')
         }
     }
 
     public static setCardKeysAck (message: IMqttCrudMessaging): void {
-        console.log('setCardKeysAck', message)
+        // console.log('setCardKeysAck', message)
         if (message.result.errorNo === 0) {
-            console.log('setCardKeysAck complete')
+            // console.log('setCardKeysAck complete')
         }
     }
 
     public static addCardKeyAck (message: IMqttCrudMessaging): void {
-        console.log('addCardKeyAck', message)
+        // console.log('addCardKeyAck', message)
         if (message.result.errorNo === 0) {
-            console.log('addCardKeyAck complete')
+            // console.log('addCardKeyAck complete')
         }
     }
 
     public static editKeyAck (message: IMqttCrudMessaging): void {
-        console.log('editKeyAck', message)
+        // console.log('editKeyAck', message)
         if (message.result.errorNo === 0) {
-            console.log('editKeyAck complete')
+            // console.log('editKeyAck complete')
         }
     }
 
     public static dellKeysAck (message: IMqttCrudMessaging): void {
-        console.log('dellKeysAck', message)
+        // console.log('dellKeysAck', message)
         if (message.result.errorNo === 0) {
-            console.log('dellKeysAck complete')
+            // console.log('dellKeysAck complete')
         }
     }
 
     public static dellAllKeysAck (message: IMqttCrudMessaging): void {
-        console.log('dellAllKeysAck', message)
+        // console.log('dellAllKeysAck', message)
         if (message.result.errorNo === 0) {
-            console.log('dellAllKeysAck complete')
+            // console.log('dellAllKeysAck complete')
         }
     }
 
     public static async setSdlDailyAck (message: IMqttCrudMessaging) {
-        console.log('setSdlDailyAck', message)
+        // console.log('setSdlDailyAck', message)
         if (message.result.errorNo === 0) {
-            if (message.send_data.data.schedule_type) {
+            if (message.send_data.update) {
                 await AccessRule.updateItem(message.send_data.data as AccessRule)
             }
-            console.log('setSdlDailyAck complete')
+            // console.log('setSdlDailyAck complete')
         } else {
-            if (!message.send_data.data.schedule_type) {
-                await AccessRule.destroyItem(message.send_data.data.id)
+            if (!message.send_data.update) {
+                await AccessRule.destroyItem({ id: message.send_data.data.id })
             }
         }
     }
 
     public static async delSdlDailyAck (message: IMqttCrudMessaging) {
-        console.log('delSdlDailyAck', message)
+        // console.log('delSdlDailyAck', message)
         // const acu: any = await Acu.findOne({ serial_number: message.device_id, company: message.company })
 
         if (message.result.errorNo === 0) {
-            if (message.send_data.data.schedule_type) {
-                const operator: OperatorType = OperatorType.SET_SDL_DAILY
-                new SendDeviceMessage(operator, message.location, message.device_id, message.send_data, message.session_id)
-                console.log('dellSheduleAck complete')
-            } else {
-                await AccessRule.destroyItem(message.send_data.data.id)
+            if (!message.send_data.update) {
+                await AccessRule.destroyItem({ id: message.send_data.data.id })
+                // console.log('dellSheduleAck complete')
             }
         }
     }
 
     public static async setSdlWeeklyAck (message: IMqttCrudMessaging) {
-        console.log('setSdlWeeklyAck', message)
+        // console.log('setSdlWeeklyAck', message)
         if (message.result.errorNo === 0) {
             await AccessRule.updateItem(message.send_data.data as AccessRule)
-            console.log('setSdlWeeklyAck complete')
+            // console.log('setSdlWeeklyAck complete')
         } else {
-            await AccessRule.destroyItem(message.send_data.data.schedule)
+            await AccessRule.destroyItem({ id: message.send_data.data.id })
         }
     }
 
     public static async delSdlWeeklyAck (message: IMqttCrudMessaging) {
-        console.log('delSdlWeeklyAck', message)
+        // console.log('delSdlWeeklyAck', message)
 
         if (message.result.errorNo === 0) {
-            if (message.send_data.data.schedule_type) {
-                const operator: OperatorType = OperatorType.SET_SDL_WEEKLY
-                new SendDeviceMessage(operator, message.location, message.device_id, message.send_data, message.session_id)
-                console.log('dellSheduleAck complete')
-            } else {
-                await AccessRule.destroyItem(message.send_data.data.id)
+            if (!message.send_data.update) {
+                await AccessRule.destroyItem({ id: message.send_data.data.id })
+                // console.log('dellSheduleAck complete')
             }
         }
     }
 
     public static async setSdlFlexiTimeAck (message: IMqttCrudMessaging) {
-        console.log('setSdlFlexiTimeAck', message)
+        // console.log('setSdlFlexiTimeAck', message)
         if (message.result.errorNo === 0) {
-            console.log('setSdlFlexiTimeAck complete')
+            // console.log('setSdlFlexiTimeAck complete')
             message.send_data.data.adds_count = 0
             new SendDeviceMessage(OperatorType.ADD_DAY_FLEXI_TIME, message.location, message.device_id, message.send_data, message.session_id)
         }
     }
 
     public static async addDayFlexiTimeAck (message: IMqttCrudMessaging) {
-        console.log('addDayFlexiTimeAck', message)
+        // console.log('addDayFlexiTimeAck', message)
         if (message.result.errorNo === 0) {
-            console.log('addDayFlexiTimeAck complete')
+            // console.log('addDayFlexiTimeAck complete')
             const set_params = message.send_data.data.set_params
             set_params.adds_count++
             if (set_params.adds_count === set_params.info.DaysCount) {
@@ -699,81 +693,75 @@ export default class Parse {
     }
 
     public static endSdlFlexiTimeAck (message: IMqttCrudMessaging): void {
-        console.log('endSdlFlexiTimeAck', message)
+        // console.log('endSdlFlexiTimeAck', message)
         if (message.result.errorNo === 0) {
-            console.log('endSdlFlexiTimeAck complete')
+            // console.log('endSdlFlexiTimeAck complete')
         }
     }
 
     public static async delSdlFlexiTimeAck (message: IMqttCrudMessaging) {
-        console.log('delSdlFlexiTimeAck', message)
+        // console.log('delSdlFlexiTimeAck', message)
 
         if (message.result.errorNo === 0) {
-            if (message.send_data.data.schedule_type) {
-                const operator: OperatorType = OperatorType.SET_SDL_FLEXI_TIME
-                new SendDeviceMessage(operator, message.location, message.device_id, message.send_data, message.session_id)
-                console.log('dellSheduleAck complete')
-            } else {
-                await AccessRule.destroyItem(message.send_data.data.id)
+            if (message.send_data.update) {
+                await AccessRule.destroyItem({ id: message.send_data.data.id })
+                // console.log('dellSheduleAck complete')
             }
         }
     }
 
     public static delDayFlexiTimeAck (message: IMqttCrudMessaging): void {
-        console.log('delDayFlexiTimeAck', message)
+        // console.log('delDayFlexiTimeAck', message)
         if (message.result.errorNo === 0) {
-            console.log('delDayFlexiTimeAck complete')
+            // console.log('delDayFlexiTimeAck complete')
         }
     }
 
     public static setSdlSpecifiedAck (message: IMqttCrudMessaging): void {
-        console.log('setSdlSpecifiedAck', message)
+        // console.log('setSdlSpecifiedAck', message)
         if (message.result.errorNo === 0) {
-            console.log('setSdlSpecifiedAck complete')
+            // console.log('setSdlSpecifiedAck complete')
         }
     }
 
     public static addDaySpecifiedAck (message: IMqttCrudMessaging): void {
-        console.log('addDaySpecifiedAck', message)
+        // console.log('addDaySpecifiedAck', message)
         if (message.result.errorNo === 0) {
-            console.log('addDaySpecifiedAck complete')
+            // console.log('addDaySpecifiedAck complete')
         }
     }
 
     public static endSdlSpecifiedAck (message: IMqttCrudMessaging): void {
-        console.log('endSdlSpecifiedAck', message)
+        // console.log('endSdlSpecifiedAck', message)
         if (message.result.errorNo === 0) {
-            console.log('endSdlSpecifiedAck complete')
+            // console.log('endSdlSpecifiedAck complete')
         }
     }
 
     public static async delSdlSpecifiedAck (message: IMqttCrudMessaging) {
-        console.log('delSdlSpecifiedAck', message)
+        // console.log('delSdlSpecifiedAck', message)
 
         if (message.result.errorNo === 0) {
-            if (message.send_data.data.schedule_type) {
-                const operator: OperatorType = OperatorType.SET_SDL_SPECIFIED
-                new SendDeviceMessage(operator, message.location, message.device_id, message.send_data, message.session_id)
-                console.log('dellSheduleAck complete')
-            } else {
-                await AccessRule.destroyItem(message.send_data.data.id)
+            if (message.send_data.update) {
+                await AccessRule.destroyItem({ id: message.send_data.data.id })
+                // console.log('dellSheduleAck complete')
             }
         }
     }
 
     public static dellDaySpecifiedAck (message: IMqttCrudMessaging): void {
-        console.log('dellDaySpecifiedAck', message)
+        // console.log('dellDaySpecifiedAck', message)
         if (message.result.errorNo === 0) {
-            console.log('dellDaySpecifiedAck complete')
+            // console.log('dellDaySpecifiedAck complete')
         }
     }
 
     public static async dellSheduleAck (message: IMqttCrudMessaging) {
-        console.log('dellSheduleAck', message)
+        // console.log('dellSheduleAck', message)
         const acu: any = await Acu.findOne({ serial_number: message.device_id, company: message.company })
 
         if (message.result.errorNo === 0) {
-            if (message.send_data.data.schedule_type) {
+            if (message.send_data.update) {
                 let operator: OperatorType = OperatorType.SET_SDL_DAILY
                 if (message.send_data.data.schedule_type === scheduleType.WEEKLY) {
                     operator = OperatorType.SET_SDL_WEEKLY
@@ -783,15 +771,15 @@ export default class Parse {
                     operator = OperatorType.SET_SDL_SPECIFIED
                 }
                 new SendDeviceMessage(operator, message.location, acu.serial_number, message.send_data, acu.session_id)
-                console.log('dellSheduleAck complete')
+                // console.log('dellSheduleAck complete')
             }
         }
     }
 
     public static deviceDevTestAck (message: IMqttCrudMessaging): void {
-        console.log('deviceDevTestAck', message)
+        // console.log('deviceDevTestAck', message)
         if (message.result.errorNo === 0) {
-            console.log('deviceDevTestAck complete')
+            // console.log('deviceDevTestAck complete')
         }
     }
 }
