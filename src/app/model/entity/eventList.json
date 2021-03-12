@@ -1,0 +1,1697 @@
+{
+    "0": {
+        "name": "ACCESS",
+        "events": {
+            "1": {
+                "event": "Access denied: Antipassback violation",
+                "source_entity": "door",
+                "description": "A cardholder requested access to an area that they have already entered, or requested access to leave an area that they were never in."
+            },
+            "2": {
+                "event": "Access denied: A second cardholder is required",
+                "source_entity": "door",
+                "description": "Two cardholders must present their credentials within a certain delay of each other and the delay has expired. This event only applies to doors controlled by Synergis™ units."
+            },
+            "3": {
+                "event": "Access denied: Denied by access rule",
+                "source_entity": "door or elevator",
+                "description": "The cardholder is denied access according to the access rule."
+            },
+            "4": {
+                "event": "Access denied: Max occupancy reached",
+                "source_entity": "door",
+                "description": "The cardholder is denied because the area is at its occupancy limit."
+            },
+            "5": {
+                "event": "Access denied: Expired credential",
+                "source_entity": "cardholder, credential, door, or elevator",
+                "description": "An expired credential has been used."
+            },
+            "6": {
+                "event": "Access denied: First-person-in rule supervisor absent",
+                "source_entity": "door",
+                "description": "The first-person-in rule has been enforced on the area, and no supervisor has arrived yet."
+            },
+            "7": {
+                "event": "Access denied: Inactive cardholder",
+                "source_entity": "cardholder, door, or elevator",
+                "description": "A cardholder with an inactive profile has attempted to access a door or elevator."
+            },
+            "8": {
+                "event": "Access denied: Interlock",
+                "source_entity": "door",
+                "description": "Access is denied because of an interlock constraint."
+            },
+            "9": {
+                "event": "Access denied: Invalid PIN",
+                "source_entity": "door or elevator",
+                "description": "The cardholder entered an invalid PIN."
+            },
+            "10": {
+                "event": "Access denied: Invalid RFID",
+                "source_entity": "door or elevator",
+                "description": "The cardholder entered an invalid RFID."
+            },
+            "11": {
+                "event": "Access denied: Invalid BT PHONE",
+                "source_entity": "door or elevator",
+                "description": "The cardholder entered an invalid BT PHONE."
+            },
+            "12": {
+                "event": "Access denied: Invalid LINKEY",
+                "source_entity": "door or elevator",
+                "description": "The cardholder entered an invalid LINKEY."
+            },
+            "13": {
+                "event": "Access denied: Invalid VIKEY",
+                "source_entity": "door or elevator",
+                "description": "The cardholder entered an invalid VIKEY."
+            },
+            "14": {
+                "event": "Access denied: Lost credential",
+                "source_entity": "cardholder, credential, door, or elevator",
+                "description": "A credential that has been declared as lost has been used."
+            },
+            "15": {
+                "event": "Access denied: Stolen credential",
+                "source_entity": "cardholder, credential, door, or elevator",
+                "description": "A credential that has been declared as stolen has been used."
+            },
+            "16": {
+                "event": "Access denied: Unknown credential",
+                "source_entity": "door or elevator",
+                "description": "A credential that is unknown in the Security Center system has been used."
+            },
+            "17": {
+                "event": "Access denied: Out of schedule",
+                "source_entity": "door or elevator",
+                "description": "The access rule associated with this cardholder does not apply during the date or time specified in the schedule."
+            },
+            "18": {
+                "event": "Antipassback violation",
+                "source_entity": "area or cardholder",
+                "description": "An access request was made to enter an area with a credential that is already inside the area, or to exit an area with a credential that was never in the area."
+            },
+            "19": {
+                "event": "Antipassback violation forgiven",
+                "source_entity": "cardholder",
+                "description": "A security operator has granted access to a cardholder responsible for a passback violation."
+            },
+            "20": {
+                "event": "Access denied: Double credential requred ",
+                "source_entity": "cardholder",
+                "description": "In the 2 Credentials access mode.The cardholder not entered second credential."
+            },
+            "21": {
+                "event": "Access denied: Double credential timeout",
+                "source_entity": "cardholder",
+                "description": "In the 2 Credentials access mode.The cardholder entered second credtntial with timeout."
+            },
+            "22": {
+                "event": "Entry assumed",
+                "source_entity": "cardholder or door",
+                "description": "A cardholder was granted access to a door or area, and it is assumed that they entered because no door sensor is configured."
+            },
+            "23": {
+                "event": "Entry detected",
+                "source_entity": "cardholder or door",
+                "description": "A cardholder was granted access to a door or area, and their entry is detected. For this event to be generated, you must configure an entry sensor on the door side where you want entry to be detected. If no Entry Sensors are configured on the door, the event will be generated based on the Door Sensor input."
+            },
+            "24": {
+                "event": "Access granted",
+                "source_entity": "cardholder, door, or elevator",
+                "description": "Access has been granted through a door to a cardholder according to the access rules governing the door, elevator, or area. "
+            },
+            "25": {
+                "event": "reserved",
+                "source_entity": "reserved",
+                "description": "reserved"
+            },
+            "26": {
+                "event": "reserved",
+                "source_entity": "reserved",
+                "description": "reserved"
+            },
+            "27": {
+                "event": "reserved",
+                "source_entity": "reserved",
+                "description": "reserved"
+            },
+            "28": {
+                "event": "reserved",
+                "source_entity": "reserved",
+                "description": "reserved"
+            },
+            "29": {
+                "event": "reserved",
+                "source_entity": "reserved",
+                "description": "reserved"
+            },
+            "30": {
+                "event": "reserved",
+                "source_entity": "reserved",
+                "description": "reserved"
+            },
+            "31": {
+                "event": "reserved",
+                "source_entity": "reserved",
+                "description": "reserved"
+            },
+            "32": {
+                "event": "reserved",
+                "source_entity": "reserved",
+                "description": "reserved"
+            },
+            "33": {
+                "event": "reserved",
+                "source_entity": "reserved",
+                "description": "reserved"
+            },
+            "34": {
+                "event": "reserved",
+                "source_entity": "reserved",
+                "description": "reserved"
+            },
+            "35": {
+                "event": "reserved",
+                "source_entity": "reserved",
+                "description": "reserved"
+            },
+            "36": {
+                "event": "reserved",
+                "source_entity": "reserved",
+                "description": "reserved"
+            },
+            "37": {
+                "event": "reserved",
+                "source_entity": "reserved",
+                "description": "reserved"
+            },
+            "38": {
+                "event": "reserved",
+                "source_entity": "reserved",
+                "description": "reserved"
+            },
+            "39": {
+                "event": "reserved",
+                "source_entity": "reserved",
+                "description": "reserved"
+            },
+            "40": {
+                "event": "reserved",
+                "source_entity": "reserved",
+                "description": "reserved"
+            },
+            "41": {
+                "event": "reserved",
+                "source_entity": "reserved",
+                "description": "reserved"
+            },
+            "42": {
+                "event": "reserved",
+                "source_entity": "reserved",
+                "description": "reserved"
+            },
+            "43": {
+                "event": "reserved",
+                "source_entity": "reserved",
+                "description": "reserved"
+            },
+            "44": {
+                "event": "reserved",
+                "source_entity": "reserved",
+                "description": "reserved"
+            },
+            "45": {
+                "event": "reserved",
+                "source_entity": "reserved",
+                "description": "reserved"
+            },
+            "46": {
+                "event": "reserved",
+                "source_entity": "reserved",
+                "description": "reserved"
+            },
+            "47": {
+                "event": "reserved",
+                "source_entity": "reserved",
+                "description": "reserved"
+            },
+            "48": {
+                "event": "reserved",
+                "source_entity": "reserved",
+                "description": "reserved"
+            },
+            "49": {
+                "event": "reserved",
+                "source_entity": "reserved",
+                "description": "reserved"
+            },
+            "50": {
+                "event": "reserved",
+                "source_entity": "reserved",
+                "description": "reserved"
+            },
+            "51": {
+                "event": "reserved",
+                "source_entity": "reserved",
+                "description": "reserved"
+            },
+            "52": {
+                "event": "reserved",
+                "source_entity": "reserved",
+                "description": "reserved"
+            },
+            "53": {
+                "event": "reserved",
+                "source_entity": "reserved",
+                "description": "reserved"
+            },
+            "54": {
+                "event": "reserved",
+                "source_entity": "reserved",
+                "description": "reserved"
+            },
+            "55": {
+                "event": "reserved",
+                "source_entity": "reserved",
+                "description": "reserved"
+            },
+            "56": {
+                "event": "reserved",
+                "source_entity": "reserved",
+                "description": "reserved"
+            },
+            "57": {
+                "event": "reserved",
+                "source_entity": "reserved",
+                "description": "reserved"
+            },
+            "58": {
+                "event": "reserved",
+                "source_entity": "reserved",
+                "description": "reserved"
+            },
+            "59": {
+                "event": "reserved",
+                "source_entity": "reserved",
+                "description": "reserved"
+            },
+            "60": {
+                "event": "reserved",
+                "source_entity": "reserved",
+                "description": "reserved"
+            },
+            "61": {
+                "event": "reserved",
+                "source_entity": "reserved",
+                "description": "reserved"
+            },
+            "62": {
+                "event": "reserved",
+                "source_entity": "reserved",
+                "description": "reserved"
+            },
+            "63": {
+                "event": "reserved",
+                "source_entity": "reserved",
+                "description": "reserved"
+            },
+            "64": {
+                "event": "reserved",
+                "source_entity": "reserved",
+                "description": "reserved"
+            },
+            "65": {
+                "event": "reserved",
+                "source_entity": "reserved",
+                "description": "reserved"
+            }
+        }
+    },
+    "1": {
+        "name": "AP ZONES, AP GROUPS",
+        "events": {
+            "66": {
+                "event": "Capacity minimun threshold reached",
+                "source_entity": "zone",
+                "description": "The zone capacity has reached the capacity minimum threshold"
+            },
+            "67": {
+                "event": "Capacity maximun threshold reached",
+                "source_entity": "zone",
+                "description": "The zone capacity has reached the capacity maximum threshold"
+            },
+            "68": {
+                "event": "People count reset",
+                "source_entity": "zone",
+                "description": "The number of people counted in an zone has been reset to 0."
+            },
+            "69": {
+                "event": "First person in",
+                "source_entity": "zone",
+                "description": "A cardholder has entered an empty zone."
+            },
+            "70": {
+                "event": "Last person out",
+                "source_entity": "zone",
+                "description": "The last cardholder has exited an zone."
+            },
+            "71": {
+                "event": "Interlock mode started",
+                "source_entity": "zone, group",
+                "description": "The zone, group lockdown started"
+            },
+            "72": {
+                "event": "interlock mode finished",
+                "source_entity": "zone, group",
+                "description": "The zone, group lockdown finished"
+            },
+            "73": {
+                "event": "Interlock lockdown input active",
+                "source_entity": "zone, group",
+                "description": "Interlock lockdown has been turned on."
+            },
+            "74": {
+                "event": "Interlock lockdown input normal",
+                "source_entity": "zone, group",
+                "description": "Interlock lockdown has been turned off."
+            },
+            "75": {
+                "event": "Interlock override input active",
+                "source_entity": "zone, group",
+                "description": "Interlock override is on."
+            },
+            "76": {
+                "event": "Interlock override input normal",
+                "source_entity": "zone, group",
+                "description": "Interlock override is off."
+            },
+            "77": {
+                "event": "A door of an interlock has an unlock schedule configured",
+                "source_entity": "zone, group",
+                "description": "A door that is part of an interlock configuration has an unlock schedule configured."
+            },
+            "78": {
+                "event": "A door of an interlock is in maintenance mode",
+                "source_entity": "zone, group",
+                "description": "A door that is part of an interlock configuration is in maintenance mode."
+            },
+            "79": {
+                "event": "An interlock cannot be in hard antipassback mode",
+                "source_entity": "zone, group",
+                "description": "An interlock cannot be in hard antipassback mode. This is an illegal configuration."
+            },
+            "80": {
+                "event": "An interlock cannot have a perimeter door with no door sensor configured",
+                "source_entity": "zone, group",
+                "description": "Interlock cannot be enforced if the system cannot tell whether a door is open or not."
+            },
+            "81": {
+                "event": "An interlock cannot have only one perimeter door",
+                "source_entity": "zone, group",
+                "description": "You need at least two perimeter doors for interlock to be applied."
+            },
+            "82": {
+                "event": "Dead man check failed",
+                "source_entity": "zone",
+                "description": "Dead man check timer gone out"
+            },
+            "83": {
+                "event": "Zone armed",
+                "source_entity": "zone",
+                "description": "A zone has been armed."
+            },
+            "84": {
+                "event": "Zone disarmed",
+                "source_entity": "zone",
+                "description": "A zone has been disarmed."
+            },
+            "85": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "86": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "87": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "88": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "89": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "90": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "91": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "92": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "93": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "94": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "95": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "96": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "97": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "98": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "99": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "100": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "101": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "102": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "103": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "104": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "105": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "106": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "107": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "108": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "109": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "110": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "111": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "112": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "113": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "114": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "115": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            }
+        }
+    },
+    "2": {
+        "name": "DOOR/ACCESS POINT EVENTS",
+        "events": {
+            "116": {
+                "event": "Door closed",
+                "source_entity": "",
+                "description": "The door has closed. For this event to be generated, the door must be equipped with a door sensor."
+            },
+            "117": {
+                "event": "Door opened",
+                "source_entity": "",
+                "description": "The door has opened. For this event to be generated, the door must be equipped with a door sensor."
+            },
+            "118": {
+                "event": "Door forced open",
+                "source_entity": "",
+                "description": "The door is locked but the door sensor indicates that the door is open."
+            },
+            "119": {
+                "event": "Door open too long",
+                "source_entity": "",
+                "description": "The door has been held open for too long. "
+            },
+            "120": {
+                "event": "Request to exit",
+                "source_entity": "",
+                "description": "Someone has pressed the door release button or has triggered a request to exit motion detector."
+            },
+            "121": {
+                "event": "Door manually unlocked",
+                "source_entity": "",
+                "description": "In Security Desk, a user has manually unlocked a door."
+            },
+            "122": {
+                "event": "Door manually locked",
+                "source_entity": "",
+                "description": "In Security Desk, a user has manually locked a door."
+            },
+            "123": {
+                "event": "Door manually Scheduled mode",
+                "source_entity": "",
+                "description": "In Security Desk, a user has manually reset to normal work mode a door."
+            },
+            "124": {
+                "event": "Door locked",
+                "source_entity": "",
+                "description": "The door is considered locked in Security Center."
+            },
+            "125": {
+                "event": "Door unlocked",
+                "source_entity": "",
+                "description": "The door has been unlocked."
+            },
+            "126": {
+                "event": "Door maintenance completed",
+                "source_entity": "",
+                "description": "The door has been taken out of maintenance mode."
+            },
+            "127": {
+                "event": "Door maintenance started",
+                "source_entity": "",
+                "description": "The door has been put into maintenance mode."
+            },
+            "128": {
+                "event": "Manual station activated",
+                "source_entity": "",
+                "description": "Someone has pulled the door emergency release (manual pull station)."
+            },
+            "129": {
+                "event": "Manual station reverted to normal state",
+                "source_entity": "",
+                "description": "The door emergency release (manual pull station) has been restored to it normal operating position."
+            },
+            "130": {
+                "event": "Scheduled controlled accessdoor, elevatorThe schedule for controlled access to elevator floors now applies.",
+                "source_entity": "",
+                "description": ""
+            },
+            "131": {
+                "event": "Scheduled free accessdoor, elevatorThe schedule for free access to elevator floors now applies.",
+                "source_entity": "",
+                "description": ""
+            },
+            "132": {
+                "event": "Scheduled denied accessdoor, elevatorThe schedule for denied access to elevator floors now applies.",
+                "source_entity": "",
+                "description": ""
+            },
+            "133": {
+                "event": "Schedule unlock ignored: first-person-in rule supervisor absent",
+                "source_entity": "",
+                "description": "The door unlock schedule is ignored because the restriction imposed by the first-person-in rule has not yet been satisfied."
+            },
+            "134": {
+                "event": "Door offline: Device is offline",
+                "source_entity": "",
+                "description": "One or more devices associated to this door has gone offline."
+            },
+            "135": {
+                "event": "Access Point mode Free exit / Lock entry door, turnstileAccess point change mode toFree exit / Lock entry ",
+                "source_entity": "",
+                "description": ""
+            },
+            "136": {
+                "event": "Access Point mode Free exit / Controlled entry door, turnstileAccess point change mode toFree exit / Controlled entry ",
+                "source_entity": "",
+                "description": ""
+            },
+            "137": {
+                "event": "Access Point mode Free exit / Free entrydoor, turnstileAccess point change mode toFree exit / Free entry",
+                "source_entity": "",
+                "description": ""
+            },
+            "138": {
+                "event": "Access Point mode AntipanicturnstileAccess point change mode to Antipanic",
+                "source_entity": "",
+                "description": ""
+            },
+            "139": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "140": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "141": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "142": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "143": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "144": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "145": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "146": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "147": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "148": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "149": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "150": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "151": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "152": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "153": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "154": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "155": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "156": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "157": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "158": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "159": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "160": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "161": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "162": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "163": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "164": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "165": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            }
+        }
+    },
+    "3": {
+        "name": "ACU",
+        "events": {
+            "166": {
+                "event": "ACU connected",
+                "source_entity": "access control unit",
+                "description": "ACU connected."
+            },
+            "167": {
+                "event": "ACU pending",
+                "source_entity": "access control unit",
+                "description": "ACU change status to pending."
+            },
+            "168": {
+                "event": "ACU activated",
+                "source_entity": "access control unit",
+                "description": "ACU change status to activated."
+            },
+            "169": {
+                "event": "ACU offline",
+                "source_entity": "access control unit",
+                "description": "ACU has gone offline."
+            },
+            "170": {
+                "event": "ACU Hardware tamper",
+                "source_entity": "access control unit",
+                "description": "The tamper input on a unit has been triggered."
+            },
+            "171": {
+                "event": "ACU fire alarm",
+                "source_entity": "access control unit",
+                "description": "ACU fire alarm triggered."
+            },
+            "172": {
+                "event": "Firmware upgrade failed",
+                "source_entity": "access control unit",
+                "description": "A firmware upgrade on an access control unit has failed."
+            },
+            "173": {
+                "event": "Firmware upgrade started",
+                "source_entity": "access control unit",
+                "description": "A firmware upgrade on an access control unit has been started."
+            },
+            "174": {
+                "event": "Firmware upgrade succeeded",
+                "source_entity": "access control unit",
+                "description": "A firmware upgrade on an access control unit has completed successfully."
+            },
+            "175": {
+                "event": "Interface module AC fail state active",
+                "source_entity": "access control unit",
+                "description": "The AC (alternating current) of an interface module has failed."
+            },
+            "176": {
+                "event": "Interface module AC fail state restored",
+                "source_entity": "access control unit",
+                "description": "The AC (alternating current) of an interface module has been restored."
+            },
+            "177": {
+                "event": "Interface module battery fail state active",
+                "source_entity": "access control unit",
+                "description": "The battery of an interface module has failed."
+            },
+            "178": {
+                "event": "Interface module battery fail state restored",
+                "source_entity": "access control unit",
+                "description": "The battery of an interface module has been restored."
+            },
+            "179": {
+                "event": "Interface module offline",
+                "source_entity": "access control unit",
+                "description": "The interface module has gone offline."
+            },
+            "180": {
+                "event": "Interface module online",
+                "source_entity": "access control unit",
+                "description": "The interface module has come online."
+            },
+            "181": {
+                "event": "Interface module tamper state active",
+                "source_entity": "access control unit",
+                "description": "The tamper input of an interface module has been triggered."
+            },
+            "182": {
+                "event": "Interface module tamper state restored",
+                "source_entity": "access control unit",
+                "description": "The tamper input of an interface module has returned to normal."
+            },
+            "183": {
+                "event": "Unit synchronization failed",
+                "source_entity": "access control unit",
+                "description": "The synchronization of the unit with the Access Manager has failed."
+            },
+            "184": {
+                "event": "Unit synchronization started",
+                "source_entity": "access control unit",
+                "description": "The synchronization of the unit with the Access Manager has started."
+            },
+            "185": {
+                "event": "Unit synchronization succeeded",
+                "source_entity": "access control unit",
+                "description": "The synchronization of the unit with the Access Manager has completed successfully."
+            },
+            "186": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "187": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "188": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "189": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "190": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "191": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "192": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "193": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "194": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "195": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "196": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "197": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "198": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "199": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "200": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "201": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "202": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "203": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "204": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "205": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "206": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "207": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "208": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "209": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "210": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "211": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "212": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "213": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "214": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "215": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            }
+        }
+    },
+    "4": {
+        "name": "ALARM",
+        "events": {
+            "216": {
+                "event": "Alarm triggered",
+                "source_entity": "alarm",
+                "description": "An alarm has been triggered."
+            },
+            "217": {
+                "event": "Alarm acknowledged",
+                "source_entity": "alarm",
+                "description": "An alarm has been acknowledged by a user, or auto-acknowledged by the system."
+            },
+            "218": {
+                "event": "Alarm being investigated",
+                "source_entity": "alarm",
+                "description": "An alarm with a acknowledgment condition that is still active has been put into the under investigation state."
+            },
+            "219": {
+                "event": "Alarm condition cleared",
+                "source_entity": "alarm",
+                "description": "The acknowledgment condition of an alarm has been cleared."
+            },
+            "220": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "221": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "222": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "223": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "224": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "225": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "226": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "227": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "228": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "229": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "230": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "231": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "232": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "233": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "234": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "235": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "236": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "237": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "238": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "239": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "240": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "241": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "242": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "243": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "244": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "245": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "246": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "247": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "248": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "249": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "250": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            }
+        }
+    },
+    "5": {
+        "name": "USERS",
+        "events": {
+            "251": {
+                "event": "User logged off",
+                "source_entity": "user",
+                "description": "A user has logged off."
+            },
+            "252": {
+                "event": "User logged on",
+                "source_entity": "user",
+                "description": "A user has logged on."
+            },
+            "253": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "254": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "255": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "256": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "257": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "258": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "259": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "260": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "261": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "262": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "263": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "264": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "265": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "266": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "267": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "268": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "269": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "270": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            }
+        }
+    },
+    "6": {
+        "name": "PARKING",
+        "events": {
+            "271": {
+                "event": "Paid time started",
+                "source_entity": "parking rule",
+                "description": "Parking time has been purchased through connected pay stations or mobile apps."
+            },
+            "272": {
+                "event": "Convenience time started",
+                "source_entity": "parking rule",
+                "description": "The convenience time portion of the parking session has begun."
+            },
+            "273": {
+                "event": "Session completed",
+                "source_entity": "parking rule",
+                "description": "The vehicle has exited the parking zone."
+            },
+            "274": {
+                "event": "Session started",
+                "source_entity": "parking rule",
+                "description": "The vehicle has entered the parking zone."
+            },
+            "275": {
+                "event": "Inventory reset",
+                "source_entity": "parking",
+                "description": "The inventory of a parking zone has been reset to zero so that the reported parking zone occupancy can be re-initialized."
+            },
+            "276": {
+                "event": "Validating paid time",
+                "source_entity": "parking rule",
+                "description": "The convenience time or the paid time has expired for the parking session."
+            },
+            "277": {
+                "event": "Violation detected",
+                "source_entity": "parking rule",
+                "description": "The convenience time, the grace period, or the paid time has expired for the parking session."
+            },
+            "278": {
+                "event": "Violation enforced",
+                "source_entity": "parking rule",
+                "description": "The vehicle in violation has been ticketed."
+            },
+            "279": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "280": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "281": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "282": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "283": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "284": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "285": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "286": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "287": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "288": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "289": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "290": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "291": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "292": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "293": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "294": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "295": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "296": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "297": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "298": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "299": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "300": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            }
+        }
+    },
+    "7": {
+        "name": "SYSTEM",
+        "events": {
+            "300": {
+                "event": "Macro aborted",
+                "source_entity": "macro",
+                "description": "Execution of a macro has failed."
+            },
+            "301": {
+                "event": "Macro started",
+                "source_entity": "macro",
+                "description": "Execution of a macro has begun."
+            },
+            "302": {
+                "event": "Macro completed",
+                "source_entity": "macro",
+                "description": "Execution of a macro has been completed normally."
+            },
+            "303": {
+                "event": "Custom event",
+                "source_entity": "system-wide",
+                "description": "A custom event is an event added after the initial system installation. Events defined at system installation are called system events. Custom events can be user-defined or automatically added through plugin installations. Unlike system events, custom events can be renamed and deleted."
+            },
+            "304": {
+                "event": "Threat level cleared",
+                "source_entity": "threat level",
+                "description": "A threat level has been cleared."
+            },
+            "305": {
+                "event": "Threat level set",
+                "source_entity": "threat level",
+                "description": "A threat level has been set."
+            },
+            "306": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "307": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "308": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "309": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "310": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "311": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "312": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "313": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "314": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "315": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "316": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "317": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "318": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "319": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "320": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "321": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "322": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "323": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "324": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "325": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "326": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "327": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "328": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "329": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            },
+            "330": {
+                "event": "reserved",
+                "source_entity": "",
+                "description": ""
+            }
+        }
+    }
+}
