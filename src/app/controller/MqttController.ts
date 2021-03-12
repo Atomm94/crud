@@ -1,8 +1,8 @@
 import { DefaultContext } from 'koa'
 import { Company } from '../model/entity'
-import { OperatorType } from '../mqtt/Operators'
-import SendDeviceMessage from '../mqtt/SendDeviceMessage'
-// import MQTTBroker from '../mqtt/mqtt'
+// import { OperatorType } from '../mqtt/Operators'
+// import SendDeviceMessage from '../mqtt/SendDeviceMessage'
+import MQTTBroker from '../mqtt/mqtt'
 // import { SendTopics } from '../mqtt/Topics'
 // import { TopicCodes } from '../mqtt/Topics'
 
@@ -200,12 +200,26 @@ export default class MqttController {
                 // MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(get_status))
             }
 
-            const loginData = {
-                username: 'admin',
-                password: 'admin'
+            const send_event = {
+                operator: 'Event',
+                session_Id: '0',
+                message_Id: '0',
+                info:
+                {
+                    Group: 1,
+                    Stp_idx: 9,
+                    Event_id: 68,
+                    Key_id: 1,
+                    DateTm: 1599904641
+                }
             }
-            const message = new SendDeviceMessage(OperatorType.LOGIN, `${main_id}/${company.id}`, 1073493824, loginData)
-            ctx.body = message
+            MQTTBroker.publishMessage('/5/5/1073493824/event', JSON.stringify(send_event))
+            // const loginData = {
+            //     username: 'admin',
+            //     password: 'admin'
+            // }
+            // const message = new SendDeviceMessage(OperatorType.LOGIN, `${main_id}/${company.id}`, 1073493824, loginData)
+            ctx.body = send_event
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
