@@ -15,6 +15,7 @@ import { AccessPointZone } from './AccessPointZone'
 import { Acu } from './Acu'
 import { Reader } from './Reader'
 import { accessPointType } from '../../enums/accessPointType.enum'
+import { AutoTaskSchedule } from './AutoTaskSchedule'
 
 @Entity('access_point')
 export class AccessPoint extends MainEntity {
@@ -75,6 +76,9 @@ export class AccessPoint extends MainEntity {
     @ManyToOne(type => Acu, acu => acu.access_points)
     @JoinColumn({ name: 'acu' })
     acus: Acu;
+
+    @OneToMany(type => AutoTaskSchedule, auto_task_schedule => auto_task_schedule.access_points)
+    auto_task_schedules: AutoTaskSchedule[];
 
     @OneToMany(type => Reader, reader => reader.access_points)
     readers: Reader[];
