@@ -10,6 +10,7 @@ import SendDeviceMessage from './SendDeviceMessage'
 import { IMqttCrudMessaging } from '../Interfaces/messaging.interface'
 import { Reader } from '../model/entity/Reader'
 import { accessPointType } from '../enums/accessPointType.enum'
+import LogController from '../controller/LogController'
 // import { uid } from 'uid'
 
 export default class Parse {
@@ -540,8 +541,9 @@ export default class Parse {
 
     public static deviceEvent (message: IMqttCrudMessaging): void {
         // console.log('deviceEvent', message)
-        if (message.result.errorNo === 0) {
-            // console.log('deviceEvent complete')
+        if (message.info) {
+            LogController.createEventFromDevice(message)
+            console.log('deviceEvent')
         }
     }
 

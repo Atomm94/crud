@@ -13,6 +13,7 @@ import { AccessRule } from './AccessRule'
 import { Timeframe } from './Timeframe'
 import { CardholderGroup } from './CardholderGroup'
 import { Cardholder } from '.'
+import { AutoTaskSchedule } from './AutoTaskSchedule'
 
 @Entity('schedule')
 export class Schedule extends MainEntity {
@@ -48,6 +49,9 @@ export class Schedule extends MainEntity {
 
     @OneToMany(type => Cardholder, cardholder => cardholder.time_attendances)
     cardholders: Cardholder[];
+
+    @OneToMany(type => AutoTaskSchedule, auto_task_schedule => auto_task_schedule.schedules)
+    auto_task_schedules: AutoTaskSchedule[];
 
     public static async addItem (data: Schedule) {
         const schedule = new Schedule()
