@@ -19,6 +19,7 @@ import credential from './credential'
 
 import Router from 'koa-router'
 import extDevice from './extDevice'
+import autoTaskSchedule from './autoTaskSchedule'
 
 const router = new Router()
 
@@ -40,6 +41,7 @@ router.use('/', accessPointGroup.routes(), accessPointGroup.allowedMethods())
 router.use('/', accessPointZone.routes(), accessPointZone.allowedMethods())
 router.use('/', acu.routes(), acu.allowedMethods())
 router.use('/', extDevice.routes(), extDevice.allowedMethods())
+router.use('/', autoTaskSchedule.routes(), autoTaskSchedule.allowedMethods())
 router.use('/', credential.routes(), credential.allowedMethods())
 
 export {
