@@ -163,6 +163,13 @@ export default class StandardReportController {
             const req_data = ctx.request.body
             const user = ctx.user
             const where = { id: req_data.id, company: user.company ? user.company : null }
+            if (req_data.period) {
+                const check = standartReportPeriodValidation(req_data.period)
+                if (check !== true) {
+                    ctx.status = 400
+                    return ctx.body = { message: check }
+                }
+            }
             const check_by_company = await StandardReport.findOne(where)
             if (!check_by_company) {
                 ctx.status = 400
@@ -356,7 +363,7 @@ export default class StandardReportController {
      *                  description: Unauthorized
      */
 
-     public static async execute (ctx: DefaultContext) {
+    public static async execute (ctx: DefaultContext) {
         try {
             const req_data = ctx.query
             const user = ctx.user
