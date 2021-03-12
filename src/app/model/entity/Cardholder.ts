@@ -3,7 +3,8 @@ import {
     Column,
     OneToOne,
     JoinColumn,
-    ManyToOne
+    ManyToOne,
+    OneToMany
 } from 'typeorm'
 import { cardholderStatus } from '../../enums/cardholderStatus.enum'
 import { MainEntity } from './MainEntity'
@@ -16,6 +17,7 @@ import { logger } from '../../../../modules/winston/logger'
 import fs from 'fs'
 import { join } from 'path'
 import { CardholderGroup } from './CardholderGroup'
+import { Credential } from './Credential'
 import { AntipassBack } from './AntipassBack'
 import { Schedule } from './Schedule'
 const parentDir = join(__dirname, '../../..')
@@ -117,6 +119,9 @@ export class Cardholder extends MainEntity {
     @ManyToOne(() => AccessRight, access_right => access_right.cardholders, { nullable: true })
     @JoinColumn({ name: 'access_right' })
     access_rights: AccessRight | null;
+
+    @OneToMany(type => Credential, credential => credential.cardholders)
+    credentials: Credential[];
 
     public static resource: boolean = true
 
