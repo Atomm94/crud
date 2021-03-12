@@ -90,6 +90,32 @@ export default class Parse {
             case OperatorType.DEL_CTP_DOOR_ACK:
                 this.deviceDelCtpDoorAck(message)
                 break
+
+            case OperatorType.SET_CTP_TURNSTILE_ACK:
+                this.deviceSetCtpTurnstileAck(message)
+                break
+            case OperatorType.DEL_CTP_TURNSTILE_ACK:
+                this.deviceDelCtpTurnstileAck(message)
+                break
+            case OperatorType.SET_CTP_GATE_ACK:
+                this.deviceSetCtpGateAck(message)
+                break
+            case OperatorType.DEL_CTP_GATE_ACK:
+                this.deviceDelCtpGateAck(message)
+                break
+            case OperatorType.SET_CTP_GATEWAY_ACK:
+                this.deviceSetCtpGatewayAck(message)
+                break
+            case OperatorType.DEL_CTP_GATEWAY_ACK:
+                this.deviceDelCtpGatewayAck(message)
+                break
+            case OperatorType.SET_CTP_FLOOR_ACK:
+                this.deviceSetCtpFloorAck(message)
+                break
+            case OperatorType.DEL_CTP_FLOOR_ACK:
+                this.deviceDelCtpFloorAck(message)
+                break
+
             case OperatorType.EVENT:
                 this.deviceEvent(message)
                 break
@@ -535,6 +561,110 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             await AccessPoint.destroyItem({ id: message.send_data.data.id })
             // console.log('deviceDelCtpDoorAck insert completed')
+        }
+    }
+
+    public static async deviceSetCtpTurnstileAck (message: IMqttCrudMessaging) {
+        // console.log('deviceSetCtpTurnstileAck', message)
+        if (message.result.errorNo === 0) {
+            if (message.send_data.update) {
+                const save: any = await AccessPoint.updateItem(message.send_data.data as AccessPoint)
+                if (save) {
+                    // console.log('AccessPoint update completed')
+                }
+            } else {
+                // console.log('AccessPoint insert completed')
+            }
+        } else {
+            if (!message.send_data.update) {
+                await AccessPoint.destroyItem({ id: message.send_data.data.id })
+            }
+        }
+    }
+
+    public static async deviceDelCtpTurnstileAck (message: IMqttCrudMessaging) {
+        // console.log('deviceDelCtpTurnstileAck', message)
+        if (message.result.errorNo === 0) {
+            await AccessPoint.destroyItem({ id: message.send_data.data.id })
+            // console.log('deviceDelCtpDoorAck insert completed')
+        }
+    }
+
+    public static async deviceSetCtpGateAck (message: IMqttCrudMessaging) {
+        // console.log('deviceSetCtpGateAck', message)
+        if (message.result.errorNo === 0) {
+            if (message.send_data.update) {
+                const save: any = await AccessPoint.updateItem(message.send_data.data as AccessPoint)
+                if (save) {
+                    // console.log('AccessPoint update completed')
+                }
+            } else {
+                // console.log('AccessPoint insert completed')
+            }
+        } else {
+            if (!message.send_data.update) {
+                await AccessPoint.destroyItem({ id: message.send_data.data.id })
+            }
+        }
+    }
+
+    public static async deviceDelCtpGateAck (message: IMqttCrudMessaging) {
+        // console.log('deviceDelCtpGateAck', message)
+        if (message.result.errorNo === 0) {
+            await AccessPoint.destroyItem({ id: message.send_data.data.id })
+            // console.log('deviceDelCtpGateAck insert completed')
+        }
+    }
+
+    public static async deviceSetCtpGatewayAck (message: IMqttCrudMessaging) {
+        // console.log('deviceSetCtpGatewayAck', message)
+        if (message.result.errorNo === 0) {
+            if (message.send_data.update) {
+                const save: any = await AccessPoint.updateItem(message.send_data.data as AccessPoint)
+                if (save) {
+                    // console.log('AccessPoint update completed')
+                }
+            } else {
+                // console.log('AccessPoint insert completed')
+            }
+        } else {
+            if (!message.send_data.update) {
+                await AccessPoint.destroyItem({ id: message.send_data.data.id })
+            }
+        }
+    }
+
+    public static async deviceDelCtpGatewayAck (message: IMqttCrudMessaging) {
+        // console.log('deviceDelCtpGatewayAck', message)
+        if (message.result.errorNo === 0) {
+            await AccessPoint.destroyItem({ id: message.send_data.data.id })
+            // console.log('deviceDelCtpGatewayAck insert completed')
+        }
+    }
+
+    public static async deviceSetCtpFloorAck (message: IMqttCrudMessaging) {
+        // console.log('deviceSetCtpFloorAck', message)
+        if (message.result.errorNo === 0) {
+            if (message.send_data.update) {
+                const save: any = await AccessPoint.updateItem(message.send_data.data as AccessPoint)
+                if (save) {
+                    // console.log('AccessPoint update completed')
+                }
+            } else {
+                // console.log('AccessPoint insert completed')
+            }
+        } else {
+            if (!message.send_data.update) {
+                await AccessPoint.destroyItem({ id: message.send_data.data.id })
+            }
+        }
+    }
+
+    public static async deviceDelCtpFloorAck (message: IMqttCrudMessaging) {
+        // console.log('deviceDelCtpFloorAck', message)
+        if (message.result.errorNo === 0) {
+            await AccessPoint.destroyItem({ id: message.send_data.data.id })
+            // console.log('deviceDelCtpFloorAck insert completed')
         }
     }
 

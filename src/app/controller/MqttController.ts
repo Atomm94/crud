@@ -1,6 +1,6 @@
 import { DefaultContext } from 'koa'
 import { Company } from '../model/entity'
-import { OperatorType } from '../mqtt/Operators'
+// import { OperatorType } from '../mqtt/Operators'
 import SendDeviceMessage from '../mqtt/SendDeviceMessage'
 // import MQTTBroker from '../mqtt/mqtt'
 // import { SendTopics } from '../mqtt/Topics'
@@ -148,18 +148,20 @@ export default class MqttController {
                 //     info: 'none'
                 // }
                 // MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(get_mqtt))
-                // const send_data: any = {
-                //     operator: 'SetCtpDoor',
-                //     location: '5/5',
-                //     device_id: '1073493824',
-                //     session_id: '52831102448461152410103211553534',
-                //     message_id: (new Date().getTime()).toString(),
-                //     info:
-                //     {
-                //         Control_point_idx: 3
-                //     }
-                // }
-                //     MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
+
+                const send_data: any = {
+                    operator: 'SetCtpTurnstile',
+                    location: '5/5',
+                    device_id: '1073493824',
+                    session_id: '52831102448461152410103211553534',
+                    message_id: (new Date().getTime()).toString(),
+                    info:
+                    {
+                        Control_point_idx: 3
+                    }
+                }
+                new SendDeviceMessage('SetCtpTurnstile', '5/5', 1073493824, send_data, '52831102448461152410103211553534')
+                    // MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
 
                 // const send_data: any = {
                 //     operator: 'SetSdlDaily',
@@ -200,13 +202,15 @@ export default class MqttController {
                 // MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(get_status))
             }
 
-            const loginData = {
-                username: 'admin',
-                password: 'admin'
-            }
-            const message = new SendDeviceMessage(OperatorType.LOGIN, `${main_id}/${company.id}`, 1073493824, loginData)
-            ctx.body = message
+            // const loginData = {
+            //     username: 'admin',
+            //     password: 'admin'
+            // }
+            // const message = new SendDeviceMessage(OperatorType.LOGIN, `${main_id}/${company.id}`, 1073493824, loginData)
+            ctx.body = true
         } catch (error) {
+            console.log(error)
+
             ctx.status = error.status || 400
             ctx.body = error
         }
