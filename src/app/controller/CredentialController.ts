@@ -1,6 +1,8 @@
 import { DefaultContext } from 'koa'
 import { credentialType } from '../enums/credentialType.enum'
 import { Credential } from '../model/entity/Credential'
+import { CheckCredentialSettings } from '../functions/check-credential'
+
 export default class CredentialController {
     /**
      *
@@ -68,8 +70,15 @@ export default class CredentialController {
             const req_data = ctx.request.body
             const user = ctx.user
             req_data.company = user.company ? user.company : null
+            const check = CheckCredentialSettings.checkSettings(req_data)
+            if (check !== true) {
+                ctx.status = 400
+                return ctx.body = { message: check }
+            }
             ctx.body = await Credential.addItem(ctx.request.body as Credential)
         } catch (error) {
+            console.log(error)
+
             ctx.status = error.status || 400
             ctx.body = error
         }

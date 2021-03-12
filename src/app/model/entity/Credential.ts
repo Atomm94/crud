@@ -31,7 +31,7 @@ export class Credential extends MainEntity {
     @Column('enum', { name: 'input_mode', enum: credentialInputMode })
     input_mode: credentialInputMode
 
-    @Column('int', { name: 'company', nullable: false, unique: true })
+    @Column('int', { name: 'company', nullable: false })
     company: number
 
     @ManyToOne(type => Cardholder, cardholder => cardholder.credentials)
