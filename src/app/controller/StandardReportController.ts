@@ -1,7 +1,8 @@
 import { DefaultContext } from 'koa'
+import { generateDatesFromPeriod } from '../functions/generate-dates-from-period'
 import { standartReportPeriodValidation } from '../functions/validator'
+import { EventLog } from '../model/entity'
 import { StandardReport } from '../model/entity/StandardReport'
-import LogController from './LogController'
 
 export default class StandardReportController {
     /**
@@ -367,8 +368,15 @@ export default class StandardReportController {
         try {
             const req_data = ctx.query
             const user = ctx.user
-            req_data.where = { company: { '=': user.company ? user.company : null } }
-            const logs = LogController.getEventLogs(req_data)
+            const check = standartReportPeriodValidation(req_data.period)
+            if (check !== true) {
+                ctx.status = 400
+                return ctx.body = { message: check }
+            }
+            const { start_from, start_to } = generateDatesFromPeriod(req_data.period)
+            req_data.start_from = start_from
+            req_data.start_to = start_to
+            const logs = EventLog.get(user, req_data)
             console.log(logs)
 
             ctx.body = true
