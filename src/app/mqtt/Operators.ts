@@ -64,18 +64,15 @@ export enum OperatorType {
     GET_ACCESS_MODE_ACK = 'GetAccessMode-Ack',
     SINGLE_PASS = 'Single_pass',
     SINGLE_PASS_ACK = 'Single_pass-Ack',
+
     SET_CARD_KEYS = 'SetCardKeys',
     SET_CARD_KEYS_ACK = 'SetCardKeys-Ack',
-
     ADD_CARD_KEY = 'AddCardKey',
     ADD_CARD_KEY_ACK = 'AddCardKey-Ack',
-
     EDIT_KEY = 'EditKey',
     EDIT_KEY_ACK = 'EditKey-Ack',
-
     DELL_KEYS = 'DellKeys',
     DELL_KEYS_ACK = 'DellKeys-Ack',
-
     DELL_ALL_KEYS = 'DellAllKeys',
     DELL_ALL_KEYS_ACK = 'DellAllKeys-Ack',
 
