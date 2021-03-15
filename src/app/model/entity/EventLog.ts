@@ -22,6 +22,6 @@ export class EventLog extends BaseClass {
     }
 
     public static create (event: any) {
-        MQTTBroker.publishMessage(SendTopics.CRUD_LOG, JSON.stringify(event))
+        MQTTBroker.publishMessage(SendTopics.LOG, JSON.stringify(event))
     }
 }
