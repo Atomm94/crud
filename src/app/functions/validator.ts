@@ -1,4 +1,6 @@
 import { acuConnectionType } from '../enums/acuConnectionType.enum'
+import { standartReportPeriod } from '../enums/standartReportPeriod.enum'
+
 import { autoTaskRepeatUnit } from '../enums/autoTaskRepeatUnit.enum'
 import { autoTaskScheduleType } from '../enums/autoTaskScheduleType.enum'
 import { readerTypes } from '../enums/readerTypes'
@@ -207,6 +209,45 @@ export function checkAccessPointsValidation (data: any, acu_model: string, updat
     return true
 }
 
+export function standartReportPeriodValidation (data: any) {
+    if ('key' in data || 'value' in data) {
+        return ('Invalid period data!')
+    } else {
+        switch (data.key) {
+            case standartReportPeriod.CURRENT_DAY:
+            case standartReportPeriod.CURRENT_WEEK:
+            case standartReportPeriod.CURRENT_MONTH:
+            case standartReportPeriod.PREVIOUS_DAY:
+            case standartReportPeriod.PREVIOUS_WEEK:
+            case standartReportPeriod.PREVIOUS_MONTH:
+                break
+            case standartReportPeriod.TARGET_DAY:
+                if (!new Date(data.value)) {
+                    return (`Invalid value for period ${data.key}!`)
+                }
+                break
+            case standartReportPeriod.TARGET_MONTH:
+                if (!new Date(data.value)) {
+                    return (`Invalid value for period ${data.key}!`)
+                }
+                break
+            case standartReportPeriod.TARGET_PERIOD:
+                if (!data.value.start_date || data.value.end_date) {
+                    return (`Invalid value for period ${data.key}!`)
+                } else {
+                    if (!new Date(data.value.start_date) || !new Date(data.value.end_date)) {
+                        return (`Invalid value for period ${data.key}!`)
+                    }
+                }
+                break
+
+            default:
+                return (`Cant find period like ${data.key}!`)
+        }
+    }
+    return true
+}
+
 export function autoTaskScheduleValidation (data: any) {
     if (data.schedule_type === autoTaskScheduleType.CUSTOM_SCHEDULE) {
         if (!data.custom_schedule) {
@@ -250,6 +291,5 @@ export function autoTaskScheduleValidation (data: any) {
             }
         }
     }
-
     return true
 }

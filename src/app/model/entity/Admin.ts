@@ -31,6 +31,7 @@ import fs from 'fs'
 import { join } from 'path'
 import { IAdmins } from '../../Interfaces/Admins'
 import { logger } from '../../../../modules/winston/logger'
+import { StandardReport } from './StandardReport'
 
 const parentDir = join(__dirname, '../../..')
 
@@ -142,6 +143,9 @@ export class Admin extends MainEntity {
   @ManyToOne(type => AccountGroup, account_group => account_group.users)
   @JoinColumn({ name: 'account_group' })
   account_groups: AccountGroup | null;
+
+  @OneToMany(type => StandardReport, report => report.authors)
+  reports: StandardReport[];
 
   @BeforeInsert()
   async generatePassword () {

@@ -77,8 +77,6 @@ export default class CredentialController {
             }
             ctx.body = await Credential.addItem(ctx.request.body as Credential)
         } catch (error) {
-            console.log(error)
-
             ctx.status = error.status || 400
             ctx.body = error
         }

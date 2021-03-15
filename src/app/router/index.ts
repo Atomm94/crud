@@ -16,6 +16,7 @@ import accessPointZone from './accessPointZone'
 import acu from './acu'
 import ticket from './ticket'
 import credential from './credential'
+import standardReport from './standardReport'
 
 import Router from 'koa-router'
 import extDevice from './extDevice'
@@ -43,6 +44,7 @@ router.use('/', acu.routes(), acu.allowedMethods())
 router.use('/', extDevice.routes(), extDevice.allowedMethods())
 router.use('/', autoTaskSchedule.routes(), autoTaskSchedule.allowedMethods())
 router.use('/', credential.routes(), credential.allowedMethods())
+router.use('/', standardReport.routes(), standardReport.allowedMethods())
 
 export {
     router
