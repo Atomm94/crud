@@ -16,7 +16,7 @@ export function generateDatesFromPeriod (period: { key: standartReportPeriod, va
             break
         case standartReportPeriod.CURRENT_MONTH:
             start_date = new Date(new_date.getFullYear(), new_date.getMonth(), 1)
-            end_date = new Date(new_date.getFullYear(), new_date.getMonth(), 0)
+            end_date = new Date(new_date.getFullYear(), new_date.getMonth() + 1, 0)
             break
         case standartReportPeriod.PREVIOUS_DAY:
             start_date = end_date = new Date(new Date().getTime() - 60 * 60 * 24 * 1000)
@@ -28,7 +28,7 @@ export function generateDatesFromPeriod (period: { key: standartReportPeriod, va
             break
         case standartReportPeriod.PREVIOUS_MONTH:
             start_date = new Date(new_date.getFullYear(), new_date.getMonth() - 1, 1)
-            end_date = new Date(new_date.getFullYear(), new_date.getMonth() - 1, 0)
+            end_date = new Date(new_date.getFullYear(), (new_date.getMonth() - 1) + 1, 0)
             break
         case standartReportPeriod.TARGET_DAY:
             start_date = end_date = new Date(period.value)
@@ -36,17 +36,22 @@ export function generateDatesFromPeriod (period: { key: standartReportPeriod, va
         case standartReportPeriod.TARGET_MONTH:
             new_date = new Date(period.value)
             start_date = new Date(new_date.getFullYear(), new_date.getMonth(), 1)
-            end_date = new Date(new_date.getFullYear(), new_date.getMonth(), 0)
+            end_date = new Date(new_date.getFullYear(), new_date.getMonth() + 1, 0)
             break
         case standartReportPeriod.TARGET_PERIOD:
-            start_date = period.value.start_date
-            end_date = period.value.end_date
+            start_date = new Date(period.value.start_date)
+            end_date = new Date(period.value.end_date)
             break
     }
+    console.log('start_date', start_date)
 
+    const start_month = ('0' + (start_date.getMonth() + 1)).slice(-2)
+    const end_month = ('0' + (end_date.getMonth() + 1)).slice(-2)
+    const start_day = ('0' + start_date.getDate()).slice(-2)
+    const end_day = ('0' + end_date.getDate()).slice(-2)
     return {
-        start_from: `${start_date.getFullYear()}-${start_date.getMonth() + 1}-${start_date.getDate()} ${start_time}`,
-        start_to: `${end_date.getFullYear()}-${end_date.getMonth() + 1}-${end_date.getDate()} ${end_time}`
+        start_from: `${start_date.getFullYear()}-${start_month}-${start_day} ${start_time}`,
+        start_to: `${end_date.getFullYear()}-${end_month}-${end_day} ${end_time}`
     }
 }
 
