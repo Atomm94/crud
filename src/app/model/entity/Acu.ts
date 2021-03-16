@@ -185,7 +185,11 @@ export class Acu extends MainEntity {
 
     public static async getAllItems (params?: any) {
         return new Promise((resolve, reject) => {
-            this.findByParams(params)
+            this.findByParams(
+                {
+                    params,
+                    relations: params.relations ? params.relations : []
+                })
                 .then((items) => {
                     resolve(items)
                 })
