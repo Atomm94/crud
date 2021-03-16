@@ -354,9 +354,11 @@ export default class StandardReportController {
      *                name: period
      *                description: period
      *                schema:
-     *                    type: array
-     *                    items:
-     *                      type:number
+     *                    type: object
+     *                    properties:
+     *                        key:
+     *                            type: string
+     *                            enum: [current_day, current_week, current_month, previous_day, previous_week, previous_month, target_day, target_month, target_period]
      *          responses:
      *              '200':
      *                  description: Array of standardReport
@@ -368,7 +370,9 @@ export default class StandardReportController {
         try {
             const req_data = ctx.query
             const user = ctx.user
+            req_data.period = JSON.parse(req_data.period)
             const check = standartReportPeriodValidation(req_data.period)
+
             if (check !== true) {
                 ctx.status = 400
                 return ctx.body = { message: check }
@@ -376,7 +380,7 @@ export default class StandardReportController {
             const { start_from, start_to } = generateDatesFromPeriod(req_data.period)
             req_data.start_from = start_from
             req_data.start_to = start_to
-            const logs = EventLog.get(user, req_data)
+            const logs = await EventLog.get(user, req_data)
             console.log(logs)
 
             ctx.body = true
