@@ -475,6 +475,7 @@ export default class CardholderController {
                     const credentials: any = []
                     for (const credential of req_data.credentials) {
                         credential.company = auth_user.company
+                        credential.cardholder = res_data.id
                         credentials.push(await Credential.addItem(credential as Credential))
                     }
                 console.log('req_data.credentials', credentials)
