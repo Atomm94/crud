@@ -241,15 +241,17 @@ export default class CardholderController {
                     req_data.car_info = car_info.id
                 }
             }
+            const cardholder = await Cardholder.addItem(req_data as Cardholder)
             if (req_data.credentials) {
                 const credentials: any = []
                     for (const credential of req_data.credentials) {
                         credential.company = req_data.company
+                        credential.cardholder = cardholder.id
                         credentials.push(await Credential.addItem(credential as Credential))
                     }
                 // new SendDeviceMessage(OperatorType.SET_CARD_KEYS, location, acu.serial_number, credentials, acu.session_id)
             }
-            const cardholder = await Cardholder.addItem(req_data as Cardholder)
+
             if (cardholder) {
                 const where = { id: cardholder.id }
                 const relations = ['car_infos', 'limitations', 'antipass_backs', 'time_attendances', 'access_rights', 'cardholder_groups', 'credentials']
