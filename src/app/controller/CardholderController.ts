@@ -244,11 +244,11 @@ export default class CardholderController {
             const cardholder = await Cardholder.addItem(req_data as Cardholder)
             if (req_data.credentials) {
                 const credentials: any = []
-                    for (const credential of req_data.credentials) {
-                        credential.company = req_data.company
-                        credential.cardholder = cardholder.id
-                        credentials.push(await Credential.addItem(credential as Credential))
-                    }
+                for (const credential of req_data.credentials) {
+                    credential.company = req_data.company
+                    credential.cardholder = cardholder.id
+                    credentials.push(await Credential.addItem(credential as Credential))
+                }
                 // new SendDeviceMessage(OperatorType.SET_CARD_KEYS, location, acu.serial_number, credentials, acu.session_id)
             }
 
@@ -471,15 +471,14 @@ export default class CardholderController {
                 ctx.body = { message: 'something went wrong' }
             } else {
                 const res_data = await Cardholder.updateItem(req_data as Cardholder, auth_user)
-                if (!req_data.credentials.id) {
-                    const credentials: any = []
-                    for (const credential of req_data.credentials) {
+                const credentials: any = []
+                for (const credential of req_data.credentials) {
+                    if (!credential.id) {
                         credential.company = auth_user.company
                         credential.cardholder = res_data.id
                         credentials.push(await Credential.addItem(credential as Credential))
                     }
-                console.log('req_data.credentials', credentials)
-                // new SendDeviceMessage(OperatorType.SET_CARD_KEYS, location, acu.serial_number, credentials, acu.session_id)
+                    // new SendDeviceMessage(OperatorType.SET_CARD_KEYS, location, acu.serial_number, credentials, acu.session_id)
                 }
                 ctx.oldData = res_data.old
                 ctx.body = res_data.new
