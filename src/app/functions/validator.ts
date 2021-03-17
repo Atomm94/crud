@@ -210,7 +210,7 @@ export function checkAccessPointsValidation (data: any, acu_model: string, updat
 }
 
 export function standartReportPeriodValidation (data: any) {
-    if ('key' in data || 'value' in data) {
+    if (!('key' in data) || !('value' in data)) {
         return ('Invalid period data!')
     } else {
         switch (data.key) {
@@ -232,7 +232,7 @@ export function standartReportPeriodValidation (data: any) {
                 }
                 break
             case standartReportPeriod.TARGET_PERIOD:
-                if (!data.value.start_date || data.value.end_date) {
+                if (!data.value.start_date || !data.value.end_date) {
                     return (`Invalid value for period ${data.key}!`)
                 } else {
                     if (!new Date(data.value.start_date) || !new Date(data.value.end_date)) {

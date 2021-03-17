@@ -202,18 +202,18 @@ export default class MqttController {
 
             const send_event = {
                 operator: 'Event',
-                session_Id: '0',
-                message_Id: '0',
+                session_id: '0',
+                message_id: '0',
                 info:
                 {
-                    Group: 1,
+                    Group: 0,
                     Stp_idx: 9,
-                    Event_id: 68,
+                    Event_id: 10,
                     Key_id: 1,
                     DateTm: 1599904641
                 }
             }
-            MQTTBroker.publishMessage('/5/5/1073493824/event', JSON.stringify(send_event))
+            MQTTBroker.publishMessage('/1/5/1073493824/event', JSON.stringify(send_event))
             // const loginData = {
             //     username: 'admin',
             //     password: 'admin'
