@@ -48,7 +48,7 @@ export class EventLog extends BaseClass {
     public static async create (event: any) {
         MQTTBroker.publishMessage(SendTopics.LOG, JSON.stringify(event))
         const EventList: any = eventList
-        if (EventList[event.data.event_id].name === 'ACCESS') {
+        if (EventList[event.data.event_id].name === 'ALARM') {
             const notification = await Notification.addItem(event.data as Notification)
             const send_data = {
                 topic: SendTopics.MQTT_SOCKET,
