@@ -2,9 +2,12 @@ import { BaseClass } from './BaseClass'
 import { getRequest } from '../../services/requestUtil'
 import MQTTBroker from '../../mqtt/mqtt'
 import { SendTopics } from '../../mqtt/Topics'
+import { Notification } from './Notification'
+import eventList from '../../model/entity/eventList.json'
 const clickhouse_server: string = process.env.CLICKHOUSE_SERVER ? process.env.CLICKHOUSE_SERVER : 'http://localhost:4143'
 const getEventLogsUrl = `${clickhouse_server}/eventLog`
 const getEventStatisticUrl = `${clickhouse_server}/eventStatistic`
+
 export class EventLog extends BaseClass {
     public static resource: boolean = true
 
@@ -42,7 +45,17 @@ export class EventLog extends BaseClass {
         })
     }
 
-    public static create (event: any) {
+    public static async create (event: any) {
         MQTTBroker.publishMessage(SendTopics.LOG, JSON.stringify(event))
+        const EventList: any = eventList
+        if (EventList[event.data.event_id].name === 'ACCESS') {
+            const notification = await Notification.addItem(event.data as Notification)
+            const send_data = {
+                topic: SendTopics.MQTT_SOCKET,
+                channel: 'Notification',
+                data: notification
+            }
+            MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
+        }
     }
 }
