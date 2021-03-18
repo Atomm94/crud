@@ -3,7 +3,12 @@ import { getRequest } from '../../services/requestUtil'
 import MQTTBroker from '../../mqtt/mqtt'
 import { SendTopics } from '../../mqtt/Topics'
 import { Notification } from './Notification'
-import eventList from '../../model/entity/eventList.json'
+// import eventList from '../../model/entity/eventList.json'
+import { socketChannels } from '../../enums/socketChannels.enum'
+import { eventTypes } from '../../enums/eventTypes.enum'
+import { accessPointDoorState } from '../../enums/accessPointDoorState.enum'
+import { AccessPoint } from './AccessPoint'
+
 const clickhouse_server: string = process.env.CLICKHOUSE_SERVER ? process.env.CLICKHOUSE_SERVER : 'http://localhost:4143'
 const getEventLogsUrl = `${clickhouse_server}/eventLog`
 const getEventStatisticUrl = `${clickhouse_server}/eventStatistic`
@@ -47,13 +52,39 @@ export class EventLog extends BaseClass {
 
     public static async create (event: any) {
         MQTTBroker.publishMessage(SendTopics.LOG, JSON.stringify(event))
-        const EventList: any = eventList
-        if (EventList[event.data.event_id].name === 'ALARM') {
+        const send_log = {
+            topic: SendTopics.MQTT_SOCKET,
+            channel: socketChannels.DASHBOARD_ACTIVITY,
+            data: event.data
+        }
+        MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_log))
+
+        if (event.data.event_type === eventTypes.SYSTEM) {
+            let door_state
+            if (event.data.event_type.event_id === 116) {
+                door_state = accessPointDoorState.CLOSED
+            } else if (event.data.event_type.event_id === 117) {
+                door_state = accessPointDoorState.OPEN
+            }
+            if (door_state) {
+                AccessPoint.updateItem({ id: event.data.access_point_id, door_state: door_state } as AccessPoint)
+            }
+        }
+
+        if (event.data.event_type === eventTypes.CARDHOLDER_ALARM || event.data.event_type === eventTypes.SYSTEM_ALARM) {
             const notification = await Notification.addItem(event.data as Notification)
             const send_data = {
                 topic: SendTopics.MQTT_SOCKET,
-                channel: 'Notification',
+                channel: socketChannels.NOTIFICATION,
                 data: notification
+            }
+            MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
+        }
+        if (event.data.event_type === eventTypes.CARDHOLDER) {
+            const send_data = {
+                topic: SendTopics.MQTT_SOCKET,
+                channel: socketChannels.DASHBOARD_MONITOR,
+                data: event.data
             }
             MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
         }

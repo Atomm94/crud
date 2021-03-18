@@ -43,7 +43,7 @@ export default class AcuController {
      *                      example: some description
      *                  model:
      *                      type: string
-     *                      example: LRM-2CRS
+     *                      example: LRM3CRS
      *                  shared_resource_mode:
      *                      type: boolean
      *                      example: false
@@ -103,7 +103,8 @@ export default class AcuController {
      *                                      type: object
      *                                      properties:
      *                                          type:
-     *                                              type: string
+     *                                              type: number
+     *                                              example: '0'
      *                                          port:
      *                                              type: number
      *                                              example: 1
@@ -141,11 +142,11 @@ export default class AcuController {
                 return ctx.body = { message: check_time }
             }
 
-            const check_access_points = checkAccessPointsValidation(req_data.access_points, req_data.model, false)
-            if (check_access_points !== true) {
-                ctx.status = 400
-                return ctx.body = { message: check_access_points }
-            }
+            // const check_access_points = checkAccessPointsValidation(req_data.access_points, req_data.model, false)
+            // if (check_access_points !== true) {
+            //     ctx.status = 400
+            //     return ctx.body = { message: check_access_points }
+            // }
 
             const acu = new Acu()
 
@@ -163,6 +164,7 @@ export default class AcuController {
                 for (const access_point of req_data.access_points) {
                     access_point.acu = save_acu.id
                     access_point.company = acu.company
+                    access_point.resources = JSON.stringify(access_point.resources)
                     const save_access_point = await AccessPoint.addItem(access_point)
                     if (save_access_point) {
                         for (const reader of access_point.readers) {
