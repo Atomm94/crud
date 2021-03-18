@@ -4,6 +4,9 @@ import { Limitation } from '../model/entity/Limitation'
 import { Cardholder } from '../model/entity/Cardholder'
 import { CardholderGroup } from '../model/entity/CardholderGroup'
 import { AntipassBack } from '../model/entity/AntipassBack'
+import { Credential } from '../model/entity/Credential'
+// import SendDeviceMessage from '../mqtt/SendDeviceMessage'
+// import { OperatorType } from '../mqtt/Operators'
 
 export default class CardholderController {
     /**
@@ -160,6 +163,32 @@ export default class CardholderController {
      *                    access_right:
      *                        type: number
      *                        example: 1
+     *                    credentials:
+     *                        type: array
+     *                        items:
+     *                            type: object
+     *                            properties:
+     *                                type:
+     *                                    type: rfid | pinpass | vikey| phone_bt | phone_nfc | fingerprint | face | face_temperature | car_lp_number
+     *                                    example: rfid
+     *                                code:
+     *                                    type: string
+     *                                    example: 1245644
+     *                                status:
+     *                                    type: active | stolen | lost
+     *                                    example: active
+     *                                cardholder:
+     *                                    type: number
+     *                                    example: 1
+     *                                facility:
+     *                                    type: number
+     *                                    example: 2
+     *                                input_mode:
+     *                                    type: serial_number | wiegand_26
+     *                                    example: serial_number
+     *                                company:
+     *                                     type:number
+     *                                     example:1
      *          responses:
      *              '201':
      *                  description: A cardholder object
@@ -172,9 +201,10 @@ export default class CardholderController {
     public static async add (ctx: DefaultContext) {
         try {
             const req_data = ctx.request.body
-            const auth_user = ctx.user
-            req_data.company = auth_user.company ? auth_user.company : null
 
+            const auth_user = ctx.user
+            // const location = `${auth_user.company_main}/${auth_user.company}`
+            req_data.company = auth_user.company ? auth_user.company : null
             let group_data: any
             if (req_data.limitation_inherited || req_data.antipass_back_inherited || req_data.time_attendance_inherited || req_data.access_right_inherited) {
                 group_data = await CardholderGroup.getItem({ id: req_data.cardholder_group, company: req_data.company })
@@ -212,9 +242,19 @@ export default class CardholderController {
                 }
             }
             const cardholder = await Cardholder.addItem(req_data as Cardholder)
+            if (req_data.credentials) {
+                const credentials: any = []
+                for (const credential of req_data.credentials) {
+                    credential.company = req_data.company
+                    credential.cardholder = cardholder.id
+                    credentials.push(await Credential.addItem(credential as Credential))
+                }
+                // new SendDeviceMessage(OperatorType.SET_CARD_KEYS, location, acu.serial_number, credentials, acu.session_id)
+            }
+
             if (cardholder) {
                 const where = { id: cardholder.id }
-                const relations = ['car_infos', 'limitations', 'antipass_backs', 'time_attendances', 'access_rights', 'cardholder_groups']
+                const relations = ['car_infos', 'limitations', 'antipass_backs', 'time_attendances', 'access_rights', 'cardholder_groups', 'credentials']
                 ctx.body = await Cardholder.getItem(where, relations)
             }
         } catch (error) {
@@ -385,6 +425,32 @@ export default class CardholderController {
      *                  access_right:
      *                      type: number
      *                      example: 1
+     *                  credentials:
+     *                      type: array
+     *                      items:
+     *                          type: object
+     *                          properties:
+     *                              type:
+     *                                  type: rfid | pinpass | vikey| phone_bt | phone_nfc | fingerprint | face | face_temperature | car_lp_number
+     *                                  example: rfid
+     *                              code:
+     *                                  type: string
+     *                                  example: 1245644
+     *                              status:
+     *                                  type: active | stolen | lost
+     *                                  example: active
+     *                              cardholder:
+     *                                  type: number
+     *                                  example: 1
+     *                              facility:
+     *                                  type: number
+     *                                  example: 2
+     *                              input_mode:
+     *                                  type: serial_number | wiegand_26
+     *                                  example: serial_number
+     *                              company:
+     *                                   type:number
+     *                                   example:1
      *          responses:
      *              '201':
      *                  description: A cardholder updated object
@@ -405,11 +471,20 @@ export default class CardholderController {
                 ctx.body = { message: 'something went wrong' }
             } else {
                 const res_data = await Cardholder.updateItem(req_data as Cardholder, auth_user)
+                const credentials: any = []
+                for (const credential of req_data.credentials) {
+                    if (!credential.id) {
+                        credential.company = auth_user.company
+                        credential.cardholder = req_data.id
+                        credentials.push(await Credential.addItem(credential as Credential))
+                    }
+                    // new SendDeviceMessage(OperatorType.SET_CARD_KEYS, location, acu.serial_number, credentials, acu.session_id)
+                }
                 ctx.oldData = res_data.old
                 ctx.body = res_data.new
 
                 const where = { id: req_data.id }
-                const relations = ['car_infos', 'limitations', 'antipass_backs', 'time_attendances', 'access_rights', 'cardholder_groups']
+                const relations = ['car_infos', 'limitations', 'antipass_backs', 'time_attendances', 'access_rights', 'cardholder_groups', 'credentials']
                 ctx.body = await Cardholder.getItem(where, relations)
             }
         } catch (error) {
@@ -452,7 +527,7 @@ export default class CardholderController {
         try {
             const user = ctx.user
             const where = { id: +ctx.params.id, company: user.company ? user.company : user.company }
-            const relations = ['car_infos', 'limitations', 'antipass_backs', 'time_attendances', 'access_rights', 'cardholder_groups']
+            const relations = ['car_infos', 'limitations', 'antipass_backs', 'time_attendances', 'access_rights', 'cardholder_groups', 'credentials']
             ctx.body = await Cardholder.getItem(where, relations)
         } catch (error) {
             ctx.status = error.status || 400
@@ -541,7 +616,7 @@ export default class CardholderController {
             const req_data = ctx.query
             const user = ctx.user
             req_data.where = { company: { '=': user.company ? user.company : null } }
-            req_data.relations = ['car_infos', 'limitations', 'antipass_backs', 'time_attendances', 'access_rights', 'cardholder_groups']
+            req_data.relations = ['car_infos', 'limitations', 'antipass_backs', 'time_attendances', 'access_rights', 'cardholder_groups', 'credentials']
             ctx.body = await Cardholder.getAllItems(req_data)
         } catch (error) {
             ctx.status = error.status || 400

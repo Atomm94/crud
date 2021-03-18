@@ -12,7 +12,7 @@ export async function getRequest<T> (link:string) {
                     console.error(body)
                     return reject(body)
                 }
-                return resolve(body)
+                return resolve(JSON.parse(body))
             }
         })
     })

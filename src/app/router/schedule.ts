@@ -16,7 +16,6 @@ export default router
   )
   .put('Schedule-updateItem', 'schedule',
     checkRole(),
-    ScheduleType,
     ScheduleController.update
   )
   .delete('Schedule-destroyItem', 'schedule', checkRole(), ScheduleController.destroy)
