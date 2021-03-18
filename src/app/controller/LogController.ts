@@ -88,7 +88,7 @@ export default class LogController {
                 if (credential) {
                     eventData.credential = _.pick(credential, ['id', 'type', 'code'])
                     eventData.cardholder_id = credential.cardholders ? credential.cardholders.id : null
-                    eventData.cardholder = credential.cardholders ? _.pick(credential.cardholders, ['id', 'name', 'email', 'avatar', 'first_name', 'last_name', 'family_name', 'company_name']) : null
+                    eventData.cardholder = credential.cardholders ? _.pick(credential.cardholders, ['id', 'name', 'email', 'avatar', 'first_name', 'last_name', 'family_name', 'company_name', 'status']) : null
                     eventData.access_right = credential.cardholders.access_rights ? _.pick(credential.cardholders.access_rights, ['id', 'name']) : null
                 }
                 if (access_point) {
