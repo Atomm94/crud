@@ -33,7 +33,8 @@ export default class LogController {
     public static async getUserLogs (ctx: DefaultContext) {
         try {
             const user = ctx.user
-            ctx.body = await UserLog.get(user)
+            const req_data = ctx.query
+            ctx.body = await UserLog.get(user, req_data)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -65,7 +66,8 @@ export default class LogController {
     public static async getEventLogs (ctx: DefaultContext) {
         try {
             const user = ctx.user
-            ctx.body = await EventLog.get(user)
+            const req_data = ctx.query
+            ctx.body = await EventLog.get(user, req_data)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

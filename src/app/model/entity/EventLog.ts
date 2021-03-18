@@ -14,8 +14,11 @@ export class EventLog extends BaseClass {
     public static get (user: any, data?: any) {
         let url = `${getEventLogsUrl}?company=${user.company ? user.company : 0}&limit=100`// limit HARDCODE!!
         if (data) {
-            url += `&start_from=${data.start_from}`
-            url += `&start_to=${data.start_to}`
+            if (data.page) url += `&page=${data.page}`
+            if (data.page_items_count) url += `&page=${data.page_items_count}`
+
+            if (data.start_from) url += `&start_from=${data.start_from}`
+            if (data.start_to) url += `&start_to=${data.start_to}`
             if (data.access_points) url += `&access_points=${data.access_points}`
             if (data.cardholders) url += `&cardholders=${data.cardholders}`
             if (data.events) url += `&events=${data.events}`
