@@ -8,6 +8,7 @@ import {
 } from 'typeorm'
 import { Admin } from '../entity/Admin'
 import { CompanyResources } from '../entity/CompanyResources'
+import { JwtToken } from '../entity/JwtToken'
 
 @EventSubscriber()
 export class PostSubscriber implements EntitySubscriberInterface<Admin> {
@@ -39,8 +40,17 @@ export class PostSubscriber implements EntitySubscriberInterface<Admin> {
     /**
      * Called after entity update.
      */
-    afterUpdate (event: UpdateEvent<Admin>) {
-        // const { entity: New, databaseEntity: Old } = event
+    async afterUpdate (event: UpdateEvent<Admin>) {
+        const { entity: New, databaseEntity: Old } = event
+        if (New.status !== Old.status) {
+            if (New.status === true) {
+                const tokens = await JwtToken.find({ account: New.id })
+                for (const token of tokens) {
+                    token.expired = true
+                    token.save()
+                }
+            }
+        }
     }
 
     /**

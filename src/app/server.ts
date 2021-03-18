@@ -6,6 +6,7 @@ import { Sendgrid } from '../component/sendgrid/sendgrid'
 import { AccessControl } from './functions/access-control'
 import MQTTBroker from '../app/mqtt/mqtt'
 import { logger } from '../../modules/winston/logger'
+import CronJob from './cron'
 
 const database = new Database();
 // create connection with database
@@ -18,6 +19,7 @@ const database = new Database();
         await AccessControl.GrantCompanyAccess()
         await Sendgrid.init(config.sendgrid.apiKey)
         await MQTTBroker.init()
+        CronJob.startCrons()
         app.listen(
             config.server.port, () => logger.info(`APP listening at port ${config.server.port}`)
         )

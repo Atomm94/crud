@@ -8,6 +8,7 @@ import {
 import { Admin, MainEntity } from './index'
 
 @Entity('standard_report')
+
 export class StandardReport extends MainEntity {
     @Column('varchar', { name: 'name', nullable: false })
     name: string
