@@ -20,7 +20,7 @@ export class EventLog extends BaseClass {
         let url = `${getEventLogsUrl}?company=${user.company ? user.company : 0}&limit=100`// limit HARDCODE!!
         if (data) {
             if (data.page) url += `&page=${data.page}`
-            if (data.page_items_count) url += `&page=${data.page_items_count}`
+            if (data.page_items_count) url += `&page_items_count=${data.page_items_count}`
 
             if (data.start_from) url += `&start_from=${data.start_from}`
             if (data.start_to) url += `&start_to=${data.start_to}`
