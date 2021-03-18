@@ -47,6 +47,32 @@ class Feature {
         }
     }
 
+    public static ReportsAndAttendance: IFeatureModel = {
+        StandardReportSystem: {
+            check: StandardReportSystemCheck,
+            model: 'StandardReport',
+            module: true
+        }
+    }
+
+    public static Features: IFeatureModel = {
+        // GuardTourFunction: {
+        //     check: GuardTourFunctionCheck
+        // },
+        // ApartTimeZoneForEachDevice: {
+        //     check: ApartTimeZoneForEachDeviceCheck
+        // },
+        // ApartDirectionControl: {
+        //     check: ApartDirectionControlCheck
+        // },
+        OnlineMonitorDashboard: {
+            check: OnlineMonitorDashboardCheck
+        }
+        // AlarmAcknowledgment: {
+        //     check: AlarmAcknowlegmentCheck
+        // }
+    }
+
     public static AntiPassBack: IFeatureModel = {
         LocalAntiPassBack: {
             check: LocalAPB
@@ -161,6 +187,30 @@ async function ApartAPB (ctx: DefaultContext, next: () => Promise<void>) {
     const actionName = 'ApartAntiPassBack'
     return await HaveAccess(ctx, actionName, next)
 }
+async function StandardReportSystemCheck (ctx: DefaultContext, next: () => Promise<void>) {
+    const actionName = 'StandardReportSystem'
+    return await HaveAccess(ctx, actionName, next)
+}
+// async function GuardTourFunctionCheck (ctx: DefaultContext, next: () => Promise<void>) {
+//     const actionName = 'ScheduleType'
+//     return await HaveAccess(ctx, actionName, next)
+// }
+// async function ApartTimeZoneForEachDeviceCheck (ctx: DefaultContext, next: () => Promise<void>) {
+//     const actionName = 'ScheduleType'
+//     return await HaveAccess(ctx, actionName, next)
+// }
+// async function ApartDirectionControlCheck (ctx: DefaultContext, next: () => Promise<void>) {
+//     const actionName = 'ScheduleType'
+//     return await HaveAccess(ctx, actionName, next)
+// }
+async function OnlineMonitorDashboardCheck (ctx: DefaultContext, next: () => Promise<void>) {
+    const actionName = 'OnlineMonitorDashboard'
+    return await HaveAccess(ctx, actionName, next)
+}
+// async function AlarmAcknowlegmentCheck (ctx: DefaultContext, next: () => Promise<void>) {
+//     const actionName = 'ScheduleType'
+//     return await HaveAccess(ctx, actionName, next)
+// }
 
 // async function NotificationEmailCheck (ctx: DefaultContext, next: () => Promise<void>) {
 //     await next()
