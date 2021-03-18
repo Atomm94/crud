@@ -6,7 +6,6 @@ import {
     JoinColumn
 } from 'typeorm'
 
-import { accessPointMode } from '../../enums/accessPointMode.enum'
 import { MainEntity } from './MainEntity'
 import { Company } from './Company'
 import { AccessRule } from './AccessRule'
@@ -14,7 +13,9 @@ import { AccessPointGroup } from './AccessPointGroup'
 import { AccessPointZone } from './AccessPointZone'
 import { Acu } from './Acu'
 import { Reader } from './Reader'
+import { accessPointMode } from '../../enums/accessPointMode.enum'
 import { accessPointType } from '../../enums/accessPointType.enum'
+import { accessPointDoorState } from '../../enums/accessPointDoorState.enum'
 import { AutoTaskSchedule } from './AutoTaskSchedule'
 
 @Entity('access_point')
@@ -48,6 +49,9 @@ export class AccessPoint extends MainEntity {
 
     @Column('int', { name: 'access_point_zone', nullable: true })
     access_point_zone: number | null
+
+    @Column('enum', { name: 'door_state', enum: accessPointDoorState, default: accessPointDoorState.NO_SENSOR })
+    door_state: accessPointDoorState
 
     @Column('int', { name: 'acu', nullable: false })
     acu: number
@@ -127,6 +131,7 @@ export class AccessPoint extends MainEntity {
         if ('apb_enable_timer' in data) accessPoint.apb_enable_timer = data.apb_enable_timer
         if ('access_point_group' in data) accessPoint.access_point_group = data.access_point_group
         if ('access_point_zone' in data) accessPoint.access_point_zone = data.access_point_zone
+        if ('door_state' in data) accessPoint.door_state = data.door_state
         if ('acu' in data) accessPoint.acu = data.acu
         if ('resources' in data) accessPoint.resources = data.resources
 

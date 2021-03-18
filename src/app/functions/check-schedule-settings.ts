@@ -105,7 +105,7 @@ export class CheckScheduleSettings {
             typeof schedule.name !== 'string') {
             return 'Invalid schedule data'
         } else {
-            if (schedule.type !== scheduleType.SPECIFIC) {
+            if (schedule.type !== scheduleType.FLEXITIME) {
                 return 'Invalid schedule data'
             } else {
                 // const start_from = schedule.name.split('-').reverse().join('-')

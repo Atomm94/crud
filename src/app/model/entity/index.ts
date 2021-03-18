@@ -28,6 +28,7 @@ import { AccessPoint } from './AccessPoint'
 import { AccessRule } from './AccessRule'
 import { Acu } from './Acu'
 import { ExtDevice } from './ExtDevice'
+import { StandardReport } from './StandardReport'
 export {
     MainEntity,
     Admin,
@@ -58,5 +59,6 @@ export {
     AccessPoint,
     AccessRule,
     Acu,
-    ExtDevice
+    ExtDevice,
+    StandardReport
 }
