@@ -265,14 +265,7 @@ export default class StandardReportController {
             const req_data = ctx.request.body
             const user = ctx.user
             const where = { id: req_data.id, company: user.company ? user.company : null }
-            const check_by_company = await StandardReport.findOne(where)
-
-            if (!check_by_company) {
-                ctx.status = 400
-                ctx.body = { message: 'something went wrong' }
-            } else {
-            }
-            ctx.body = await StandardReport.destroyItem(req_data as { id: number })
+            ctx.body = await StandardReport.destroyItem(where)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

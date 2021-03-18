@@ -183,7 +183,10 @@ export default class CompanyDocumentsController {
      */
     public static async destroy (ctx: DefaultContext) {
         try {
-            ctx.body = await CompanyDocuments.destroyItem(ctx.request.body as { id: number })
+            const req_data = ctx.request.body
+            const user = ctx.user
+            const where = { id: req_data.id, company: user.company ? user.company : null }
+            ctx.body = await CompanyDocuments.destroyItem(where)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

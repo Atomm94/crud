@@ -214,7 +214,9 @@ export default class PacketController {
      */
     public static async destroy (ctx: DefaultContext) {
         try {
-            ctx.body = await Packet.destroyItem(ctx.request.body as { id: number })
+            const req_data: any = ctx.request.body
+            const where = { id: req_data.id }
+            ctx.body = await Packet.destroyItem(where)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

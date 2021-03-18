@@ -276,8 +276,9 @@ export default class TimeframeController {
             const req_data = ctx.request.body
             const user = ctx.user
             const timeframe: Timeframe = await Timeframe.findOneOrFail(req_data.id)
+            const where = { id: req_data.id, company: user.company ? user.company : null }
 
-            ctx.body = await Timeframe.destroyItem(req_data as { id: number })
+            ctx.body = await Timeframe.destroyItem(where)
             const schedule = await Schedule.findOneOrFail({ id: timeframe.schedule })
 
             const access_rules = await AccessRule.createQueryBuilder('access_rule')

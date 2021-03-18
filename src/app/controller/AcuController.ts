@@ -550,14 +550,8 @@ export default class AcuController {
             const req_data = ctx.request.body
             const user = ctx.user
             const where = { id: req_data.id, company: user.company ? user.company : null }
-            const check_by_company = await Acu.findOne(where)
 
-            if (!check_by_company) {
-                ctx.status = 400
-                ctx.body = { message: 'something went wrong' }
-            } else {
-                ctx.body = await Acu.destroyItem(req_data as { id: number })
-            }
+            ctx.body = await Acu.destroyItem(where)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

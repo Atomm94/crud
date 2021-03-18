@@ -777,21 +777,9 @@ export default class AdminController {
     public static async destroy (ctx: DefaultContext) {
         const reqData = ctx.request.body
         const user = ctx.user
-        let result
         try {
             const where = { id: reqData.id, company: user.company ? user.company : null }
-            const check_by_company = await Admin.findOne(where)
-
-            if (!check_by_company) {
-                ctx.status = 400
-                ctx.body = { message: 'something went wrong' }
-            } else {
-                result = await Admin.destroyItem(reqData as { id: number })
-                ctx.body = {
-                    success: true,
-                    result
-                }
-            }
+            ctx.body = await Admin.destroyItem(where)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

@@ -312,7 +312,7 @@ export default class AccessRuleController {
                     new SendDeviceMessage(operator, location, acu.serial_number, send_data, acu.session_id)
                     ctx.body = { message: 'Delete pending' }
                 } else {
-                    ctx.body = await AccessRule.destroyItem(req_data as { id: number })
+                    ctx.body = await AccessRule.destroyItem(where)
                 }
             }
         } catch (error) {

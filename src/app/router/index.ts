@@ -47,7 +47,6 @@ router.use('/', extDevice.routes(), extDevice.allowedMethods())
 router.use('/', autoTaskSchedule.routes(), autoTaskSchedule.allowedMethods())
 router.use('/', credential.routes(), credential.allowedMethods())
 router.use('/', standardReport.routes(), standardReport.allowedMethods())
-router.use('/', standardReport.routes(), standardReport.allowedMethods())
 router.use('/', dashboard.routes(), dashboard.allowedMethods())
 router.use('/', notification.routes(), notification.allowedMethods())
 
