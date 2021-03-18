@@ -381,9 +381,7 @@ export default class StandardReportController {
             req_data.start_from = start_from
             req_data.start_to = start_to
             const logs = await EventLog.get(user, req_data)
-            console.log(logs)
-
-            ctx.body = true
+            ctx.body = logs
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
