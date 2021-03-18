@@ -475,7 +475,7 @@ export default class CardholderController {
                 for (const credential of req_data.credentials) {
                     if (!credential.id) {
                         credential.company = auth_user.company
-                        credential.cardholder = res_data.id
+                        credential.cardholder = req_data.id
                         credentials.push(await Credential.addItem(credential as Credential))
                     }
                     // new SendDeviceMessage(OperatorType.SET_CARD_KEYS, location, acu.serial_number, credentials, acu.session_id)

@@ -4,5 +4,6 @@ export enum ReceiveTopics {
 
 export enum SendTopics {
     LOG = 'log',
-    CRUD_MQTT = 'crud_mqtt'
+    CRUD_MQTT = 'crud_mqtt',
+    MQTT_SOCKET = 'mqtt_socket'
 }
