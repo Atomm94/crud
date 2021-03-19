@@ -192,7 +192,10 @@ export default class TicketController {
      */
     public static async destroy (ctx: DefaultContext) {
         try {
-            ctx.body = await Ticket.destroyItem(ctx.request.body as { id: number })
+            const req_data = ctx.request.body
+            const where = { id: req_data.id }
+
+            ctx.body = await Ticket.destroyItem(where)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -499,7 +502,9 @@ export default class TicketController {
         try {
             const req_data = ctx.request.body
             const user = ctx.user
-            ctx.body = await Ticket.destroyMessage(req_data as { id: number }, user as Admin)
+            const where = { id: req_data.id, company: user.company ? user.company : null, user: user }
+
+            ctx.body = await Ticket.destroyMessage(where)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

@@ -97,7 +97,7 @@ export default class AccessPointController {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
             } else {
-                ctx.body = await AccessPoint.destroyItem(req_data as { id: number })
+                ctx.body = await AccessPoint.destroyItem(where)
                 if (access_point.acus.status === acuStatus.ACTIVE) {
                     if (access_point.type === accessPointType.DOOR) {
                         new SendDeviceMessage(OperatorType.DEL_CTP_DOOR, location, access_point.acus.serial_number, access_point.acus.session_id, req_data)

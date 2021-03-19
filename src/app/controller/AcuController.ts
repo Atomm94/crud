@@ -143,11 +143,11 @@ export default class AcuController {
                 return ctx.body = { message: check_time }
             }
 
-            // const check_access_points = checkAccessPointsValidation(req_data.access_points, req_data.model, false)
-            // if (check_access_points !== true) {
-            //     ctx.status = 400
-            //     return ctx.body = { message: check_access_points }
-            // }
+            const check_access_points = checkAccessPointsValidation(req_data.access_points, req_data.model, false)
+            if (check_access_points !== true) {
+                ctx.status = 400
+                return ctx.body = { message: check_access_points }
+            }
 
             const acu = new Acu()
 
@@ -555,14 +555,8 @@ export default class AcuController {
             const req_data = ctx.request.body
             const user = ctx.user
             const where = { id: req_data.id, company: user.company ? user.company : null }
-            const check_by_company = await Acu.findOne(where)
 
-            if (!check_by_company) {
-                ctx.status = 400
-                ctx.body = { message: 'something went wrong' }
-            } else {
-                ctx.body = await Acu.destroyItem(req_data as { id: number })
-            }
+            ctx.body = await Acu.destroyItem(where)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
