@@ -111,8 +111,9 @@ export class Timeframe extends MainEntity {
 
     public static async destroyItem (data: any) {
         if (data.name && data.schedule) {
-            return new Promise((resolve, reject) => {
-                this.delete({ name: data.name, schedule: data.schedule })
+            // eslint-disable-next-line no-async-promise-executor
+            return new Promise(async (resolve, reject) => {
+                this.remove(await this.findOneOrFail({ name: data.name, schedule: data.schedule }))
                     .then(() => {
                         resolve({ message: 'success' })
                     })
@@ -121,7 +122,9 @@ export class Timeframe extends MainEntity {
                     })
             })
         } else if (data.id) {
-            return new Promise((resolve, reject) => {
+            // eslint-disable-next-line no-async-promise-executor
+            return new Promise(async (resolve, reject) => {
+                this.remove(await this.findOneOrFail({ id: data.id }))
                 this.delete(data.id)
                     .then(() => {
                         resolve({ message: 'success' })

@@ -328,8 +328,6 @@ export default class AdminController {
         try {
             if (ctx.user) {
                 admin = await Admin.findOneOrFail(ctx.user.id)
-
-                admin = await Admin.findOneOrFail(ctx.user.id)
                 const adminFiltered = _.omit(admin, ['password', 'super', 'verify_token'])
                 ctx.body = adminFiltered
                 if (ctx.user && ctx.user.company && ctx.user.companyData && ctx.user.companyData.packet) {
@@ -777,21 +775,9 @@ export default class AdminController {
     public static async destroy (ctx: DefaultContext) {
         const reqData = ctx.request.body
         const user = ctx.user
-        let result
         try {
             const where = { id: reqData.id, company: user.company ? user.company : null }
-            const check_by_company = await Admin.findOne(where)
-
-            if (!check_by_company) {
-                ctx.status = 400
-                ctx.body = { message: 'something went wrong' }
-            } else {
-                result = await Admin.destroyItem(reqData as { id: number })
-                ctx.body = {
-                    success: true,
-                    result
-                }
-            }
+            ctx.body = await Admin.destroyItem(where)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
