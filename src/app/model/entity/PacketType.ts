@@ -79,17 +79,20 @@ export class PacketType extends MainEntity {
         })
     }
 
-    public static async destroyItem (data: { id: number }) {
-        const itemId: number = +data.id
+    public static async destroyItem (data: any) {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
-            this.remove(await this.findByIds([itemId]))
-                .then(() => {
-                    resolve({ message: 'success' })
-                })
-                .catch((error: any) => {
-                    reject(error)
-                })
+            this.findOneOrFail({ id: data.id }).then((data: any) => {
+                this.remove(data)
+                    .then(() => {
+                        resolve({ message: 'success' })
+                    })
+                    .catch((error: any) => {
+                        reject(error)
+                    })
+            }).catch((error: any) => {
+                reject(error)
+            })
         })
     }
 
