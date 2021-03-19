@@ -162,8 +162,6 @@ export default class TimeframeController {
             ctx.oldData = updated.old
             ctx.body = updated.new
 
-            const timeframe = await Timeframe.findOneOrFail({ id: req_data.id })
-
             const access_rules = await AccessRule.createQueryBuilder('access_rule')
                 .innerJoinAndSelect('access_rule.access_points', 'access_point')
                 .innerJoinAndSelect('access_point.acus', 'acu')
@@ -171,7 +169,14 @@ export default class TimeframeController {
                 .andWhere(`access_rule.schedule = ${req_data.schedule}`)
                 .getMany()
             const location = `${user.company_main}/${user.company}`
-            const schedule = await Schedule.findOneOrFail({ id: timeframe.schedule })
+
+            let schedule
+            if (req_data.id) {
+                const timeframe = await Timeframe.findOneOrFail({ id: req_data.id })
+                schedule = await Schedule.findOneOrFail({ id: timeframe.schedule })
+            } else {
+                schedule = await Schedule.findOneOrFail({ id: req_data.schedule })
+            }
             const timeframes = await Timeframe.find({ schedule: schedule.id })
 
             for (const access_rule of access_rules) {
