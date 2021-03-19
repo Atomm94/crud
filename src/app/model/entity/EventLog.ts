@@ -74,6 +74,11 @@ export class EventLog extends BaseClass {
             }
         }
 
+        if (event.data.access_point_id) {
+            const last_activity = event.data
+            AccessPoint.updateItem({ id: event.data.access_point_id, last_activity: last_activity } as AccessPoint)
+        }
+
         if (event.data.event_type === eventTypes.CARDHOLDER_ALARM || event.data.event_type === eventTypes.SYSTEM_ALARM) {
             const notification = await Notification.addItem(event.data as Notification)
             const send_data = {
@@ -83,6 +88,7 @@ export class EventLog extends BaseClass {
             }
             MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
         }
+
         if (event.data.event_type === eventTypes.CARDHOLDER) {
             const send_data = {
                 topic: SendTopics.MQTT_SOCKET,

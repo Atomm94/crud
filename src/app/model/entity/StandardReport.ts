@@ -8,6 +8,7 @@ import {
 import { Admin, MainEntity } from './index'
 
 @Entity('standard_report')
+
 export class StandardReport extends MainEntity {
     @Column('varchar', { name: 'name', nullable: false })
     name: string
@@ -97,16 +98,20 @@ export class StandardReport extends MainEntity {
         })
     }
 
-    public static async destroyItem (data: { id: number }) {
-        const itemId: number = +data.id
-        return new Promise((resolve, reject) => {
-            this.delete(itemId)
-                .then(() => {
-                    resolve({ message: 'success' })
-                })
-                .catch((error: any) => {
-                    reject(error)
-                })
+    public static async destroyItem (data: any) {
+        // eslint-disable-next-line no-async-promise-executor
+        return new Promise(async (resolve, reject) => {
+            this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
+                this.remove(data)
+                    .then(() => {
+                        resolve({ message: 'success' })
+                    })
+                    .catch((error: any) => {
+                        reject(error)
+                    })
+            }).catch((error: any) => {
+                reject(error)
+            })
         })
     }
 

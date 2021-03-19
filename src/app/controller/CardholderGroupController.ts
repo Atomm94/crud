@@ -384,24 +384,17 @@ export default class CardholderGroupController {
             const id = ctx.request.body.id
             const user = ctx.user
             const where = { id: id, company: user.company ? user.company : null }
-            const check_by_company = await CardholderGroup.findOne(where)
-
-            if (!check_by_company) {
+            const childs = await CardholderGroup.find({ parent_id: id })
+            if (childs.length) {
                 ctx.status = 400
-                ctx.body = { message: 'something went wrong' }
+                ctx.body = { message: 'Can\'t remove group with childs' }
             } else {
-                const childs = await CardholderGroup.find({ parent_id: id })
-                if (childs.length) {
+                const cardholders = await Cardholder.find({ cardholder_group: id })
+                if (cardholders.length) {
                     ctx.status = 400
-                    ctx.body = { message: 'Can\'t remove group with childs' }
+                    ctx.body = { message: 'Can\'t remove group with cardholders' }
                 } else {
-                    const cardholders = await Cardholder.find({ cardholder_group: id })
-                    if (cardholders.length) {
-                        ctx.status = 400
-                        ctx.body = { message: 'Can\'t remove group with cardholders' }
-                    } else {
-                        ctx.body = await CardholderGroup.destroyItem({ id: id })
-                    }
+                    ctx.body = await CardholderGroup.destroyItem(where)
                 }
             }
         } catch (error) {

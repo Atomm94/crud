@@ -254,7 +254,9 @@ export default class CompanyController {
      */
     public static async destroy (ctx: DefaultContext) {
         try {
-            ctx.body = await Company.destroyItem(ctx.request.body as { id: number })
+            const req_data: any = ctx.request.body
+            const where = { id: req_data.id }
+            ctx.body = await Company.destroyItem(where)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

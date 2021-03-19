@@ -2,7 +2,9 @@ import { DefaultContext } from 'koa'
 import { Company } from '../model/entity'
 // import { OperatorType } from '../mqtt/Operators'
 // import SendDeviceMessage from '../mqtt/SendDeviceMessage'
-import MQTTBroker from '../mqtt/mqtt'
+// import MQTTBroker from '../mqtt/mqtt'
+import { OperatorType } from '../mqtt/Operators'
+import SendDeviceMessage from '../mqtt/SendDeviceMessage'
 // import { SendTopics } from '../mqtt/Topics'
 // import { TopicCodes } from '../mqtt/Topics'
 
@@ -200,26 +202,26 @@ export default class MqttController {
                 // MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(get_status))
             }
 
-            const send_event = {
-                operator: 'Event',
-                session_id: '0',
-                message_id: '0',
-                info:
-                {
-                    Group: 0,
-                    Stp_idx: 9,
-                    Event_id: 10,
-                    Key_id: 1,
-                    DateTm: 1599904641
-                }
-            }
-            MQTTBroker.publishMessage('/1/5/1073493824/event', JSON.stringify(send_event))
-            // const loginData = {
-            //     username: 'admin',
-            //     password: 'admin'
+            // const send_event = {
+            //     operator: 'Event',
+            //     session_id: '0',
+            //     message_id: '0',
+            //     info:
+            //     {
+            //         Group: 0,
+            //         Stp_idx: 9,
+            //         Event_id: 10,
+            //         Key_id: 1,
+            //         DateTm: 1599904641
+            //     }
             // }
-            // const message = new SendDeviceMessage(OperatorType.LOGIN, `${main_id}/${company.id}`, 1073493824, loginData)
-            ctx.body = send_event
+            // MQTTBroker.publishMessage('/1/5/1073493824/event', JSON.stringify(send_event))
+            const loginData = {
+                username: 'admin',
+                password: 'admin'
+            }
+            const message = new SendDeviceMessage(OperatorType.LOGIN, `${main_id}/${company.id}`, 1073493824, loginData)
+            ctx.body = message
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

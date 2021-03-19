@@ -59,6 +59,9 @@ export class AccessPoint extends MainEntity {
     @Column('longtext', { name: 'resources', nullable: true })
     resources: string | null
 
+    @Column('longtext', { name: 'last_activity', nullable: true })
+    last_activity: string | null
+
     @Column('int', { name: 'company', nullable: false })
     company: number
 
@@ -89,7 +92,7 @@ export class AccessPoint extends MainEntity {
 
     public static resource: boolean = true
 
-    public static async addItem (data: AccessPoint):Promise<AccessPoint> {
+    public static async addItem (data: AccessPoint): Promise<AccessPoint> {
         const accessPoint = new AccessPoint()
 
         accessPoint.name = data.name
@@ -134,6 +137,7 @@ export class AccessPoint extends MainEntity {
         if ('door_state' in data) accessPoint.door_state = data.door_state
         if ('acu' in data) accessPoint.acu = data.acu
         if ('resources' in data) accessPoint.resources = data.resources
+        if ('last_activity' in data) accessPoint.last_activity = (data.last_activity) ? JSON.stringify(data.last_activity) : null
 
         if (!accessPoint) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
@@ -165,16 +169,20 @@ export class AccessPoint extends MainEntity {
         })
     }
 
-    public static async destroyItem (data: { id: number }) {
-        const itemId: number = +data.id
-        return new Promise((resolve, reject) => {
-            this.delete(itemId)
-                .then(() => {
-                    resolve({ message: 'success' })
-                })
-                .catch((error: any) => {
-                    reject(error)
-                })
+    public static async destroyItem (data: any) {
+        // eslint-disable-next-line no-async-promise-executor
+        return new Promise(async (resolve, reject) => {
+            this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
+                this.remove(data)
+                    .then(() => {
+                        resolve({ message: 'success' })
+                    })
+                    .catch((error: any) => {
+                        reject(error)
+                    })
+            }).catch((error: any) => {
+                reject(error)
+            })
         })
     }
 
