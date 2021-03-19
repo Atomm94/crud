@@ -27,7 +27,6 @@ export class PostSubscriber implements EntitySubscriberInterface<Acu> {
      */
     async afterInsert (event: InsertEvent<Acu>) {
         const data: any = event.entity
-        // const acus: any = await Acu.getAllItems({ company: { '=': data.company ? data.company : null } })
         const promises = []
         promises.push(Acu.createQueryBuilder('acu')
             .select('acu.name')

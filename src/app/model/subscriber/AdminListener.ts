@@ -47,7 +47,7 @@ export class PostSubscriber implements EntitySubscriberInterface<Admin> {
                 const tokens = await JwtToken.find({ account: New.id })
                 for (const token of tokens) {
                     token.expired = true
-                    token.save()
+                    await token.save()
                 }
             }
         }

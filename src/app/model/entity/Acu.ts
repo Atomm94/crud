@@ -191,7 +191,7 @@ export class Acu extends MainEntity {
         return new Promise((resolve, reject) => {
             this.findByParams(
                 {
-                    params,
+                    ...params,
                     relations: params.relations ? params.relations : []
                 })
                 .then((items) => {

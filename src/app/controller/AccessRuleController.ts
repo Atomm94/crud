@@ -41,13 +41,13 @@ export default class AccessRuleController {
      *                      type: number
      *                      example: 1
      *                      minimum: 1
-     *                  access_points:
+     *                  access_point:
      *                      type: Array<number>
      *                      example: [1]
-     *                  access_point_groups:
+     *                  access_point_group:
      *                      type: Array<number>
      *                      example: [1]
-     *                  access_point_zones:
+     *                  access_point_zone:
      *                      type: Array<number>
      *                      example: [1]
      *                  schedule:
@@ -83,6 +83,7 @@ export default class AccessRuleController {
             }
             const access_points: AccessPoint[] = await AccessPoint.find({ ...where })
             const res_data: any = []
+
             for (const access_point of access_points) {
                 const data = req_data
                 data.access_point = access_point.id
