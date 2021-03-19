@@ -7,6 +7,7 @@ import * as jwt from 'jsonwebtoken'
 import * as bcrypt from 'bcrypt'
 
 import { statusCompany } from '../enums/statusCompany.enum'
+import { JwtToken } from '../model/entity/JwtToken'
 
 // import { NotFound } from '../../constant/errors';
 /**
@@ -106,6 +107,7 @@ export default class AuthController {
         const token = jwt.sign({ companyData: ctx.companyData, ...adminFiltered }, 'jwtSecret', { expiresIn: `${expireTime}h` }) // , { expiresIn: '1h' }
 
         if (user.status) {
+            JwtToken.addItem({ account: user.id, token: token, expire_time: expireTime } as JwtToken)
             ctx.body = { user: adminFiltered, token: token }
         } else {
             ctx.status = 403
