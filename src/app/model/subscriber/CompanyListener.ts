@@ -3,7 +3,8 @@ import {
     EventSubscriber,
     InsertEvent,
     UpdateEvent,
-    getManager
+    getManager,
+    Not
 } from 'typeorm'
 import * as Models from '../entity'
 import { Admin, CompanyResources, Role } from '../entity'
@@ -37,7 +38,33 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
      */
     async afterUpdate (event: UpdateEvent<Company>) {
         const { entity: New, databaseEntity: Old } = event
-        if (New.packet && New.packet === Old.packet && Old.status === 'pending' && New.status === 'enabled') {
+        if (Old.status !== New.status) {
+            if (Old.status === statusCompany.DISABLE && New.status === statusCompany.ENABLE) {
+                const accounts = await Admin.find({ company: New.id, status: false })
+                for (const account of accounts) {
+                    account.status = true
+                    await account.save()
+                }
+            } else if (New.status === statusCompany.DISABLE) {
+                const accounts = await Admin.find({ company: New.id, status: true })
+                for (const account of accounts) {
+                    account.status = false
+                    await account.save()
+                }
+            } else if (Old.status === statusCompany.DISABLE && New.status === statusCompany.PENDING) {
+                const account = await Admin.findOneOrFail({ where: { id: New.account } })
+                account.status = true
+                await account.save()
+            } else if (Old.status === statusCompany.ENABLE && New.status === statusCompany.PENDING) {
+                const accounts = await Admin.find({ where: { company: New.id, id: Not(New.account), status: true } })
+                for (const account of accounts) {
+                    account.status = false
+                    await account.save()
+                }
+            }
+        }
+
+        if (New.packet && New.packet === Old.packet && Old.status === statusCompany.PENDING && New.status === statusCompany.ENABLE) {
             if (New.account) {
                 const account = await Admin.findOne(New.account)
                 if (account && account.role) {
