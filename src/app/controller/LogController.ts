@@ -79,7 +79,7 @@ export default class LogController {
         const message_data = message.info
         const acu = Acu.findOneOrFail({ serial_number: message.device_id, company: message.company })
         const access_point = AccessPoint.findOne(message_data.Stp_idx)
-        const credential = Credential.findOne({ where: { id: message_data.Key_id }, relations: ['cardholders', 'cardholders.access_rights', 'cardholders.antipass_backs', 'cardholders.car_infos'] })
+        const credential = Credential.findOne({ where: { id: message_data.Key_id }, relations: ['cardholders', 'cardholders.access_rights', 'cardholders.antipass_backs', 'cardholders.car_infos', 'cardholders.limitations', 'cardholders.cardholder_groups'] })
 
         Promise.all([acu, access_point, credential]).then((data: any) => {
             const eventData: any = { operator: OperatorType.EVENT_LOG, data: { company: message.company, date: message_data.DateTm } }
@@ -90,7 +90,7 @@ export default class LogController {
                 if (credential) {
                     eventData.data.credential = _.pick(credential, ['id', 'type', 'code'])
                     eventData.data.cardholder_id = credential.cardholders ? credential.cardholders.id : null
-                    eventData.data.cardholder = credential.cardholders ? _.pick(credential.cardholders, ['id', 'name', 'email', 'avatar', 'first_name', 'last_name', 'family_name', 'company_name', 'status']) : null
+                    eventData.data.cardholder = credential.cardholders ? _.pick(credential.cardholders, ['id', 'email', 'phone', 'avatar', 'first_name', 'last_name', 'family_name', 'company_name', 'status', 'car_infos', 'antipass_backs', 'limitations', 'access_rights', 'cardholder_groups']) : null
                     eventData.data.access_right = credential.cardholders.access_rights ? _.pick(credential.cardholders.access_rights, ['id', 'name']) : null
                 }
                 if (access_point) {
