@@ -25,7 +25,7 @@ import {
 
 @Entity('company')
 export class Company extends MainEntity {
-    @Column('varchar', { name: 'company_name' })
+    @Column('varchar', { name: 'company_name', nullable: false })
     company_name: string
 
     @Column('int', { name: 'packet', nullable: true })
