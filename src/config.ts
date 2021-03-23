@@ -1,6 +1,7 @@
 import * as dotenv from 'dotenv'
 import * as path from 'path'
 import * as _ from 'lodash'
+import { DefaultContext } from 'koa'
 
 // Load environment variables from .env file, where API keys and passwords are configured
 dotenv.config({ path: '.env' })
@@ -129,4 +130,13 @@ export function normalizePort (val: string | number): number | boolean {
     return false
 }
 
-export default config
+const whitelist = _.defaultTo(JSON.parse(process.env.ORIGIN as string), ['http://localhost:8080'])
+export function checkOriginWhiteList (ctx: DefaultContext) {
+    const requestOrigin = ctx.accept.headers.origin
+    if (!whitelist.includes('*') && !whitelist.includes(requestOrigin)) {
+        return false
+    }
+    return requestOrigin
+}
+
+export { config }

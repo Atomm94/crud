@@ -58,7 +58,7 @@ export default class AuthController {
         let company_main_data: any = {}
 
         try {
-            user = await Admin.findOneOrFail({ where: [{ username }, { email: username }] })
+            user = await Admin.findOneOrFail({ where: [{ username }, { email: username }], relations: ['roles'] })
         } catch (error) {
             ctx.status = error.status || 401
             ctx.body = { message: 'Wrong username or e-mail' }

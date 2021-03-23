@@ -142,11 +142,12 @@ export default class AcuController {
                 ctx.status = 400
                 return ctx.body = { message: check_time }
             }
-
-            const check_access_points = checkAccessPointsValidation(req_data.access_points, req_data.model, false)
-            if (check_access_points !== true) {
-                ctx.status = 400
-                return ctx.body = { message: check_access_points }
+            if (req_data.access_points) {
+                const check_access_points = checkAccessPointsValidation(req_data.access_points, req_data.model, false)
+                if (check_access_points !== true) {
+                    ctx.status = 400
+                    return ctx.body = { message: check_access_points }
+                }
             }
 
             const acu = new Acu()
@@ -165,7 +166,7 @@ export default class AcuController {
                 for (const access_point of req_data.access_points) {
                     access_point.acu = save_acu.id
                     access_point.company = acu.company
-                    access_point.resources = JSON.stringify(access_point.resources)
+                    if (access_point.resources) access_point.resources = JSON.stringify(access_point.resources)
                     const save_access_point = await AccessPoint.addItem(access_point)
                     if (save_access_point) {
                         for (const reader of access_point.readers) {
@@ -412,6 +413,7 @@ export default class AcuController {
                                 access_point_update = false
                                 access_point.acu = acu.id
                                 access_point.company = company
+                                if (access_point.resource) access_point.resource = JSON.stringify(access_point.resource)
                                 access_point = await AccessPoint.addItem(access_point)
                             } else {
                                 const old_access_point = await AccessPoint.findOneOrFail({ id: access_point.id, company: company })
