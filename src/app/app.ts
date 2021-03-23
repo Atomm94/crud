@@ -10,7 +10,7 @@ import checkJwt from './middleware/checkJwt'
 
 import { join } from 'path'
 
-import config from '../config'
+import { config, checkOriginWhiteList } from '../config'
 import { router } from './router'
 // import sentry from '../component/sentry';
 // import { getLogLevelForStatus } from '../lib/logger';
@@ -49,7 +49,7 @@ app.use(overrideValidator())
 app.use(helmet())
 
 // Enable cors with default options
-app.use(cors(config.cors))
+app.use(cors({ ...config.cors, origin: checkOriginWhiteList }))
 
 // Enable bodyParser with default options
 // app.use(bodyParser(config.bodyParser))

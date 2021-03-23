@@ -1,6 +1,6 @@
 import { connect } from 'mqtt'
 import { logger } from '../../../modules/winston/logger'
-import config from '../../config'
+import { config } from '../../config'
 import MessageHandler from './MessageHandler'
 import { ReceiveTopics } from './Topics'
 
