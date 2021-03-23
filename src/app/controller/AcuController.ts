@@ -142,11 +142,12 @@ export default class AcuController {
                 ctx.status = 400
                 return ctx.body = { message: check_time }
             }
-
-            const check_access_points = checkAccessPointsValidation(req_data.access_points, req_data.model, false)
-            if (check_access_points !== true) {
-                ctx.status = 400
-                return ctx.body = { message: check_access_points }
+            if (req_data.access_points) {
+                const check_access_points = checkAccessPointsValidation(req_data.access_points, req_data.model, false)
+                if (check_access_points !== true) {
+                    ctx.status = 400
+                    return ctx.body = { message: check_access_points }
+                }
             }
 
             const acu = new Acu()
