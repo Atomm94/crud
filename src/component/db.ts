@@ -1,7 +1,7 @@
 import 'reflect-metadata'
 import { createConnection, Connection, ConnectionOptions } from 'typeorm'
 import { join } from 'path'
-import config from '../config'
+import { config } from '../config'
 const parentDir = join(__dirname, '..')
 
 const connectionOpts: ConnectionOptions = {

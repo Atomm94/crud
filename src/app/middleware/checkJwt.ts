@@ -4,7 +4,7 @@ import * as jwt from 'jsonwebtoken'
 import { JwtToken } from '../model/entity/JwtToken'
 
 export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
-    const whiteList = ['login', 'swagger', 'favicon', 'page/saveFile', 'registration', 'mqttGetRequest']
+    const whiteList = ['login', 'swagger', 'favicon', 'page/saveFile', 'registration', 'mqttGetRequest', 'mqttPostRequest']
 
     const path = ctx.request.url.split('/')[1]
     const swagger = ctx.request.url.split('/')[1].split('-')[0]

@@ -1,4 +1,4 @@
-import config from '../../config'
+import { config } from '../../config'
 import fs from 'fs'
 import { join } from 'path'
 import * as _ from 'lodash'

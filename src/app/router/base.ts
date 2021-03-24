@@ -70,3 +70,4 @@ export default router
   .get('EventLog-get', 'eventLog', checkRole(), LogController.getEventLogs)
   // Mqtt controller endpoints
   .get('mqttGetRequest/:id', MqttController.get)
+  .post('mqttPostRequest', MqttController.post)

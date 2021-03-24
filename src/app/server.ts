@@ -1,5 +1,5 @@
 import app from './app'
-import config from '../config'
+import { config } from '../config'
 import { Database } from '../component/db'
 import { Sendgrid } from '../component/sendgrid/sendgrid'
 // import { logger } from '../../modules/winston/logger'
