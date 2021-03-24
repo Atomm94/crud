@@ -344,6 +344,16 @@ export default class StandardReportController {
      *                    items:
      *                      type:number
      *              - in: query
+     *                name: start_time
+     *                description: start time
+     *                schema:
+     *                    type: string
+     *              - in: query
+     *                name: end_time
+     *                description: end time
+     *                schema:
+     *                    type: string
+     *              - in: query
      *                name: period
      *                description: period
      *                schema:
@@ -370,7 +380,7 @@ export default class StandardReportController {
                 ctx.status = 400
                 return ctx.body = { message: check }
             }
-            const { start_from, start_to } = generateDatesFromPeriod(req_data.period)
+            const { start_from, start_to } = generateDatesFromPeriod(req_data.period, req_data.start_time, req_data.end_time)
             req_data.start_from = start_from
             req_data.start_to = start_to
             const logs = await EventLog.get(user, req_data)
