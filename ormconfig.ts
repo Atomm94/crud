@@ -1,4 +1,4 @@
-import config from './src/config'
+import { config } from './src/config'
 import { join } from 'path'
 const parentDir = join(__dirname, '')
 

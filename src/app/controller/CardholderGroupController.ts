@@ -134,15 +134,19 @@ export default class CardholderGroupController {
             if (req_data.limitation_inherited && parent_data) {
                 req_data.limitation = parent_data.limitation
             } else {
-                const limitation_data: any = await Limitation.addItem(req_data.limitations as Limitation)
-                req_data.limitation = limitation_data.id
+                const limitation_data = await Limitation.addItem(req_data.limitations as Limitation)
+                if (limitation_data) {
+                    req_data.limitation = limitation_data.id
+                }
             }
 
             if (req_data.antipass_back_inherited && parent_data) {
                 req_data.antipass_back = parent_data.antipass_back
             } else {
-                const antipass_back_data: any = await AntipassBack.addItem(req_data.antipass_backs as AntipassBack)
-                req_data.antipass_back = antipass_back_data.id
+                const antipass_back_data = await AntipassBack.addItem(req_data.antipass_backs as AntipassBack)
+                if (antipass_back_data) {
+                    req_data.antipass_back = antipass_back_data.id
+                }
             }
 
             if (req_data.access_right_inherited && parent_data) {
@@ -380,24 +384,17 @@ export default class CardholderGroupController {
             const id = ctx.request.body.id
             const user = ctx.user
             const where = { id: id, company: user.company ? user.company : null }
-            const check_by_company = await CardholderGroup.findOne(where)
-
-            if (!check_by_company) {
+            const childs = await CardholderGroup.find({ parent_id: id })
+            if (childs.length) {
                 ctx.status = 400
-                ctx.body = { message: 'something went wrong' }
+                ctx.body = { message: 'Can\'t remove group with childs' }
             } else {
-                const childs = await CardholderGroup.find({ parent_id: id })
-                if (childs.length) {
+                const cardholders = await Cardholder.find({ cardholder_group: id })
+                if (cardholders.length) {
                     ctx.status = 400
-                    ctx.body = { message: 'Can\'t remove group with childs' }
+                    ctx.body = { message: 'Can\'t remove group with cardholders' }
                 } else {
-                    const cardholders = await Cardholder.find({ cardholder_group: id })
-                    if (cardholders.length) {
-                        ctx.status = 400
-                        ctx.body = { message: 'Can\'t remove group with cardholders' }
-                    } else {
-                        ctx.body = await CardholderGroup.destroyItem({ id: id })
-                    }
+                    ctx.body = await CardholderGroup.destroyItem(where)
                 }
             }
         } catch (error) {

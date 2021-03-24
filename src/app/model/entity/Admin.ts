@@ -31,6 +31,7 @@ import fs from 'fs'
 import { join } from 'path'
 import { IAdmins } from '../../Interfaces/Admins'
 import { logger } from '../../../../modules/winston/logger'
+import { StandardReport } from './StandardReport'
 
 const parentDir = join(__dirname, '../../..')
 
@@ -142,6 +143,9 @@ export class Admin extends MainEntity {
   @ManyToOne(type => AccountGroup, account_group => account_group.users)
   @JoinColumn({ name: 'account_group' })
   account_groups: AccountGroup | null;
+
+  @OneToMany(type => StandardReport, report => report.authors)
+  reports: StandardReport[];
 
   @BeforeInsert()
   async generatePassword () {
@@ -269,19 +273,22 @@ export class Admin extends MainEntity {
     })
   }
 
-  public static async destroyItem (data: { id: number }) {
-    const itemId: number = +data.id
+  public static async destroyItem (data: any) {
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve, reject) => {
-      this.remove(await this.findByIds([itemId]))
-        .then(() => {
-          resolve({ message: 'success' })
-        })
-        .catch((error: any) => {
-          reject(error)
+        this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
+            this.remove(data)
+                .then(() => {
+                    resolve({ message: 'success' })
+                })
+                .catch((error: any) => {
+                    reject(error)
+                })
+        }).catch((error: any) => {
+            reject(error)
         })
     })
-  }
+}
 
   public static async getAllItems (params?: any) {
     // console.log(await this.getRolesAndAttributes(9))

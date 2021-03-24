@@ -61,14 +61,19 @@ export default class ExtDeviceController {
         try {
             const req_data: any = ctx.request.body
             const user = ctx.user
+
+            const acu: Acu = await Acu.findOneOrFail({ id: req_data.acu })
+            if (acu.status === acuStatus.PENDING) {
+                ctx.status = 400
+                return ctx.body = { message: `You cant add extentionDevice when acu status is ${acuStatus.PENDING}` }
+            }
             const company = user.company ? user.company : null
 
             req_data.company = company
-            const ext_device: any = await ExtDevice.addItem(req_data as ExtDevice)
+            const ext_device = await ExtDevice.addItem(req_data as ExtDevice)
             ctx.body = ext_device
             const location = `${user.company_main}/${user.company}`
             const acu_models: any = acuModels
-            const acu: Acu = await Acu.findOneOrFail({ id: req_data.acu })
             let inputs: Number, outputs: Number
             switch (req_data.ext_board) {
                 case 'LR-RB16':
@@ -87,6 +92,7 @@ export default class ExtDeviceController {
             ext_device.resources = {
                 input: inputs,
                 output: outputs
+
             }
             if (acu.status === acuStatus.ACTIVE) {
                 new SendDeviceMessage(OperatorType.SET_EXT_BRD, location, acu.serial_number, ext_device, acu.session_id)
@@ -252,13 +258,14 @@ export default class ExtDeviceController {
             const ext_device: ExtDevice = await ExtDevice.findOneOrFail({ id: ctx.request.body.id })
             const req_data: any = ctx.request.body
             const user = ctx.user
+            const where = { id: req_data.id, company: user.company ? user.company : null }
             const location = `${user.company_main}/${user.company}`
             const acu: Acu = await Acu.findOneOrFail({ id: ext_device.acu })
             if (acu.status === acuStatus.ACTIVE) {
                 new SendDeviceMessage(OperatorType.DEL_EXT_BRD, location, acu.serial_number, req_data, acu.session_id)
                 ctx.body = { message: 'Destroy pending' }
             } else {
-                ctx.body = await ExtDevice.destroyItem(ctx.request.body as { id: number })
+                ctx.body = await ExtDevice.destroyItem(where)
             }
         } catch (error) {
             ctx.status = error.status || 400

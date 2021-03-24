@@ -32,7 +32,7 @@ export class AntipassBack extends MainEntity {
     public static gettingActions: boolean = false
     public static gettingAttributes: boolean = false
 
-    public static async addItem (data: AntipassBack) {
+    public static async addItem (data: AntipassBack): Promise<AntipassBack> {
         const antipassBack = new AntipassBack()
 
         antipassBack.type = data.type
@@ -90,8 +90,9 @@ export class AntipassBack extends MainEntity {
 
     public static async destroyItem (id: number) {
         const itemId: number = id
-        return new Promise((resolve, reject) => {
-            this.delete(itemId)
+        // eslint-disable-next-line no-async-promise-executor
+        return new Promise(async (resolve, reject) => {
+            this.remove(await this.findOneOrFail(itemId))
                 .then(() => {
                     resolve({ message: 'success' })
                 })

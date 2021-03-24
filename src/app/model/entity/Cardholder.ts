@@ -3,7 +3,8 @@ import {
     Column,
     OneToOne,
     JoinColumn,
-    ManyToOne
+    ManyToOne,
+    OneToMany
 } from 'typeorm'
 import { cardholderStatus } from '../../enums/cardholderStatus.enum'
 import { MainEntity } from './MainEntity'
@@ -16,6 +17,7 @@ import { logger } from '../../../../modules/winston/logger'
 import fs from 'fs'
 import { join } from 'path'
 import { CardholderGroup } from './CardholderGroup'
+import { Credential } from './Credential'
 import { AntipassBack } from './AntipassBack'
 import { Schedule } from './Schedule'
 const parentDir = join(__dirname, '../../..')
@@ -118,9 +120,12 @@ export class Cardholder extends MainEntity {
     @JoinColumn({ name: 'access_right' })
     access_rights: AccessRight | null;
 
+    @OneToMany(type => Credential, credential => credential.cardholders)
+    credentials: Credential[];
+
     public static resource: boolean = true
 
-    public static async addItem (data: Cardholder) {
+    public static async addItem (data: Cardholder): Promise<Cardholder> {
         const cardholder = new Cardholder()
 
         cardholder.email = data.email
@@ -255,24 +260,27 @@ export class Cardholder extends MainEntity {
         })
     }
 
-    public static async destroyItem (data: { id: number }) {
-        const itemId: number = +data.id
+    public static async destroyItem (data: any) {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
-            this.remove(await this.findByIds([itemId]))
-                .then(() => {
-                    resolve({ message: 'success' })
-                })
-                .catch((error: any) => {
-                    reject(error)
-                })
+            this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
+                this.remove(data)
+                    .then(() => {
+                        resolve({ message: 'success' })
+                    })
+                    .catch((error: any) => {
+                        reject(error)
+                    })
+            }).catch((error: any) => {
+                reject(error)
+            })
         })
     }
 
-    public static async getAllItems (params?: any) {
+    public static async getAllItems (params?: any): Promise<Cardholder[] | []> {
         return new Promise((resolve, reject) => {
             this.findByParams(params)
-                .then((items) => {
+                .then((items: Cardholder[]) => {
                     resolve(items)
                 })
                 .catch((error: any) => {

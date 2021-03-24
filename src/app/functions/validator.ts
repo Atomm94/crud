@@ -1,7 +1,12 @@
 import { acuConnectionType } from '../enums/acuConnectionType.enum'
+import { standartReportPeriod } from '../enums/standartReportPeriod.enum'
+
+import { autoTaskRepeatUnit } from '../enums/autoTaskRepeatUnit.enum'
+import { autoTaskScheduleType } from '../enums/autoTaskScheduleType.enum'
 import { readerTypes } from '../enums/readerTypes'
 // import { AccessPoint } from '../model/entity/AccessPoint'
 import acuModel from '../model/entity/acuModels.json'
+import autoTaskcommands from '../model/entity/autoTaskcommands.json'
 
 export function ipValidation (string: string) {
     const ipformat = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
@@ -96,6 +101,7 @@ export function maintainValidation (data: any) {
         }
     }
 }
+
 export function checkAccessPointsValidation (data: any, acu_model: string, update: boolean) {
     const acu_models: any = acuModel
 
@@ -198,6 +204,91 @@ export function checkAccessPointsValidation (data: any, acu_model: string, updat
             }
             // Object.values(resources).forEach((resource: any) => {
             // })
+        }
+    }
+    return true
+}
+
+export function standartReportPeriodValidation (data: any) {
+    if (!('key' in data) || !('value' in data)) {
+        return ('Invalid period data!')
+    } else {
+        switch (data.key) {
+            case standartReportPeriod.CURRENT_DAY:
+            case standartReportPeriod.CURRENT_WEEK:
+            case standartReportPeriod.CURRENT_MONTH:
+            case standartReportPeriod.PREVIOUS_DAY:
+            case standartReportPeriod.PREVIOUS_WEEK:
+            case standartReportPeriod.PREVIOUS_MONTH:
+                break
+            case standartReportPeriod.TARGET_DAY:
+                if (!new Date(data.value)) {
+                    return (`Invalid value for period ${data.key}!`)
+                }
+                break
+            case standartReportPeriod.TARGET_MONTH:
+                if (!new Date(data.value)) {
+                    return (`Invalid value for period ${data.key}!`)
+                }
+                break
+            case standartReportPeriod.TARGET_PERIOD:
+                if (!data.value.start_date || !data.value.end_date) {
+                    return (`Invalid value for period ${data.key}!`)
+                } else {
+                    if (!new Date(data.value.start_date) || !new Date(data.value.end_date)) {
+                        return (`Invalid value for period ${data.key}!`)
+                    }
+                }
+                break
+
+            default:
+                return (`Cant find period like ${data.key}!`)
+        }
+    }
+    return true
+}
+
+export function autoTaskScheduleValidation (data: any) {
+    if (data.schedule_type === autoTaskScheduleType.CUSTOM_SCHEDULE) {
+        if (!data.custom_schedule) {
+            return ('set Custom Schedule data')
+        } else {
+            if (!('start_date' in data.custom_schedule) ||
+                !('start_date_enable' in data.custom_schedule) ||
+                !('end_date' in data.custom_schedule) ||
+                !('end_date_enable' in data.custom_schedule) ||
+                !('start_time' in data.custom_schedule) ||
+                !('start_time_enable' in data.custom_schedule) ||
+                !('end_time' in data.custom_schedule) ||
+                !('end_time_enable' in data.custom_schedule) ||
+                !('repeat' in data.custom_schedule) ||
+                !('repeat_interval' in data.custom_schedule) ||
+                !('repeat_unit' in data.custom_schedule) ||
+                !('duration_days' in data.custom_schedule) ||
+                !('unlimited' in data.custom_schedule)) {
+                return ('Invalid Custom Schedule data')
+            } else {
+                if (!new Date(data.custom_schedule.start_date) || !new Date(data.custom_schedule.end_date)) {
+                    return ('Invalid start_date or end_date in Custom Schedule')
+                } else if (!Number(data.custom_schedule.repeat_interval) || !Number(data.custom_schedule.duration_days)) {
+                    return ('repeat_interval, duration_days must be number!')
+                } else if (Object.values(autoTaskRepeatUnit).indexOf(data.custom_schedule.repeat_unit) === -1) {
+                    return ('Invalid Repeat Unit in Custom Schedule data')
+                }
+            }
+        }
+    }
+
+    const auto_task_commands: any = autoTaskcommands
+    if (data.command) {
+        if (!Array.isArray(data.command)) {
+            return ('AutoTaskSchedule command must be Array')
+        } else {
+            for (const command_id of data.command) {
+                if (!auto_task_commands[command_id]) {
+                    return ('AutoTaskSchedule Invalid command id')
+                }
+            }
         }
     }
     return true

@@ -1,8 +1,10 @@
 import { DefaultContext } from 'koa'
 import { Company } from '../model/entity'
 // import { OperatorType } from '../mqtt/Operators'
+// import SendDeviceMessage from '../mqtt/SendDeviceMessage'
+import MQTTBroker from '../mqtt/mqtt'
+import { OperatorType } from '../mqtt/Operators'
 import SendDeviceMessage from '../mqtt/SendDeviceMessage'
-// import MQTTBroker from '../mqtt/mqtt'
 // import { SendTopics } from '../mqtt/Topics'
 // import { TopicCodes } from '../mqtt/Topics'
 
@@ -34,7 +36,7 @@ export default class MqttController {
         try {
             const main_id = +ctx.params.id
             const where = { account: main_id }
-            const company: any = await Company.findOne({ where: where })
+            const company = await Company.findOneOrFail({ where: where })
             if (!company) {
                 ctx.status = 400
                 ctx.body = {
@@ -202,14 +204,103 @@ export default class MqttController {
                 // MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(get_status))
             }
 
-            // const loginData = {
-            //     username: 'admin',
-            //     password: 'admin'
+            // const send_event = {
+            //     operator: 'Event',
+            //     session_id: '0',
+            //     message_id: '0',
+            //     info:
+            //     {
+            //         Group: 0,
+            //         Stp_idx: 9,
+            //         Event_id: 10,
+            //         Key_id: 1,
+            //         DateTm: 1599904641
+            //     }
             // }
-            // const message = new SendDeviceMessage(OperatorType.LOGIN, `${main_id}/${company.id}`, 1073493824, loginData)
-            ctx.body = true
+            // MQTTBroker.publishMessage('/1/5/1073493824/event', JSON.stringify(send_event))
+            const loginData = {
+                username: 'admin',
+                password: 'admin'
+            }
+            const message = new SendDeviceMessage(OperatorType.LOGIN, `${main_id}/${company.id}`, 1073493824, loginData)
+            ctx.body = message
         } catch (error) {
             console.log(error)
+
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
+
+    /**
+ *
+ * @swagger
+ *  /mqttPostRequest:
+ *      post:
+ *          tags:
+ *              - Mqtt
+ *          summary: Creates a notification.
+ *          parameters:
+ *            - in: body
+ *              name: notification
+ *              description: The notification to create.
+ *              schema:
+ *                type: object
+ *                required:
+ *                  - operator
+ *                  - session_id
+ *                  - message_id
+ *                  - topic
+ *                  - info
+ *                properties:
+ *                  operator:
+ *                      type: string
+ *                      example: Event
+ *                  session_id:
+ *                      type: string
+ *                      example: 0
+ *                  message_id:
+ *                      type: string
+ *                      example: 0
+ *                  topic:
+ *                      type: string
+ *                      example: /5/5/1073493824/event
+ *                  info:
+ *                      type: object
+ *                      required:
+ *                      properties:
+ *                          Group:
+ *                              type: number
+ *                              example: 10
+ *                          Event_id:
+ *                              type: number
+ *                              example: 9
+ *                          Key_id:
+ *                              type: number
+ *                              example: 10
+ *                          DateTm:
+ *                              type: number
+ *                              example: 1
+ *                          Stp_idx:
+ *                              type: number
+ *                              example: 1599904641
+ *          responses:
+ *              '201':
+ *                  description: A notification object
+ *              '409':
+ *                  description: Conflict
+ *              '422':
+ *                  description: Wrong data
+ */
+
+    public static async post (ctx: DefaultContext) {
+        try {
+                const data = ctx.request.body
+                MQTTBroker.publishMessage(data.topic, JSON.stringify(data))
+                ctx.body = { message: 'succsess' }
+            } catch (error) {
+            console.log(333, error)
 
             ctx.status = error.status || 400
             ctx.body = error

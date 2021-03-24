@@ -59,7 +59,7 @@ export class Ticket extends MainEntity {
 
     public static async addItem (data: Ticket) {
         const ticket = new Ticket()
-        const check: any = await Department.findOne({ id: data.department })
+        const check = await Department.findOne({ id: data.department })
         ticket.department = data.department
         ticket.subject = data.subject
         ticket.message = data.message
@@ -156,17 +156,20 @@ export class Ticket extends MainEntity {
         })
     }
 
-    public static async destroyItem (data: { id: number }) {
-        const itemId: number = +data.id
+    public static async destroyItem (data: any) {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
-            this.remove(await this.findByIds([itemId]))
-                .then(() => {
-                    resolve({ message: 'success' })
-                })
-                .catch((error: any) => {
-                    reject(error)
-                })
+            this.findOneOrFail({ id: data.id }).then((data: any) => {
+                this.remove(data)
+                    .then(() => {
+                        resolve({ message: 'success' })
+                    })
+                    .catch((error: any) => {
+                        reject(error)
+                    })
+            }).catch((error: any) => {
+                reject(error)
+            })
         })
     }
 
@@ -231,7 +234,7 @@ export class Ticket extends MainEntity {
     }
 
     public static async addMessage (data: TicketMessage) {
-        const check: any = await this.findOne({ id: data.ticket_id, active: true })
+        const check = await Ticket.findOne({ id: data.ticket_id, active: true })
         if (check) {
             return TicketMessage.addItem(data)
         } else {
@@ -247,8 +250,8 @@ export class Ticket extends MainEntity {
         return TicketMessage.getItem(id)
     }
 
-    public static async destroyMessage (data: { id: number }, user: Admin) {
-        return TicketMessage.destroyItem(data, user)
+    public static async destroyMessage (data: any) {
+        return TicketMessage.destroyItem(data)
     }
 
     public static async getAllMessages (query: any) {

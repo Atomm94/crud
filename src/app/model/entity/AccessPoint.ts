@@ -6,7 +6,6 @@ import {
     JoinColumn
 } from 'typeorm'
 
-import { accessPointMode } from '../../enums/accessPointMode.enum'
 import { MainEntity } from './MainEntity'
 import { Company } from './Company'
 import { AccessRule } from './AccessRule'
@@ -14,7 +13,10 @@ import { AccessPointGroup } from './AccessPointGroup'
 import { AccessPointZone } from './AccessPointZone'
 import { Acu } from './Acu'
 import { Reader } from './Reader'
+import { accessPointMode } from '../../enums/accessPointMode.enum'
 import { accessPointType } from '../../enums/accessPointType.enum'
+import { accessPointDoorState } from '../../enums/accessPointDoorState.enum'
+import { AutoTaskSchedule } from './AutoTaskSchedule'
 
 @Entity('access_point')
 export class AccessPoint extends MainEntity {
@@ -48,11 +50,17 @@ export class AccessPoint extends MainEntity {
     @Column('int', { name: 'access_point_zone', nullable: true })
     access_point_zone: number | null
 
+    @Column('enum', { name: 'door_state', enum: accessPointDoorState, default: accessPointDoorState.NO_SENSOR })
+    door_state: accessPointDoorState
+
     @Column('int', { name: 'acu', nullable: false })
     acu: number
 
     @Column('longtext', { name: 'resources', nullable: true })
     resources: string | null
+
+    @Column('longtext', { name: 'last_activity', nullable: true })
+    last_activity: string | null
 
     @Column('int', { name: 'company', nullable: false })
     company: number
@@ -76,12 +84,15 @@ export class AccessPoint extends MainEntity {
     @JoinColumn({ name: 'acu' })
     acus: Acu;
 
+    @OneToMany(type => AutoTaskSchedule, auto_task_schedule => auto_task_schedule.access_points)
+    auto_task_schedules: AutoTaskSchedule[];
+
     @OneToMany(type => Reader, reader => reader.access_points)
     readers: Reader[];
 
     public static resource: boolean = true
 
-    public static async addItem (data: AccessPoint) {
+    public static async addItem (data: AccessPoint): Promise<AccessPoint> {
         const accessPoint = new AccessPoint()
 
         accessPoint.name = data.name
@@ -123,8 +134,10 @@ export class AccessPoint extends MainEntity {
         if ('apb_enable_timer' in data) accessPoint.apb_enable_timer = data.apb_enable_timer
         if ('access_point_group' in data) accessPoint.access_point_group = data.access_point_group
         if ('access_point_zone' in data) accessPoint.access_point_zone = data.access_point_zone
+        if ('door_state' in data) accessPoint.door_state = data.door_state
         if ('acu' in data) accessPoint.acu = data.acu
         if ('resources' in data) accessPoint.resources = data.resources
+        if ('last_activity' in data) accessPoint.last_activity = (data.last_activity) ? JSON.stringify(data.last_activity) : null
 
         if (!accessPoint) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
@@ -156,16 +169,20 @@ export class AccessPoint extends MainEntity {
         })
     }
 
-    public static async destroyItem (data: { id: number }) {
-        const itemId: number = +data.id
-        return new Promise((resolve, reject) => {
-            this.delete(itemId)
-                .then(() => {
-                    resolve({ message: 'success' })
-                })
-                .catch((error: any) => {
-                    reject(error)
-                })
+    public static async destroyItem (data: any) {
+        // eslint-disable-next-line no-async-promise-executor
+        return new Promise(async (resolve, reject) => {
+            this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
+                this.remove(data)
+                    .then(() => {
+                        resolve({ message: 'success' })
+                    })
+                    .catch((error: any) => {
+                        reject(error)
+                    })
+            }).catch((error: any) => {
+                reject(error)
+            })
         })
     }
 

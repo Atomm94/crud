@@ -100,7 +100,7 @@ class RoleController {
         main: { '!=': true }
       }
 
-      const roles: any = await Role.getAllItems(req_data)
+      const roles = await Role.getAllItems(req_data)
 
       const data = []
       roles.forEach(async (role: Role) => {
@@ -147,7 +147,7 @@ class RoleController {
     try {
       const user = ctx.user
       const where = { company: user.company ? user.company : null }
-      const role: any = await Role.getItem(ctx.params.id, where)
+      const role = await Role.getItem(ctx.params.id, where)
       if (await checkPermissionsAccess(user, role.permissions)) {
         ctx.body = role
       } else {

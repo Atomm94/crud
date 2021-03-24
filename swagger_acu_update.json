@@ -1,0 +1,89 @@
+{
+    "id": 12,
+    "access_points": [
+        {
+            "id": 11,
+            "name": "Door328",
+            "description": "some_description",
+            "actual_passage": true,
+            "mode": "credential",
+            "apb_enable_local": true,
+            "apb_enable_timer": true,
+            "readers": [
+                {
+                    "id": 1,
+                    "port": 1,
+                    "wg_type": 0,
+                    "mode": 0,
+                    "direction": 0,
+                    "beep": true,
+                    "crc": true,
+                    "reverse": true
+                }
+            ]
+        },
+        {
+            "id": 12,
+            "name": "Door328",
+            "description": "some_description",
+            "actual_passage": true,
+            "mode": "credential",
+            "apb_enable_local": true,
+            "apb_enable_timer": true,
+            "readers": [
+                {
+                    "id": 2,
+                    "port": 1,
+                    "wg_type": 0,
+                    "mode": 0,
+                    "direction": 0,
+                    "beep": true,
+                    "crc": true,
+                    "reverse": true
+                }
+            ]
+        },
+        {
+            "id": 13,
+            "name": "Door328",
+            "description": "some_description",
+            "actual_passage": true,
+            "mode": "credential",
+            "apb_enable_local": true,
+            "apb_enable_timer": true,
+            "readers": [
+                {
+                    "id": 3,
+                    "port": 1,
+                    "wg_type": 0,
+                    "mode": 0,
+                    "direction": 0,
+                    "beep": true,
+                    "crc": true,
+                    "reverse": true
+                }
+            ]
+        },
+        {
+            "id": 14,
+            "name": "Door328",
+            "description": "some_description",
+            "actual_passage": true,
+            "mode": "credential",
+            "apb_enable_local": true,
+            "apb_enable_timer": true,
+            "readers": [
+                {
+                    "id": 4,
+                    "port": 1,
+                    "wg_type": 0,
+                    "mode": 0,
+                    "direction": 0,
+                    "beep": true,
+                    "crc": true,
+                    "reverse": true
+                }
+            ]
+        }
+    ]
+}

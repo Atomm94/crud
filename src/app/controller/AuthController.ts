@@ -7,6 +7,7 @@ import * as jwt from 'jsonwebtoken'
 import * as bcrypt from 'bcrypt'
 
 import { statusCompany } from '../enums/statusCompany.enum'
+import { JwtToken } from '../model/entity/JwtToken'
 
 // import { NotFound } from '../../constant/errors';
 /**
@@ -57,7 +58,7 @@ export default class AuthController {
         let company_main_data: any = {}
 
         try {
-            user = await Admin.findOneOrFail({ where: [{ username }, { email: username }] })
+            user = await Admin.findOneOrFail({ where: [{ username }, { email: username }], relations: ['roles'] })
         } catch (error) {
             ctx.status = error.status || 401
             ctx.body = { message: 'Wrong username or e-mail' }
@@ -75,7 +76,7 @@ export default class AuthController {
                 } else {
                     company_main_data.company_main = null
                     if (user.company) {
-                        const company: any = await Company.findOne({ id: user.company })
+                        const company = await Company.findOneOrFail({ id: user.company })
                         company_main_data.company_main = company.account
                         if (company.status === statusCompany.DISABLE || (company.status === statusCompany.PENDING && company.account !== user.id)) {
                             ctx.status = 400
@@ -106,6 +107,7 @@ export default class AuthController {
         const token = jwt.sign({ companyData: ctx.companyData, ...adminFiltered }, 'jwtSecret', { expiresIn: `${expireTime}h` }) // , { expiresIn: '1h' }
 
         if (user.status) {
+            await JwtToken.addItem({ account: user.id, token: token, expire_time: expireTime } as JwtToken)
             ctx.body = { user: adminFiltered, token: token }
         } else {
             ctx.status = 403

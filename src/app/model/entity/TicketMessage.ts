@@ -74,7 +74,7 @@ export class TicketMessage extends MainEntity {
         })
     }
 
-    public static async updateItem (data: TicketMessage, user: Admin): Promise<{ [key: string]: any }> {
+    public static async updateItem (data: TicketMessage, user: Admin): Promise<{old:TicketMessage, new:TicketMessage}|{[key: string]:any}> {
         const ticketMessage = await this.findOneOrFail(data.id)
         const oldData = Object.assign({}, ticketMessage)
 
@@ -118,23 +118,27 @@ export class TicketMessage extends MainEntity {
         })
     }
 
-    public static async destroyItem (data: { id: number }, user: Admin) {
-        const itemId: number = +data.id
-        const ticketMessage = await this.findOneOrFail(itemId)
-        if (!ticketMessage) return { status: 400, message: 'Item not found' }
+    public static async destroyItem (data: any) {
+        // eslint-disable-next-line no-async-promise-executor
+
+        const ticketMessage = await this.findOneOrFail(data.id)
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
-            if (ticketMessage.user_id === user.id) {
-                  this.remove(await this.findByIds([itemId]))
+            this.findOneOrFail({ id: data.id }).then((data: any) => {
+            if (ticketMessage.user_id === data.user) {
+                this.remove(data)
                     .then(() => {
                         resolve({ message: 'success' })
                     })
                     .catch((error: any) => {
                         reject(error)
                     })
-            } else {
-                reject(new Error(`User ${user.id} cant update ${ticketMessage.user_id} user message!!!`))
+                } else {
+                    reject(new Error(`User ${data.user} cant update ${ticketMessage.user_id} user message!!!`))
             }
+            }).catch((error: any) => {
+                reject(error)
+            })
         })
     }
 

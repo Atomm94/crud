@@ -9,6 +9,7 @@ import { Reader } from '../model/entity/Reader'
 import { accessPointType } from '../enums/accessPointType.enum'
 import { ExtDevice } from '../model/entity/ExtDevice'
 import acuModels from '../model/entity/acuModels.json'
+import { scheduleType } from '../enums/scheduleType.enum'
 
 export default class AcuController {
     /**
@@ -43,7 +44,7 @@ export default class AcuController {
      *                      example: some description
      *                  model:
      *                      type: string
-     *                      example: LRM-2CRS
+     *                      example: LRM3CRS
      *                  shared_resource_mode:
      *                      type: boolean
      *                      example: false
@@ -103,7 +104,8 @@ export default class AcuController {
      *                                      type: object
      *                                      properties:
      *                                          type:
-     *                                              type: string
+     *                                              type: number
+     *                                              example: '0'
      *                                          port:
      *                                              type: number
      *                                              example: 1
@@ -140,11 +142,12 @@ export default class AcuController {
                 ctx.status = 400
                 return ctx.body = { message: check_time }
             }
-
-            const check_access_points = checkAccessPointsValidation(req_data.access_points, req_data.model, false)
-            if (check_access_points !== true) {
-                ctx.status = 400
-                return ctx.body = { message: check_access_points }
+            if (req_data.access_points) {
+                const check_access_points = checkAccessPointsValidation(req_data.access_points, req_data.model, false)
+                if (check_access_points !== true) {
+                    ctx.status = 400
+                    return ctx.body = { message: check_access_points }
+                }
             }
 
             const acu = new Acu()
@@ -163,11 +166,14 @@ export default class AcuController {
                 for (const access_point of req_data.access_points) {
                     access_point.acu = save_acu.id
                     access_point.company = acu.company
-                    const save_access_point: any = await AccessPoint.addItem(access_point)
-                    for (const reader of access_point.readers) {
-                        reader.company = acu.company
-                        reader.access_point = save_access_point.id
-                        await Reader.addItem(reader)
+                    if (access_point.resources) access_point.resources = JSON.stringify(access_point.resources)
+                    const save_access_point = await AccessPoint.addItem(access_point)
+                    if (save_access_point) {
+                        for (const reader of access_point.readers) {
+                            reader.company = acu.company
+                            reader.access_point = save_access_point.id
+                            await Reader.addItem(reader)
+                        }
                     }
                 }
             }
@@ -384,6 +390,10 @@ export default class AcuController {
                         ctx.status = 400
                         return ctx.body = { message: check_access_points }
                     } else {
+                        if (acu.status === acuStatus.PENDING && req_data.access_points) {
+                            ctx.status = 400
+                            return ctx.body = { message: `You cant add accessPoints when acu status is ${acuStatus.PENDING}` }
+                        }
                         for (let access_point of req_data.access_points) {
                             for (const resource in access_point.resources) {
                                 const component_source: number = access_point.resources[resource].component_source
@@ -403,6 +413,7 @@ export default class AcuController {
                                 access_point_update = false
                                 access_point.acu = acu.id
                                 access_point.company = company
+                                if (access_point.resource) access_point.resource = JSON.stringify(access_point.resource)
                                 access_point = await AccessPoint.addItem(access_point)
                             } else {
                                 const old_access_point = await AccessPoint.findOneOrFail({ id: access_point.id, company: company })
@@ -546,14 +557,8 @@ export default class AcuController {
             const req_data = ctx.request.body
             const user = ctx.user
             const where = { id: req_data.id, company: user.company ? user.company : null }
-            const check_by_company = await Acu.findOne(where)
 
-            if (!check_by_company) {
-                ctx.status = 400
-                ctx.body = { message: 'something went wrong' }
-            } else {
-                ctx.body = await Acu.destroyItem(req_data as { id: number })
-            }
+            ctx.body = await Acu.destroyItem(where)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -708,29 +713,114 @@ export default class AcuController {
         try {
             const req_data = ctx.request.body
             const user = ctx.user
+            const company = user.company ? user.company : null
+
             const device = await Acu.findOneOrFail({
-                id: req_data.device,
-                status: acuStatus.NO_HARDWARE,
-                company: user.company ? user.company : null
+                relations: [
+                    'ext_devices',
+                    'access_points',
+                    'access_points.readers',
+                    'access_points.access_rules',
+                    'access_points.access_rules.schedules',
+                    'access_points.access_rules.schedules.timeframes'
+                ],
+                where: {
+                    id: req_data.device,
+                    status: acuStatus.NO_HARDWARE,
+                    company: company
+                }
             })
             const hardware = await Acu.findOneOrFail({
                 id: req_data.attached_hardware,
                 status: acuStatus.PENDING,
-                company: user.company ? user.company : null
+                company: company
             })
             if (device.model !== hardware.model) {
                 ctx.status = 400
-                ctx.body = {
+                return ctx.body = {
                     message: 'device models are not same'
                 }
-            } else {
-                device.status = acuStatus.ACTIVE
-                device.network = hardware.network
-                device.interface = hardware.interface
-                // device.time = hardware.time
-                const updated = await device.save()
-                // await Acu.destroyItem({ id: hardware.id }) // accessPoints ??
-                ctx.body = updated
+            }
+
+            device.status = acuStatus.ACTIVE
+            device.network = hardware.network
+            device.interface = hardware.interface
+            device.serial_number = hardware.serial_number
+            device.session_id = hardware.session_id
+            // device.time = hardware.time
+            const updated = await device.save()
+            await Acu.destroyItem({ id: hardware.id })
+            ctx.body = updated
+
+            const location = `${user.company_main}/${user.company}`
+
+            // send extention Devices
+            const ext_devices = device.ext_devices
+            for (const ext_device of ext_devices) {
+                const acu_models: any = acuModels
+                let inputs: Number, outputs: Number
+                switch (req_data.ext_board) {
+                    case 'LR-RB16':
+                        inputs = acu_models.expansion_boards.relay_board[req_data.ext_board].inputs
+                        outputs = acu_models.expansion_boards.relay_board[req_data.ext_board].outputs
+                        break
+                    case 'LR-IB16':
+                        inputs = acu_models.expansion_boards.alarm_board[req_data.ext_board].inputs
+                        outputs = acu_models.expansion_boards.alarm_board[req_data.ext_board].outputs
+                        break
+                    default:
+                        inputs = 0
+                        outputs = 0
+                        break
+                }
+                ext_device.resources = {
+                    input: inputs,
+                    output: outputs
+
+                }
+                new SendDeviceMessage(OperatorType.SET_EXT_BRD, location, device.serial_number, ext_device, device.session_id)
+            }
+
+            // send Access Points
+            const access_points = device.access_points
+            const access_point_update = false
+            for (const access_point of access_points) {
+                if (access_point.type === accessPointType.DOOR) {
+                    new SendDeviceMessage(OperatorType.SET_CTP_DOOR, location, device.serial_number, access_point, device.session_id, access_point_update)
+                }
+                //  else if (access_point.type === doorType.TURNSTILE) {
+                //     SendDevice.SetCtpTurnstile(location, acu.serial_number, acu.session_id, req_data)
+                // } else if (access_point.type === doorType.GATE) {
+                //     SendDevice.SetCtpGate(location, acu.serial_number, acu.session_id, req_data, schedule)
+                // } else if (access_point.type === doorType.GATEWAY) {
+                //     SendDevice.SetCtpGateWay(location, acu.serial_number, acu.session_id, req_data)
+                // } else if (access_point.type === doorType.FLOOR) {
+                //     SendDevice.SetCtpFloor(location, acu.serial_number, acu.session_id, req_data)
+                // }
+
+                // send Readers
+                const readers: any = access_point.readers
+                const reader_update = false
+                for (const reader of readers) {
+                    reader.access_point_type = access_point.type
+                    new SendDeviceMessage(OperatorType.SET_RD, location, device.serial_number, reader, device.session_id, reader_update)
+                }
+
+                // send Schedules(Access Rules)
+                for (const access_rule of access_point.access_rules) {
+                    const send_data: any = { ...access_rule, timeframes: access_rule.schedules.timeframes }
+                    let operator: OperatorType = OperatorType.SET_SDL_DAILY
+                    const schedule = access_rule.schedules
+                    if (schedule.type === scheduleType.WEEKLY) {
+                        operator = OperatorType.SET_SDL_WEEKLY
+                    } else if (schedule.type === scheduleType.FLEXITIME) {
+                        send_data.start_from = schedule.start_from
+                        operator = OperatorType.SET_SDL_FLEXI_TIME
+                    } else if (schedule.type === scheduleType.SPECIFIC) {
+                        operator = OperatorType.SET_SDL_SPECIFIED
+                    }
+                    new SendDeviceMessage(operator, location, device.serial_number, send_data, device.session_id)
+                }
             }
         } catch (error) {
             ctx.status = error.status || 400

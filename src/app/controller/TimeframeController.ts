@@ -64,17 +64,17 @@ export default class TimeframeController {
             const req_data = ctx.request.body
             const user = ctx.user
             req_data.company = user.company ? user.company : null
-            const save: any = await Timeframe.addItem(req_data as Timeframe)
+            const save = await Timeframe.addItem(req_data as Timeframe)
             ctx.body = save
 
-            const access_rules: any = await AccessRule.createQueryBuilder('access_rule')
+            const access_rules = await AccessRule.createQueryBuilder('access_rule')
                 .innerJoinAndSelect('access_rule.access_points', 'access_point')
                 .innerJoinAndSelect('access_point.acus', 'acu')
                 .where(`acu.status = '${acuStatus.ACTIVE}'`)
                 .andWhere(`access_rule.schedule = ${req_data.schedule}`)
                 .getMany()
             const location = `${user.company_main}/${user.company}`
-            const schedule: any = await Schedule.findOne({ id: save.schedule })
+            const schedule = await Schedule.findOneOrFail({ id: save.schedule })
             const timeframes = await Timeframe.find({ schedule: schedule.id })
             const check_schedule = CheckScheduleSettings.checkSettings(schedule.type, schedule, save)
             if (check_schedule !== true) {
@@ -162,16 +162,21 @@ export default class TimeframeController {
             ctx.oldData = updated.old
             ctx.body = updated.new
 
-            const timeframe: any = await Timeframe.findOne({ id: req_data.id })
-
-            const access_rules: any = await AccessRule.createQueryBuilder('access_rule')
+            const access_rules = await AccessRule.createQueryBuilder('access_rule')
                 .innerJoinAndSelect('access_rule.access_points', 'access_point')
                 .innerJoinAndSelect('access_point.acus', 'acu')
                 .where(`acu.status = '${acuStatus.ACTIVE}'`)
                 .andWhere(`access_rule.schedule = ${req_data.schedule}`)
                 .getMany()
             const location = `${user.company_main}/${user.company}`
-            const schedule: any = await Schedule.findOne({ id: timeframe.schedule })
+
+            let schedule
+            if (req_data.id) {
+                const timeframe = await Timeframe.findOneOrFail({ id: req_data.id })
+                schedule = await Schedule.findOneOrFail({ id: timeframe.schedule })
+            } else {
+                schedule = await Schedule.findOneOrFail({ id: req_data.schedule })
+            }
             const timeframes = await Timeframe.find({ schedule: schedule.id })
 
             for (const access_rule of access_rules) {
@@ -276,11 +281,12 @@ export default class TimeframeController {
             const req_data = ctx.request.body
             const user = ctx.user
             const timeframe: Timeframe = await Timeframe.findOneOrFail(req_data.id)
+            const where = { id: req_data.id, company: user.company ? user.company : null }
 
-            ctx.body = await Timeframe.destroyItem(req_data as { id: number })
-            const schedule: any = await Schedule.findOne({ id: timeframe.schedule })
+            ctx.body = await Timeframe.destroyItem(where)
+            const schedule = await Schedule.findOneOrFail({ id: timeframe.schedule })
 
-            const access_rules: any = await AccessRule.createQueryBuilder('access_rule')
+            const access_rules = await AccessRule.createQueryBuilder('access_rule')
                 .innerJoinAndSelect('access_rule.access_points', 'access_point')
                 .innerJoinAndSelect('access_point.acus', 'acu')
                 .where(`acu.status = '${acuStatus.ACTIVE}'`)

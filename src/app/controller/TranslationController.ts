@@ -189,10 +189,10 @@ class TranslationController {
  */
 
     public static async deleteTrans (ctx: DefaultContext) {
-        const { id } = ctx.request.body
-
+        const req_data = ctx.request.body
+        const where = { id: req_data.id }
         try {
-            await Translation.destroyItem(id)
+            await Translation.destroyItem(where)
             return ctx.body = 'Deleted'
         } catch (error) {
             return ctx.body = error

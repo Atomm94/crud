@@ -10,6 +10,7 @@ import SendDeviceMessage from './SendDeviceMessage'
 import { IMqttCrudMessaging } from '../Interfaces/messaging.interface'
 import { Reader } from '../model/entity/Reader'
 import { accessPointType } from '../enums/accessPointType.enum'
+import LogController from '../controller/LogController'
 // import { uid } from 'uid'
 
 export default class Parse {
@@ -275,7 +276,7 @@ export default class Parse {
             // console.log('logout complete')
             const company = message.company
             const device_id = message.device_id
-            const acu: any = await Acu.findOne({ serial_number: device_id, company: company })
+            const acu = await Acu.findOneOrFail({ serial_number: device_id, company: company })
             acu.session_id = '0'
             await acu.save()
             // this.login(message.topic)
@@ -287,7 +288,7 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             const company = message.company
             const device_id = message.device_id
-            const acu: any = await Acu.findOne({ serial_number: device_id, company: company })
+            const acu = await Acu.findOne({ serial_number: device_id, company: company })
             if (acu) {
                 acu.password = message.send_data.data.password
                 await acu.save()
@@ -324,7 +325,7 @@ export default class Parse {
             if (message.result.errorNo === 0) {
                 const company = message.company
                 const device_id = message.device_id
-                const acu: any = await Acu.findOne({ serial_number: device_id, company: company })
+                const acu: any = await Acu.findOneOrFail({ serial_number: device_id, company: company })
                 if (acu) {
                     const info = message.send_data.data
                     acu.network = {
@@ -423,7 +424,7 @@ export default class Parse {
         // console.log('deviceSetExtBrdAck', message)
         if (message.result.errorNo === 0) {
             if (message.send_data.update) {
-                const save: any = await ExtDevice.updateItem(message.send_data.data as ExtDevice)
+                const save = await ExtDevice.updateItem(message.send_data.data as ExtDevice)
                 if (save) {
                     // console.log('ExtDevice update completed')
                 }
@@ -472,7 +473,7 @@ export default class Parse {
                     // new SendDeviceMessage(OperatorType.SET_CTP_TURNSTILE, message.location, message.device_id, message.session_id, access_point)
                     // }
                 }
-                const save: any = await Reader.updateItem(message.send_data.data as Reader)
+                const save = await Reader.updateItem(message.send_data.data as Reader)
                 if (save) {
                     // console.log('Reader update completed')
                 }
@@ -542,9 +543,9 @@ export default class Parse {
         // console.log('deviceSetCtpDoorAck', message)
         if (message.result.errorNo === 0) {
             if (message.send_data.update) {
-                const save: any = await AccessPoint.updateItem(message.send_data.data as AccessPoint)
+                const save = await AccessPoint.updateItem(message.send_data.data as AccessPoint)
                 if (save) {
-                    // console.log('AccessPoint update completed')
+                    console.log('AccessPoint update completed')
                 }
             } else {
                 // console.log('AccessPoint insert completed')
@@ -670,8 +671,9 @@ export default class Parse {
 
     public static deviceEvent (message: IMqttCrudMessaging): void {
         // console.log('deviceEvent', message)
-        if (message.result.errorNo === 0) {
-            // console.log('deviceEvent complete')
+        if (message.info) {
+            LogController.createEventFromDevice(message)
+            console.log('deviceEvent')
         }
     }
 
@@ -888,7 +890,7 @@ export default class Parse {
 
     public static async dellSheduleAck (message: IMqttCrudMessaging) {
         // console.log('dellSheduleAck', message)
-        const acu: any = await Acu.findOne({ serial_number: message.device_id, company: message.company })
+        const acu = await Acu.findOneOrFail({ serial_number: message.device_id, company: message.company })
 
         if (message.result.errorNo === 0) {
             if (message.send_data.update) {

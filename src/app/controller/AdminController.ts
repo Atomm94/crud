@@ -144,7 +144,7 @@ export default class AdminController {
         if (validate(reqData.password).success) {
             try {
                 if (reqData.role_inherited && reqData.account_group) {
-                    const account_group: any = await AccountGroup.findOne({
+                    const account_group = await AccountGroup.findOne({
                         id: reqData.account_group,
                         company: user.company ? user.company : null
                     })
@@ -327,8 +327,6 @@ export default class AdminController {
         let admin
         try {
             if (ctx.user) {
-                admin = await Admin.findOneOrFail(ctx.user.id)
-
                 admin = await Admin.findOneOrFail(ctx.user.id)
                 const adminFiltered = _.omit(admin, ['password', 'super', 'verify_token'])
                 ctx.body = adminFiltered
@@ -621,13 +619,13 @@ export default class AdminController {
         let check_group = true
 
         try {
-            const admin: any = Admin.findOne({
+            const admin = Admin.findOne({
                 id: reqData.id,
                 company: user.company ? user.company : null
             })
             if (admin) {
                 if (reqData.role_inherited && reqData.account_group) {
-                    const account_group: any = await AccountGroup.findOne({
+                    const account_group = await AccountGroup.findOne({
                         id: reqData.account_group,
                         company: user.company ? user.company : null
                     })
@@ -777,21 +775,9 @@ export default class AdminController {
     public static async destroy (ctx: DefaultContext) {
         const reqData = ctx.request.body
         const user = ctx.user
-        let result
         try {
             const where = { id: reqData.id, company: user.company ? user.company : null }
-            const check_by_company = await Admin.findOne(where)
-
-            if (!check_by_company) {
-                ctx.status = 400
-                ctx.body = { message: 'something went wrong' }
-            } else {
-                result = await Admin.destroyItem(reqData as { id: number })
-                ctx.body = {
-                    success: true,
-                    result
-                }
-            }
+            ctx.body = await Admin.destroyItem(where)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

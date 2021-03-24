@@ -41,13 +41,13 @@ export default class AccessRuleController {
      *                      type: number
      *                      example: 1
      *                      minimum: 1
-     *                  access_points:
+     *                  access_point:
      *                      type: Array<number>
      *                      example: [1]
-     *                  access_point_groups:
+     *                  access_point_group:
      *                      type: Array<number>
      *                      example: [1]
-     *                  access_point_zones:
+     *                  access_point_zone:
      *                      type: Array<number>
      *                      example: [1]
      *                  schedule:
@@ -83,6 +83,7 @@ export default class AccessRuleController {
             }
             const access_points: AccessPoint[] = await AccessPoint.find({ ...where })
             const res_data: any = []
+
             for (const access_point of access_points) {
                 const data = req_data
                 data.access_point = access_point.id
@@ -296,10 +297,10 @@ export default class AccessRuleController {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
             } else {
-                const access_point: any = await AccessPoint.findOneOrFail({ id: access_rule.access_point })
+                const access_point: AccessPoint = await AccessPoint.findOneOrFail({ id: access_rule.access_point })
                 const acu: Acu = await Acu.findOneOrFail({ id: access_point.acu })
                 if (acu.status === acuStatus.ACTIVE) {
-                    const schedule: any = await Schedule.findOne({ id: access_rule.schedule })
+                    const schedule: Schedule = await Schedule.findOneOrFail({ id: access_rule.schedule })
                     const send_data = { id: access_rule.id, access_point: access_point.id }
                     let operator: OperatorType = OperatorType.DEL_SDL_DAILY
                     if (schedule.type === scheduleType.WEEKLY) {
@@ -312,7 +313,7 @@ export default class AccessRuleController {
                     new SendDeviceMessage(operator, location, acu.serial_number, send_data, acu.session_id)
                     ctx.body = { message: 'Delete pending' }
                 } else {
-                    ctx.body = await AccessRule.destroyItem(req_data as { id: number })
+                    ctx.body = await AccessRule.destroyItem(where)
                 }
             }
         } catch (error) {

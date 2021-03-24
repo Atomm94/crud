@@ -13,6 +13,7 @@ import { AccessRule } from './AccessRule'
 import { Timeframe } from './Timeframe'
 import { CardholderGroup } from './CardholderGroup'
 import { Cardholder } from '.'
+import { AutoTaskSchedule } from './AutoTaskSchedule'
 
 @Entity('schedule')
 export class Schedule extends MainEntity {
@@ -49,6 +50,9 @@ export class Schedule extends MainEntity {
     @OneToMany(type => Cardholder, cardholder => cardholder.time_attendances)
     cardholders: Cardholder[];
 
+    @OneToMany(type => AutoTaskSchedule, auto_task_schedule => auto_task_schedule.schedules)
+    auto_task_schedules: AutoTaskSchedule[];
+
     public static async addItem (data: Schedule) {
         const schedule = new Schedule()
 
@@ -69,7 +73,7 @@ export class Schedule extends MainEntity {
         })
     }
 
-    public static async updateItem (data: Schedule): Promise<{ [key: string]: any }> {
+    public static async updateItem (data: Schedule): Promise<{old:Schedule, new:Schedule}|{ [key: string]: any }> {
         const schedule = await this.findOneOrFail(data.id)
         const oldData = Object.assign({}, schedule)
 
@@ -107,16 +111,20 @@ export class Schedule extends MainEntity {
         })
     }
 
-    public static async destroyItem (data: { id: number }) {
-        const itemId: number = +data.id
-        return new Promise((resolve, reject) => {
-            this.delete(itemId)
-                .then(() => {
-                    resolve({ message: 'success' })
-                })
-                .catch((error: any) => {
-                    reject(error)
-                })
+    public static async destroyItem (data: any) {
+        // eslint-disable-next-line no-async-promise-executor
+        return new Promise(async (resolve, reject) => {
+            this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
+                this.remove(data)
+                    .then(() => {
+                        resolve({ message: 'success' })
+                    })
+                    .catch((error: any) => {
+                        reject(error)
+                    })
+            }).catch((error: any) => {
+                reject(error)
+            })
         })
     }
 

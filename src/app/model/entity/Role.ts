@@ -155,7 +155,7 @@ export class Role extends MainEntity {
     }
   }
 
-  public static async addItem (data: Role) {
+  public static async addItem (data: Role):Promise<Role> {
     const role = new Role()
 
     role.slug = data.slug
@@ -199,7 +199,7 @@ export class Role extends MainEntity {
     })
   }
 
-  public static async getItem (id: number, where?: any, relations?: Array<string>) {
+  public static async getItem (id: number, where?: any, relations?: Array<string>):Promise<Role> {
     const itemId: number = id
     if (!where) where = {}
     where.id = itemId
@@ -217,24 +217,27 @@ export class Role extends MainEntity {
     })
   }
 
-  public static async destroyItem (id: number) {
-    const itemId: number = +id
+  public static async destroyItem (data: any) {
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve, reject) => {
-      this.remove(await this.findByIds([itemId]))
-        .then(() => {
-          resolve({ message: 'success' })
-        })
-        .catch((error: any) => {
-          reject(error)
+        this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
+            this.remove(data)
+                .then(() => {
+                    resolve({ message: 'success' })
+                })
+                .catch((error: any) => {
+                    reject(error)
+                })
+        }).catch((error: any) => {
+            reject(error)
         })
     })
-  }
+}
 
-  public static async getAllItems (params?: any) {
+  public static async getAllItems (params?: any):Promise<Role[]> {
     return new Promise((resolve, reject) => {
       this.findByParams(params)
-        .then((items) => {
+        .then((items:Role[]) => {
           resolve(items)
         })
         .catch((error: any) => {
@@ -256,7 +259,7 @@ export class Role extends MainEntity {
     if (!user.super) {
       const where: { id: number, company?: number } = { id: user.role }
       if (user.company) where.company = user.company
-      const role: any = await Role.findOne(where)
+      const role = await Role.findOne(where)
       if (role) {
         const permissions = JSON.parse(role.permissions)
         Object.keys(permissions).forEach((model: string) => {

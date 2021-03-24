@@ -179,7 +179,9 @@ export default class LanguageController {
      */
     public static async destroy (ctx: DefaultContext) {
         try {
-            ctx.body = await Language.destroyItem(ctx.request.body as { id: number })
+            const req_data: any = ctx.request.body
+            const where = { id: req_data.id }
+            ctx.body = await Language.destroyItem(where)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

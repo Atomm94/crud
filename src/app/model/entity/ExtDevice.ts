@@ -44,8 +44,9 @@ export class ExtDevice extends MainEntity {
 
     public static gettingActions: boolean = false
     public static gettingAttributes: boolean = false
+    resources: { input: Number; output: Number }
 
-    public static async addItem (data: ExtDevice) {
+    public static async addItem (data: ExtDevice):Promise<ExtDevice> {
         const extDevice = new ExtDevice()
 
         if ('name' in data) extDevice.name = data.name
@@ -112,16 +113,20 @@ export class ExtDevice extends MainEntity {
         })
     }
 
-    public static async destroyItem (data: { id: number }) {
-        const itemId: number = +data.id
-        return new Promise((resolve, reject) => {
-            this.delete(itemId)
-                .then(() => {
-                    resolve({ message: 'success' })
-                })
-                .catch((error: any) => {
-                    reject(error)
-                })
+    public static async destroyItem (data: any) {
+        // eslint-disable-next-line no-async-promise-executor
+        return new Promise(async (resolve, reject) => {
+            this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
+                this.remove(data)
+                    .then(() => {
+                        resolve({ message: 'success' })
+                    })
+                    .catch((error: any) => {
+                        reject(error)
+                    })
+            }).catch((error: any) => {
+                reject(error)
+            })
         })
     }
 
