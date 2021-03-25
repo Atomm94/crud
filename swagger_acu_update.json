@@ -33,7 +33,7 @@
             "readers": [
                 {
                     "id": 2,
-                    "port": 1,
+                    "port": 2,
                     "wg_type": 0,
                     "mode": 0,
                     "direction": 0,
@@ -54,7 +54,7 @@
             "readers": [
                 {
                     "id": 3,
-                    "port": 1,
+                    "port": 3,
                     "wg_type": 0,
                     "mode": 0,
                     "direction": 0,
@@ -75,7 +75,7 @@
             "readers": [
                 {
                     "id": 4,
-                    "port": 1,
+                    "port": 4,
                     "wg_type": 0,
                     "mode": 0,
                     "direction": 0,

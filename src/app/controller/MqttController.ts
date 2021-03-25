@@ -3,7 +3,7 @@ import { Company } from '../model/entity'
 // import { OperatorType } from '../mqtt/Operators'
 // import SendDeviceMessage from '../mqtt/SendDeviceMessage'
 import MQTTBroker from '../mqtt/mqtt'
-import { OperatorType } from '../mqtt/Operators'
+// import { OperatorType } from '../mqtt/Operators'
 import SendDeviceMessage from '../mqtt/SendDeviceMessage'
 // import { SendTopics } from '../mqtt/Topics'
 // import { TopicCodes } from '../mqtt/Topics'
@@ -155,11 +155,12 @@ export default class MqttController {
                     operator: 'SetCtpTurnstile',
                     location: '5/5',
                     device_id: '1073493824',
-                    session_id: '52831102448461152410103211553534',
+                    session_id: '0',
                     message_id: (new Date().getTime()).toString(),
                     info:
                     {
-                        Control_point_idx: 3
+                        Control_point_idx: 3,
+                        Control_type: 0
                     }
                 }
                 new SendDeviceMessage('SetCtpTurnstile', '5/5', 1073493824, send_data, '52831102448461152410103211553534')
@@ -218,12 +219,12 @@ export default class MqttController {
             //     }
             // }
             // MQTTBroker.publishMessage('/1/5/1073493824/event', JSON.stringify(send_event))
-            const loginData = {
-                username: 'admin',
-                password: 'admin'
-            }
-            const message = new SendDeviceMessage(OperatorType.LOGIN, `${main_id}/${company.id}`, 1073493824, loginData)
-            ctx.body = message
+            // const loginData = {
+            //     username: 'admin',
+            //     password: 'admin'
+            // }
+            // const message = new SendDeviceMessage(OperatorType.LOGIN, `${main_id}/${company.id}`, 1073493824, loginData)
+            ctx.body = true
         } catch (error) {
             console.log(error)
 
