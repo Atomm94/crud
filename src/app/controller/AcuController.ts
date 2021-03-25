@@ -423,10 +423,9 @@ export default class AcuController {
                             if (acu.status === acuStatus.ACTIVE) {
                                 if (access_point.type === accessPointType.DOOR) {
                                     new SendDeviceMessage(OperatorType.SET_CTP_DOOR, location, acu.serial_number, access_point, acu.session_id, access_point_update)
-                                }
-                                //  else if (access_point.type === doorType.TURNSTILE) {
-                                //     SendDevice.SetCtpTurnstile(location, acu.serial_number, acu.session_id, req_data)
-                                // } else if (access_point.type === doorType.GATE) {
+                                } else if (access_point.type === accessPointType.TURNSTILE_ONE_SIDE || access_point.type === accessPointType.TURNSTILE_TWO_SIDE) {
+                                    new SendDeviceMessage(OperatorType.SET_CTP_TURNSTILE, location, acu.serial_number, access_point, acu.session_id, access_point_update)
+                                 } /* else if (access_point.type === accessPointType.GATE) { */
                                 //     SendDevice.SetCtpGate(location, acu.serial_number, acu.session_id, req_data, schedule)
                                 // } else if (access_point.type === doorType.GATEWAY) {
                                 //     SendDevice.SetCtpGateWay(location, acu.serial_number, acu.session_id, req_data)
