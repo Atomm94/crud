@@ -8,6 +8,7 @@ import { socketChannels } from '../../enums/socketChannels.enum'
 import { eventTypes } from '../../enums/eventTypes.enum'
 import { accessPointDoorState } from '../../enums/accessPointDoorState.enum'
 import { AccessPoint } from './AccessPoint'
+import SendSocketMessage from '../../mqtt/SendSocketMessage'
 
 const clickhouse_server: string = process.env.CLICKHOUSE_SERVER ? process.env.CLICKHOUSE_SERVER : 'http://localhost:4143'
 const getEventLogsUrl = `${clickhouse_server}/eventLog`
@@ -55,12 +56,7 @@ export class EventLog extends BaseClass {
 
     public static async create (event: any) {
         MQTTBroker.publishMessage(SendTopics.LOG, JSON.stringify(event))
-        const send_log = {
-            topic: SendTopics.MQTT_SOCKET,
-            channel: socketChannels.DASHBOARD_ACTIVITY,
-            data: event.data
-        }
-        MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_log))
+        new SendSocketMessage(socketChannels.DASHBOARD_ACTIVITY, event.data)
 
         if (event.data.event_type === eventTypes.SYSTEM) {
             let door_state
@@ -81,21 +77,11 @@ export class EventLog extends BaseClass {
 
         if (event.data.event_type === eventTypes.CARDHOLDER_ALARM || event.data.event_type === eventTypes.SYSTEM_ALARM) {
             const notification = await Notification.addItem(event.data as Notification)
-            const send_data = {
-                topic: SendTopics.MQTT_SOCKET,
-                channel: socketChannels.NOTIFICATION,
-                data: notification
-            }
-            MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
+            new SendSocketMessage(socketChannels.NOTIFICATION, notification)
         }
 
         if (event.data.event_type === eventTypes.CARDHOLDER) {
-            const send_data = {
-                topic: SendTopics.MQTT_SOCKET,
-                channel: socketChannels.DASHBOARD_MONITOR,
-                data: event.data
-            }
-            MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
+            new SendSocketMessage(socketChannels.DASHBOARD_MONITOR, event.data)
         }
     }
 }
