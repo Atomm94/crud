@@ -5,12 +5,11 @@ import {
     RemoveEvent,
     UpdateEvent
 } from 'typeorm'
-import MQTTBroker from '../../mqtt/mqtt'
-import { SendTopics } from '../../mqtt/Topics'
 // import SendDevice from '../../mqtt/SendDevice'
 // import { Company } from '../entity'
 import { socketChannels } from '../../enums/socketChannels.enum'
 import { AccessPoint } from '../entity'
+import SendSocketMessage from '../../mqtt/SendSocketMessage'
 
 @EventSubscriber()
 export class PostSubscriber implements EntitySubscriberInterface<AccessPoint> {
@@ -35,14 +34,7 @@ export class PostSubscriber implements EntitySubscriberInterface<AccessPoint> {
             .groupBy('access_point.mode')
             .getRawMany()
 
-        const send_data: any = {
-            data: modes,
-            topic: SendTopics.MQTT_SOCKET,
-            channel: socketChannels.DASHBOARD_ACCESS_POINT_MODES
-        }
-console.log(4444444, send_data)
-
-        MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
+        new SendSocketMessage(socketChannels.DASHBOARD_ACCESS_POINT_MODES, modes)
     }
 
     /**
@@ -63,13 +55,7 @@ console.log(4444444, send_data)
                 .groupBy('access_point.mode')
                 .getRawMany()
 
-            const send_data: any = {
-                data: modes,
-                topic: SendTopics.MQTT_SOCKET,
-                channel: socketChannels.DASHBOARD_ACCESS_POINT_MODES
-            }
-
-            MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
+            new SendSocketMessage(socketChannels.DASHBOARD_ACCESS_POINT_MODES, modes)
         }
     }
 
@@ -86,12 +72,6 @@ console.log(4444444, send_data)
             .groupBy('access_point.mode')
             .getRawMany()
 
-        const send_data: any = {
-            data: modes,
-            topic: SendTopics.MQTT_SOCKET,
-            channel: socketChannels.DASHBOARD_ACCESS_POINT_MODES
-        }
-
-        MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
+        new SendSocketMessage(socketChannels.DASHBOARD_ACCESS_POINT_MODES, modes)
     }
 }

@@ -91,6 +91,9 @@ export default class Parse {
             case OperatorType.DEL_CTP_DOOR_ACK:
                 this.deviceDelCtpDoorAck(message)
                 break
+            case OperatorType.GET_CTP_DOOR_ACK:
+                this.deviceGetCtpDoorAck(message)
+                break
 
             case OperatorType.SET_CTP_TURNSTILE_ACK:
                 this.deviceSetCtpTurnstileAck(message)
@@ -98,11 +101,17 @@ export default class Parse {
             case OperatorType.DEL_CTP_TURNSTILE_ACK:
                 this.deviceDelCtpTurnstileAck(message)
                 break
+            case OperatorType.GET_CTP_TURNSTILE_ACK:
+                this.deviceGetCtpTurnstileAck(message)
+                break
             case OperatorType.SET_CTP_GATE_ACK:
                 this.deviceSetCtpGateAck(message)
                 break
             case OperatorType.DEL_CTP_GATE_ACK:
                 this.deviceDelCtpGateAck(message)
+                break
+            case OperatorType.GET_CTP_GATE_ACK:
+                this.deviceGetCtpGateAck(message)
                 break
             case OperatorType.SET_CTP_GATEWAY_ACK:
                 this.deviceSetCtpGatewayAck(message)
@@ -110,11 +119,17 @@ export default class Parse {
             case OperatorType.DEL_CTP_GATEWAY_ACK:
                 this.deviceDelCtpGatewayAck(message)
                 break
+            case OperatorType.GET_CTP_GATEWAY_ACK:
+                this.deviceGetCtpGatewayAck(message)
+                break
             case OperatorType.SET_CTP_FLOOR_ACK:
                 this.deviceSetCtpFloorAck(message)
                 break
             case OperatorType.DEL_CTP_FLOOR_ACK:
                 this.deviceDelCtpFloorAck(message)
+                break
+            case OperatorType.GET_CTP_FLOOR_ACK:
+                this.deviceGetCtpFloorAck(message)
                 break
 
             case OperatorType.EVENT:
@@ -565,6 +580,14 @@ export default class Parse {
         }
     }
 
+    public static async deviceGetCtpDoorAck (message: IMqttCrudMessaging) {
+        // console.log('deviceGetCtpDoorAck', message)
+        if (message.result.errorNo === 0) {
+            await AccessPoint.destroyItem({ id: message.send_data.data.id })
+            // console.log('deviceGetCtpDoorAck insert completed')
+        }
+    }
+
     public static async deviceSetCtpTurnstileAck (message: IMqttCrudMessaging) {
         // console.log('deviceSetCtpTurnstileAck', message)
         if (message.result.errorNo === 0) {
@@ -588,6 +611,14 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             await AccessPoint.destroyItem({ id: message.send_data.data.id })
             // console.log('deviceDelCtpDoorAck insert completed')
+        }
+    }
+
+    public static async deviceGetCtpTurnstileAck (message: IMqttCrudMessaging) {
+        // console.log('deviceGetCtpTurnstileAck', message)
+        if (message.result.errorNo === 0) {
+            await AccessPoint.destroyItem({ id: message.send_data.data.id })
+            // console.log('deviceGetCtpTurnstileAck insert completed')
         }
     }
 
@@ -617,6 +648,14 @@ export default class Parse {
         }
     }
 
+    public static async deviceGetCtpGateAck (message: IMqttCrudMessaging) {
+        // console.log('deviceGetCtpGateAck', message)
+        if (message.result.errorNo === 0) {
+            await AccessPoint.destroyItem({ id: message.send_data.data.id })
+            // console.log('deviceGetCtpGateAck insert completed')
+        }
+    }
+
     public static async deviceSetCtpGatewayAck (message: IMqttCrudMessaging) {
         // console.log('deviceSetCtpGatewayAck', message)
         if (message.result.errorNo === 0) {
@@ -643,6 +682,14 @@ export default class Parse {
         }
     }
 
+    public static async deviceGetCtpGatewayAck (message: IMqttCrudMessaging) {
+        // console.log('deviceGetCtpGatewayAck', message)
+        if (message.result.errorNo === 0) {
+            await AccessPoint.destroyItem({ id: message.send_data.data.id })
+            // console.log('deviceGetCtpGatewayAck insert completed')
+        }
+    }
+
     public static async deviceSetCtpFloorAck (message: IMqttCrudMessaging) {
         // console.log('deviceSetCtpFloorAck', message)
         if (message.result.errorNo === 0) {
@@ -666,6 +713,14 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             await AccessPoint.destroyItem({ id: message.send_data.data.id })
             // console.log('deviceDelCtpFloorAck insert completed')
+        }
+    }
+
+    public static async deviceGetCtpFloorAck (message: IMqttCrudMessaging) {
+        // console.log('deviceGetCtpFloorAck', message)
+        if (message.result.errorNo === 0) {
+            await AccessPoint.destroyItem({ id: message.send_data.data.id })
+            // console.log('deviceGetCtpFloorAck insert completed')
         }
     }
 

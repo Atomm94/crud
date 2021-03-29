@@ -46,54 +46,44 @@ export enum OperatorType {
 
     SET_CTP_DOOR = 'SetCtpDoor',
     SET_CTP_DOOR_ACK = 'SetCtpDoor-Ack',
-
     GET_CTP_DOOR = 'GetCtpDoor',
     GET_CTP_DOOR_ACK = 'GetCtpDoor-Ack',
-
     DEL_CTP_DOOR = 'DelCtpDoor',
     DEL_CTP_DOOR_ACK = 'DelCtpDoor-Ack',
 
     SET_CTP_TURNSTILE = 'SetCtpTurnstile',
     SET_CTP_TURNSTILE_ACK = 'SetCtpTurnstile-Ack',
-
     GET_CTP_TURNSTILE = 'GetCtpTurnstile',
     GET_CTP_TURNSTILE_ACK = 'GetCtpTurnstile-Ack',
-
     DEL_CTP_TURNSTILE = 'DelCtpTurnstile',
     DEL_CTP_TURNSTILE_ACK = 'DelCtpTurnstile-Ack',
 
     SET_CTP_GATE = 'SetCtpGate',
     SET_CTP_GATE_ACK = 'SetCtpGate-Ack',
-
     GET_CTP_GATE = 'GetCtpGate',
     GET_CTP_GATE_ACK = 'GetCtpGate-Ack',
-
     DEL_CTP_GATE = 'DelCtpGate',
     DEL_CTP_GATE_ACK = 'DelCtpGate-Ack',
 
     SET_CTP_GATEWAY = 'SetCtpGateway',
     SET_CTP_GATEWAY_ACK = 'SetCtpGateway-Ack',
-
     GET_CTP_GATEWAY = 'GetCtpGateway',
     GET_CTP_GATEWAY_ACK = 'GetCtpGateway-Ack',
-
     DEL_CTP_GATEWAY = 'DelCtpGateway',
     DEL_CTP_GATEWAY_ACK = 'DelCtpGateway-Ack',
 
     SET_CTP_FLOOR = 'SetCtpFloor',
     SET_CTP_FLOOR_ACK = 'SetCtpFloor-Ack',
-
     GET_CTP_FLOOR = 'GetCtpFloor',
     GET_CTP_FLOOR_ACK = 'GetCtpFloor-Ack',
-
     DEL_CTP_FLOOR = 'DelCtpFloor',
     DEL_CTP_FLOOR_ACK = 'DelCtpFloor-Ack',
 
     SET_EVENTS_MOD = 'SetEventsMod',
     SET_EVENTS_MOD_ACK = 'SetEventsMod-Ack',
-
     GET_EVENTS_MOD = 'GetEventsMod',
     GET_EVENTS_MOD_ACK = 'GetEventsMod-Ack',
+
     EVENT = 'Event',
     GET_EVENTS = 'GetEvents',
     GET_EVENTS_ACK = 'GetEvents-Ack',
@@ -101,7 +91,7 @@ export enum OperatorType {
     SET_ACCESS_MODE_ACK = 'SetAccessMode-Ack',
 
     EVENT_LOG = 'EventLog',
-    USER_LOG='UserLog',
+    USER_LOG = 'UserLog',
 
     GET_ACCESS_MODE = 'GetAccessMode',
     GET_ACCESS_MODE_ACK = 'GetAccessMode-Ack',
@@ -161,5 +151,5 @@ export enum OperatorType {
     DELL_SHEDULE_ACK = 'DellShedule-Ack',
 
     DEV_TEST = 'DevTest',
-    DEV_TEST_ACK = 'DevTest-Ack'
+    DEV_TEST_ACK = 'DevTest-Ack',
 }
