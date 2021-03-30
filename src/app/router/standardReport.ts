@@ -9,4 +9,5 @@ export default router
     .post('standardReport-addItem', 'standardReport', checkRole(), StandardReportController.add)
     .put('standardReport-updateItem', 'standardReport', checkRole(), StandardReportController.update)
     .get('standardReport-getAllItems', 'standardReport/execute', checkRole(), StandardReportController.execute)
+    .get('standardReport-getAllItems', 'standardReport/eventList', checkRole(), StandardReportController.getEventList)
     .get('standardReport-getItem', 'standardReport/:id', checkRole(), StandardReportController.get)

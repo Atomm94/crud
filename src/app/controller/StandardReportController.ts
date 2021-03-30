@@ -3,6 +3,7 @@ import { generateDatesFromPeriod } from '../functions/generate-dates-from-period
 import { standartReportPeriodValidation } from '../functions/validator'
 import { EventLog } from '../model/entity'
 import { StandardReport } from '../model/entity/StandardReport'
+import eventList from '../model/entity/eventList.json'
 
 export default class StandardReportController {
     /**
@@ -79,6 +80,7 @@ export default class StandardReportController {
             const req_data = ctx.request.body
             const user = ctx.user
             req_data.company = user.company ? user.company : null
+            req_data.author = user.id
             const check = standartReportPeriodValidation(req_data.period)
             if (check !== true) {
                 ctx.status = 400
@@ -385,6 +387,47 @@ export default class StandardReportController {
             req_data.start_to = start_to
             const logs = await EventLog.get(user, req_data)
             ctx.body = logs
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     * /standardReport/eventList:
+     *      get:
+     *          tags:
+     *              - StandardReport
+     *          summary: Return eventList
+     *          parameters:
+     *              - in: header
+     *                name: Authorization
+     *                required: true
+     *                description: Authentication token
+     *                schema:
+     *                    type: string
+     *          responses:
+     *              '200':
+     *                  description: Array of commands
+     *              '401':
+     *                  description: Unauthorized
+     */
+    public static async getEventList (ctx: DefaultContext) {
+        try {
+            // const send_data = []
+            // const event_list: any = eventList
+            // Object.keys(event_list).forEach(group_id => {
+            //     event_list[group_id] = 4
+            //     const group_name = event_list[group_id].name
+            //     const events = event_list[group_id].events
+            //     Object.keys(events).forEach(event_id => {
+
+            //     })
+            // })
+            ctx.body = eventList
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

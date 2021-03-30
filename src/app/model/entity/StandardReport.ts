@@ -66,7 +66,6 @@ export class StandardReport extends MainEntity {
 
         if ('name' in data) standardReport.name = data.name
         if ('description' in data) standardReport.description = data.description
-        if ('author' in data) standardReport.author = data.author
         if ('period' in data) standardReport.period = JSON.stringify(data.period)
         if ('events' in data) standardReport.events = JSON.stringify(data.events)
         if ('access_points' in data) standardReport.access_points = JSON.stringify(data.access_points)
