@@ -27,7 +27,7 @@
                 "inputs": {
                     "Turnstile_ready": "Door_sensor",
                     "Pass_control": "Door_sensor",
-                    "Entry_button": "Exit_button",
+                    "Entry_button": "Entry_button",
                     "Exit_button": "Exit_button",
                     "ACU_Tamper": "ACU_Tamper",
                     "Fire_Alarm_in": "Fire_Alarm_in"

@@ -138,6 +138,7 @@ export default class AccessPointController {
             const req_data = ctx.query
             const user = ctx.user
             req_data.where = { company: { '=': user.company ? user.company : null } }
+            req_data.relations = ['acus', 'access_point_groups', 'access_point_zones']
             ctx.body = await AccessPoint.getAllItems(req_data)
         } catch (error) {
             ctx.status = error.status || 400

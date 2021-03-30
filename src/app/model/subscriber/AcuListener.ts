@@ -6,12 +6,12 @@ import {
     RemoveEvent
     // UpdateEvent
 } from 'typeorm'
-import MQTTBroker from '../../mqtt/mqtt'
 import { SendTopics } from '../../mqtt/Topics'
 // import SendDevice from '../../mqtt/SendDevice'
 // import { Company } from '../entity'
 import { Acu } from '../entity/Acu'
 import { socketChannels } from '../../enums/socketChannels.enum'
+import SendSocketMessage from '../../mqtt/SendSocketMessage'
 
 @EventSubscriber()
 export class PostSubscriber implements EntitySubscriberInterface<Acu> {
@@ -46,17 +46,12 @@ export class PostSubscriber implements EntitySubscriberInterface<Acu> {
             .getRawMany())
 
         const [acus, access_points]: any = await Promise.all(promises)
-        const send_data: any = {
-            data: {
-                acus: acus,
-                access_points: access_points
+        const send_data = {
+            acus: acus,
+            access_points: access_points
 
-            },
-            topic: SendTopics.MQTT_SOCKET,
-            channel: socketChannels.DASHBOARD_ACU
         }
-
-        MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
+        new SendSocketMessage(socketChannels.DASHBOARD_ACU, send_data)
     }
 
     /**
@@ -90,16 +85,12 @@ export class PostSubscriber implements EntitySubscriberInterface<Acu> {
                 .getRawMany())
 
             const [access_points, acus]: any = await Promise.all(promises)
-            const send_data: any = {
-                data: {
-                    acus: acus,
-                    access_points: access_points
+            const send_data = {
+                acus: acus,
+                access_points: access_points
 
-                },
-                topic: SendTopics.MQTT_SOCKET,
-                channel: socketChannels.DASHBOARD_ACU
             }
-            MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
+            new SendSocketMessage(socketChannels.DASHBOARD_ACU, send_data)
         }
     }
 
@@ -141,16 +132,11 @@ export class PostSubscriber implements EntitySubscriberInterface<Acu> {
             .getRawMany())
 
         const [acus, access_points]: any = await Promise.all(promises)
-        const send_data: any = {
-            data: {
-                acus: acus,
-                access_points: access_points
+        const send_data = {
+            acus: acus,
+            access_points: access_points
 
-            },
-            topic: SendTopics.MQTT_SOCKET,
-            channel: socketChannels.DASHBOARD_ACU
         }
-
-        MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
+        new SendSocketMessage(socketChannels.DASHBOARD_ACU, send_data)
     }
 }
