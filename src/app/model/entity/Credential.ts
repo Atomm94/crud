@@ -2,7 +2,8 @@ import {
     Entity,
     Column,
     ManyToOne,
-    JoinColumn
+    JoinColumn,
+    DeleteDateColumn
 } from 'typeorm'
 
 import { MainEntity } from './index'
@@ -30,6 +31,9 @@ export class Credential extends MainEntity {
 
     @Column('enum', { name: 'input_mode', enum: credentialInputMode })
     input_mode: credentialInputMode
+
+    @DeleteDateColumn({ type: 'timestamp', name: 'delete_date' })
+    public deleteDate: Date
 
     @Column('int', { name: 'company', nullable: false })
     company: number
@@ -102,7 +106,7 @@ export class Credential extends MainEntity {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
             this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
-                this.remove(data)
+                this.softRemove(data)
                     .then(() => {
                         resolve({ message: 'success' })
                     })

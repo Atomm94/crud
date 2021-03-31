@@ -503,13 +503,13 @@ export default class AcuController {
      */
     public static async get (ctx: DefaultContext) {
         try {
-            const user = ctx.user
-            const where = { id: +ctx.params.id, company: user.company ? user.company : user.company }
-            const acu: Acu = await Acu.getItem(where)
-            const location = `${user.company_main}/${user.company}`
-            new SendDeviceMessage(OperatorType.GET_STATUS_ACU, location, acu.serial_number, 'none', acu.session_id)
-            // SendDevice.getStatusAcu(location, acu.serial_number, acu.session_id)
-            ctx.body = acu
+            const data = await Acu.createQueryBuilder('acu')
+                .leftJoinAndSelect('acu.access_points', 'access_point', 'access_point.delete_date is null')
+                .leftJoinAndSelect('access_point.readers', 'reader', 'reader.delete_date is null')
+                .where(`acu.id = ${+ctx.params.id}`)
+                .andWhere(`acu.company = ${ctx.user.company}`)
+                .getMany()
+            ctx.body = data
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -591,7 +591,13 @@ export default class AcuController {
             const req_data = ctx.query
             const user = ctx.user
             req_data.where = { company: { '=': user.company ? user.company : null } }
-            ctx.body = await Acu.getAllItems(req_data)
+
+            const data = await Acu.createQueryBuilder('acu')
+                .leftJoinAndSelect('acu.access_points', 'access_point', 'access_point.delete_date is null')
+                .leftJoinAndSelect('access_point.readers', 'reader', 'reader.delete_date is null')
+                .where(`acu.company = ${ctx.user.company}`)
+                .getQuery()
+            ctx.body = data
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

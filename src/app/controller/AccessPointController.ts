@@ -102,6 +102,14 @@ export default class AccessPointController {
                     if (access_point.type === accessPointType.DOOR) {
                         new SendDeviceMessage(OperatorType.DEL_CTP_DOOR, location, access_point.acus.serial_number, access_point.acus.session_id, req_data)
                         // SendDevice.delCtpDoor(location, access_point.acus.serial_number, access_point.acus.session_id, req_data)
+                    } else if (access_point.type === accessPointType.TURNSTILE_ONE_SIDE || access_point.type === accessPointType.TURNSTILE_TWO_SIDE) {
+                        new SendDeviceMessage(OperatorType.DEL_CTP_TURNSTILE, location, access_point.acus.serial_number, access_point, access_point.acus.session_id)
+                    } else if (access_point.type === accessPointType.GATE) {
+                        new SendDeviceMessage(OperatorType.DEL_CTP_GATE, location, access_point.acus.serial_number, access_point, access_point.acus.session_id)
+                    } else if (access_point.type === accessPointType.GATEWAY) {
+                        new SendDeviceMessage(OperatorType.DEL_CTP_GATEWAY, location, access_point.acus.serial_number, access_point, access_point.acus.session_id)
+                    } else if (access_point.type === accessPointType.FLOOR) {
+                        new SendDeviceMessage(OperatorType.DEL_CTP_FLOOR, location, access_point.acus.serial_number, access_point, access_point.acus.session_id)
                     }
                 }
             }
@@ -185,22 +193,28 @@ export default class AccessPointController {
         try {
             const req_data: any = ctx.request.body
             const user = ctx.user
+            const company = user.company ? user.company : null
+            req_data.company = company
             const location = `${user.company_main}/${user.company}`
-            const where = { id: req_data.id, company: user.company ? user.company : null }
+            const where = { id: req_data.id, company: company }
             const reader: Reader = await Reader.findOneOrFail({ relations: ['access_points', 'access_points.acus'], where: where })
             req_data.direction = reader.direction
             req_data.port = reader.port
             req_data.access_point = reader.access_points.id
             req_data.access_point_type = reader.access_points.type
+            ctx.body = await Reader.destroyItem(where)
             if (reader.access_points.acus.status === acuStatus.ACTIVE) {
-                new SendDeviceMessage(OperatorType.DEL_EXT_BRD, location, reader.access_points.acus.serial_number, req_data, reader.access_points.acus.session_id)
+                new SendDeviceMessage(OperatorType.DEL_RD, location, reader.access_points.acus.serial_number, req_data, reader.access_points.acus.session_id)
+                ctx.body = true
             } else if (reader.access_points.acus.status === acuStatus.NO_HARDWARE) {
-                ctx.body = await Reader.destroyItem(ctx.request.body as { id: number })
+                // ctx.body = await Reader.destroyItem(where)
             } else {
                 ctx.status = 400
                 ctx.body = { message: 'You need to activate hardware' }
             }
         } catch (error) {
+            console.log(error)
+
             ctx.status = error.status || 400
             ctx.body = error
         }

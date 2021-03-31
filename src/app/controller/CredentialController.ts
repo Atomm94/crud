@@ -1,7 +1,11 @@
 import { DefaultContext } from 'koa'
 import { credentialType } from '../enums/credentialType.enum'
 import { Credential } from '../model/entity/Credential'
-import { CheckCredentialSettings } from '../functions/check-credential'
+// import { CheckCredentialSettings } from '../functions/check-credential'
+import SendDeviceMessage from '../mqtt/SendDeviceMessage'
+import { OperatorType } from '../mqtt/Operators'
+import { AccessPoint, Acu } from '../model/entity'
+import { acuStatus } from '../enums/acuStatus.enum'
 
 export default class CredentialController {
     /**
@@ -67,15 +71,10 @@ export default class CredentialController {
 
     public static async add (ctx: DefaultContext) {
         try {
-            const req_data = ctx.request.body
-            const user = ctx.user
-            req_data.company = user.company ? user.company : null
-            const check = CheckCredentialSettings.checkSettings(req_data)
-            if (check !== true) {
-                ctx.status = 400
-                return ctx.body = { message: check }
-            }
-            ctx.body = await Credential.addItem(ctx.request.body as Credential)
+            // const req_data = ctx.request.body
+            // const user = ctx.user
+
+            ctx.body = true
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -224,11 +223,27 @@ export default class CredentialController {
      */
     public static async destroy (ctx: DefaultContext) {
         try {
-            const req_data = ctx.request.body
             const user = ctx.user
+            const location = `${user.company_main}/${user.company}`
+            const req_data = ctx.request.body
             const where = { id: req_data.id, company: user.company ? user.company : null }
-
+            const credential: any = await Credential.getItem({ id: req_data.id })
+            credential.status = 0
+            req_data.where = { company: { '=': user.company ? user.company : null }, status: { '=': acuStatus.ACTIVE } }
+            const acus: any = await Acu.getAllItems(req_data)
+            const access_points = await AccessPoint.createQueryBuilder('access_point')
+                .innerJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
+                .where(`acu.status = '${acuStatus.ACTIVE}'`)
+                .andWhere(`acu.company = ${ctx.user.company}`)
+                .getMany()
             ctx.body = await Credential.destroyItem(where)
+            ctx.body = true
+            acus.forEach((acu: any) => {
+                access_points.forEach((access_point: any) => {
+                    credential.access_point = access_point.id
+                    new SendDeviceMessage(OperatorType.EDIT_KEY, location, acu.serial_number, credential, acu.session_id)
+                })
+            })
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -321,6 +336,22 @@ export default class CredentialController {
                 ctx.body = { message: 'something went wrong' }
             } else {
                 ctx.body = await Credential.updateItem(req_data as Credential)
+                const location = `${user.company_main}/${user.company}`
+                const credential: any = await Credential.getItem({ id: req_data.id })
+                credential.status = req_data.status
+                req_data.where = { company: { '=': user.company ? user.company : null }, status: { '=': acuStatus.ACTIVE } }
+                const acus: any = await Acu.getAllItems(req_data)
+                const access_points = await AccessPoint.createQueryBuilder('access_point')
+                    .innerJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
+                    .where(`acu.status = '${acuStatus.ACTIVE}'`)
+                    .andWhere(`acu.company = ${ctx.user.company}`)
+                    .getMany()
+                acus.forEach((acu: any) => {
+                    access_points.forEach((access_point: any) => {
+                        credential.access_point = access_point.id
+                        new SendDeviceMessage(OperatorType.EDIT_KEY, location, acu.serial_number, credential, acu.session_id)
+                    })
+                })
             }
         } catch (error) {
             ctx.status = error.status || 400

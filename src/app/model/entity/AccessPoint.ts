@@ -3,7 +3,8 @@ import {
     Column,
     ManyToOne,
     OneToMany,
-    JoinColumn
+    JoinColumn,
+    DeleteDateColumn
 } from 'typeorm'
 
 import { MainEntity } from './MainEntity'
@@ -61,6 +62,9 @@ export class AccessPoint extends MainEntity {
 
     @Column('longtext', { name: 'last_activity', nullable: true })
     last_activity: string | null
+
+    @DeleteDateColumn({ type: 'timestamp', name: 'delete_date' })
+    public deleteDate: Date
 
     @Column('int', { name: 'company', nullable: false })
     company: number
@@ -173,7 +177,7 @@ export class AccessPoint extends MainEntity {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
             this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
-                this.remove(data)
+                this.softRemove(data)
                     .then(() => {
                         resolve({ message: 'success' })
                     })

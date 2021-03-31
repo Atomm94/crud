@@ -4,7 +4,8 @@ import {
     OneToOne,
     JoinColumn,
     ManyToOne,
-    OneToMany
+    OneToMany,
+    DeleteDateColumn
 } from 'typeorm'
 import { cardholderStatus } from '../../enums/cardholderStatus.enum'
 import { MainEntity } from './MainEntity'
@@ -92,6 +93,9 @@ export class Cardholder extends MainEntity {
 
     @Column('timestamp', { name: 'last_login_date', nullable: true })
     last_login_date: string | null
+
+    @DeleteDateColumn({ type: 'timestamp', name: 'delete_date' })
+    public deleteDate: Date
 
     @Column('int', { name: 'company', nullable: false })
     company: number
@@ -264,7 +268,7 @@ export class Cardholder extends MainEntity {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
             this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
-                this.remove(data)
+                this.softRemove(data)
                     .then(() => {
                         resolve({ message: 'success' })
                     })

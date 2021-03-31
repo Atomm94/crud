@@ -6,6 +6,8 @@ import { credentialInputMode } from '../enums/credentialInputMode.enum'
 
 export class CheckCredentialSettings {
     public static checkSettings (data: Credential) {
+        console.log(data)
+
         if (Object.values(credentialType).indexOf(data.type) === -1) {
             return ('Invalid Connection type')
         } else {
