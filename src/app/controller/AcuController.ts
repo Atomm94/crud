@@ -425,13 +425,13 @@ export default class AcuController {
                                     new SendDeviceMessage(OperatorType.SET_CTP_DOOR, location, acu.serial_number, access_point, acu.session_id, access_point_update)
                                 } else if (access_point.type === accessPointType.TURNSTILE_ONE_SIDE || access_point.type === accessPointType.TURNSTILE_TWO_SIDE) {
                                     new SendDeviceMessage(OperatorType.SET_CTP_TURNSTILE, location, acu.serial_number, access_point, acu.session_id, access_point_update)
-                                 } /* else if (access_point.type === accessPointType.GATE) { */
-                                //     SendDevice.SetCtpGate(location, acu.serial_number, acu.session_id, req_data, schedule)
-                                // } else if (access_point.type === doorType.GATEWAY) {
-                                //     SendDevice.SetCtpGateWay(location, acu.serial_number, acu.session_id, req_data)
-                                // } else if (access_point.type === doorType.FLOOR) {
-                                //     SendDevice.SetCtpFloor(location, acu.serial_number, acu.session_id, req_data)
-                                // }
+                                } else if (access_point.type === accessPointType.GATE) {
+                                    new SendDeviceMessage(OperatorType.SET_CTP_GATE, location, acu.serial_number, access_point, acu.session_id, access_point_update)
+                                } else if (access_point.type === accessPointType.GATEWAY) {
+                                    new SendDeviceMessage(OperatorType.SET_CTP_GATEWAY, location, acu.serial_number, access_point, acu.session_id, access_point_update)
+                                } else if (access_point.type === accessPointType.FLOOR) {
+                                    new SendDeviceMessage(OperatorType.SET_CTP_FLOOR, location, acu.serial_number, access_point, acu.session_id, access_point_update)
+                                }
                             } else {
                                 if (access_point_update) {
                                     const access_point_update = await AccessPoint.updateItem(access_point)
@@ -786,16 +786,15 @@ export default class AcuController {
             for (const access_point of access_points) {
                 if (access_point.type === accessPointType.DOOR) {
                     new SendDeviceMessage(OperatorType.SET_CTP_DOOR, location, device.serial_number, access_point, device.session_id, access_point_update)
+                } else if (access_point.type === accessPointType.TURNSTILE_ONE_SIDE || access_point.type === accessPointType.TURNSTILE_TWO_SIDE) {
+                    new SendDeviceMessage(OperatorType.SET_CTP_TURNSTILE, location, device.serial_number, access_point, device.session_id, access_point_update)
+                } else if (access_point.type === accessPointType.GATE) {
+                    new SendDeviceMessage(OperatorType.SET_CTP_GATE, location, device.serial_number, access_point, device.session_id, access_point_update)
+                } else if (access_point.type === accessPointType.GATEWAY) {
+                    new SendDeviceMessage(OperatorType.SET_CTP_GATEWAY, location, device.serial_number, access_point, device.session_id, access_point_update)
+                } else if (access_point.type === accessPointType.FLOOR) {
+                    new SendDeviceMessage(OperatorType.SET_CTP_FLOOR, location, device.serial_number, access_point, device.session_id, access_point_update)
                 }
-                //  else if (access_point.type === doorType.TURNSTILE) {
-                //     SendDevice.SetCtpTurnstile(location, acu.serial_number, acu.session_id, req_data)
-                // } else if (access_point.type === doorType.GATE) {
-                //     SendDevice.SetCtpGate(location, acu.serial_number, acu.session_id, req_data, schedule)
-                // } else if (access_point.type === doorType.GATEWAY) {
-                //     SendDevice.SetCtpGateWay(location, acu.serial_number, acu.session_id, req_data)
-                // } else if (access_point.type === doorType.FLOOR) {
-                //     SendDevice.SetCtpFloor(location, acu.serial_number, acu.session_id, req_data)
-                // }
 
                 // send Readers
                 const readers: any = access_point.readers
