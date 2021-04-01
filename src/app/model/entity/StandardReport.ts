@@ -55,6 +55,8 @@ export class StandardReport extends MainEntity {
         standardReport.access_points = JSON.stringify(data.access_points)
         standardReport.cardholders = JSON.stringify(data.cardholders)
         standardReport.company = data.company
+        standardReport.start_time = data.start_time
+        standardReport.end_time = data.end_time
 
         return new Promise((resolve, reject) => {
             this.save(standardReport)
@@ -76,6 +78,8 @@ export class StandardReport extends MainEntity {
         if ('events' in data) standardReport.events = JSON.stringify(data.events)
         if ('access_points' in data) standardReport.access_points = JSON.stringify(data.access_points)
         if ('cardholders' in data) standardReport.cardholders = JSON.stringify(data.cardholders)
+        standardReport.start_time = data.start_time
+        standardReport.end_time = data.end_time
 
         if (!standardReport) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
