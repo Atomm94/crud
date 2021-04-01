@@ -22,6 +22,12 @@ export class StandardReport extends MainEntity {
     @Column('longtext', { name: 'period', nullable: false })
     period: string
 
+    @Column('time', { name: 'start_time', nullable: false })
+    start_time: string
+
+    @Column('time', { name: 'end_time', nullable: false })
+    end_time: string
+
     @Column('longtext', { name: 'events', nullable: false })
     events: string
 
