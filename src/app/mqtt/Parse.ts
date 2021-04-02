@@ -165,6 +165,9 @@ export default class Parse {
             case OperatorType.ADD_CARD_KEY_ACK:
                 this.addCardKeyAck(message)
                 break
+            case OperatorType.END_CARD_KEY_ACK:
+                this.endCardKeyAck(message)
+                break
             case OperatorType.EDIT_KEY_ACK:
                 this.editKeyAck(message)
                 break
@@ -1211,6 +1214,25 @@ export default class Parse {
         // console.log('addCardKeyAck', message)
         if (message.result.errorNo === 0) {
             // console.log('addCardKeyAck complete')
+        } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_decription = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
+
+            await Cardholder.destroyItem({ id: message.send_data.data.id })
+        }
+    }
+
+    public static async endCardKeyAck (message: IMqttCrudMessaging) {
+        // console.log('endCardKeyAck', message)
+        if (message.result.errorNo === 0) {
+            // console.log('endCardKeyAck complete')
         } else {
             const error_list: any = errorList
 

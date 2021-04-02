@@ -1,5 +1,5 @@
 import { DefaultContext } from 'koa'
-import { Schedule } from '../model/entity'
+import { Cardholder, Schedule } from '../model/entity'
 import { Acu } from '../model/entity/Acu'
 import { acuStatus } from '../enums/acuStatus.enum'
 import { scheduleType } from '../enums/scheduleType.enum'
@@ -93,23 +93,39 @@ export default class AccessRuleController {
                 res_data.push(returnData)
                 const acu: Acu = await Acu.getItem({ id: access_point.acu })
                 if (acu.status === acuStatus.ACTIVE) {
-                    if (access_rule) {
-                        const schedule: Schedule = await Schedule.findOneOrFail({ id: req_data.schedule })
-                        const timeframes = await Timeframe.find({ schedule: schedule.id })
-                        const send_data: any = { ...access_rule, timeframes: timeframes }
-                        let operator: OperatorType = OperatorType.SET_SDL_DAILY
-                        if (schedule.type === scheduleType.WEEKLY) {
-                            operator = OperatorType.SET_SDL_WEEKLY
-                        } else if (schedule.type === scheduleType.FLEXITIME) {
-                            send_data.start_from = schedule.start_from
-                            operator = OperatorType.SET_SDL_FLEXI_TIME
-                        } else if (schedule.type === scheduleType.SPECIFIC) {
-                            operator = OperatorType.SET_SDL_SPECIFIED
-                        }
-                        new SendDeviceMessage(operator, location, acu.serial_number, send_data, user.id, acu.session_id)
-
-                        ctx.body = true
+                    const schedule: Schedule = await Schedule.findOneOrFail({ id: req_data.schedule })
+                    const timeframes = await Timeframe.find({ schedule: schedule.id })
+                    const send_sdl_data: any = { ...access_rule, timeframes: timeframes }
+                    let operator: OperatorType = OperatorType.SET_SDL_DAILY
+                    if (schedule.type === scheduleType.WEEKLY) {
+                        operator = OperatorType.SET_SDL_WEEKLY
+                    } else if (schedule.type === scheduleType.FLEXITIME) {
+                        send_sdl_data.start_from = schedule.start_from
+                        operator = OperatorType.SET_SDL_FLEXI_TIME
+                    } else if (schedule.type === scheduleType.SPECIFIC) {
+                        operator = OperatorType.SET_SDL_SPECIFIED
                     }
+                    new SendDeviceMessage(operator, location, acu.serial_number, send_sdl_data, user.id, acu.session_id)
+
+                    const cardholders = await Cardholder.getAllItems({
+                        relations: ['credentials'],
+                        where: {
+                            access_right: access_rule.access_right,
+                            company: req_data.company
+                        }
+                    })
+                    if (cardholders.length) {
+                        const send_edit_data = {
+                            access_rule: access_rule,
+                            cardholders: cardholders
+                        }
+
+                        const acus: any = await Acu.getAllItems({ where: { status: { '=': acuStatus.ACTIVE } } })
+                        acus.forEach((item_acu: any) => {
+                            new SendDeviceMessage(OperatorType.EDIT_KEY, location, item_acu.serial_number, send_edit_data, item_acu.session_id)
+                        })
+                    }
+                    ctx.body = true
                 }
             }
             ctx.body = await Promise.all(res_data)

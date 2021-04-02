@@ -71,7 +71,7 @@ export class PostSubscriber implements EntitySubscriberInterface<Acu> {
                 .select('acu.name')
                 .addSelect('acu.status')
                 .addSelect('COUNT(acu.id) as acu_qty')
-                .where('company', New.company)
+                .where('acu.company', New.company)
                 .groupBy('acu.status')
                 .getRawMany())
 
@@ -80,7 +80,7 @@ export class PostSubscriber implements EntitySubscriberInterface<Acu> {
                 .select('access_point.name')
                 .addSelect('acu.status')
                 .addSelect('COUNT(access_point.id) as acp_qty')
-                .where('company', New.company)
+                .where('acu.company', New.company)
                 .groupBy('acu.status')
                 .getRawMany())
 

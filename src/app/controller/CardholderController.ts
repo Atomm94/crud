@@ -6,7 +6,7 @@ import { CardholderGroup } from '../model/entity/CardholderGroup'
 import { AntipassBack } from '../model/entity/AntipassBack'
 import { Credential } from '../model/entity/Credential'
 import { acuStatus } from '../enums/acuStatus.enum'
-import { AccessPoint, Acu } from '../model/entity'
+import { AccessPoint, AccessRight, Acu } from '../model/entity'
 import SendDeviceMessage from '../mqtt/SendDeviceMessage'
 import { OperatorType } from '../mqtt/Operators'
 import { CheckCredentialSettings } from '../functions/check-credential'
@@ -208,8 +208,9 @@ export default class CardholderController {
             const req_data = ctx.request.body
 
             const auth_user = ctx.user
-            // const location = `${auth_user.company_main}/${auth_user.company}`
+            const location = `${auth_user.company_main}/${auth_user.company}`
             req_data.company = auth_user.company ? auth_user.company : null
+
             let group_data: any
             if (req_data.limitation_inherited || req_data.antipass_back_inherited || req_data.time_attendance_inherited || req_data.access_right_inherited) {
                 group_data = await CardholderGroup.getItem({ id: req_data.cardholder_group, company: req_data.company })
@@ -246,36 +247,40 @@ export default class CardholderController {
                     req_data.car_info = car_info.id
                 }
             }
-            const cardholder = await Cardholder.addItem(req_data as Cardholder)
-            if (req_data.credentials) {
+            const cardholder: Cardholder = await Cardholder.addItem(req_data as Cardholder)
+
+            if (req_data.credentials && req_data.credentials.length) {
                 const credentials: any = []
-                // const send_data:any = []
                 for (const credential of req_data.credentials) {
                     credential.company = req_data.company
                     credential.cardholder = cardholder.id
                     const data: any = await Credential.addItem(credential as Credential)
                     credentials.push(data)
 
-                    const location = `${auth_user.company_main}/${auth_user.company}`
                     req_data.where = { status: { '=': acuStatus.ACTIVE } }
                     const check = CheckCredentialSettings.checkSettings(credential)
                     if (check !== true) {
                         ctx.status = 400
                         return ctx.body = { message: check }
                     }
-                    const all_credentials = await Credential.findOne({ company: auth_user.company })
+                }
+                const access_points = await AccessPoint.createQueryBuilder('access_point')
+                    .innerJoin('access_point.acus', 'acu', 'acu.delete_date is null')
+                    .where(`acu.status = '${acuStatus.ACTIVE}'`)
+                    .andWhere(`acu.company = ${ctx.user.company}`)
+                    .select('access_point.id')
+                    .getMany()
+                if (access_points.length) {
+                    const access_rights = await AccessRight.findOneOrFail({ where: { id: cardholder.access_right }, relations: ['access_rules'] })
+                    cardholder.access_rights = access_rights
+                    cardholder.credentials = credentials
+                    const send_data = {
+                        access_points: access_points,
+                        cardholders: [cardholder]
+                    }
                     const acus: any = await Acu.getAllItems(req_data)
-                    const access_points = await AccessPoint.createQueryBuilder('access_point')
-                        .innerJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
-                        .where(`acu.status = '${acuStatus.ACTIVE}'`)
-                        .andWhere(`acu.company = ${ctx.user.company}`)
-                        .getMany()
-                    const operator = all_credentials ? OperatorType.ADD_CARD_KEY : OperatorType.SET_CARD_KEYS
                     acus.forEach((acu: any) => {
-                        access_points.forEach((access_point: any) => {
-                            data.access_point = access_point.id
-                            new SendDeviceMessage(operator, location, acu.serial_number, data, acu.session_id)
-                        })
+                        new SendDeviceMessage(OperatorType.ADD_CARD_KEY, location, acu.serial_number, send_data, acu.session_id)
                     })
                 }
             }
@@ -497,48 +502,75 @@ export default class CardholderController {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
             } else {
+                const check_credentials = CheckCredentialSettings.checkSettings(req_data.credentials)
+                const location = `${auth_user.company_main}/${auth_user.company}`
+
+                if (check_credentials !== true) {
+                    ctx.status = 400
+                    return ctx.body = { message: check_credentials }
+                }
+
                 const res_data = await Cardholder.updateItem(req_data as Cardholder, auth_user)
+                const cardholder = res_data.new
 
                 const credentials: any = []
-                for (const credential of req_data.credentials) {
-                    if (!credential.id) {
-                        credential.company = auth_user.company
-                        credential.cardholder = req_data.id
-                        const data: any = await Credential.addItem(credential as Credential)
-                        credentials.push(data)
+                const old_credentials: any = []
+                if (req_data.credentials && req_data.credentials.length) {
+                    for (const credential of req_data.credentials) {
+                        if (!credential.id) {
+                            credential.company = auth_user.company
+                            credential.cardholder = req_data.id
+                            const data: any = await Credential.addItem(credential as Credential)
+                            credentials.push(data)
+                        } else {
+                            old_credentials.push(credential)
+                        }
                     }
-                    const data: any = await Credential.updateItem(credential as Credential)
-
-                    const location = `${auth_user.company_main}/${auth_user.company}`
-                    req_data.where = { status: { '=': acuStatus.ACTIVE } }
-                    const check = CheckCredentialSettings.checkSettings(credential)
-                    if (check !== true) {
-                        ctx.status = 400
-                        return ctx.body = { message: check }
-                    }
-                    const all_credentials = await Credential.findOne({ company: auth_user.company })
-                    const acus: any = await Acu.getAllItems(req_data)
-                    const access_points = await AccessPoint.createQueryBuilder('access_point')
-                        .innerJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
+                    const access_points: AccessPoint[] = await AccessPoint.createQueryBuilder('access_point')
+                        .innerJoin('access_point.acus', 'acu', 'acu.delete_date is null')
                         .where(`acu.status = '${acuStatus.ACTIVE}'`)
                         .andWhere(`acu.company = ${ctx.user.company}`)
+                        .select('access_point.id')
                         .getMany()
-                    const operator = all_credentials ? OperatorType.ADD_CARD_KEY : OperatorType.SET_CARD_KEYS
-                    acus.forEach((acu: any) => {
-                        access_points.forEach((access_point: any) => {
-                            data.access_point = access_point.id
-                            new SendDeviceMessage(operator, location, acu.serial_number, data, acu.session_id)
-                        })
-                    })
 
-                    if (res_data.old.vip !== res_data.new.vip) {
-                        credential.key_type = res_data.new.vip
-                        acus.forEach((acu: any) => {
-                            access_points.forEach((access_point: any) => {
-                                credential.access_point = access_point.id
-                                new SendDeviceMessage(OperatorType.EDIT_KEY, location, acu.serial_number, credential, acu.session_id)
+                    if (access_points.length) {
+                        const access_rights = await AccessRight.findOne({ where: { id: cardholder.access_right }, relations: ['access_rules'] })
+                        if (access_rights) {
+                            cardholder.access_rights = access_rights
+
+                            cardholder.credentials = credentials
+                            const send_add_data : {access_points: AccessPoint[], cardholders: Cardholder[]} = {
+                                access_points: access_points,
+                                cardholders: [cardholder]
+                            }
+
+                            let send_edit_data: {access_points: AccessPoint[], cardholders: Cardholder[]} | undefined
+                            if (res_data.old.vip !== res_data.new.vip && old_credentials.length) {
+                                cardholder.credentials = old_credentials
+                                send_edit_data = {
+                                    access_points: access_points,
+                                    cardholders: [cardholder]
+                                }
+                            }
+
+                            req_data.where = { status: { '=': acuStatus.ACTIVE } }
+                            const acus: any = await Acu.getAllItems(req_data)
+
+                            // credential.key_type = res_data.new.vip
+                            // acus.forEach((acu: any) => {
+                            //     access_points.forEach((access_point: any) => {
+                            //         credential.access_point = access_point.id
+                            //         new SendDeviceMessage(OperatorType.EDIT_KEY, location, acu.serial_number, credential, acu.session_id)
+                            //     })
+                            // })
+                            acus.forEach((acu: any) => {
+                                new SendDeviceMessage(OperatorType.ADD_CARD_KEY, location, acu.serial_number, send_add_data, acu.session_id)
+
+                                if (send_edit_data) {
+                                    new SendDeviceMessage(OperatorType.EDIT_KEY, location, acu.serial_number, send_edit_data, acu.session_id)
+                                }
                             })
-                        })
+                        }
                     }
                 }
 
