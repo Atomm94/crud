@@ -13,7 +13,6 @@ import { accessPointType } from '../enums/accessPointType.enum'
 import LogController from '../controller/LogController'
 import SendSocketMessage from './SendSocketMessage'
 import { socketChannels } from '../enums/socketChannels.enum'
-import { Cardholder } from '../model/entity'
 // import { uid } from 'uid'
 
 export default class Parse {
@@ -163,6 +162,10 @@ export default class Parse {
             case OperatorType.ADD_CARD_KEY_ACK:
                 this.addCardKeyAck(message)
                 break
+            case OperatorType.END_CARD_KEY_ACK:
+                this.endCardKeyAck(message)
+                break
+
             case OperatorType.EDIT_KEY_ACK:
                 this.editKeyAck(message)
                 break
@@ -785,7 +788,7 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             console.log('setCardKeysAck complete')
         } else {
-            await Cardholder.destroyItem({ id: message.send_data.data.id })
+            // await Cardholder.destroyItem({ id: message.send_data.data.id })
         }
     }
 
@@ -794,7 +797,16 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             // console.log('addCardKeyAck complete')
         } else {
-            await Cardholder.destroyItem({ id: message.send_data.data.id })
+            // await Cardholder.destroyItem({ id: message.send_data.data.id })
+        }
+    }
+
+    public static async endCardKeyAck (message: IMqttCrudMessaging) {
+        // console.log('endCardKeyAck', message)
+        if (message.result.errorNo === 0) {
+            // console.log('endCardKeyAck complete')
+        } else {
+            // socket
         }
     }
 
