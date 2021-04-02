@@ -56,7 +56,7 @@ export class EventLog extends BaseClass {
 
     public static async create (event: any) {
         MQTTBroker.publishMessage(SendTopics.LOG, JSON.stringify(event))
-        new SendSocketMessage(socketChannels.DASHBOARD_ACTIVITY, event.data)
+        new SendSocketMessage(socketChannels.DASHBOARD_ACTIVITY, event.data, event.data.company)
 
         if (event.data.event_type === eventTypes.SYSTEM) {
             let door_state
@@ -77,11 +77,11 @@ export class EventLog extends BaseClass {
 
         if (event.data.event_type === eventTypes.CARDHOLDER_ALARM || event.data.event_type === eventTypes.SYSTEM_ALARM) {
             const notification = await Notification.addItem(event.data as Notification)
-            new SendSocketMessage(socketChannels.NOTIFICATION, notification)
+            new SendSocketMessage(socketChannels.NOTIFICATION, notification, event.data.company)
         }
 
         if (event.data.event_type === eventTypes.CARDHOLDER) {
-            new SendSocketMessage(socketChannels.DASHBOARD_MONITOR, event.data)
+            new SendSocketMessage(socketChannels.DASHBOARD_MONITOR, event.data, event.data.company)
         }
     }
 }

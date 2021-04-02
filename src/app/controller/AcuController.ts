@@ -354,7 +354,7 @@ export default class AcuController {
                         return ctx.body = { message: check_network }
                     } else {
                         if (acu.status === acuStatus.ACTIVE) {
-                            new SendDeviceMessage(OperatorType.SET_NET_SETTINGS, location, acu.serial_number, req_data, acu.session_id, true)
+                            new SendDeviceMessage(OperatorType.SET_NET_SETTINGS, location, acu.serial_number, req_data, user.id, acu.session_id, true)
                             delete req_data.network
                         }
                         // else {
@@ -372,7 +372,7 @@ export default class AcuController {
                         return ctx.body = { message: check_time }
                     } else {
                         if (acu.status === acuStatus.ACTIVE || acu.status === acuStatus.PENDING) {
-                            new SendDeviceMessage(OperatorType.SET_DATE_TIME, location, acu.serial_number, req_data, acu.session_id, true)
+                            new SendDeviceMessage(OperatorType.SET_DATE_TIME, location, acu.serial_number, req_data, user.id, acu.session_id, true)
                             delete req_data.time
                         }
                         // else {
@@ -422,15 +422,15 @@ export default class AcuController {
 
                             if (acu.status === acuStatus.ACTIVE) {
                                 if (access_point.type === accessPointType.DOOR) {
-                                    new SendDeviceMessage(OperatorType.SET_CTP_DOOR, location, acu.serial_number, access_point, acu.session_id, access_point_update)
+                                    new SendDeviceMessage(OperatorType.SET_CTP_DOOR, location, acu.serial_number, access_point, user.id, acu.session_id, access_point_update)
                                 } else if (access_point.type === accessPointType.TURNSTILE_ONE_SIDE || access_point.type === accessPointType.TURNSTILE_TWO_SIDE) {
-                                    new SendDeviceMessage(OperatorType.SET_CTP_TURNSTILE, location, acu.serial_number, access_point, acu.session_id, access_point_update)
+                                    new SendDeviceMessage(OperatorType.SET_CTP_TURNSTILE, location, acu.serial_number, access_point, user.id, acu.session_id, access_point_update)
                                 } else if (access_point.type === accessPointType.GATE) {
-                                    new SendDeviceMessage(OperatorType.SET_CTP_GATE, location, acu.serial_number, access_point, acu.session_id, access_point_update)
+                                    new SendDeviceMessage(OperatorType.SET_CTP_GATE, location, acu.serial_number, access_point, user.id, acu.session_id, access_point_update)
                                 } else if (access_point.type === accessPointType.GATEWAY) {
-                                    new SendDeviceMessage(OperatorType.SET_CTP_GATEWAY, location, acu.serial_number, access_point, acu.session_id, access_point_update)
+                                    new SendDeviceMessage(OperatorType.SET_CTP_GATEWAY, location, acu.serial_number, access_point, user.id, acu.session_id, access_point_update)
                                 } else if (access_point.type === accessPointType.FLOOR) {
-                                    new SendDeviceMessage(OperatorType.SET_CTP_FLOOR, location, acu.serial_number, access_point, acu.session_id, access_point_update)
+                                    new SendDeviceMessage(OperatorType.SET_CTP_FLOOR, location, acu.serial_number, access_point, user.id, acu.session_id, access_point_update)
                                 }
                             } else {
                                 if (access_point_update) {
@@ -453,7 +453,7 @@ export default class AcuController {
 
                                 if (acu.status === acuStatus.ACTIVE) {
                                     reader.access_point_type = access_point.type
-                                    new SendDeviceMessage(OperatorType.SET_RD, location, acu.serial_number, reader, acu.session_id, reader_update)
+                                    new SendDeviceMessage(OperatorType.SET_RD, location, acu.serial_number, reader, user.id, acu.session_id, reader_update)
                                 } else {
                                     if (reader_update) await Reader.updateItem(reader)
                                 }
@@ -783,7 +783,7 @@ export default class AcuController {
                     output: outputs
 
                 }
-                new SendDeviceMessage(OperatorType.SET_EXT_BRD, location, device.serial_number, ext_device, device.session_id)
+                new SendDeviceMessage(OperatorType.SET_EXT_BRD, location, device.serial_number, ext_device, user.id, device.session_id)
             }
 
             // send Access Points
@@ -791,15 +791,15 @@ export default class AcuController {
             const access_point_update = false
             for (const access_point of access_points) {
                 if (access_point.type === accessPointType.DOOR) {
-                    new SendDeviceMessage(OperatorType.SET_CTP_DOOR, location, device.serial_number, access_point, device.session_id, access_point_update)
+                    new SendDeviceMessage(OperatorType.SET_CTP_DOOR, location, device.serial_number, access_point, user.id, device.session_id, access_point_update)
                 } else if (access_point.type === accessPointType.TURNSTILE_ONE_SIDE || access_point.type === accessPointType.TURNSTILE_TWO_SIDE) {
-                    new SendDeviceMessage(OperatorType.SET_CTP_TURNSTILE, location, device.serial_number, access_point, device.session_id, access_point_update)
+                    new SendDeviceMessage(OperatorType.SET_CTP_TURNSTILE, location, device.serial_number, access_point, user.id, device.session_id, access_point_update)
                 } else if (access_point.type === accessPointType.GATE) {
-                    new SendDeviceMessage(OperatorType.SET_CTP_GATE, location, device.serial_number, access_point, device.session_id, access_point_update)
+                    new SendDeviceMessage(OperatorType.SET_CTP_GATE, location, device.serial_number, access_point, user.id, device.session_id, access_point_update)
                 } else if (access_point.type === accessPointType.GATEWAY) {
-                    new SendDeviceMessage(OperatorType.SET_CTP_GATEWAY, location, device.serial_number, access_point, device.session_id, access_point_update)
+                    new SendDeviceMessage(OperatorType.SET_CTP_GATEWAY, location, device.serial_number, access_point, user.id, device.session_id, access_point_update)
                 } else if (access_point.type === accessPointType.FLOOR) {
-                    new SendDeviceMessage(OperatorType.SET_CTP_FLOOR, location, device.serial_number, access_point, device.session_id, access_point_update)
+                    new SendDeviceMessage(OperatorType.SET_CTP_FLOOR, location, device.serial_number, access_point, user.id, device.session_id, access_point_update)
                 }
 
                 // send Readers
@@ -807,7 +807,7 @@ export default class AcuController {
                 const reader_update = false
                 for (const reader of readers) {
                     reader.access_point_type = access_point.type
-                    new SendDeviceMessage(OperatorType.SET_RD, location, device.serial_number, reader, device.session_id, reader_update)
+                    new SendDeviceMessage(OperatorType.SET_RD, location, device.serial_number, reader, user.id, device.session_id, reader_update)
                 }
 
                 // send Schedules(Access Rules)
@@ -823,7 +823,7 @@ export default class AcuController {
                     } else if (schedule.type === scheduleType.SPECIFIC) {
                         operator = OperatorType.SET_SDL_SPECIFIED
                     }
-                    new SendDeviceMessage(operator, location, device.serial_number, send_data, device.session_id)
+                    new SendDeviceMessage(operator, location, device.serial_number, user.id, send_data, device.session_id)
                 }
             }
         } catch (error) {

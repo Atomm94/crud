@@ -51,7 +51,7 @@ export class PostSubscriber implements EntitySubscriberInterface<Acu> {
             access_points: access_points
 
         }
-        new SendSocketMessage(socketChannels.DASHBOARD_ACU, send_data)
+        new SendSocketMessage(socketChannels.DASHBOARD_ACU, send_data, data.company)
     }
 
     /**
@@ -90,7 +90,7 @@ export class PostSubscriber implements EntitySubscriberInterface<Acu> {
                 access_points: access_points
 
             }
-            new SendSocketMessage(socketChannels.DASHBOARD_ACU, send_data)
+            new SendSocketMessage(socketChannels.DASHBOARD_ACU, send_data, New.company)
         }
     }
 
@@ -137,6 +137,6 @@ export class PostSubscriber implements EntitySubscriberInterface<Acu> {
             access_points: access_points
 
         }
-        new SendSocketMessage(socketChannels.DASHBOARD_ACU, send_data)
+        new SendSocketMessage(socketChannels.DASHBOARD_ACU, send_data, data.company)
     }
 }
