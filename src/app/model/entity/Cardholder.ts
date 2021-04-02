@@ -120,9 +120,9 @@ export class Cardholder extends MainEntity {
     @JoinColumn({ name: 'time_attendance' })
     time_attendances: Schedule | null;
 
-    @ManyToOne(() => AccessRight, access_right => access_right.cardholders, { nullable: true })
+    @ManyToOne(() => AccessRight, access_right => access_right.cardholders)
     @JoinColumn({ name: 'access_right' })
-    access_rights: AccessRight | null;
+    access_rights: AccessRight;
 
     @OneToMany(type => Credential, credential => credential.cardholders)
     credentials: Credential[];
