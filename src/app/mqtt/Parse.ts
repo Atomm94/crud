@@ -275,7 +275,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
@@ -309,7 +309,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
@@ -332,7 +332,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
@@ -358,7 +358,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
@@ -389,7 +389,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
@@ -424,7 +424,7 @@ export default class Parse {
                 if (error_list[error]) {
                     const company = message.send_data.data.company
                     const user = message.send_data.user
-                    message.send_data.data.error_decription = error_list[error].description
+                    message.send_data.data.error_description = error_list[error].description
                     new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
                 }
             }
@@ -488,7 +488,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
@@ -505,7 +505,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
@@ -522,7 +522,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
@@ -539,7 +539,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
@@ -563,7 +563,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
 
@@ -584,7 +584,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
@@ -602,7 +602,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
@@ -643,7 +643,7 @@ export default class Parse {
                 if (error_list[error]) {
                     const company = message.send_data.data.company
                     const user = message.send_data.user
-                    message.send_data.data.error_decription = error_list[error].description
+                    message.send_data.data.error_description = error_list[error].description
                     new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
                 }
 
@@ -663,7 +663,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
@@ -697,7 +697,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
@@ -714,7 +714,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
@@ -731,7 +731,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
@@ -748,7 +748,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
@@ -774,7 +774,7 @@ export default class Parse {
                 if (error_list[error]) {
                     const company = message.send_data.data.company
                     const user = message.send_data.user
-                    message.send_data.data.error_decription = error_list[error].description
+                    message.send_data.data.error_description = error_list[error].description
                     new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
                 }
             }
@@ -793,7 +793,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
@@ -811,7 +811,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
@@ -835,7 +835,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
 
@@ -857,7 +857,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
@@ -875,7 +875,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
@@ -899,7 +899,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
 
@@ -921,7 +921,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
@@ -939,7 +939,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
@@ -963,7 +963,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
 
@@ -985,7 +985,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
@@ -1003,7 +1003,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
@@ -1027,7 +1027,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             } else {
                 const error_list: any = errorList
@@ -1035,7 +1035,7 @@ export default class Parse {
                 if (error_list[error]) {
                     const company = message.send_data.data.company
                     const user = message.send_data.user
-                    message.send_data.data.error_decription = error_list[error].description
+                    message.send_data.data.error_description = error_list[error].description
                     new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
                 }
             }
@@ -1057,7 +1057,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
@@ -1075,7 +1075,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
@@ -1100,7 +1100,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
@@ -1117,7 +1117,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
@@ -1134,7 +1134,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
@@ -1151,7 +1151,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
@@ -1168,7 +1168,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
@@ -1185,7 +1185,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
@@ -1202,7 +1202,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
 
@@ -1221,7 +1221,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
 
@@ -1240,7 +1240,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
 
@@ -1259,7 +1259,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
@@ -1276,7 +1276,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
@@ -1293,7 +1293,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
@@ -1313,7 +1313,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
 
@@ -1339,7 +1339,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
@@ -1357,7 +1357,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
 
@@ -1380,7 +1380,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
@@ -1415,7 +1415,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
@@ -1432,7 +1432,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
@@ -1453,7 +1453,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
@@ -1470,7 +1470,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
@@ -1487,7 +1487,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
@@ -1504,7 +1504,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
@@ -1521,7 +1521,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
@@ -1542,7 +1542,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
@@ -1559,7 +1559,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
@@ -1591,7 +1591,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
@@ -1608,7 +1608,7 @@ export default class Parse {
             if (error_list[error]) {
                 const company = message.send_data.data.company
                 const user = message.send_data.user
-                message.send_data.data.error_decription = error_list[error].description
+                message.send_data.data.error_description = error_list[error].description
                 new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }

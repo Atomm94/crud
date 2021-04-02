@@ -896,7 +896,7 @@ export default class AcuController {
                             access_points: access_points,
                             cardholders: cardholders
                         }
-                        new SendDeviceMessage(OperatorType.SET_CARD_KEYS, location, device.serial_number, send_edit_data, device.session_id)
+                        new SendDeviceMessage(OperatorType.SET_CARD_KEYS, location, device.serial_number, send_edit_data, user.id, device.session_id)
                     }
                 }
             }
