@@ -3,6 +3,7 @@ import Router from 'koa-router'
 import { Feature } from '../middleware/feature'
 import checkRole from '../middleware/checkRole'
 import resource from '../middleware/resource'
+
 const router = new Router()
 export default router
     // Cardholder controller CRUD endpoints
@@ -25,4 +26,9 @@ export default router
     .post('Cardholder-saveImage', 'cardholder/image', checkRole(), CardholderController.cardholderImageSave)
     .delete('Cardholder-deleteImage', 'cardholder/image', checkRole(), CardholderController.cardholderImageDelete)
     .put('Cardholder-updateItem', 'cardholder/update/bulk', checkRole(), CardholderController.updateMultipleCardholders)
+    .post('Cardholder-addItem', 'cardholder/inviteCardholder', checkRole(), CardholderController.inviteCardholder)
+    .get('Cardholder-getAllItems', 'cardholder/guests', checkRole(), CardholderController.getAllGuests)
+
+    .put('cardholder/invite/:token', CardholderController.setCardholderPassword)
+
     .get('Cardholder-getItem', 'cardholder/:id', checkRole(), CardholderController.get)

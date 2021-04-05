@@ -6,12 +6,13 @@ import { JwtToken } from '../model/entity/JwtToken'
 export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
     const whiteList = ['login', 'swagger', 'favicon', 'page/saveFile', 'registration', 'mqttGetRequest', 'mqttPostRequest']
 
-    const path = ctx.request.url.split('/')[1]
+    const path = ctx.request.url.split('?')[0].split('/').slice(1).join('/')
     const swagger = ctx.request.url.split('/')[1].split('-')[0]
+    const invite = path.split('/')[1]
 
     const token = <string>ctx.request.header.authorization
 
-    if (whiteList.includes(path) || whiteList.includes(swagger)) {
+    if (whiteList.includes(path) || whiteList.includes(swagger) || invite === 'invite') {
         ctx.allowed = true
         return next()
     }

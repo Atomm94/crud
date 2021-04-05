@@ -21,6 +21,7 @@ import { CardholderGroup } from './CardholderGroup'
 import { Credential } from './Credential'
 import { AntipassBack } from './AntipassBack'
 import { Schedule } from './Schedule'
+import { Admin } from '.'
 const parentDir = join(__dirname, '../../..')
 
 @Entity('cardholder')
@@ -64,6 +65,9 @@ export class Cardholder extends MainEntity {
     @Column('enum', { name: 'status', enum: cardholderStatus, default: cardholderStatus.inactive })
     status: cardholderStatus
 
+    @Column('boolean', { name: 'guest', default: false })
+    guest: boolean
+
     @Column('longtext', { name: 'extra_features', nullable: true })
     extra_features: string | null
 
@@ -100,6 +104,9 @@ export class Cardholder extends MainEntity {
     @Column('int', { name: 'company', nullable: false })
     company: number
 
+    @Column('int', { name: 'create_by', nullable: false })
+    create_by: number
+
     @OneToOne(() => CarInfo, car_info => car_info.cardholders, { nullable: true })
     @JoinColumn({ name: 'car_info' })
     car_infos: CarInfo | null;
@@ -127,6 +134,9 @@ export class Cardholder extends MainEntity {
     @OneToMany(type => Credential, credential => credential.cardholders)
     credentials: Credential[];
 
+    @OneToOne(() => Admin, admin => admin.cardholders)
+    admins: Admin;
+
     public static resource: boolean = true
 
     public static async addItem (data: Cardholder): Promise<Cardholder> {
@@ -153,6 +163,8 @@ export class Cardholder extends MainEntity {
         if ('time_attendance_inherited' in data) cardholder.time_attendance_inherited = data.time_attendance_inherited
         cardholder.access_right = data.access_right
         if ('access_right_inherited' in data) cardholder.access_right_inherited = data.access_right_inherited
+        if ('guest' in data) cardholder.guest = data.guest
+        cardholder.create_by = data.create_by
         cardholder.company = data.company
 
         return new Promise((resolve, reject) => {

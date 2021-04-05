@@ -483,6 +483,8 @@ export default class CompanyController {
                 }
             }
         } catch (error) {
+            console.log(error)
+
             ctx.status = error.status || 400
             ctx.body = error
         }

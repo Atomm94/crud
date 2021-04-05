@@ -32,6 +32,7 @@ import { join } from 'path'
 import { IAdmins } from '../../Interfaces/Admins'
 import { logger } from '../../../../modules/winston/logger'
 import { StandardReport } from './StandardReport'
+import { Cardholder } from './Cardholder'
 
 const parentDir = join(__dirname, '../../..')
 
@@ -107,6 +108,9 @@ export class Admin extends MainEntity {
   @Column('varchar', { name: 'whatsapp', nullable: true })
   whatsapp: string | null;
 
+  @Column('int', { name: 'cardholder', nullable: true })
+  cardholder: number | null
+
   @Column('int', { name: 'company', nullable: true })
   company: number | null;
 
@@ -146,6 +150,10 @@ export class Admin extends MainEntity {
 
   @OneToMany(type => StandardReport, report => report.authors)
   reports: StandardReport[];
+
+  @OneToOne(type => Cardholder, cardholder => cardholder.admins, { nullable: true })
+  @JoinColumn({ name: 'cardholder' })
+  cardholders: Cardholder | null;
 
   @BeforeInsert()
   async generatePassword () {
@@ -196,6 +204,7 @@ export class Admin extends MainEntity {
     if ('comment' in data) admin.comment = data.comment
     if ('account_group' in data) admin.account_group = data.account_group
     if ('role_inherited' in data) admin.role_inherited = data.role_inherited
+    if ('cardholder' in data) admin.cardholder = data.cardholder
 
     if ('company' in data) {
       admin.company = data.company
@@ -205,17 +214,17 @@ export class Admin extends MainEntity {
 
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve, reject) => {
-      if (!user || !user.company) {
-        this.save(admin)
-          .then((item: Admin) => {
-            resolve(item)
-          })
-          .catch((error: any) => {
-            reject(error)
-          })
-      } else {
-        reject(Error(`Resource ${this.name} is limited for company ${user.company}!!`))
-      }
+      // if (!user || !user.company) {
+      this.save(admin)
+        .then((item: Admin) => {
+          resolve(item)
+        })
+        .catch((error: any) => {
+          reject(error)
+        })
+      // } else {
+      //   reject(Error(`Resource ${this.name} is limited for company ${user.company}!!`))
+      // }
     })
   }
 
@@ -232,6 +241,7 @@ export class Admin extends MainEntity {
     if ('city' in data) admin.city = data.city
     if ('phone_1' in data) admin.phone_1 = data.phone_1
     if ('phone_2' in data) admin.phone_2 = data.phone_2
+    if ('post_code' in data) admin.post_code = data.post_code
     if ('viber' in data) admin.viber = data.viber
     if ('whatsapp' in data) admin.whatsapp = data.whatsapp
     if ('email' in data) admin.email = data.email
@@ -276,19 +286,19 @@ export class Admin extends MainEntity {
   public static async destroyItem (data: any) {
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve, reject) => {
-        this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
-            this.remove(data)
-                .then(() => {
-                    resolve({ message: 'success' })
-                })
-                .catch((error: any) => {
-                    reject(error)
-                })
-        }).catch((error: any) => {
+      this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
+        this.remove(data)
+          .then(() => {
+            resolve({ message: 'success' })
+          })
+          .catch((error: any) => {
             reject(error)
-        })
+          })
+      }).catch((error: any) => {
+        reject(error)
+      })
     })
-}
+  }
 
   public static async getAllItems (params?: any) {
     // console.log(await this.getRolesAndAttributes(9))

@@ -6,10 +6,13 @@ import { CardholderGroup } from '../model/entity/CardholderGroup'
 import { AntipassBack } from '../model/entity/AntipassBack'
 import { Credential } from '../model/entity/Credential'
 import { acuStatus } from '../enums/acuStatus.enum'
-import { AccessPoint, AccessRight, Acu } from '../model/entity'
+import { AccessPoint, AccessRight, Acu, Admin, Role } from '../model/entity'
 import SendDeviceMessage from '../mqtt/SendDeviceMessage'
 import { OperatorType } from '../mqtt/Operators'
 import { CheckCredentialSettings } from '../functions/check-credential'
+import { Sendgrid } from '../../component/sendgrid/sendgrid'
+import { uid } from 'uid'
+import { validate } from '../functions/passValidator'
 // import SendDeviceMessage from '../mqtt/SendDeviceMessage'
 // import { OperatorType } from '../mqtt/Operators'
 
@@ -210,6 +213,7 @@ export default class CardholderController {
             const auth_user = ctx.user
             const location = `${auth_user.company_main}/${auth_user.company}`
             req_data.company = auth_user.company ? auth_user.company : null
+            req_data.create_by = auth_user.id
 
             let group_data: any
             if (req_data.limitation_inherited || req_data.antipass_back_inherited || req_data.time_attendance_inherited || req_data.access_right_inherited) {
@@ -539,12 +543,12 @@ export default class CardholderController {
                             cardholder.access_rights = access_rights
 
                             cardholder.credentials = credentials
-                            const send_add_data : {access_points: AccessPoint[], cardholders: Cardholder[]} = {
+                            const send_add_data: { access_points: AccessPoint[], cardholders: Cardholder[] } = {
                                 access_points: access_points,
                                 cardholders: [cardholder]
                             }
 
-                            let send_edit_data: {access_points: AccessPoint[], cardholders: Cardholder[]} | undefined
+                            let send_edit_data: { access_points: AccessPoint[], cardholders: Cardholder[] } | undefined
                             if (res_data.old.vip !== res_data.new.vip && old_credentials.length) {
                                 cardholder.credentials = old_credentials
                                 send_edit_data = {
@@ -710,8 +714,56 @@ export default class CardholderController {
         try {
             const req_data = ctx.query
             const user = ctx.user
-            req_data.where = { company: { '=': user.company ? user.company : null } }
+            const where: any = { company: { '=': user.company ? user.company : null } }
+
             req_data.relations = ['car_infos', 'limitations', 'antipass_backs', 'time_attendances', 'access_rights', 'cardholder_groups', 'credentials']
+
+            if (user.cardholder) {
+                where.guest = { '=': false }
+                where.create_by = { '=': user.id }
+                req_data.relations = ['limitations', 'access_rights', 'credentials']
+            }
+            req_data.where = where
+            ctx.body = await Cardholder.getAllItems(req_data)
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     * /cardholder/guests:
+     *      get:
+     *          tags:
+     *              - Cardholder
+     *          summary: Return guests list
+     *          parameters:
+     *              - in: header
+     *                name: Authorization
+     *                required: true
+     *                description: Authentication token
+     *                schema:
+     *                    type: string
+     *          responses:
+     *              '200':
+     *                  description: Array of guests
+     *              '401':
+     *                  description: Unauthorized
+     */
+    public static async getAllGuests (ctx: DefaultContext) {
+        try {
+            const req_data = ctx.query
+            const user = ctx.user
+            req_data.where = {
+                company: { '=': user.company ? user.company : null },
+                guest: { '=': true },
+                create_by: { '=': user.id }
+            }
+            req_data.relations = ['limitations', 'access_rights', 'credentials']
+
             ctx.body = await Cardholder.getAllItems(req_data)
         } catch (error) {
             ctx.status = error.status || 400
@@ -880,6 +932,305 @@ export default class CardholderController {
 
                 ctx.body = { success: true }
             }
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     *  /cardholder/inviteCardholder:
+     *      post:
+     *          tags:
+     *              - Cardholder
+     *          summary: Create a cardholder.
+     *          consumes:
+     *              - application/json
+     *          parameters:
+     *            - in: header
+     *              name: Authorization
+     *              required: true
+     *              description: Authentication token
+     *              schema:
+     *                    type: string
+     *            - in: body
+     *              name: admin
+     *              description: The admin to create.
+     *              schema:
+     *                type: object
+     *                required:
+     *                  - email
+     *                properties:
+     *                  email:
+     *                      type: string
+     *                      example: example@gmail.com
+     *          responses:
+     *              '201':
+     *                  description: A admin object
+     *              '409':
+     *                  description: Conflict
+     *              '422':
+     *                  description: Wrong data
+     */
+
+    public static async inviteCardholder (ctx: DefaultContext) {
+        const reqData = ctx.request.body
+        const user = ctx.user
+        const company = (user.company) ? user.company : null
+        try {
+            const cardholder: any = await Cardholder.findOneOrFail({ email: reqData.email })
+            reqData.company = company
+            reqData.verify_token = uid(32)
+            reqData.cardholder = cardholder.id
+
+            const role_slug = 'default_cardholder'
+            let default_cardholder_role = await Role.findOne({ slug: role_slug, company: company })
+            console.log('default_cardholder_role', default_cardholder_role)
+
+            if (!default_cardholder_role) {
+                const permissions: string = JSON.stringify(Role.default_cardholder_role)
+                // permissions = default_cardholder_role.permissions
+                const role_save_data = {
+                    slug: role_slug,
+                    company: cardholder.company,
+                    permissions: permissions
+                }
+                default_cardholder_role = await Role.addItem(role_save_data as Role)
+            }
+
+            reqData.role = default_cardholder_role.id
+            const newAdmin: Admin = await Admin.addItem(reqData, user)
+
+            ctx.body = { success: true }
+            if (newAdmin.verify_token) {
+                await Sendgrid.sendCardholderInvite(newAdmin.email, newAdmin.verify_token)
+            }
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+            console.log(error)
+
+            if (error.detail && error.detail.includes('email')) {
+                ctx.body.err = 'email'
+                ctx.body.errorMsg = `email ${reqData.email} already exists.`
+            }
+            return ctx.body
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     * /cardholder/invite/{token}:
+     *      put:
+     *          tags:
+     *              - Cardholder
+     *          summary: Set Cardholder password
+     *          parameters:
+     *              - in: path
+     *                name: token
+     *                required: true
+     *                description: account description
+     *                schema:
+     *                    type: string
+     *                    minimum: 1
+     *              - in: body
+     *                name: passForm
+     *                description: The setting of password.
+     *                schema:
+     *                  type: object
+     *                  required:
+     *                      - password
+     *                  properties:
+     *                      password:
+     *                          type: string
+     *                          example: 123456
+     *          responses:
+     *              '200':
+     *                  description: Data object
+     *              '404':
+     *                  description: Data not found
+     */
+    public static async setCardholderPassword (ctx: DefaultContext) {
+        const verify_token: string = ctx.params.token
+        const user = await Admin.findOne({ verify_token: verify_token })
+        if (user) {
+            const password = ctx.request.body.password
+            if (validate(password).success) {
+                user.password = password
+                user.verify_token = null
+                await user.save()
+                ctx.body = {
+                    success: true
+                }
+            } else {
+                ctx.status = 400
+                ctx.body = {
+                    message: validate(password).message
+                }
+            }
+        } else {
+            ctx.status = 400
+            ctx.body = {
+                message: 'Wrong token!!'
+            }
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     *  /cardholder/guest:
+     *      post:
+     *          tags:
+     *              - Cardholder
+     *          summary: Creates a cardholder.
+     *          consumes:
+     *              - application/json
+     *          parameters:
+     *            - in: header
+     *              name: Authorization
+     *              required: true
+     *              description: Authentication token
+     *              schema:
+     *                type: string
+     *            - in: body
+     *              name: cardholder
+     *              description: The cardholder to create.
+     *              schema:
+     *                type: object
+     *                required:
+     *                  - first_name
+     *                properties:
+     *                    first_name:
+     *                        type: string
+     *                        example: some_first_name
+     *                    status:
+     *                        type: inactive | active | expired | noCredential | pending
+     *                        example: active
+     *                    limitations:
+     *                        type: object
+     *                        properties:
+     *                            enable_date:
+     *                                type: boolean
+     *                                example: true
+     *                            valid_from:
+     *                                type: string
+     *                                example: 2020-04-04 00:00:00
+     *                            valid_due:
+     *                                type: string
+     *                                example: 2020-05-05 15:00:00
+     *                            pass_counter_enable:
+     *                                type: boolean
+     *                                example: true
+     *                            pass_counter_passes:
+     *                                type: number
+     *                                example: 25
+     *                            pass_counter_current:
+     *                                type: number
+     *                                example: 10
+     *                            first_use_counter_enable:
+     *                                type: boolean
+     *                                example: true
+     *                            first_use_counter_days:
+     *                                type: number
+     *                                example: 25
+     *                            first_use_counter_current:
+     *                                type: number
+     *                                example: 10
+     *                            last_use_counter_enable:
+     *                                type: boolean
+     *                                example: true
+     *                            last_use_counter_days:
+     *                                type: number
+     *                                example: 25
+     *                            last_use_counter_current:
+     *                                type: number
+     *                                example: 10
+     *                    access_right:
+     *                        type: number
+     *                        example: 1
+     *                    credentials:
+     *                        type: array
+     *                        items:
+     *                            type: object
+     *                            properties:
+     *                                type:
+     *                                    type: rfid | pinpass | vikey| phone_bt | phone_nfc | fingerprint | face | face_temperature | car_lp_number
+     *                                    example: rfid
+     *                                code:
+     *                                    type: string
+     *                                    example: 1245644
+     *                                status:
+     *                                    type: active | stolen | lost
+     *                                    example: active
+     *                                cardholder:
+     *                                    type: number
+     *                                    example: 1
+     *                                input_mode:
+     *                                    type: serial_number | wiegand_26
+     *                                    example: serial_number
+     *          responses:
+     *              '201':
+     *                  description: A cardholder object
+     *              '409':
+     *                  description: Conflict
+     *              '422':
+     *                  description: Wrong data
+     */
+
+    public static async addGuest (ctx: DefaultContext) {
+        try {
+            const req_data = ctx.request.body
+
+            const auth_user = ctx.user
+            const location = `${auth_user.company_main}/${auth_user.company}`
+            req_data.company = auth_user.company ? auth_user.company : null
+            req_data.create_by = auth_user.id
+            req_data.guest = true
+
+            const limitation_data = await Limitation.addItem(req_data.limitations as Limitation)
+            if (limitation_data) {
+                req_data.limitation = limitation_data.id
+            }
+
+            const cardholder: Cardholder = await Cardholder.addItem(req_data as Cardholder)
+
+            const credential: any = await Credential.addItem({
+                company: req_data.company,
+                cardholder: cardholder.id,
+                code: uid(32)
+            } as Credential)
+            req_data.where = { status: { '=': acuStatus.ACTIVE } }
+
+            const access_points = await AccessPoint.createQueryBuilder('access_point')
+                .innerJoin('access_point.acus', 'acu', 'acu.delete_date is null')
+                .where(`acu.status = '${acuStatus.ACTIVE}'`)
+                .andWhere(`acu.company = ${ctx.user.company}`)
+                .select('access_point.id')
+                .getMany()
+            if (access_points.length) {
+                const access_rights = await AccessRight.findOneOrFail({ where: { id: cardholder.access_right }, relations: ['access_rules'] })
+                cardholder.access_rights = access_rights
+                cardholder.credentials = [credential]
+                const send_data = {
+                    access_points: access_points,
+                    cardholders: [cardholder]
+                }
+                const acus: any = await Acu.getAllItems(req_data)
+                acus.forEach((acu: any) => {
+                    new SendDeviceMessage(OperatorType.ADD_CARD_KEY, location, acu.serial_number, send_data, acu.session_id)
+                })
+            }
+
+            const where = { id: cardholder.id }
+            const relations = ['limitations', 'access_rights', 'credentials']
+            ctx.body = await Cardholder.getItem(where, relations)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
