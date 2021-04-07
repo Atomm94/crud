@@ -17,7 +17,7 @@ import fs from 'fs'
 import appRoot from 'app-root-path'
 import path from 'path'
 const public_path = path.join(appRoot.path, 'src/public')
-const upload_files_path: string = process.env.UPLOAD_FILES_PATH ? process.env.UPLOAD_FILES_PATH : '.tmp/'
+const upload_files_path: string = process.env.UPLOAD_FILES_PATH ? process.env.UPLOAD_FILES_PATH : 'tmp/'
 @EventSubscriber()
 export class PostSubscriber implements EntitySubscriberInterface<MainEntity> {
     /**
@@ -45,6 +45,7 @@ export class PostSubscriber implements EntitySubscriberInterface<MainEntity> {
 
         if (file_path) {
             file_path = JSON.parse(file_path).path
+            if (!fs.existsSync(file_path)) file_path = `${public_path}/${file_path}`
 
             if (!fs.existsSync(file_path)) {
                 if (New.avatar) {
@@ -59,10 +60,10 @@ export class PostSubscriber implements EntitySubscriberInterface<MainEntity> {
                     fs.mkdirSync(`${public_path}/${upload_files_path}${model_name}/${New.id}`, { recursive: true })
                 }
                 const new_path = {
-                    path: `${public_path}/${upload_files_path}${model_name}/${New.id}/${path.basename(file_path)}`
+                    path: `${upload_files_path}${model_name}/${New.id}/${path.basename(file_path)}`
                 }
                 try {
-                    fs.renameSync(`${file_path}`, new_path.path)
+                    fs.renameSync(`${file_path}`, `${public_path}/${new_path.path}`)
                 } catch (error) {
                     console.log(error)
                 }

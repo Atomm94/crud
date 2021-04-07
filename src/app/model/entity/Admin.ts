@@ -47,10 +47,7 @@ export class Admin extends MainEntity {
   })
   email: string;
 
-  @Column('longtext', {
-    name: 'avatar',
-    nullable: true
-  })
+  @Column('longtext', { name: 'avatar', nullable: true })
   avatar: IAdmins[] | null;
 
   @Column('varchar', { name: 'password', nullable: true, length: 255 })
