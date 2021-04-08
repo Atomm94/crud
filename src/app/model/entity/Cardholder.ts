@@ -25,7 +25,7 @@ const parentDir = join(__dirname, '../../..')
 
 @Entity('cardholder')
 export class Cardholder extends MainEntity {
-    @Column('varchar', { name: 'email', length: '255', unique: true })
+    @Column('varchar', { name: 'email', length: '255', unique: true, nullable: true })
     email: string
 
     @Column('longtext', { name: 'avatar', nullable: true })

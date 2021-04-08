@@ -101,10 +101,10 @@ export class PostSubscriber implements EntitySubscriberInterface<MainEntity> {
 
             fs.mkdirSync(`${public_path}/${upload_files_path}${model_name}/${data.id}`)
             const new_path = {
-                path: `${public_path}/${upload_files_path}${model_name}/${data.id}/${file_path}`
+                path: `${upload_files_path}${model_name}/${data.id}/${file_path}`
             }
             try {
-                fs.renameSync(`${public_path}/${file_path}`, new_path.path)
+                fs.renameSync(`${public_path}/${file_path}`, `${public_path}/${new_path.path}`)
             } catch (error) {
                 console.log(error)
             }
