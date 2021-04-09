@@ -22,6 +22,7 @@ import { Credential } from './Credential'
 import { AntipassBack } from './AntipassBack'
 import { Schedule } from './Schedule'
 import { Admin } from '.'
+import { scheduleCustomType } from '../../enums/scheduleCustomType.enum'
 const parentDir = join(__dirname, '../../..')
 
 @Entity('cardholder')
@@ -97,6 +98,9 @@ export class Cardholder extends MainEntity {
 
     @Column('timestamp', { name: 'last_login_date', nullable: true })
     last_login_date: string | null
+
+    @Column('enum', { name: 'schedule_type', enum: scheduleCustomType, default: scheduleCustomType.DEFAULT })
+    schedule_type: scheduleCustomType
 
     @DeleteDateColumn({ type: 'timestamp', name: 'delete_date' })
     public deleteDate: Date

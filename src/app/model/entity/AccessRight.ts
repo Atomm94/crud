@@ -44,7 +44,7 @@ export class AccessRight extends MainEntity {
         const accessRight = new AccessRight()
 
         accessRight.name = data.name
-        accessRight.description = data.description
+        if ('description' in data) accessRight.description = data.description
         accessRight.company = data.company
 
         return new Promise((resolve, reject) => {

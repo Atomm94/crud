@@ -28,6 +28,9 @@ export class Schedule extends MainEntity {
     @Column('enum', { name: 'type', nullable: false, enum: scheduleType })
     type: scheduleType
 
+    @Column('boolean', { name: 'custom', default: false })
+    custom: boolean
+
     @Column('date', { name: 'start_from', nullable: true })
     start_from: Date
 
@@ -73,7 +76,7 @@ export class Schedule extends MainEntity {
         })
     }
 
-    public static async updateItem (data: Schedule): Promise<{old:Schedule, new:Schedule}|{ [key: string]: any }> {
+    public static async updateItem (data: Schedule): Promise<{ old: Schedule, new: Schedule } | { [key: string]: any }> {
         const schedule = await this.findOneOrFail(data.id)
         const oldData = Object.assign({}, schedule)
 
