@@ -35,39 +35,52 @@ export class PostSubscriber implements EntitySubscriberInterface<MainEntity> {
 
             const model_name: any = New.constructor.name
 
-            let file_path
-            if (New.avatar && New.avatar !== Old.avatar) {
-                file_path = New.avatar
-            } else if (New.file && New.file !== Old.file) {
-                file_path = New.file
-            } else if (New.image && New.image !== Old.image) {
-                file_path = New.image
-            }
+        let file_path
+        if (New.avatar && New.avatar !== Old.avatar) {
+            file_path = New.avatar
+        } else if (New.file && New.file !== Old.file) {
+            file_path = New.file
+        } else if (New.image && New.image !== Old.image) {
+            file_path = New.image
+        }
+console.log('000000000000000')
 
-            if (file_path) {
-                file_path = JSON.parse(file_path).path
-                if (!fs.existsSync(file_path)) file_path = `${public_path}/${file_path}`
+        if (file_path) {
+            console.log('file_path', file_path)
 
-                if (!fs.existsSync(file_path)) {
-                    if (New.avatar) {
-                        New.avatar = Old.avatar
-                    } else if (New.file) {
-                        New.file = Old.file
-                    } else if (New.image) {
-                        New.image = Old.image
-                    }
-                } else {
-                    if (!fs.existsSync(`${public_path}/${upload_files_path}${model_name}/${New.id}`)) {
-                        fs.mkdirSync(`${public_path}/${upload_files_path}${model_name}/${New.id}`, { recursive: true })
-                    }
-                    const new_path = {
-                        path: `${upload_files_path}${model_name}/${New.id}/${path.basename(file_path)}`
-                    }
-                    try {
-                        fs.renameSync(`${file_path}`, `${public_path}/${new_path.path}`)
-                    } catch (error) {
-                        console.log(error)
-                    }
+            file_path = JSON.parse(file_path).path
+            if (!fs.existsSync(file_path)) file_path = `${public_path}/${file_path}`
+
+            if (!fs.existsSync(file_path)) {
+                console.log('11111111')
+
+                if (New.avatar) {
+                    New.avatar = Old.avatar
+                } else if (New.file) {
+                    New.file = Old.file
+                } else if (New.image) {
+                    New.image = Old.image
+                }
+            } else {
+                console.log('222222222')
+
+                if (!fs.existsSync(`${public_path}/${upload_files_path}${model_name}/${New.id}`)) {
+                    console.log('check', !fs.existsSync(`${public_path}/${upload_files_path}${model_name}/${New.id}`))
+
+                    fs.mkdirSync(`${public_path}/${upload_files_path}${model_name}/${New.id}`, { recursive: true })
+                    console.log('mkdirsync', fs.mkdirSync(`${public_path}/${upload_files_path}${model_name}/${New.id}`, { recursive: true }))
+                }
+                const new_path = {
+                    path: `${upload_files_path}${model_name}/${New.id}/${path.basename(file_path)}`
+                }
+                console.log('new_path', new_path)
+
+                try {
+                    fs.renameSync(`${file_path}`, `${public_path}/${new_path.path}`)
+                    console.log('3333333', fs.renameSync(`${file_path}`, `${public_path}/${new_path.path}`))
+                } catch (error) {
+                    console.log(error)
+                }
 
                     if (New.avatar) {
                         New.avatar = JSON.stringify(new_path)
