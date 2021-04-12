@@ -84,6 +84,31 @@ export class Sendgrid {
         }
     }
 
+    public static async recoveryPassword (toEmail: string, token:string) {
+        const msg = {
+            to: `${toEmail}`,
+            from: this.from,
+            subject: 'Reset password',
+            text: 'You are receiving this email because we received a password reset request for your account',
+            html: this.newMail({
+                title: 'Reset password',
+                text: 'You are receiving this email because we received a password reset request for your account.',
+                link: `${this.mainDomain}/newpassword/${token}`,
+                button_text: 'Reset Password',
+                end_text: 'Regards Unimacs.'
+            })// `<h2>Unimacs company has invited you to make a registration. Please click link bellow ${this.mainDomain}/registration/${item.token}</h2>`
+        }
+        try {
+            await sgMail.send(msg)
+        } catch (error) {
+            console.error(error)
+
+            if (error.response) {
+                console.error(error.response.body)
+            }
+        }
+    }
+
     private static newMail (mail:any) {
         const emailTemplate: any = fs.readFileSync(`${parentDir}/templates/email.template`)
         const template = _.template(emailTemplate)
