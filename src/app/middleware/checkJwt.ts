@@ -16,7 +16,6 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
         ctx.allowed = true
         return next()
     }
-console.log(token, 'token', typeof token)
 
     if (token !== 'undefined') {
         try {
