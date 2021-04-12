@@ -102,6 +102,9 @@ export enum OperatorType {
     SET_CARD_KEYS_ACK = 'SetCardKeys-Ack',
     ADD_CARD_KEY = 'AddCardKey',
     ADD_CARD_KEY_ACK = 'AddCardKey-Ack',
+    END_CARD_KEY = 'EndCardKey',
+    END_CARD_KEY_ACK = 'EndCardKey-Ack',
+
     EDIT_KEY = 'EditKey',
     EDIT_KEY_ACK = 'EditKey-Ack',
     DELL_KEYS = 'DellKeys',

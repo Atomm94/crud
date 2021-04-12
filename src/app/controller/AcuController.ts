@@ -10,6 +10,7 @@ import { accessPointType } from '../enums/accessPointType.enum'
 import { ExtDevice } from '../model/entity/ExtDevice'
 import acuModels from '../model/entity/acuModels.json'
 import { scheduleType } from '../enums/scheduleType.enum'
+import { Cardholder } from '../model/entity'
 
 export default class AcuController {
     /**
@@ -394,6 +395,7 @@ export default class AcuController {
                             ctx.status = 400
                             return ctx.body = { message: `You cant add accessPoints when acu status is ${acuStatus.PENDING}` }
                         }
+                        const new_access_points: AccessPoint[] = []
                         for (let access_point of req_data.access_points) {
                             for (const resource in access_point.resources) {
                                 const component_source: number = access_point.resources[resource].component_source
@@ -415,6 +417,7 @@ export default class AcuController {
                                 access_point.company = company
                                 if (access_point.resource) access_point.resource = JSON.stringify(access_point.resource)
                                 access_point = await AccessPoint.addItem(access_point)
+                                new_access_points.push(access_point)
                             } else {
                                 const old_access_point = await AccessPoint.findOneOrFail({ id: access_point.id, company: company })
                                 access_point.type = old_access_point.type
@@ -425,13 +428,13 @@ export default class AcuController {
                                     new SendDeviceMessage(OperatorType.SET_CTP_DOOR, location, acu.serial_number, access_point, acu.session_id, access_point_update)
                                 } else if (access_point.type === accessPointType.TURNSTILE_ONE_SIDE || access_point.type === accessPointType.TURNSTILE_TWO_SIDE) {
                                     new SendDeviceMessage(OperatorType.SET_CTP_TURNSTILE, location, acu.serial_number, access_point, acu.session_id, access_point_update)
-                                 } /* else if (access_point.type === accessPointType.GATE) { */
-                                //     SendDevice.SetCtpGate(location, acu.serial_number, acu.session_id, req_data, schedule)
-                                // } else if (access_point.type === doorType.GATEWAY) {
-                                //     SendDevice.SetCtpGateWay(location, acu.serial_number, acu.session_id, req_data)
-                                // } else if (access_point.type === doorType.FLOOR) {
-                                //     SendDevice.SetCtpFloor(location, acu.serial_number, acu.session_id, req_data)
-                                // }
+                                } else if (access_point.type === accessPointType.GATE) {
+                                    new SendDeviceMessage(OperatorType.SET_CTP_GATE, location, acu.serial_number, access_point, acu.session_id, access_point_update)
+                                } else if (access_point.type === accessPointType.GATEWAY) {
+                                    new SendDeviceMessage(OperatorType.SET_CTP_GATEWAY, location, acu.serial_number, access_point, acu.session_id, access_point_update)
+                                } else if (access_point.type === accessPointType.FLOOR) {
+                                    new SendDeviceMessage(OperatorType.SET_CTP_FLOOR, location, acu.serial_number, access_point, acu.session_id, access_point_update)
+                                }
                             } else {
                                 if (access_point_update) {
                                     const access_point_update = await AccessPoint.updateItem(access_point)
@@ -456,6 +459,33 @@ export default class AcuController {
                                     new SendDeviceMessage(OperatorType.SET_RD, location, acu.serial_number, reader, acu.session_id, reader_update)
                                 } else {
                                     if (reader_update) await Reader.updateItem(reader)
+                                }
+                            }
+
+                            // send CardKeys
+                            if (new_access_points.length) {
+                                const cardholders = await Cardholder.getAllItems({
+                                    relations: [
+                                        'credentials',
+                                        'access_rights',
+                                        'access_rights.access_rules'
+                                    ],
+                                    where: {
+                                        company: {
+                                            '=': req_data.company
+                                        }
+                                    }
+                                })
+                                if (cardholders.length) {
+                                    const acus: any = await Acu.getAllItems({ where: { status: { '=': acuStatus.ACTIVE } } })
+
+                                    acus.forEach((acu: any) => {
+                                        const send_edit_data = {
+                                            access_points: new_access_points,
+                                            cardholders: cardholders
+                                        }
+                                        new SendDeviceMessage(OperatorType.SET_CARD_KEYS, location, updated.serial_number, send_edit_data, updated.session_id)
+                                    })
                                 }
                             }
                         }
@@ -503,13 +533,13 @@ export default class AcuController {
      */
     public static async get (ctx: DefaultContext) {
         try {
-            const user = ctx.user
-            const where = { id: +ctx.params.id, company: user.company ? user.company : user.company }
-            const acu: Acu = await Acu.getItem(where)
-            const location = `${user.company_main}/${user.company}`
-            new SendDeviceMessage(OperatorType.GET_STATUS_ACU, location, acu.serial_number, 'none', acu.session_id)
-            // SendDevice.getStatusAcu(location, acu.serial_number, acu.session_id)
-            ctx.body = acu
+            const data = await Acu.createQueryBuilder('acu')
+                .leftJoinAndSelect('acu.access_points', 'access_point', 'access_point.delete_date is null')
+                .leftJoinAndSelect('access_point.readers', 'reader', 'reader.delete_date is null')
+                .where(`acu.id = ${+ctx.params.id}`)
+                .andWhere(`acu.company = ${ctx.user.company}`)
+                .getMany()
+            ctx.body = data
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -591,7 +621,13 @@ export default class AcuController {
             const req_data = ctx.query
             const user = ctx.user
             req_data.where = { company: { '=': user.company ? user.company : null } }
-            ctx.body = await Acu.getAllItems(req_data)
+
+            const data = await Acu.createQueryBuilder('acu')
+                .leftJoinAndSelect('acu.access_points', 'access_point', 'access_point.delete_date is null')
+                .leftJoinAndSelect('access_point.readers', 'reader', 'reader.delete_date is null')
+                .where(`acu.company = ${ctx.user.company}`)
+                .getQuery()
+            ctx.body = data
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -714,7 +750,7 @@ export default class AcuController {
             const user = ctx.user
             const company = user.company ? user.company : null
 
-            const device = await Acu.findOneOrFail({
+            const device = await Acu.findOne({
                 relations: [
                     'ext_devices',
                     'access_points',
@@ -729,11 +765,25 @@ export default class AcuController {
                     company: company
                 }
             })
-            const hardware = await Acu.findOneOrFail({
+            if (!device) {
+                ctx.status = 400
+                return ctx.body = {
+                    message: 'Invalid device id!!'
+                }
+            }
+
+            const hardware = await Acu.findOne({
                 id: req_data.attached_hardware,
                 status: acuStatus.PENDING,
                 company: company
             })
+            if (!hardware) {
+                ctx.status = 400
+                return ctx.body = {
+                    message: 'Invalid device id!!'
+                }
+            }
+
             if (device.model !== hardware.model) {
                 ctx.status = 400
                 return ctx.body = {
@@ -748,7 +798,7 @@ export default class AcuController {
             device.session_id = hardware.session_id
             // device.time = hardware.time
             const updated = await device.save()
-            await Acu.destroyItem({ id: hardware.id })
+            // await Acu.destroyItem({ id: hardware.id })
             ctx.body = updated
 
             const location = `${user.company_main}/${user.company}`
@@ -786,16 +836,15 @@ export default class AcuController {
             for (const access_point of access_points) {
                 if (access_point.type === accessPointType.DOOR) {
                     new SendDeviceMessage(OperatorType.SET_CTP_DOOR, location, device.serial_number, access_point, device.session_id, access_point_update)
+                } else if (access_point.type === accessPointType.TURNSTILE_ONE_SIDE || access_point.type === accessPointType.TURNSTILE_TWO_SIDE) {
+                    new SendDeviceMessage(OperatorType.SET_CTP_TURNSTILE, location, device.serial_number, access_point, device.session_id, access_point_update)
+                } else if (access_point.type === accessPointType.GATE) {
+                    new SendDeviceMessage(OperatorType.SET_CTP_GATE, location, device.serial_number, access_point, device.session_id, access_point_update)
+                } else if (access_point.type === accessPointType.GATEWAY) {
+                    new SendDeviceMessage(OperatorType.SET_CTP_GATEWAY, location, device.serial_number, access_point, device.session_id, access_point_update)
+                } else if (access_point.type === accessPointType.FLOOR) {
+                    new SendDeviceMessage(OperatorType.SET_CTP_FLOOR, location, device.serial_number, access_point, device.session_id, access_point_update)
                 }
-                //  else if (access_point.type === doorType.TURNSTILE) {
-                //     SendDevice.SetCtpTurnstile(location, acu.serial_number, acu.session_id, req_data)
-                // } else if (access_point.type === doorType.GATE) {
-                //     SendDevice.SetCtpGate(location, acu.serial_number, acu.session_id, req_data, schedule)
-                // } else if (access_point.type === doorType.GATEWAY) {
-                //     SendDevice.SetCtpGateWay(location, acu.serial_number, acu.session_id, req_data)
-                // } else if (access_point.type === doorType.FLOOR) {
-                //     SendDevice.SetCtpFloor(location, acu.serial_number, acu.session_id, req_data)
-                // }
 
                 // send Readers
                 const readers: any = access_point.readers
@@ -820,8 +869,40 @@ export default class AcuController {
                     }
                     new SendDeviceMessage(operator, location, device.serial_number, send_data, device.session_id)
                 }
+
+                // send CardKeys
+
+                const cardholders = await Cardholder.getAllItems({
+                    relations: [
+                        'credentials',
+                        'access_rights',
+                        'access_rights.access_rules'
+                    ],
+                    where: {
+                        company: {
+                            '=': 5
+                        }
+                    }
+                })
+                if (cardholders.length) {
+                    const access_points: AccessPoint[] = await AccessPoint.createQueryBuilder('access_point')
+                        .innerJoin('access_point.acus', 'acu', 'acu.delete_date is null')
+                        .where(`acu.status = '${acuStatus.ACTIVE}'`)
+                        .andWhere(`acu.company = ${company}`)
+                        .select('access_point.id')
+                        .getMany()
+                    if (access_points.length) {
+                        const send_edit_data = {
+                            access_points: access_points,
+                            cardholders: cardholders
+                        }
+                        new SendDeviceMessage(OperatorType.SET_CARD_KEYS, location, device.serial_number, send_edit_data, device.session_id)
+                    }
+                }
             }
         } catch (error) {
+            console.log(error)
+
             ctx.status = error.status || 400
             ctx.body = error
         }

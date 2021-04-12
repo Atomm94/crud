@@ -1019,4 +1019,72 @@ export default class AdminController {
         }
         return ctx.body
     }
+
+    /**
+     *
+     * @swagger
+     *  /account/forgotPassword:
+     *      post:
+     *          tags:
+     *              - Admin
+     *          summary: Send admin password recovery.
+     *          consumes:
+     *              - application/json
+     *          parameters:
+     *            - in: header
+     *              name: Authorization
+     *              required: true
+     *              description: Authentication token
+     *              schema:
+     *                    type: string
+     *            - in: body
+     *              name: admin
+     *              description: The password recovery.
+     *              schema:
+     *                type: object
+     *                required:
+     *                  - email
+     *                properties:
+     *                  email:
+     *                      type: string
+     *                      example: example@gmail.com
+     *          responses:
+     *              '201':
+     *                  description: pass recovery
+     *              '409':
+     *                  description: Conflict
+     *              '422':
+     *                  description: Wrong data
+     */
+
+    public static async forgotPassword (ctx: DefaultContext) {
+        const reqData = ctx.request.body
+        const user = ctx.user
+
+        if (user.company) reqData.company = user.company
+        reqData.id = user.id
+
+        try {
+            const admin = await Admin.findOne({
+                id: reqData.id,
+                email: reqData.email,
+                company: user.company ? user.company : null
+            })
+            if (admin) {
+                admin.verify_token = uid(32)
+                await admin.save()
+                if (admin) {
+                    ctx.body = { success: true }
+                    if (admin.verify_token) {
+                        await Sendgrid.recoveryPassword(admin.email, admin.verify_token)
+                    }
+                }
+            }
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+            return ctx.body
+        }
+        return ctx.body
+    }
 }

@@ -5,6 +5,11 @@ import { Cardholder } from '../model/entity/Cardholder'
 import { CardholderGroup } from '../model/entity/CardholderGroup'
 import { AntipassBack } from '../model/entity/AntipassBack'
 import { Credential } from '../model/entity/Credential'
+import { acuStatus } from '../enums/acuStatus.enum'
+import { AccessPoint, AccessRight, Acu } from '../model/entity'
+import SendDeviceMessage from '../mqtt/SendDeviceMessage'
+import { OperatorType } from '../mqtt/Operators'
+import { CheckCredentialSettings } from '../functions/check-credential'
 // import SendDeviceMessage from '../mqtt/SendDeviceMessage'
 // import { OperatorType } from '../mqtt/Operators'
 
@@ -203,8 +208,9 @@ export default class CardholderController {
             const req_data = ctx.request.body
 
             const auth_user = ctx.user
-            // const location = `${auth_user.company_main}/${auth_user.company}`
+            const location = `${auth_user.company_main}/${auth_user.company}`
             req_data.company = auth_user.company ? auth_user.company : null
+
             let group_data: any
             if (req_data.limitation_inherited || req_data.antipass_back_inherited || req_data.time_attendance_inherited || req_data.access_right_inherited) {
                 group_data = await CardholderGroup.getItem({ id: req_data.cardholder_group, company: req_data.company })
@@ -241,17 +247,43 @@ export default class CardholderController {
                     req_data.car_info = car_info.id
                 }
             }
-            const cardholder = await Cardholder.addItem(req_data as Cardholder)
-            if (req_data.credentials) {
+            const cardholder: Cardholder = await Cardholder.addItem(req_data as Cardholder)
+
+            if (req_data.credentials && req_data.credentials.length) {
                 const credentials: any = []
                 for (const credential of req_data.credentials) {
                     credential.company = req_data.company
                     credential.cardholder = cardholder.id
-                    credentials.push(await Credential.addItem(credential as Credential))
-                }
-                // new SendDeviceMessage(OperatorType.SET_CARD_KEYS, location, acu.serial_number, credentials, acu.session_id)
-            }
+                    const data: any = await Credential.addItem(credential as Credential)
+                    credentials.push(data)
 
+                    req_data.where = { status: { '=': acuStatus.ACTIVE } }
+                    const check = CheckCredentialSettings.checkSettings(credential)
+                    if (check !== true) {
+                        ctx.status = 400
+                        return ctx.body = { message: check }
+                    }
+                }
+                const access_points = await AccessPoint.createQueryBuilder('access_point')
+                    .innerJoin('access_point.acus', 'acu', 'acu.delete_date is null')
+                    .where(`acu.status = '${acuStatus.ACTIVE}'`)
+                    .andWhere(`acu.company = ${ctx.user.company}`)
+                    .select('access_point.id')
+                    .getMany()
+                if (access_points.length) {
+                    const access_rights = await AccessRight.findOneOrFail({ where: { id: cardholder.access_right }, relations: ['access_rules'] })
+                    cardholder.access_rights = access_rights
+                    cardholder.credentials = credentials
+                    const send_data = {
+                        access_points: access_points,
+                        cardholders: [cardholder]
+                    }
+                    const acus: any = await Acu.getAllItems(req_data)
+                    acus.forEach((acu: any) => {
+                        new SendDeviceMessage(OperatorType.ADD_CARD_KEY, location, acu.serial_number, send_data, acu.session_id)
+                    })
+                }
+            }
             if (cardholder) {
                 const where = { id: cardholder.id }
                 const relations = ['car_infos', 'limitations', 'antipass_backs', 'time_attendances', 'access_rights', 'cardholder_groups', 'credentials']
@@ -470,16 +502,78 @@ export default class CardholderController {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
             } else {
-                const res_data = await Cardholder.updateItem(req_data as Cardholder, auth_user)
-                const credentials: any = []
-                for (const credential of req_data.credentials) {
-                    if (!credential.id) {
-                        credential.company = auth_user.company
-                        credential.cardholder = req_data.id
-                        credentials.push(await Credential.addItem(credential as Credential))
-                    }
-                    // new SendDeviceMessage(OperatorType.SET_CARD_KEYS, location, acu.serial_number, credentials, acu.session_id)
+                const check_credentials = CheckCredentialSettings.checkSettings(req_data.credentials)
+                const location = `${auth_user.company_main}/${auth_user.company}`
+
+                if (check_credentials !== true) {
+                    ctx.status = 400
+                    return ctx.body = { message: check_credentials }
                 }
+
+                const res_data = await Cardholder.updateItem(req_data as Cardholder, auth_user)
+                const cardholder = res_data.new
+
+                const credentials: any = []
+                const old_credentials: any = []
+                if (req_data.credentials && req_data.credentials.length) {
+                    for (const credential of req_data.credentials) {
+                        if (!credential.id) {
+                            credential.company = auth_user.company
+                            credential.cardholder = req_data.id
+                            const data: any = await Credential.addItem(credential as Credential)
+                            credentials.push(data)
+                        } else {
+                            old_credentials.push(credential)
+                        }
+                    }
+                    const access_points: AccessPoint[] = await AccessPoint.createQueryBuilder('access_point')
+                        .innerJoin('access_point.acus', 'acu', 'acu.delete_date is null')
+                        .where(`acu.status = '${acuStatus.ACTIVE}'`)
+                        .andWhere(`acu.company = ${ctx.user.company}`)
+                        .select('access_point.id')
+                        .getMany()
+
+                    if (access_points.length) {
+                        const access_rights = await AccessRight.findOne({ where: { id: cardholder.access_right }, relations: ['access_rules'] })
+                        if (access_rights) {
+                            cardholder.access_rights = access_rights
+
+                            cardholder.credentials = credentials
+                            const send_add_data : {access_points: AccessPoint[], cardholders: Cardholder[]} = {
+                                access_points: access_points,
+                                cardholders: [cardholder]
+                            }
+
+                            let send_edit_data: {access_points: AccessPoint[], cardholders: Cardholder[]} | undefined
+                            if (res_data.old.vip !== res_data.new.vip && old_credentials.length) {
+                                cardholder.credentials = old_credentials
+                                send_edit_data = {
+                                    access_points: access_points,
+                                    cardholders: [cardholder]
+                                }
+                            }
+
+                            req_data.where = { status: { '=': acuStatus.ACTIVE } }
+                            const acus: any = await Acu.getAllItems(req_data)
+
+                            // credential.key_type = res_data.new.vip
+                            // acus.forEach((acu: any) => {
+                            //     access_points.forEach((access_point: any) => {
+                            //         credential.access_point = access_point.id
+                            //         new SendDeviceMessage(OperatorType.EDIT_KEY, location, acu.serial_number, credential, acu.session_id)
+                            //     })
+                            // })
+                            acus.forEach((acu: any) => {
+                                new SendDeviceMessage(OperatorType.ADD_CARD_KEY, location, acu.serial_number, send_add_data, acu.session_id)
+
+                                if (send_edit_data) {
+                                    new SendDeviceMessage(OperatorType.EDIT_KEY, location, acu.serial_number, send_edit_data, acu.session_id)
+                                }
+                            })
+                        }
+                    }
+                }
+
                 ctx.oldData = res_data.old
                 ctx.body = res_data.new
 
@@ -574,8 +668,14 @@ export default class CardholderController {
         try {
             const req_data = ctx.request.body
             const user = ctx.user
+            const location = `${user.company_main}/${user.company}`
             const where = { id: req_data.id, company: user.company ? user.company : null }
+            req_data.where = { company: { '=': user.company ? user.company : null }, status: { '=': acuStatus.ACTIVE } }
+            const acus: any = await Acu.getAllItems(req_data)
             ctx.body = await Cardholder.destroyItem(where)
+            acus.forEach((acu: any) => {
+                new SendDeviceMessage(OperatorType.DELL_KEYS, location, acu.serial_number, req_data, acu.session_id)
+            })
         } catch (error) {
             console.log(error)
 

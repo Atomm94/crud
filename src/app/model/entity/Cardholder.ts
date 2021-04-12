@@ -4,7 +4,8 @@ import {
     OneToOne,
     JoinColumn,
     ManyToOne,
-    OneToMany
+    OneToMany,
+    DeleteDateColumn
 } from 'typeorm'
 import { cardholderStatus } from '../../enums/cardholderStatus.enum'
 import { MainEntity } from './MainEntity'
@@ -24,7 +25,7 @@ const parentDir = join(__dirname, '../../..')
 
 @Entity('cardholder')
 export class Cardholder extends MainEntity {
-    @Column('varchar', { name: 'email', length: '255', unique: true })
+    @Column('varchar', { name: 'email', length: '255', unique: true, nullable: true })
     email: string
 
     @Column('longtext', { name: 'avatar', nullable: true })
@@ -93,6 +94,9 @@ export class Cardholder extends MainEntity {
     @Column('timestamp', { name: 'last_login_date', nullable: true })
     last_login_date: string | null
 
+    @DeleteDateColumn({ type: 'timestamp', name: 'delete_date' })
+    public deleteDate: Date
+
     @Column('int', { name: 'company', nullable: false })
     company: number
 
@@ -116,9 +120,9 @@ export class Cardholder extends MainEntity {
     @JoinColumn({ name: 'time_attendance' })
     time_attendances: Schedule | null;
 
-    @ManyToOne(() => AccessRight, access_right => access_right.cardholders, { nullable: true })
+    @ManyToOne(() => AccessRight, access_right => access_right.cardholders)
     @JoinColumn({ name: 'access_right' })
-    access_rights: AccessRight | null;
+    access_rights: AccessRight;
 
     @OneToMany(type => Credential, credential => credential.cardholders)
     credentials: Credential[];
@@ -264,7 +268,7 @@ export class Cardholder extends MainEntity {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
             this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
-                this.remove(data)
+                this.softRemove(data)
                     .then(() => {
                         resolve({ message: 'success' })
                     })

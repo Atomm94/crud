@@ -11,6 +11,8 @@ import { IMqttCrudMessaging } from '../Interfaces/messaging.interface'
 import { Reader } from '../model/entity/Reader'
 import { accessPointType } from '../enums/accessPointType.enum'
 import LogController from '../controller/LogController'
+import SendSocketMessage from './SendSocketMessage'
+import { socketChannels } from '../enums/socketChannels.enum'
 // import { uid } from 'uid'
 
 export default class Parse {
@@ -19,6 +21,7 @@ export default class Parse {
         message.location = message.device_topic.split('/').slice(0, 2).join('/')
         message.company = Number(message.device_topic.split('/')[1])
         message.device_id = Number(message.device_topic.split('/')[3])
+
         switch (message.operator) {
             case OperatorType.REGISTRATION:
                 this.deviceRegistration(message)
@@ -159,6 +162,10 @@ export default class Parse {
             case OperatorType.ADD_CARD_KEY_ACK:
                 this.addCardKeyAck(message)
                 break
+            case OperatorType.END_CARD_KEY_ACK:
+                this.endCardKeyAck(message)
+                break
+
             case OperatorType.EDIT_KEY_ACK:
                 this.editKeyAck(message)
                 break
@@ -577,14 +584,16 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             await AccessPoint.destroyItem({ id: message.send_data.data.id })
             // console.log('deviceDelCtpDoorAck insert completed')
+        } else {
+            new SendSocketMessage(socketChannels.DASHBOARD_ACU, message.send_data.data)
         }
     }
 
     public static async deviceGetCtpDoorAck (message: IMqttCrudMessaging) {
-        // console.log('deviceGetCtpDoorAck', message)
+        // console.log('deviceGetCtpTurnstileAck', message)
         if (message.result.errorNo === 0) {
             await AccessPoint.destroyItem({ id: message.send_data.data.id })
-            // console.log('deviceGetCtpDoorAck insert completed')
+            // console.log('deviceGetCtpTurnstileAck insert completed')
         }
     }
 
@@ -774,24 +783,37 @@ export default class Parse {
         }
     }
 
-    public static setCardKeysAck (message: IMqttCrudMessaging): void {
+    public static async setCardKeysAck (message: IMqttCrudMessaging) {
         // console.log('setCardKeysAck', message)
         if (message.result.errorNo === 0) {
-            // console.log('setCardKeysAck complete')
+            console.log('setCardKeysAck complete')
+        } else {
+            // await Cardholder.destroyItem({ id: message.send_data.data.id })
         }
     }
 
-    public static addCardKeyAck (message: IMqttCrudMessaging): void {
+    public static async addCardKeyAck (message: IMqttCrudMessaging) {
         // console.log('addCardKeyAck', message)
         if (message.result.errorNo === 0) {
             // console.log('addCardKeyAck complete')
+        } else {
+            // await Cardholder.destroyItem({ id: message.send_data.data.id })
+        }
+    }
+
+    public static async endCardKeyAck (message: IMqttCrudMessaging) {
+        // console.log('endCardKeyAck', message)
+        if (message.result.errorNo === 0) {
+            // console.log('endCardKeyAck complete')
+        } else {
+            // socket
         }
     }
 
     public static editKeyAck (message: IMqttCrudMessaging): void {
         // console.log('editKeyAck', message)
         if (message.result.errorNo === 0) {
-            // console.log('editKeyAck complete')
+            console.log('editKeyAck complete')
         }
     }
 
