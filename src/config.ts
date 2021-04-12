@@ -53,13 +53,14 @@ export interface IConfig {
         }
     };
     sendgrid: {
-        fromEmail:string,
+        fromEmail: string,
         apiKey: string
     };
     nodeEnv: string;
     isTest: boolean;
     isProduction: boolean;
     isDevelopment: boolean;
+    publicPath: string;
 
 }
 
@@ -109,7 +110,8 @@ const config: IConfig = {
     nodeEnv: process.env.NODE_ENV,
     isTest: !!(process.env.NODE_ENV === 'test' && process.env.NODE_TEST),
     isDevelopment: process.env.NODE_ENV === 'development',
-    isProduction: process.env.NODE_ENV === 'production'
+    isProduction: process.env.NODE_ENV === 'production',
+    publicPath: _.defaultTo(process.env.PUBLIC_PATH, 'src/public')
 }
 
 /**

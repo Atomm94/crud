@@ -16,7 +16,11 @@ import * as Models from '../entity/index'
 import fs from 'fs'
 import appRoot from 'app-root-path'
 import path from 'path'
+import { config } from '../../../config'
 const public_path = path.join(appRoot.path, 'src/public')
+console.log(config.isProduction)
+console.log(config.isDevelopment)
+
 const upload_files_path: string = process.env.UPLOAD_FILES_PATH ? process.env.UPLOAD_FILES_PATH : 'tmp/'
 @EventSubscriber()
 export class PostSubscriber implements EntitySubscriberInterface<MainEntity> {
@@ -49,6 +53,7 @@ console.log('000000000000000')
             console.log('file_path', file_path)
 
             file_path = JSON.parse(file_path).path
+            const file_name = JSON.parse(file_path).name
             if (!fs.existsSync(file_path)) file_path = `${public_path}/${file_path}`
 
             if (!fs.existsSync(file_path)) {
@@ -71,7 +76,8 @@ console.log('000000000000000')
                     console.log('mkdirsync', fs.mkdirSync(`${public_path}/${upload_files_path}${model_name}/${New.id}`, { recursive: true }))
                 }
                 const new_path = {
-                    path: `${upload_files_path}${model_name}/${New.id}/${path.basename(file_path)}`
+                    path: `${upload_files_path}${model_name}/${New.id}/${path.basename(file_path)}`,
+                    name: file_name
                 }
                 console.log('new_path', new_path)
 
@@ -112,6 +118,7 @@ console.log('000000000000000')
             }
             if (file_path) {
                 file_path = JSON.parse(file_path).path
+                const file_name = JSON.parse(file_path).name
 
                 if (!fs.existsSync(`${public_path}/${upload_files_path}${model_name}`)) {
                     fs.mkdirSync(`${public_path}/${upload_files_path}${model_name}`, { recursive: true })
@@ -119,7 +126,8 @@ console.log('000000000000000')
 
                 fs.mkdirSync(`${public_path}/${upload_files_path}${model_name}/${data.id}`)
                 const new_path = {
-                    path: `${upload_files_path}${model_name}/${data.id}/${file_path}`
+                    path: `${upload_files_path}${model_name}/${data.id}/${file_path}`,
+                    name: file_name
                 }
                 try {
                     fs.renameSync(`${public_path}/${file_path}`, `${public_path}/${new_path.path}`)

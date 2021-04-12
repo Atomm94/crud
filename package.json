@@ -12,7 +12,7 @@
 		"clean:build": "rm -rf dist",
 		"ci": "npm run lint && npm test",
 		"dev": "nodemon --watch 'src/**/*' -e ts,tsx --exec ts-node src/index.ts",
-		"start": "node dist/src/index.js",
+		"start": "node dist/src/index.js --env production",
 		"test": "SET NODE_ENV=TEST NODE_TEST=true jest",
 		"coverage": "SET NODE_ENV=TEST NODE_TEST=true jest --coverage || true",
 		"typeorm": "ts-node ./node_modules/typeorm/cli.js"
