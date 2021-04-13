@@ -28,6 +28,9 @@ export default router
     .put('Cardholder-updateItem', 'cardholder/update/bulk', checkRole(), CardholderController.updateMultipleCardholders)
     .post('Cardholder-addItem', 'cardholder/inviteCardholder', checkRole(), CardholderController.inviteCardholder)
     .get('Cardholder-getAllItems', 'cardholder/guests', checkRole(), CardholderController.getAllGuests)
+    .post('Cardholder-addItem', 'cardholder/guest', checkRole(), CardholderController.addGuest)
+    .put('Cardholder-updateItem', 'cardholder/guest', checkRole(), CardholderController.updateGuest)
+    .post('Cardholder-addItem', 'cardholder/addFromCabinet', checkRole(), CardholderController.addFromCabinet)
 
     .put('cardholder/invite/:token', CardholderController.setCardholderPassword)
 

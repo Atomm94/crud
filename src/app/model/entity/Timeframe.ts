@@ -2,7 +2,8 @@ import {
     Entity,
     Column,
     ManyToOne,
-    JoinColumn
+    JoinColumn,
+    DeleteDateColumn
 } from 'typeorm'
 
 import { MainEntity } from './MainEntity'
@@ -21,6 +22,9 @@ export class Timeframe extends MainEntity {
 
     @Column('int', { name: 'schedule', nullable: false })
     schedule: number
+
+    @DeleteDateColumn({ type: 'timestamp', name: 'delete_date' })
+    public deleteDate: Date
 
     @Column('int', { name: 'company', nullable: false })
     company: number
@@ -113,7 +117,7 @@ export class Timeframe extends MainEntity {
         if (data.name && data.schedule) {
             // eslint-disable-next-line no-async-promise-executor
             return new Promise(async (resolve, reject) => {
-                this.remove(await this.findOneOrFail({ name: data.name, schedule: data.schedule }))
+                this.softRemove(await this.findOneOrFail({ name: data.name, schedule: data.schedule }))
                     .then(() => {
                         resolve({ message: 'success' })
                     })
@@ -124,7 +128,7 @@ export class Timeframe extends MainEntity {
         } else if (data.id) {
             // eslint-disable-next-line no-async-promise-executor
             return new Promise(async (resolve, reject) => {
-                this.remove(await this.findOneOrFail({ id: data.id }))
+                this.softRemove(await this.findOneOrFail({ id: data.id }))
                 this.delete(data.id)
                     .then(() => {
                         resolve({ message: 'success' })

@@ -27,7 +27,7 @@ const parentDir = join(__dirname, '../../..')
 
 @Entity('cardholder')
 export class Cardholder extends MainEntity {
-    @Column('varchar', { name: 'email', length: '255', unique: true })
+    @Column('varchar', { name: 'email', length: '255', unique: true, nullable: true })
     email: string
 
     @Column('longtext', { name: 'avatar', nullable: true })
@@ -39,16 +39,16 @@ export class Cardholder extends MainEntity {
     @Column('varchar', { name: 'first_name', nullable: false })
     first_name: string
 
-    @Column('varchar', { name: 'last_name', nullable: false })
+    @Column('varchar', { name: 'last_name', nullable: true })
     last_name: string
 
-    @Column('varchar', { name: 'family_name', nullable: false })
+    @Column('varchar', { name: 'family_name', nullable: true })
     family_name: string
 
     @Column('varchar', { name: 'verify_token', nullable: true })
     verify_token: string | null
 
-    @Column('varchar', { name: 'phone', nullable: false })
+    @Column('varchar', { name: 'phone', nullable: true })
     phone: string
 
     @Column('varchar', { name: 'company_name', nullable: true })
@@ -57,7 +57,7 @@ export class Cardholder extends MainEntity {
     @Column('boolean', { name: 'user_account', default: false })
     user_account: boolean
 
-    @Column('int', { name: 'cardholder_group', nullable: false })
+    @Column('int', { name: 'cardholder_group', nullable: true })
     cardholder_group: number
 
     @Column('int', { name: 'car_info', nullable: true })
@@ -78,13 +78,13 @@ export class Cardholder extends MainEntity {
     @Column('boolean', { name: 'limitation_inherited', default: false })
     limitation_inherited: boolean
 
-    @Column('int', { name: 'antipass_back', nullable: false })
+    @Column('int', { name: 'antipass_back', nullable: true })
     antipass_back: number
 
     @Column('boolean', { name: 'antipass_back_inherited', default: false })
     antipass_back_inherited: boolean
 
-    @Column('int', { name: 'time_attendance', nullable: false })
+    @Column('int', { name: 'time_attendance', nullable: true })
     time_attendance: number
 
     @Column('boolean', { name: 'time_attendance_inherited', default: false })
@@ -102,13 +102,16 @@ export class Cardholder extends MainEntity {
     @Column('enum', { name: 'schedule_type', enum: scheduleCustomType, default: scheduleCustomType.DEFAULT })
     schedule_type: scheduleCustomType
 
+    @Column('int', { name: 'schedule', nullable: true })
+    schedule: number | null
+
     @DeleteDateColumn({ type: 'timestamp', name: 'delete_date' })
     public deleteDate: Date
 
     @Column('int', { name: 'company', nullable: false })
     company: number
 
-    @Column('int', { name: 'create_by', nullable: false })
+    @Column('int', { name: 'create_by', nullable: true })
     create_by: number
 
     @OneToOne(() => CarInfo, car_info => car_info.cardholders, { nullable: true })
@@ -168,6 +171,9 @@ export class Cardholder extends MainEntity {
         cardholder.access_right = data.access_right
         if ('access_right_inherited' in data) cardholder.access_right_inherited = data.access_right_inherited
         if ('guest' in data) cardholder.guest = data.guest
+        if ('schedule_type' in data) cardholder.schedule_type = data.schedule_type
+        if ('schedule' in data) cardholder.schedule = data.schedule
+
         cardholder.create_by = data.create_by
         cardholder.company = data.company
 
@@ -198,8 +204,8 @@ export class Cardholder extends MainEntity {
         if (data.limitation_inherited && group_data) {
             data.limitation = group_data.limitation
         } else {
-            if (data.limitation_inherited === oldData.limitation_inherited) {
-                await Limitation.updateItem(data.limitations as Limitation)
+            if (auth_user.cardholder || data.limitation_inherited === oldData.limitation_inherited) {
+                if (data.limitations) await Limitation.updateItem(data.limitations as Limitation)
             } else {
                 const limitation_data: any = await Limitation.addItem(data.limitations as Limitation)
                 data.limitation = limitation_data.id
@@ -212,8 +218,10 @@ export class Cardholder extends MainEntity {
             if (data.antipass_back_inherited === oldData.antipass_back_inherited) {
                 await AntipassBack.updateItem(data.antipass_backs as AntipassBack)
             } else {
-                const antipass_back_data: any = await AntipassBack.addItem(data.antipass_backs as AntipassBack)
-                data.antipass_back = antipass_back_data.id
+                if (data.antipass_backs) {
+                    const antipass_back_data: any = await AntipassBack.addItem(data.antipass_backs as AntipassBack)
+                    data.antipass_back = antipass_back_data.id
+                }
             }
         }
 
@@ -249,6 +257,8 @@ export class Cardholder extends MainEntity {
         if ('time_attendance_inherited' in data) cardholder.time_attendance_inherited = data.time_attendance_inherited
         if ('access_right' in data) cardholder.access_right = data.access_right
         if ('access_right_inherited' in data) cardholder.access_right_inherited = data.access_right_inherited
+        if ('schedule_type' in data) cardholder.schedule_type = data.schedule_type
+        if ('schedule' in data) cardholder.schedule = data.schedule
 
         if (!cardholder) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
