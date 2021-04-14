@@ -4,7 +4,8 @@ import {
     ManyToOne,
     JoinColumn,
     OneToMany,
-    OneToOne
+    OneToOne,
+    DeleteDateColumn
 } from 'typeorm'
 import * as _ from 'lodash'
 
@@ -42,6 +43,9 @@ export class Company extends MainEntity {
 
     @Column('enum', { name: 'status', enum: statusCompany, default: statusCompany.PENDING })
     status: statusCompany
+
+    @DeleteDateColumn({ type: 'timestamp', name: 'delete_date' })
+    public deleteDate: Date
 
     @ManyToOne(type => Packet, packet => packet.id, { nullable: true })
     @JoinColumn({ name: 'packet' })
@@ -148,7 +152,7 @@ export class Company extends MainEntity {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
             this.findOneOrFail({ id: data.id }).then((data: any) => {
-                this.remove(data)
+                this.softRemove(data)
                     .then(() => {
                         resolve({ message: 'success' })
                     })
