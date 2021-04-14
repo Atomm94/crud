@@ -68,7 +68,7 @@ export class Admin extends MainEntity {
   @Column('timestamp', { name: 'last_login_date', nullable: true })
   last_login_date: string | null;
 
-  @Column('varchar', { name: 'first_name', nullable: true })
+  @Column('varchar', { name: 'first_name', nullable: false })
   first_name: string;
 
   @Column('varchar', { name: 'last_name', nullable: true })
