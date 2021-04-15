@@ -151,7 +151,8 @@ export default class CardholderController {
      *                        type: object
      *                        properties:
      *                            type:
-     *                                type: disable | soft | semi_soft | hard | extra_hard
+     *                                type: string
+     *                                enum: [disable, soft, semi_soft, hard, extra_hard]
      *                                example: disable
      *                            enable_timer:
      *                                type: boolean
@@ -187,7 +188,8 @@ export default class CardholderController {
      *                                    type: string
      *                                    example: 1245644
      *                                status:
-     *                                    type: active | stolen | lost
+     *                                    type: string
+     *                                    enum: [active, stolen, lost]
      *                                    example: active
      *                                cardholder:
      *                                    type: number
@@ -443,7 +445,8 @@ export default class CardholderController {
      *                              type: number
      *                              example: 1
      *                          type:
-     *                              type: disable | soft | semi_soft | hard | extra_hard
+     *                              type: string
+     *                              enum: [disable, soft, semi_soft, hard, extra_hard]
      *                              example: disable
      *                          enable_timer:
      *                              type: boolean
@@ -478,7 +481,8 @@ export default class CardholderController {
      *                                  type: string
      *                                  example: 1245644
      *                              status:
-     *                                  type: active | stolen | lost
+     *                                  type: string
+     *                                  enum: [active, stolen, lost]
      *                                  example: active
      *                              cardholder:
      *                                  type: number
@@ -1567,10 +1571,7 @@ export default class CardholderController {
                     if (access_point_ids.indexOf(guest_access_rule.access_point) === -1) {
                         const acu = guest_access_rule.access_points.acus
                         if (acu.status === acuStatus.ACTIVE) {
-                            console.log(111111111111111110)
-
                             const schedule: Schedule = await Schedule.findOneOrFail({ id: guest_access_rule.schedule })
-                            console.log(22222222222)
                             const send_data = { id: guest_access_rule.id, access_point: guest_access_rule.access_points.id }
                             let operator: OperatorType = OperatorType.DEL_SDL_DAILY
                             if (schedule.type === scheduleType.WEEKLY) {
@@ -1608,125 +1609,7 @@ export default class CardholderController {
             }
 
             const res_data = await Cardholder.updateItem(req_data as Cardholder, auth_user)
-            ctx.body = res_data
-            // let schedule: any
-
-            // if (access_point_ids && access_point_ids.length) {
-            //     if (!req_data.schedule_type || req_data.schedule_type === scheduleCustomType.DEFAULT) {
-            //         req_data.access_right = invite_user.access_right
-            //     } else {
-            //         schedule = await Schedule.addItem({
-            //             name: req_data.first_name,
-            //             type: req_data.schedule_type,
-            //             custom: true,
-            //             company: invite_user.company
-            //         } as Schedule)
-
-            //         const access_rigth: any = await AccessRight.addItem({ name: req_data.first_name, company: invite_user.company } as AccessRight)
-            //         for (const access_rule of invite_user.access_rights.access_rules) {
-            //             access_rule.schedule = schedule.id
-            //             access_rule.access_right = access_rigth.id
-            //             await AccessRule.addItem(access_rule)
-            //         }
-            //         req_data.access_right = access_rigth.id
-            //     }
-            // } else {
-            //     if (!req_data.schedule_type || req_data.schedule_type === scheduleCustomType.DEFAULT) {
-            //         const access_rigth: any = await AccessRight.addItem({ name: req_data.first_name, company: invite_user.company } as AccessRight)
-            //         for (const access_rule of invite_user.access_rights.access_rules) {
-            //             if (access_point_ids.indexOf(access_rule.access_point) !== -1) {
-            //                 access_rule.access_right = access_rigth.id
-            //                 await AccessRule.addItem(access_rule)
-            //             }
-            //         }
-            //         req_data.access_right = access_rigth.id
-            //     } else {
-            //         schedule = await Schedule.addItem({
-            //             name: req_data.first_name,
-            //             type: req_data.schedule_type,
-            //             custom: true,
-            //             company: invite_user.company
-            //         } as Schedule)
-
-            //         const access_rigth: any = await AccessRight.addItem({ name: req_data.first_name, company: invite_user.company } as AccessRight)
-            //         for (const access_rule of invite_user.access_rights.access_rules) {
-            //             if (access_point_ids.indexOf(access_rule.access_point) !== -1) {
-            //                 access_rule.schedule = schedule.id
-            //                 access_rule.access_right = access_rigth.id
-            //                 await AccessRule.addItem(access_rule)
-            //             }
-            //         }
-            //         req_data.access_right = access_rigth.id
-            //     }
-            // }
-            // if (timeframes && timeframes.length && schedule) {
-            //     for (const timeframe of timeframes) {
-            //         timeframe.schedule = schedule.id
-            //         timeframe.company = invite_user.company
-            //         await Timeframe.addItem(timeframe)
-            //     }
-            // }
-
-            // if (req_data.limitations) {
-            //     await Limitation.updateItem(req_data.limitations as Limitation)
-            // }
-
-            // const cardholder: Cardholder = await Cardholder.addItem(req_data as Cardholder)
-
-            // const credential: any = await Credential.addItem({
-            //     company: req_data.company,
-            //     cardholder: cardholder.id,
-            //     code: uid(32)
-            // } as Credential)
-
-            // req_data.where = { status: { '=': acuStatus.ACTIVE } }
-
-            // const access_points = await AccessPoint.createQueryBuilder('access_point')
-            //     .innerJoin('access_point.acus', 'acu', 'acu.delete_date is null')
-            //     .where(`acu.status = '${acuStatus.ACTIVE}'`)
-            //     .andWhere(`acu.company = ${ctx.user.company}`)
-            //     .select('access_point.id')
-            //     .getMany()
-            // if (access_points.length) {
-            //     const access_rights = await AccessRight.findOneOrFail({
-            //         where: { id: cardholder.access_right },
-            //         relations: [
-            //             'access_rules',
-            //             'access_rules.schedules',
-            //             'access_rules.schedules.timeframes',
-            //             'access_rules.access_points',
-            //             'access_rules.access_points.acus'
-            //         ]
-            //     })
-            //     for (const access_rule of access_rights.access_rules) {
-            //         if (access_rule.access_points.acus.status === acuStatus.ACTIVE) {
-            //             const send_sdl_data: any = { ...access_rule, timeframes: access_rule.schedules.timeframes }
-
-            //             let operator: OperatorType = OperatorType.SET_SDL_DAILY
-            //             const access_rule_schedule = access_rule.schedules
-            //             if (access_rule_schedule.type === scheduleType.WEEKLY) {
-            //                 operator = OperatorType.SET_SDL_WEEKLY
-            //             } else if (access_rule_schedule.type === scheduleType.FLEXITIME) {
-            //                 send_sdl_data.start_from = access_rule_schedule.start_from
-            //                 operator = OperatorType.SET_SDL_FLEXI_TIME
-            //             } else if (access_rule_schedule.type === scheduleType.SPECIFIC) {
-            //                 operator = OperatorType.SET_SDL_SPECIFIED
-            //             }
-            //             new SendDeviceMessage(operator, location, access_rule.access_points.acus.serial_number, send_sdl_data, access_rule.access_points.acus.session_id)
-            //         }
-            //     }
-
-            //     cardholder.access_rights = access_rights
-            //     cardholder.credentials = [credential]
-            //     const send_data = {
-            //         access_points: access_points,
-            //         cardholders: [cardholder]
-            //     }
-            //     const acus: any = await Acu.getAllItems({ where: { status: { '=': acuStatus.ACTIVE } } })
-            //     acus.forEach((item_acu: any) => {
-            //         new SendDeviceMessage(OperatorType.ADD_CARD_KEY, location, item_acu.serial_number, send_data, item_acu.session_id)
-            //     })
-            // }
+            ctx.body = res_data.new
 
             // const where = { id: cardholder.id }
             // const relations = ['limitations', 'access_rights', 'credentials']
@@ -1834,11 +1717,9 @@ export default class CardholderController {
      *                                    type: string
      *                                    example: 1245644
      *                                status:
-     *                                    type: active | stolen | lost
+     *                                    type: string
+     *                                    enum: [active, stolen, lost]
      *                                    example: active
-     *                                cardholder:
-     *                                    type: number
-     *                                    example: 1
      *                                facility:
      *                                    type: number
      *                                    example: 2
@@ -1870,17 +1751,17 @@ export default class CardholderController {
             req_data.company = auth_user.company ? auth_user.company : null
             req_data.create_by = auth_user.id
 
-            if (!auth_user.cardholder) {
-                ctx.status = 400
-                return ctx.body = { message: 'Only invited Cardholder can create Guest' }
-            }
-
-            // console.log('invite_user', auth_user)
             const invite_user: Cardholder = await Cardholder.findOneOrFail({
                 relations: ['access_rights', 'access_rights.access_rules'],
                 where: { id: auth_user.cardholder }
             })
-            // console.log('invite_user', invite_user)
+
+            if (req_data.limitations) {
+                const limitation_data = await Limitation.addItem(req_data.limitations as Limitation)
+                if (limitation_data) {
+                    req_data.limitation = limitation_data.id
+                }
+            }
 
             const access_rigth: any = await AccessRight.addItem({ name: req_data.first_name, company: invite_user.company } as AccessRight)
             req_data.access_right = access_rigth.id
@@ -1894,53 +1775,7 @@ export default class CardholderController {
                     }
                 }
             }
-
-            if (req_data.limitations) {
-                const limitation_data = await Limitation.addItem(req_data.limitations as Limitation)
-                if (limitation_data) {
-                    req_data.limitation = limitation_data.id
-                }
-            }
-
             const cardholder: Cardholder = await Cardholder.addItem(req_data as Cardholder)
-
-            if (req_data.credentials && req_data.credentials.length) {
-                const credentials: any = []
-                for (const credential of req_data.credentials) {
-                    credential.company = auth_user.company
-                    credential.cardholder = cardholder.id
-                    const data: any = await Credential.addItem(credential as Credential)
-                    credentials.push(data)
-
-                    req_data.where = { status: { '=': acuStatus.ACTIVE } }
-                    const check = CheckCredentialSettings.checkSettings(credential)
-                    if (check !== true) {
-                        ctx.status = 400
-                        return ctx.body = { message: check }
-                    }
-                }
-
-                const access_points = await AccessPoint.createQueryBuilder('access_point')
-                    .innerJoin('access_point.acus', 'acu', 'acu.delete_date is null')
-                    .where(`acu.status = '${acuStatus.ACTIVE}'`)
-                    .andWhere(`acu.company = ${ctx.user.company}`)
-                    .select('access_point.id')
-                    .getMany()
-                if (access_points.length) {
-                    const access_rights = await AccessRight.findOneOrFail({ where: { id: cardholder.access_right }, relations: ['access_rules'] })
-                    cardholder.access_rights = access_rights
-                    cardholder.credentials = credentials
-                    const send_data = {
-                        access_points: access_points,
-                        cardholders: [cardholder]
-                    }
-                    const acus: any = await Acu.getAllItems(req_data)
-                    acus.forEach((acu: any) => {
-                        new SendDeviceMessage(OperatorType.ADD_CARD_KEY, location, acu.serial_number, send_data, acu.session_id)
-                    })
-                }
-            }
-            req_data.where = { status: { '=': acuStatus.ACTIVE } }
 
             const access_points = await AccessPoint.createQueryBuilder('access_point')
                 .innerJoin('access_point.acus', 'acu', 'acu.delete_date is null')
@@ -1980,9 +1815,315 @@ export default class CardholderController {
                 }
             }
 
+            if (req_data.credentials && req_data.credentials.length) {
+                const credentials: any = []
+                for (const credential of req_data.credentials) {
+                    credential.company = auth_user.company
+                    credential.cardholder = cardholder.id
+                    const data: any = await Credential.addItem(credential as Credential)
+                    credentials.push(data)
+
+                    req_data.where = { status: { '=': acuStatus.ACTIVE } }
+                    const check = CheckCredentialSettings.checkSettings(credential)
+                    if (check !== true) {
+                        ctx.status = 400
+                        return ctx.body = { message: check }
+                    }
+                }
+
+                if (access_points.length) {
+                    const access_rights = await AccessRight.findOneOrFail({ where: { id: cardholder.access_right }, relations: ['access_rules'] })
+                    cardholder.access_rights = access_rights
+                    cardholder.credentials = credentials
+                    const send_data = {
+                        access_points: access_points,
+                        cardholders: [cardholder]
+                    }
+                    const acus: any = await Acu.getAllItems(req_data)
+                    acus.forEach((acu: any) => {
+                        new SendDeviceMessage(OperatorType.ADD_CARD_KEY, location, acu.serial_number, send_data, acu.session_id)
+                    })
+                }
+            }
+
             const where = { id: cardholder.id }
             const relations = ['limitations', 'access_rights', 'credentials']
             ctx.body = await Cardholder.getItem(where, relations)
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     *  /cardholder/updateFromCabinet:
+     *      put:
+     *          tags:
+     *              - Cardholder
+     *          summary: Update a cardholder from cabinet.
+     *          consumes:
+     *              - application/json
+     *          parameters:
+     *            - in: header
+     *              name: Authorization
+     *              required: true
+     *              description: Authentication token
+     *              schema:
+     *                type: string
+     *            - in: body
+     *              name: cardholder
+     *              description: The cardholder to create.
+     *              schema:
+     *                type: object
+     *                required:
+     *                  - id
+     *                properties:
+     *                    id:
+     *                        type: number
+     *                        example: 1
+     *                    first_name:
+     *                        type: string
+     *                        example: some_first_name
+     *                    last_name:
+     *                        type: string
+     *                        example: some_last_name
+     *                    email:
+     *                        type: string
+     *                        example: example@gmail.com
+     *                    phone:
+     *                        type: string
+     *                        example: +374 XX XXX XXX
+     *                    status:
+     *                        type: string
+     *                        enum: [inactive, active, expired, noCredential, pending]
+     *                        example: active
+     *                    limitations:
+     *                        type: object
+     *                        properties:
+     *                            id:
+     *                                type: number
+     *                                example: 1
+     *                            enable_date:
+     *                                type: boolean
+     *                                example: true
+     *                            valid_from:
+     *                                type: string
+     *                                example: 2020-04-04 00:00:00
+     *                            valid_due:
+     *                                type: string
+     *                                example: 2020-05-05 15:00:00
+     *                            pass_counter_enable:
+     *                                type: boolean
+     *                                example: true
+     *                            pass_counter_passes:
+     *                                type: number
+     *                                example: 25
+     *                            pass_counter_current:
+     *                                type: number
+     *                                example: 10
+     *                            first_use_counter_enable:
+     *                                type: boolean
+     *                                example: true
+     *                            first_use_counter_days:
+     *                                type: number
+     *                                example: 25
+     *                            first_use_counter_current:
+     *                                type: number
+     *                                example: 10
+     *                            last_use_counter_enable:
+     *                                type: boolean
+     *                                example: true
+     *                            last_use_counter_days:
+     *                                type: number
+     *                                example: 25
+     *                            last_use_counter_current:
+     *                                type: number
+     *                                example: 10
+     *                    credentials:
+     *                        type: array
+     *                        items:
+     *                            type: object
+     *                            properties:
+     *                                type:
+     *                                    type: string
+     *                                    enum: [rfid, pinpass, vikey, phone_bt, phone_nfc, fingerprint, face, face_temperature, car_lp_number]
+     *                                    example: rfid
+     *                                code:
+     *                                    type: string
+     *                                    example: 1245644
+     *                                status:
+     *                                    type: string
+     *                                    enum: [active, stolen, lost]
+     *                                    example: active
+     *                                facility:
+     *                                    type: number
+     *                                    example: 2
+     *                                input_mode:
+     *                                    type: string
+     *                                    enum: [serial_number, wiegand_26]
+     *                                    example: serial_number
+     *                                company:
+     *                                     type:number
+     *                                     example:1
+     *                    access_points:
+     *                        type: Array<number>
+     *                        example: [1]
+     *          responses:
+     *              '201':
+     *                  description: A cardholder object
+     *              '409':
+     *                  description: Conflict
+     *              '422':
+     *                  description: Wrong data
+     */
+
+    public static async updateFromCabinet (ctx: DefaultContext) {
+        try {
+            const req_data = ctx.request.body
+
+            const auth_user = ctx.user
+            const company = auth_user.company ? auth_user.company : null
+            const location = `${auth_user.company_main}/${company}`
+
+            const invite_user: Cardholder = await Cardholder.findOneOrFail({
+                relations: ['access_rights', 'access_rights.access_rules'],
+                where: { id: auth_user.cardholder }
+            })
+
+            const created_cardholder: Cardholder = await Cardholder.findOneOrFail({
+                relations: [
+                    'access_rights',
+                    'access_rights.access_rules',
+                    'access_rights.access_rules.access_points',
+                    'access_rights.access_rules.access_points.acus'
+                ],
+                where: { id: req_data.id, company: company }
+            })
+
+            if (req_data.limitations) {
+                await Limitation.updateItem(req_data.limitations as Limitation)
+            }
+
+            const access_point_ids = req_data.access_points
+            for (const created_cardholder_access_rule of created_cardholder.access_rights.access_rules) {
+                if (access_point_ids.indexOf(created_cardholder_access_rule.access_point) === -1) {
+                    const acu = created_cardholder_access_rule.access_points.acus
+                    if (acu.status === acuStatus.ACTIVE) {
+                        const schedule: Schedule = await Schedule.findOneOrFail({ id: created_cardholder_access_rule.schedule })
+                        const send_data = { id: created_cardholder_access_rule.id, access_point: created_cardholder_access_rule.access_points.id }
+                        let operator: OperatorType = OperatorType.DEL_SDL_DAILY
+                        if (schedule.type === scheduleType.WEEKLY) {
+                            operator = OperatorType.DEL_SDL_WEEKLY
+                        } else if (schedule.type === scheduleType.FLEXITIME) {
+                            operator = OperatorType.DEL_SDL_FLEXI_TIME
+                        } else if (schedule.type === scheduleType.SPECIFIC) {
+                            operator = OperatorType.DEL_SDL_SPECIFIED
+                        }
+                        new SendDeviceMessage(operator, location, acu.serial_number, send_data, acu.session_id)
+                    } else {
+                        await AccessRule.destroyItem(created_cardholder_access_rule)
+                    }
+                }
+            }
+
+            for (const access_point_id of access_point_ids) {
+                let add_access_rule = true
+                for (const created_cardholder_access_rule of created_cardholder.access_rights.access_rules) {
+                    if (access_point_id === created_cardholder_access_rule.access_point) {
+                        add_access_rule = false
+                    }
+                }
+
+                if (add_access_rule) {
+                    for (const invite_user_access_rule of invite_user.access_rights.access_rules) {
+                        if (access_point_id === invite_user_access_rule.id) {
+                            invite_user_access_rule.access_right = created_cardholder.access_right
+                            if (created_cardholder.schedule_type !== scheduleCustomType.DEFAULT && created_cardholder.schedule) {
+                                invite_user_access_rule.schedule = created_cardholder.schedule
+                            }
+                            await AccessRule.addItem(invite_user_access_rule)
+                        }
+                    }
+                }
+            }
+            const res_data = await Cardholder.updateItem(req_data as Cardholder, auth_user)
+            ctx.body = res_data.new
+
+            const access_points = await AccessPoint.createQueryBuilder('access_point')
+                .innerJoin('access_point.acus', 'acu', 'acu.delete_date is null')
+                .where(`acu.status = '${acuStatus.ACTIVE}'`)
+                .andWhere(`acu.company = ${ctx.user.company}`)
+                .select('access_point.id')
+                .getMany()
+
+            if (access_points.length) {
+                const access_rights = await AccessRight.findOneOrFail({
+                    where: { id: created_cardholder.access_right },
+                    relations: [
+                        'access_rules',
+                        'access_rules.schedules',
+                        'access_rules.schedules.timeframes',
+                        'access_rules.access_points',
+                        'access_rules.access_points.acus'
+                    ]
+                })
+                console.log('access_rights', access_rights)
+                for (const access_rule of access_rights.access_rules) {
+                    if (access_rule.access_points.acus.status === acuStatus.ACTIVE) {
+                        const send_sdl_data: any = { ...access_rule, timeframes: access_rule.schedules.timeframes }
+
+                        let operator: OperatorType = OperatorType.SET_SDL_DAILY
+                        const access_rule_schedule = access_rule.schedules
+                        if (access_rule_schedule.type === scheduleType.WEEKLY) {
+                            operator = OperatorType.SET_SDL_WEEKLY
+                        } else if (access_rule_schedule.type === scheduleType.FLEXITIME) {
+                            send_sdl_data.start_from = access_rule_schedule.start_from
+                            operator = OperatorType.SET_SDL_FLEXI_TIME
+                        } else if (access_rule_schedule.type === scheduleType.SPECIFIC) {
+                            operator = OperatorType.SET_SDL_SPECIFIED
+                        }
+                        new SendDeviceMessage(operator, location, access_rule.access_points.acus.serial_number, send_sdl_data, access_rule.access_points.acus.session_id)
+                    }
+                }
+            }
+
+            if (req_data.credentials && req_data.credentials.length) {
+                const credentials: any = []
+                const old_credentials: any = []
+                for (const credential of req_data.credentials) {
+                    if (!credential.id) {
+                        credential.company = auth_user.company
+                        credential.cardholder = req_data.id
+                        const data: any = await Credential.addItem(credential as Credential)
+                        credentials.push(data)
+                    } else {
+                        old_credentials.push(credential)
+                    }
+                }
+
+                if (access_points.length) {
+                    const access_rights = await AccessRight.findOne({ where: { id: created_cardholder.access_right }, relations: ['access_rules'] })
+                    if (access_rights) {
+                        created_cardholder.access_rights = access_rights
+
+                        created_cardholder.credentials = credentials
+                        const send_add_data: { access_points: AccessPoint[], cardholders: Cardholder[] } = {
+                            access_points: access_points,
+                            cardholders: [created_cardholder]
+                        }
+
+                        req_data.where = { status: { '=': acuStatus.ACTIVE } }
+                        const acus: any = await Acu.getAllItems(req_data)
+
+                        acus.forEach((acu: any) => {
+                            new SendDeviceMessage(OperatorType.ADD_CARD_KEY, location, acu.serial_number, send_add_data, acu.session_id)
+                        })
+                    }
+                }
+            }
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

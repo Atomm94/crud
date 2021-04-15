@@ -114,7 +114,7 @@ export class AccessRule extends MainEntity {
     public static async destroyItem (data: any) {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
-            this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
+            this.findOneOrFail({ id: data.id, company: data.company ? data.company : null }).then((data: any) => {
                 this.softRemove(data)
                     .then(() => {
                         resolve({ message: 'success' })
