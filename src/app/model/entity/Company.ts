@@ -83,7 +83,7 @@ export class Company extends MainEntity {
     @OneToMany(type => AccessRight, access_right => access_right.companies)
     access_rights: AccessRight[];
 
-    public static async addItem (data: Company):Promise<Company> {
+    public static async addItem (data: Company): Promise<Company> {
         const company = new Company()
 
         company.company_name = data.company_name
@@ -115,6 +115,10 @@ export class Company extends MainEntity {
 
         if (!company) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
+            if ('status' in data && data.status === statusCompany.ENABLE && !company.packet) {
+                reject(new Error(`Cant change status of Company to ${statusCompany.ENABLE} without select Packet`).message)
+            }
+
             this.save(company)
                 .then((item: Company) => {
                     resolve({
@@ -128,7 +132,7 @@ export class Company extends MainEntity {
         })
     }
 
-    public static async getItem (id: number, relations?: Array<string>):Promise<Company> {
+    public static async getItem (id: number, relations?: Array<string>): Promise<Company> {
         const itemId: number = id
         return new Promise((resolve, reject) => {
             this.findOneOrFail({
