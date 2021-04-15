@@ -63,7 +63,7 @@ export class Ticket extends MainEntity {
         ticket.department = data.department
         ticket.subject = data.subject
         ticket.message = data.message
-        ticket.image = data.image
+        if ('image' in data) ticket.image = data.image
         ticket.user_id = data.user_id
 
         return new Promise((resolve, reject) => {

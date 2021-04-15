@@ -48,10 +48,7 @@ export class Admin extends MainEntity {
   })
   email: string;
 
-  @Column('longtext', {
-    name: 'avatar',
-    nullable: true
-  })
+  @Column('longtext', { name: 'avatar', nullable: true })
   avatar: IAdmins[] | null;
 
   @Column('varchar', { name: 'password', nullable: true, length: 255 })
@@ -72,7 +69,7 @@ export class Admin extends MainEntity {
   @Column('timestamp', { name: 'last_login_date', nullable: true })
   last_login_date: string | null;
 
-  @Column('varchar', { name: 'first_name', nullable: true })
+  @Column('varchar', { name: 'first_name', nullable: false })
   first_name: string;
 
   @Column('varchar', { name: 'last_name', nullable: true })

@@ -16,7 +16,6 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
         ctx.allowed = true
         return next()
     }
-
     if (token !== 'undefined') {
         try {
             const verify = <any>jwt.verify(token, 'jwtSecret')

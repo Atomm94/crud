@@ -4,7 +4,8 @@ import {
     ManyToOne,
     JoinColumn,
     OneToMany,
-    OneToOne
+    OneToOne,
+    DeleteDateColumn
 } from 'typeorm'
 import * as _ from 'lodash'
 
@@ -43,6 +44,9 @@ export class Company extends MainEntity {
     @Column('enum', { name: 'status', enum: statusCompany, default: statusCompany.PENDING })
     status: statusCompany
 
+    @DeleteDateColumn({ type: 'timestamp', name: 'delete_date' })
+    public deleteDate: Date
+
     @ManyToOne(type => Packet, packet => packet.id, { nullable: true })
     @JoinColumn({ name: 'packet' })
     packets: Packet | null;
@@ -79,7 +83,7 @@ export class Company extends MainEntity {
     @OneToMany(type => AccessRight, access_right => access_right.companies)
     access_rights: AccessRight[];
 
-    public static async addItem (data: Company):Promise<Company> {
+    public static async addItem (data: Company): Promise<Company> {
         const company = new Company()
 
         company.company_name = data.company_name
@@ -111,6 +115,10 @@ export class Company extends MainEntity {
 
         if (!company) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
+            if ('status' in data && data.status === statusCompany.ENABLE && !company.packet) {
+                reject(new Error(`Cant change status of Company to ${statusCompany.ENABLE} without select Packet`).message)
+            }
+
             this.save(company)
                 .then((item: Company) => {
                     resolve({
@@ -124,7 +132,7 @@ export class Company extends MainEntity {
         })
     }
 
-    public static async getItem (id: number, relations?: Array<string>):Promise<Company> {
+    public static async getItem (id: number, relations?: Array<string>): Promise<Company> {
         const itemId: number = id
         return new Promise((resolve, reject) => {
             this.findOneOrFail({
@@ -148,7 +156,7 @@ export class Company extends MainEntity {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
             this.findOneOrFail({ id: data.id }).then((data: any) => {
-                this.remove(data)
+                this.softRemove(data)
                     .then(() => {
                         resolve({ message: 'success' })
                     })
