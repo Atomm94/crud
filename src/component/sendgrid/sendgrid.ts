@@ -115,7 +115,7 @@ export class Sendgrid {
             from: this.from,
             subject: 'Company Status',
             text: 'Your Company Status is Active',
-            html: this.newMail({
+            html: this.newMail2({
                 title: 'Activating of Company',
                 text: 'Now your company is active',
                 end_text: 'Regards Unimacs.'
@@ -140,6 +140,17 @@ export class Sendgrid {
             text: mail.text,
             link: mail.link,
             button_text: mail.button_text,
+            end_text: mail.end_text
+        })
+        return html
+    }
+
+    private static newMail2 (mail:any) {
+        const emailTemplate: any = fs.readFileSync(`${parentDir}/templates/updatestatus.template`)
+        const template = _.template(emailTemplate)
+        const html = template({
+            title: mail.title,
+            text: mail.text,
             end_text: mail.end_text
         })
         return html
