@@ -626,7 +626,7 @@ export default class AcuController {
                 .leftJoinAndSelect('acu.access_points', 'access_point', 'access_point.delete_date is null')
                 .leftJoinAndSelect('access_point.readers', 'reader', 'reader.delete_date is null')
                 .where(`acu.company = ${ctx.user.company}`)
-                .getQuery()
+                .getMany()
             ctx.body = data
         } catch (error) {
             ctx.status = error.status || 400
