@@ -239,6 +239,7 @@ export class Admin extends MainEntity {
     if ('avatar' in data) admin.avatar = data.avatar
     if ('account_group' in data) admin.account_group = data.account_group
     if ('role_inherited' in data) admin.role_inherited = data.role_inherited
+    if ('post_code' in data) admin.post_code = data.post_code
 
     if (!admin) return { status: 400, message: 'Item not found' }
     return new Promise((resolve, reject) => {

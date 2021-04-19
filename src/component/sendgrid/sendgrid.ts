@@ -109,6 +109,29 @@ export class Sendgrid {
         }
     }
 
+    public static async updateStatus (toEmail: string) {
+        const msg = {
+            to: `${toEmail}`,
+            from: this.from,
+            subject: 'Company Status',
+            text: 'Your Company Status is Active',
+            html: this.newMail({
+                title: 'Activating of Company',
+                text: 'Now your company is active',
+                end_text: 'Regards Unimacs.'
+            })// `<h2>Unimacs company has invited you to make a registration. Please click link bellow ${this.mainDomain}/registration/${item.token}</h2>`
+        }
+        try {
+            await sgMail.send(msg)
+        } catch (error) {
+            console.error(error)
+
+            if (error.response) {
+                console.error(error.response.body)
+            }
+        }
+    }
+
     private static newMail (mail:any) {
         const emailTemplate: any = fs.readFileSync(`${parentDir}/templates/email.template`)
         const template = _.template(emailTemplate)
