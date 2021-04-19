@@ -47,10 +47,7 @@ export class Admin extends MainEntity {
   })
   email: string;
 
-  @Column('longtext', {
-    name: 'avatar',
-    nullable: true
-  })
+  @Column('longtext', { name: 'avatar', nullable: true })
   avatar: IAdmins[] | null;
 
   @Column('varchar', { name: 'password', nullable: true, length: 255 })
@@ -71,7 +68,7 @@ export class Admin extends MainEntity {
   @Column('timestamp', { name: 'last_login_date', nullable: true })
   last_login_date: string | null;
 
-  @Column('varchar', { name: 'first_name', nullable: true })
+  @Column('varchar', { name: 'first_name', nullable: false })
   first_name: string;
 
   @Column('varchar', { name: 'last_name', nullable: true })
@@ -220,7 +217,7 @@ export class Admin extends MainEntity {
   }
 
   public static async updateItem (data: any): Promise<{ [key: string]: any }> {
-    const admin = await this.findOneOrFail(data.id)
+    const admin = await this.findOneOrFail({ id: data.id })
     const oldData = Object.assign({}, admin)
     delete admin.password
 
@@ -242,6 +239,7 @@ export class Admin extends MainEntity {
     if ('avatar' in data) admin.avatar = data.avatar
     if ('account_group' in data) admin.account_group = data.account_group
     if ('role_inherited' in data) admin.role_inherited = data.role_inherited
+    if ('post_code' in data) admin.post_code = data.post_code
 
     if (!admin) return { status: 400, message: 'Item not found' }
     return new Promise((resolve, reject) => {

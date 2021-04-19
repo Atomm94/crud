@@ -69,7 +69,7 @@ export class AccessRule extends MainEntity {
     }
 
     public static async updateItem (data: AccessRule): Promise<{ [key: string]: any }> {
-        const accessRule = await this.findOneOrFail(data.id)
+        const accessRule = await this.findOneOrFail({ id: data.id })
         const oldData = Object.assign({}, accessRule)
 
         // if ('access_right' in data) accessRule.access_right = data.access_right

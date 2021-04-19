@@ -70,7 +70,7 @@ export class StandardReport extends MainEntity {
     }
 
     public static async updateItem (data: StandardReport) {
-        const standardReport = await this.findOneOrFail(data.id)
+        const standardReport = await this.findOneOrFail({ id: data.id })
 
         if ('name' in data) standardReport.name = data.name
         if ('description' in data) standardReport.description = data.description

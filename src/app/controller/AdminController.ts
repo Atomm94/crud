@@ -619,7 +619,7 @@ export default class AdminController {
         let check_group = true
 
         try {
-            const admin = Admin.findOne({
+            const admin = await Admin.findOne({
                 id: reqData.id,
                 company: user.company ? user.company : null
             })
@@ -1016,6 +1016,61 @@ export default class AdminController {
             ctx.body = {
                 message: 'Wrong token!!'
             }
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     *  /account/forgotPassword:
+     *      post:
+     *          tags:
+     *              - Admin
+     *          summary: Send admin password recovery.
+     *          consumes:
+     *              - application/json
+     *          parameters:
+     *            - in: body
+     *              name: admin
+     *              description: The password recovery.
+     *              schema:
+     *                type: object
+     *                required:
+     *                  - email
+     *                properties:
+     *                  email:
+     *                      type: string
+     *                      example: example@gmail.com
+     *          responses:
+     *              '201':
+     *                  description: pass recovery
+     *              '409':
+     *                  description: Conflict
+     *              '422':
+     *                  description: Wrong data
+     */
+
+    public static async forgotPassword (ctx: DefaultContext) {
+        const reqData = ctx.request.body
+        try {
+            const admin = await Admin.findOneOrFail({
+                email: reqData.email
+            })
+            if (admin) {
+                admin.verify_token = uid(32)
+                await admin.save()
+                if (admin) {
+                    ctx.body = { success: true }
+                    if (admin.verify_token) {
+                        await Sendgrid.recoveryPassword(admin.email, admin.verify_token)
+                    }
+                }
+            }
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+            return ctx.body
         }
         return ctx.body
     }

@@ -25,7 +25,7 @@ const parentDir = join(__dirname, '../../..')
 
 @Entity('cardholder')
 export class Cardholder extends MainEntity {
-    @Column('varchar', { name: 'email', length: '255', unique: true })
+    @Column('varchar', { name: 'email', length: '255', unique: true, nullable: true })
     email: string
 
     @Column('longtext', { name: 'avatar', nullable: true })
@@ -167,7 +167,7 @@ export class Cardholder extends MainEntity {
     }
 
     public static async updateItem (data: any, auth_user: any): Promise<{ [key: string]: any }> {
-        const cardholder = await this.findOneOrFail(data.id)
+        const cardholder = await this.findOneOrFail({ id: data.id })
         const oldData = Object.assign({}, cardholder)
 
         let group_data: any

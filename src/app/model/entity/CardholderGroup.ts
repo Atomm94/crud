@@ -104,7 +104,7 @@ export class CardholderGroup extends MainEntity {
     }
 
     public static async updateItem (data: any, user: any): Promise<{ [key: string]: any }> {
-        const cardholderGroup = await this.findOneOrFail(data.id)
+        const cardholderGroup = await this.findOneOrFail({ id: data.id })
         const oldData = Object.assign({}, cardholderGroup)
 
         let parent_data: any

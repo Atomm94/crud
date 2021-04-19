@@ -176,7 +176,7 @@ export class Role extends MainEntity {
   }
 
   public static async updateItem (data: Role): Promise<{ [key: string]: any }> {
-    const role = await this.findOneOrFail(data.id)
+    const role = await this.findOneOrFail({ id: data.id })
     const oldData = Object.assign({}, role)
 
     if ('slug' in data) role.slug = data.slug

@@ -55,7 +55,10 @@ export default class AuthController {
         const { username, password } = ctx.request.body
         let checkPass
         let user: Admin
-        let company_main_data: any = {}
+        let company_main_data: any = {
+            company_main: null,
+            packet: null
+        }
 
         try {
             user = await Admin.findOneOrFail({ where: [{ username }, { email: username }], relations: ['roles'] })
@@ -74,10 +77,10 @@ export default class AuthController {
                         message: 'Wrong password'
                     })
                 } else {
-                    company_main_data.company_main = null
                     if (user.company) {
                         const company = await Company.findOneOrFail({ id: user.company })
                         company_main_data.company_main = company.account
+                        company_main_data.packet = company.packet
                         if (company.status === statusCompany.DISABLE || (company.status === statusCompany.PENDING && company.account !== user.id)) {
                             ctx.status = 400
                             return ctx.body = {
@@ -96,7 +99,7 @@ export default class AuthController {
             }
         }
         company_main_data = { ...company_main_data, ...user }
-        const adminFiltered = _.pick(company_main_data, ['id', 'username', 'last_name', 'first_name', 'email', 'avatar', 'role', 'super', 'department', 'company', 'company_main'])
+        const adminFiltered = _.pick(company_main_data, ['id', 'username', 'last_name', 'first_name', 'email', 'avatar', 'role', 'super', 'department', 'company', 'company_main', 'packet'])
 
         if (user.company) {
             const company = await Company.findOne(user.company)

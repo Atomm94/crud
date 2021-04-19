@@ -123,6 +123,8 @@ export default class MqttController {
                 //         password: 'a8ec1eddffbd28d479b38077c0244ed0'
                 //     }
                 // }
+
+                // new SendDeviceMessage('login', '5/5', 1073493824, login.info, '52831102448461152410103211553534')
                 // MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(login))
 
                 // const set_pass = {

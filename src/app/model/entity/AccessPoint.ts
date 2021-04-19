@@ -82,7 +82,7 @@ export class AccessPoint extends MainEntity {
 
     @ManyToOne(type => AccessPointZone, access_point_zone => access_point_zone.access_points, { nullable: true })
     @JoinColumn({ name: 'access_point_zone' })
-    access_point_zones: AccessPointGroup | null;
+    access_point_zones: AccessPointZone | null;
 
     @ManyToOne(type => Acu, acu => acu.access_points)
     @JoinColumn({ name: 'acu' })
@@ -125,7 +125,7 @@ export class AccessPoint extends MainEntity {
     }
 
     public static async updateItem (data: AccessPoint): Promise<{ [key: string]: any }> {
-        const accessPoint = await this.findOneOrFail(data.id)
+        const accessPoint = await this.findOneOrFail({ id: data.id })
         const oldData = Object.assign({}, accessPoint)
 
         if ('name' in data) accessPoint.name = data.name

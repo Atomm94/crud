@@ -52,7 +52,7 @@ export class AntipassBack extends MainEntity {
     }
 
     public static async updateItem (data: AntipassBack): Promise<{ [key: string]: any }> {
-        const antipassBack = await this.findOneOrFail(data.id)
+        const antipassBack = await this.findOneOrFail({ id: data.id })
         const oldData = Object.assign({}, antipassBack)
 
         if ('type' in data) antipassBack.type = data.type
