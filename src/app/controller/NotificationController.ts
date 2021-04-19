@@ -172,7 +172,9 @@ export default class NotificationController {
      */
     public static async getAll (ctx: DefaultContext) {
         try {
-            ctx.body = await Notification.getAllItems(ctx.query)
+            const req_data = ctx.query
+            req_data.relations = ['access_points']
+            ctx.body = await Notification.getAllItems(req_data)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

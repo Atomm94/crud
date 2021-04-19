@@ -18,6 +18,7 @@ import { accessPointMode } from '../../enums/accessPointMode.enum'
 import { accessPointType } from '../../enums/accessPointType.enum'
 import { accessPointDoorState } from '../../enums/accessPointDoorState.enum'
 import { AutoTaskSchedule } from './AutoTaskSchedule'
+import { Notification } from './Notification'
 
 @Entity('access_point')
 export class AccessPoint extends MainEntity {
@@ -93,6 +94,9 @@ export class AccessPoint extends MainEntity {
 
     @OneToMany(type => Reader, reader => reader.access_points)
     readers: Reader[];
+
+    @OneToMany(type => Notification, notification => notification.access_points)
+    notifications: Notification[];
 
     public static resource: boolean = true
 
