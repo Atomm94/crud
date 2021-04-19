@@ -13,6 +13,9 @@ import { accessPointType } from '../enums/accessPointType.enum'
 import LogController from '../controller/LogController'
 import SendSocketMessage from './SendSocketMessage'
 import { socketChannels } from '../enums/socketChannels.enum'
+import { Cardholder } from '../model/entity'
+import errorList from '../model/entity/errorList.json'
+
 // import { uid } from 'uid'
 
 export default class Parse {
@@ -165,7 +168,6 @@ export default class Parse {
             case OperatorType.END_CARD_KEY_ACK:
                 this.endCardKeyAck(message)
                 break
-
             case OperatorType.EDIT_KEY_ACK:
                 this.editKeyAck(message)
                 break
@@ -245,6 +247,7 @@ export default class Parse {
             acu_data.company = message.company
 
             await Acu.addItem(acu_data)
+            // const user = message.send_data
             new SendDeviceMessage(OperatorType.ACCEPT, message.location, message.device_id, 'none')
             // console.log('success:true')
         } catch (error) {
@@ -263,8 +266,18 @@ export default class Parse {
                     username: acuData.username ? acuData.username : 'admin',
                     password: acuData.password ? acuData.password : ''
                 }
-                new SendDeviceMessage(OperatorType.LOGIN, message.location, message.device_id, send_data, message.session_id)
+                new SendDeviceMessage(OperatorType.LOGIN, message.location, message.device_id, send_data, message.send_data.user, message.session_id)
             })
+        } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
         }
     }
 
@@ -289,6 +302,16 @@ export default class Parse {
             } else {
                 // console.log('error deviceLoginAck', message)
             }
+        } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
         }
     }
 
@@ -302,6 +325,16 @@ export default class Parse {
             acu.session_id = '0'
             await acu.save()
             // this.login(message.topic)
+        } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
         }
     }
 
@@ -317,6 +350,16 @@ export default class Parse {
                 // console.log('deviceSetPass complete')
             } else {
                 // console.log('error deviceSetPass', message)
+            }
+        } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
     }
@@ -338,6 +381,16 @@ export default class Parse {
                 // console.log('deviceLogOutEvent complete')
             } else {
                 // console.log('error deviceLogOutEvent', message)
+            }
+        } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
     }
@@ -363,6 +416,16 @@ export default class Parse {
                     // console.log('deviceSetNetSettingsAck complete')
                 } else {
                     // console.log('error deviceSetNetSettingsAck', message)
+                }
+            } else {
+                const error_list: any = errorList
+
+                const error: number = Number(message.result.errorNo)
+                if (error_list[error]) {
+                    const company = message.send_data.data.company
+                    const user = message.send_data.user
+                    message.send_data.data.error_description = error_list[error].description
+                    new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
                 }
             }
         } catch (error) {
@@ -418,6 +481,16 @@ export default class Parse {
             } else {
                 // console.log('error deviceSetDateTimeAck', message)
             }
+        } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
         }
     }
 
@@ -425,6 +498,16 @@ export default class Parse {
         // console.log('deviceSetMqttSettingsAck', message)
         if (message.result.errorNo === 0) {
             // console.log('deviceSetMqttSettingsAck complete')
+        } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
         }
     }
 
@@ -432,6 +515,16 @@ export default class Parse {
         // console.log('deviceGetMqttSettingsAck', message)
         if (message.result.errorNo === 0) {
             // console.log('deviceGetMqttSettingsAck complete')
+        } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
         }
     }
 
@@ -439,6 +532,16 @@ export default class Parse {
         // console.log('deviceGetStatusAcuAck', message)
         if (message.result.errorNo === 0) {
             // console.log('deviceGetStatusAcuAck complete')
+        } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
         }
     }
 
@@ -454,6 +557,16 @@ export default class Parse {
                 // console.log('ExtDevice insert completed')
             }
         } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
+
             if (!message.send_data.update) {
                 await ExtDevice.destroyItem({ id: message.send_data.data.id })
             }
@@ -464,6 +577,16 @@ export default class Parse {
         // console.log('deviceGetExtBrdAck', message)
         if (message.result.errorNo === 0) {
             // console.log('ExtDevice complete')
+        } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
         }
     }
 
@@ -472,6 +595,16 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             await ExtDevice.destroyItem({ id: message.send_data.data.id })
             // console.log('DelExtDevice complete')
+        } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
         }
     }
 
@@ -504,6 +637,16 @@ export default class Parse {
             }
         } else {
             if (!message.send_data.update) {
+                const error_list: any = errorList
+
+                const error: number = Number(message.result.errorNo)
+                if (error_list[error]) {
+                    const company = message.send_data.data.company
+                    const user = message.send_data.user
+                    message.send_data.data.error_description = error_list[error].description
+                    new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+                }
+
                 await Reader.destroyItem({ id: message.send_data.data.id })
             }
         }
@@ -513,6 +656,16 @@ export default class Parse {
         // console.log('deviceGetRdAck', message)
         if (message.result.errorNo === 0) {
             // console.log('deviceGetRdAck complete')
+        } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
         }
     }
 
@@ -537,6 +690,16 @@ export default class Parse {
                 // new SendDeviceMessage(OperatorType.SET_CTP_TURNSTILE, message.location, message.device_id, message.session_id, access_point)
                 // }
             }
+        } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
         }
     }
 
@@ -544,6 +707,16 @@ export default class Parse {
         // console.log('deviceGetRdAck', message)
         if (message.result.errorNo === 0) {
             // console.log('deviceGetRdAck complete')
+        } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
         }
     }
 
@@ -551,6 +724,16 @@ export default class Parse {
         // console.log('deviceGetOutputAck', message)
         if (message.result.errorNo === 0) {
             // console.log('deviceGetOutputAck complete')
+        } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
         }
     }
 
@@ -558,6 +741,16 @@ export default class Parse {
         // console.log('deviceGetInputAck', message)
         if (message.result.errorNo === 0) {
             // console.log('deviceGetInputAck complete')
+        } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
         }
     }
 
@@ -573,19 +766,36 @@ export default class Parse {
                 // console.log('AccessPoint insert completed')
             }
         } else {
+            const error_list: any = errorList
+
             if (!message.send_data.update) {
                 await AccessPoint.destroyItem({ id: message.send_data.data.id })
+                const error: number = Number(message.result.errorNo)
+                if (error_list[error]) {
+                    const company = message.send_data.data.company
+                    const user = message.send_data.user
+                    message.send_data.data.error_description = error_list[error].description
+                    new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+                }
             }
         }
     }
 
     public static async deviceDelCtpDoorAck (message: IMqttCrudMessaging) {
-        // console.log('deviceDelCtpDoorAck', message)
+        const error_list: any = errorList
+        console.log('deviceDelCtpDoorAck', message)
         if (message.result.errorNo === 0) {
-            await AccessPoint.destroyItem({ id: message.send_data.data.id })
-            // console.log('deviceDelCtpDoorAck insert completed')
+            // await AccessPoint.destroyItem({ id: message.send_data.data.id })
+            // console.log('deviceDelCtpDoorAck delete completed')
+
         } else {
-            new SendSocketMessage(socketChannels.DASHBOARD_ACU, message.send_data.data)
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
         }
     }
 
@@ -594,6 +804,16 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             await AccessPoint.destroyItem({ id: message.send_data.data.id })
             // console.log('deviceGetCtpTurnstileAck insert completed')
+        } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
         }
     }
 
@@ -609,6 +829,16 @@ export default class Parse {
                 // console.log('AccessPoint insert completed')
             }
         } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
+
             if (!message.send_data.update) {
                 await AccessPoint.destroyItem({ id: message.send_data.data.id })
             }
@@ -620,6 +850,16 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             await AccessPoint.destroyItem({ id: message.send_data.data.id })
             // console.log('deviceDelCtpDoorAck insert completed')
+        } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
         }
     }
 
@@ -628,6 +868,16 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             await AccessPoint.destroyItem({ id: message.send_data.data.id })
             // console.log('deviceGetCtpTurnstileAck insert completed')
+        } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
         }
     }
 
@@ -643,6 +893,16 @@ export default class Parse {
                 // console.log('AccessPoint insert completed')
             }
         } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
+
             if (!message.send_data.update) {
                 await AccessPoint.destroyItem({ id: message.send_data.data.id })
             }
@@ -654,6 +914,16 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             await AccessPoint.destroyItem({ id: message.send_data.data.id })
             // console.log('deviceDelCtpGateAck insert completed')
+        } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
         }
     }
 
@@ -662,6 +932,16 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             await AccessPoint.destroyItem({ id: message.send_data.data.id })
             // console.log('deviceGetCtpGateAck insert completed')
+        } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
         }
     }
 
@@ -677,6 +957,16 @@ export default class Parse {
                 // console.log('AccessPoint insert completed')
             }
         } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
+
             if (!message.send_data.update) {
                 await AccessPoint.destroyItem({ id: message.send_data.data.id })
             }
@@ -688,6 +978,16 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             await AccessPoint.destroyItem({ id: message.send_data.data.id })
             // console.log('deviceDelCtpGatewayAck insert completed')
+        } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
         }
     }
 
@@ -696,6 +996,16 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             await AccessPoint.destroyItem({ id: message.send_data.data.id })
             // console.log('deviceGetCtpGatewayAck insert completed')
+        } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
         }
     }
 
@@ -711,6 +1021,24 @@ export default class Parse {
                 // console.log('AccessPoint insert completed')
             }
         } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            } else {
+                const error_list: any = errorList
+                const error: number = Number(message.result.errorNo)
+                if (error_list[error]) {
+                    const company = message.send_data.data.company
+                    const user = message.send_data.user
+                    message.send_data.data.error_description = error_list[error].description
+                    new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+                }
+            }
             if (!message.send_data.update) {
                 await AccessPoint.destroyItem({ id: message.send_data.data.id })
             }
@@ -722,6 +1050,16 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             await AccessPoint.destroyItem({ id: message.send_data.data.id })
             // console.log('deviceDelCtpFloorAck insert completed')
+        } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
         }
     }
 
@@ -730,6 +1068,16 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             await AccessPoint.destroyItem({ id: message.send_data.data.id })
             // console.log('deviceGetCtpFloorAck insert completed')
+        } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
         }
     }
 
@@ -745,6 +1093,16 @@ export default class Parse {
         // console.log('deviceSetEventsModAck', message)
         if (message.result.errorNo === 0) {
             // console.log('deviceSetEventsModAck complete')
+        } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
         }
     }
 
@@ -752,6 +1110,16 @@ export default class Parse {
         // console.log('deviceGetEventsModAck', message)
         if (message.result.errorNo === 0) {
             // console.log('deviceGetEventsModAck complete')
+        } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
         }
     }
 
@@ -759,6 +1127,16 @@ export default class Parse {
         // console.log('deviceGetEventsAck', message)
         if (message.result.errorNo === 0) {
             // console.log('deviceGetEventsAck complete')
+        } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
         }
     }
 
@@ -766,6 +1144,16 @@ export default class Parse {
         // console.log('deviceSetAccessModeAck', message)
         if (message.result.errorNo === 0) {
             // console.log('deviceSetAccessModeAck complete')
+        } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
         }
     }
 
@@ -773,6 +1161,16 @@ export default class Parse {
         // console.log('deviceGetAccessModeAck', message)
         if (message.result.errorNo === 0) {
             // console.log('deviceGetAccessModeAck complete')
+        } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
         }
     }
 
@@ -780,6 +1178,16 @@ export default class Parse {
         // console.log('deviceSinglePassAck', message)
         if (message.result.errorNo === 0) {
             // console.log('deviceSinglePassAck complete')
+        } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
         }
     }
 
@@ -788,7 +1196,17 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             console.log('setCardKeysAck complete')
         } else {
-            // await Cardholder.destroyItem({ id: message.send_data.data.id })
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
+
+            await Cardholder.destroyItem({ id: message.send_data.data.id })
         }
     }
 
@@ -797,7 +1215,17 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             // console.log('addCardKeyAck complete')
         } else {
-            // await Cardholder.destroyItem({ id: message.send_data.data.id })
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
+
+            await Cardholder.destroyItem({ id: message.send_data.data.id })
         }
     }
 
@@ -806,7 +1234,17 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             // console.log('endCardKeyAck complete')
         } else {
-            // socket
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
+
+            await Cardholder.destroyItem({ id: message.send_data.data.id })
         }
     }
 
@@ -814,6 +1252,16 @@ export default class Parse {
         // console.log('editKeyAck', message)
         if (message.result.errorNo === 0) {
             console.log('editKeyAck complete')
+        } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
         }
     }
 
@@ -821,6 +1269,16 @@ export default class Parse {
         // console.log('dellKeysAck', message)
         if (message.result.errorNo === 0) {
             // console.log('dellKeysAck complete')
+        } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
         }
     }
 
@@ -828,6 +1286,16 @@ export default class Parse {
         // console.log('dellAllKeysAck', message)
         if (message.result.errorNo === 0) {
             // console.log('dellAllKeysAck complete')
+        } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
         }
     }
 
@@ -839,6 +1307,16 @@ export default class Parse {
             }
             // console.log('setSdlDailyAck complete')
         } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
+
             if (!message.send_data.update) {
                 await AccessRule.destroyItem({ id: message.send_data.data.id })
             }
@@ -854,6 +1332,16 @@ export default class Parse {
                 await AccessRule.destroyItem({ id: message.send_data.data.id })
                 // console.log('dellSheduleAck complete')
             }
+        } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
         }
     }
 
@@ -863,6 +1351,16 @@ export default class Parse {
             await AccessRule.updateItem(message.send_data.data as AccessRule)
             // console.log('setSdlWeeklyAck complete')
         } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
+
             await AccessRule.destroyItem({ id: message.send_data.data.id })
         }
     }
@@ -875,6 +1373,16 @@ export default class Parse {
                 await AccessRule.destroyItem({ id: message.send_data.data.id })
                 // console.log('dellSheduleAck complete')
             }
+        } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
         }
     }
 
@@ -882,8 +1390,9 @@ export default class Parse {
         // console.log('setSdlFlexiTimeAck', message)
         if (message.result.errorNo === 0) {
             // console.log('setSdlFlexiTimeAck complete')
+            const user = message.send_data.user
             message.send_data.data.adds_count = 0
-            new SendDeviceMessage(OperatorType.ADD_DAY_FLEXI_TIME, message.location, message.device_id, message.send_data, message.session_id)
+            new SendDeviceMessage(OperatorType.ADD_DAY_FLEXI_TIME, message.location, message.device_id, message.send_data, user, message.session_id)
         }
     }
 
@@ -893,10 +1402,21 @@ export default class Parse {
             // console.log('addDayFlexiTimeAck complete')
             const set_params = message.send_data.data.set_params
             set_params.adds_count++
+            const user = message.send_data.user
             if (set_params.adds_count === set_params.info.DaysCount) {
-                new SendDeviceMessage(OperatorType.END_SDL_FLEXI_TIME, message.location, message.device_id, set_params, message.session_id)
+                new SendDeviceMessage(OperatorType.END_SDL_FLEXI_TIME, message.location, message.device_id, set_params, user, message.session_id)
             } else {
-                new SendDeviceMessage(OperatorType.ADD_DAY_FLEXI_TIME, message.location, message.device_id, set_params, message.session_id)
+                new SendDeviceMessage(OperatorType.ADD_DAY_FLEXI_TIME, message.location, message.device_id, set_params, user, message.session_id)
+            }
+        } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
     }
@@ -905,6 +1425,16 @@ export default class Parse {
         // console.log('endSdlFlexiTimeAck', message)
         if (message.result.errorNo === 0) {
             // console.log('endSdlFlexiTimeAck complete')
+        } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
         }
     }
 
@@ -916,6 +1446,16 @@ export default class Parse {
                 await AccessRule.destroyItem({ id: message.send_data.data.id })
                 // console.log('dellSheduleAck complete')
             }
+        } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
         }
     }
 
@@ -923,6 +1463,16 @@ export default class Parse {
         // console.log('delDayFlexiTimeAck', message)
         if (message.result.errorNo === 0) {
             // console.log('delDayFlexiTimeAck complete')
+        } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
         }
     }
 
@@ -930,6 +1480,16 @@ export default class Parse {
         // console.log('setSdlSpecifiedAck', message)
         if (message.result.errorNo === 0) {
             // console.log('setSdlSpecifiedAck complete')
+        } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
         }
     }
 
@@ -937,6 +1497,16 @@ export default class Parse {
         // console.log('addDaySpecifiedAck', message)
         if (message.result.errorNo === 0) {
             // console.log('addDaySpecifiedAck complete')
+        } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
         }
     }
 
@@ -944,6 +1514,16 @@ export default class Parse {
         // console.log('endSdlSpecifiedAck', message)
         if (message.result.errorNo === 0) {
             // console.log('endSdlSpecifiedAck complete')
+        } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
         }
     }
 
@@ -955,6 +1535,16 @@ export default class Parse {
                 await AccessRule.destroyItem({ id: message.send_data.data.id })
                 // console.log('dellSheduleAck complete')
             }
+        } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
         }
     }
 
@@ -962,6 +1552,16 @@ export default class Parse {
         // console.log('dellDaySpecifiedAck', message)
         if (message.result.errorNo === 0) {
             // console.log('dellDaySpecifiedAck complete')
+        } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
         }
     }
 
@@ -979,8 +1579,20 @@ export default class Parse {
                 } else if (message.send_data.data.schedule_type === scheduleType.SPECIFIC) {
                     operator = OperatorType.SET_SDL_SPECIFIED
                 }
-                new SendDeviceMessage(operator, message.location, acu.serial_number, message.send_data, acu.session_id)
+                const user = message.send_data.user
+
+                new SendDeviceMessage(operator, message.location, acu.serial_number, message.send_data, user, acu.session_id)
                 // console.log('dellSheduleAck complete')
+            }
+        } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
             }
         }
     }
@@ -989,6 +1601,16 @@ export default class Parse {
         // console.log('deviceDevTestAck', message)
         if (message.result.errorNo === 0) {
             // console.log('deviceDevTestAck complete')
+        } else {
+            const error_list: any = errorList
+
+            const error: number = Number(message.result.errorNo)
+            if (error_list[error]) {
+                const company = message.send_data.data.company
+                const user = message.send_data.user
+                message.send_data.data.error_description = error_list[error].description
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+            }
         }
     }
 }

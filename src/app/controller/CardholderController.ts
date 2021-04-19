@@ -249,6 +249,13 @@ export default class CardholderController {
             }
             const cardholder: Cardholder = await Cardholder.addItem(req_data as Cardholder)
 
+            const check_credentials = CheckCredentialSettings.checkSettings(req_data.credentials)
+
+            if (check_credentials !== true) {
+                ctx.status = 400
+                return ctx.body = { message: check_credentials }
+            }
+
             if (req_data.credentials && req_data.credentials.length) {
                 const credentials: any = []
                 for (const credential of req_data.credentials) {
@@ -258,11 +265,6 @@ export default class CardholderController {
                     credentials.push(data)
 
                     req_data.where = { status: { '=': acuStatus.ACTIVE } }
-                    const check = CheckCredentialSettings.checkSettings(credential)
-                    if (check !== true) {
-                        ctx.status = 400
-                        return ctx.body = { message: check }
-                    }
                 }
                 const access_points = await AccessPoint.createQueryBuilder('access_point')
                     .innerJoin('access_point.acus', 'acu', 'acu.delete_date is null')
@@ -290,6 +292,8 @@ export default class CardholderController {
                 ctx.body = await Cardholder.getItem(where, relations)
             }
         } catch (error) {
+            console.log(error)
+
             ctx.status = error.status || 400
             ctx.body = error
         }

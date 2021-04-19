@@ -94,7 +94,7 @@ export default class TimeframeController {
                     send_data.schedule_type = schedule.type
                     operator = OperatorType.DEL_SDL_SPECIFIED
                 }
-                new SendDeviceMessage(operator, location, access_rule.access_points.acus.serial_number, send_data, access_rule.access_points.acus.session_id)
+                new SendDeviceMessage(operator, location, access_rule.access_points.acus.serial_number, send_data, user.id, access_rule.access_points.acus.session_id)
             }
         } catch (error) {
             console.log(error)
@@ -192,7 +192,7 @@ export default class TimeframeController {
                     send_data.type = schedule.type
                     operator = OperatorType.DEL_SDL_SPECIFIED
                 }
-                new SendDeviceMessage(operator, location, access_rule.access_points.acus.serial_number, send_data, access_rule.access_points.acus.session_id)
+                new SendDeviceMessage(operator, location, access_rule.access_points.acus.serial_number, send_data, user.id, access_rule.access_points.acus.session_id)
             }
         } catch (error) {
             ctx.status = error.status || 400
@@ -308,7 +308,7 @@ export default class TimeframeController {
                     send_data.type = schedule.type
                     operator = OperatorType.DEL_SDL_SPECIFIED
                 }
-                new SendDeviceMessage(operator, location, access_rule.access_points.acus.serial_number, send_data, access_rule.access_points.acus.session_id)
+                new SendDeviceMessage(operator, location, access_rule.access_points.acus.serial_number, send_data, user.id, access_rule.access_points.acus.session_id)
             }
         } catch (error) {
             ctx.status = error.status || 400

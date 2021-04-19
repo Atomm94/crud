@@ -7,6 +7,7 @@ export interface ICrudMqttMessaging {
     session_id: string
     update: boolean
     data: any
+    user: number | null
 }
 
 export interface IDeviceMqttMessaging {

@@ -100,16 +100,16 @@ export default class AccessPointController {
                 ctx.body = await AccessPoint.destroyItem(where)
                 if (access_point.acus.status === acuStatus.ACTIVE) {
                     if (access_point.type === accessPointType.DOOR) {
-                        new SendDeviceMessage(OperatorType.DEL_CTP_DOOR, location, access_point.acus.serial_number, access_point.acus.session_id, req_data)
+                        new SendDeviceMessage(OperatorType.DEL_CTP_DOOR, location, access_point.acus.serial_number, access_point, user.id, access_point.acus.session_id)
                         // SendDevice.delCtpDoor(location, access_point.acus.serial_number, access_point.acus.session_id, req_data)
                     } else if (access_point.type === accessPointType.TURNSTILE_ONE_SIDE || access_point.type === accessPointType.TURNSTILE_TWO_SIDE) {
-                        new SendDeviceMessage(OperatorType.DEL_CTP_TURNSTILE, location, access_point.acus.serial_number, access_point, access_point.acus.session_id)
+                        new SendDeviceMessage(OperatorType.DEL_CTP_TURNSTILE, location, access_point.acus.serial_number, access_point, user.id, access_point.acus.session_id)
                     } else if (access_point.type === accessPointType.GATE) {
-                        new SendDeviceMessage(OperatorType.DEL_CTP_GATE, location, access_point.acus.serial_number, access_point, access_point.acus.session_id)
+                        new SendDeviceMessage(OperatorType.DEL_CTP_GATE, location, access_point.acus.serial_number, access_point, user.id, access_point.acus.session_id)
                     } else if (access_point.type === accessPointType.GATEWAY) {
-                        new SendDeviceMessage(OperatorType.DEL_CTP_GATEWAY, location, access_point.acus.serial_number, access_point, access_point.acus.session_id)
+                        new SendDeviceMessage(OperatorType.DEL_CTP_GATEWAY, location, access_point.acus.serial_number, access_point, user.id, access_point.acus.session_id)
                     } else if (access_point.type === accessPointType.FLOOR) {
-                        new SendDeviceMessage(OperatorType.DEL_CTP_FLOOR, location, access_point.acus.serial_number, access_point, access_point.acus.session_id)
+                        new SendDeviceMessage(OperatorType.DEL_CTP_FLOOR, location, access_point.acus.serial_number, access_point, user.id, access_point.acus.session_id)
                     }
                 }
             }
@@ -204,7 +204,7 @@ export default class AccessPointController {
             req_data.access_point_type = reader.access_points.type
             ctx.body = await Reader.destroyItem(where)
             if (reader.access_points.acus.status === acuStatus.ACTIVE) {
-                new SendDeviceMessage(OperatorType.DEL_RD, location, reader.access_points.acus.serial_number, req_data, reader.access_points.acus.session_id)
+                new SendDeviceMessage(OperatorType.DEL_RD, location, reader.access_points.acus.serial_number, req_data, user, reader.access_points.acus.session_id)
                 ctx.body = true
             } else if (reader.access_points.acus.status === acuStatus.NO_HARDWARE) {
                 // ctx.body = await Reader.destroyItem(where)
