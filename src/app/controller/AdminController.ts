@@ -1053,14 +1053,9 @@ export default class AdminController {
 
     public static async forgotPassword (ctx: DefaultContext) {
         const reqData = ctx.request.body
-        const user = ctx.user
-
-        if (user.company) reqData.company = user.company
-
         try {
-            const admin = await Admin.findOne({
-                email: reqData.email,
-                company: user.company ? user.company : null
+            const admin = await Admin.findOneOrFail({
+                email: reqData.email
             })
             if (admin) {
                 admin.verify_token = uid(32)
