@@ -66,13 +66,13 @@ export class EventLog extends BaseClass {
                 door_state = accessPointDoorState.OPEN
             }
             if (door_state) {
-                AccessPoint.updateItem({ id: event.data.access_point_id, door_state: door_state } as AccessPoint)
+                AccessPoint.updateItem({ id: event.data.access_point, door_state: door_state } as AccessPoint)
             }
         }
 
-        if (event.data.access_point_id) {
+        if (event.data.access_point) {
             const last_activity = event.data
-            AccessPoint.updateItem({ id: event.data.access_point_id, last_activity: last_activity } as AccessPoint)
+            AccessPoint.updateItem({ id: event.data.access_point, last_activity: last_activity } as AccessPoint)
         }
 
         if (event.data.event_type === eventTypes.CARDHOLDER_ALARM || event.data.event_type === eventTypes.SYSTEM_ALARM) {

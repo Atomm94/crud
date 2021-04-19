@@ -94,8 +94,8 @@ export default class LogController {
                     eventData.data.access_right = credential.cardholders.access_rights ? _.pick(credential.cardholders.access_rights, ['id', 'name']) : null
                 }
                 if (access_point) {
-                    eventData.data.access_point_id = access_point.id
-                    eventData.data.access_point = _.pick(access_point, ['id', 'name'])
+                    eventData.data.access_point = access_point.id
+                    eventData.data.access_points = _.pick(access_point, ['id', 'name'])
                 }
                 const EventList: any = eventList
 
