@@ -1031,12 +1031,6 @@ export default class AdminController {
      *          consumes:
      *              - application/json
      *          parameters:
-     *            - in: header
-     *              name: Authorization
-     *              required: true
-     *              description: Authentication token
-     *              schema:
-     *                    type: string
      *            - in: body
      *              name: admin
      *              description: The password recovery.
@@ -1062,11 +1056,9 @@ export default class AdminController {
         const user = ctx.user
 
         if (user.company) reqData.company = user.company
-        reqData.id = user.id
 
         try {
             const admin = await Admin.findOne({
-                id: reqData.id,
                 email: reqData.email,
                 company: user.company ? user.company : null
             })
