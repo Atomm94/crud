@@ -93,7 +93,7 @@ export class Sendgrid {
             html: this.newMail({
                 title: 'Reset password',
                 text: 'You are receiving this email because we received a password reset request for your account.',
-                link: `${this.mainDomain}/newpassword/${token}`,
+                link: `${this.mainDomain}/recoveryPassword/${token}`,
                 button_text: 'Reset Password',
                 end_text: 'Regards Unimacs.'
             })// `<h2>Unimacs company has invited you to make a registration. Please click link bellow ${this.mainDomain}/registration/${item.token}</h2>`

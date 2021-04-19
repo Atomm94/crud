@@ -4,7 +4,7 @@ import * as jwt from 'jsonwebtoken'
 import { JwtToken } from '../model/entity/JwtToken'
 
 export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
-    const whiteList = ['login', 'swagger', 'favicon', 'page/saveFile', 'registration', 'mqttGetRequest', 'mqttPostRequest']
+    const whiteList = ['login', 'swagger', 'favicon', 'page/saveFile', 'registration', 'mqttGetRequest', 'mqttPostRequest', 'account/forgotPassword']
 
     const path = ctx.request.url.split('?')[0].split('/').slice(1).join('/')
     const invite = path.split('/')[1]

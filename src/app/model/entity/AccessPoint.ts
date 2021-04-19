@@ -82,7 +82,7 @@ export class AccessPoint extends MainEntity {
 
     @ManyToOne(type => AccessPointZone, access_point_zone => access_point_zone.access_points, { nullable: true })
     @JoinColumn({ name: 'access_point_zone' })
-    access_point_zones: AccessPointGroup | null;
+    access_point_zones: AccessPointZone | null;
 
     @ManyToOne(type => Acu, acu => acu.access_points)
     @JoinColumn({ name: 'acu' })
