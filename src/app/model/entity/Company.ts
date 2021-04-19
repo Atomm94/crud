@@ -104,7 +104,7 @@ export class Company extends MainEntity {
     }
 
     public static async updateItem (data: Company): Promise<{ [key: string]: any }> {
-        const company = await this.findOneOrFail(data.id)
+        const company = await this.findOneOrFail({ id: data.id })
         const oldData = Object.assign({}, company)
 
         if ('company_name' in data) company.company_name = data.company_name

@@ -217,7 +217,7 @@ export class Admin extends MainEntity {
   }
 
   public static async updateItem (data: any): Promise<{ [key: string]: any }> {
-    const admin = await this.findOneOrFail(data.id)
+    const admin = await this.findOneOrFail({ id: data.id })
     const oldData = Object.assign({}, admin)
     delete admin.password
 

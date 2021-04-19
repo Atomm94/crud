@@ -38,7 +38,7 @@ export class RegistrationInvite extends MainEntity {
     // }
 
     // public static async updateItem (data: RegistrationInvite) {
-    //     const registrationInvite = await this.findOneOrFail(data.id)
+    //     const registrationInvite = await this.findOneOrFail({ id: data.id })
 
     //     if ('email' in data) registrationInvite.email = data.email
     //     if ('token' in data) registrationInvite.token = data.token

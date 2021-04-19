@@ -619,7 +619,7 @@ export default class AdminController {
         let check_group = true
 
         try {
-            const admin = Admin.findOne({
+            const admin = await Admin.findOne({
                 id: reqData.id,
                 company: user.company ? user.company : null
             })

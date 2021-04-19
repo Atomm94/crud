@@ -55,7 +55,7 @@ export class AccessPointZone extends MainEntity {
     }
 
     public static async updateItem (data: AccessPointZone): Promise<{ [key: string]: any }> {
-        const accessPointZone = await this.findOneOrFail(data.id)
+        const accessPointZone = await this.findOneOrFail({ id: data.id })
         const oldData = Object.assign({}, accessPointZone)
 
         if ('name' in data) accessPointZone.name = data.name

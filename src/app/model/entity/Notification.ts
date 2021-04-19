@@ -42,7 +42,7 @@ export class Notification extends MainEntity {
     }
 
     public static async updateItem (data: Notification) {
-        const notification = await this.findOneOrFail(data.id)
+        const notification = await this.findOneOrFail({ id: data.id })
 
         if ('confirmed' in data) notification.confirmed = data.confirmed
         if ('access_point' in data) notification.access_point = data.access_point
