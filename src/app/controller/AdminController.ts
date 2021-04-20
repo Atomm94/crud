@@ -285,7 +285,7 @@ export default class AdminController {
             if (newAdmin && role) {
                 ctx.body = { success: true }
                 if (reqData.send && newAdmin.verify_token) {
-                    await Sendgrid.sendNewPass(newAdmin.email, newAdmin.verify_token)
+                    await Sendgrid.SetPass(newAdmin.email, newAdmin.verify_token)
                 }
             }
         } catch (error) {
