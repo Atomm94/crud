@@ -107,14 +107,11 @@ export default class AdminController {
      *                      type: string
      *                      example: some address
      *                  viber:
-     *                      type: string
-     *                      example: +374 XX XXX XXX
+     *                      type: boolean
+     *                      example: false
      *                  whatsapp:
-     *                      type: string
-     *                      example: +374 XX XXX XXX
-     *                  company:
-     *                      type: string
-     *                      example: +374 XX XXX XXX
+     *                      type: boolean
+     *                      example: false
      *                  comment:
      *                      type: string
      *                      example: comment
@@ -124,6 +121,15 @@ export default class AdminController {
      *                  role_inherited:
      *                      type: boolean
      *                      example: false
+     *                  date_format:
+     *                      type: string
+     *                      example: MM/DD/YYYY
+     *                  time_format:
+     *                      type: string
+     *                      example: 24h
+     *                  time_zone:
+     *                      type: string
+     *                      example: +7
      *          responses:
      *              '201':
      *                  description: A admin object
@@ -590,11 +596,11 @@ export default class AdminController {
      *                      type: string
      *                      example: some address
      *                  viber:
-     *                      type: string
-     *                      example: +374 XX XXX XXX
+     *                      type: boolean
+     *                      example: false
      *                  whatsapp:
-     *                      type: string
-     *                      example: +374 XX XXX XXX
+     *                      type: boolean
+     *                      example: false
      *                  comment:
      *                      type: string
      *                      example: comment
@@ -604,6 +610,15 @@ export default class AdminController {
      *                  role_inherited:
      *                      type: boolean
      *                      example: false
+     *                  date_format:
+     *                      type: string
+     *                      example: MM/DD/YYYY
+     *                  time_format:
+     *                      type: string
+     *                      example: 24h
+     *                  time_zone:
+     *                      type: string
+     *                      example: +7
      *          responses:
      *              '201':
      *                  description: A market updated object

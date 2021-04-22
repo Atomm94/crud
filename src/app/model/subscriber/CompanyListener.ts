@@ -78,6 +78,18 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
                         // generate account permissions
                         const permissions: any = {}
                         const default_permissions = (default_role) ? JSON.parse(default_role.permissions) : Role.default_partner_role
+                        // const role_permissions =
+                        const role_permissions = Role.getActions()
+                        Object.keys(role_permissions).forEach(action => {
+                            role_permissions[action] = true
+                        })
+                        if (default_permissions.Role) {
+                            default_permissions.Role.actions = { ...role_permissions, ...default_permissions.Role.actions }
+                        } else {
+                            default_permissions.Role = {
+                                actions: { ...role_permissions }
+                            }
+                        }
                         const extra_settings = JSON.parse(packet.extra_settings)
 
                         const models: any = Models

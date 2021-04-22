@@ -98,11 +98,11 @@ export class Admin extends MainEntity {
   @Column('varchar', { name: 'address', nullable: true })
   address: string | null;
 
-  @Column('varchar', { name: 'viber', nullable: true })
-  viber: string | null;
+  @Column('boolean', { name: 'viber', default: false })
+  viber: boolean;
 
-  @Column('varchar', { name: 'whatsapp', nullable: true })
-  whatsapp: string | null;
+  @Column('boolean', { name: 'whatsapp', default: false })
+  whatsapp: boolean;
 
   @Column('int', { name: 'company', nullable: true })
   company: number | null;
@@ -115,6 +115,15 @@ export class Admin extends MainEntity {
 
   @Column('boolean', { name: 'role_inherited', default: false })
   role_inherited: boolean;
+
+  @Column('varchar', { name: 'date_format', nullable: true })
+  date_format: string | null;
+
+  @Column('varchar', { name: 'time_format', nullable: true })
+  time_format: string | null;
+
+  @Column('varchar', { name: 'time_zone', nullable: true })
+  time_zone: string | null;
 
   @ManyToOne(type => Department, department => department.users, { nullable: true })
   @JoinColumn({ name: 'department' })
@@ -182,7 +191,6 @@ export class Admin extends MainEntity {
     // admin.phone_1 = data.phone_1
     if ('phone_1' in data) admin.phone_1 = data.phone_1
     if ('phone_2' in data) admin.phone_2 = data.phone_2
-    // admin.post_code = data.post_code
     if ('post_code' in data) admin.post_code = data.post_code
     if ('country' in data) admin.country = data.country
     if ('city' in data) admin.city = data.city
@@ -193,6 +201,9 @@ export class Admin extends MainEntity {
     if ('comment' in data) admin.comment = data.comment
     if ('account_group' in data) admin.account_group = data.account_group
     if ('role_inherited' in data) admin.role_inherited = data.role_inherited
+    if ('date_format' in data) admin.date_format = data.date_format
+    if ('time_format' in data) admin.time_format = data.time_format
+    if ('time_zone' in data) admin.time_zone = data.time_zone
 
     if ('company' in data) {
       admin.company = data.company
@@ -240,6 +251,9 @@ export class Admin extends MainEntity {
     if ('account_group' in data) admin.account_group = data.account_group
     if ('role_inherited' in data) admin.role_inherited = data.role_inherited
     if ('post_code' in data) admin.post_code = data.post_code
+    if ('date_format' in data) admin.date_format = data.date_format
+    if ('time_format' in data) admin.time_format = data.time_format
+    if ('time_zone' in data) admin.time_zone = data.time_zone
 
     if (!admin) return { status: 400, message: 'Item not found' }
     return new Promise((resolve, reject) => {
@@ -274,19 +288,19 @@ export class Admin extends MainEntity {
   public static async destroyItem (data: any) {
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve, reject) => {
-        this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
-            this.remove(data)
-                .then(() => {
-                    resolve({ message: 'success' })
-                })
-                .catch((error: any) => {
-                    reject(error)
-                })
-        }).catch((error: any) => {
+      this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
+        this.remove(data)
+          .then(() => {
+            resolve({ message: 'success' })
+          })
+          .catch((error: any) => {
             reject(error)
-        })
+          })
+      }).catch((error: any) => {
+        reject(error)
+      })
     })
-}
+  }
 
   public static async getAllItems (params?: any) {
     // console.log(await this.getRolesAndAttributes(9))

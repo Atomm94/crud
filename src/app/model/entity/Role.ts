@@ -61,11 +61,7 @@ export class Role extends MainEntity {
     },
     Role: {
       actions: {
-        addItem: true,
-        updateItem: true,
         getItem: true,
-        destroyItem: true,
-        getAllItems: true,
         getRole: true,
         getAllAccess: true
       }
@@ -74,8 +70,7 @@ export class Role extends MainEntity {
       actions: {
         updateItem: true,
         getItem: true,
-        getAllItems: true,
-        destroyItem: true
+        getAllItems: true
       }
     },
     CompanyDocuments: {
@@ -114,43 +109,6 @@ export class Role extends MainEntity {
         getAllMessages: true,
         saveMessageImage: true,
         deleteMessageImage: true
-      }
-    },
-    AccountGroup: {
-      actions: {
-        addItem: true,
-        updateItem: true,
-        getItem: true,
-        destroyItem: true,
-        getAllItems: true,
-        getGroupAccountsCounts: true
-      }
-    },
-    AccessPointGroup: {
-      actions: {
-        addItem: true,
-        updateItem: true,
-        getItem: true,
-        destroyItem: true,
-        getAllItems: true
-      }
-    },
-    AccessPointZone: {
-      actions: {
-        addItem: true,
-        updateItem: true,
-        getItem: true,
-        destroyItem: true,
-        getAllItems: true
-      }
-    },
-    Acu: {
-      actions: {
-        addItem: true,
-        updateItem: true,
-        getItem: true,
-        destroyItem: true,
-        getAllItems: true
       }
     }
   }
