@@ -213,7 +213,7 @@ export class Admin extends MainEntity {
 
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve, reject) => {
-      if (!user || !user.company) {
+      // if (!user || !user.company) {
         this.save(admin)
           .then((item: Admin) => {
             resolve(item)
@@ -221,9 +221,9 @@ export class Admin extends MainEntity {
           .catch((error: any) => {
             reject(error)
           })
-      } else {
-        reject(Error(`Resource ${this.name} is limited for company ${user.company}!!`))
-      }
+      // } else {
+        // reject(Error(`Resource ${this.name} is limited for company ${user.company}!!`))
+      // }
     })
   }
 

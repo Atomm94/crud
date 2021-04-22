@@ -252,6 +252,9 @@ export default class AdminController {
      *                  username:
      *                      type: string
      *                      example: username
+     *                  first_name:
+     *                      type: string
+     *                      example: name
      *                  email:
      *                      type: string
      *                      example: example@gmail.com
@@ -264,9 +267,6 @@ export default class AdminController {
      *                  comment:
      *                      type: string
      *                      example: comment
-     *                  send:
-     *                      type: boolean
-     *                      example: false
      *          responses:
      *              '201':
      *                  description: A admin object
@@ -290,7 +290,7 @@ export default class AdminController {
             })
             if (newAdmin && role) {
                 ctx.body = { success: true }
-                if (reqData.send && newAdmin.verify_token) {
+                if (newAdmin.verify_token) {
                     await Sendgrid.SetPass(newAdmin.email, newAdmin.verify_token)
                 }
             }
