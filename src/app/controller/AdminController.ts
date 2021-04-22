@@ -112,6 +112,9 @@ export default class AdminController {
      *                  whatsapp:
      *                      type: boolean
      *                      example: false
+     *                  telegram:
+     *                      type: boolean
+     *                      example: false
      *                  comment:
      *                      type: string
      *                      example: comment
@@ -599,6 +602,9 @@ export default class AdminController {
      *                      type: boolean
      *                      example: false
      *                  whatsapp:
+     *                      type: boolean
+     *                      example: false
+     *                  telegram:
      *                      type: boolean
      *                      example: false
      *                  comment:

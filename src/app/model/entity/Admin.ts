@@ -104,6 +104,9 @@ export class Admin extends MainEntity {
   @Column('boolean', { name: 'whatsapp', default: false })
   whatsapp: boolean;
 
+  @Column('boolean', { name: 'telegram', default: false })
+  telegram: boolean;
+
   @Column('int', { name: 'company', nullable: true })
   company: number | null;
 
@@ -198,6 +201,7 @@ export class Admin extends MainEntity {
     if ('address' in data) admin.address = data.address
     if ('viber' in data) admin.viber = data.viber
     if ('whatsapp' in data) admin.whatsapp = data.whatsapp
+    if ('telegram' in data) admin.telegram = data.telegram
     if ('comment' in data) admin.comment = data.comment
     if ('account_group' in data) admin.account_group = data.account_group
     if ('role_inherited' in data) admin.role_inherited = data.role_inherited
@@ -242,6 +246,7 @@ export class Admin extends MainEntity {
     if ('phone_2' in data) admin.phone_2 = data.phone_2
     if ('viber' in data) admin.viber = data.viber
     if ('whatsapp' in data) admin.whatsapp = data.whatsapp
+    if ('telegram' in data) admin.telegram = data.telegram
     if ('email' in data) admin.email = data.email
     if ('status' in data) admin.status = (data.status === 'true') ? true : (data.status === 'false') ? false : data.status
     if ('role' in data) admin.role = data.role
