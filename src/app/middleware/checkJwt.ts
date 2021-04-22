@@ -12,8 +12,6 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
 
     const token = <string>ctx.request.header.authorization
 
-    console.log('token', token, typeof token)
-
     if (whiteList.includes(path) || whiteList.includes(swagger) || ((!token || token === 'undefined') && invite === 'invite')) {
         ctx.allowed = true
         return next()
