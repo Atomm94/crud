@@ -9,6 +9,7 @@ import {
 import * as Models from '../entity'
 import { Admin, CompanyResources, Role } from '../entity'
 import { Company } from '../entity/Company'
+import { Acu } from '../entity/Acu'
 import { statusCompany } from '../../enums/statusCompany.enum'
 import { Feature } from '../../middleware/feature'
 const featureList: any = Feature
@@ -90,6 +91,15 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
                                 actions: { ...role_permissions }
                             }
                         }
+
+                        const acu_permissions = Acu.getActions()
+                        Object.keys(acu_permissions).forEach(action => {
+                            acu_permissions[action] = true
+                        })
+                        default_permissions.Acu = {
+                            actions: { ...acu_permissions }
+                        }
+
                         const extra_settings = JSON.parse(packet.extra_settings)
 
                         const models: any = Models

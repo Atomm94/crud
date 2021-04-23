@@ -83,7 +83,7 @@ export class Company extends MainEntity {
     @OneToMany(type => AccessRight, access_right => access_right.companies)
     access_rights: AccessRight[];
 
-    public static async addItem(data: Company): Promise<Company> {
+    public static async addItem (data: Company): Promise<Company> {
         const company = new Company()
 
         company.company_name = data.company_name
@@ -103,7 +103,7 @@ export class Company extends MainEntity {
         })
     }
 
-    public static async updateItem(data: Company): Promise<{ [key: string]: any }> {
+    public static async updateItem (data: Company): Promise<{ [key: string]: any }> {
         const company = await this.findOneOrFail({ id: data.id })
         const oldData = Object.assign({}, company)
 
@@ -132,7 +132,7 @@ export class Company extends MainEntity {
         })
     }
 
-    public static async getItem(id: number, relations?: Array<string>): Promise<Company> {
+    public static async getItem (id: number, relations?: Array<string>): Promise<Company> {
         const itemId: number = id
         return new Promise((resolve, reject) => {
             this.findOneOrFail({
@@ -152,7 +152,7 @@ export class Company extends MainEntity {
         })
     }
 
-    public static async destroyItem(data: any) {
+    public static async destroyItem (data: any) {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
             this.findOneOrFail({ id: data.id }).then((data: any) => {
@@ -169,7 +169,7 @@ export class Company extends MainEntity {
         })
     }
 
-    public static async getAllItems(params?: any) {
+    public static async getAllItems (params?: any) {
         return new Promise((resolve, reject) => {
             this.findByParams(params)
                 .then((items: Array<Company> | { data: Array<Company>, count: number }) => {

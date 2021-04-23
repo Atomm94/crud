@@ -342,7 +342,6 @@ export default class AdminController {
                 ctx.body.packet = ctx.user.packet ? ctx.user.packet : null
                 if (ctx.user && ctx.user.company && ctx.user.packet) {
                     const packetData = await Packet.findOne(ctx.user.packet)
-
                     if (packetData && packetData.extra_settings) {
                         const extra_settings = JSON.parse(packetData.extra_settings)
                         if (extra_settings.features) {
