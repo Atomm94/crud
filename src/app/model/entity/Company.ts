@@ -116,7 +116,7 @@ export class Company extends MainEntity {
         if (!company) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
             if ('status' in data && data.status === statusCompany.ENABLE && !company.packet) {
-                reject(new Error(`Cant change status of Company to ${statusCompany.ENABLE} without select Packet`).message)
+                reject(new Error(`Cant change status of Company to ${statusCompany.ENABLE} without select Packet`))
             } else {
                 this.save(company)
                     .then((item: Company) => {

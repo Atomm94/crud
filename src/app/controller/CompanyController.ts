@@ -138,14 +138,17 @@ export default class CompanyController {
                     await Sendgrid.updateStatus(main.email)
                 }
             }
-
             ctx.oldData = updated.old
             ctx.body = updated.new
         } catch (error) {
-            console.log(error)
-
             ctx.status = error.status || 400
-            ctx.body = error
+            if (error.message) {
+                ctx.body = {
+                    message: error.message
+                }
+            } else {
+                ctx.body = error
+            }
         }
         return ctx.body
     }
