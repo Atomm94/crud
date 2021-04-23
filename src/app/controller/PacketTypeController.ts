@@ -90,7 +90,9 @@ export default class PacketTypeController {
      */
     public static async update (ctx: DefaultContext) {
         try {
-            ctx.body = await PacketType.updateItem(ctx.request.body as PacketType)
+            const updated = await PacketType.updateItem(ctx.request.body as PacketType)
+            ctx.oldData = updated.old
+            ctx.body = updated.new
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -173,7 +175,9 @@ export default class PacketTypeController {
      */
     public static async destroy (ctx: DefaultContext) {
         try {
-            ctx.body = await PacketType.destroyItem(ctx.request.body as { id: number })
+            const req_data: any = ctx.request.body
+            const where = { id: req_data.id }
+            ctx.body = await PacketType.destroyItem(where)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

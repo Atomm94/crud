@@ -1,0 +1,41 @@
+{
+    "model": {
+        "columns": {
+            "name": {
+                "type": "varchar",
+                "params": {
+                    "name": "name",
+                    "nullable": false
+                }
+            },
+            "start": {
+                "type": "time",
+                "params": {
+                    "name": "start",
+                    "nullable": false
+                }
+            },
+            "end": {
+                "type": "time",
+                "params": {
+                    "name": "end",
+                    "nullable": false
+                }
+            },
+            "schedule": {
+                "type": "int",
+                "params": {
+                    "name": "schedule",
+                    "nullable": false
+                }
+            },
+            "company": {
+                "type": "int",
+                "params": {
+                    "name": "company",
+                    "nullable": false
+                }
+            }
+        }
+    }
+}

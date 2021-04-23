@@ -5,7 +5,9 @@ import {
   BeforeUpdate,
   ManyToOne,
   JoinColumn,
-  createQueryBuilder
+  createQueryBuilder,
+  OneToMany,
+  OneToOne
   // ManyToOne
   // Index,
   // CreateDateColumn,
@@ -14,14 +16,22 @@ import {
   // ObjectID
   // PrimaryGeneratedColumn,
 } from 'typeorm'
+import {
+  Role,
+  TicketMessage,
+  Department,
+  Ticket,
+  AccountGroup,
+  MainEntity,
+  Company
+} from './index'
 import * as bcrypt from 'bcrypt'
-import { MainEntity } from './MainEntity'
-import { Role } from './index'
 import { fileSave } from '../../functions/file'
 import fs from 'fs'
 import { join } from 'path'
 import { IAdmins } from '../../Interfaces/Admins'
 import { logger } from '../../../../modules/winston/logger'
+import { StandardReport } from './StandardReport'
 
 const parentDir = join(__dirname, '../../..')
 
@@ -30,9 +40,6 @@ export class Admin extends MainEntity {
   @Column('varchar', { name: 'username', nullable: true, length: 255, unique: true })
   username: string | null;
 
-  @Column('varchar', { name: 'full_name', nullable: true, length: 255 })
-  full_name: string | null;
-
   @Column('varchar', {
     name: 'email',
     unique: true,
@@ -40,10 +47,7 @@ export class Admin extends MainEntity {
   })
   email: string;
 
-  @Column('jsonb', {
-    name: 'avatar',
-    nullable: true
-  })
+  @Column('longtext', { name: 'avatar', nullable: true })
   avatar: IAdmins[] | null;
 
   @Column('varchar', { name: 'password', nullable: true, length: 255 })
@@ -52,15 +56,105 @@ export class Admin extends MainEntity {
   @Column('int', { name: 'role', nullable: true })
   role: number | null;
 
+  @Column('int', { name: 'department', nullable: true })
+  department: number | null;
+
   @Column('boolean', { name: 'status', default: true })
   status: boolean | true;
 
-  @Column('timestamp', { name: 'last_login_date', nullable: true })
-  last_login_date: string;
+  @Column('boolean', { name: 'super', default: false })
+  super: boolean;
 
-  @ManyToOne(type => Role, role => role.admins)
+  @Column('timestamp', { name: 'last_login_date', nullable: true })
+  last_login_date: string | null;
+
+  @Column('varchar', { name: 'first_name', nullable: false })
+  first_name: string;
+
+  @Column('varchar', { name: 'last_name', nullable: true })
+  last_name: string;
+
+  @Column('varchar', { name: 'verify_token', nullable: true })
+  verify_token: string | null;
+
+  @Column('varchar', { name: 'phone_1', nullable: true })
+  phone_1: string;
+
+  @Column('varchar', { name: 'phone_2', nullable: true })
+  phone_2: string | null;
+
+  @Column('varchar', { name: 'post_code', nullable: true })
+  post_code: string;
+
+  @Column('varchar', { name: 'country', nullable: true })
+  country: string | null;
+
+  @Column('varchar', { name: 'city', nullable: true })
+  city: string | null;
+
+  @Column('varchar', { name: 'site', nullable: true })
+  site: string | null;
+
+  @Column('varchar', { name: 'address', nullable: true })
+  address: string | null;
+
+  @Column('boolean', { name: 'viber', default: false })
+  viber: boolean;
+
+  @Column('boolean', { name: 'whatsapp', default: false })
+  whatsapp: boolean;
+
+  @Column('boolean', { name: 'telegram', default: false })
+  telegram: boolean;
+
+  @Column('int', { name: 'company', nullable: true })
+  company: number | null;
+
+  @Column('longtext', { name: 'comment', nullable: true })
+  comment: string | null;
+
+  @Column('int', { name: 'account_group', nullable: true })
+  account_group: number | null;
+
+  @Column('boolean', { name: 'role_inherited', default: false })
+  role_inherited: boolean;
+
+  @Column('varchar', { name: 'date_format', nullable: true })
+  date_format: string | null;
+
+  @Column('varchar', { name: 'time_format', nullable: true })
+  time_format: string | null;
+
+  @Column('varchar', { name: 'time_zone', nullable: true })
+  time_zone: string | null;
+
+  @ManyToOne(type => Department, department => department.users, { nullable: true })
+  @JoinColumn({ name: 'department' })
+  departments: Department | null;
+
+  @ManyToOne(type => Role, role => role.admins, { nullable: true })
   @JoinColumn({ name: 'role' })
-  roles: Role;
+  roles: Role | null;
+
+  @OneToMany(type => Ticket, ticket => ticket.user)
+  tickets: Admin[];
+
+  @OneToMany(type => TicketMessage, ticket_message => ticket_message.users)
+  ticket_messages: TicketMessage[];
+
+  @ManyToOne(type => Company, company => company.users, { nullable: true })
+  @JoinColumn({ name: 'company' })
+  companies: Company | null;
+
+  @OneToOne(type => Company, company => company.company_account, { nullable: true })
+  account_company: Company | null;
+
+  @ManyToOne(type => AccountGroup, account_group => account_group.users)
+  @JoinColumn({ name: 'account_group' })
+  account_groups: AccountGroup | null;
+
+  @OneToMany(type => StandardReport, report => report.authors)
+  reports: StandardReport[];
 
   @BeforeInsert()
   async generatePassword () {
@@ -78,44 +172,102 @@ export class Admin extends MainEntity {
     }
   }
 
-  public static async addItem (data: any) {
+  public static resource: boolean = true
+
+  public static async addItem (data: any, user: any = null): Promise<Admin> {
     const admin = new Admin()
 
     admin.username = data.username
     admin.email = data.email
-    admin.password = data.password
-    admin.full_name = data.full_name
+    if ('password' in data) admin.password = data.password
     admin.status = (data.status === 'true') ? true : (data.status === 'false') ? false : data.status
-    admin.role = +data.role
-    admin.avatar = data.avatar
+    if ('role' in data) admin.role = data.role
+    if ('department' in data) admin.department = data.department
+    if ('avatar' in data) admin.avatar = data.avatar
     // if (file) admin.avatar = newFilePath
 
-    return new Promise((resolve, reject) => {
-      this.save(admin)
-        .then((item: Admin) => {
-          resolve(item)
-        })
-        .catch((error: any) => {
-          reject(error)
-        })
+    // admin.first_name = data.first_name
+    // admin.last_name = data.last_name
+    if ('first_name' in data) admin.first_name = data.first_name
+    if ('last_name' in data) admin.last_name = data.last_name
+    if ('verify_token' in data) admin.verify_token = data.verify_token
+    // admin.phone_1 = data.phone_1
+    if ('phone_1' in data) admin.phone_1 = data.phone_1
+    if ('phone_2' in data) admin.phone_2 = data.phone_2
+    if ('post_code' in data) admin.post_code = data.post_code
+    if ('country' in data) admin.country = data.country
+    if ('city' in data) admin.city = data.city
+    if ('site' in data) admin.site = data.site
+    if ('address' in data) admin.address = data.address
+    if ('viber' in data) admin.viber = data.viber
+    if ('whatsapp' in data) admin.whatsapp = data.whatsapp
+    if ('telegram' in data) admin.telegram = data.telegram
+    if ('comment' in data) admin.comment = data.comment
+    if ('account_group' in data) admin.account_group = data.account_group
+    if ('role_inherited' in data) admin.role_inherited = data.role_inherited
+    if ('date_format' in data) admin.date_format = data.date_format
+    if ('time_format' in data) admin.time_format = data.time_format
+    if ('time_zone' in data) admin.time_zone = data.time_zone
+
+    if ('company' in data) {
+      admin.company = data.company
+    } else {
+      admin.company = (user && user.company) ? user.company : null
+    }
+
+    // eslint-disable-next-line no-async-promise-executor
+    return new Promise(async (resolve, reject) => {
+      // if (!user || !user.company) {
+        this.save(admin)
+          .then((item: Admin) => {
+            resolve(item)
+          })
+          .catch((error: any) => {
+            reject(error)
+          })
+      // } else {
+        // reject(Error(`Resource ${this.name} is limited for company ${user.company}!!`))
+      // }
     })
   }
 
-  public static async updateItem (data: any) {
-    const admin = await this.findOneOrFail(data.id)
+  public static async updateItem (data: any): Promise<{ [key: string]: any }> {
+    const admin = await this.findOneOrFail({ id: data.id })
+    const oldData = Object.assign({}, admin)
+    delete admin.password
 
     if ('username' in data) admin.username = data.username
-    if ('full_name' in data) admin.full_name = data.full_name
+    if ('first_name' in data) admin.first_name = data.first_name
+    if ('last_name' in data) admin.last_name = data.last_name
+    if ('address' in data) admin.address = data.address
+    if ('country' in data) admin.country = data.country
+    if ('city' in data) admin.city = data.city
+    if ('phone_1' in data) admin.phone_1 = data.phone_1
+    if ('phone_2' in data) admin.phone_2 = data.phone_2
+    if ('viber' in data) admin.viber = data.viber
+    if ('whatsapp' in data) admin.whatsapp = data.whatsapp
+    if ('telegram' in data) admin.telegram = data.telegram
     if ('email' in data) admin.email = data.email
     if ('status' in data) admin.status = (data.status === 'true') ? true : (data.status === 'false') ? false : data.status
-    if ('role' in data) admin.role = +data.role
+    if ('role' in data) admin.role = data.role
+    if ('department' in data) admin.department = data.department
+    if ('comment' in data) admin.comment = data.comment
     if ('avatar' in data) admin.avatar = data.avatar
+    if ('account_group' in data) admin.account_group = data.account_group
+    if ('role_inherited' in data) admin.role_inherited = data.role_inherited
+    if ('post_code' in data) admin.post_code = data.post_code
+    if ('date_format' in data) admin.date_format = data.date_format
+    if ('time_format' in data) admin.time_format = data.time_format
+    if ('time_zone' in data) admin.time_zone = data.time_zone
 
-    if (!admin) return { status: 400, messsage: 'Item not found' }
+    if (!admin) return { status: 400, message: 'Item not found' }
     return new Promise((resolve, reject) => {
       this.save(admin)
         .then((item: Admin) => {
-          resolve(item)
+          resolve({
+            old: oldData,
+            new: item
+          })
         })
         .catch((error: any) => {
           reject(error)
@@ -123,10 +275,12 @@ export class Admin extends MainEntity {
     })
   }
 
-  public static async getItem (id: number) {
-    const itemId: number = id
+  public static async getItem (where: any, relations?: Array<string>) {
     return new Promise((resolve, reject) => {
-      this.findOneOrFail(itemId)
+      this.findOneOrFail({
+        where: where,
+        relations: relations || []
+      })
         .then((item: Admin) => {
           resolve(item)
         })
@@ -136,16 +290,20 @@ export class Admin extends MainEntity {
     })
   }
 
-  public static async destroyItem (data: { id: number }) {
-    const itemId: number = +data.id
-    return new Promise((resolve, reject) => {
-      this.delete(itemId)
-        .then(() => {
-          resolve({ message: 'success' })
-        })
-        .catch((error: any) => {
-          reject(error)
-        })
+  public static async destroyItem (data: any) {
+    // eslint-disable-next-line no-async-promise-executor
+    return new Promise(async (resolve, reject) => {
+      this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
+        this.remove(data)
+          .then(() => {
+            resolve({ message: 'success' })
+          })
+          .catch((error: any) => {
+            reject(error)
+          })
+      }).catch((error: any) => {
+        reject(error)
+      })
     })
   }
 

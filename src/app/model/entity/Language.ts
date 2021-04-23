@@ -16,6 +16,8 @@ export class Language extends MainEntity {
     @Column('boolean', { name: 'status', default: true })
     status: boolean
 
+    static gettingActions = false
+
     public static async addItem (data: Language) {
         const language = new Language()
 
@@ -34,18 +36,22 @@ export class Language extends MainEntity {
         })
     }
 
-    public static async updateItem (data: Language) {
-        const language = await this.findOneOrFail(data.id)
+    public static async updateItem (data: Language): Promise<{ [key: string]: any }> {
+        const language = await this.findOneOrFail({ id: data.id })
+        const oldData = Object.assign({}, language)
 
         if ('title' in data) language.title = data.title
         if ('iso' in data) language.iso = data.iso
         if ('status' in data) language.status = data.status
 
-        if (!language) return { status: 400, messsage: 'Item not found' }
+        if (!language) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
             this.save(language)
                 .then((item: Language) => {
-                    resolve(item)
+                    resolve({
+                        old: oldData,
+                        new: item
+                    })
                 })
                 .catch((error: any) => {
                     reject(error)
@@ -66,16 +72,20 @@ export class Language extends MainEntity {
         })
     }
 
-    public static async destroyItem (data: { id: number }) {
-        const itemId: number = +data.id
-        return new Promise((resolve, reject) => {
-            this.delete(itemId)
-                .then(() => {
-                    resolve({ message: 'success' })
-                })
-                .catch((error: any) => {
-                    reject(error)
-                })
+    public static async destroyItem (data: any) {
+        // eslint-disable-next-line no-async-promise-executor
+        return new Promise(async (resolve, reject) => {
+            this.findOneOrFail({ id: data.id }).then((data: any) => {
+                this.remove(data)
+                    .then(() => {
+                        resolve({ message: 'success' })
+                    })
+                    .catch((error: any) => {
+                        reject(error)
+                    })
+            }).catch((error: any) => {
+                reject(error)
+            })
         })
     }
 

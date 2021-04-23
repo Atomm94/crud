@@ -15,12 +15,27 @@
                 },
                 "formType": "numberInput"
             },
-            "messageId": {
+            "text": {
+                "type": "varchar",
+                "params": {
+                    "name": "text"
+                },
+                "formType": "textInput"
+            },
+            "image": {
+                "type": "longtext",
+                "params": {
+                    "name": "image",
+                    "nullable": true
+                }
+            },
+            "parentId": {
                 "type": "int",
                 "params": {
-                    "name": "messageId"
+                    "name": "parentId",
+                    "nullable": true
                 },
-                "formType": "numberinput"
+                "formType": "numberInput"
             }
         }
     }

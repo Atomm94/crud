@@ -1,0 +1,638 @@
+{
+    "access_point_type": {
+        "door": {
+            "resources": {
+                "readers": {
+                    "RFID": "RFID",
+                    "KEYPAD": {},
+                    "FINGER": {},
+                    "FACE": {}
+                },
+                "inputs": {
+                    "Door_sensor": "Door_sensor",
+                    "Exit_button": "Exit_button",
+                    "ACU_Tamper": "ACU_Tamper",
+                    "Fire_Alarm_in": "Fire_Alarm_in"
+                },
+                "outputs": {
+                    "Lock": "Lock",
+                    "Door_Ajar_Alarm_out": "Door_Ajar_Alarm_out",
+                    "Door_Forced_open_Alarm_out": "Door_Forced_open_Alarm_out"
+                }
+            }
+        },
+        "turnstile": {
+            "resources": {
+                "readers": {},
+                "inputs": {
+                    "Turnstile_ready": "Door_sensor",
+                    "Pass_control": "Door_sensor",
+                    "Entry_button": "Entry_button",
+                    "Exit_button": "Exit_button",
+                    "ACU_Tamper": "ACU_Tamper",
+                    "Fire_Alarm_in": "Fire_Alarm_in"
+                },
+                "outputs": {
+                    "Entry_relay": "Lock",
+                    "Exit_relay": "Lock",
+                    "Block_Turnstile": "Block_Turnstile",
+                    "Emergency_open": "Block_Turnstile"
+                }
+            }
+        },
+        "gate": {
+            "resources": {
+                "readers": {},
+                "inputs": {
+                    "Gate_ready": "Door_sensor",
+                    "Loop_sensor": "Door_sensor",
+                    "Open_button": "Exit_button",
+                    "ACU_Tamper": "ACU_Tamper",
+                    "Fire_Alarm_in": "Fire_Alarm_in"
+                },
+                "outputs": {
+                    "Open_relay": "Lock"
+                }
+            }
+        },
+        "gateway": {
+            "resources": {
+                "readers": {},
+                "inputs": {
+                    "Door_sensor": "Door_sensor",
+                    "Open_button": "Exit_button",
+                    "ACU_Tamper": "ACU_Tamper",
+                    "Fire_Alarm_in": "Fire_Alarm_in"
+                },
+                "outputs": {
+                    "Lock": "Lock"
+                }
+            }
+        },
+        "floor": {
+            "resources": {
+                "readers": {
+                    "RFID": "RFID",
+                    "KEYPAD": {},
+                    "FINGER": {},
+                    "FACE": {}
+                },
+                "inputs": {
+                    "ACU_Tamper": "ACU_Tamper",
+                    "Fire_Alarm_in": "Fire_Alarm_in"
+                },
+                "outputs": {
+                    "Lock": "Lock"
+                }
+            }
+        }
+    },
+    "default_configs": {
+        "RFID": {
+            "wiegand": {
+                "interface_type": {
+                    "type": "select",
+                    "list": [
+                        {
+                            "id": 4,
+                            "name": "Wiegand 4bit"
+                        },
+                        {
+                            "id": 8,
+                            "name": "Wiegand 8bit"
+                        },
+                        {
+                            "id": 26,
+                            "name": "Wiegand 26bit"
+                        },
+                        {
+                            "id": 34,
+                            "name": "Wiegand 34bit"
+                        },
+                        {
+                            "id": 0,
+                            "name": "OSDP"
+                        }
+                    ]
+                },
+                "name": {
+                    "type": "textInput"
+                },
+                "port": {
+                    "type": "numberInput"
+                },
+                "mode": {
+                    "type": "select",
+                    "list": [
+                        {
+                            "id": 0,
+                            "name": "input"
+                        },
+                        {
+                            "id": 1,
+                            "name": "output"
+                        },
+                        {
+                            "id": 2,
+                            "name": "WiBus"
+                        }
+                    ]
+                },
+                "direction": {
+                    "type": "select",
+                    "list": [
+                        {
+                            "id": "",
+                            "name": "entry"
+                        },
+                        {
+                            "id": "",
+                            "name": "exit"
+                        }
+                    ]
+                },
+                "reverse_byte_order": {
+                    "type": "checkBox"
+                },
+                "enable_CRC": {
+                    "type": "checkBox"
+                },
+                "enable_buzzer": {
+                    "type": "checkBox"
+                },
+                "leave_zone": {
+                    "type": "select",
+                    "list": "accessPointZone"
+                },
+                "coming_zone": {
+                    "type": "select",
+                    "list": "accessPointZone"
+                }
+            },
+            "osdp": {
+                "interface_type": {
+                    "type": "select",
+                    "list": [
+                        {
+                            "id": 4,
+                            "name": "Wiegand 4bit"
+                        },
+                        {
+                            "id": 8,
+                            "name": "Wiegand 8bit"
+                        },
+                        {
+                            "id": 26,
+                            "name": "Wiegand 26bit"
+                        },
+                        {
+                            "id": 34,
+                            "name": "Wiegand 34bit"
+                        },
+                        {
+                            "id": 0,
+                            "name": "OSDP"
+                        }
+                    ]
+                },
+                "name": {
+                    "type": "textInput"
+                },
+                "port": {
+                    "type": "numberInput"
+                },
+                "mode": {
+                    "type": "select",
+                    "list": [
+                        {
+                            "id": 0,
+                            "name": "input"
+                        },
+                        {
+                            "id": 1,
+                            "name": "output"
+                        },
+                        {
+                            "id": 2,
+                            "name": "WiBus"
+                        }
+                    ]
+                },
+                "direction": {
+                    "type": "select",
+                    "list": [
+                        {
+                            "id": "",
+                            "name": "entry"
+                        },
+                        {
+                            "id": "",
+                            "name": "exit"
+                        }
+                    ]
+                },
+                "baud_rate": {
+                    "type": "select",
+                    "list": [
+                        {
+                            "id": null,
+                            "name": 2400
+                        },
+                        {
+                            "id": null,
+                            "name": 4800
+                        },
+                        {
+                            "id": null,
+                            "name": 9600
+                        },
+                        {
+                            "id": null,
+                            "name": 14400
+                        },
+                        {
+                            "id": null,
+                            "name": 19200
+                        },
+                        {
+                            "id": null,
+                            "name": 28800
+                        },
+                        {
+                            "id": null,
+                            "name": 38400
+                        },
+                        {
+                            "id": null,
+                            "name": 56000
+                        },
+                        {
+                            "id": 0,
+                            "name": 115200
+                        }
+                    ]
+                },
+                "osdp_address": {
+                    "type": "select",
+                    "list": "??????????????????????????"
+                },
+                "card_data_format_flags": {
+                    "type": "select",
+                    "list": "??????????????????????????"
+                },
+                "keypad_mode": {
+                    "type": "select",
+                    "list": "??????????????????????????"
+                },
+                "configuration": {
+                    "type": "select",
+                    "list": "??????????????????????????"
+                },
+                "led_mode": {
+                    "type": "select",
+                    "list": "??????????????????????????"
+                },
+                "offline_mode": {
+                    "type": "select",
+                    "list": "??????????????????????????"
+                },
+                "enable_osdp_secure_channel": {
+                    "type": "checkBox"
+                },
+                "enable_osdp_tracing": {
+                    "type": "checkBox"
+                },
+                "leave_zone": {
+                    "type": "select",
+                    "list": "accessPointZone"
+                },
+                "coming_zone": {
+                    "type": "select",
+                    "list": "accessPointZone"
+                }
+            }
+        },
+        "Door_sensor": {
+            "componentsource": {
+                "type": "select",
+                "list": "acu"
+            },
+            "name": {
+                "type": "textInput"
+            },
+            "condition": {
+                "type": "select",
+                "list": [
+                    {
+                        "id": 0,
+                        "name": "close"
+                    },
+                    {
+                        "id": 1,
+                        "name": "open"
+                    },
+                    {
+                        "id": 2,
+                        "name": "change"
+                    }
+                ]
+            },
+            "input": {
+                "type": "numberInput ????????????????????????"
+            },
+            "alarm_settings": {
+                "door_ajar": {
+                    "enable_door_ajar_alarm": {
+                        "type": "checkBox"
+                    },
+                    "door_ajar_time": {
+                        "type": "numberInput"
+                    },
+                    "duration": {
+                        "type": "numberInput"
+                    },
+                    "trigger_output_if_door_ajar": {
+                        "type": "select",
+                        "list": [
+                            "output url"
+                        ]
+                    }
+                },
+                "door_forced_open": {
+                    "enable_door_forced_open_alarm": {
+                        "type": "checkBox"
+                    },
+                    "door_ajar_time": {
+                        "type": "numberInput"
+                    },
+                    "duration": {
+                        "type": "numberInput"
+                    },
+                    "trigger_output_if_door_forced-open": {
+                        "type": "select",
+                        "list": [
+                            "output url"
+                        ]
+                    }
+                }
+            }
+        },
+        "Exit_button": {
+            "componentsource": {
+                "type": "select",
+                "list": "acu"
+            },
+            "name": {
+                "type": "textInput"
+            },
+            "condition": {
+                "type": "select",
+                "list": [
+                    {
+                        "id": 0,
+                        "name": "close"
+                    },
+                    {
+                        "id": 1,
+                        "name": "open"
+                    },
+                    {
+                        "id": 2,
+                        "name": "change"
+                    }
+                ]
+            },
+            "input": {
+                "type": "numberInput"
+            }
+        },
+        "ACU_Tamper": {
+            "componentsource": {
+                "type": "select",
+                "list": "acu"
+            },
+            "name": {
+                "type": "textInput"
+            },
+            "condition": {
+                "type": "select",
+                "list": [
+                    {
+                        "id": 0,
+                        "name": "close"
+                    },
+                    {
+                        "id": 1,
+                        "name": "open"
+                    },
+                    {
+                        "id": 2,
+                        "name": "change"
+                    }
+                ]
+            },
+            "input": {
+                "type": "numberInput"
+            }
+        },
+        "Fire_Alarm_in": {
+            "componentsource": {
+                "type": "select",
+                "list": "acu"
+            },
+            "name": {
+                "type": "textInput"
+            },
+            "condition": {
+                "type": "select",
+                "list": [
+                    {
+                        "id": 0,
+                        "name": "close"
+                    },
+                    {
+                        "id": 1,
+                        "name": "open"
+                    },
+                    {
+                        "id": 2,
+                        "name": "change"
+                    }
+                ]
+            },
+            "input": {
+                "type": "numberInput"
+            }
+        },
+        "Block_Turnstile": {
+            "componentsource": {
+                "type": "select",
+                "list": "acu"
+            },
+            "name": {
+                "type": "textInput"
+            },
+            "output": {
+                "type": "numberInput?????????????????????"
+            },
+            "relay_mode": {
+                "type": "select",
+                "list": [
+                    {
+                        "id": 0,
+                        "name": "trigger"
+                    },
+                    {
+                        "id": 1,
+                        "name": "impulse"
+                    }
+                ]
+            },
+            "impulse_time": {
+                "type": "numberInput"
+            },
+            "type": {
+                "type": "select",
+                "list": [
+                    {
+                        "id": 0,
+                        "name": "NO"
+                    },
+                    {
+                        "id": 1,
+                        "name": "NC"
+                    }
+                ]
+            }
+        },
+        "Lock": {
+            "componentsource": {
+                "type": "select",
+                "list": "acu"
+            },
+            "name": {
+                "type": "textInput"
+            },
+            "output": {
+                "type": "numberInput?????????????????????"
+            },
+            "relay_mode": {
+                "type": "select",
+                "list": [
+                    {
+                        "id": 0,
+                        "name": "trigger"
+                    },
+                    {
+                        "id": 1,
+                        "name": "impulse"
+                    }
+                ]
+            },
+            "impulse_time": {
+                "type": "numberInput"
+            },
+            "type": {
+                "type": "select",
+                "list": [
+                    {
+                        "id": 0,
+                        "name": "NO"
+                    },
+                    {
+                        "id": 1,
+                        "name": "NC"
+                    }
+                ]
+            },
+            "entry_exit_open_durations": {
+                "type": "numberInput"
+            },
+            "door_sensor_autolock": {
+                "type": "checkBox"
+            }
+        },
+        "Door_Ajar_Alarm_out": {
+            "componentsource": {
+                "type": "select",
+                "list": "acu"
+            },
+            "name": {
+                "type": "textInput"
+            },
+            "output": {
+                "type": "numberInput?????????????????????"
+            },
+            "relay_mode": {
+                "type": "select",
+                "list": [
+                    {
+                        "id": 0,
+                        "name": "trigger"
+                    },
+                    {
+                        "id": 1,
+                        "name": "impulse"
+                    }
+                ]
+            },
+            "impulse_time": {
+                "type": "numberInput"
+            },
+            "type": {
+                "type": "select",
+                "list": [
+                    {
+                        "id": 0,
+                        "name": "NO"
+                    },
+                    {
+                        "id": 1,
+                        "name": "NC"
+                    }
+                ]
+            }
+        },
+        "Door_Forced_open_Alarm_out": {
+            "componentsource": {
+                "type": "select",
+                "list": "acu"
+            },
+            "name": {
+                "type": "textInput"
+            },
+            "output": {
+                "type": "numberInput?????????????????????"
+            },
+            "relay_mode": {
+                "type": "select",
+                "list": [
+                    {
+                        "id": 0,
+                        "name": "trigger"
+                    },
+                    {
+                        "id": 1,
+                        "name": "impulse"
+                    }
+                ]
+            },
+            "impulse_time": {
+                "type": "numberInput"
+            },
+            "type": {
+                "type": "select",
+                "list": [
+                    {
+                        "id": 0,
+                        "name": "NO"
+                    },
+                    {
+                        "id": 1,
+                        "name": "NC"
+                    }
+                ]
+            }
+        }
+    }
+}

@@ -5,12 +5,12 @@ import requestId from './middleware/requestId'
 import logging from './middleware/logging'
 import options from './middleware/options'
 import checkJwt from './middleware/checkJwt'
-import addNameToRoute from './middleware/addNameToRoute'
-import checkRole from './middleware/checkRole'
+// import addNameToRoute from './middleware/addNameToRoute'
+// import checkRole from './middleware/checkRole'
 
 import { join } from 'path'
 
-import config from '../config'
+import { config, checkOriginWhiteList } from '../config'
 import { router } from './router'
 // import sentry from '../component/sentry';
 // import { getLogLevelForStatus } from '../lib/logger';
@@ -22,6 +22,9 @@ import helmet from 'koa-helmet'
 import cors from 'koa2-cors'
 
 import Koa from 'koa'
+import clickhouselog from './middleware/clickhouselog'
+// console.log(checkRole)
+// import resource from './middleware/resource'
 
 const koaBody = require('koa-body')
 const parentDir = join(__dirname, '../')
@@ -46,12 +49,12 @@ app.use(overrideValidator())
 app.use(helmet())
 
 // Enable cors with default options
-app.use(cors(config.cors))
+app.use(cors({ ...config.cors, origin: checkOriginWhiteList }))
 
 // Enable bodyParser with default options
 // app.use(bodyParser(config.bodyParser))
 
-app.use(addNameToRoute(router))
+// app.use(addNameToRoute(router))
 app.use(koaBody(
     {
         multipart: true,
@@ -78,7 +81,7 @@ app.use(logging())
 // Check Jwt Middleware
 
 app.use(checkJwt())
-app.use(checkRole())
+// app.use(checkRole())
 
 // handler
 app.use(responseHandler())
@@ -89,6 +92,8 @@ app.use(swaggerUi.serve)
 app.use(compress())
 app.use(options())
 
+app.use(clickhouselog())
+// app.use(resource())
 // routers
 app.use(router.routes()).use(router.allowedMethods())
 

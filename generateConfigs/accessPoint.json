@@ -1,0 +1,97 @@
+{
+    "model": {
+        "columns": {
+            "name": {
+                "type": "varchar",
+                "params": {
+                    "name": "name",
+                    "nullable": false
+                }
+            },
+            "description": {
+                "type": "varchar",
+                "params": {
+                    "name": "description",
+                    "nullable": true
+                }
+            },
+            "type": {
+                "type": "longtext",
+                "params": {
+                    "name": "type",
+                    "nullable": false
+                }
+            },
+            "status": {
+                "type": "boolean",
+                "params": {
+                    "name": "status",
+                    "default": false
+                }
+            },
+            "actualPassage": {
+                "type": "boolean",
+                "params": {
+                    "name": "actualPassage",
+                    "default": false
+                }
+            },
+            "mode": {
+                "type": "enum",
+                "params": {
+                    "name": "mode",
+                    "default": "N/A"
+                }
+            },
+            "apbEnableLocal": {
+                "type": "boolean",
+                "params": {
+                    "name": "enableLocalApb",
+                    "default": false
+                }
+            },
+            "apbEnableTimer": {
+                "type": "boolean",
+                "params": {
+                    "name": "enableTimer",
+                    "default": false
+                }
+            },
+            "accessPointGroup": {
+                "type": "int",
+                "params": {
+                    "name": "accessPointGroup",
+                    "nullable": true
+                }
+            },
+            "accessPointZone": {
+                "type": "int",
+                "params": {
+                    "name": "accessPointZone",
+                    "nullable": true
+                }
+            },
+            "acu": {
+                "type": "int",
+                "params": {
+                    "name": "acu",
+                    "nullable": true
+                }
+            },
+            "resources": {
+                "type": "longtext",
+                "params": {
+                    "name": "resources",
+                    "nullable": true
+                }
+            },
+            "company": {
+                "type": "int",
+                "params": {
+                    "name": "company",
+                    "nullable": false
+                }
+            }
+        }
+    }
+}

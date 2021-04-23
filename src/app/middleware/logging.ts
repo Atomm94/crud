@@ -1,4 +1,4 @@
-import config from '../../config'
+import { config } from '../../config'
 import * as winston from 'winston'
 import { getLogLevelForStatus } from '../../lib/logger'
 import { DefaultContext } from 'koa'

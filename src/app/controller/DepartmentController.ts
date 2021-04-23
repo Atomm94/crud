@@ -90,7 +90,9 @@ export default class DepartmentController {
      */
     public static async update (ctx: DefaultContext) {
         try {
-            ctx.body = await Department.updateItem(ctx.request.body as Department)
+            const updated = await Department.updateItem(ctx.request.body as Department)
+            ctx.oldData = updated.old
+            ctx.body = updated.new
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -129,7 +131,12 @@ export default class DepartmentController {
      */
     public static async get (ctx: DefaultContext) {
         try {
-            ctx.body = await Department.getItem(+ctx.params.id)
+            const where: any = { id: +ctx.params.id }
+            const user = ctx.user
+            if (user.company) {
+                where.status = true
+            }
+            ctx.body = await Department.getItem(where)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -173,7 +180,9 @@ export default class DepartmentController {
      */
     public static async destroy (ctx: DefaultContext) {
         try {
-            ctx.body = await Department.destroyItem(ctx.request.body as { id: number })
+            const req_data = ctx.request.body
+            const where = { id: req_data.id }
+            ctx.body = await Department.destroyItem(where)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -204,7 +213,14 @@ export default class DepartmentController {
      */
     public static async getAll (ctx: DefaultContext) {
         try {
-            ctx.body = await Department.getAllItems(ctx.query)
+            const req_data = ctx.query
+            const user = ctx.user
+            if (user.company) {
+                req_data.where = {
+                    status: { '=': true }
+                }
+            }
+            ctx.body = await Department.getAllItems(req_data)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

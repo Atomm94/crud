@@ -10,14 +10,6 @@
                     "unique": true
                 }
             },
-            "fullName": {
-                "type": "varchar",
-                "params": {
-                    "name": "fullName",
-                    "nullable": true,
-                    "length": 255
-                }
-            },
             "email": {
                 "type": "varchar",
                 "params": {
@@ -27,7 +19,7 @@
                 }
             },
             "avatar": {
-                "type": "json",
+                "type": "longtext",
                 "params": {
                     "name": "avatar",
                     "nullable": true
@@ -48,11 +40,141 @@
                     "nullable": true
                 }
             },
+            "department": {
+                "type": "int",
+                "params": {
+                    "name": "department",
+                    "nullable": true
+                }
+            },
             "status": {
                 "type": "boolean",
                 "params": {
                     "name": "status",
                     "default": true
+                }
+            },
+            "super": {
+                "type": "boolean",
+                "params": {
+                    "name": "super",
+                    "default": false
+                }
+            },
+            "lastLoginDate": {
+                "type": "timestamp",
+                "params": {
+                    "name": "lastLoginDate",
+                    "nullable": true
+                }
+            },
+            "firstName": {
+                "type": "varchar",
+                "params": {
+                    "name": "firstName",
+                    "nullable": false,
+                    "required" : true
+                }
+            },
+            "lastName": {
+                "type": "varchar",
+                "params": {
+                    "name": "lastName",
+                    "nullable": false,
+                    "required" : true
+                }
+            },
+            "verifyToken": {
+                "type": "varchar",
+                "params": {
+                    "name": "verifyToken",
+                    "nullable": true
+                }
+            },
+            "phone_1": {
+                "type": "varchar",
+                "params": {
+                    "name": "phone_1",
+                    "nullable": false,
+                    "required" : true
+                }
+            },
+            "phone_2": {
+                "type": "varchar",
+                "params": {
+                    "name": "phone_2",
+                    "nullable": true
+                }
+            },
+            "postCode": {
+                "type": "varchar",
+                "params": {
+                    "name": "post_code",
+                    "nullable": false,
+                    "required" : true
+                }
+            },
+            "country": {
+                "type": "varchar",
+                "params": {
+                    "name": "country",
+                    "nullable": true
+                }
+            },
+            "city": {
+                "type": "varchar",
+                "params": {
+                    "name": "city",
+                    "nullable": true
+                }
+            },
+            "site": {
+                "type": "varchar",
+                "params": {
+                    "name": "site",
+                    "nullable": true
+                }
+            },
+            "address": {
+                "type": "varchar",
+                "params": {
+                    "name": "address",
+                    "nullable": true
+                }
+            },
+            "viber": {
+                "type": "varchar",
+                "params": {
+                    "name": "viber",
+                    "nullable": true
+                }
+            },
+            "whatsapp": {
+                "type": "varchar",
+                "params": {
+                    "name": "whatsapp",
+                    "nullable": true
+                }
+            },
+            "company": {
+                "type": "int",
+                "params": {
+                    "name": "company",
+                    "nullable": true
+                }
+            },
+            "accountGroup": {
+                "type": "int",
+                "params": {
+                    "name": "accountGroup",
+                    "nullable": true
+                }
+            },
+            "roleInherited": {
+                "type": "boolean",
+                "params": {
+                    "name": "roleInherited",
+                    "default": false
                 }
             }
         }

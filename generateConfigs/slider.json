@@ -2,28 +2,28 @@
     "model": {
         "columns": {
             "title": {
-                "type": "json",
+                "type": "longtext",
                 "params": {
                     "name": "title",
                     "nullable": true
                 }
             },
             "description": {
-                "type": "json",
+                "type": "longtext",
                 "params": {
                     "name": "description",
                     "nullable": true
                 }
             },
             "photo": {
-                "type": "json",
+                "type": "longtext",
                 "params": {
                     "name": "photo",
                     "nullable": true
                 }
             },
             "url": {
-                "type": "json",
+                "type": "longtext",
                 "params": {
                     "name": "url",
                     "nullable": true

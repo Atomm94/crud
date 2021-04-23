@@ -1,0 +1,104 @@
+{
+    "model": {
+        "columns": {
+            "name": {
+                "type": "varchar",
+                "params": {
+                    "name": "name",
+                    "nullable": true
+                }
+            },
+            "serialNumber": {
+                "type": "int",
+                "params": {
+                    "name": "serialNumber",
+                    "nullable": true
+                }
+            },
+            "description": {
+                "type": "varchar",
+                "params": {
+                    "name": "description",
+                    "nullable": true
+                }
+            },
+            "model": {
+                "type": "varchar",
+                "params": {
+                    "name": "model",
+                    "nullable": false
+                }
+            },
+            "status": {
+                "type": "enum",
+                "params": {
+                    "name": "status",
+                    "default": "pending"
+                }
+            },
+            "ipAddress": {
+                "type": "varchar",
+                "params": {
+                    "name": "ipAddress",
+                    "nullable": true
+                }
+            },
+            "cloudStatus": {
+                "type": "boolean",
+                "params": {
+                    "name": "cloudStatus",
+                    "default": false
+                }
+            },
+            "fwVersion": {
+                "type": "varchar",
+                "params": {
+                    "name": "fwVersion",
+                    "nullable": true
+                }
+            },
+            "maintainUpdateManual": {
+                "type": "boolean",
+                "params": {
+                    "name": "maintainUpdateManual",
+                    "default": true
+                }
+            },
+            "sharedResourceMode": {
+                "type": "boolean",
+                "params": {
+                    "name": "sharedResourceMode",
+                    "default": false
+                }
+            },
+            "connectionType": {
+                "type": "enum",
+                "params": {
+                    "name": "connectionType",
+                    "default": "ethernet"
+                }
+            },
+            "network": {
+                "type": "longtext",
+                "params": {
+                    "name": "network",
+                    "nullable": true
+                }
+            },
+            "interface": {
+                "type": "longtext",
+                "params": {
+                    "name": "interface",
+                    "nullable": true
+                }
+            },
+            "company": {
+                "type": "int",
+                "params": {
+                    "name": "company",
+                    "nullable": false
+                }
+            }
+        }
+    }
+}

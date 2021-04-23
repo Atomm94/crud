@@ -10,10 +10,24 @@
                 }
             },
             "permissions": {
-                "type": "json",
+                "type": "longtext",
                 "params": {
                     "name": "permissions",
                     "nullable": true
+                }
+            },
+            "company": {
+                "type": "int",
+                "params": {
+                    "name": "company",
+                    "nullable": true
+                }
+            },
+            "main": {
+                "type": "boolean",
+                "params": {
+                    "name": "main",
+                    "default": false
                 }
             },
             "status": {

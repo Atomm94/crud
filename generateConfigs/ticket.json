@@ -5,48 +5,55 @@
                 "type": "int",
                 "params": {
                     "name": "department"
-                },
-                "formType": "numberInput",
-                "header": true
+                }
             },
             "subject": {
                 "type": "varchar",
                 "params": {
                     "name": "subject"
-                },
-                "formType": "textInput",
-                "header": true
+                }
             },
             "message": {
                 "type": "varchar",
                 "params": {
                     "name": "message",
                     "nullable": true
-                },
-                "formType": "editor",
-                "header": false
+                }
             },
             "image": {
-                "type": "json",
+                "type": "longtext",
                 "params": {
                     "name": "image",
                     "nullable": true
-                },
-                "formType": "imageUpload",
-                "header": true
+                }
             },
-            "status": {
+            "userId": {
+                "type": "int",
+                "params": {
+                    "name": "userId"
+                }
+            },
+            "lastUpdate": {
+                "type": "timestamp",
+                "params": {
+                    "name": "lastUpdate",
+                    "nullable": true
+                }
+            },
+            "active": {
                 "type": "boolean",
                 "params": {
-                    "name": "status",
+                    "name": "active",
                     "default": true
-                },
-                "formType": "checkboxButton",
-                "header": true
+                }
+            },
+            "read": {
+                "type": "boolean",
+                "params": {
+                    "name": "read",
+                    "default": false
+                }
             }
         }
-    },
-    "module": {
-        "type": "list"
     }
 }

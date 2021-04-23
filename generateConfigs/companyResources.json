@@ -1,0 +1,21 @@
+{
+    "model": {
+        "columns": {
+            "company": {
+                "type": "int",
+                "params": {
+                    "name": "company",
+                    "nullable": false,
+                    "unique":true
+                }
+            },
+            "used": {
+                "type": "longtext",
+                "params": {
+                    "name": "used",
+                    "nullable": false
+                }
+            }
+        }
+    }
+}

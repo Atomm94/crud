@@ -1,0 +1,53 @@
+{
+    "model": {
+        "columns": {
+            "name": {
+                "type": "varchar",
+                "params": {
+                    "name": "name",
+                    "nullable": false
+                }
+            },
+            "acu": {
+                "type": "int",
+                "params": {
+                    "name": "acu",
+                    "nullable": false
+                }
+            },
+            "extBoard": {
+                "type": "enum",
+                "params": {
+                    "name": "extBoard",
+                    "nullable": false
+                }
+            },
+            "baudRate": {
+                "type": "int",
+                "params": {
+                    "name": "baudRate"
+                }
+            },
+            "uartMode": {
+                "type": "int",
+                "params": {
+                    "name": "uartMode"
+                }
+            },
+            "address": {
+                "type": "varchar",
+                "params": {
+                    "name": "address",
+                    "nullable": false
+                }
+            },
+            "port": {
+                "type": "int",
+                "params": {
+                    "name": "port",
+                    "nullable": false
+                }
+            }
+        }
+    }
+}

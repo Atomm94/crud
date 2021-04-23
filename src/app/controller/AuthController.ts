@@ -1,8 +1,13 @@
 import * as _ from 'lodash'
 import { DefaultContext } from 'koa'
 import { Admin } from '../model/entity/index'
+import { Company } from '../model/entity/Company'
+
 import * as jwt from 'jsonwebtoken'
 import * as bcrypt from 'bcrypt'
+
+import { statusCompany } from '../enums/statusCompany.enum'
+import { JwtToken } from '../model/entity/JwtToken'
 
 // import { NotFound } from '../../constant/errors';
 /**
@@ -50,17 +55,20 @@ export default class AuthController {
         const { username, password } = ctx.request.body
         let checkPass
         let user: Admin
+        let company_main_data: any = {
+            company_main: null,
+            packet: null
+        }
 
         try {
-            user = await Admin.findOneOrFail({ where: [{ username }, { email: username }] })
+            user = await Admin.findOneOrFail({ where: [{ username }, { email: username }], relations: ['roles'] })
         } catch (error) {
             ctx.status = error.status || 401
             ctx.body = { message: 'Wrong username or e-mail' }
 
             return ctx.body
         }
-
-        if (user.username && user.password) {
+        if ((user.username || user.email) && user.password) {
             try {
                 checkPass = bcrypt.compareSync(password, user.password)
                 if (!checkPass) {
@@ -69,6 +77,18 @@ export default class AuthController {
                         message: 'Wrong password'
                     })
                 } else {
+                    if (user.company) {
+                        const company = await Company.findOneOrFail({ id: user.company })
+                        company_main_data.company_main = company.account
+                        company_main_data.packet = company.packet
+                        if (company.status === statusCompany.DISABLE || (company.status === statusCompany.PENDING && company.account !== user.id)) {
+                            ctx.status = 400
+                            return ctx.body = {
+                                message: 'Company status is not valid!!'
+                            }
+                        }
+                    }
+
                     user.last_login_date = new Date().toISOString().slice(0, 19).replace('T', ' ')
                     delete user.password
                     Admin.save(user)
@@ -78,11 +98,19 @@ export default class AuthController {
                 return ctx.body = error
             }
         }
+        company_main_data = { ...company_main_data, ...user }
+        const adminFiltered = _.pick(company_main_data, ['id', 'username', 'last_name', 'first_name', 'email', 'avatar', 'role', 'super', 'department', 'company', 'company_main', 'packet'])
 
-        const adminFiltered = _.pick(user, ['id', 'username', 'full_name', 'email', 'avatar', 'role'])
-        const token = jwt.sign(adminFiltered, 'jwtSecret', { expiresIn: '2h' }) // , { expiresIn: '1h' }
+        if (user.company) {
+            const company = await Company.findOne(user.company)
+            ctx.companyData = (company) || null
+        }
+
+        const expireTime = process.env.TOKEN_EXPIRE_TIME ? process.env.TOKEN_EXPIRE_TIME : 2
+        const token = jwt.sign({ companyData: ctx.companyData, ...adminFiltered }, 'jwtSecret', { expiresIn: `${expireTime}h` }) // , { expiresIn: '1h' }
 
         if (user.status) {
+            await JwtToken.addItem({ account: user.id, token: token, expire_time: expireTime } as JwtToken)
             ctx.body = { user: adminFiltered, token: token }
         } else {
             ctx.status = 403
@@ -125,12 +153,12 @@ export default class AuthController {
                 }
             } else {
                 ctx.status = 403
-                ctx.body = { message: 'Unauthorizated' }
+                ctx.body = { message: 'Unauthorized' }
             }
         } catch (error) {
             ctx.status = error.status || 403
             ctx.body = error
-            ctx.body = { message: 'Unauthorizated' }
+            ctx.body = { message: 'Unauthorized' }
         }
         return ctx.body
     }

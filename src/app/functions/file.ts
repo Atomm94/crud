@@ -23,3 +23,8 @@ export function fileSave (imageFile: any) {
 
     return { name: imageFile.name, path: newName }
 }
+
+export function capitalizeFirst (string: string) {
+    if (typeof string !== 'string') return ''
+    return string.charAt(0).toUpperCase() + string.slice(1)
+}

@@ -27,10 +27,10 @@
                 "formType": "numberInput",
                 "header": true
             },
-            "payType": {
+            "free": {
                 "type": "boolean",
                 "params": {
-                    "name": "payType",
+                    "name": "free",
                     "default": true
                 },
                 "formType": "checkboxButton",
@@ -46,7 +46,7 @@
                 "header": true
             },
               "payTerms": {
-                "type": "json",
+                "type": "longtext",
                 "params": {
                     "name": "payTerms",
                     "nullable": true
@@ -54,6 +54,15 @@
                 "formType": "textInput",
                 "header": true,
                 "multiLng": true
+            },
+            "extra_settings": {
+                "type": "longtext",
+                "params": {
+                    "name": "extra_settings",
+                    "nullable": true
+                },
+                "formType": "textInput",
+                "header": true
             },
             "status": {
                 "type": "boolean",
@@ -65,8 +74,5 @@
                 "header": true
             }
         }
-    },
-    "module": {
-        "type": "list"
     }
 }

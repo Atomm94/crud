@@ -1,6 +1,9 @@
 import { DefaultContext } from 'koa'
-import { Ticket } from '../model/entity/Ticket'
-import { Message } from '../model/entity/Message'
+import {
+    Ticket,
+    TicketMessage,
+    Admin
+} from '../model/entity/index'
 
 export default class TicketController {
     /**
@@ -34,9 +37,7 @@ export default class TicketController {
      *                  message:
      *                      type: string
      *                  image:
-     *                      type: JSON
-     *                  status:
-     *                      type: boolean
+     *                      type: string
      *          responses:
      *              '201':
      *                  description: A ticket object
@@ -48,7 +49,9 @@ export default class TicketController {
 
     public static async add (ctx: DefaultContext) {
         try {
-            ctx.body = await Ticket.addItem(ctx.request.body as Ticket)
+            const req_data = ctx.request.body
+            req_data.user_id = ctx.user.id
+            ctx.body = await Ticket.addItem(req_data as Ticket)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -91,9 +94,7 @@ export default class TicketController {
      *                  message:
      *                      type: string
      *                  image:
-     *                      type: JSON
-     *                  status:
-     *                      type: boolean
+     *                      type: string
      *          responses:
      *              '201':
      *                  description: A ticket updated object
@@ -104,7 +105,9 @@ export default class TicketController {
      */
     public static async update (ctx: DefaultContext) {
         try {
-            ctx.body = await Ticket.updateItem(ctx.request.body as Ticket)
+            const updated = await Ticket.updateItem(ctx.request.body as Ticket)
+            ctx.oldData = updated.old
+            ctx.body = updated.new
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -143,8 +146,9 @@ export default class TicketController {
      */
     public static async get (ctx: DefaultContext) {
         try {
-            const relations = ['departments']
-            ctx.body = await Ticket.getItem(+ctx.params.id, relations)
+            const user = ctx.user
+            const relations = ['user', 'departments', 'ticket_messages', 'ticket_messages.users', 'user.companies']
+            ctx.body = await Ticket.getItem(+ctx.params.id, user as Admin, relations)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -188,7 +192,10 @@ export default class TicketController {
      */
     public static async destroy (ctx: DefaultContext) {
         try {
-            ctx.body = await Ticket.destroyItem(ctx.request.body as { id: number })
+            const req_data = ctx.request.body
+            const where = { id: req_data.id }
+
+            ctx.body = await Ticket.destroyItem(where)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -219,12 +226,11 @@ export default class TicketController {
      */
     public static async getAll (ctx: DefaultContext) {
         try {
+            const user = ctx.user
             const req_data = ctx.query
-            req_data.relations = ['departments']
-            ctx.body = await Ticket.getAllItems(req_data)
+            req_data.relations = ['user', 'departments']
+            ctx.body = await Ticket.getAllItems(req_data, user as Admin)
         } catch (error) {
-            console.log('error', error)
-
             ctx.status = error.status || 400
             ctx.body = error
         }
@@ -234,7 +240,7 @@ export default class TicketController {
     /**
      *
      * @swagger
-     *  /ticketImage:
+     *  /ticket/file:
      *      post:
      *          tags:
      *              - Ticket
@@ -262,14 +268,14 @@ export default class TicketController {
      */
     public static async saveImage (ctx: DefaultContext) {
         const file = ctx.request.files.file
-        const savedFile = Ticket.saveImage(file)
+        const savedFile = await Ticket.saveImage(file)
         return ctx.body = savedFile
     }
 
     /**
      *
      * @swagger
-     *  /ticketImage:
+     *  /ticket/file:
      *      delete:
      *          tags:
      *              - Ticket
@@ -305,56 +311,10 @@ export default class TicketController {
         const name = ctx.request.body.name
 
         try {
-            Ticket.deleteImage(name)
+            await Ticket.deleteImage(name)
             ctx.body = {
                 success: true
             }
-        } catch (error) {
-            ctx.status = error.status || 400
-            ctx.body = error
-        }
-        return ctx.body
-    }
-       /**
-     *
-     * @swagger
-     *  /addTicketMessage:
-     *      post:
-     *          tags:
-     *              - Ticket
-     *          summary: Creates a message.
-     *          consumes:
-     *              - application/json
-     *          parameters:
-     *            - in: header
-     *              name: Authorization
-     *              required: true
-     *              description: Authentication token
-     *              schema:
-     *                type: string
-     *            - in: body
-     *              name: message
-     *              description: The message to create.
-     *              schema:
-     *                type: object
-     *                required:
-     *                properties:
-     *                  text:
-     *                      type: string
-     *                  parent_id:
-     *                      type: number
-     *          responses:
-     *              '201':
-     *                  description: A message object
-     *              '409':
-     *                  description: Conflict
-     *              '422':
-     *                  description: Wrong data
-     */
-
-    public static async addTicketMessage (ctx: DefaultContext) {
-        try {
-            ctx.body = await Message.addMessage(ctx.request.body as Message)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -365,11 +325,11 @@ export default class TicketController {
     /**
      *
      * @swagger
-     *  /updateTicketMessage:
-     *      put:
+     *  /ticket/message:
+     *      post:
      *          tags:
      *              - Ticket
-     *          summary: Update a message.
+     *          summary: Creates a ticketMessage.
      *          consumes:
      *              - application/json
      *          parameters:
@@ -380,12 +340,63 @@ export default class TicketController {
      *              schema:
      *                type: string
      *            - in: body
-     *              name: message
-     *              description: The message to create.
+     *              name: ticketMessage
+     *              description: The ticketMessage to create.
+     *              schema:
+     *                type: object
+     *                required:
+     *                properties:
+     *                  ticket_id:
+     *                      type: number
+     *                  text:
+     *                      type: string
+     *                  parent_id:
+     *                      type: number
+     *          responses:
+     *              '201':
+     *                  description: A ticketMessage object
+     *              '409':
+     *                  description: Conflict
+     *              '422':
+     *                  description: Wrong data
+     */
+    public static async addTicketMessage (ctx: DefaultContext) {
+        try {
+            const req_data = ctx.request.body
+            req_data.user_id = ctx.user.id
+            ctx.body = await Ticket.addMessage(req_data as TicketMessage)
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     *  /ticket/message:
+     *      put:
+     *          tags:
+     *              - Ticket
+     *          summary: Update a ticketMessage.
+     *          consumes:
+     *              - application/json
+     *          parameters:
+     *            - in: header
+     *              name: Authorization
+     *              required: true
+     *              description: Authentication token
+     *              schema:
+     *                type: string
+     *            - in: body
+     *              name: ticketMessage
+     *              description: The ticketMessage to create.
      *              schema:
      *                type: object
      *                required:
      *                  - id
+     *                  - text
      *                properties:
      *                  id:
      *                      type: number
@@ -396,7 +407,7 @@ export default class TicketController {
      *                      type: number
      *          responses:
      *              '201':
-     *                  description: A message updated object
+     *                  description: A ticketMessage updated object
      *              '409':
      *                  description: Conflict
      *              '422':
@@ -404,7 +415,9 @@ export default class TicketController {
      */
     public static async updateTicketMessage (ctx: DefaultContext) {
         try {
-            ctx.body = await Message.updateMessage(ctx.request.body as Message)
+            const req_data = ctx.request.body
+            const user = ctx.user
+            ctx.body = await Ticket.updateMessage(req_data as TicketMessage, user as Admin)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -415,11 +428,11 @@ export default class TicketController {
     /**
      *
      * @swagger
-     * /getTicketMessage/{id}:
+     * /ticket/message/{id}:
      *      get:
      *          tags:
      *              - Ticket
-     *          summary: Return message by ID
+     *          summary: Return ticketMessage by ID
      *          parameters:
      *              - name: id
      *                in: path
@@ -443,7 +456,7 @@ export default class TicketController {
      */
     public static async getTicketMessage (ctx: DefaultContext) {
         try {
-            ctx.body = await Message.getMessage(+ctx.params.id)
+            ctx.body = await Ticket.getMessage(+ctx.params.id)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -454,11 +467,11 @@ export default class TicketController {
     /**
      *
      * @swagger
-     *  /destroyTicketMessage:
+     *  /ticket/message:
      *      delete:
      *          tags:
      *              - Ticket
-     *          summary: Delete a message.
+     *          summary: Delete a ticketMessage.
      *          consumes:
      *              - application/json
      *          parameters:
@@ -469,8 +482,8 @@ export default class TicketController {
      *              schema:
      *                type: string
      *            - in: body
-     *              name: message
-     *              description: The message to create.
+     *              name: ticketMessage
+     *              description: The ticketMessage to create.
      *              schema:
      *                type: object
      *                required:
@@ -481,13 +494,17 @@ export default class TicketController {
      *                      example: 1
      *          responses:
      *              '200':
-     *                  description: message has been deleted
+     *                  description: ticketMessage has been deleted
      *              '422':
      *                  description: Wrong data
      */
     public static async destroyTicketMessage (ctx: DefaultContext) {
         try {
-            ctx.body = await Message.destroyMessage(ctx.request.body as { id: number })
+            const req_data = ctx.request.body
+            const user = ctx.user
+            const where = { id: req_data.id, company: user.company ? user.company : null, user: user }
+
+            ctx.body = await Ticket.destroyMessage(where)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -498,11 +515,11 @@ export default class TicketController {
     /**
      *
      * @swagger
-     * /getAllTicketMessages:
+     * /ticket/message:
      *      get:
      *          tags:
      *              - Ticket
-     *          summary: Return message list
+     *          summary: Return ticketMessage list
      *          parameters:
      *              - in: header
      *                name: Authorization
@@ -512,13 +529,98 @@ export default class TicketController {
      *                    type: string
      *          responses:
      *              '200':
-     *                  description: Array of message
+     *                  description: Array of ticketMessage
      *              '401':
      *                  description: Unauthorized
      */
     public static async getAllTicketMessages (ctx: DefaultContext) {
         try {
-            ctx.body = await Message.getAllMessages(ctx.query)
+            ctx.body = await Ticket.getAllMessages(ctx.query)
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
+
+    /**
+ *
+ * @swagger
+ *  /ticket/message/file:
+ *      post:
+ *          tags:
+ *              - Ticket
+ *          summary: Upload Ticket Message image.
+ *          consumes:
+ *              - multipart/form-data
+ *          parameters:
+ *            - in: header
+ *              name: Authorization
+ *              required: true
+ *              description: Authentication token
+ *              schema:
+ *                    type: string
+ *            - in: formData
+ *              name: file
+ *              type: file
+ *              description: The upload ticket message image.
+ *          responses:
+ *              '201':
+ *                  description: image upload
+ *              '409':
+ *                  description: Conflict
+ *              '422':
+ *                  description: Wrong data
+ */
+    public static async ticketMessageImageSave (ctx: DefaultContext) {
+        const file = ctx.request.files.file
+        const savedFile = await Ticket.saveMessageImage(file)
+        return ctx.body = savedFile
+    }
+
+    /**
+     *
+     * @swagger
+     *  /ticket/message/file:
+     *      delete:
+     *          tags:
+     *              - Ticket
+     *          summary: Delete a ticket message image.
+     *          consumes:
+     *              - application/json
+     *          parameters:
+     *            - in: header
+     *              name: Authorization
+     *              required: true
+     *              description: Authentication token
+     *              schema:
+     *              type: string
+     *            - in: body
+     *              name: file
+     *              description: The ticket message image name to delete.
+     *              schema:
+     *                type: string
+     *                required:
+     *                  - name
+     *                properties:
+     *                  name:
+     *                      type: string
+     *          responses:
+     *              '200':
+     *                  description: Ticket message image has been deleted
+     *              '409':
+     *                  description: Conflict
+     *              '422':
+     *                  description: Wrong data
+     */
+    public static async ticketMessageImageDelete (ctx: DefaultContext) {
+        const name = ctx.request.body.name
+
+        try {
+            await Ticket.deleteMessageImage(name)
+            ctx.body = {
+                success: true
+            }
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

@@ -1,0 +1,90 @@
+{
+    "model": {
+        "columns": {
+            "enableDate": {
+                "type": "boolean",
+                "params": {
+                    "name": "enableDate",
+                    "default": false
+                }
+            },
+            "validFrom": {
+                "type": "timestamp",
+                "params": {
+                    "name": "validFrom",
+                    "nullable": true
+                }
+            },
+            "validDue": {
+                "type": "timestamp",
+                "params": {
+                    "name": "validDue",
+                    "nullable": true
+                }
+            },
+            "passCounterEnable": {
+                "type": "boolean",
+                "params": {
+                    "name": "passCounterEnable",
+                    "default": false
+                }
+            },
+            "passCounterPasses": {
+                "type": "int",
+                "params": {
+                    "name": "passCounterPasses",
+                    "nullable": false
+                }
+            },
+            "passCounterCurrent": {
+                "type": "int",
+                "params": {
+                    "name": "passCounterCurrent",
+                    "nullable": false
+                }
+            },
+            "firstUseCounterEnable": {
+                "type": "boolean",
+                "params": {
+                    "name": "firstUseCounterEnable",
+                    "default": false
+                }
+            },
+            "firstUseCounterDays": {
+                "type": "int",
+                "params": {
+                    "name": "firstUseCounterDays",
+                    "nullable": false
+                }
+            },
+            "firstUseCounterCurrent": {
+                "type": "int",
+                "params": {
+                    "name": "firstUseCounterCurrent",
+                    "nullable": false
+                }
+            },
+            "lastUseCounterEnable": {
+                "type": "boolean",
+                "params": {
+                    "name": "lastUseCounterEnable",
+                    "default": false
+                }
+            },
+            "lastUseCounterDays": {
+                "type": "int",
+                "params": {
+                    "name": "lastUseCounterDays",
+                    "nullable": false
+                }
+            },
+            "lastUseCounterCurrent": {
+                "type": "int",
+                "params": {
+                    "name": "lastUseCounterCurrent",
+                    "nullable": false
+                }
+            }
+        }
+    }
+}

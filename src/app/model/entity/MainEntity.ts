@@ -5,12 +5,6 @@ import {
     PrimaryGeneratedColumn,
     Index,
     getRepository,
-    // BeforeInsert,
-    // BeforeUpdate,
-    // JoinTable,
-    // OneToMany,
-    // ObjectIdColumn,
-    // ObjectID
     Not,
     LessThan,
     LessThanOrEqual,
@@ -19,8 +13,13 @@ import {
     Equal,
     Like,
     Between,
-    In
+    In,
+    IsNull,
+    AfterInsert,
+    AfterRemove
 } from 'typeorm'
+import { CompanyResources } from '.'
+import * as Models from './index'
 
 export abstract class MainEntity extends BaseEntity {
     @Index()
@@ -33,18 +32,92 @@ export abstract class MainEntity extends BaseEntity {
     @UpdateDateColumn({ type: 'timestamp', name: 'update_date' })
     updateDate: string;
 
+    @AfterInsert()
+    async increaseCompanyUsedResource () {
+        const self: any = this
+        const models: any = Models
+        const model_name: any = self.constructor.name
+
+        if (self.company) {
+            if (models[model_name] && models[model_name].resource) {
+                const company_resources = await CompanyResources.findOne({ company: self.company })
+                if (company_resources) {
+                    const used: any = JSON.parse(company_resources.used)
+                    if (used[model_name]) {
+                        used[model_name]++
+                    } else {
+                        used[model_name] = 1
+                    }
+                    company_resources.used = JSON.stringify(used)
+                    await company_resources.save()
+                }
+            }
+        }
+    }
+
+    @AfterRemove()
+    async decreaseCompanyUsedResource () {
+        const self: any = this
+        const models: any = Models
+        const model_name: any = self.constructor.name
+        if (self.company) {
+            if (models[model_name] && models[model_name].resource) {
+                const company_resources = await CompanyResources.findOne({ company: self.company })
+                if (company_resources) {
+                    const used: any = JSON.parse(company_resources.used)
+                    if (used[model_name]) {
+                        used[model_name]--
+                        company_resources.used = JSON.stringify(used)
+                        await company_resources.save()
+                    }
+                }
+            }
+        }
+    }
+
     public static gettingActions: boolean = true
     public static gettingAttributes: boolean = true
 
-    public static async findByParams (data: any) {
-        const where: any = {}
+    public static resource: boolean = false
+    public static features: any = false
+
+    public static async findByParams (data: any = {}) {
+        let where: any = {}
+        if (data.status) {
+            let status = data.status
+            if (status === 'true') {
+                status = true
+            } else if (status === 'false') {
+                status = false
+            }
+            where.status = status
+        }
+
         if (data.where) {
-            data.where = JSON.parse(data.where)
+            if (typeof data.where === 'string') data.where = JSON.parse(data.where)
             Object.keys(data.where).forEach(column => {
                 Object.keys(data.where[column]).forEach((el: any) => {
                     where[column] = this.changeAdvancedOptions(el, data.where[column][el])
                 })
             })
+        }
+
+        if (data.orWhere) {
+            const orWhere: any = []
+            data.orWhere.forEach((item: any) => {
+                Object.keys(item).forEach(column => {
+                    Object.keys(item[column]).forEach((el: any) => {
+                        item[column] = this.changeAdvancedOptions(el, item[column][el])
+                    })
+                })
+
+                item = {
+                    ...where,
+                    ...item
+                }
+                orWhere.push(item)
+            })
+            where = orWhere
         }
 
         const take = data.page ? data.page_items_count ? (data.page_items_count > 10000) ? 10000 : data.page_items_count : 25 : 100
@@ -87,7 +160,11 @@ export abstract class MainEntity extends BaseEntity {
                 res = MoreThanOrEqual(value)
                 break
             case '=':
-                res = Equal(value)
+                if (value === null) {
+                    res = IsNull()
+                } else {
+                    res = Equal(value)
+                }
                 break
             case 'in':
                 res = In(value)
@@ -96,13 +173,13 @@ export abstract class MainEntity extends BaseEntity {
                 res = Not(In(value))
                 break
             case 'contains':
-                res = Like(`% ${value} %`)
+                res = Like(`%${value}%`)
                 break
             case 'startsWith':
-                res = Like(`${value} %`)
+                res = Like(`${value}%`)
                 break
             case 'endsWith':
-                res = Like(`% ${value}`)
+                res = Like(`%${value}`)
                 break
             case 'between':
                 res = Between(value[0], value[1])

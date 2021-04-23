@@ -1,0 +1,41 @@
+{
+    "model": {
+        "columns": {
+            "accessRight": {
+                "type": "int",
+                "params": {
+                    "name": "accessRight",
+                    "nullable": false
+                }
+            },
+            "accessPoint": {
+                "type": "int",
+                "params": {
+                    "name": "accessPoint",
+                    "nullable": false
+                }
+            },
+            "schedule": {
+                "type": "int",
+                "params": {
+                    "name": "schedule",
+                    "nullable": false
+                }
+            },
+            "accessInHolidays": {
+                "type": "boolean",
+                "params": {
+                    "name": "accessInHolidays",
+                    "default": false
+                }
+            },
+            "company": {
+                "type": "int",
+                "params": {
+                    "name": "company",
+                    "nullable": false
+                }
+            }
+        }
+    }
+}

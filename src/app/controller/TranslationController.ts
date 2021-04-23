@@ -83,7 +83,6 @@ class TranslationController {
             const trans = await Translation.addItem(body)
             ctx.body = trans
         } catch (error) {
-            console.log(error)
             ctx.status = error.status || 400
             ctx.body = error
         }
@@ -137,8 +136,9 @@ class TranslationController {
     public static async updateTrans (ctx: DefaultContext) {
         const body = ctx.request.body
         try {
-            const updatedTrans = await Translation.updateItem(body)
-            return ctx.body = updatedTrans
+            const updated = await Translation.updateItem(body)
+            ctx.oldData = updated.old
+            ctx.body = updated.new
         } catch (error) {
             logger.info(error.message)
             ctx.status = error.statusCode || 409
@@ -148,6 +148,7 @@ class TranslationController {
                 message: error.message
             }
         }
+        return ctx
     }
 
     /**
@@ -188,10 +189,10 @@ class TranslationController {
  */
 
     public static async deleteTrans (ctx: DefaultContext) {
-        const { id } = ctx.request.body
-
+        const req_data = ctx.request.body
+        const where = { id: req_data.id }
         try {
-            await Translation.destroyItem(id)
+            await Translation.destroyItem(where)
             return ctx.body = 'Deleted'
         } catch (error) {
             return ctx.body = error

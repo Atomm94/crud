@@ -1,0 +1,83 @@
+{
+    "model": {
+        "columns": {
+            "name": {
+                "type": "varchar",
+                "params": {
+                    "name": "name",
+                    "nullable": false
+                }
+            },
+            "description": {
+                "type": "varchar",
+                "params": {
+                    "name": "description",
+                    "nullable": true
+                }
+            },
+            "accessPoint": {
+                "type": "int",
+                "params": {
+                    "name": "accessPoint",
+                    "nullable": false
+                }
+            },
+            "command": {
+                "type": "longtext",
+                "params": {
+                    "name": "command",
+                    "nullable": false
+                }
+            },
+            "schedule": {
+                "type": "int",
+                "params": {
+                    "name": "schedule",
+                    "nullable": true
+                }
+            },
+            "scheduleType": {
+                "type": "enum",
+                "params": {
+                    "name": "scheduleType",
+                    "nullable": false
+                }
+            },
+            "customSchedule": {
+                "type": "longtext",
+                "params": {
+                    "name": "customSchedule",
+                    "nullable": true
+                }
+            },
+            "condition": {
+                "type": "enum",
+                "params": {
+                    "name": "condition",
+                    "nullable": false
+                }
+            },
+            "status": {
+                "type": "enum",
+                "params": {
+                    "name": "status",
+                    "nullable": false
+                }
+            },
+            "enable": {
+                "type": "boolean",
+                "params": {
+                    "name": "enable",
+                    "default": true
+                }
+            },
+            "company": {
+                "type": "int",
+                "params": {
+                    "name": "company",
+                    "nullable": false
+                }
+            }
+        }
+    }
+}

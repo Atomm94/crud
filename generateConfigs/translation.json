@@ -11,7 +11,7 @@
                 }
             },
             "translations": {
-                "type": "json",
+                "type": "longtext",
                 "params": {
                     "name": "translations",
                     "nullable": true

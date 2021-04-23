@@ -2,7 +2,7 @@
     "model": {
         "columns": {
             "title": {
-                "type": "jsonb",
+                "type": "longtext",
                 "params": {
                     "name": "title",
                     "nullable": true
@@ -17,14 +17,14 @@
                 }
             },
             "translated_name": {
-                "type": "jsonb",
+                "type": "longtext",
                 "params": {
                     "name": "translated_name",
                     "nullable": true
                 }
             },
             "show": {
-                "type": "jsonb",
+                "type": "longtext",
                 "params": {
                     "name": "show",
                     "nullable": true

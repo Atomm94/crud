@@ -1,0 +1,47 @@
+{
+    "model": {
+        "columns": {
+            "companyName": {
+                "type": "varchar",
+                "params": {
+                    "name": "companyName"
+                }
+            },
+            "packet": {
+                "type": "int",
+                "params": {
+                    "name": "packet",
+                    "nullable": true
+                }
+            },
+            "packetType": {
+                "type": "int",
+                "params": {
+                    "name": "packetType",
+                    "nullable": false
+                }
+            },
+            "message": {
+                "type": "longtext",
+                "params": {
+                    "name": "message",
+                    "nullable": true
+                }
+            },
+            "account": {
+                "type": "int",
+                "params": {
+                    "name": "account",
+                    "nullable": true
+                }
+            },
+            "status": {
+                "type": "enum",
+                "params": {
+                    "name": "status",
+                    "default": "pending"
+                }
+            }
+        }
+    }
+}

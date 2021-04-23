@@ -1,8 +1,8 @@
 // import * as _ from 'lodash'
 import { DefaultContext } from 'koa'
 import { Role, Admin } from '../model/entity/index'
-import * as Models from '../model/entity/index'
 // import { getRepository } from 'typeorm'
+import { checkPermissionsAccess } from '../functions/check-permissions-access'
 
 class RoleController {
   /**
@@ -28,13 +28,13 @@ class RoleController {
    *              schema:
    *                type: object
    *                required:
-   *                  - name
-   *                  - perms
+   *                  - slug
+   *                  - permissions
    *                properties:
-   *                  name:
+   *                  slug:
    *                      type: string
-   *                      example: name
-   *                  perms:
+   *                      example: slug
+   *                  permissions:
    *                      type: string
    *                      example: perms
    *          responses:
@@ -47,9 +47,19 @@ class RoleController {
    */
   public static async createRole (ctx: DefaultContext) {
     try {
-      const reqData = ctx.request.body
-      const role = await Role.addItem(reqData)
-      ctx.body = role
+      const user = ctx.user
+      const req_data = ctx.request.body
+
+      if (await checkPermissionsAccess(user, req_data.permissions)) {
+        req_data.company = user.company ? user.company : null
+        const role = await Role.addItem(req_data)
+        ctx.body = role
+      } else {
+        ctx.status = 400
+        ctx.body = {
+          message: 'Permissions access denied!!'
+        }
+      }
     } catch (error) {
       ctx.status = error.status || 400
       ctx.body = error
@@ -79,11 +89,26 @@ class RoleController {
    *                  description: Unauthorized
    */
   public static async getRole (ctx: DefaultContext) {
-    let role
-
     try {
-      role = await Role.getRole()
-      ctx.body = role
+      const user = ctx.user
+
+      const req_data = ctx.query
+      req_data.relations = ['admins']
+      req_data.where = {
+        company: { '=': user.company ? user.company : null },
+        id: { '!=': user.role },
+        main: { '!=': true }
+      }
+
+      const roles = await Role.getAllItems(req_data)
+
+      const data = []
+      roles.forEach(async (role: Role) => {
+        if (await checkPermissionsAccess(user, role.permissions)) {
+          data.push(role)
+        }
+      })
+      ctx.body = roles
     } catch (error) {
       ctx.status = error.status || 400
       ctx.body = error
@@ -112,7 +137,6 @@ class RoleController {
    *                description: Role Id
    *                schema:
    *                    type: integer
-   *                    minimum: 1
    *          responses:
    *              '200':
    *                  description: OK
@@ -121,8 +145,17 @@ class RoleController {
    */
   public static async getRoleById (ctx: DefaultContext) {
     try {
-      const role = await Role.getItem(ctx.params.id)
-      ctx.body = role
+      const user = ctx.user
+      const where = { company: user.company ? user.company : null }
+      const role = await Role.getItem(ctx.params.id, where)
+      if (await checkPermissionsAccess(user, role.permissions)) {
+        ctx.body = role
+      } else {
+        ctx.status = 400
+        ctx.body = {
+          message: 'Permissions access denied!!'
+        }
+      }
     } catch (error) {
       console.log(error)
 
@@ -155,16 +188,20 @@ class RoleController {
    *              schema:
    *                type: object
    *                required:
-   *                  - name
-   *                  - perms
+   *                  - id
+   *                  - slug
+   *                  - permissions
    *                  - status
    *                properties:
-   *                  name:
+   *                  id:
+   *                      type: number
+   *                      example: 1
+   *                  slug:
    *                      type: string
-   *                      example: name
-   *                  perms:
+   *                      example: slug
+   *                  permissions:
    *                      type: string
-   *                      example: perms
+   *                      example: permissions
    *                  status:
    *                      type: string
    *                      example: status
@@ -177,10 +214,37 @@ class RoleController {
    *                  description: Wrong data
    */
   public static async updateRole (ctx: DefaultContext) {
-    const body = ctx.request.body
+    const req_data = ctx.request.body
     try {
-      const updatedRole = await Role.updateItem(body)
-      ctx.body = updatedRole
+      const user = ctx.user
+
+      if (user.role === req_data.id) {
+        ctx.status = 400
+        ctx.body = { message: 'cant change your role!!' }
+      } else {
+        const where = {
+          id: user.role,
+          company: user.company ? user.company : null,
+          main: false
+        }
+        const role = await Role.findOne(where)
+
+        if (!role) {
+          ctx.status = 400
+          ctx.body = { message: 'something went wrong' }
+        } else {
+          if (await checkPermissionsAccess(user, req_data.permissions)) {
+            const updated = await Role.updateItem(req_data)
+            ctx.oldData = updated.old
+            ctx.body = updated.new
+          } else {
+            ctx.status = 400
+            ctx.body = {
+              message: 'Permissions access denied!!'
+            }
+          }
+        }
+      }
     } catch (error) {
       ctx.status = error.status || 400
       ctx.body = error
@@ -228,23 +292,49 @@ class RoleController {
     let role
     const id = ctx.request.body.id
     try {
-      const admin = await Admin.find({ role: id })
-      if (admin.length) {
-        for (let i = 0; i < admin.length; i++) {
-          admin[i].role = null
-          admin[i].status = false
-          delete admin[i].password
-          await Admin.updateItem(admin[i])
-        }
+      const user = ctx.user
 
-        role = await Role.destroyItem(id)
-
-        if (role) {
-          ctx.body = 'Deleted'
-        }
+      if (user.role === id) {
+        ctx.status = 400
+        ctx.body = { message: 'cant delete your role!!' }
       } else {
-        role = await Role.destroyItem(id)
-        ctx.body = 'Deleted'
+        const where = {
+          id: user.role,
+          company: user.company ? user.company : null,
+          main: false
+        }
+        const check_role_by_company = await Role.findOne(where)
+
+        if (!check_role_by_company) {
+          ctx.status = 400
+          ctx.body = { message: 'something went wrong' }
+        } else {
+          if (await checkPermissionsAccess(user, check_role_by_company.permissions)) {
+            const admin = await Admin.find({ role: id })
+            if (admin.length) {
+              for (let i = 0; i < admin.length; i++) {
+                admin[i].role = null
+                admin[i].status = false
+                delete admin[i].password
+                await Admin.updateItem(admin[i])
+              }
+
+              role = await Role.destroyItem(id)
+
+              if (role) {
+                ctx.body = 'Deleted'
+              }
+            } else {
+              role = await Role.destroyItem(id)
+              ctx.body = 'Deleted'
+            }
+          } else {
+            ctx.status = 400
+            ctx.body = {
+              message: 'Permissions access denied!!'
+            }
+          }
+        }
       }
     } catch (error) {
       ctx.status = error.status || 400
@@ -256,7 +346,7 @@ class RoleController {
   /**
    *
    * @swagger
-   * /getAllAccesses:
+   * /access:
    *      get:
    *          tags:
    *              - Role
@@ -275,17 +365,10 @@ class RoleController {
    *                  description: Unauthorized
    */
   public static async getAllAccess (ctx: DefaultContext) {
-    // console.log('Models', Models)
-    const models: any = Models
-    const accesses: any = {}
-    Object.keys(models).forEach((model: string) => {
-      accesses[model] = { actions: models[model].getActions() }
-      if (models[model].haveModel !== false) {
-        // accesses[model].attributes = models[model].getAttributes()
-      }
-    })
-
+    const user = ctx.user
+    const accesses = await Role.getAllAccess(user)
     ctx.body = accesses
+    return ctx.body
   }
 }
 

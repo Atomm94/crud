@@ -1,13 +1,17 @@
 import * as _ from 'lodash'
 import { DefaultContext } from 'koa'
 import { getRepository } from 'typeorm'
-import { Admin, Role } from '../model/entity/index'
+import { Admin, Packet, Role } from '../model/entity/index'
 import * as jwt from 'jsonwebtoken'
 import * as bcrypt from 'bcrypt'
 import fs from 'fs'
 import { logger } from '../../../modules/winston/logger'
 import { join } from 'path'
 import { validate } from '../functions/passValidator'
+import { Sendgrid } from '../../component/sendgrid/sendgrid'
+import { uid } from 'uid'
+import { checkPermissionsAccess } from '../functions/check-permissions-access'
+import { AccountGroup } from '../model/entity/AccountGroup'
 
 const parentDir = join(__dirname, '../..')
 
@@ -28,7 +32,7 @@ export default class AdminController {
     /**
      *
      * @swagger
-     *  /users:
+     *  /account:
      *      post:
      *          tags:
      *              - Admin
@@ -48,7 +52,6 @@ export default class AdminController {
      *              schema:
      *                type: object
      *                required:
-     *                  - fullName
      *                  - email
      *                  - username
      *                  - status
@@ -67,12 +70,69 @@ export default class AdminController {
      *                  status:
      *                      type: boolean
      *                      example: true
-     *                  fullName:
-     *                      type: string
-     *                      example: Name Surname
      *                  role:
      *                      type: number
      *                      example: 5
+     *                  department:
+     *                      type: number
+     *                      example: 1
+     *                  avatar:
+     *                      type: string
+     *                      example: avatar
+     *                  first_name:
+     *                      type: string
+     *                      example: John
+     *                  last_name:
+     *                      type: string
+     *                      example: Smith
+     *                  phone_1:
+     *                      type: string
+     *                      example: +374 XX XXX XXX
+     *                  phone_2:
+     *                      type: string
+     *                      example: +374 XX XXX XXX
+     *                  post_code:
+     *                      type: string
+     *                      example: 0000
+     *                  country:
+     *                      type: string
+     *                      example: some country name
+     *                  city:
+     *                      type: string
+     *                      example: some city name
+     *                  site:
+     *                      type: string
+     *                      example: some site name
+     *                  address:
+     *                      type: string
+     *                      example: some address
+     *                  viber:
+     *                      type: boolean
+     *                      example: false
+     *                  whatsapp:
+     *                      type: boolean
+     *                      example: false
+     *                  telegram:
+     *                      type: boolean
+     *                      example: false
+     *                  comment:
+     *                      type: string
+     *                      example: comment
+     *                  account_group:
+     *                      type: number
+     *                      example: 1
+     *                  role_inherited:
+     *                      type: boolean
+     *                      example: false
+     *                  date_format:
+     *                      type: string
+     *                      example: MM/DD/YYYY
+     *                  time_format:
+     *                      type: string
+     *                      example: 24h
+     *                  time_zone:
+     *                      type: string
+     *                      example: +7
      *          responses:
      *              '201':
      *                  description: A admin object
@@ -83,26 +143,70 @@ export default class AdminController {
      */
     public static async createAdmin (ctx: DefaultContext) {
         const reqData = ctx.request.body
+        const user = ctx.user
+        if (user.company) reqData.company = user.company
+
         let newAdmin
         let role
+        let check_group
 
         if (validate(reqData.password).success) {
             try {
-                newAdmin = await Admin.addItem(reqData)
-                role = await Role.findOne({
-                    id: reqData.role
-                })
+                if (reqData.role_inherited && reqData.account_group) {
+                    const account_group = await AccountGroup.findOne({
+                        id: reqData.account_group,
+                        company: user.company ? user.company : null
+                    })
+                    if (account_group && account_group.role) {
+                        reqData.role = account_group.role
+                        check_group = false
+                    }
+                }
 
-                if (newAdmin && role) {
-                    ctx.body = { newAdmin }
+                if (ctx.user.company && !check_group) {
+                    ctx.status = 400
+                    ctx.body = {
+                        message: 'AccountGroup was not found!!'
+                    }
+                    return ctx
+                } else {
+                    if (reqData.role) {
+                        role = await Role.findOne({
+                            id: reqData.role,
+                            company: user.company ? user.company : null
+                        })
+                        if (role) {
+                            if (await checkPermissionsAccess(user, role.permissions)) {
+                                newAdmin = await Admin.addItem(reqData, user)
+
+                                if (newAdmin && role) {
+                                    ctx.body = { newAdmin }
+                                }
+                            } else {
+                                ctx.status = 400
+                                ctx.body = {
+                                    message: 'Permissions access denied!!'
+                                }
+                            }
+                        } else {
+                            ctx.status = 400
+                            ctx.body = { message: 'something went wrong' }
+                        }
+                    } else {
+                        newAdmin = await Admin.addItem(reqData, user)
+
+                        if (newAdmin && role) {
+                            ctx.body = { newAdmin }
+                        }
+                    }
                 }
             } catch (error) {
                 ctx.status = error.status || 400
                 ctx.body = error
-                if (error.detail.includes('username')) {
+                if (error.detail && error.detail.includes('username')) {
                     ctx.body.errorMsg = `username ${reqData.username} already exists.`
                     ctx.body.err = 'username'
-                } else if (error.detail.includes('email')) {
+                } else if (error.detail && error.detail.includes('email')) {
                     ctx.body.err = 'email'
                     ctx.body.errorMsg = `email ${reqData.email} already exists.`
                 }
@@ -125,7 +229,93 @@ export default class AdminController {
     /**
      *
      * @swagger
-     * /getUserData:
+     *  /account/invite:
+     *      post:
+     *          tags:
+     *              - Admin
+     *          summary: Create a admin.
+     *          consumes:
+     *              - application/json
+     *          parameters:
+     *            - in: header
+     *              name: Authorization
+     *              required: true
+     *              description: Authentication token
+     *              schema:
+     *                    type: string
+     *            - in: body
+     *              name: admin
+     *              description: The admin to create.
+     *              schema:
+     *                type: object
+     *                required:
+     *                  - email
+     *                  - username
+     *                properties:
+     *                  username:
+     *                      type: string
+     *                      example: username
+     *                  first_name:
+     *                      type: string
+     *                      example: name
+     *                  email:
+     *                      type: string
+     *                      example: example@gmail.com
+     *                  role:
+     *                      type: number
+     *                      example: 5
+     *                  account_group:
+     *                      type: number
+     *                      example: 5
+     *                  comment:
+     *                      type: string
+     *                      example: comment
+     *          responses:
+     *              '201':
+     *                  description: A admin object
+     *              '409':
+     *                  description: Conflict
+     *              '422':
+     *                  description: Wrong data
+     */
+
+    public static async inviteAdmin (ctx: DefaultContext) {
+        const reqData = ctx.request.body
+        const user = ctx.user
+        if (user.company) reqData.company = user.company
+        reqData.verify_token = uid(32)
+        let role
+
+        try {
+            const newAdmin: Admin = await Admin.addItem(reqData, user)
+            role = await Role.findOne({
+                id: reqData.role
+            })
+            if (newAdmin && role) {
+                ctx.body = { success: true }
+                if (newAdmin.verify_token) {
+                    await Sendgrid.SetPass(newAdmin.email, newAdmin.verify_token)
+                }
+            }
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+            if (error.detail && error.detail.includes('username')) {
+                ctx.body.errorMsg = `username ${reqData.username} already exists.`
+                ctx.body.err = 'username'
+            } else if (error.detail && error.detail.includes('email')) {
+                ctx.body.err = 'email'
+                ctx.body.errorMsg = `email ${reqData.email} already exists.`
+            }
+            return ctx.body
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     * /account/getUserData:
      *      get:
      *          tags:
      *              - Admin
@@ -143,16 +333,22 @@ export default class AdminController {
      */
 
     public static async getUserData (ctx: DefaultContext) {
-        const token = <string>ctx.request.header.authorization
-        let verify
         let admin
         try {
-            verify = <any>jwt.verify(token, 'jwtSecret')
-            if (verify) {
-                admin = await Admin.findOneOrFail(verify.id)
-                const adminFiltered = _.pick(admin, ['id', 'full_name', 'username', 'email', 'avatar', 'role'])
-
+            if (ctx.user) {
+                admin = await Admin.findOneOrFail(ctx.user.id)
+                const adminFiltered = _.omit(admin, ['password', 'super', 'verify_token'])
                 ctx.body = adminFiltered
+                ctx.body.packet = ctx.user.packet ? ctx.user.packet : null
+                if (ctx.user && ctx.user.company && ctx.user.packet) {
+                    const packetData = await Packet.findOne(ctx.user.packet)
+                    if (packetData && packetData.extra_settings) {
+                        const extra_settings = JSON.parse(packetData.extra_settings)
+                        if (extra_settings.features) {
+                            ctx.body.features = extra_settings.features
+                        }
+                    }
+                }
             } else {
                 ctx.status = 401
             }
@@ -166,7 +362,7 @@ export default class AdminController {
     /**
        *
        * @swagger
-       *  /changePass:
+       *  /account/changePass:
        *      put:
        *          tags:
        *              - Admin
@@ -214,7 +410,7 @@ export default class AdminController {
         let checkPass
         try {
             user = await userRepository.findOneOrFail({ id: reqData.id })
-
+            ctx.oldData = Object.assign({}, user)
             checkPass = bcrypt.compareSync(reqData.password, user.password)
 
             if (checkPass) {
@@ -224,6 +420,7 @@ export default class AdminController {
                 }
             } else {
                 if (validate(reqData.password).success) {
+                    user.password = reqData.password
                     updatedUser = await userRepository.save(user)
                     ctx.body = updatedUser
                 } else {
@@ -245,7 +442,7 @@ export default class AdminController {
     /**
        *
        * @swagger
-       *  /changeMyPass:
+       *  /account/changeMyPass:
        *      put:
        *          tags:
        *              - Admin
@@ -269,12 +466,15 @@ export default class AdminController {
        *                properties:
        *                  id:
        *                      type: number
+       *                  old_password:
+       *                      type: string
        *                  password:
        *                      type: string
        *                example:
        *                    {
        *                         id: 1,
-       *                         password: 'my_pass',
+       *                         old_password: 'my_pass',
+       *                         password: 'my_new_pass',
        *                    }
        *          responses:
        *              '201':
@@ -294,21 +494,29 @@ export default class AdminController {
         let user
 
         try {
-            user = await userRepository.findOneOrFail({ id: id })
-
-            if (user && user.password) {
-                checkPass = bcrypt.compareSync(old_password, user.password)
-
-                if (checkPass) {
-                    if (reqData.password) user.password = password
-                    updatedUser = await userRepository.save(user)
-                    ctx.body = updatedUser
-                } else {
-                    ctx.status = 401
-                    ctx.body = { message: 'Incorrect Password' }
+            if (!validate(password).success) {
+                ctx.status = 400
+                ctx.body = {
+                    message: validate(password).message
                 }
             } else {
-                ctx.status = 400
+                user = await userRepository.findOneOrFail({ id: id })
+
+                if (user && user.password) {
+                    ctx.oldData = Object.assign({}, user)
+                    checkPass = bcrypt.compareSync(old_password, user.password)
+
+                    if (checkPass) {
+                        if (reqData.password) user.password = password
+                        updatedUser = await userRepository.save(user)
+                        ctx.body = updatedUser
+                    } else {
+                        ctx.status = 400
+                        ctx.body = { message: 'Incorrect Password' }
+                    }
+                } else {
+                    ctx.status = 400
+                }
             }
         } catch (error) {
             ctx.status = error.status || 400
@@ -320,7 +528,7 @@ export default class AdminController {
     /**
      *
      * @swagger
-     *  /users:
+     *  /account:
      *      put:
      *          tags:
      *              - Admin
@@ -345,9 +553,6 @@ export default class AdminController {
      *                  id:
      *                      type: number
      *                      example: 1
-     *                  fullName:
-     *                      type: string
-     *                      example: fullName
      *                  email:
      *                      type: string
      *                      example: 'example@test.com'
@@ -360,6 +565,66 @@ export default class AdminController {
      *                  role:
      *                      type: number
      *                      example: 5
+     *                  department:
+     *                      type: number
+     *                      example: 1
+     *                  avatar:
+     *                      type: string
+     *                      example: avatar
+     *                  first_name:
+     *                      type: string
+     *                      example: John
+     *                  last_name:
+     *                      type: string
+     *                      example: Smith
+     *                  phone_1:
+     *                      type: string
+     *                      example: +374 XX XXX XXX
+     *                  phone_2:
+     *                      type: string
+     *                      example: +374 XX XXX XXX
+     *                  post_code:
+     *                      type: string
+     *                      example: 0000
+     *                  country:
+     *                      type: string
+     *                      example: some country name
+     *                  city:
+     *                      type: string
+     *                      example: some city name
+     *                  site:
+     *                      type: string
+     *                      example: some site name
+     *                  address:
+     *                      type: string
+     *                      example: some address
+     *                  viber:
+     *                      type: boolean
+     *                      example: false
+     *                  whatsapp:
+     *                      type: boolean
+     *                      example: false
+     *                  telegram:
+     *                      type: boolean
+     *                      example: false
+     *                  comment:
+     *                      type: string
+     *                      example: comment
+     *                  account_group:
+     *                      type: number
+     *                      example: 1
+     *                  role_inherited:
+     *                      type: boolean
+     *                      example: false
+     *                  date_format:
+     *                      type: string
+     *                      example: MM/DD/YYYY
+     *                  time_format:
+     *                      type: string
+     *                      example: 24h
+     *                  time_zone:
+     *                      type: string
+     *                      example: +7
      *          responses:
      *              '201':
      *                  description: A market updated object
@@ -371,19 +636,69 @@ export default class AdminController {
 
     public static async update (ctx: DefaultContext) {
         const reqData = ctx.request.body
-        let edAdmin
+        const user = ctx.user
+        let check_group = true
 
         try {
-            edAdmin = await Admin.updateItem(reqData)
-            ctx.body = edAdmin
+            const admin = await Admin.findOne({
+                id: reqData.id,
+                company: user.company ? user.company : null
+            })
+            if (admin) {
+                if (reqData.role_inherited && reqData.account_group) {
+                    const account_group = await AccountGroup.findOne({
+                        id: reqData.account_group,
+                        company: user.company ? user.company : null
+                    })
+                    if (account_group && account_group.role) {
+                        reqData.role = account_group.role
+                    } else {
+                        check_group = false
+                    }
+                }
+                if (!check_group) {
+                    ctx.status = 400
+                    ctx.body = {
+                        message: 'AccountGroup was not found!!'
+                    }
+                } else {
+                    if (reqData.role) {
+                        const role = await Role.findOne({
+                            id: reqData.role,
+                            company: user.company ? user.company : null
+                        })
+                        if (role) {
+                            if (await checkPermissionsAccess(user, role.permissions)) {
+                                const updated = await Admin.updateItem(reqData)
+                                ctx.oldData = updated.old
+                                ctx.body = updated.new
+                            } else {
+                                ctx.status = 400
+                                ctx.body = {
+                                    message: 'Permissions access denied!!'
+                                }
+                            }
+                        } else {
+                            ctx.status = 400
+                            ctx.body = { message: 'something with role went wrong' }
+                        }
+                    } else {
+                        const updated = await Admin.updateItem(reqData)
+                        ctx.oldData = updated.old
+                        ctx.body = updated.new
+                    }
+                }
+            } else {
+                ctx.status = 400
+                ctx.body = { message: 'something went wrong' }
+            }
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
-
-            if (error.detail.includes('username')) {
+            if (error.detail && error.detail.includes('username')) {
                 ctx.body.errorMsg = `username ${reqData.username} already exists.`
                 ctx.body.err = 'username'
-            } else if (error.detail.includes('email')) {
+            } else if (error.detail && error.detail.includes('email')) {
                 ctx.body.err = 'email'
                 ctx.body.errorMsg = `email ${reqData.email} already exists.`
             }
@@ -394,7 +709,7 @@ export default class AdminController {
     /**
      *
      * @swagger
-     * /users/{id}:
+     * /account/{id}:
      *      get:
      *          tags:
      *              - Admin
@@ -422,7 +737,14 @@ export default class AdminController {
         let admin
         const role = {}
         try {
-            admin = await Admin.getItem(adminId)
+            const user = ctx.user
+            const where: any = { id: adminId, company: user.company ? user.company : null }
+
+            if (!user.company && !user.super) {
+                where.super = false
+            }
+            const relations = ['departments']
+            admin = await Admin.getItem(where, relations)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -438,7 +760,7 @@ export default class AdminController {
     /**
      *
      * @swagger
-     *  /users:
+     *  /account:
      *      delete:
      *          tags:
      *              - Admin
@@ -473,13 +795,10 @@ export default class AdminController {
      */
     public static async destroy (ctx: DefaultContext) {
         const reqData = ctx.request.body
-        let result
+        const user = ctx.user
         try {
-            result = await Admin.destroyItem(reqData.id)
-            ctx.body = {
-                success: true,
-                result
-            }
+            const where = { id: reqData.id, company: user.company ? user.company : null }
+            ctx.body = await Admin.destroyItem(where)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -490,7 +809,7 @@ export default class AdminController {
     /**
      *
      * @swagger
-     * /users:
+     * /account:
      *      get:
      *          tags:
      *              - Admin
@@ -515,15 +834,24 @@ export default class AdminController {
      */
     public static async getAll (ctx: DefaultContext) {
         const name = ctx.query.name
+        const user = ctx.user
         var allAdmin
-        if (name) {
-            allAdmin = await getRepository(Admin)
-                .createQueryBuilder('admin')
-                .where('admin.username like :username OR admin.email like :email', { username: `%${name}%`, email: `%${name}%` })
-                .getMany()
-        } else {
-            allAdmin = await Admin.getAllItems(ctx.query)
+
+        const req_data = ctx.query
+        req_data.relations = ['departments']
+        const where: any = { company: { '=': user.company ? user.company : null } }
+        if (!user.company && !user.super) {
+            where.super = { '=': false }
         }
+        req_data.where = where
+
+        if (name) {
+            req_data.orWhere = [
+                { username: { contains: name } },
+                { email: { contains: name } }
+            ]
+        }
+        allAdmin = await Admin.getAllItems(req_data)
 
         return (ctx.body = allAdmin)
     }
@@ -531,7 +859,7 @@ export default class AdminController {
     /**
      *
      * @swagger
-     *  /userImageSave:
+     *  /account/image:
      *      post:
      *          tags:
      *              - Admin
@@ -557,16 +885,16 @@ export default class AdminController {
      *              '422':
      *                  description: Wrong data
      */
-    public static async userImageSave (ctx: DefaultContext) {
+    public static async accountImageSave (ctx: DefaultContext) {
         const file = ctx.request.files.file
-        const savedFile = Admin.saveImage(file)
+        const savedFile = await Admin.saveImage(file)
         return ctx.body = savedFile
     }
 
     /**
      *
      * @swagger
-     *  /userImageDelete:
+     *  /account/image:
      *      delete:
      *          tags:
      *              - Admin
@@ -598,7 +926,7 @@ export default class AdminController {
      *              '422':
      *                  description: Wrong data
      */
-    public static async userImageDelete (ctx: DefaultContext) {
+    public static async accountImageDelete (ctx: DefaultContext) {
         const name = ctx.request.body.name
 
         try {
@@ -609,6 +937,161 @@ export default class AdminController {
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     * /account/invite/{token}:
+     *      get:
+     *          tags:
+     *              - Admin
+     *          summary: Return account by token
+     *          parameters:
+     *              - name: token
+     *                in: path
+     *                required: true
+     *                description: account description
+     *                schema:
+     *                    type: string
+     *                    minimum: 1
+     *          responses:
+     *              '200':
+     *                  description: Data object
+     *              '404':
+     *                  description: Data not found
+     */
+    public static async getUserByToken (ctx: DefaultContext) {
+        const verify_token: string = ctx.params.token
+        const user = await Admin.findOne({ verify_token: verify_token })
+        if (user) {
+            ctx.body = {
+                email: user.email,
+                first_name: user.first_name,
+                last_name: user.last_name
+            }
+        } else {
+            ctx.status = 400
+            ctx.body = {
+                message: 'Wrong token!!'
+            }
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     * /account/invite/{token}:
+     *      put:
+     *          tags:
+     *              - Admin
+     *          summary: Set user password
+     *          parameters:
+     *              - in: path
+     *                name: token
+     *                required: true
+     *                description: account description
+     *                schema:
+     *                    type: string
+     *                    minimum: 1
+     *              - in: body
+     *                name: passForm
+     *                description: The setting of password.
+     *                schema:
+     *                  type: object
+     *                  required:
+     *                      - password
+     *                  properties:
+     *                      password:
+     *                          type: string
+     *                          example: 123456
+     *          responses:
+     *              '200':
+     *                  description: Data object
+     *              '404':
+     *                  description: Data not found
+     */
+    public static async setPassword (ctx: DefaultContext) {
+        const verify_token: string = ctx.params.token
+        const user = await Admin.findOne({ verify_token: verify_token })
+        if (user) {
+            const password = ctx.request.body.password
+            if (validate(password).success) {
+                user.password = password
+                user.verify_token = null
+                await user.save()
+                ctx.body = {
+                    success: true
+                }
+            } else {
+                ctx.status = 400
+                ctx.body = {
+                    message: validate(password).message
+                }
+            }
+        } else {
+            ctx.status = 400
+            ctx.body = {
+                message: 'Wrong token!!'
+            }
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     *  /account/forgotPassword:
+     *      post:
+     *          tags:
+     *              - Admin
+     *          summary: Send admin password recovery.
+     *          consumes:
+     *              - application/json
+     *          parameters:
+     *            - in: body
+     *              name: admin
+     *              description: The password recovery.
+     *              schema:
+     *                type: object
+     *                required:
+     *                  - email
+     *                properties:
+     *                  email:
+     *                      type: string
+     *                      example: example@gmail.com
+     *          responses:
+     *              '201':
+     *                  description: pass recovery
+     *              '409':
+     *                  description: Conflict
+     *              '422':
+     *                  description: Wrong data
+     */
+
+    public static async forgotPassword (ctx: DefaultContext) {
+        const reqData = ctx.request.body
+        try {
+            const admin = await Admin.findOneOrFail({
+                email: reqData.email
+            })
+            if (admin) {
+                admin.verify_token = uid(32)
+                await admin.save()
+                if (admin) {
+                    ctx.body = { success: true }
+                    if (admin.verify_token) {
+                        await Sendgrid.recoveryPassword(admin.email, admin.verify_token)
+                    }
+                }
+            }
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+            return ctx.body
         }
         return ctx.body
     }

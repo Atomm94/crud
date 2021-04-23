@@ -1,0 +1,47 @@
+{
+    "model": {
+        "columns": {
+            "name": {
+                "type": "varchar",
+                "params": {
+                    "name": "name"
+                }
+            },
+            "description": {
+                "type": "varchar",
+                "params": {
+                    "name": "description",
+                    "nullable": true
+                }
+            },
+            "parentId": {
+                "type": "int",
+                "params": {
+                    "name": "parentId",
+                    "nullable": true
+                }
+            },
+            "role": {
+                "type": "int",
+                "params": {
+                    "name": "role",
+                    "nullable": true
+                }
+            },
+            "company": {
+                "type": "int",
+                "params": {
+                    "name": "company",
+                    "nullable": false
+                }
+            },
+            "roleInherited": {
+                "type": "boolean",
+                "params": {
+                    "name": "roleInherited",
+                    "default": false
+                }
+            }
+        }
+    }
+}
