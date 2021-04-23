@@ -339,8 +339,9 @@ export default class AdminController {
                 admin = await Admin.findOneOrFail(ctx.user.id)
                 const adminFiltered = _.omit(admin, ['password', 'super', 'verify_token'])
                 ctx.body = adminFiltered
-                if (ctx.user && ctx.user.company && ctx.user.companyData && ctx.user.companyData.packet) {
-                    const packetData = await Packet.findOne(ctx.user.companyData.packet)
+                ctx.body.packet = ctx.user.packet ? ctx.user.packet : null
+                if (ctx.user && ctx.user.company && ctx.user.packet) {
+                    const packetData = await Packet.findOne(ctx.user.packet)
 
                     if (packetData && packetData.extra_settings) {
                         const extra_settings = JSON.parse(packetData.extra_settings)

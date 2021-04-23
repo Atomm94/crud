@@ -147,7 +147,7 @@ export default class TicketController {
     public static async get (ctx: DefaultContext) {
         try {
             const user = ctx.user
-            const relations = ['user', 'departments', 'ticket_messages', 'ticket_messages.users']
+            const relations = ['user', 'departments', 'ticket_messages', 'ticket_messages.users', 'user.companies']
             ctx.body = await Ticket.getItem(+ctx.params.id, user as Admin, relations)
         } catch (error) {
             ctx.status = error.status || 400
