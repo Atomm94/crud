@@ -399,7 +399,7 @@ export default class AcuController {
                         for (let access_point of req_data.access_points) {
                             for (const resource in access_point.resources) {
                                 const component_source: number = access_point.resources[resource].component_source
-                                if (component_source !== 0) {
+                                if (component_source !== 0) { // when component source is 0, so it is device
                                     const ext_device = await ExtDevice.findOne({ id: component_source, company: company })
                                     if (!ext_device) {
                                         ctx.status = 400
