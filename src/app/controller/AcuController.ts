@@ -6,11 +6,13 @@ import { AccessPoint } from '../model/entity/AccessPoint'
 import SendDeviceMessage from '../mqtt/SendDeviceMessage'
 import { OperatorType } from '../mqtt/Operators'
 import { Reader } from '../model/entity/Reader'
-import { accessPointType } from '../enums/accessPointType.enum'
 import { ExtDevice } from '../model/entity/ExtDevice'
 import acuModels from '../model/entity/acuModels.json'
 import { Cardholder } from '../model/entity'
 import SdlController from './Hardware/SdlController'
+import RdController from './Hardware/RdController'
+import ExtensionDeviceController from './Hardware/ExtensionDeviceController'
+import CtpController from './Hardware/CtpController'
 
 export default class AcuController {
     /**
@@ -424,17 +426,7 @@ export default class AcuController {
                             }
 
                             if (acu.status === acuStatus.ACTIVE) {
-                                if (access_point.type === accessPointType.DOOR) {
-                                    new SendDeviceMessage(OperatorType.SET_CTP_DOOR, location, acu.serial_number, access_point, acu.session_id, access_point_update)
-                                } else if (access_point.type === accessPointType.TURNSTILE_ONE_SIDE || access_point.type === accessPointType.TURNSTILE_TWO_SIDE) {
-                                    new SendDeviceMessage(OperatorType.SET_CTP_TURNSTILE, location, acu.serial_number, access_point, acu.session_id, access_point_update)
-                                } else if (access_point.type === accessPointType.GATE) {
-                                    new SendDeviceMessage(OperatorType.SET_CTP_GATE, location, acu.serial_number, access_point, acu.session_id, access_point_update)
-                                } else if (access_point.type === accessPointType.GATEWAY) {
-                                    new SendDeviceMessage(OperatorType.SET_CTP_GATEWAY, location, acu.serial_number, access_point, acu.session_id, access_point_update)
-                                } else if (access_point.type === accessPointType.FLOOR) {
-                                    new SendDeviceMessage(OperatorType.SET_CTP_FLOOR, location, acu.serial_number, access_point, acu.session_id, access_point_update)
-                                }
+                                CtpController.setCtp(access_point.type, location, acu.serial_number, access_point, acu.session_id, access_point_update)
                             } else {
                                 if (access_point_update) {
                                     const access_point_update = await AccessPoint.updateItem(access_point)
@@ -456,7 +448,7 @@ export default class AcuController {
 
                                 if (acu.status === acuStatus.ACTIVE) {
                                     reader.access_point_type = access_point.type
-                                    new SendDeviceMessage(OperatorType.SET_RD, location, acu.serial_number, reader, acu.session_id, reader_update)
+                                    RdController.setRd(location, acu.serial_number, reader, acu.session_id, reader_update)
                                 } else {
                                     if (reader_update) await Reader.updateItem(reader)
                                 }
@@ -827,31 +819,20 @@ export default class AcuController {
                     output: outputs
 
                 }
-                new SendDeviceMessage(OperatorType.SET_EXT_BRD, location, device.serial_number, ext_device, device.session_id)
+                ExtensionDeviceController.setExtensionDevice(location, device.serial_number, ext_device, device.session_id)
             }
 
             // send Access Points
             const access_points = device.access_points
             const access_point_update = false
             for (const access_point of access_points) {
-                if (access_point.type === accessPointType.DOOR) {
-                    new SendDeviceMessage(OperatorType.SET_CTP_DOOR, location, device.serial_number, access_point, device.session_id, access_point_update)
-                } else if (access_point.type === accessPointType.TURNSTILE_ONE_SIDE || access_point.type === accessPointType.TURNSTILE_TWO_SIDE) {
-                    new SendDeviceMessage(OperatorType.SET_CTP_TURNSTILE, location, device.serial_number, access_point, device.session_id, access_point_update)
-                } else if (access_point.type === accessPointType.GATE) {
-                    new SendDeviceMessage(OperatorType.SET_CTP_GATE, location, device.serial_number, access_point, device.session_id, access_point_update)
-                } else if (access_point.type === accessPointType.GATEWAY) {
-                    new SendDeviceMessage(OperatorType.SET_CTP_GATEWAY, location, device.serial_number, access_point, device.session_id, access_point_update)
-                } else if (access_point.type === accessPointType.FLOOR) {
-                    new SendDeviceMessage(OperatorType.SET_CTP_FLOOR, location, device.serial_number, access_point, device.session_id, access_point_update)
-                }
-
+                CtpController.setCtp(access_point.type, location, device.serial_number, access_point, device.session_id, access_point_update)
                 // send Readers
                 const readers: any = access_point.readers
                 const reader_update = false
                 for (const reader of readers) {
                     reader.access_point_type = access_point.type
-                    new SendDeviceMessage(OperatorType.SET_RD, location, device.serial_number, reader, device.session_id, reader_update)
+                    RdController.setRd(location, device.serial_number, reader, device.session_id, reader_update)
                 }
 
                 // send Schedules(Access Rules)
