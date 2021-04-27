@@ -6,8 +6,7 @@ import { CardholderGroup } from '../model/entity/CardholderGroup'
 import { AntipassBack } from '../model/entity/AntipassBack'
 import { Credential } from '../model/entity/Credential'
 import { acuStatus } from '../enums/acuStatus.enum'
-import { AccessPoint, AccessRight, AccessRule, Acu, Admin, Role, Schedule } from '../model/entity'
-import SendDeviceMessage from '../mqtt/SendDeviceMessage'
+import { AccessPoint, AccessRight, AccessRule, Admin, Role, Schedule } from '../model/entity'
 import { OperatorType } from '../mqtt/Operators'
 import { CheckCredentialSettings } from '../functions/check-credential'
 import { Sendgrid } from '../../component/sendgrid/sendgrid'
@@ -645,11 +644,8 @@ export default class CardholderController {
             const location = `${user.company_main}/${user.company}`
             const where = { id: req_data.id, company: user.company ? user.company : null }
             req_data.where = { company: { '=': user.company ? user.company : null }, status: { '=': acuStatus.ACTIVE } }
-            const acus: any = await Acu.getAllItems(req_data)
             ctx.body = await Cardholder.destroyItem(where)
-            acus.forEach((acu: any) => {
-                new SendDeviceMessage(OperatorType.DELL_KEYS, location, acu.serial_number, req_data, acu.session_id)
-            })
+            CardKeyController.dellKeys(location, user.company, req_data)
         } catch (error) {
             console.log(error)
 

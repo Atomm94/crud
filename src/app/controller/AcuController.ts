@@ -798,7 +798,7 @@ export default class AcuController {
                     output: outputs
 
                 }
-                ExtensionDeviceController.setExtensionDevice(location, device.serial_number, ext_device, device.session_id)
+                ExtensionDeviceController.setExtBrd(location, device.serial_number, ext_device, device.session_id)
             }
 
             // send Access Points

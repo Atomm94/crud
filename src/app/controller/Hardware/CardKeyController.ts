@@ -42,7 +42,7 @@ export default class CardKeyController {
                 if (acus) {
                     all_acus = acus
                 } else {
-                    all_acus = await Acu.getAllItems({ where: { status: { '=': acuStatus.ACTIVE } } })
+                    all_acus = await Acu.getAllItems({ where: { status: { '=': acuStatus.ACTIVE }, company: { '=': company } } })
                 }
 
                 all_acus.forEach((acu: any) => {
@@ -89,7 +89,7 @@ export default class CardKeyController {
             if (all_cardholders.length) {
                 send_edit_data.cardholders = all_cardholders
 
-                const acus: any = await Acu.getAllItems({ where: { status: { '=': acuStatus.ACTIVE } } })
+                const acus: any = await Acu.getAllItems({ where: { status: { '=': acuStatus.ACTIVE }, company: { '=': company } } })
                 acus.forEach((acu: any) => {
                     new SendDeviceMessage(OperatorType.EDIT_KEY, location, acu.serial_number, send_edit_data, acu.session_id)
                 })
@@ -97,11 +97,18 @@ export default class CardKeyController {
         }
     }
 
-    public static async delCardKey (location: string, serial_number: number, data: any, session_id: string | null = '0') {
-        new SendDeviceMessage(OperatorType.EDIT_KEY, location, serial_number, data, session_id)
-    }
+    // public static async delCardKey (location: string, serial_number: number, data: any, session_id: string | null = '0') {
+    //     new SendDeviceMessage(OperatorType.EDIT_KEY, location, serial_number, data, session_id)
+    // }
 
-    public static async updateStatus (location: string, serial_number: number, data: any, session_id: string | null = '0') {
-        new SendDeviceMessage(OperatorType.EDIT_KEY, location, serial_number, data, session_id)
+    // public static async updateStatus (location: string, serial_number: number, data: any, session_id: string | null = '0') {
+    //     new SendDeviceMessage(OperatorType.EDIT_KEY, location, serial_number, data, session_id)
+    // }
+
+    public static async dellKeys (location: string, company: string, data: any) {
+        const acus: any = await Acu.getAllItems({ where: { status: { '=': acuStatus.ACTIVE }, company: { '=': company } } })
+        acus.forEach((acu: any) => {
+            new SendDeviceMessage(OperatorType.DELL_KEYS, location, acu.serial_number, data, acu.session_id)
+        })
     }
 }
