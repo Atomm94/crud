@@ -15,7 +15,7 @@ import { uid } from 'uid'
 import { validate } from '../functions/passValidator'
 import { scheduleCustomType } from '../enums/scheduleCustomType.enum'
 import { Timeframe } from '../model/entity/Timeframe'
-import { scheduleType } from '../enums/scheduleType.enum'
+import SdlController from './Hardware/SdlController'
 // import SendDeviceMessage from '../mqtt/SendDeviceMessage'
 // import { OperatorType } from '../mqtt/Operators'
 
@@ -1283,19 +1283,7 @@ export default class CardholderController {
                 console.log('access_rights', access_rights)
                 for (const access_rule of access_rights.access_rules) {
                     if (access_rule.access_points.acus.status === acuStatus.ACTIVE) {
-                        const send_sdl_data: any = { ...access_rule, timeframes: access_rule.schedules.timeframes }
-
-                        let operator: OperatorType = OperatorType.SET_SDL_DAILY
-                        const access_rule_schedule = access_rule.schedules
-                        if (access_rule_schedule.type === scheduleType.WEEKLY) {
-                            operator = OperatorType.SET_SDL_WEEKLY
-                        } else if (access_rule_schedule.type === scheduleType.FLEXITIME) {
-                            send_sdl_data.start_from = access_rule_schedule.start_from
-                            operator = OperatorType.SET_SDL_FLEXI_TIME
-                        } else if (access_rule_schedule.type === scheduleType.SPECIFIC) {
-                            operator = OperatorType.SET_SDL_SPECIFIED
-                        }
-                        new SendDeviceMessage(operator, location, access_rule.access_points.acus.serial_number, send_sdl_data, access_rule.access_points.acus.session_id)
+                        SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, access_rule.access_points.acus.session_id)
                     }
                 }
 
@@ -1466,8 +1454,6 @@ export default class CardholderController {
             let new_timeframes: any
 
             if (req_data.schedule_type && req_data.schedule_type !== guest.schedule_type) {
-                console.log(12121212121212)
-
                 for (const guest_access_rule of guest.access_rights.access_rules) {
                     const acu = guest_access_rule.access_points.acus
                     if (acu.status === acuStatus.ACTIVE) {
@@ -1476,15 +1462,7 @@ export default class CardholderController {
                         const schedule: Schedule = await Schedule.findOneOrFail({ id: guest_access_rule.schedule })
                         console.log('schedule', schedule)
                         const send_data = { id: guest_access_rule.id, access_point: guest_access_rule.access_points.id }
-                        let operator: OperatorType = OperatorType.DEL_SDL_DAILY
-                        if (schedule.type === scheduleType.WEEKLY) {
-                            operator = OperatorType.DEL_SDL_WEEKLY
-                        } else if (schedule.type === scheduleType.FLEXITIME) {
-                            operator = OperatorType.DEL_SDL_FLEXI_TIME
-                        } else if (schedule.type === scheduleType.SPECIFIC) {
-                            operator = OperatorType.DEL_SDL_SPECIFIED
-                        }
-                        new SendDeviceMessage(operator, location, acu.serial_number, send_data, acu.session_id)
+                        SdlController.delSdl(location, acu.serial_number, send_data, schedule.type, acu.session_id)
                     } else {
                         await AccessRule.destroyItem(guest_access_rule)
                     }
@@ -1528,19 +1506,7 @@ export default class CardholderController {
                                 access_rule = await AccessRule.addItem(access_rule)
 
                                 if (acu.status === acuStatus.ACTIVE) {
-                                    const schedule: Schedule = await Schedule.findOneOrFail({ id: access_rule.schedule })
-                                    const timeframes = await Timeframe.find({ schedule: schedule.id })
-                                    const send_sdl_data: any = { ...access_rule, timeframes: timeframes }
-                                    let operator: OperatorType = OperatorType.SET_SDL_DAILY
-                                    if (schedule.type === scheduleType.WEEKLY) {
-                                        operator = OperatorType.SET_SDL_WEEKLY
-                                    } else if (schedule.type === scheduleType.FLEXITIME) {
-                                        send_sdl_data.start_from = schedule.start_from
-                                        operator = OperatorType.SET_SDL_FLEXI_TIME
-                                    } else if (schedule.type === scheduleType.SPECIFIC) {
-                                        operator = OperatorType.SET_SDL_SPECIFIED
-                                    }
-                                    new SendDeviceMessage(operator, location, acu.serial_number, send_sdl_data, acu.session_id)
+                                    SdlController.setSdl(location, acu.serial_number, access_rule, acu.session_id)
 
                                     const cardholders = await Cardholder.getAllItems({
                                         relations: ['credentials'],
@@ -1573,15 +1539,7 @@ export default class CardholderController {
                         if (acu.status === acuStatus.ACTIVE) {
                             const schedule: Schedule = await Schedule.findOneOrFail({ id: guest_access_rule.schedule })
                             const send_data = { id: guest_access_rule.id, access_point: guest_access_rule.access_points.id }
-                            let operator: OperatorType = OperatorType.DEL_SDL_DAILY
-                            if (schedule.type === scheduleType.WEEKLY) {
-                                operator = OperatorType.DEL_SDL_WEEKLY
-                            } else if (schedule.type === scheduleType.FLEXITIME) {
-                                operator = OperatorType.DEL_SDL_FLEXI_TIME
-                            } else if (schedule.type === scheduleType.SPECIFIC) {
-                                operator = OperatorType.DEL_SDL_SPECIFIED
-                            }
-                            new SendDeviceMessage(operator, location, acu.serial_number, send_data, acu.session_id)
+                            SdlController.delSdl(location, acu.serial_number, send_data, schedule.type, acu.session_id)
                         } else {
                             await AccessRule.destroyItem(guest_access_rule)
                         }
@@ -1798,19 +1756,7 @@ export default class CardholderController {
                 console.log('access_rights', access_rights)
                 for (const access_rule of access_rights.access_rules) {
                     if (access_rule.access_points.acus.status === acuStatus.ACTIVE) {
-                        const send_sdl_data: any = { ...access_rule, timeframes: access_rule.schedules.timeframes }
-
-                        let operator: OperatorType = OperatorType.SET_SDL_DAILY
-                        const access_rule_schedule = access_rule.schedules
-                        if (access_rule_schedule.type === scheduleType.WEEKLY) {
-                            operator = OperatorType.SET_SDL_WEEKLY
-                        } else if (access_rule_schedule.type === scheduleType.FLEXITIME) {
-                            send_sdl_data.start_from = access_rule_schedule.start_from
-                            operator = OperatorType.SET_SDL_FLEXI_TIME
-                        } else if (access_rule_schedule.type === scheduleType.SPECIFIC) {
-                            operator = OperatorType.SET_SDL_SPECIFIED
-                        }
-                        new SendDeviceMessage(operator, location, access_rule.access_points.acus.serial_number, send_sdl_data, access_rule.access_points.acus.session_id)
+                        SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, access_rule.access_points.acus.session_id)
                     }
                 }
             }
@@ -2014,15 +1960,7 @@ export default class CardholderController {
                     if (acu.status === acuStatus.ACTIVE) {
                         const schedule: Schedule = await Schedule.findOneOrFail({ id: created_cardholder_access_rule.schedule })
                         const send_data = { id: created_cardholder_access_rule.id, access_point: created_cardholder_access_rule.access_points.id }
-                        let operator: OperatorType = OperatorType.DEL_SDL_DAILY
-                        if (schedule.type === scheduleType.WEEKLY) {
-                            operator = OperatorType.DEL_SDL_WEEKLY
-                        } else if (schedule.type === scheduleType.FLEXITIME) {
-                            operator = OperatorType.DEL_SDL_FLEXI_TIME
-                        } else if (schedule.type === scheduleType.SPECIFIC) {
-                            operator = OperatorType.DEL_SDL_SPECIFIED
-                        }
-                        new SendDeviceMessage(operator, location, acu.serial_number, send_data, acu.session_id)
+                        SdlController.delSdl(location, acu.serial_number, send_data, schedule.type, acu.session_id)
                     } else {
                         await AccessRule.destroyItem(created_cardholder_access_rule)
                     }
@@ -2073,19 +2011,7 @@ export default class CardholderController {
                 console.log('access_rights', access_rights)
                 for (const access_rule of access_rights.access_rules) {
                     if (access_rule.access_points.acus.status === acuStatus.ACTIVE) {
-                        const send_sdl_data: any = { ...access_rule, timeframes: access_rule.schedules.timeframes }
-
-                        let operator: OperatorType = OperatorType.SET_SDL_DAILY
-                        const access_rule_schedule = access_rule.schedules
-                        if (access_rule_schedule.type === scheduleType.WEEKLY) {
-                            operator = OperatorType.SET_SDL_WEEKLY
-                        } else if (access_rule_schedule.type === scheduleType.FLEXITIME) {
-                            send_sdl_data.start_from = access_rule_schedule.start_from
-                            operator = OperatorType.SET_SDL_FLEXI_TIME
-                        } else if (access_rule_schedule.type === scheduleType.SPECIFIC) {
-                            operator = OperatorType.SET_SDL_SPECIFIED
-                        }
-                        new SendDeviceMessage(operator, location, access_rule.access_points.acus.serial_number, send_sdl_data, access_rule.access_points.acus.session_id)
+                        SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, access_rule.access_points.acus.session_id)
                     }
                 }
             }

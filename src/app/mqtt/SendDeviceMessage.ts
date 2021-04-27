@@ -6,10 +6,10 @@ export default class SendDeviceMessage {
     readonly topic: string
     readonly message_id: string
     readonly session_id: string
-    readonly update:boolean
+    readonly update: boolean
     readonly data: any
 
-    constructor (operator: string, location: string, device_id: number, data: any = 'none', session_id: string | null = '0', update:boolean = false, message_id: string = new Date().getTime().toString()) {
+    constructor (operator: string, location: string, device_id: number, data: any = 'none', session_id: string | null = '0', update: boolean = false, message_id: string = new Date().getTime().toString()) {
         this.operator = operator
         this.topic = `${location}/registration/${device_id}/Operate/`
         this.topic = `5/5/registration/${device_id}/Operate/`

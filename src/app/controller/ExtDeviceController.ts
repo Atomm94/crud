@@ -262,7 +262,7 @@ export default class ExtDeviceController {
             const location = `${user.company_main}/${user.company}`
             const acu: Acu = await Acu.findOneOrFail({ id: ext_device.acu })
             if (acu.status === acuStatus.ACTIVE) {
-                ExtensionDeviceController.setExtensionDevice(location, acu.serial_number, req_data, acu.session_id)
+                ExtensionDeviceController.delExtensionDevice(location, acu.serial_number, req_data, acu.session_id)
                 ctx.body = { message: 'Destroy pending' }
             } else {
                 ctx.body = await ExtDevice.destroyItem(where)

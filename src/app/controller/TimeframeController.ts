@@ -1,12 +1,10 @@
 import { DefaultContext } from 'koa'
 import { acuStatus } from '../enums/acuStatus.enum'
-import { scheduleType } from '../enums/scheduleType.enum'
 import { Schedule } from '../model/entity'
 import { AccessRule } from '../model/entity/AccessRule'
 import { Timeframe } from '../model/entity/Timeframe'
-import { OperatorType } from '../mqtt/Operators'
 import { CheckScheduleSettings } from '../functions/check-schedule-settings'
-import SendDeviceMessage from '../mqtt/SendDeviceMessage'
+import SdlController from './Hardware/SdlController'
 
 export default class TimeframeController {
     /**
@@ -83,18 +81,7 @@ export default class TimeframeController {
             }
             for (const access_rule of access_rules) {
                 const send_data: any = { id: access_rule.id, access_point: access_rule.access_point, timeframes: timeframes }
-                let operator: OperatorType = OperatorType.SET_SDL_DAILY
-                if (schedule.type === scheduleType.WEEKLY) {
-                    operator = OperatorType.SET_SDL_WEEKLY
-                } else if (schedule.type === scheduleType.FLEXITIME) {
-                    send_data.start_from = schedule.start_from
-                    send_data.schedule_type = schedule.type
-                    operator = OperatorType.DEL_SDL_FLEXI_TIME
-                } else if (schedule.type === scheduleType.SPECIFIC) {
-                    send_data.schedule_type = schedule.type
-                    operator = OperatorType.DEL_SDL_SPECIFIED
-                }
-                new SendDeviceMessage(operator, location, access_rule.access_points.acus.serial_number, send_data, access_rule.access_points.acus.session_id)
+                SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, access_rule.access_points.acus.session_id, send_data)
             }
         } catch (error) {
             console.log(error)
@@ -181,18 +168,7 @@ export default class TimeframeController {
 
             for (const access_rule of access_rules) {
                 const send_data: any = { id: access_rule.id, access_point: access_rule.access_point, timeframes: timeframes }
-                let operator: OperatorType = OperatorType.SET_SDL_DAILY
-                if (schedule.type === scheduleType.WEEKLY) {
-                    operator = OperatorType.SET_SDL_WEEKLY
-                } else if (schedule.type === scheduleType.FLEXITIME) {
-                    send_data.start_from = schedule.start_from
-                    send_data.type = schedule.type
-                    operator = OperatorType.DEL_SDL_FLEXI_TIME
-                } else if (schedule.type === scheduleType.SPECIFIC) {
-                    send_data.type = schedule.type
-                    operator = OperatorType.DEL_SDL_SPECIFIED
-                }
-                new SendDeviceMessage(operator, location, access_rule.access_points.acus.serial_number, send_data, access_rule.access_points.acus.session_id)
+                SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, access_rule.access_points.acus.session_id, send_data)
             }
         } catch (error) {
             ctx.status = error.status || 400
@@ -297,18 +273,7 @@ export default class TimeframeController {
 
             for (const access_rule of access_rules) {
                 const send_data: any = { id: access_rule.id, access_point: access_rule.access_point, timeframes: timeframes }
-                let operator: OperatorType = OperatorType.SET_SDL_DAILY
-                if (schedule.type === scheduleType.WEEKLY) {
-                    operator = OperatorType.SET_SDL_WEEKLY
-                } else if (schedule.type === scheduleType.FLEXITIME) {
-                    send_data.start_from = schedule.start_from
-                    send_data.type = schedule.type
-                    operator = OperatorType.DEL_SDL_FLEXI_TIME
-                } else if (schedule.type === scheduleType.SPECIFIC) {
-                    send_data.type = schedule.type
-                    operator = OperatorType.DEL_SDL_SPECIFIED
-                }
-                new SendDeviceMessage(operator, location, access_rule.access_points.acus.serial_number, send_data, access_rule.access_points.acus.session_id)
+                SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, access_rule.access_points.acus.session_id, send_data)
             }
         } catch (error) {
             ctx.status = error.status || 400

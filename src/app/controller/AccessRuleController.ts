@@ -2,7 +2,6 @@ import { DefaultContext } from 'koa'
 import { Cardholder, Schedule } from '../model/entity'
 import { Acu } from '../model/entity/Acu'
 import { acuStatus } from '../enums/acuStatus.enum'
-import { scheduleType } from '../enums/scheduleType.enum'
 import SendDeviceMessage from '../mqtt/SendDeviceMessage'
 import { OperatorType } from '../mqtt/Operators'
 import { Timeframe } from '../model/entity/Timeframe'
@@ -95,19 +94,6 @@ export default class AccessRuleController {
                 const acu: Acu = await Acu.getItem({ id: access_point.acu })
                 if (acu.status === acuStatus.ACTIVE) {
                     SdlController.setSdl(location, acu.serial_number, access_rule, acu.session_id)
-                    // const schedule: Schedule = await Schedule.findOneOrFail({ id: req_data.schedule })
-                    // const timeframes = await Timeframe.find({ schedule: schedule.id })
-                    // const send_sdl_data: any = { ...access_rule, timeframes: timeframes }
-                    // let operator: OperatorType = OperatorType.SET_SDL_DAILY
-                    // if (schedule.type === scheduleType.WEEKLY) {
-                    //     operator = OperatorType.SET_SDL_WEEKLY
-                    // } else if (schedule.type === scheduleType.FLEXITIME) {
-                    //     send_sdl_data.start_from = schedule.start_from
-                    //     operator = OperatorType.SET_SDL_FLEXI_TIME
-                    // } else if (schedule.type === scheduleType.SPECIFIC) {
-                    //     operator = OperatorType.SET_SDL_SPECIFIED
-                    // }
-                    // new SendDeviceMessage(operator, location, acu.serial_number, send_sdl_data, acu.session_id)
 
                     const cardholders = await Cardholder.getAllItems({
                         relations: ['credentials'],
@@ -197,20 +183,11 @@ export default class AccessRuleController {
                 const access_point: AccessPoint = await AccessPoint.findOneOrFail({ id: access_rule.access_point })
                 const acu: Acu = await Acu.findOneOrFail({ id: access_point.acu })
                 if (acu.status === acuStatus.ACTIVE) {
-                    const schedule: Schedule = await Schedule.findOneOrFail({ id: req_data.schedule })
-                    const timeframes = await Timeframe.find({ schedule: schedule.id })
-                    const send_data = { ...req_data, schedule_type: schedule.type, start_from: schedule.start_from, timeframes: timeframes, access_point: access_point.id }
                     if (access_rule.schedule !== req_data.schedule) {
-                        let operator: OperatorType = OperatorType.DEL_SDL_DAILY
-                        if (access_rule.schedules.type === scheduleType.WEEKLY) {
-                            operator = OperatorType.DEL_SDL_WEEKLY
-                        } else if (access_rule.schedules.type === scheduleType.FLEXITIME) {
-                            send_data.start_from = schedule.start_from
-                            operator = OperatorType.DEL_SDL_FLEXI_TIME
-                        } else if (access_rule.schedules.type === scheduleType.SPECIFIC) {
-                            operator = OperatorType.DEL_SDL_SPECIFIED
-                        }
-                        new SendDeviceMessage(operator, location, acu.serial_number, send_data, acu.session_id, true)
+                        const schedule: Schedule = await Schedule.findOneOrFail({ id: req_data.schedule })
+                        const timeframes = await Timeframe.find({ schedule: schedule.id })
+                        const send_data = { ...req_data, schedule_type: schedule.type, start_from: schedule.start_from, timeframes: timeframes, access_point: access_point.id }
+                        SdlController.delSdl(location, acu.serial_number, send_data, schedule.type, acu.session_id, true)
                     }
                     ctx.body = true
                 } else {
@@ -319,16 +296,9 @@ export default class AccessRuleController {
                 const acu: Acu = await Acu.findOneOrFail({ id: access_point.acu })
                 if (acu.status === acuStatus.ACTIVE) {
                     const schedule: Schedule = await Schedule.findOneOrFail({ id: access_rule.schedule })
+
                     const send_data = { id: access_rule.id, access_point: access_point.id }
-                    let operator: OperatorType = OperatorType.DEL_SDL_DAILY
-                    if (schedule.type === scheduleType.WEEKLY) {
-                        operator = OperatorType.DEL_SDL_WEEKLY
-                    } else if (schedule.type === scheduleType.FLEXITIME) {
-                        operator = OperatorType.DEL_SDL_FLEXI_TIME
-                    } else if (schedule.type === scheduleType.SPECIFIC) {
-                        operator = OperatorType.DEL_SDL_SPECIFIED
-                    }
-                    new SendDeviceMessage(operator, location, acu.serial_number, send_data, acu.session_id)
+                    SdlController.delSdl(location, acu.serial_number, send_data, schedule.type, acu.session_id)
                     ctx.body = { message: 'Delete pending' }
                 } else {
                     ctx.body = await AccessRule.destroyItem(where)

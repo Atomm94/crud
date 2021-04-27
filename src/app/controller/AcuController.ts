@@ -9,8 +9,8 @@ import { Reader } from '../model/entity/Reader'
 import { accessPointType } from '../enums/accessPointType.enum'
 import { ExtDevice } from '../model/entity/ExtDevice'
 import acuModels from '../model/entity/acuModels.json'
-import { scheduleType } from '../enums/scheduleType.enum'
 import { Cardholder } from '../model/entity'
+import SdlController from './Hardware/SdlController'
 
 export default class AcuController {
     /**
@@ -856,18 +856,7 @@ export default class AcuController {
 
                 // send Schedules(Access Rules)
                 for (const access_rule of access_point.access_rules) {
-                    const send_data: any = { ...access_rule, timeframes: access_rule.schedules.timeframes }
-                    let operator: OperatorType = OperatorType.SET_SDL_DAILY
-                    const schedule = access_rule.schedules
-                    if (schedule.type === scheduleType.WEEKLY) {
-                        operator = OperatorType.SET_SDL_WEEKLY
-                    } else if (schedule.type === scheduleType.FLEXITIME) {
-                        send_data.start_from = schedule.start_from
-                        operator = OperatorType.SET_SDL_FLEXI_TIME
-                    } else if (schedule.type === scheduleType.SPECIFIC) {
-                        operator = OperatorType.SET_SDL_SPECIFIED
-                    }
-                    new SendDeviceMessage(operator, location, device.serial_number, send_data, device.session_id)
+                    SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, access_rule.access_points.acus.session_id)
                 }
 
                 // send CardKeys
