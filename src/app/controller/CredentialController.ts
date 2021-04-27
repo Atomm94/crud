@@ -2,7 +2,7 @@ import { DefaultContext } from 'koa'
 import { credentialType } from '../enums/credentialType.enum'
 import { Credential } from '../model/entity/Credential'
 // import { CheckCredentialSettings } from '../functions/check-credential'
-import { AccessPoint, Acu } from '../model/entity'
+import { AccessPoint, Cardholder } from '../model/entity'
 import { acuStatus } from '../enums/acuStatus.enum'
 import CardKeyController from './Hardware/CardKeyController'
 
@@ -229,20 +229,18 @@ export default class CredentialController {
             const credential: any = await Credential.getItem({ id: req_data.id })
             credential.status = 0
             req_data.where = { company: { '=': user.company ? user.company : null }, status: { '=': acuStatus.ACTIVE } }
-            const acus: any = await Acu.getAllItems(req_data)
             const access_points = await AccessPoint.createQueryBuilder('access_point')
-                .innerJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
-                .where(`acu.status = '${acuStatus.ACTIVE}'`)
-                .andWhere(`acu.company = ${ctx.user.company}`)
-                .getMany()
+            .innerJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
+            .where(`acu.status = '${acuStatus.ACTIVE}'`)
+            .andWhere(`acu.company = ${ctx.user.company}`)
+            .getMany()
             ctx.body = await Credential.destroyItem(where)
             ctx.body = true
-            acus.forEach((acu: any) => {
-                access_points.forEach((access_point: any) => {
-                    credential.access_point = access_point.id
-                    CardKeyController.delCardKey(location, acu.serial_number, credential, acu.session_id)
-                })
-            })
+
+            const cardhoder = await Cardholder.findOneOrFail({ id: credential.cardhoder })
+            cardhoder.credentials = [credential]
+
+            CardKeyController.editCardKey(location, req_data.company, null, access_points, [cardhoder])
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -314,8 +312,8 @@ export default class CredentialController {
      *                      type: number
      *                      example: 1
      *                  status:
-     *                      type: ACTIVE | STOLEN | LOST
-     *                      example: ACTIVE
+     *                      type: active | stolen | lost
+     *                      example: active
      *          responses:
      *              '201':
      *                  description: A credential updated object
@@ -339,18 +337,26 @@ export default class CredentialController {
                 const credential: any = await Credential.getItem({ id: req_data.id })
                 credential.status = req_data.status
                 req_data.where = { company: { '=': user.company ? user.company : null }, status: { '=': acuStatus.ACTIVE } }
-                const acus: any = await Acu.getAllItems(req_data)
                 const access_points = await AccessPoint.createQueryBuilder('access_point')
-                    .innerJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
-                    .where(`acu.status = '${acuStatus.ACTIVE}'`)
-                    .andWhere(`acu.company = ${ctx.user.company}`)
-                    .getMany()
-                acus.forEach((acu: any) => {
-                    access_points.forEach((access_point: any) => {
-                        credential.access_point = access_point.id
-                        CardKeyController.updateStatus(location, acu.serial_number, credential, acu.session_id)
-                    })
-                })
+                .innerJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
+                .where(`acu.status = '${acuStatus.ACTIVE}'`)
+                .andWhere(`acu.company = ${ctx.user.company}`)
+                .getMany()
+
+                console.log('credential', credential)
+
+                const cardhoder = await Cardholder.findOneOrFail({ id: credential.cardholder })
+                console.log('cardhoder', cardhoder)
+                cardhoder.credentials = [credential]
+
+                CardKeyController.editCardKey(location, req_data.company, null, access_points, [cardhoder])
+                // const acus: any = await Acu.getAllItems(req_data)
+                // acus.forEach((acu: any) => {
+                //     access_points.forEach((access_point: any) => {
+                //         credential.access_point = access_point.id
+                //         new SendDeviceMessage(OperatorType.EDIT_KEY, location, acu.serial_number, credential, acu.session_id)
+                //     })
+                // })
             }
         } catch (error) {
             ctx.status = error.status || 400

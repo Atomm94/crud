@@ -1,10 +1,100 @@
 
+import { acuStatus } from '../../enums/acuStatus.enum'
+import { AccessPoint, AccessRule, Acu, Cardholder } from '../../model/entity'
 import { OperatorType } from '../../mqtt/Operators'
 import SendDeviceMessage from '../../mqtt/SendDeviceMessage'
 
-export default class CredentialController {
-    public static async setCardKey () {
+export default class CardKeyController {
+    public static async setAddCardKey (operator: OperatorType.SET_CARD_KEYS | OperatorType.ADD_CARD_KEY, location: string, company: number, access_points: Array<{ id: number } | AccessPoint> | null, cardholders: Cardholder[] | null = null, acus: Acu[] | null = null) {
+        let all_access_points: any
+        if (access_points) {
+            all_access_points = access_points
+        } else {
+            all_access_points = await AccessPoint.createQueryBuilder('access_point')
+                .innerJoin('access_point.acus', 'acu', 'acu.delete_date is null')
+                .where(`acu.status = '${acuStatus.ACTIVE}'`)
+                .andWhere(`acu.company = ${company}`)
+                .select('access_point.id')
+                .getMany()
+        }
 
+        if (all_access_points.length) {
+            let all_cardholders: any
+            if (cardholders) {
+                all_cardholders = cardholders
+            } else {
+                all_cardholders = await Cardholder.getAllItems({
+                    relations: [
+                        'credentials',
+                        'access_rights',
+                        'access_rights.access_rules'
+                    ],
+                    where: {
+                        company: {
+                            '=': company
+                        }
+                    }
+                })
+            }
+
+            if (all_cardholders.length) {
+                let all_acus: any
+                if (acus) {
+                    all_acus = acus
+                } else {
+                    all_acus = await Acu.getAllItems({ where: { status: { '=': acuStatus.ACTIVE } } })
+                }
+
+                all_acus.forEach((acu: any) => {
+                    const send_data = {
+                        access_points: all_access_points,
+                        cardholders: all_cardholders
+                    }
+                    new SendDeviceMessage(operator, location, acu.serial_number, send_data, acu.session_id)
+                })
+            }
+        }
+    }
+
+    public static async editCardKey (location: string, company: number, access_rule: AccessRule | null, access_points: Array<{ id: number } | AccessPoint> | null = null, cardholders: Cardholder[]) {
+        let send_edit_data: any
+        if (access_points) {
+            send_edit_data = {
+                access_points: access_points
+            }
+        } else if (access_rule) {
+            send_edit_data = {
+                access_rule: access_rule
+            }
+        }
+
+        if (send_edit_data) {
+            let all_cardholders: any
+            if (cardholders) {
+                all_cardholders = cardholders
+            } else {
+                all_cardholders = await Cardholder.getAllItems({
+                    relations: [
+                        'credentials',
+                        'access_rights',
+                        'access_rights.access_rules'
+                    ],
+                    where: {
+                        company: {
+                            '=': company
+                        }
+                    }
+                })
+            }
+            if (all_cardholders.length) {
+                send_edit_data.cardholders = all_cardholders
+
+                const acus: any = await Acu.getAllItems({ where: { status: { '=': acuStatus.ACTIVE } } })
+                acus.forEach((acu: any) => {
+                    new SendDeviceMessage(OperatorType.EDIT_KEY, location, acu.serial_number, send_edit_data, acu.session_id)
+                })
+            }
+        }
     }
 
     public static async delCardKey (location: string, serial_number: number, data: any, session_id: string | null = '0') {

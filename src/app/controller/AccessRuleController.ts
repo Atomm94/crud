@@ -2,13 +2,12 @@ import { DefaultContext } from 'koa'
 import { Cardholder, Schedule } from '../model/entity'
 import { Acu } from '../model/entity/Acu'
 import { acuStatus } from '../enums/acuStatus.enum'
-import SendDeviceMessage from '../mqtt/SendDeviceMessage'
-import { OperatorType } from '../mqtt/Operators'
 import { Timeframe } from '../model/entity/Timeframe'
 import { In } from 'typeorm'
 import { AccessPoint } from '../model/entity/AccessPoint'
 import { AccessRule } from '../model/entity/AccessRule'
 import SdlController from './Hardware/SdlController'
+import CardKeyController from './Hardware/CardKeyController'
 
 export default class AccessRuleController {
     /**
@@ -102,17 +101,7 @@ export default class AccessRuleController {
                             company: req_data.company
                         }
                     })
-                    if (cardholders.length) {
-                        const send_edit_data = {
-                            access_rule: access_rule,
-                            cardholders: cardholders
-                        }
-
-                        const acus: any = await Acu.getAllItems({ where: { status: { '=': acuStatus.ACTIVE } } })
-                        acus.forEach((item_acu: any) => {
-                            new SendDeviceMessage(OperatorType.EDIT_KEY, location, item_acu.serial_number, send_edit_data, item_acu.session_id)
-                        })
-                    }
+                    CardKeyController.editCardKey(location, req_data.company, access_rule, null, cardholders)
                     ctx.body = true
                 }
             }

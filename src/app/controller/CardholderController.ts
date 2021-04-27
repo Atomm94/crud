@@ -16,6 +16,8 @@ import { validate } from '../functions/passValidator'
 import { scheduleCustomType } from '../enums/scheduleCustomType.enum'
 import { Timeframe } from '../model/entity/Timeframe'
 import SdlController from './Hardware/SdlController'
+import CardKeyController from './Hardware/CardKeyController'
+
 // import SendDeviceMessage from '../mqtt/SendDeviceMessage'
 // import { OperatorType } from '../mqtt/Operators'
 
@@ -275,25 +277,8 @@ export default class CardholderController {
                         return ctx.body = { message: check }
                     }
                 }
-                const access_points = await AccessPoint.createQueryBuilder('access_point')
-                    .innerJoin('access_point.acus', 'acu', 'acu.delete_date is null')
-                    .where(`acu.status = '${acuStatus.ACTIVE}'`)
-                    .andWhere(`acu.company = ${ctx.user.company}`)
-                    .select('access_point.id')
-                    .getMany()
-                if (access_points.length) {
-                    const access_rights = await AccessRight.findOneOrFail({ where: { id: cardholder.access_right }, relations: ['access_rules'] })
-                    cardholder.access_rights = access_rights
-                    cardholder.credentials = credentials
-                    const send_data = {
-                        access_points: access_points,
-                        cardholders: [cardholder]
-                    }
-                    const acus: any = await Acu.getAllItems(req_data)
-                    acus.forEach((acu: any) => {
-                        new SendDeviceMessage(OperatorType.ADD_CARD_KEY, location, acu.serial_number, send_data, acu.session_id)
-                    })
-                }
+
+                CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, req_data.company, null, [cardholder], null)
             }
             if (cardholder) {
                 const where = { id: cardholder.id }
@@ -552,37 +537,13 @@ export default class CardholderController {
                             cardholder.access_rights = access_rights
 
                             cardholder.credentials = credentials
-                            const send_add_data: { access_points: AccessPoint[], cardholders: Cardholder[] } = {
-                                access_points: access_points,
-                                cardholders: [cardholder]
-                            }
 
-                            let send_edit_data: { access_points: AccessPoint[], cardholders: Cardholder[] } | undefined
+                            CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, auth_user.company, null, [cardholder], null)
+
                             if (res_data.old.vip !== res_data.new.vip && old_credentials.length) {
                                 cardholder.credentials = old_credentials
-                                send_edit_data = {
-                                    access_points: access_points,
-                                    cardholders: [cardholder]
-                                }
+                                CardKeyController.editCardKey(location, req_data.company, null, access_points, [cardholder])
                             }
-
-                            req_data.where = { status: { '=': acuStatus.ACTIVE } }
-                            const acus: any = await Acu.getAllItems(req_data)
-
-                            // credential.key_type = res_data.new.vip
-                            // acus.forEach((acu: any) => {
-                            //     access_points.forEach((access_point: any) => {
-                            //         credential.access_point = access_point.id
-                            //         new SendDeviceMessage(OperatorType.EDIT_KEY, location, acu.serial_number, credential, acu.session_id)
-                            //     })
-                            // })
-                            acus.forEach((acu: any) => {
-                                new SendDeviceMessage(OperatorType.ADD_CARD_KEY, location, acu.serial_number, send_add_data, acu.session_id)
-
-                                if (send_edit_data) {
-                                    new SendDeviceMessage(OperatorType.EDIT_KEY, location, acu.serial_number, send_edit_data, acu.session_id)
-                                }
-                            })
                         }
                     }
                 }
@@ -1289,14 +1250,8 @@ export default class CardholderController {
 
                 cardholder.access_rights = access_rights
                 cardholder.credentials = [credential]
-                const send_data = {
-                    access_points: access_points,
-                    cardholders: [cardholder]
-                }
-                const acus: any = await Acu.getAllItems({ where: { status: { '=': acuStatus.ACTIVE } } })
-                acus.forEach((item_acu: any) => {
-                    new SendDeviceMessage(OperatorType.ADD_CARD_KEY, location, item_acu.serial_number, send_data, item_acu.session_id)
-                })
+
+                CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, req_data.company, access_points, [cardholder], null)
             }
 
             const where = { id: cardholder.id }
@@ -1515,17 +1470,8 @@ export default class CardholderController {
                                             company: company
                                         }
                                     })
-                                    if (cardholders.length) {
-                                        const send_edit_data = {
-                                            access_rule: access_rule,
-                                            cardholders: cardholders
-                                        }
 
-                                        const acus: any = await Acu.getAllItems({ where: { status: { '=': acuStatus.ACTIVE } } })
-                                        acus.forEach((item_acu: any) => {
-                                            new SendDeviceMessage(OperatorType.EDIT_KEY, location, item_acu.serial_number, send_edit_data, item_acu.session_id)
-                                        })
-                                    }
+                                    CardKeyController.editCardKey(location, req_data.company, access_rule, null, cardholders)
                                 }
                                 break
                             }
@@ -1781,14 +1727,8 @@ export default class CardholderController {
                     const access_rights = await AccessRight.findOneOrFail({ where: { id: cardholder.access_right }, relations: ['access_rules'] })
                     cardholder.access_rights = access_rights
                     cardholder.credentials = credentials
-                    const send_data = {
-                        access_points: access_points,
-                        cardholders: [cardholder]
-                    }
-                    const acus: any = await Acu.getAllItems(req_data)
-                    acus.forEach((acu: any) => {
-                        new SendDeviceMessage(OperatorType.ADD_CARD_KEY, location, acu.serial_number, send_data, acu.session_id)
-                    })
+
+                    CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, req_data.company, access_points, [cardholder], null)
                 }
             }
 
@@ -2034,19 +1974,9 @@ export default class CardholderController {
                     const access_rights = await AccessRight.findOne({ where: { id: created_cardholder.access_right }, relations: ['access_rules'] })
                     if (access_rights) {
                         created_cardholder.access_rights = access_rights
-
                         created_cardholder.credentials = credentials
-                        const send_add_data: { access_points: AccessPoint[], cardholders: Cardholder[] } = {
-                            access_points: access_points,
-                            cardholders: [created_cardholder]
-                        }
 
-                        req_data.where = { status: { '=': acuStatus.ACTIVE } }
-                        const acus: any = await Acu.getAllItems(req_data)
-
-                        acus.forEach((acu: any) => {
-                            new SendDeviceMessage(OperatorType.ADD_CARD_KEY, location, acu.serial_number, send_add_data, acu.session_id)
-                        })
+                        CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, req_data.company, access_points, [created_cardholder], null)
                     }
                 }
             }
