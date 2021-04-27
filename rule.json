@@ -5,3 +5,22 @@
   ],
   "schedule": 13
 }
+
+
+
+
+
+        // const error_list: any = errorList
+
+        // const error: number = Number(message.result.errorNo)
+        // if (error_list[error] !== 0) {
+        //     const company = message.send_data.data.company
+        //     const user = message.send_data.user
+        //     message.send_data.data.error_description = error_list[error].description
+        //     new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+        // } else {
+        //     const company = message.send_data.data.company
+        //     const user = message.send_data.user
+        //     message.send_data.data.error_description = 'Unknown Error'
+        //     new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, company, user)
+        // }

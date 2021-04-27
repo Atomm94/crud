@@ -2,10 +2,9 @@ import { DefaultContext } from 'koa'
 import { credentialType } from '../enums/credentialType.enum'
 import { Credential } from '../model/entity/Credential'
 // import { CheckCredentialSettings } from '../functions/check-credential'
-import SendDeviceMessage from '../mqtt/SendDeviceMessage'
-import { OperatorType } from '../mqtt/Operators'
 import { AccessPoint, Acu } from '../model/entity'
 import { acuStatus } from '../enums/acuStatus.enum'
+import CardKeyController from './Hardware/CardKeyController'
 
 export default class CredentialController {
     /**
@@ -241,7 +240,7 @@ export default class CredentialController {
             acus.forEach((acu: any) => {
                 access_points.forEach((access_point: any) => {
                     credential.access_point = access_point.id
-                    new SendDeviceMessage(OperatorType.EDIT_KEY, location, acu.serial_number, credential, acu.session_id)
+                    CardKeyController.delCardKey(location, acu.serial_number, credential, acu.session_id)
                 })
             })
         } catch (error) {
@@ -349,7 +348,7 @@ export default class CredentialController {
                 acus.forEach((acu: any) => {
                     access_points.forEach((access_point: any) => {
                         credential.access_point = access_point.id
-                        new SendDeviceMessage(OperatorType.EDIT_KEY, location, acu.serial_number, credential, acu.session_id)
+                        CardKeyController.updateStatus(location, acu.serial_number, credential, acu.session_id)
                     })
                 })
             }
