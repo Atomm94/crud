@@ -10,7 +10,7 @@ import { MainEntity } from './MainEntity'
 
 @Entity('notification')
 export class Notification extends MainEntity {
-    @Column('int', { name: 'confirmed', nullable: true })
+    @Column('bigint', { name: 'confirmed', nullable: true })
     confirmed: number | null
 
     @Column('int', { name: 'access_point', nullable: true })

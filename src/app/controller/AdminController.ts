@@ -839,7 +839,7 @@ export default class AdminController {
 
         const req_data = ctx.query
         req_data.relations = ['departments']
-        const where: any = { company: { '=': user.company ? user.company : null } }
+        const where: any = { company: { '=': user.company ? user.company : null }, id: { '!=': user.id } }
         if (!user.company && !user.super) {
             where.super = { '=': false }
         }
