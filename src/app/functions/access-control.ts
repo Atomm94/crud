@@ -1,5 +1,5 @@
 import { AccessControl as RA } from 'role-acl'
-import { Packet, Role } from '../model/entity/index'
+import { Package, Role } from '../model/entity/index'
 import { logger } from '../../../modules/winston/logger'
 
 export class AccessControl {
@@ -71,36 +71,36 @@ export class AccessControl {
     }
 
     public static async GrantCompanyAccess () {
-        const packets: any = await Packet.getAllItems()
+        const packages: any = await Package.getAllItems()
         this.ac.registerConditionFunction('limit', this.limitCheck)
-        if (packets) {
-            packets.forEach((packet: Packet) => {
-                this.addCompanyGrant(packet)
+        if (packages) {
+            packages.forEach((package_data: Package) => {
+                this.addCompanyGrant(package_data)
             })
         }
     }
 
-    public static async companyCanAccessResource (packet_id: number, resource_name: string, used: number) {
+    public static async companyCanAccessResource (package_id: number, resource_name: string, used: number) {
         const permission1 = await this.ac
-            .can(`packet${packet_id}`)
+            .can(`package${package_id}`)
             .context({ used: used })
             .execute('addItem')
             .on(resource_name)
         return permission1.granted
     }
 
-    public static async companyCanAccess (packet_id: number, action: string) {
-        const permission1 = await this.ac.can(`packet${packet_id}`).execute(action).on('features')
+    public static async companyCanAccess (package_id: number, action: string) {
+        const permission1 = await this.ac.can(`package${package_id}`).execute(action).on('features')
         return permission1.granted
     }
 
-    public static async addCompanyGrant (packet: Packet) {
-        if (packet.extra_settings) {
-            const packet_id = packet.id
-            const extra_settings: { features: { [key: string]: boolean }, resources: { [key: string]: boolean } } = JSON.parse(packet.extra_settings)
+    public static async addCompanyGrant (package_data: Package) {
+        if (package_data.extra_settings) {
+            const package_id = package_data.id
+            const extra_settings: { features: { [key: string]: boolean }, resources: { [key: string]: boolean } } = JSON.parse(package_data.extra_settings)
             if (extra_settings.resources) {
                 Object.keys(extra_settings.resources).forEach(resource => {
-                    this.ac.grant(`packet${packet_id}`)
+                    this.ac.grant(`package${package_id}`)
                         .condition({
                             Fn: 'custom:limit',
                             args: { limit: +extra_settings.resources[resource] }
@@ -113,7 +113,7 @@ export class AccessControl {
                     const modelFeatures: any = extra_settings.features[model]
                     Object.keys(modelFeatures).forEach(feature => {
                         if (modelFeatures[feature]) {
-                            this.ac.grant(`packet${packet_id}`)
+                            this.ac.grant(`package${package_id}`)
                                 .execute(feature).on('features')
                         }
                     })
