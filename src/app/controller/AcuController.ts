@@ -7,7 +7,6 @@ import { OperatorType } from '../mqtt/Operators'
 import { Reader } from '../model/entity/Reader'
 import { ExtDevice } from '../model/entity/ExtDevice'
 import acuModels from '../model/entity/acuModels.json'
-import { Cardholder } from '../model/entity'
 import SdlController from './Hardware/SdlController'
 import DeviceController from './Hardware/DeviceController'
 import CardKeyController from './Hardware/CardKeyController'
@@ -376,7 +375,7 @@ export default class AcuController {
                         return ctx.body = { message: check_time }
                     } else {
                         if (acu.status === acuStatus.ACTIVE || acu.status === acuStatus.PENDING) {
-                            DeviceController.setNetSettings(location, acu.serial_number, req_data, acu.session_id, true)
+                            DeviceController.setDateTime(location, acu.serial_number, req_data, acu.session_id, true)
                             delete req_data.time
                         }
                         // else {
@@ -821,21 +820,7 @@ export default class AcuController {
 
                 // send CardKeys
 
-                const cardholders = await Cardholder.getAllItems({
-                    relations: [
-                        'credentials',
-                        'access_rights',
-                        'access_rights.access_rules'
-                    ],
-                    where: {
-                        company: {
-                            '=': company
-                        }
-                    }
-                })
-                if (cardholders.length) {
-                    CardKeyController.setAddCardKey(OperatorType.SET_CARD_KEYS, location, company, null, null, [device])
-                }
+                CardKeyController.setAddCardKey(OperatorType.SET_CARD_KEYS, location, company, null, null, [device])
             }
         } catch (error) {
             console.log(error)
