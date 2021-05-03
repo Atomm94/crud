@@ -41,6 +41,9 @@ export class Company extends MainEntity {
     @Column('int', { name: 'account', nullable: true })
     account: number | null
 
+    @Column('int', { name: 'parent_id', nullable: true })
+    parent_id: number | null
+
     @Column('enum', { name: 'status', enum: statusCompany, default: statusCompany.PENDING })
     status: statusCompany
 
@@ -90,6 +93,7 @@ export class Company extends MainEntity {
         if ('package' in data) company.package = data.package
         company.package_type = data.package_type
         if ('message' in data) company.message = data.message
+        if ('parent_id' in data) company.parent_id = data.parent_id
         // company.status = data.status
 
         return new Promise((resolve, reject) => {
