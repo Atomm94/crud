@@ -290,6 +290,11 @@ export default class PacketController {
      *                description: Authentication token
      *                schema:
      *                    type: string
+     *              - in: query
+     *                name: service
+     *                description: service company
+     *                schema:
+     *                    type: boolean
      *          responses:
      *              '200':
      *                  description: Packet settings
@@ -304,23 +309,40 @@ export default class PacketController {
                 resources: [],
                 features: null
             }
-            const features: any = {}
-            Object.keys(models).forEach((model: string) => {
-                if (models[model].resource) {
-                    data.resources.push(model)
-                }
-            })
-            const featuresList = Object.getOwnPropertyNames(feature)
-            if (featuresList.length) {
-                featuresList.forEach((key: any) => {
-                    if (feature[key] && typeof feature[key] === 'object' && key !== 'prototype') {
-                        if (Object.getOwnPropertyNames(feature[key]).length) {
-                            features[key] = Object.getOwnPropertyNames(feature[key])
-                        }
+            if (!ctx.query.service) {
+                const features: any = {}
+                Object.keys(models).forEach((model: string) => {
+                    if (models[model].resource) {
+                        data.resources.push(model)
                     }
                 })
+                const featuresList = Object.getOwnPropertyNames(feature)
+                if (featuresList.length) {
+                    featuresList.forEach((key: any) => {
+                        if (feature[key] && typeof feature[key] === 'object' && key !== 'prototype') {
+                            if (Object.getOwnPropertyNames(feature[key]).length) {
+                                features[key] = Object.getOwnPropertyNames(feature[key])
+                            }
+                        }
+                    })
+                }
+                if (Object.keys(features).length) data.features = features
+            } else {
+                const feature: any = Feature.ServiceFeatures
+                const features: any = {}
+                const packageTypes = await Packet.find()// add don`t get service company type
+                packageTypes.forEach(packageType => {
+                    data.resources.push(packageType.name)
+                })
+                Object.keys(models).forEach((model: string) => {
+                    if (models[model].serviceResource) {
+                        data.resources.push(model)
+                    }
+                })
+                const featureList = Object.keys(feature)
+                features.Features = featureList
+                if (Object.keys(features).length) data.features = features
             }
-            if (Object.keys(features).length) data.features = features
 
             ctx.body = data
         } catch (error) {

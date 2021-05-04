@@ -79,6 +79,7 @@ export abstract class MainEntity extends BaseEntity {
     public static gettingAttributes: boolean = true
 
     public static resource: boolean = false
+    public static serviceResource: boolean = false
     public static features: any = false
 
     public static async findByParams (data: any = {}) {

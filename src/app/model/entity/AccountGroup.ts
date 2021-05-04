@@ -41,6 +41,7 @@ export class AccountGroup extends MainEntity {
     users: Admin[];
 
     static resource: boolean = true
+    public static serviceResource: boolean = false
 
     public static async addItem (data: AccountGroup) {
         const accountGroup = new AccountGroup()
