@@ -103,7 +103,7 @@ class Feature {
 // checking in acl
 async function HaveAccess (ctx: DefaultContext, actionName: string, next: () => Promise<void>) {
     try {
-        const access = await AccessControl.companyCanAccess(ctx.user.companyData.packet, actionName)
+        const access = await AccessControl.companyCanAccess(ctx.user.companyData.package, actionName)
         if (access) {
             await next()
         } else {
