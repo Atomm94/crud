@@ -65,17 +65,17 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
             }
         }
 
-        if (New.packet && New.packet === Old.packet && Old.status === statusCompany.PENDING && New.status === statusCompany.ENABLE) {
+        if (New.package && New.package === Old.package && Old.status === statusCompany.PENDING && New.status === statusCompany.ENABLE) {
             if (New.account) {
                 const account = await Admin.findOne(New.account)
                 if (account && account.role) {
                     const account_role: Role | undefined = await Role.findOne(account.role)
                     const default_role: Role | undefined = await Role.findOne({ slug: 'default_partner', company: null })
-                    // const packet: Packet | undefined = await Packet.findOne(New.packet) // get softDelete too
-                    let packet: any = await getManager().query(`SELECT * FROM packet where id = ${New.packet}`)
+                    // const package: Package | undefined = await Package.findOne(New.package) // get softDelete too
+                    let package_data: any = await getManager().query(`SELECT * FROM package where id = ${New.package}`)
 
-                    if (account_role && packet.length) {
-                        packet = packet[0]
+                    if (account_role && package_data.length) {
+                        package_data = package_data[0]
                         // generate account permissions
                         const permissions: any = {}
                         const default_permissions = (default_role) ? JSON.parse(default_role.permissions) : Role.default_partner_role
@@ -100,7 +100,7 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
                             actions: { ...acu_permissions }
                         }
 
-                        const extra_settings = JSON.parse(packet.extra_settings)
+                        const extra_settings = JSON.parse(package_data.extra_settings)
 
                         const models: any = Models
                         Object.keys(extra_settings.resources).forEach(resource => {
@@ -175,7 +175,7 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
      */
     async beforeUpdate (event: UpdateEvent<Company>) {
         const { entity: New, databaseEntity: Old } = event
-        if (New.packet !== Old.packet && Old.status === 'enabled') {
+        if (New.package !== Old.package && Old.status === 'enabled') {
             New.status = statusCompany.PENDING
         }
     }

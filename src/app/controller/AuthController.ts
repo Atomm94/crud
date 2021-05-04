@@ -80,7 +80,7 @@ export default class AuthController {
                     if (user.company) {
                         const company = await Company.findOneOrFail({ id: user.company })
                         company_main_data.company_main = company.account
-                        company_main_data.packet = company.packet
+                        company_main_data.package = company.package
                         if (company.status === statusCompany.DISABLE || (company.status === statusCompany.PENDING && company.account !== user.id)) {
                             ctx.status = 400
                             return ctx.body = {

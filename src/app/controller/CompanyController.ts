@@ -36,7 +36,7 @@ export default class CompanyController {
      *                type: object
      *                required:
      *                  - company_name
-     *                  - packet_type
+     *                  - package_type
      *                properties:
      *                  id:
      *                      type: number
@@ -44,10 +44,10 @@ export default class CompanyController {
      *                  company_name:
      *                      type: string
      *                      example: some_company_name
-     *                  packet:
+     *                  package:
      *                      type: number
      *                      example: 1
-     *                  packet_type:
+     *                  package_type:
      *                      type: number
      *                      example: 1
      *                  message:
@@ -106,10 +106,10 @@ export default class CompanyController {
      *                  company_name:
      *                      type: string
      *                      example: some_company_name
-     *                  packet:
+     *                  package:
      *                      type: number
      *                      example: 1
-     *                  packet_type:
+     *                  package_type:
      *                      type: number
      *                      example: 1
      *                  message:
@@ -184,7 +184,7 @@ export default class CompanyController {
      */
     public static async get (ctx: DefaultContext) {
         try {
-            const relations = ['company_account', 'packets', 'packet_types', 'company_documents']
+            const relations = ['company_account', 'packages', 'package_types', 'company_documents']
             ctx.body = await Company.getItem(+ctx.params.id, relations)
         } catch (error) {
             ctx.status = error.status || 400
@@ -348,7 +348,7 @@ export default class CompanyController {
             }
 
             req_data.where = where
-            req_data.relations = ['company_account', 'packets', 'packet_types', 'company_documents']
+            req_data.relations = ['company_account', 'packages', 'package_types', 'company_documents']
             ctx.body = await Company.getAllItems(req_data)
         } catch (error) {
             ctx.status = error.status || 400
@@ -385,12 +385,12 @@ export default class CompanyController {
      *                          type: object
      *                          required:
      *                              - company_name
-     *                              - packet_type
+     *                              - package_type
      *                          properties:
      *                              company_name:
      *                                  type: string
      *                                  example: some_company_name
-     *                              packet_type:
+     *                              package_type:
      *                                  type: number
      *                                  example: 1
      *                              message:

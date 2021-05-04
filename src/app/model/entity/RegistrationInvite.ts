@@ -6,7 +6,7 @@ import {
 import { MainEntity } from './MainEntity'
 import { uid } from 'uid'
 import { Sendgrid } from '../../../component/sendgrid/sendgrid'
-import { PacketType } from './PacketType'
+import { PackageType } from './PackageType'
 
 @Entity('registration_invite')
 export class RegistrationInvite extends MainEntity {
@@ -117,8 +117,8 @@ export class RegistrationInvite extends MainEntity {
         try {
             const regToken = await RegistrationInvite.findOneOrFail({ token: token, used: false })
             if (regToken) {
-                const packetTypes = await PacketType.getAllItems({ where: { status: { '=': true } } })
-                return packetTypes
+                const packageTypes = await PackageType.getAllItems({ where: { status: { '=': true } } })
+                return packageTypes
             } else {
                 return false
             }

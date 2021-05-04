@@ -1,14 +1,14 @@
 import { DefaultContext } from 'koa'
-import { PacketType } from '../model/entity/PacketType'
-export default class PacketTypeController {
+import { PackageType } from '../model/entity/PackageType'
+export default class PackageTypeController {
     /**
      *
      * @swagger
-     *  /packetType:
+     *  /packageType:
      *      post:
      *          tags:
-     *              - PacketType
-     *          summary: Creates a packetType.
+     *              - PackageType
+     *          summary: Creates a packageType.
      *          consumes:
      *              - application/json
      *          parameters:
@@ -19,8 +19,8 @@ export default class PacketTypeController {
      *              schema:
      *                type: string
      *            - in: body
-     *              name: packetType
-     *              description: The packetType to create.
+     *              name: packageType
+     *              description: The packageType to create.
      *              schema:
      *                type: object
      *                required:
@@ -31,7 +31,7 @@ export default class PacketTypeController {
      *                      type: boolean
      *          responses:
      *              '201':
-     *                  description: A packetType object
+     *                  description: A packageType object
      *              '409':
      *                  description: Conflict
      *              '422':
@@ -40,7 +40,7 @@ export default class PacketTypeController {
 
     public static async add (ctx: DefaultContext) {
         try {
-            ctx.body = await PacketType.addItem(ctx.request.body as PacketType)
+            ctx.body = await PackageType.addItem(ctx.request.body as PackageType)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -51,11 +51,11 @@ export default class PacketTypeController {
     /**
      *
      * @swagger
-     *  /packetType:
+     *  /packageType:
      *      put:
      *          tags:
-     *              - PacketType
-     *          summary: Update a packetType.
+     *              - PackageType
+     *          summary: Update a packageType.
      *          consumes:
      *              - application/json
      *          parameters:
@@ -66,8 +66,8 @@ export default class PacketTypeController {
      *              schema:
      *                type: string
      *            - in: body
-     *              name: packetType
-     *              description: The packetType to create.
+     *              name: packageType
+     *              description: The packageType to create.
      *              schema:
      *                type: object
      *                required:
@@ -82,7 +82,7 @@ export default class PacketTypeController {
      *                      type: boolean
      *          responses:
      *              '201':
-     *                  description: A packetType updated object
+     *                  description: A packageType updated object
      *              '409':
      *                  description: Conflict
      *              '422':
@@ -90,7 +90,7 @@ export default class PacketTypeController {
      */
     public static async update (ctx: DefaultContext) {
         try {
-            const updated = await PacketType.updateItem(ctx.request.body as PacketType)
+            const updated = await PackageType.updateItem(ctx.request.body as PackageType)
             ctx.oldData = updated.old
             ctx.body = updated.new
         } catch (error) {
@@ -103,11 +103,11 @@ export default class PacketTypeController {
     /**
      *
      * @swagger
-     * /packetType/{id}:
+     * /packageType/{id}:
      *      get:
      *          tags:
-     *              - PacketType
-     *          summary: Return packetType by ID
+     *              - PackageType
+     *          summary: Return packageType by ID
      *          parameters:
      *              - name: id
      *                in: path
@@ -131,7 +131,7 @@ export default class PacketTypeController {
      */
     public static async get (ctx: DefaultContext) {
         try {
-            ctx.body = await PacketType.getItem(+ctx.params.id)
+            ctx.body = await PackageType.getItem(+ctx.params.id)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -142,11 +142,11 @@ export default class PacketTypeController {
     /**
      *
      * @swagger
-     *  /packetType:
+     *  /packageType:
      *      delete:
      *          tags:
-     *              - PacketType
-     *          summary: Delete a packetType.
+     *              - PackageType
+     *          summary: Delete a packageType.
      *          consumes:
      *              - application/json
      *          parameters:
@@ -157,8 +157,8 @@ export default class PacketTypeController {
      *              schema:
      *                type: string
      *            - in: body
-     *              name: packetType
-     *              description: The packetType to create.
+     *              name: packageType
+     *              description: The packageType to create.
      *              schema:
      *                type: object
      *                required:
@@ -169,7 +169,7 @@ export default class PacketTypeController {
      *                      example: 1
      *          responses:
      *              '200':
-     *                  description: packetType has been deleted
+     *                  description: packageType has been deleted
      *              '422':
      *                  description: Wrong data
      */
@@ -177,7 +177,7 @@ export default class PacketTypeController {
         try {
             const req_data: any = ctx.request.body
             const where = { id: req_data.id }
-            ctx.body = await PacketType.destroyItem(where)
+            ctx.body = await PackageType.destroyItem(where)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -188,11 +188,11 @@ export default class PacketTypeController {
     /**
      *
      * @swagger
-     * /packetType:
+     * /packageType:
      *      get:
      *          tags:
-     *              - PacketType
-     *          summary: Return packetType list
+     *              - PackageType
+     *          summary: Return packageType list
      *          parameters:
      *              - in: header
      *                name: Authorization
@@ -202,13 +202,13 @@ export default class PacketTypeController {
      *                    type: string
      *          responses:
      *              '200':
-     *                  description: Array of packetType
+     *                  description: Array of packageType
      *              '401':
      *                  description: Unauthorized
      */
     public static async getAll (ctx: DefaultContext) {
         try {
-            ctx.body = await PacketType.getAllItems(ctx.query)
+            ctx.body = await PackageType.getAllItems(ctx.query)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
