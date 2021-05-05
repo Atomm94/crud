@@ -57,7 +57,7 @@ export default class AuthController {
         let user: Admin
         let company_main_data: any = {
             company_main: null,
-            packet: null
+            package: null
         }
 
         try {
@@ -99,7 +99,7 @@ export default class AuthController {
             }
         }
         company_main_data = { ...company_main_data, ...user }
-        const adminFiltered = _.pick(company_main_data, ['id', 'username', 'last_name', 'first_name', 'email', 'avatar', 'role', 'super', 'department', 'company', 'company_main', 'packet'])
+        const adminFiltered = _.pick(company_main_data, ['id', 'username', 'last_name', 'first_name', 'email', 'avatar', 'role', 'super', 'department', 'company', 'company_main', 'package'])
 
         if (user.company) {
             const company = await Company.findOne(user.company)
