@@ -1,6 +1,7 @@
 import { DefaultContext } from 'koa'
 import { RegistrationInvite } from '../model/entity/RegistrationInvite'
 import { PackageType } from '../model/entity/PackageType'
+import { Company } from '../model/entity'
 
 export default class RegistrationInviteController {
     /**
@@ -128,7 +129,17 @@ export default class RegistrationInviteController {
 
             const regToken = await RegistrationInvite.findOneOrFail({ token: token, used: false })
             if (regToken) {
-                const packageTypes = await PackageType.getAllItems({ where: { status: { '=': true } } })
+                let packageTypes: any = []
+                if (regToken.company) {
+                    const parent_company: any = await Company.findOneOrFail({ where: { id: regToken.company }, relations: ['packages', 'company_resources', 'package_types'] })
+                    if (parent_company.company_resources.used.Home >= parent_company.packages.extra_settings.resources.Home) {
+                    // parent_company.company_resources.used.Dorm === parent_company.packages?.extra_settings.resources.Dorm ||
+                    // parent_company.company_resources.used.Service_company === parent_company.packages?.extra_settings.resources.Service_company
+                    }
+                    packageTypes = await PackageType.getAllItems({ where: { status: { '=': true }, service: { '=': false } } })
+                } else {
+                    packageTypes = await PackageType.getAllItems({ where: { status: { '=': true } } })
+                }
                 ctx.body = packageTypes
             } else {
                 ctx.status = 400

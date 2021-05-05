@@ -1,7 +1,10 @@
 import {
     Entity,
-    Column
+    Column,
+    ManyToOne,
+    JoinColumn
 } from 'typeorm'
+import { Company } from '.'
 
 import { MainEntity } from './MainEntity'
 
@@ -12,6 +15,10 @@ export class CompanyResources extends MainEntity {
 
     @Column('longtext', { name: 'used', nullable: false })
     used: string
+
+    @ManyToOne(type => Company, company => company.company_resources, { nullable: true })
+    @JoinColumn({ name: 'company' })
+    companies: Company | null;
 
     static gettingActions = false
 

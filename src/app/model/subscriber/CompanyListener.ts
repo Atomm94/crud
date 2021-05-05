@@ -7,7 +7,7 @@ import {
     Not
 } from 'typeorm'
 import * as Models from '../entity'
-import { Admin, CompanyResources, Role } from '../entity'
+import { Admin, CompanyResources, Role, PackageType, RegistrationInvite } from '../entity'
 import { Company } from '../entity/Company'
 import { Acu } from '../entity/Acu'
 import { statusCompany } from '../../enums/statusCompany.enum'
@@ -32,6 +32,10 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
             used: '{}'
         }
         CompanyResources.addItem(newCompanyResource as CompanyResources)
+        if (data.parent_id) {
+            const parent_company_resources = await CompanyResources.findOneOrFail({ company: data.parent_id })
+            console.log(parent_company_resources)
+        }
     }
 
     /**
@@ -73,6 +77,7 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
                     const default_role: Role | undefined = await Role.findOne({ slug: 'default_partner', company: null })
                     // const package: Package | undefined = await Package.findOne(New.package) // get softDelete too
                     let package_data: any = await getManager().query(`SELECT * FROM package where id = ${New.package}`)
+                    const package_type: any = await PackageType.findOneOrFail({ id: New.package_type })
 
                     if (account_role && package_data.length) {
                         package_data = package_data[0]
@@ -84,6 +89,17 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
                         Object.keys(role_permissions).forEach(action => {
                             role_permissions[action] = true
                         })
+
+                        if (package_type.service) {
+                            const reg_inv_permissions = RegistrationInvite.getActions()
+                            Object.keys(reg_inv_permissions).forEach(action => {
+                                reg_inv_permissions[action] = true
+                            })
+                            default_permissions.RegistrationInvite = {
+                                actions: { ...reg_inv_permissions }
+                            }
+                        }
+
                         if (default_permissions.Role) {
                             default_permissions.Role.actions = { ...role_permissions, ...default_permissions.Role.actions }
                         } else {

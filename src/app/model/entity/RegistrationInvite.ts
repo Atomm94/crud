@@ -19,6 +19,9 @@ export class RegistrationInvite extends MainEntity {
     @Column('boolean', { name: 'used', default: false })
     used: boolean
 
+    @Column('int', { name: 'company', nullable: true })
+    company: number | null
+
     // public static async addItem (data: RegistrationInvite) {
     //     const registrationInvite = new RegistrationInvite()
 

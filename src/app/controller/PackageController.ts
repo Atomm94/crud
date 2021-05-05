@@ -330,7 +330,7 @@ export default class PackageController {
             } else {
                 const feature: any = Feature.ServiceFeatures
                 const features: any = {}
-                const packageTypes = await Package.find()// add don`t get service company type
+                const packageTypes = await Models.PackageType.find({ service: false })
                 packageTypes.forEach(packageType => {
                     data.resources.push(packageType.name)
                 })
