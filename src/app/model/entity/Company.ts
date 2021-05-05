@@ -13,10 +13,10 @@ import { statusCompany } from '../../enums/statusCompany.enum'
 import {
     AccessRight,
     MainEntity,
-    Packet,
+    Package,
     Admin,
     Role,
-    PacketType,
+    PackageType,
     CompanyDocuments,
     AccountGroup,
     Schedule,
@@ -29,11 +29,11 @@ export class Company extends MainEntity {
     @Column('varchar', { name: 'company_name', nullable: false })
     company_name: string
 
-    @Column('int', { name: 'packet', nullable: true })
-    packet: number | null
+    @Column('int', { name: 'package', nullable: true })
+    package: number | null
 
-    @Column('int', { name: 'packet_type', nullable: false })
-    packet_type: number
+    @Column('int', { name: 'package_type', nullable: false })
+    package_type: number
 
     @Column('longtext', { name: 'message', nullable: true })
     message: string | null
@@ -41,19 +41,22 @@ export class Company extends MainEntity {
     @Column('int', { name: 'account', nullable: true })
     account: number | null
 
+    @Column('int', { name: 'parent_id', nullable: true })
+    parent_id: number | null
+
     @Column('enum', { name: 'status', enum: statusCompany, default: statusCompany.PENDING })
     status: statusCompany
 
     @DeleteDateColumn({ type: 'timestamp', name: 'delete_date' })
     public deleteDate: Date
 
-    @ManyToOne(type => Packet, packet => packet.id, { nullable: true })
-    @JoinColumn({ name: 'packet' })
-    packets: Packet | null;
+    @ManyToOne(type => Package, package_data => package_data.id, { nullable: true })
+    @JoinColumn({ name: 'package' })
+    packages: Package | null;
 
-    @ManyToOne(type => PacketType, packetType => packetType.companies, { nullable: true })
-    @JoinColumn({ name: 'packet_type' })
-    packet_types: PacketType | null;
+    @ManyToOne(type => PackageType, packageType => packageType.companies, { nullable: true })
+    @JoinColumn({ name: 'package_type' })
+    package_types: PackageType | null;
 
     @OneToMany(type => CompanyDocuments, company_documents => company_documents.companies)
     company_documents: CompanyDocuments[];
@@ -87,9 +90,10 @@ export class Company extends MainEntity {
         const company = new Company()
 
         company.company_name = data.company_name
-        if ('packet' in data) company.packet = data.packet
-        company.packet_type = data.packet_type
+        if ('package' in data) company.package = data.package
+        company.package_type = data.package_type
         if ('message' in data) company.message = data.message
+        if ('parent_id' in data) company.parent_id = data.parent_id
         // company.status = data.status
 
         return new Promise((resolve, reject) => {
@@ -108,15 +112,15 @@ export class Company extends MainEntity {
         const oldData = Object.assign({}, company)
 
         if ('company_name' in data) company.company_name = data.company_name
-        if ('packet' in data) company.packet = data.packet
-        if ('packet_type' in data) company.packet_type = data.packet_type
+        if ('package' in data) company.package = data.package
+        if ('package_type' in data) company.package_type = data.package_type
         if ('message' in data) company.message = data.message
         if ('status' in data) company.status = data.status
 
         if (!company) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
-            if ('status' in data && data.status === statusCompany.ENABLE && !company.packet) {
-                reject(new Error(`Cant change status of Company to ${statusCompany.ENABLE} without select Packet`))
+            if ('status' in data && data.status === statusCompany.ENABLE && !company.package) {
+                reject(new Error(`Cant change status of Company to ${statusCompany.ENABLE} without select Package`))
             } else {
                 this.save(company)
                     .then((item: Company) => {

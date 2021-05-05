@@ -21,11 +21,11 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
 async function canCreate (company_id: number, resource: string): Promise<boolean> {
     try {
         const company = await Model.Company.findOneOrFail({ id: company_id })
-        if (company && company.packet) {
+        if (company && company.package) {
             const companyResources = await Model.CompanyResources.findOneOrFail({ company: company_id })
             if (companyResources && companyResources.used) {
                 const usedRes = JSON.parse(companyResources.used)
-                return await AccessControl.companyCanAccessResource(company.packet, resource, (resource in usedRes) ? +usedRes[resource] : 0)
+                return await AccessControl.companyCanAccessResource(company.package, resource, (resource in usedRes) ? +usedRes[resource] : 0)
             }
         }
         return false
