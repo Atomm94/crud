@@ -60,7 +60,7 @@ export class Admin extends MainEntity {
   @Column('int', { name: 'department', nullable: true })
   department: number | null;
 
-  @Column('enum', { name: 'status', enum: adminStatus, default: adminStatus.inactive })
+  @Column('enum', { name: 'status', enum: adminStatus, default: adminStatus.active })
   status: adminStatus
 
   @Column('boolean', { name: 'super', default: false })
@@ -182,6 +182,7 @@ export class Admin extends MainEntity {
     admin.email = data.email
     if ('password' in data) admin.password = data.password
     if ('role' in data) admin.role = data.role
+    if ('status' in data) admin.status = data.status
     if ('department' in data) admin.department = data.department
     if ('avatar' in data) admin.avatar = data.avatar
     // if (file) admin.avatar = newFilePath
@@ -249,6 +250,7 @@ export class Admin extends MainEntity {
     if ('telegram' in data) admin.telegram = data.telegram
     if ('email' in data) admin.email = data.email
     if ('role' in data) admin.role = data.role
+    if ('status' in data) admin.status = data.status
     if ('department' in data) admin.department = data.department
     if ('comment' in data) admin.comment = data.comment
     if ('avatar' in data) admin.avatar = data.avatar
