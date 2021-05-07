@@ -1,7 +1,6 @@
 import { DefaultContext } from 'koa'
 import { RegistrationInvite } from '../model/entity/RegistrationInvite'
 import { PackageType } from '../model/entity/PackageType'
-import { Company } from '../model/entity'
 
 export default class RegistrationInviteController {
     /**
@@ -41,7 +40,10 @@ export default class RegistrationInviteController {
 
     public static async add (ctx: DefaultContext) {
         try {
-            ctx.body = await RegistrationInvite.createLink(ctx.request.body as RegistrationInvite)
+            const req_data = ctx.request.body
+            const user = ctx.user
+            if (user.company) req_data.company = user.company
+            ctx.body = await RegistrationInvite.createLink(req_data as RegistrationInvite)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -131,11 +133,12 @@ export default class RegistrationInviteController {
             if (regToken) {
                 let packageTypes: any = []
                 if (regToken.company) {
-                    const parent_company: any = await Company.findOneOrFail({ where: { id: regToken.company }, relations: ['packages', 'company_resources', 'package_types'] })
-                    if (parent_company.company_resources.used.Home >= parent_company.packages.extra_settings.resources.Home) {
+                    // const parent_company: any = await Company.findOneOrFail({ where: { id: regToken.company }, relations: ['packages', 'company_resources', 'package_types'] })
+                    // if (parent_company.company_resources.used.Home >= parent_company.packages.extra_settings.resources.Home) {
                     // parent_company.company_resources.used.Dorm === parent_company.packages?.extra_settings.resources.Dorm ||
                     // parent_company.company_resources.used.Service_company === parent_company.packages?.extra_settings.resources.Service_company
-                    }
+                    // }
+
                     packageTypes = await PackageType.getAllItems({ where: { status: { '=': true }, service: { '=': false } } })
                 } else {
                     packageTypes = await PackageType.getAllItems({ where: { status: { '=': true } } })

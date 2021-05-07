@@ -111,8 +111,10 @@ export class Company extends MainEntity {
         })
     }
 
-    public static async updateItem (data: Company): Promise<{ [key: string]: any }> {
-        const company = await this.findOneOrFail({ id: data.id })
+    public static async updateItem (data: Company, user?: any): Promise<{ [key: string]: any }> {
+        const where: any = { id: data.id }
+        if (user && user.company && data.id !== user.company) where.parent_id = user.company
+        const company = await this.findOneOrFail(where)
         const oldData = Object.assign({}, company)
 
         if ('company_name' in data) company.company_name = data.company_name
@@ -160,10 +162,10 @@ export class Company extends MainEntity {
         })
     }
 
-    public static async destroyItem (data: any) {
+    public static async destroyItem (where: any) {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
-            this.findOneOrFail({ id: data.id }).then((data: any) => {
+            this.findOneOrFail(where).then((data: any) => {
                 this.softRemove(data)
                     .then(() => {
                         resolve({ message: 'success' })

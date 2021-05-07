@@ -98,6 +98,14 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
                             default_permissions.RegistrationInvite = {
                                 actions: { ...reg_inv_permissions }
                             }
+
+                            const companies = Company.getActions()
+                            Object.keys(companies).forEach(action => {
+                                companies[action] = true
+                            })
+                            default_permissions.Company = {
+                                actions: { ...companies }
+                            }
                         }
 
                         if (default_permissions.Role) {

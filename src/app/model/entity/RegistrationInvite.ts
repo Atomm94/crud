@@ -103,6 +103,7 @@ export class RegistrationInvite extends MainEntity {
 
         registrationInvite.email = data.email
         registrationInvite.token = uid(32)
+        if ('company' in data) registrationInvite.company = data.company
 
         return new Promise((resolve, reject) => {
             this.save(registrationInvite)
