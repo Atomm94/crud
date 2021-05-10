@@ -68,7 +68,6 @@ export class Role extends MainEntity {
     },
     Product: {
       actions: {
-        updateItem: true,
         getItem: true,
         getAllItems: true
       }

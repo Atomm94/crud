@@ -32,6 +32,7 @@ import { join } from 'path'
 import { IAdmins } from '../../Interfaces/Admins'
 import { logger } from '../../../../modules/winston/logger'
 import { StandardReport } from './StandardReport'
+import { adminStatus } from '../../enums/adminStatus.enum'
 
 const parentDir = join(__dirname, '../../..')
 
@@ -59,8 +60,8 @@ export class Admin extends MainEntity {
   @Column('int', { name: 'department', nullable: true })
   department: number | null;
 
-  @Column('boolean', { name: 'status', default: true })
-  status: boolean | true;
+  @Column('enum', { name: 'status', enum: adminStatus, default: adminStatus.active })
+  status: adminStatus
 
   @Column('boolean', { name: 'super', default: false })
   super: boolean;
@@ -180,8 +181,8 @@ export class Admin extends MainEntity {
     admin.username = data.username
     admin.email = data.email
     if ('password' in data) admin.password = data.password
-    admin.status = (data.status === 'true') ? true : (data.status === 'false') ? false : data.status
     if ('role' in data) admin.role = data.role
+    if ('status' in data) admin.status = data.status
     if ('department' in data) admin.department = data.department
     if ('avatar' in data) admin.avatar = data.avatar
     // if (file) admin.avatar = newFilePath
@@ -248,8 +249,8 @@ export class Admin extends MainEntity {
     if ('whatsapp' in data) admin.whatsapp = data.whatsapp
     if ('telegram' in data) admin.telegram = data.telegram
     if ('email' in data) admin.email = data.email
-    if ('status' in data) admin.status = (data.status === 'true') ? true : (data.status === 'false') ? false : data.status
     if ('role' in data) admin.role = data.role
+    if ('status' in data) admin.status = data.status
     if ('department' in data) admin.department = data.department
     if ('comment' in data) admin.comment = data.comment
     if ('avatar' in data) admin.avatar = data.avatar

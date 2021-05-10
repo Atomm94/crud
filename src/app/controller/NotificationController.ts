@@ -1,4 +1,5 @@
 import { DefaultContext } from 'koa'
+import { IsNull } from 'typeorm'
 import { Notification } from '../model/entity/Notification'
 export default class NotificationController {
     /**
@@ -95,13 +96,28 @@ export default class NotificationController {
         try {
             const req_data = ctx.request.body
             const user = ctx.user
-            const notification: Notification = await Notification.findOneOrFail({ id: req_data.id, company: user.company ? user.company : null })
-            if (notification.confirmed) {
-                ctx.status = 400
-                ctx.body = { message: 'confirmed seted!' }
+            const company = user.company ? user.company : null
+            if (req_data.id) {
+                const notification: Notification = await Notification.findOneOrFail({ id: req_data.id, company: company })
+                if (notification.confirmed) {
+                    ctx.status = 400
+                    ctx.body = { message: 'confirmed seted!' }
+                } else {
+                    notification.confirmed = new Date().getTime()
+                    ctx.body = await notification.save()
+                }
             } else {
-                notification.confirmed = new Date().getTime()
-                ctx.body = await notification.save()
+                const notifications: Notification[] = await Notification.find({ where: { company: company, confirmed: IsNull() } })
+                if (!notifications.length) {
+                    ctx.status = 400
+                    ctx.body = { message: 'All notifications are confirmed!' }
+                } else {
+                    for (const notification of notifications) {
+                        notification.confirmed = new Date().getTime()
+                        await notification.save()
+                    }
+                    ctx.body = { success: true }
+                }
             }
         } catch (error) {
             ctx.status = error.status || 400

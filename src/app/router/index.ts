@@ -2,8 +2,8 @@ import base from './base'
 import schedule from './schedule'
 import admin from './admin'
 import role from './role'
-import packet from './packet'
-import packetType from './packetType'
+import package_api from './package'
+import packageType from './packageType'
 import accessRight from './accessRight'
 import accountGroup from './accountGroup'
 import cardholder from './cardholder'
@@ -30,8 +30,8 @@ router.use('/', base.routes(), base.allowedMethods())
 router.use('/', schedule.routes(), schedule.allowedMethods())
 router.use('/', admin.routes(), admin.allowedMethods())
 router.use('/', role.routes(), role.allowedMethods())
-router.use('/', packet.routes(), packet.allowedMethods())
-router.use('/', packetType.routes(), packetType.allowedMethods())
+router.use('/', package_api.routes(), package_api.allowedMethods())
+router.use('/', packageType.routes(), packageType.allowedMethods())
 router.use('/', accessRight.routes(), accessRight.allowedMethods())
 router.use('/', accountGroup.routes(), accountGroup.allowedMethods())
 router.use('/', cardholder.routes(), cardholder.allowedMethods())
