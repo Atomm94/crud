@@ -5,6 +5,8 @@ const getUserLogsUrl = `${clickhouse_server}/userLog`
 
 export class UserLog extends BaseClass {
     public static resource: boolean = true
+    public static serviceResource: boolean = true
+
     public static get (user: any, data?: any) {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise((resolve, reject) => {

@@ -62,8 +62,8 @@ export class Company extends MainEntity {
     @OneToMany(type => CompanyDocuments, company_documents => company_documents.companies)
     company_documents: CompanyDocuments[];
 
-    @OneToMany(type => CompanyResources, company_resource => company_resource.companies)
-    company_resources: CompanyResources[];
+    @OneToOne(type => CompanyResources, company_resource => company_resource.companies)
+    company_resources: CompanyResources;
 
     @OneToMany(type => Admin, users => users.companies)
     users: Admin[];

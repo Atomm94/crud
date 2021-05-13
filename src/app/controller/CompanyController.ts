@@ -219,6 +219,52 @@ export default class CompanyController {
         try {
             if (ctx.user && ctx.user.company) {
                 const relations = ['company_account', 'company_documents']
+                let company
+                if (ctx.companyData && ctx.companyData.parent_id) {
+                    company = await Company.getItem(ctx.companyData.parent_id, relations)
+                } else {
+                    company = await Company.getItem(+ctx.user.company, relations)
+                }
+                ctx.body = company
+            } else {
+                ctx.status = 400
+                ctx.body = {
+                    status: 400,
+                    message: 'Company dose not exists'
+                }
+            }
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     * /clientCompany:
+     *      get:
+     *          tags:
+     *              - Company
+     *          summary: Return company by partner
+     *          parameters:
+     *              - in: header
+     *                name: Authorization
+     *                required: true
+     *                description: Authentication token
+     *                schema:
+     *                    type: string
+     *          responses:
+     *              '200':
+     *                  description: Data object
+     *              '404':
+     *                  description: Data not found
+     */
+     public static async getClientCompany (ctx: DefaultContext) {
+        try {
+            if (ctx.user && ctx.user.company) {
+                const relations = ['company_account', 'company_documents']
                 ctx.body = await Company.getItem(+ctx.user.company, relations)
             } else {
                 ctx.status = 400

@@ -173,7 +173,7 @@ export class Admin extends MainEntity {
   }
 
   public static resource: boolean = true
-  public static serviceResource: boolean = false
+  public static serviceResource: boolean = true
 
   public static async addItem (data: any, user: any = null): Promise<Admin> {
     const admin = new Admin()

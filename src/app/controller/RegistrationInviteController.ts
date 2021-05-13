@@ -1,6 +1,7 @@
 import { DefaultContext } from 'koa'
 import { RegistrationInvite } from '../model/entity/RegistrationInvite'
 import { PackageType } from '../model/entity/PackageType'
+import { Company } from '../model/entity'
 
 export default class RegistrationInviteController {
     /**
@@ -42,7 +43,27 @@ export default class RegistrationInviteController {
         try {
             const req_data = ctx.request.body
             const user = ctx.user
+            if (user.company) {
+                const company: any = await Company.findOneOrFail({ where: { id: user.company }, relations: ['packages', 'company_resources', 'package_types'] })
+                const extra_settings = JSON.parse(company.packages.extra_settings)
+                const used = JSON.parse(company.company_resources.used)
+                let limit_complete = true
+                for (const package_type in extra_settings.package_types) {
+                    if (extra_settings.package_types[package_type]) {
+                        if (!used[package_type] || (used[package_type] && used[package_type] < extra_settings.package_types[package_type])) {
+                            limit_complete = false
+                            break
+                        }
+                    }
+                }
+                if (limit_complete) {
+                    ctx.status = 400
+                    return ctx.body = { message: 'Can\'t invite. PackageResource limit reached!' }
+                }
+            }
+
             if (user.company) req_data.company = user.company
+
             ctx.body = await RegistrationInvite.createLink(req_data as RegistrationInvite)
         } catch (error) {
             ctx.status = error.status || 400
@@ -133,13 +154,21 @@ export default class RegistrationInviteController {
             if (regToken) {
                 let packageTypes: any = []
                 if (regToken.company) {
-                    // const parent_company: any = await Company.findOneOrFail({ where: { id: regToken.company }, relations: ['packages', 'company_resources', 'package_types'] })
-                    // if (parent_company.company_resources.used.Home >= parent_company.packages.extra_settings.resources.Home) {
-                    // parent_company.company_resources.used.Dorm === parent_company.packages?.extra_settings.resources.Dorm ||
-                    // parent_company.company_resources.used.Service_company === parent_company.packages?.extra_settings.resources.Service_company
-                    // }
+                    const parent_company: any = await Company.findOneOrFail({ where: { id: regToken.company }, relations: ['packages', 'company_resources', 'package_types'] })
+                    const extra_settings = JSON.parse(parent_company.packages.extra_settings)
+                    const used = JSON.parse(parent_company.company_resources.used)
+                    const package_type_ids = []
+                    for (const package_type in extra_settings.package_types) {
+                        if (extra_settings.package_types[package_type]) {
+                            if (!used[package_type] || (used[package_type] && used[package_type] < extra_settings.package_types[package_type])) {
+                                package_type_ids.push(package_type)
+                            }
+                        }
+                    }
 
-                    packageTypes = await PackageType.getAllItems({ where: { status: { '=': true }, service: { '=': false } } })
+                    if (package_type_ids.length) {
+                        packageTypes = await PackageType.getAllItems({ where: { status: { '=': true }, service: { '=': false }, id: { in: package_type_ids } } })
+                    }
                 } else {
                     packageTypes = await PackageType.getAllItems({ where: { status: { '=': true } } })
                 }

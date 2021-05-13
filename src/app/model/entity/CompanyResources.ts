@@ -1,8 +1,8 @@
 import {
     Entity,
     Column,
-    ManyToOne,
-    JoinColumn
+    JoinColumn,
+    OneToOne
 } from 'typeorm'
 import { Company } from '.'
 
@@ -16,7 +16,7 @@ export class CompanyResources extends MainEntity {
     @Column('longtext', { name: 'used', nullable: false })
     used: string
 
-    @ManyToOne(type => Company, company => company.company_resources, { nullable: true })
+    @OneToOne(type => Company, company => company.company_resources, { nullable: true })
     @JoinColumn({ name: 'company' })
     companies: Company | null;
 

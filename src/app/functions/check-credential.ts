@@ -6,8 +6,6 @@ import { credentialInputMode } from '../enums/credentialInputMode.enum'
 
 export class CheckCredentialSettings {
     public static checkSettings (credentials: Credential[] | null) {
-        console.log('checkSettings credentials', credentials)
-
         if (credentials) {
             for (const credential of credentials) {
                 if (Object.values(credentialType).indexOf(credential.type) === -1) {

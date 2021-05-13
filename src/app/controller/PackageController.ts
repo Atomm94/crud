@@ -309,7 +309,19 @@ export default class PackageController {
                 resources: [],
                 features: null
             }
-            if (!ctx.query.service) {
+            if (ctx.query.service && ctx.query.service === 'true') {
+                const feature: any = Feature.ServiceFeatures
+                const features: any = {}
+                Object.keys(models).forEach((model: string) => {
+                    if (models[model].serviceResource) {
+                        data.resources.push(model)
+                    }
+                })
+
+                const featureList = Object.keys(feature)
+                features.Features = featureList
+                if (Object.keys(features).length) data.features = features
+            } else {
                 const features: any = {}
                 Object.keys(models).forEach((model: string) => {
                     if (models[model].resource) {
@@ -326,21 +338,6 @@ export default class PackageController {
                         }
                     })
                 }
-                if (Object.keys(features).length) data.features = features
-            } else {
-                const feature: any = Feature.ServiceFeatures
-                const features: any = {}
-                const packageTypes = await Models.PackageType.find({ service: false })
-                packageTypes.forEach(packageType => {
-                    data.resources.push(packageType.name)
-                })
-                Object.keys(models).forEach((model: string) => {
-                    if (models[model].serviceResource) {
-                        data.resources.push(model)
-                    }
-                })
-                const featureList = Object.keys(feature)
-                features.Features = featureList
                 if (Object.keys(features).length) data.features = features
             }
 

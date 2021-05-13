@@ -34,7 +34,14 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
         CompanyResources.addItem(newCompanyResource as CompanyResources)
         if (data.parent_id) {
             const parent_company_resources = await CompanyResources.findOneOrFail({ company: data.parent_id })
-            console.log(parent_company_resources)
+            const parent_used = JSON.parse(parent_company_resources.used)
+            if (parent_used[data.package_type]) {
+                parent_used[data.package_type]++
+            } else {
+                parent_used[data.package_type] = 1
+            }
+            parent_company_resources.used = JSON.stringify(parent_used)
+            await parent_company_resources.save()
         }
     }
 
@@ -105,6 +112,12 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
                             })
                             default_permissions.Company = {
                                 actions: { ...companies }
+                            }
+                        }
+
+                        if (New.parent_id) {
+                            default_permissions.ServiceCompany = {
+                                actions: { getItem: true }
                             }
                         }
 
