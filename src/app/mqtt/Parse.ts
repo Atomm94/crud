@@ -890,7 +890,6 @@ export default class Parse {
         // console.log('setSdlFlexiTimeAck', message)
         if (message.result.errorNo === 0) {
             // console.log('setSdlFlexiTimeAck complete')
-            message.send_data.data.adds_count = 0
             new SendDeviceMessage(OperatorType.ADD_DAY_FLEXI_TIME, message.location, message.device_id, message.send_data, message.session_id)
         }
     }
@@ -899,12 +898,11 @@ export default class Parse {
         // console.log('addDayFlexiTimeAck', message)
         if (message.result.errorNo === 0) {
             // console.log('addDayFlexiTimeAck complete')
-            const set_params = message.send_data.data.set_params
-            set_params.adds_count++
-            if (set_params.adds_count === set_params.info.DaysCount) {
-                new SendDeviceMessage(OperatorType.END_SDL_FLEXI_TIME, message.location, message.device_id, set_params, message.session_id)
+            const days = message.send_data.data.days
+            if (!Object.keys(days).length) {
+                new SendDeviceMessage(OperatorType.END_SDL_FLEXI_TIME, message.location, message.device_id, message.send_data.data, message.session_id)
             } else {
-                new SendDeviceMessage(OperatorType.ADD_DAY_FLEXI_TIME, message.location, message.device_id, set_params, message.session_id)
+                new SendDeviceMessage(OperatorType.ADD_DAY_FLEXI_TIME, message.location, message.device_id, message.send_data.data, message.session_id)
             }
         }
     }
@@ -938,6 +936,7 @@ export default class Parse {
         // console.log('setSdlSpecifiedAck', message)
         if (message.result.errorNo === 0) {
             // console.log('setSdlSpecifiedAck complete')
+            new SendDeviceMessage(OperatorType.ADD_DAY_SPECIFIED, message.location, message.device_id, message.send_data, message.session_id)
         }
     }
 
@@ -945,13 +944,19 @@ export default class Parse {
         // console.log('addDaySpecifiedAck', message)
         if (message.result.errorNo === 0) {
             // console.log('addDaySpecifiedAck complete')
+            const days = message.send_data.data.days
+            if (!Object.keys(days).length) {
+                new SendDeviceMessage(OperatorType.END_SDL_SPECIFIED, message.location, message.device_id, message.send_data.data, message.session_id)
+            } else {
+                new SendDeviceMessage(OperatorType.ADD_DAY_SPECIFIED, message.location, message.device_id, message.send_data.data, message.session_id)
+            }
         }
     }
 
     public static endSdlSpecifiedAck (message: IMqttCrudMessaging): void {
         // console.log('endSdlSpecifiedAck', message)
         if (message.result.errorNo === 0) {
-            // console.log('endSdlSpecifiedAck complete')
+            console.log('endSdlSpecifiedAck complete7777777777777777777777')
         }
     }
 

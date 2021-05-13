@@ -110,10 +110,11 @@ export default class AccessRuleController {
                     const cardholders = await Cardholder.getAllItems({
                         relations: ['credentials'],
                         where: {
-                            access_right: access_rule.access_right,
-                            company: req_data.company
+                            access_right: { '=': access_rule.access_right },
+                            company: { '=': req_data.company }
                         }
                     })
+
                     if (cardholders.length) {
                         const send_edit_data = {
                             access_rule: access_rule,
