@@ -34,7 +34,7 @@ export class PostSubscriber implements EntitySubscriberInterface<AccessPoint> {
             .groupBy('access_point.mode')
             .getRawMany()
 
-        new SendSocketMessage(socketChannels.DASHBOARD_ACCESS_POINT_MODES, modes)
+        new SendSocketMessage(socketChannels.DASHBOARD_ACCESS_POINT_MODES, modes, data.company)
     }
 
     /**
@@ -55,7 +55,7 @@ export class PostSubscriber implements EntitySubscriberInterface<AccessPoint> {
                 .groupBy('access_point.mode')
                 .getRawMany()
 
-            new SendSocketMessage(socketChannels.DASHBOARD_ACCESS_POINT_MODES, modes)
+            new SendSocketMessage(socketChannels.DASHBOARD_ACCESS_POINT_MODES, modes, New.company)
         }
     }
 
@@ -72,6 +72,6 @@ export class PostSubscriber implements EntitySubscriberInterface<AccessPoint> {
             .groupBy('access_point.mode')
             .getRawMany()
 
-        new SendSocketMessage(socketChannels.DASHBOARD_ACCESS_POINT_MODES, modes)
+        new SendSocketMessage(socketChannels.DASHBOARD_ACCESS_POINT_MODES, modes, data.company)
     }
 }

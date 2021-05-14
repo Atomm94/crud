@@ -75,7 +75,7 @@ export class TicketMessage extends MainEntity {
     }
 
     public static async updateItem (data: TicketMessage, user: Admin): Promise<{old:TicketMessage, new:TicketMessage}|{[key: string]:any}> {
-        const ticketMessage = await this.findOneOrFail(data.id)
+        const ticketMessage = await this.findOneOrFail({ id: data.id })
         const oldData = Object.assign({}, ticketMessage)
 
         if ('text' in data) ticketMessage.text = data.text
@@ -121,7 +121,7 @@ export class TicketMessage extends MainEntity {
     public static async destroyItem (data: any) {
         // eslint-disable-next-line no-async-promise-executor
 
-        const ticketMessage = await this.findOneOrFail(data.id)
+        const ticketMessage = await this.findOneOrFail({ id: data.id })
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
             this.findOneOrFail({ id: data.id }).then((data: any) => {

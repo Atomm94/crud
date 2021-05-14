@@ -59,7 +59,7 @@ export class AccessRight extends MainEntity {
     }
 
     public static async updateItem (data: AccessRight): Promise<{ [key: string]: any }> {
-        const accessRight = await this.findOneOrFail(data.id)
+        const accessRight = await this.findOneOrFail({ id: data.id })
         const oldData = Object.assign({}, accessRight)
         if ('name' in data) accessRight.name = data.name
         if ('description' in data) accessRight.description = data.description

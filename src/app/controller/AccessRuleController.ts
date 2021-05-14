@@ -105,7 +105,7 @@ export default class AccessRuleController {
                     } else if (schedule.type === scheduleType.SPECIFIC) {
                         operator = OperatorType.SET_SDL_SPECIFIED
                     }
-                    new SendDeviceMessage(operator, location, acu.serial_number, send_sdl_data, acu.session_id)
+                    new SendDeviceMessage(operator, location, acu.serial_number, send_sdl_data, user.id, acu.session_id)
 
                     const cardholders = await Cardholder.getAllItems({
                         relations: ['credentials'],
@@ -209,7 +209,7 @@ export default class AccessRuleController {
                         } else if (access_rule.schedules.type === scheduleType.SPECIFIC) {
                             operator = OperatorType.DEL_SDL_SPECIFIED
                         }
-                        new SendDeviceMessage(operator, location, acu.serial_number, send_data, acu.session_id, true)
+                        new SendDeviceMessage(operator, location, acu.serial_number, send_data, user.id, acu.session_id, true)
                     }
                     ctx.body = true
                 } else {
@@ -327,7 +327,7 @@ export default class AccessRuleController {
                     } else if (schedule.type === scheduleType.SPECIFIC) {
                         operator = OperatorType.DEL_SDL_SPECIFIED
                     }
-                    new SendDeviceMessage(operator, location, acu.serial_number, send_data, acu.session_id)
+                    new SendDeviceMessage(operator, location, acu.serial_number, send_data, user.id, acu.session_id)
                     ctx.body = { message: 'Delete pending' }
                 } else {
                     ctx.body = await AccessRule.destroyItem(where)

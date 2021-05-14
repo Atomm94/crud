@@ -260,6 +260,13 @@ export default class CardholderController {
             }
             const cardholder: Cardholder = await Cardholder.addItem(req_data as Cardholder)
 
+            const check_credentials = CheckCredentialSettings.checkSettings(req_data.credentials)
+
+            if (check_credentials !== true) {
+                ctx.status = 400
+                return ctx.body = { message: check_credentials }
+            }
+
             if (req_data.credentials && req_data.credentials.length) {
                 const credentials: any = []
                 for (const credential of req_data.credentials) {
@@ -269,11 +276,6 @@ export default class CardholderController {
                     credentials.push(data)
 
                     req_data.where = { status: { '=': acuStatus.ACTIVE } }
-                    const check = CheckCredentialSettings.checkSettings(credential)
-                    if (check !== true) {
-                        ctx.status = 400
-                        return ctx.body = { message: check }
-                    }
                 }
                 const access_points = await AccessPoint.createQueryBuilder('access_point')
                     .innerJoin('access_point.acus', 'acu', 'acu.delete_date is null')
@@ -291,7 +293,7 @@ export default class CardholderController {
                     }
                     const acus: any = await Acu.getAllItems(req_data)
                     acus.forEach((acu: any) => {
-                        new SendDeviceMessage(OperatorType.ADD_CARD_KEY, location, acu.serial_number, send_data, acu.session_id)
+                        new SendDeviceMessage(OperatorType.ADD_CARD_KEY, location, acu.serial_number, send_data, auth_user.id, acu.session_id)
                     })
                 }
             }
@@ -301,6 +303,8 @@ export default class CardholderController {
                 ctx.body = await Cardholder.getItem(where, relations)
             }
         } catch (error) {
+            console.log(error)
+
             ctx.status = error.status || 400
             ctx.body = error
         }
@@ -577,10 +581,10 @@ export default class CardholderController {
                             //     })
                             // })
                             acus.forEach((acu: any) => {
-                                new SendDeviceMessage(OperatorType.ADD_CARD_KEY, location, acu.serial_number, send_add_data, acu.session_id)
+                                new SendDeviceMessage(OperatorType.ADD_CARD_KEY, location, acu.serial_number, send_add_data, auth_user.id, acu.session_id)
 
                                 if (send_edit_data) {
-                                    new SendDeviceMessage(OperatorType.EDIT_KEY, location, acu.serial_number, send_edit_data, acu.session_id)
+                                    new SendDeviceMessage(OperatorType.EDIT_KEY, location, acu.serial_number, send_edit_data, auth_user.id, acu.session_id)
                                 }
                             })
                         }
@@ -687,7 +691,7 @@ export default class CardholderController {
             const acus: any = await Acu.getAllItems(req_data)
             ctx.body = await Cardholder.destroyItem(where)
             acus.forEach((acu: any) => {
-                new SendDeviceMessage(OperatorType.DELL_KEYS, location, acu.serial_number, req_data, acu.session_id)
+                new SendDeviceMessage(OperatorType.DELL_KEYS, location, acu.serial_number, req_data, user.id, acu.session_id)
             })
         } catch (error) {
             console.log(error)
@@ -1295,7 +1299,7 @@ export default class CardholderController {
                         } else if (access_rule_schedule.type === scheduleType.SPECIFIC) {
                             operator = OperatorType.SET_SDL_SPECIFIED
                         }
-                        new SendDeviceMessage(operator, location, access_rule.access_points.acus.serial_number, send_sdl_data, access_rule.access_points.acus.session_id)
+                        new SendDeviceMessage(operator, location, access_rule.access_points.acus.serial_number, send_sdl_data, auth_user.id, access_rule.access_points.acus.session_id)
                     }
                 }
 
@@ -1307,7 +1311,7 @@ export default class CardholderController {
                 }
                 const acus: any = await Acu.getAllItems({ where: { status: { '=': acuStatus.ACTIVE } } })
                 acus.forEach((item_acu: any) => {
-                    new SendDeviceMessage(OperatorType.ADD_CARD_KEY, location, item_acu.serial_number, send_data, item_acu.session_id)
+                    new SendDeviceMessage(OperatorType.ADD_CARD_KEY, location, item_acu.serial_number, send_data, auth_user.id, item_acu.session_id)
                 })
             }
 
@@ -1484,7 +1488,7 @@ export default class CardholderController {
                         } else if (schedule.type === scheduleType.SPECIFIC) {
                             operator = OperatorType.DEL_SDL_SPECIFIED
                         }
-                        new SendDeviceMessage(operator, location, acu.serial_number, send_data, acu.session_id)
+                        new SendDeviceMessage(operator, location, acu.serial_number, send_data, auth_user.id, acu.session_id)
                     } else {
                         await AccessRule.destroyItem(guest_access_rule)
                     }
@@ -1540,7 +1544,7 @@ export default class CardholderController {
                                     } else if (schedule.type === scheduleType.SPECIFIC) {
                                         operator = OperatorType.SET_SDL_SPECIFIED
                                     }
-                                    new SendDeviceMessage(operator, location, acu.serial_number, send_sdl_data, acu.session_id)
+                                    new SendDeviceMessage(operator, location, acu.serial_number, send_sdl_data, auth_user.id, acu.session_id)
 
                                     const cardholders = await Cardholder.getAllItems({
                                         relations: ['credentials'],
@@ -1557,7 +1561,7 @@ export default class CardholderController {
 
                                         const acus: any = await Acu.getAllItems({ where: { status: { '=': acuStatus.ACTIVE } } })
                                         acus.forEach((item_acu: any) => {
-                                            new SendDeviceMessage(OperatorType.EDIT_KEY, location, item_acu.serial_number, send_edit_data, item_acu.session_id)
+                                            new SendDeviceMessage(OperatorType.EDIT_KEY, location, item_acu.serial_number, send_edit_data, auth_user.id, item_acu.session_id)
                                         })
                                     }
                                 }
@@ -1581,7 +1585,7 @@ export default class CardholderController {
                             } else if (schedule.type === scheduleType.SPECIFIC) {
                                 operator = OperatorType.DEL_SDL_SPECIFIED
                             }
-                            new SendDeviceMessage(operator, location, acu.serial_number, send_data, acu.session_id)
+                            new SendDeviceMessage(operator, location, acu.serial_number, send_data, auth_user.id, acu.session_id)
                         } else {
                             await AccessRule.destroyItem(guest_access_rule)
                         }
@@ -1810,7 +1814,7 @@ export default class CardholderController {
                         } else if (access_rule_schedule.type === scheduleType.SPECIFIC) {
                             operator = OperatorType.SET_SDL_SPECIFIED
                         }
-                        new SendDeviceMessage(operator, location, access_rule.access_points.acus.serial_number, send_sdl_data, access_rule.access_points.acus.session_id)
+                        new SendDeviceMessage(operator, location, access_rule.access_points.acus.serial_number, send_sdl_data, auth_user.id, access_rule.access_points.acus.session_id)
                     }
                 }
             }
@@ -1841,7 +1845,7 @@ export default class CardholderController {
                     }
                     const acus: any = await Acu.getAllItems(req_data)
                     acus.forEach((acu: any) => {
-                        new SendDeviceMessage(OperatorType.ADD_CARD_KEY, location, acu.serial_number, send_data, acu.session_id)
+                        new SendDeviceMessage(OperatorType.ADD_CARD_KEY, location, acu.serial_number, send_data, auth_user.id, acu.session_id)
                     })
                 }
             }
@@ -2022,7 +2026,7 @@ export default class CardholderController {
                         } else if (schedule.type === scheduleType.SPECIFIC) {
                             operator = OperatorType.DEL_SDL_SPECIFIED
                         }
-                        new SendDeviceMessage(operator, location, acu.serial_number, send_data, acu.session_id)
+                        new SendDeviceMessage(operator, location, acu.serial_number, send_data, auth_user.id, acu.session_id)
                     } else {
                         await AccessRule.destroyItem(created_cardholder_access_rule)
                     }
@@ -2085,7 +2089,7 @@ export default class CardholderController {
                         } else if (access_rule_schedule.type === scheduleType.SPECIFIC) {
                             operator = OperatorType.SET_SDL_SPECIFIED
                         }
-                        new SendDeviceMessage(operator, location, access_rule.access_points.acus.serial_number, send_sdl_data, access_rule.access_points.acus.session_id)
+                        new SendDeviceMessage(operator, location, access_rule.access_points.acus.serial_number, send_sdl_data, auth_user.id, access_rule.access_points.acus.session_id)
                     }
                 }
             }
@@ -2119,7 +2123,7 @@ export default class CardholderController {
                         const acus: any = await Acu.getAllItems(req_data)
 
                         acus.forEach((acu: any) => {
-                            new SendDeviceMessage(OperatorType.ADD_CARD_KEY, location, acu.serial_number, send_add_data, acu.session_id)
+                            new SendDeviceMessage(OperatorType.ADD_CARD_KEY, location, acu.serial_number, send_add_data, auth_user.id, acu.session_id)
                         })
                     }
                 }

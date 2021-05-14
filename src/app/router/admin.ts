@@ -7,7 +7,7 @@ export default router
 
   .post('Admin-addItem', 'account', checkRole(), resource(), AdminController.createAdmin)
   .post('Admin-addItem', 'account/invite', checkRole(), AdminController.inviteAdmin)
-  .post('Admin-addItem', 'account/forgotPassword', checkRole(), AdminController.forgotPassword)
+  .post('Admin-addItem', 'account/forgotPassword', AdminController.forgotPassword)
 
   .delete('Admin-destroyItem', 'account', checkRole(), AdminController.destroy)
   .put('Admin-updateItem', 'account', checkRole(), AdminController.update)

@@ -71,7 +71,7 @@ export class Timeframe extends MainEntity {
                 }
             }
         } else if (data.id) {
-            const timeframes = await this.findOneOrFail(data.id)
+            const timeframes = await this.findOneOrFail({ id: data.id })
             oldData = timeframes
             if ('start' in data) timeframes.start = data.start
             if ('end' in data) timeframes.end = data.end

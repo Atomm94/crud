@@ -67,7 +67,7 @@ export class Credential extends MainEntity {
     }
 
     public static async updateItem (data: Credential) {
-        const credential = await this.findOneOrFail(data.id)
+        const credential = await this.findOneOrFail({ id: data.id })
 
         if ('type' in data) credential.type = data.type
         if ('code' in data) credential.code = data.code

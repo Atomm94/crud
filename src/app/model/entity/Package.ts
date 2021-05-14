@@ -9,21 +9,21 @@ import {
 } from 'typeorm'
 
 import { MainEntity } from './MainEntity'
-import { PacketType } from './PacketType'
+import { PackageType } from './PackageType'
 import { Company } from './Company'
 
 @Index('name|deleteDate', ['name', 'deleteDate'], { unique: true })
 
-@Entity('packet')
-export class Packet extends MainEntity {
+@Entity('package')
+export class Package extends MainEntity {
     @Column('varchar', { name: 'name' })
     name: string
 
     @Column('varchar', { name: 'description', nullable: true })
     description: string | null
 
-    @Column('int', { name: 'packet_type' })
-    packet_type: number
+    @Column('int', { name: 'package_type' })
+    package_type: number
 
     @Column('boolean', { name: 'free', default: true })
     free: boolean
@@ -43,28 +43,28 @@ export class Packet extends MainEntity {
     @DeleteDateColumn({ type: 'timestamp', name: 'delete_date' })
     public deleteDate: Date
 
-    @ManyToOne(type => PacketType, packetType => packetType.packets)
-    @JoinColumn({ name: 'packet_type' })
-    packet_types: PacketType;
+    @ManyToOne(type => PackageType, packageType => packageType.packages)
+    @JoinColumn({ name: 'package_type' })
+    package_types: PackageType;
 
-    @OneToMany(type => Company, company => company.packet, { nullable: true })
-    packets: Packet[] | null;
+    @OneToMany(type => Company, company => company.package, { nullable: true })
+    packages: Package[] | null;
 
-    public static async addItem (data: Packet) {
-        const packet = new Packet()
+    public static async addItem (data: Package) {
+        const package_data = new Package()
 
-        packet.name = data.name
-        packet.description = data.description
-        packet.packet_type = data.packet_type
-        packet.free = data.free
-        packet.price = data.price
-        packet.pay_terms = data.pay_terms
-        packet.status = data.status
-        packet.extra_settings = data.extra_settings
+        package_data.name = data.name
+        package_data.description = data.description
+        package_data.package_type = data.package_type
+        package_data.free = data.free
+        package_data.price = data.price
+        package_data.pay_terms = data.pay_terms
+        package_data.status = data.status
+        package_data.extra_settings = data.extra_settings
 
         return new Promise((resolve, reject) => {
-            this.save(packet)
-                .then((item: Packet) => {
+            this.save(package_data)
+                .then((item: Package) => {
                     resolve(item)
                 })
                 .catch((error: any) => {
@@ -73,23 +73,23 @@ export class Packet extends MainEntity {
         })
     }
 
-    public static async updateItem (data: Packet): Promise<{ [key: string]: any }> {
-        const packet = await this.findOneOrFail(data.id)
-        const oldData = Object.assign({}, packet)
+    public static async updateItem (data: Package): Promise<{ [key: string]: any }> {
+        const package_data = await this.findOneOrFail({ id: data.id })
+        const oldData = Object.assign({}, package_data)
 
-        if ('name' in data) packet.name = data.name
-        if ('description' in data) packet.description = data.description
-        if ('packet_type' in data) packet.packet_type = data.packet_type
-        if ('free' in data) packet.free = data.free
-        if ('price' in data) packet.price = data.price
-        if ('pay_terms' in data) packet.pay_terms = data.pay_terms
-        if ('status' in data) packet.status = data.status
-        if ('extra_settings' in data) packet.extra_settings = data.extra_settings
+        if ('name' in data) package_data.name = data.name
+        if ('description' in data) package_data.description = data.description
+        if ('package_type' in data) package_data.package_type = data.package_type
+        if ('free' in data) package_data.free = data.free
+        if ('price' in data) package_data.price = data.price
+        if ('pay_terms' in data) package_data.pay_terms = data.pay_terms
+        if ('status' in data) package_data.status = data.status
+        if ('extra_settings' in data) package_data.extra_settings = data.extra_settings
 
-        if (!packet) return { status: 400, message: 'Item not found' }
+        if (!package_data) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(packet)
-                .then((item: Packet) => {
+            this.save(package_data)
+                .then((item: Package) => {
                     resolve({
                         old: oldData,
                         new: item
@@ -109,7 +109,7 @@ export class Packet extends MainEntity {
                 where: where,
                 relations: relations || []
             })
-                .then((item: Packet) => {
+                .then((item: Package) => {
                     resolve(item)
                 })
                 .catch((error: any) => {

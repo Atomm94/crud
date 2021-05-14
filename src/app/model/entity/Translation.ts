@@ -31,7 +31,7 @@ export class Translation extends MainEntity {
     }
 
     public static async updateItem (data: Translation): Promise<{ [key: string]: any }> {
-        const translations = await this.findOneOrFail(data.id)
+        const translations = await this.findOneOrFail({ id: data.id })
         const oldData = Object.assign({}, translations)
 
         if ('term' in data) translations.term = data.term

@@ -62,7 +62,7 @@ export class AccountGroup extends MainEntity {
     }
 
     public static async updateItem (data: AccountGroup): Promise<{ [key: string]: any }> {
-        const accountGroup = await this.findOneOrFail(data.id)
+        const accountGroup = await this.findOneOrFail({ id: data.id })
         const oldData = Object.assign({}, accountGroup)
 
         if ('name' in data) accountGroup.name = data.name

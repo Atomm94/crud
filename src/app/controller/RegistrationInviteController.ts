@@ -1,6 +1,6 @@
 import { DefaultContext } from 'koa'
 import { RegistrationInvite } from '../model/entity/RegistrationInvite'
-import { PacketType } from '../model/entity/PacketType'
+import { PackageType } from '../model/entity/PackageType'
 
 export default class RegistrationInviteController {
     /**
@@ -128,8 +128,8 @@ export default class RegistrationInviteController {
 
             const regToken = await RegistrationInvite.findOneOrFail({ token: token, used: false })
             if (regToken) {
-                const packetTypes = await PacketType.getAllItems({ where: { status: { '=': true } } })
-                ctx.body = packetTypes
+                const packageTypes = await PackageType.getAllItems({ where: { status: { '=': true } } })
+                ctx.body = packageTypes
             } else {
                 ctx.status = 400
                 ctx.body = {

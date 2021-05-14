@@ -1,17 +1,20 @@
 import {
     Entity,
-    Column
+    Column,
+    ManyToOne,
+    JoinColumn
 } from 'typeorm'
+import { AccessPoint } from '.'
 
 import { MainEntity } from './MainEntity'
 
 @Entity('notification')
 export class Notification extends MainEntity {
-    @Column('int', { name: 'confirmed', nullable: true })
+    @Column('bigint', { name: 'confirmed', nullable: true })
     confirmed: number | null
 
-    @Column('int', { name: 'access_point', nullable: false })
-    access_point: number
+    @Column('int', { name: 'access_point', nullable: true })
+    access_point: number | null
 
     @Column('varchar', { name: 'event', nullable: false })
     event: string
@@ -21,6 +24,10 @@ export class Notification extends MainEntity {
 
     @Column('int', { name: 'company', nullable: false })
     company: number
+
+    @ManyToOne(type => AccessPoint, access_point => access_point.notifications)
+    @JoinColumn({ name: 'access_point' })
+    access_points: AccessPoint;
 
     public static async addItem (data: Notification) {
         const notification = new Notification()
@@ -42,7 +49,7 @@ export class Notification extends MainEntity {
     }
 
     public static async updateItem (data: Notification) {
-        const notification = await this.findOneOrFail(data.id)
+        const notification = await this.findOneOrFail({ id: data.id })
 
         if ('confirmed' in data) notification.confirmed = data.confirmed
         if ('access_point' in data) notification.access_point = data.access_point

@@ -7,8 +7,8 @@ import { Ticket } from './Ticket'
 import { Department } from './Department'
 import { TicketMessage } from './TicketMessage'
 import { Module } from './Modules'
-import { Packet } from './Packet'
-import { PacketType } from './PacketType'
+import { Package } from './Package'
+import { PackageType } from './PackageType'
 import { Company } from './Company'
 import { CompanyDocuments } from './CompanyDocuments'
 import { CompanyResources } from './CompanyResources'
@@ -39,8 +39,8 @@ export {
     Ticket,
     Department,
     TicketMessage,
-    Packet,
-    PacketType,
+    Package,
+    PackageType,
     Company,
     CompanyDocuments,
     CompanyResources,

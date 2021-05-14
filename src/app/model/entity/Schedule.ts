@@ -81,8 +81,8 @@ export class Schedule extends MainEntity {
         })
     }
 
-    public static async updateItem (data: Schedule): Promise<{ old: Schedule, new: Schedule } | { [key: string]: any }> {
-        const schedule = await this.findOneOrFail(data.id)
+    public static async updateItem (data: Schedule): Promise<{old:Schedule, new:Schedule}|{ [key: string]: any }> {
+        const schedule = await this.findOneOrFail({ id: data.id })
         const oldData = Object.assign({}, schedule)
 
         if ('name' in data) schedule.name = data.name

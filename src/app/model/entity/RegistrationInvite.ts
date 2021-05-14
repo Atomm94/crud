@@ -6,7 +6,7 @@ import {
 import { MainEntity } from './MainEntity'
 import { uid } from 'uid'
 import { Sendgrid } from '../../../component/sendgrid/sendgrid'
-import { PacketType } from './PacketType'
+import { PackageType } from './PackageType'
 
 @Entity('registration_invite')
 export class RegistrationInvite extends MainEntity {
@@ -38,7 +38,7 @@ export class RegistrationInvite extends MainEntity {
     // }
 
     // public static async updateItem (data: RegistrationInvite) {
-    //     const registrationInvite = await this.findOneOrFail(data.id)
+    //     const registrationInvite = await this.findOneOrFail({ id: data.id })
 
     //     if ('email' in data) registrationInvite.email = data.email
     //     if ('token' in data) registrationInvite.token = data.token
@@ -135,8 +135,8 @@ export class RegistrationInvite extends MainEntity {
         try {
             const regToken = await RegistrationInvite.findOneOrFail({ token: token, used: false })
             if (regToken) {
-                const packetTypes = await PacketType.getAllItems({ where: { status: { '=': true } } })
-                return packetTypes
+                const packageTypes = await PackageType.getAllItems({ where: { status: { '=': true } } })
+                return packageTypes
             } else {
                 return false
             }

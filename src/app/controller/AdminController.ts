@@ -1,7 +1,7 @@
 import * as _ from 'lodash'
 import { DefaultContext } from 'koa'
 import { getRepository } from 'typeorm'
-import { Admin, Packet, Role } from '../model/entity/index'
+import { Admin, Package, Role } from '../model/entity/index'
 import * as jwt from 'jsonwebtoken'
 import * as bcrypt from 'bcrypt'
 import fs from 'fs'
@@ -12,6 +12,7 @@ import { Sendgrid } from '../../component/sendgrid/sendgrid'
 import { uid } from 'uid'
 import { checkPermissionsAccess } from '../functions/check-permissions-access'
 import { AccountGroup } from '../model/entity/AccountGroup'
+import { adminStatus } from '../enums/adminStatus.enum'
 
 const parentDir = join(__dirname, '../..')
 
@@ -107,14 +108,14 @@ export default class AdminController {
      *                      type: string
      *                      example: some address
      *                  viber:
-     *                      type: string
-     *                      example: +374 XX XXX XXX
+     *                      type: boolean
+     *                      example: false
      *                  whatsapp:
-     *                      type: string
-     *                      example: +374 XX XXX XXX
-     *                  company:
-     *                      type: string
-     *                      example: +374 XX XXX XXX
+     *                      type: boolean
+     *                      example: false
+     *                  telegram:
+     *                      type: boolean
+     *                      example: false
      *                  comment:
      *                      type: string
      *                      example: comment
@@ -124,6 +125,15 @@ export default class AdminController {
      *                  role_inherited:
      *                      type: boolean
      *                      example: false
+     *                  date_format:
+     *                      type: string
+     *                      example: MM/DD/YYYY
+     *                  time_format:
+     *                      type: string
+     *                      example: 24h
+     *                  time_zone:
+     *                      type: string
+     *                      example: +7
      *          responses:
      *              '201':
      *                  description: A admin object
@@ -246,6 +256,9 @@ export default class AdminController {
      *                  username:
      *                      type: string
      *                      example: username
+     *                  first_name:
+     *                      type: string
+     *                      example: name
      *                  email:
      *                      type: string
      *                      example: example@gmail.com
@@ -258,9 +271,6 @@ export default class AdminController {
      *                  comment:
      *                      type: string
      *                      example: comment
-     *                  send:
-     *                      type: boolean
-     *                      example: false
      *          responses:
      *              '201':
      *                  description: A admin object
@@ -278,14 +288,15 @@ export default class AdminController {
         let role
 
         try {
+            reqData.status = adminStatus.pending
             const newAdmin: Admin = await Admin.addItem(reqData, user)
             role = await Role.findOne({
                 id: reqData.role
             })
             if (newAdmin && role) {
-                ctx.body = { success: true }
-                if (reqData.send && newAdmin.verify_token) {
-                    await Sendgrid.sendNewPass(newAdmin.email, newAdmin.verify_token)
+                ctx.body = newAdmin
+                if (newAdmin.verify_token) {
+                    await Sendgrid.SetPass(newAdmin.email, newAdmin.verify_token)
                 }
             }
         } catch (error) {
@@ -330,11 +341,11 @@ export default class AdminController {
                 admin = await Admin.findOneOrFail(ctx.user.id)
                 const adminFiltered = _.omit(admin, ['password', 'super', 'verify_token'])
                 ctx.body = adminFiltered
-                if (ctx.user && ctx.user.company && ctx.user.companyData && ctx.user.companyData.packet) {
-                    const packetData = await Packet.findOne(ctx.user.companyData.packet)
-
-                    if (packetData && packetData.extra_settings) {
-                        const extra_settings = JSON.parse(packetData.extra_settings)
+                ctx.body.package = ctx.user.package ? ctx.user.package : null
+                if (ctx.user && ctx.user.company && ctx.user.package) {
+                    const packageData = await Package.findOne(ctx.user.package)
+                    if (packageData && packageData.extra_settings) {
+                        const extra_settings = JSON.parse(packageData.extra_settings)
                         if (extra_settings.features) {
                             ctx.body.features = extra_settings.features
                         }
@@ -590,11 +601,14 @@ export default class AdminController {
      *                      type: string
      *                      example: some address
      *                  viber:
-     *                      type: string
-     *                      example: +374 XX XXX XXX
+     *                      type: boolean
+     *                      example: false
      *                  whatsapp:
-     *                      type: string
-     *                      example: +374 XX XXX XXX
+     *                      type: boolean
+     *                      example: false
+     *                  telegram:
+     *                      type: boolean
+     *                      example: false
      *                  comment:
      *                      type: string
      *                      example: comment
@@ -604,6 +618,15 @@ export default class AdminController {
      *                  role_inherited:
      *                      type: boolean
      *                      example: false
+     *                  date_format:
+     *                      type: string
+     *                      example: MM/DD/YYYY
+     *                  time_format:
+     *                      type: string
+     *                      example: 24h
+     *                  time_zone:
+     *                      type: string
+     *                      example: +7
      *          responses:
      *              '201':
      *                  description: A market updated object
@@ -619,7 +642,7 @@ export default class AdminController {
         let check_group = true
 
         try {
-            const admin = Admin.findOne({
+            const admin = await Admin.findOne({
                 id: reqData.id,
                 company: user.company ? user.company : null
             })
@@ -818,7 +841,7 @@ export default class AdminController {
 
         const req_data = ctx.query
         req_data.relations = ['departments']
-        const where: any = { company: { '=': user.company ? user.company : null } }
+        const where: any = { company: { '=': user.company ? user.company : null }, id: { '!=': user.id } }
         if (!user.company && !user.super) {
             where.super = { '=': false }
         }
@@ -1001,6 +1024,7 @@ export default class AdminController {
             if (validate(password).success) {
                 user.password = password
                 user.verify_token = null
+                user.status = adminStatus.active
                 await user.save()
                 ctx.body = {
                     success: true
@@ -1031,12 +1055,6 @@ export default class AdminController {
      *          consumes:
      *              - application/json
      *          parameters:
-     *            - in: header
-     *              name: Authorization
-     *              required: true
-     *              description: Authentication token
-     *              schema:
-     *                    type: string
      *            - in: body
      *              name: admin
      *              description: The password recovery.
@@ -1059,16 +1077,9 @@ export default class AdminController {
 
     public static async forgotPassword (ctx: DefaultContext) {
         const reqData = ctx.request.body
-        const user = ctx.user
-
-        if (user.company) reqData.company = user.company
-        reqData.id = user.id
-
         try {
-            const admin = await Admin.findOne({
-                id: reqData.id,
-                email: reqData.email,
-                company: user.company ? user.company : null
+            const admin = await Admin.findOneOrFail({
+                email: reqData.email
             })
             if (admin) {
                 admin.verify_token = uid(32)

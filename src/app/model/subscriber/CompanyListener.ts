@@ -9,8 +9,10 @@ import {
 import * as Models from '../entity'
 import { Admin, CompanyResources, Role } from '../entity'
 import { Company } from '../entity/Company'
+import { Acu } from '../entity/Acu'
 import { statusCompany } from '../../enums/statusCompany.enum'
 import { Feature } from '../../middleware/feature'
+import { adminStatus } from '../../enums/adminStatus.enum'
 const featureList: any = Feature
 @EventSubscriber()
 export class PostSubscriber implements EntitySubscriberInterface<Company> {
@@ -40,45 +42,66 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
         const { entity: New, databaseEntity: Old } = event
         if (Old.status !== New.status) {
             if (Old.status === statusCompany.DISABLE && New.status === statusCompany.ENABLE) {
-                const accounts = await Admin.find({ company: New.id, status: false })
+                const accounts = await Admin.find({ company: New.id, status: adminStatus.inactive })
                 for (const account of accounts) {
-                    account.status = true
+                    account.status = adminStatus.active
                     await account.save()
                 }
             } else if (New.status === statusCompany.DISABLE) {
-                const accounts = await Admin.find({ company: New.id, status: true })
+                const accounts = await Admin.find({ company: New.id, status: adminStatus.active })
                 for (const account of accounts) {
-                    account.status = false
+                    account.status = adminStatus.inactive
                     await account.save()
                 }
             } else if (Old.status === statusCompany.DISABLE && New.status === statusCompany.PENDING) {
                 const account = await Admin.findOneOrFail({ where: { id: New.account } })
-                account.status = true
+                account.status = adminStatus.active
                 await account.save()
             } else if (Old.status === statusCompany.ENABLE && New.status === statusCompany.PENDING) {
-                const accounts = await Admin.find({ where: { company: New.id, id: Not(New.account), status: true } })
+                const accounts = await Admin.find({ where: { company: New.id, id: Not(New.account), status: adminStatus.active } })
                 for (const account of accounts) {
-                    account.status = false
+                    account.status = adminStatus.inactive
                     await account.save()
                 }
             }
         }
 
-        if (New.packet && New.packet === Old.packet && Old.status === statusCompany.PENDING && New.status === statusCompany.ENABLE) {
+        if (New.package && New.package === Old.package && Old.status === statusCompany.PENDING && New.status === statusCompany.ENABLE) {
             if (New.account) {
                 const account = await Admin.findOne(New.account)
                 if (account && account.role) {
                     const account_role: Role | undefined = await Role.findOne(account.role)
                     const default_role: Role | undefined = await Role.findOne({ slug: 'default_partner', company: null })
-                    // const packet: Packet | undefined = await Packet.findOne(New.packet) // get softDelete too
-                    let packet: any = await getManager().query(`SELECT * FROM packet where id = ${New.packet}`)
+                    // const package: Package | undefined = await Package.findOne(New.package) // get softDelete too
+                    let package_data: any = await getManager().query(`SELECT * FROM package where id = ${New.package}`)
 
-                    if (account_role && packet.length) {
-                        packet = packet[0]
+                    if (account_role && package_data.length) {
+                        package_data = package_data[0]
                         // generate account permissions
                         const permissions: any = {}
                         const default_permissions = (default_role) ? JSON.parse(default_role.permissions) : Role.default_partner_role
-                        const extra_settings = JSON.parse(packet.extra_settings)
+                        // const role_permissions =
+                        const role_permissions = Role.getActions()
+                        Object.keys(role_permissions).forEach(action => {
+                            role_permissions[action] = true
+                        })
+                        if (default_permissions.Role) {
+                            default_permissions.Role.actions = { ...role_permissions, ...default_permissions.Role.actions }
+                        } else {
+                            default_permissions.Role = {
+                                actions: { ...role_permissions }
+                            }
+                        }
+
+                        const acu_permissions = Acu.getActions()
+                        Object.keys(acu_permissions).forEach(action => {
+                            acu_permissions[action] = true
+                        })
+                        default_permissions.Acu = {
+                            actions: { ...acu_permissions }
+                        }
+
+                        const extra_settings = JSON.parse(package_data.extra_settings)
 
                         const models: any = Models
                         Object.keys(extra_settings.resources).forEach(resource => {
@@ -153,7 +176,7 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
      */
     async beforeUpdate (event: UpdateEvent<Company>) {
         const { entity: New, databaseEntity: Old } = event
-        if (New.packet !== Old.packet && Old.status === 'enabled') {
+        if (New.package !== Old.package && Old.status === 'enabled') {
             New.status = statusCompany.PENDING
         }
     }

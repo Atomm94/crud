@@ -39,7 +39,7 @@ export class AccessPointGroup extends MainEntity {
     }
 
     public static async updateItem (data: AccessPointGroup): Promise<{ [key: string]: any }> {
-        const accessPointGroup = await this.findOneOrFail(data.id)
+        const accessPointGroup = await this.findOneOrFail({ id: data.id })
         const oldData = Object.assign({}, accessPointGroup)
 
         if ('name' in data) accessPointGroup.name = data.name

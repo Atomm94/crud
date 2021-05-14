@@ -16,7 +16,9 @@ import * as Models from '../entity/index'
 import fs from 'fs'
 import appRoot from 'app-root-path'
 import path from 'path'
-const public_path = path.join(appRoot.path, 'src/public')
+import { config } from '../../../config'
+
+const public_path = path.join(appRoot.path, config.publicPath)
 
 const upload_files_path: string = process.env.UPLOAD_FILES_PATH ? process.env.UPLOAD_FILES_PATH : 'tmp/'
 @EventSubscriber()
@@ -46,8 +48,10 @@ export class PostSubscriber implements EntitySubscriberInterface<MainEntity> {
             }
 
             if (file_path) {
-                file_path = JSON.parse(file_path).path
-                const file_name = JSON.parse(file_path).name
+                const file_path_obj = JSON.parse(file_path)
+                file_path = file_path_obj.path
+
+                const file_name = file_path_obj.name
                 if (!fs.existsSync(file_path)) file_path = `${public_path}/${file_path}`
 
                 if (!fs.existsSync(file_path)) {

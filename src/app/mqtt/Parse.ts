@@ -13,223 +13,235 @@ import { accessPointType } from '../enums/accessPointType.enum'
 import LogController from '../controller/LogController'
 import SendSocketMessage from './SendSocketMessage'
 import { socketChannels } from '../enums/socketChannels.enum'
+import { Cardholder } from '../model/entity'
+import errorList from '../model/entity/errorList.json'
+
 // import { uid } from 'uid'
 
 export default class Parse {
     public static deviceData (topic: string, data: string) {
-        try {
-            const message: IMqttCrudMessaging = JSON.parse(data)
-            message.location = message.device_topic.split('/').slice(0, 2).join('/')
-            message.company = Number(message.device_topic.split('/')[1])
-            message.device_id = Number(message.device_topic.split('/')[3])
+        const message: IMqttCrudMessaging = JSON.parse(data)
+        message.location = message.device_topic.split('/').slice(0, 2).join('/')
+        message.company = Number(message.device_topic.split('/')[1])
+        message.device_id = Number(message.device_topic.split('/')[3])
 
-            switch (message.operator) {
-                case OperatorType.REGISTRATION:
-                    this.deviceRegistration(message)
-                    break
-                case OperatorType.ACCEPT_ACK:
-                    this.deviceAcceptAck(message)
-                    break
-                case OperatorType.LOGIN_ACK:
-                    this.deviceLoginAck(message)
-                    break
-                case OperatorType.LOGOUT_ACK:
-                    this.deviceLogOutAck(message)
-                    break
-                case OperatorType.LOGOUT_EVENT:
-                    this.deviceLogOutEvent(message)
-                    break
-                case OperatorType.SET_PASS_ACK:
-                    this.deviceSetPassAck(message)
-                    break
-                case OperatorType.SET_NET_SETTINGS_ACK:
-                    this.deviceSetNetSettingsAck(message)
-                    break
-                case OperatorType.GET_NET_SETTINGS_ACK:
-                    this.deviceGetNetSettingsAck(message)
-                    break
-                case OperatorType.SET_DATE_TIME_ACK:
-                    this.deviceSetDateTimeAck(message)
-                    break
-                case OperatorType.SET_MQTT_SETTINGS_ACK:
-                    this.deviceSetMqttSettingsAck(message)
-                    break
-                case OperatorType.GET_MQTT_SETTINGS_ACK:
-                    this.deviceGetMqttSettingsAck(message)
-                    break
-                case OperatorType.GET_STATUS_ACU_ACK:
-                    this.deviceGetStatusAcuAck(message)
-                    break
-                case OperatorType.SET_EXT_BRD_ACK:
-                    this.deviceSetExtBrdAck(message)
-                    break
-                case OperatorType.GET_EXT_BRD_ACK:
-                    this.deviceGetExtBrdAck(message)
-                    break
-                case OperatorType.DEL_EXT_BRD_ACK:
-                    this.deviceDelExtBrdAck(message)
-                    break
-
-                case OperatorType.SET_RD_ACK:
-                    this.deviceSetRdAck(message)
-                    break
-                case OperatorType.GET_RD_ACK:
-                    this.deviceGetRdAck(message)
-                    break
-                case OperatorType.DEL_RD_ACK:
-                    this.deviceDelRdAck(message)
-                    break
-
-                case OperatorType.SET_OUTPUT_ACK:
-                    this.deviceSetOutputAck(message)
-                    break
-                case OperatorType.GET_OUTPUT_ACK:
-                    this.deviceGetOutputAck(message)
-                    break
-                case OperatorType.GET_INPUT_ACK:
-                    this.deviceGetInputAck(message)
-                    break
-                case OperatorType.SET_CTP_DOOR_ACK:
-                    this.deviceSetCtpDoorAck(message)
-                    break
-                case OperatorType.DEL_CTP_DOOR_ACK:
-                    this.deviceDelCtpDoorAck(message)
-                    break
-                case OperatorType.GET_CTP_DOOR_ACK:
-                    this.deviceGetCtpDoorAck(message)
-                    break
-
-                case OperatorType.SET_CTP_TURNSTILE_ACK:
-                    this.deviceSetCtpTurnstileAck(message)
-                    break
-                case OperatorType.DEL_CTP_TURNSTILE_ACK:
-                    this.deviceDelCtpTurnstileAck(message)
-                    break
-                case OperatorType.GET_CTP_TURNSTILE_ACK:
-                    this.deviceGetCtpTurnstileAck(message)
-                    break
-                case OperatorType.SET_CTP_GATE_ACK:
-                    this.deviceSetCtpGateAck(message)
-                    break
-                case OperatorType.DEL_CTP_GATE_ACK:
-                    this.deviceDelCtpGateAck(message)
-                    break
-                case OperatorType.GET_CTP_GATE_ACK:
-                    this.deviceGetCtpGateAck(message)
-                    break
-                case OperatorType.SET_CTP_GATEWAY_ACK:
-                    this.deviceSetCtpGatewayAck(message)
-                    break
-                case OperatorType.DEL_CTP_GATEWAY_ACK:
-                    this.deviceDelCtpGatewayAck(message)
-                    break
-                case OperatorType.GET_CTP_GATEWAY_ACK:
-                    this.deviceGetCtpGatewayAck(message)
-                    break
-                case OperatorType.SET_CTP_FLOOR_ACK:
-                    this.deviceSetCtpFloorAck(message)
-                    break
-                case OperatorType.DEL_CTP_FLOOR_ACK:
-                    this.deviceDelCtpFloorAck(message)
-                    break
-                case OperatorType.GET_CTP_FLOOR_ACK:
-                    this.deviceGetCtpFloorAck(message)
-                    break
-
-                case OperatorType.EVENT:
-                    this.deviceEvent(message)
-                    break
-                case OperatorType.SET_EVENTS_MOD_ACK:
-                    this.deviceSetEventsModAck(message)
-                    break
-                case OperatorType.GET_EVENTS_MOD_ACK:
-                    this.deviceGetEventsModAck(message)
-                    break
-                case OperatorType.GET_EVENTS_ACK:
-                    this.deviceGetEventsAck(message)
-                    break
-                case OperatorType.SET_ACCESS_MODE_ACK:
-                    this.deviceSetAccessModeAck(message)
-                    break
-                case OperatorType.GET_ACCESS_MODE_ACK:
-                    this.deviceGetAccessModeAck(message)
-                    break
-                case OperatorType.SINGLE_PASS_ACK:
-                    this.deviceSinglePassAck(message)
-                    break
-                case OperatorType.SET_CARD_KEYS_ACK:
-                    this.setCardKeysAck(message)
-                    break
-                case OperatorType.ADD_CARD_KEY_ACK:
-                    this.addCardKeyAck(message)
-                    break
-                case OperatorType.END_CARD_KEY_ACK:
-                    this.endCardKeyAck(message)
-                    break
-
-                case OperatorType.EDIT_KEY_ACK:
-                    this.editKeyAck(message)
-                    break
-                case OperatorType.DELL_KEYS_ACK:
-                    this.dellKeysAck(message)
-                    break
-                case OperatorType.DELL_ALL_KEYS_ACK:
-                    this.dellAllKeysAck(message)
-                    break
-                case OperatorType.SET_SDL_DAILY_ACK:
-                    this.setSdlDailyAck(message)
-                    break
-                case OperatorType.DEL_SDL_DAILY_ACK:
-                    this.delSdlDailyAck(message)
-                    break
-                case OperatorType.SET_SDL_WEEKLY_ACK:
-                    this.setSdlWeeklyAck(message)
-                    break
-                case OperatorType.DEL_SDL_WEEKLY_ACK:
-                    this.delSdlWeeklyAck(message)
-                    break
-                case OperatorType.SET_SDL_FLEXI_TIME_ACK:
-                    this.setSdlFlexiTimeAck(message)
-                    break
-                case OperatorType.ADD_DAY_FLEXI_TIME_ACK:
-                    this.addDayFlexiTimeAck(message)
-                    break
-                case OperatorType.END_SDL_FLEXI_TIME_ACK:
-                    this.endSdlFlexiTimeAck(message)
-                    break
-                case OperatorType.DEL_SDL_FLEXI_TIME_ACK:
-                    this.delSdlFlexiTimeAck(message)
-                    break
-                case OperatorType.DEL_DAY_FLEXI_TIME_ACK:
-                    this.delDayFlexiTimeAck(message)
-                    break
-                case OperatorType.SET_SDL_SPECIFIED_ACK:
-                    this.setSdlSpecifiedAck(message)
-                    break
-                case OperatorType.ADD_DAY_SPECIFIED_ACK:
-                    this.addDaySpecifiedAck(message)
-                    break
-                case OperatorType.END_SDL_SPECIFIED_ACK:
-                    this.endSdlSpecifiedAck(message)
-                    break
-                case OperatorType.DEL_SDL_SPECIFIED_ACK:
-                    this.delSdlSpecifiedAck(message)
-                    break
-                case OperatorType.DELL_DAY_SPECIFIED_ACK:
-                    this.dellDaySpecifiedAck(message)
-                    break
-                case OperatorType.DELL_SHEDULE_ACK:
-                    this.dellSheduleAck(message)
-                    break
-                case OperatorType.DEV_TEST_ACK:
-                    this.deviceDevTestAck(message)
-                    break
-
-                default:
-                    break
+        if ('result' in message && 'errorNo' in message.result) {
+            const error: number = Number(message.result.errorNo)
+            if (error !== 0) {
+                const user = message.send_data.user
+                const error_list: any = errorList
+                if (error_list[error]) {
+                    message.send_data.data.error_description = error_list[error].description
+                } else {
+                    message.send_data.data.error_description = 'Unknown Error'
+                }
+                new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, message.company, user)
             }
-        } catch (error) {
-            console.log('deviceData error', error)
+        }
+
+        switch (message.operator) {
+            case OperatorType.REGISTRATION:
+                this.deviceRegistration(message)
+                break
+            case OperatorType.ACCEPT_ACK:
+                this.deviceAcceptAck(message)
+                break
+            case OperatorType.LOGIN_ACK:
+                this.deviceLoginAck(message)
+                break
+            case OperatorType.LOGOUT_ACK:
+                this.deviceLogOutAck(message)
+                break
+            case OperatorType.LOGOUT_EVENT:
+                this.deviceLogOutEvent(message)
+                break
+            case OperatorType.SET_PASS_ACK:
+                this.deviceSetPassAck(message)
+                break
+            case OperatorType.SET_NET_SETTINGS_ACK:
+                this.deviceSetNetSettingsAck(message)
+                break
+            case OperatorType.GET_NET_SETTINGS_ACK:
+                this.deviceGetNetSettingsAck(message)
+                break
+            case OperatorType.SET_DATE_TIME_ACK:
+                this.deviceSetDateTimeAck(message)
+                break
+            case OperatorType.SET_MQTT_SETTINGS_ACK:
+                this.deviceSetMqttSettingsAck(message)
+                break
+            case OperatorType.GET_MQTT_SETTINGS_ACK:
+                this.deviceGetMqttSettingsAck(message)
+                break
+            case OperatorType.GET_STATUS_ACU_ACK:
+                this.deviceGetStatusAcuAck(message)
+                break
+            case OperatorType.SET_EXT_BRD_ACK:
+                this.deviceSetExtBrdAck(message)
+                break
+            case OperatorType.GET_EXT_BRD_ACK:
+                this.deviceGetExtBrdAck(message)
+                break
+            case OperatorType.DEL_EXT_BRD_ACK:
+                this.deviceDelExtBrdAck(message)
+                break
+
+            case OperatorType.SET_RD_ACK:
+                this.deviceSetRdAck(message)
+                break
+            case OperatorType.GET_RD_ACK:
+                this.deviceGetRdAck(message)
+                break
+            case OperatorType.DEL_RD_ACK:
+                this.deviceDelRdAck(message)
+                break
+
+            case OperatorType.SET_OUTPUT_ACK:
+                this.deviceSetOutputAck(message)
+                break
+            case OperatorType.GET_OUTPUT_ACK:
+                this.deviceGetOutputAck(message)
+                break
+            case OperatorType.GET_INPUT_ACK:
+                this.deviceGetInputAck(message)
+                break
+            case OperatorType.SET_CTP_DOOR_ACK:
+                this.deviceSetCtpDoorAck(message)
+                break
+            case OperatorType.DEL_CTP_DOOR_ACK:
+                this.deviceDelCtpDoorAck(message)
+                break
+            case OperatorType.GET_CTP_DOOR_ACK:
+                this.deviceGetCtpDoorAck(message)
+                break
+
+            case OperatorType.SET_CTP_TURNSTILE_ACK:
+                this.deviceSetCtpTurnstileAck(message)
+                break
+            case OperatorType.DEL_CTP_TURNSTILE_ACK:
+                this.deviceDelCtpTurnstileAck(message)
+                break
+            case OperatorType.GET_CTP_TURNSTILE_ACK:
+                this.deviceGetCtpTurnstileAck(message)
+                break
+            case OperatorType.SET_CTP_GATE_ACK:
+                this.deviceSetCtpGateAck(message)
+                break
+            case OperatorType.DEL_CTP_GATE_ACK:
+                this.deviceDelCtpGateAck(message)
+                break
+            case OperatorType.GET_CTP_GATE_ACK:
+                this.deviceGetCtpGateAck(message)
+                break
+            case OperatorType.SET_CTP_GATEWAY_ACK:
+                this.deviceSetCtpGatewayAck(message)
+                break
+            case OperatorType.DEL_CTP_GATEWAY_ACK:
+                this.deviceDelCtpGatewayAck(message)
+                break
+            case OperatorType.GET_CTP_GATEWAY_ACK:
+                this.deviceGetCtpGatewayAck(message)
+                break
+            case OperatorType.SET_CTP_FLOOR_ACK:
+                this.deviceSetCtpFloorAck(message)
+                break
+            case OperatorType.DEL_CTP_FLOOR_ACK:
+                this.deviceDelCtpFloorAck(message)
+                break
+            case OperatorType.GET_CTP_FLOOR_ACK:
+                this.deviceGetCtpFloorAck(message)
+                break
+
+            case OperatorType.EVENT:
+                this.deviceEvent(message)
+                break
+            case OperatorType.SET_EVENTS_MOD_ACK:
+                this.deviceSetEventsModAck(message)
+                break
+            case OperatorType.GET_EVENTS_MOD_ACK:
+                this.deviceGetEventsModAck(message)
+                break
+            case OperatorType.GET_EVENTS_ACK:
+                this.deviceGetEventsAck(message)
+                break
+            case OperatorType.SET_ACCESS_MODE_ACK:
+                this.deviceSetAccessModeAck(message)
+                break
+            case OperatorType.GET_ACCESS_MODE_ACK:
+                this.deviceGetAccessModeAck(message)
+                break
+            case OperatorType.SINGLE_PASS_ACK:
+                this.deviceSinglePassAck(message)
+                break
+            case OperatorType.SET_CARD_KEYS_ACK:
+                this.setCardKeysAck(message)
+                break
+            case OperatorType.ADD_CARD_KEY_ACK:
+                this.addCardKeyAck(message)
+                break
+            case OperatorType.END_CARD_KEY_ACK:
+                this.endCardKeyAck(message)
+                break
+            case OperatorType.EDIT_KEY_ACK:
+                this.editKeyAck(message)
+                break
+            case OperatorType.DELL_KEYS_ACK:
+                this.dellKeysAck(message)
+                break
+            case OperatorType.DELL_ALL_KEYS_ACK:
+                this.dellAllKeysAck(message)
+                break
+            case OperatorType.SET_SDL_DAILY_ACK:
+                this.setSdlDailyAck(message)
+                break
+            case OperatorType.DEL_SDL_DAILY_ACK:
+                this.delSdlDailyAck(message)
+                break
+            case OperatorType.SET_SDL_WEEKLY_ACK:
+                this.setSdlWeeklyAck(message)
+                break
+            case OperatorType.DEL_SDL_WEEKLY_ACK:
+                this.delSdlWeeklyAck(message)
+                break
+            case OperatorType.SET_SDL_FLEXI_TIME_ACK:
+                this.setSdlFlexiTimeAck(message)
+                break
+            case OperatorType.ADD_DAY_FLEXI_TIME_ACK:
+                this.addDayFlexiTimeAck(message)
+                break
+            case OperatorType.END_SDL_FLEXI_TIME_ACK:
+                this.endSdlFlexiTimeAck(message)
+                break
+            case OperatorType.DEL_SDL_FLEXI_TIME_ACK:
+                this.delSdlFlexiTimeAck(message)
+                break
+            case OperatorType.DEL_DAY_FLEXI_TIME_ACK:
+                this.delDayFlexiTimeAck(message)
+                break
+            case OperatorType.SET_SDL_SPECIFIED_ACK:
+                this.setSdlSpecifiedAck(message)
+                break
+            case OperatorType.ADD_DAY_SPECIFIED_ACK:
+                this.addDaySpecifiedAck(message)
+                break
+            case OperatorType.END_SDL_SPECIFIED_ACK:
+                this.endSdlSpecifiedAck(message)
+                break
+            case OperatorType.DEL_SDL_SPECIFIED_ACK:
+                this.delSdlSpecifiedAck(message)
+                break
+            case OperatorType.DELL_DAY_SPECIFIED_ACK:
+                this.dellDaySpecifiedAck(message)
+                break
+            case OperatorType.DELL_SHEDULE_ACK:
+                this.dellSheduleAck(message)
+                break
+            case OperatorType.DEV_TEST_ACK:
+                this.deviceDevTestAck(message)
+                break
+
+            default:
+                break
         }
     }
 
@@ -249,6 +261,7 @@ export default class Parse {
             acu_data.company = message.company
 
             await Acu.addItem(acu_data)
+            // const user = message.send_data
             new SendDeviceMessage(OperatorType.ACCEPT, message.location, message.device_id, 'none')
             // console.log('success:true')
         } catch (error) {
@@ -267,7 +280,7 @@ export default class Parse {
                     username: acuData.username ? acuData.username : 'admin',
                     password: acuData.password ? acuData.password : ''
                 }
-                new SendDeviceMessage(OperatorType.LOGIN, message.location, message.device_id, send_data, message.session_id)
+                new SendDeviceMessage(OperatorType.LOGIN, message.location, message.device_id, send_data, message.send_data.user, message.session_id)
             })
         }
     }
@@ -584,12 +597,11 @@ export default class Parse {
     }
 
     public static async deviceDelCtpDoorAck (message: IMqttCrudMessaging) {
-        // console.log('deviceDelCtpDoorAck', message)
+        console.log('deviceDelCtpDoorAck', message)
         if (message.result.errorNo === 0) {
-            await AccessPoint.destroyItem({ id: message.send_data.data.id, company: message.company })
-            // console.log('deviceDelCtpDoorAck insert completed')
-        } else {
-            new SendSocketMessage(socketChannels.DASHBOARD_ACU, message.send_data.data)
+            // await AccessPoint.destroyItem({ id: message.send_data.data.id })
+            // console.log('deviceDelCtpDoorAck delete completed')
+
         }
     }
 
@@ -624,6 +636,7 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             await AccessPoint.destroyItem({ id: message.send_data.data.id, company: message.company })
             // console.log('deviceDelCtpDoorAck insert completed')
+        } else {
         }
     }
 
@@ -632,6 +645,7 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             await AccessPoint.destroyItem({ id: message.send_data.data.id, company: message.company })
             // console.log('deviceGetCtpTurnstileAck insert completed')
+        } else {
         }
     }
 
@@ -658,6 +672,7 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             await AccessPoint.destroyItem({ id: message.send_data.data.id, company: message.company })
             // console.log('deviceDelCtpGateAck insert completed')
+        } else {
         }
     }
 
@@ -666,6 +681,7 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             await AccessPoint.destroyItem({ id: message.send_data.data.id, company: message.company })
             // console.log('deviceGetCtpGateAck insert completed')
+        } else {
         }
     }
 
@@ -692,6 +708,7 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             await AccessPoint.destroyItem({ id: message.send_data.data.id, company: message.company })
             // console.log('deviceDelCtpGatewayAck insert completed')
+        } else {
         }
     }
 
@@ -700,6 +717,7 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             await AccessPoint.destroyItem({ id: message.send_data.data.id, company: message.company })
             // console.log('deviceGetCtpGatewayAck insert completed')
+        } else {
         }
     }
 
@@ -726,6 +744,7 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             await AccessPoint.destroyItem({ id: message.send_data.data.id, company: message.company })
             // console.log('deviceDelCtpFloorAck insert completed')
+        } else {
         }
     }
 
@@ -734,6 +753,7 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             await AccessPoint.destroyItem({ id: message.send_data.data.id, company: message.company })
             // console.log('deviceGetCtpFloorAck insert completed')
+        } else {
         }
     }
 
@@ -749,6 +769,7 @@ export default class Parse {
         // console.log('deviceSetEventsModAck', message)
         if (message.result.errorNo === 0) {
             // console.log('deviceSetEventsModAck complete')
+        } else {
         }
     }
 
@@ -756,6 +777,7 @@ export default class Parse {
         // console.log('deviceGetEventsModAck', message)
         if (message.result.errorNo === 0) {
             // console.log('deviceGetEventsModAck complete')
+        } else {
         }
     }
 
@@ -763,6 +785,7 @@ export default class Parse {
         // console.log('deviceGetEventsAck', message)
         if (message.result.errorNo === 0) {
             // console.log('deviceGetEventsAck complete')
+        } else {
         }
     }
 
@@ -770,6 +793,7 @@ export default class Parse {
         // console.log('deviceSetAccessModeAck', message)
         if (message.result.errorNo === 0) {
             // console.log('deviceSetAccessModeAck complete')
+        } else {
         }
     }
 
@@ -777,6 +801,7 @@ export default class Parse {
         // console.log('deviceGetAccessModeAck', message)
         if (message.result.errorNo === 0) {
             // console.log('deviceGetAccessModeAck complete')
+        } else {
         }
     }
 
@@ -784,6 +809,7 @@ export default class Parse {
         // console.log('deviceSinglePassAck', message)
         if (message.result.errorNo === 0) {
             // console.log('deviceSinglePassAck complete')
+        } else {
         }
     }
 
@@ -792,7 +818,7 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             console.log('setCardKeysAck complete')
         } else {
-            // await Cardholder.destroyItem({ id: message.send_data.data.id, company: message.company })
+            await Cardholder.destroyItem({ id: message.send_data.data.id })
         }
     }
 
@@ -801,7 +827,7 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             // console.log('addCardKeyAck complete')
         } else {
-            // await Cardholder.destroyItem({ id: message.send_data.data.id, company: message.company })
+            await Cardholder.destroyItem({ id: message.send_data.data.id })
         }
     }
 
@@ -810,7 +836,7 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             // console.log('endCardKeyAck complete')
         } else {
-            // socket
+            await Cardholder.destroyItem({ id: message.send_data.data.id })
         }
     }
 
@@ -818,6 +844,7 @@ export default class Parse {
         // console.log('editKeyAck', message)
         if (message.result.errorNo === 0) {
             console.log('editKeyAck complete')
+        } else {
         }
     }
 
@@ -825,6 +852,7 @@ export default class Parse {
         // console.log('dellKeysAck', message)
         if (message.result.errorNo === 0) {
             // console.log('dellKeysAck complete')
+        } else {
         }
     }
 
@@ -832,6 +860,7 @@ export default class Parse {
         // console.log('dellAllKeysAck', message)
         if (message.result.errorNo === 0) {
             // console.log('dellAllKeysAck complete')
+        } else {
         }
     }
 
@@ -883,6 +912,7 @@ export default class Parse {
                 await AccessRule.destroyItem({ id: message.send_data.data.id, company: message.company })
                 // console.log('dellSheduleAck complete')
             }
+        } else {
         }
     }
 
@@ -890,7 +920,8 @@ export default class Parse {
         // console.log('setSdlFlexiTimeAck', message)
         if (message.result.errorNo === 0) {
             // console.log('setSdlFlexiTimeAck complete')
-            new SendDeviceMessage(OperatorType.ADD_DAY_FLEXI_TIME, message.location, message.device_id, message.send_data, message.session_id)
+            const user = message.send_data.user
+            new SendDeviceMessage(OperatorType.ADD_DAY_FLEXI_TIME, message.location, message.device_id, message.send_data, user, message.session_id)
         }
     }
 
@@ -899,10 +930,11 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             // console.log('addDayFlexiTimeAck complete')
             const days = message.send_data.data.days
+            const user = message.send_data.user
             if (!Object.keys(days).length) {
-                new SendDeviceMessage(OperatorType.END_SDL_FLEXI_TIME, message.location, message.device_id, message.send_data.data, message.session_id)
+                new SendDeviceMessage(OperatorType.END_SDL_FLEXI_TIME, message.location, message.device_id, message.send_data.data, user, message.session_id)
             } else {
-                new SendDeviceMessage(OperatorType.ADD_DAY_FLEXI_TIME, message.location, message.device_id, message.send_data.data, message.session_id)
+                new SendDeviceMessage(OperatorType.ADD_DAY_FLEXI_TIME, message.location, message.device_id, message.send_data.data, user, message.session_id)
             }
         }
     }
@@ -911,6 +943,7 @@ export default class Parse {
         // console.log('endSdlFlexiTimeAck', message)
         if (message.result.errorNo === 0) {
             // console.log('endSdlFlexiTimeAck complete')
+        } else {
         }
     }
 
@@ -922,6 +955,7 @@ export default class Parse {
                 await AccessRule.destroyItem({ id: message.send_data.data.id, company: message.company })
                 // console.log('dellSheduleAck complete')
             }
+        } else {
         }
     }
 
@@ -929,6 +963,7 @@ export default class Parse {
         // console.log('delDayFlexiTimeAck', message)
         if (message.result.errorNo === 0) {
             // console.log('delDayFlexiTimeAck complete')
+        } else {
         }
     }
 
@@ -936,7 +971,9 @@ export default class Parse {
         // console.log('setSdlSpecifiedAck', message)
         if (message.result.errorNo === 0) {
             // console.log('setSdlSpecifiedAck complete')
-            new SendDeviceMessage(OperatorType.ADD_DAY_SPECIFIED, message.location, message.device_id, message.send_data, message.session_id)
+            const user = message.send_data.user
+
+            new SendDeviceMessage(OperatorType.ADD_DAY_SPECIFIED, message.location, message.device_id, message.send_data, user, message.session_id)
         }
     }
 
@@ -945,10 +982,12 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             // console.log('addDaySpecifiedAck complete')
             const days = message.send_data.data.days
+            const user = message.send_data.user
+
             if (!Object.keys(days).length) {
-                new SendDeviceMessage(OperatorType.END_SDL_SPECIFIED, message.location, message.device_id, message.send_data.data, message.session_id)
+                new SendDeviceMessage(OperatorType.END_SDL_SPECIFIED, message.location, message.device_id, message.send_data.data, user, message.session_id)
             } else {
-                new SendDeviceMessage(OperatorType.ADD_DAY_SPECIFIED, message.location, message.device_id, message.send_data.data, message.session_id)
+                new SendDeviceMessage(OperatorType.ADD_DAY_SPECIFIED, message.location, message.device_id, message.send_data.data, user, message.session_id)
             }
         }
     }
@@ -956,7 +995,7 @@ export default class Parse {
     public static endSdlSpecifiedAck (message: IMqttCrudMessaging): void {
         // console.log('endSdlSpecifiedAck', message)
         if (message.result.errorNo === 0) {
-            console.log('endSdlSpecifiedAck complete7777777777777777777777')
+            // console.log('endSdlSpecifiedAck complete')
         }
     }
 
@@ -968,6 +1007,7 @@ export default class Parse {
                 await AccessRule.destroyItem({ id: message.send_data.data.id, company: message.company })
                 // console.log('dellSheduleAck complete')
             }
+        } else {
         }
     }
 
@@ -975,6 +1015,7 @@ export default class Parse {
         // console.log('dellDaySpecifiedAck', message)
         if (message.result.errorNo === 0) {
             // console.log('dellDaySpecifiedAck complete')
+        } else {
         }
     }
 
@@ -992,9 +1033,12 @@ export default class Parse {
                 } else if (message.send_data.data.schedule_type === scheduleType.SPECIFIC) {
                     operator = OperatorType.SET_SDL_SPECIFIED
                 }
-                new SendDeviceMessage(operator, message.location, acu.serial_number, message.send_data, acu.session_id)
+                const user = message.send_data.user
+
+                new SendDeviceMessage(operator, message.location, acu.serial_number, message.send_data, user, acu.session_id)
                 // console.log('dellSheduleAck complete')
             }
+        } else {
         }
     }
 
@@ -1002,6 +1046,7 @@ export default class Parse {
         // console.log('deviceDevTestAck', message)
         if (message.result.errorNo === 0) {
             // console.log('deviceDevTestAck complete')
+        } else {
         }
     }
 }

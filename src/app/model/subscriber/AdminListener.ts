@@ -6,6 +6,7 @@ import {
     RemoveEvent
     // UpdateEvent
 } from 'typeorm'
+import { adminStatus } from '../../enums/adminStatus.enum'
 import { Admin } from '../entity/Admin'
 import { CompanyResources } from '../entity/CompanyResources'
 import { JwtToken } from '../entity/JwtToken'
@@ -43,7 +44,7 @@ export class PostSubscriber implements EntitySubscriberInterface<Admin> {
     async afterUpdate (event: UpdateEvent<Admin>) {
         const { entity: New, databaseEntity: Old } = event
         if (New.status !== Old.status) {
-            if (New.status === true) {
+            if (New.status === adminStatus.inactive) {
                 const tokens = await JwtToken.find({ account: New.id })
                 for (const token of tokens) {
                     token.expired = true

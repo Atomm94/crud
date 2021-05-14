@@ -81,7 +81,7 @@ export class Reader extends MainEntity {
     }
 
     public static async updateItem (data: Reader): Promise<{ [key: string]: any }> {
-        const reader = await this.findOneOrFail(data.id)
+        const reader = await this.findOneOrFail({ id: data.id })
         const oldData = Object.assign({}, reader)
 
         if ('port' in data) reader.port = data.port

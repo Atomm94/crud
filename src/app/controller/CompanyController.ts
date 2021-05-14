@@ -2,6 +2,7 @@ import { DefaultContext } from 'koa'
 import { In } from 'typeorm'
 import { uid } from 'uid'
 import { Sendgrid } from '../../component/sendgrid/sendgrid'
+import { statusCompany } from '../enums/statusCompany.enum'
 import {
     RegistrationInvite,
     Company,
@@ -35,7 +36,7 @@ export default class CompanyController {
      *                type: object
      *                required:
      *                  - company_name
-     *                  - packet_type
+     *                  - package_type
      *                properties:
      *                  id:
      *                      type: number
@@ -43,10 +44,10 @@ export default class CompanyController {
      *                  company_name:
      *                      type: string
      *                      example: some_company_name
-     *                  packet:
+     *                  package:
      *                      type: number
      *                      example: 1
-     *                  packet_type:
+     *                  package_type:
      *                      type: number
      *                      example: 1
      *                  message:
@@ -105,10 +106,10 @@ export default class CompanyController {
      *                  company_name:
      *                      type: string
      *                      example: some_company_name
-     *                  packet:
+     *                  package:
      *                      type: number
      *                      example: 1
-     *                  packet_type:
+     *                  package_type:
      *                      type: number
      *                      example: 1
      *                  message:
@@ -131,11 +132,23 @@ export default class CompanyController {
                 ctx.request.body.id = ctx.user.company
             }
             const updated = await Company.updateItem(ctx.request.body as Company)
+            if (updated.old.status !== updated.new.status && updated.new.status === statusCompany.ENABLE) {
+                const main = await Admin.findOne({ id: updated.new.account })
+                if (main) {
+                    await Sendgrid.updateStatus(main.email)
+                }
+            }
             ctx.oldData = updated.old
             ctx.body = updated.new
         } catch (error) {
             ctx.status = error.status || 400
-            ctx.body = error
+            if (error.message) {
+                ctx.body = {
+                    message: error.message
+                }
+            } else {
+                ctx.body = error
+            }
         }
         return ctx.body
     }
@@ -171,7 +184,7 @@ export default class CompanyController {
      */
     public static async get (ctx: DefaultContext) {
         try {
-            const relations = ['company_account', 'packets', 'packet_types', 'company_documents']
+            const relations = ['company_account', 'packages', 'package_types', 'company_documents']
             ctx.body = await Company.getItem(+ctx.params.id, relations)
         } catch (error) {
             ctx.status = error.status || 400
@@ -335,7 +348,7 @@ export default class CompanyController {
             }
 
             req_data.where = where
-            req_data.relations = ['company_account', 'packets', 'packet_types', 'company_documents']
+            req_data.relations = ['company_account', 'packages', 'package_types', 'company_documents']
             ctx.body = await Company.getAllItems(req_data)
         } catch (error) {
             ctx.status = error.status || 400
@@ -372,12 +385,12 @@ export default class CompanyController {
      *                          type: object
      *                          required:
      *                              - company_name
-     *                              - packet_type
+     *                              - package_type
      *                          properties:
      *                              company_name:
      *                                  type: string
      *                                  example: some_company_name
-     *                              packet_type:
+     *                              package_type:
      *                                  type: number
      *                                  example: 1
      *                              message:

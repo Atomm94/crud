@@ -18,6 +18,7 @@ import { accessPointMode } from '../../enums/accessPointMode.enum'
 import { accessPointType } from '../../enums/accessPointType.enum'
 import { accessPointDoorState } from '../../enums/accessPointDoorState.enum'
 import { AutoTaskSchedule } from './AutoTaskSchedule'
+import { Notification } from './Notification'
 
 @Entity('access_point')
 export class AccessPoint extends MainEntity {
@@ -82,7 +83,7 @@ export class AccessPoint extends MainEntity {
 
     @ManyToOne(type => AccessPointZone, access_point_zone => access_point_zone.access_points, { nullable: true })
     @JoinColumn({ name: 'access_point_zone' })
-    access_point_zones: AccessPointGroup | null;
+    access_point_zones: AccessPointZone | null;
 
     @ManyToOne(type => Acu, acu => acu.access_points)
     @JoinColumn({ name: 'acu' })
@@ -93,6 +94,9 @@ export class AccessPoint extends MainEntity {
 
     @OneToMany(type => Reader, reader => reader.access_points)
     readers: Reader[];
+
+    @OneToMany(type => Notification, notification => notification.access_points)
+    notifications: Notification[];
 
     public static resource: boolean = true
 
@@ -125,7 +129,7 @@ export class AccessPoint extends MainEntity {
     }
 
     public static async updateItem (data: AccessPoint): Promise<{ [key: string]: any }> {
-        const accessPoint = await this.findOneOrFail(data.id)
+        const accessPoint = await this.findOneOrFail({ id: data.id })
         const oldData = Object.assign({}, accessPoint)
 
         if ('name' in data) accessPoint.name = data.name

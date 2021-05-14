@@ -81,7 +81,7 @@ export class AutoTaskSchedule extends MainEntity {
     }
 
     public static async updateItem (data: AutoTaskSchedule) {
-        const autoTaskSchedule = await this.findOneOrFail(data.id)
+        const autoTaskSchedule = await this.findOneOrFail({ id: data.id })
 
         if ('name' in data) autoTaskSchedule.name = data.name
         if ('description' in data) autoTaskSchedule.description = data.description

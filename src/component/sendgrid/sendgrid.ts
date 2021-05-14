@@ -38,14 +38,13 @@ export class Sendgrid {
         const msg = {
             to: `${toEmail}`,
             from: this.from,
-            subject: 'You have been invited to Unimacs',
+            subject: 'Welcome to Unimacs.',
             text: 'has invited you',
             html: this.newMail({
-                title: 'You have been invited to Unimacs',
-                text: 'Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.',
+                title: 'Welcome to Unimacs.',
+                text: 'Your company has been invited to register an account. Please follow the link and fill in the company details. Thank you.',
                 link: `${this.mainDomain}/registration/${token}`,
-                button_text: 'Create new company',
-                end_text: 'Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.'
+                button_text: 'Create new company'
             })// `<h2>Unimacs company has invited you to make a registration. Please click link bellow ${this.mainDomain}/registration/${item.token}</h2>`
         }
         try {
@@ -63,14 +62,13 @@ export class Sendgrid {
         const msg = {
             to: `${toEmail}`,
             from: this.from,
-            subject: 'You have been invited to Unimacs',
+            subject: 'Welcome to Unimacs.',
             text: 'has invited you',
             html: this.newMail({
-                title: 'You have been invited to Unimacs',
-                text: 'Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.',
+                title: 'Welcome to Unimacs.',
+                text: 'Your company has been successfully registered. To finalize Your Account, please follow the link and set password you\'ll use to sign in to your account. Thank you.',
                 link: `${this.mainDomain}/newpassword/${token}`,
-                button_text: 'Choose new Password',
-                end_text: 'Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.'
+                button_text: 'Set Password'
             })// `<h2>Unimacs company has invited you to make a registration. Please click link bellow ${this.mainDomain}/registration/${item.token}</h2>`
         }
         try {
@@ -84,19 +82,18 @@ export class Sendgrid {
         }
     }
 
-    public static async recoveryPassword (toEmail: string, token:string) {
+    public static async SetPass (toEmail: string, token: string) {
         const msg = {
             to: `${toEmail}`,
             from: this.from,
-            subject: 'Reset password',
-            text: 'You are receiving this email because we received a password reset request for your account',
+            subject: 'Welcome to Unimacs.',
+            text: 'has invited you',
             html: this.newMail({
-                title: 'Reset password',
-                text: 'You are receiving this email because we received a password reset request for your account.',
-                link: `${this.mainDomain}/newpassword/${token}`,
-                button_text: 'Reset Password',
-                end_text: 'Regards Unimacs.'
-            })// `<h2>Unimacs company has invited you to make a registration. Please click link bellow ${this.mainDomain}/registration/${item.token}</h2>`
+                title: 'Welcome to Unimacs.',
+                text: ' To register Your Account, please follow the link. Set password you\'ll use to sign in to your account. Thank you.',
+                link: `${this.mainDomain}/newUserPassword/${token}`,
+                button_text: 'Set password'
+            })
         }
         try {
             await sgMail.send(msg)
@@ -109,7 +106,53 @@ export class Sendgrid {
         }
     }
 
-    private static newMail (mail:any) {
+    public static async recoveryPassword (toEmail: string, token: string) {
+        const msg = {
+            to: `${toEmail}`,
+            from: this.from,
+            subject: 'Set a New Password',
+            text: 'There was recently a request to change the password for your account.If you requested this change, set a new password here:',
+            html: this.newMail({
+                text: 'There was recently a request to change the password for your account.If you requested this change, set a new password here:',
+                link: `${this.mainDomain}/recoveryPassword/${token}`,
+                button_text: 'Set a New Password',
+                end_text: 'If you did not make this request, you can ignore this email and your password will remain the same.'
+            })
+        }
+        try {
+            await sgMail.send(msg)
+        } catch (error) {
+            console.error(error)
+
+            if (error.response) {
+                console.error(error.response.body)
+            }
+        }
+    }
+
+    public static async updateStatus (toEmail: string) {
+        const msg = {
+            to: `${toEmail}`,
+            from: this.from,
+            subject: 'Welcome to Unimacs',
+            text: 'Congratulations, your account has been activated.',
+            html: this.newMail2({
+                text: 'Congratulations, your account has been activated.',
+                end_text: 'Now You have access to all sections and tools.'
+            })
+        }
+        try {
+            await sgMail.send(msg)
+        } catch (error) {
+            console.error(error)
+
+            if (error.response) {
+                console.error(error.response.body)
+            }
+        }
+    }
+
+    private static newMail (mail: any) {
         const emailTemplate: any = fs.readFileSync(`${parentDir}/templates/email.template`)
         const template = _.template(emailTemplate)
         const html = template({
@@ -145,5 +188,16 @@ export class Sendgrid {
                 console.error(error.response.body)
             }
         }
+    }
+
+    private static newMail2 (mail: any) {
+        const emailTemplate: any = fs.readFileSync(`${parentDir}/templates/updatestatus.template`)
+        const template = _.template(emailTemplate)
+        const html = template({
+            title: mail.title,
+            text: mail.text,
+            end_text: mail.end_text
+        })
+        return html
     }
 }
