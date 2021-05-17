@@ -1,6 +1,7 @@
 import { DefaultContext } from 'koa'
 import * as Models from '../model/entity/index'
 import { Package } from '../model/entity/Package'
+import { PackageType } from '../model/entity/PackageType'
 import { Company } from '../model/entity/Company'
 import { Feature } from '../middleware/feature'
 
@@ -261,9 +262,17 @@ export default class PackageController {
                     }
                 }
                 const data = await Package.getAllItems(req_data)
+                const package_types = await PackageType.getAllItems({
+                    where: {
+                        status: { '=': true },
+                        service: { '=': false }
+                    }
+                })
+
                 ctx.body = {
                     data: data,
-                    selected: company.package
+                    selected: company.package,
+                    package_types: package_types
                 }
             } else {
                 ctx.body = await Package.getAllItems(req_data)
