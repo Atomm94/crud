@@ -220,8 +220,8 @@ export default class CompanyController {
             if (ctx.user && ctx.user.company) {
                 const relations = ['company_account', 'company_documents']
                 let company
-                if (ctx.companyData && ctx.companyData.parent_id) {
-                    company = await Company.getItem(ctx.companyData.parent_id, relations)
+                if (ctx.user.companyData && ctx.user.companyData.parent_id) {
+                    company = await Company.getItem(ctx.user.companyData.parent_id, relations)
                 } else {
                     company = await Company.getItem(+ctx.user.company, relations)
                 }
