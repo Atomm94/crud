@@ -277,7 +277,7 @@
                             "name": 56000
                         },
                         {
-                            "id": 0,
+                            "id": null,
                             "name": 115200
                         }
                     ]
@@ -325,7 +325,7 @@
         "Door_sensor": {
             "component_source": {
                 "type": "select",
-                "list": "acu"
+                "list": "extDevice"
             },
             "name": {
                 "type": "textInput"
@@ -354,7 +354,7 @@
         "Exit_button": {
             "component_source": {
                 "type": "select",
-                "list": "acu"
+                "list": "extDevice"
             },
             "name": {
                 "type": "textInput"
@@ -383,7 +383,7 @@
         "Fire_Alarm_in": {
             "component_source": {
                 "type": "select",
-                "list": "acu"
+                "list": "extDevice"
             },
             "name": {
                 "type": "textInput"
@@ -412,7 +412,7 @@
         "Block_Turnstile": {
             "component_source": {
                 "type": "select",
-                "list": "acu"
+                "list": "extDevice"
             },
             "name": {
                 "type": "textInput"
@@ -453,7 +453,7 @@
         "Lock": {
             "component_source": {
                 "type": "select",
-                "list": "acu"
+                "list": "extDevice"
             },
             "name": {
                 "type": "textInput"
@@ -500,7 +500,7 @@
         "Alarm_out": {
             "component_source": {
                 "type": "select",
-                "list": "acu"
+                "list": "extDevice"
             },
             "name": {
                 "type": "textInput"

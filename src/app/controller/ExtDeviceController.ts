@@ -289,6 +289,12 @@ export default class ExtDeviceController {
      *                description: Authentication token
      *                schema:
      *                    type: string
+     *              - in: query
+     *                name: acu
+     *                description: acu
+     *                required : true
+     *                schema:
+     *                    type: string
      *          responses:
      *              '200':
      *                  description: Array of extDevice
@@ -297,7 +303,12 @@ export default class ExtDeviceController {
      */
     public static async getAll (ctx: DefaultContext) {
         try {
-            ctx.body = await ExtDevice.getAllItems(ctx.query)
+            const req_data = ctx.query
+            const user = ctx.user
+            const acu = ctx.query.acu
+            req_data.where = { acu: { '=': acu }, company: { '=': user.company } }
+
+            ctx.body = await ExtDevice.getAllItems(req_data)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

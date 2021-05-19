@@ -536,10 +536,16 @@ export default class AcuController {
             const data = await Acu.createQueryBuilder('acu')
                 .leftJoinAndSelect('acu.access_points', 'access_point', 'access_point.delete_date is null')
                 .leftJoinAndSelect('access_point.readers', 'reader', 'reader.delete_date is null')
+                .leftJoinAndSelect('acu.ext_devices', 'ext_device')
                 .where(`acu.id = ${+ctx.params.id}`)
                 .andWhere(`acu.company = ${ctx.user.company}`)
                 .getMany()
-            ctx.body = data
+            if (!data.length) {
+                ctx.status = 400
+                ctx.body = { message: 'something went wrong' }
+            } else {
+                ctx.body = data[0]
+            }
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
