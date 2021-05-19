@@ -11,43 +11,49 @@
                 "inputs": {
                     "Door_sensor": "Door_sensor",
                     "Exit_button": "Exit_button",
-                    "ACU_Tamper": "ACU_Tamper",
                     "Fire_Alarm_in": "Fire_Alarm_in"
                 },
                 "outputs": {
                     "Lock": "Lock",
-                    "Door_Ajar_Alarm_out": "Door_Ajar_Alarm_out",
-                    "Door_Forced_open_Alarm_out": "Door_Forced_open_Alarm_out"
+                    "Alarm_out": "Alarm_out"
                 }
             }
         },
         "turnstile": {
             "resources": {
-                "readers": {},
+                "readers": {
+                    "RFID": "RFID",
+                    "KEYPAD": {},
+                    "FINGER": {},
+                    "FACE": {}
+                },
                 "inputs": {
                     "Turnstile_ready": "Door_sensor",
                     "Pass_control": "Door_sensor",
                     "Entry_button": "Entry_button",
                     "Exit_button": "Exit_button",
-                    "ACU_Tamper": "ACU_Tamper",
                     "Fire_Alarm_in": "Fire_Alarm_in"
                 },
                 "outputs": {
                     "Entry_relay": "Lock",
                     "Exit_relay": "Lock",
                     "Block_Turnstile": "Block_Turnstile",
-                    "Emergency_open": "Block_Turnstile"
+                    "Emergency_open": "Block_Turnstile",
+                    "Alarm_out": "Alarm_out"
                 }
             }
         },
         "gate": {
             "resources": {
-                "readers": {},
+                "readers": {
+                    "RFID": "RFID",
+                    "KEYPAD": {},
+                    "FINGER": {},
+                    "FACE": {}
+                },
                 "inputs": {
-                    "Gate_ready": "Door_sensor",
                     "Loop_sensor": "Door_sensor",
                     "Open_button": "Exit_button",
-                    "ACU_Tamper": "ACU_Tamper",
                     "Fire_Alarm_in": "Fire_Alarm_in"
                 },
                 "outputs": {
@@ -57,15 +63,20 @@
         },
         "gateway": {
             "resources": {
-                "readers": {},
+                "readers": {
+                    "RFID": "RFID",
+                    "KEYPAD": {},
+                    "FINGER": {},
+                    "FACE": {}
+                },
                 "inputs": {
                     "Door_sensor": "Door_sensor",
                     "Open_button": "Exit_button",
-                    "ACU_Tamper": "ACU_Tamper",
                     "Fire_Alarm_in": "Fire_Alarm_in"
                 },
                 "outputs": {
-                    "Lock": "Lock"
+                    "Lock": "Lock",
+                    "Alarm_out": "Alarm_out"
                 }
             }
         },
@@ -78,7 +89,6 @@
                     "FACE": {}
                 },
                 "inputs": {
-                    "ACU_Tamper": "ACU_Tamper",
                     "Fire_Alarm_in": "Fire_Alarm_in"
                 },
                 "outputs": {
@@ -313,72 +323,7 @@
             }
         },
         "Door_sensor": {
-            "componentsource": {
-                "type": "select",
-                "list": "acu"
-            },
-            "name": {
-                "type": "textInput"
-            },
-            "condition": {
-                "type": "select",
-                "list": [
-                    {
-                        "id": 0,
-                        "name": "close"
-                    },
-                    {
-                        "id": 1,
-                        "name": "open"
-                    },
-                    {
-                        "id": 2,
-                        "name": "change"
-                    }
-                ]
-            },
-            "input": {
-                "type": "numberInput ????????????????????????"
-            },
-            "alarm_settings": {
-                "door_ajar": {
-                    "enable_door_ajar_alarm": {
-                        "type": "checkBox"
-                    },
-                    "door_ajar_time": {
-                        "type": "numberInput"
-                    },
-                    "duration": {
-                        "type": "numberInput"
-                    },
-                    "trigger_output_if_door_ajar": {
-                        "type": "select",
-                        "list": [
-                            "output url"
-                        ]
-                    }
-                },
-                "door_forced_open": {
-                    "enable_door_forced_open_alarm": {
-                        "type": "checkBox"
-                    },
-                    "door_ajar_time": {
-                        "type": "numberInput"
-                    },
-                    "duration": {
-                        "type": "numberInput"
-                    },
-                    "trigger_output_if_door_forced-open": {
-                        "type": "select",
-                        "list": [
-                            "output url"
-                        ]
-                    }
-                }
-            }
-        },
-        "Exit_button": {
-            "componentsource": {
+            "component_source": {
                 "type": "select",
                 "list": "acu"
             },
@@ -406,8 +351,8 @@
                 "type": "numberInput"
             }
         },
-        "ACU_Tamper": {
-            "componentsource": {
+        "Exit_button": {
+            "component_source": {
                 "type": "select",
                 "list": "acu"
             },
@@ -436,7 +381,7 @@
             }
         },
         "Fire_Alarm_in": {
-            "componentsource": {
+            "component_source": {
                 "type": "select",
                 "list": "acu"
             },
@@ -465,7 +410,7 @@
             }
         },
         "Block_Turnstile": {
-            "componentsource": {
+            "component_source": {
                 "type": "select",
                 "list": "acu"
             },
@@ -473,7 +418,7 @@
                 "type": "textInput"
             },
             "output": {
-                "type": "numberInput?????????????????????"
+                "type": "numberInput"
             },
             "relay_mode": {
                 "type": "select",
@@ -506,7 +451,7 @@
             }
         },
         "Lock": {
-            "componentsource": {
+            "component_source": {
                 "type": "select",
                 "list": "acu"
             },
@@ -514,7 +459,7 @@
                 "type": "textInput"
             },
             "output": {
-                "type": "numberInput?????????????????????"
+                "type": "numberInput"
             },
             "relay_mode": {
                 "type": "select",
@@ -552,8 +497,8 @@
                 "type": "checkBox"
             }
         },
-        "Door_Ajar_Alarm_out": {
-            "componentsource": {
+        "Alarm_out": {
+            "component_source": {
                 "type": "select",
                 "list": "acu"
             },
@@ -561,48 +506,7 @@
                 "type": "textInput"
             },
             "output": {
-                "type": "numberInput?????????????????????"
-            },
-            "relay_mode": {
-                "type": "select",
-                "list": [
-                    {
-                        "id": 0,
-                        "name": "trigger"
-                    },
-                    {
-                        "id": 1,
-                        "name": "impulse"
-                    }
-                ]
-            },
-            "impulse_time": {
                 "type": "numberInput"
-            },
-            "type": {
-                "type": "select",
-                "list": [
-                    {
-                        "id": 0,
-                        "name": "NO"
-                    },
-                    {
-                        "id": 1,
-                        "name": "NC"
-                    }
-                ]
-            }
-        },
-        "Door_Forced_open_Alarm_out": {
-            "componentsource": {
-                "type": "select",
-                "list": "acu"
-            },
-            "name": {
-                "type": "textInput"
-            },
-            "output": {
-                "type": "numberInput?????????????????????"
             },
             "relay_mode": {
                 "type": "select",
