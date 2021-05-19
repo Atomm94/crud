@@ -152,11 +152,11 @@
                     "type": "select",
                     "list": [
                         {
-                            "id": "",
+                            "id": 0 ,
                             "name": "entry"
                         },
                         {
-                            "id": "",
+                            "id": 1,
                             "name": "exit"
                         }
                     ]
@@ -232,11 +232,11 @@
                     "type": "select",
                     "list": [
                         {
-                            "id": "",
+                            "id": 0,
                             "name": "entry"
                         },
                         {
-                            "id": "",
+                            "id": 1,
                             "name": "exit"
                         }
                     ]
