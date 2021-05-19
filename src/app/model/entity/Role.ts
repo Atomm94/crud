@@ -136,6 +136,15 @@ export class Role extends MainEntity {
         getItem: true
       }
     },
+    Cardholder: {
+      actions: {
+        addItem: true,
+        updateItem: true,
+        getItem: true,
+        getAllItems: true,
+        destroyItem: true
+      }
+    },
     Ticket: {
       actions: {
         addItem: true,

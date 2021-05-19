@@ -416,6 +416,8 @@ export default class AcuController {
                                 access_point.acu = acu.id
                                 access_point.company = company
                                 if (access_point.resource) access_point.resource = JSON.stringify(access_point.resource)
+                                console.log('access_point addItem', access_point)
+
                                 access_point = await AccessPoint.addItem(access_point)
                                 new_access_points.push(access_point)
                             } else {
@@ -456,6 +458,8 @@ export default class AcuController {
 
                                 if (acu.status === acuStatus.ACTIVE) {
                                     reader.access_point_type = access_point.type
+                                    console.log()
+
                                     new SendDeviceMessage(OperatorType.SET_RD, location, acu.serial_number, reader, user.id, acu.session_id, reader_update)
                                 } else {
                                     if (reader_update) await Reader.updateItem(reader)
@@ -496,6 +500,8 @@ export default class AcuController {
                 ctx.body = updated.new
             }
         } catch (error) {
+            console.log('error', error)
+
             ctx.status = error.status || 400
             ctx.body = error
         }
@@ -867,7 +873,7 @@ export default class AcuController {
                     } else if (schedule.type === scheduleType.SPECIFIC) {
                         operator = OperatorType.SET_SDL_SPECIFIED
                     }
-                    new SendDeviceMessage(operator, location, device.serial_number, user.id, send_data, device.session_id)
+                    new SendDeviceMessage(operator, location, device.serial_number, send_data, user.id, device.session_id)
                 }
 
                 // send CardKeys
@@ -880,7 +886,7 @@ export default class AcuController {
                     ],
                     where: {
                         company: {
-                            '=': 5
+                            '=': company
                         }
                     }
                 })

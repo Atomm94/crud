@@ -939,9 +939,10 @@ export default class Parse {
         }
     }
 
-    public static endSdlFlexiTimeAck (message: IMqttCrudMessaging): void {
+    public static async endSdlFlexiTimeAck (message: IMqttCrudMessaging) {
         // console.log('endSdlFlexiTimeAck', message)
         if (message.result.errorNo === 0) {
+            await AccessRule.updateItem(message.send_data.data.data as AccessRule)
             // console.log('endSdlFlexiTimeAck complete')
         } else {
         }
@@ -992,9 +993,10 @@ export default class Parse {
         }
     }
 
-    public static endSdlSpecifiedAck (message: IMqttCrudMessaging): void {
+    public static async endSdlSpecifiedAck (message: IMqttCrudMessaging) {
         // console.log('endSdlSpecifiedAck', message)
         if (message.result.errorNo === 0) {
+            await AccessRule.updateItem(message.send_data.data.data as AccessRule)
             // console.log('endSdlSpecifiedAck complete')
         }
     }

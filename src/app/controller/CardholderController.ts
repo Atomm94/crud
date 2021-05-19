@@ -599,6 +599,8 @@ export default class CardholderController {
                 ctx.body = await Cardholder.getItem(where, relations)
             }
         } catch (error) {
+            console.log('error', error)
+
             ctx.status = error.status || 400
             ctx.body = error
         }
@@ -1015,6 +1017,7 @@ export default class CardholderController {
             }
 
             reqData.role = default_cardholder_role.id
+            reqData.first_name = cardholder.first_name
             const newAdmin: Admin = await Admin.addItem(reqData, user)
 
             ctx.body = { success: true }
