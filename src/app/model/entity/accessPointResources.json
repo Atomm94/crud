@@ -104,23 +104,35 @@
                     "type": "select",
                     "list": [
                         {
-                            "id": 4,
+                            "id": 0,
                             "name": "Wiegand 4bit"
                         },
                         {
-                            "id": 8,
+                            "id": 1,
                             "name": "Wiegand 8bit"
                         },
                         {
-                            "id": 26,
+                            "id": 2,
                             "name": "Wiegand 26bit"
                         },
                         {
-                            "id": 34,
+                            "id": 3,
                             "name": "Wiegand 34bit"
                         },
                         {
-                            "id": 0,
+                            "id": 4,
+                            "name": "Wiegand 37bit"
+                        },
+                        {
+                            "id": 5,
+                            "name": "Wiegand 40bit"
+                        },
+                        {
+                            "id": 6,
+                            "name": "Wiegand 42bit"
+                        },
+                        {
+                            "id": -1,
                             "name": "OSDP"
                         }
                     ]
@@ -184,23 +196,35 @@
                     "type": "select",
                     "list": [
                         {
-                            "id": 4,
+                            "id": 0,
                             "name": "Wiegand 4bit"
                         },
                         {
-                            "id": 8,
+                            "id": 1,
                             "name": "Wiegand 8bit"
                         },
                         {
-                            "id": 26,
+                            "id": 2,
                             "name": "Wiegand 26bit"
                         },
                         {
-                            "id": 34,
+                            "id": 3,
                             "name": "Wiegand 34bit"
                         },
                         {
-                            "id": 0,
+                            "id": 4,
+                            "name": "Wiegand 37bit"
+                        },
+                        {
+                            "id": 5,
+                            "name": "Wiegand 40bit"
+                        },
+                        {
+                            "id": 6,
+                            "name": "Wiegand 42bit"
+                        },
+                        {
+                            "id": 7,
                             "name": "OSDP"
                         }
                     ]

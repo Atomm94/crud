@@ -14,7 +14,6 @@ export function entryReaderValidation (data: any) {
         typeof data.reverse_byte_order !== 'boolean' ||
         typeof data.enable_buzzer !== 'boolean' ||
         typeof data.enable_CRC !== 'boolean' ||
-        typeof data.leave_zone !== 'number' ||
         typeof data.leave_zone !== 'number'
     ) {
         return new Error('Invalid entryReader data')
@@ -92,21 +91,21 @@ export function emergencyOpenValidation (data: any) {
     }
 }
 
-export function hubTumperValidation (data: any) {
-    if (!('component_source' in data) ||
-        !('name' in data) ||
-        !('condition' in data) ||
-        !('input' in data) ||
-        typeof data.input !== 'number') {
-        return new Error('Invalid hubTumper data')
-    } else {
-        if (data.condition !== 'close' || data.condition !== 'open' || data.condition !== 'change') {
-            return new Error('Invalid hubTumper condition data')
-        } else {
-            return true
-        }
-    }
-}
+// export function hubTumperValidation (data: any) {
+//     if (!('component_source' in data) ||
+//         !('name' in data) ||
+//         !('condition' in data) ||
+//         !('input' in data) ||
+//         typeof data.input !== 'number') {
+//         return new Error('Invalid hubTumper data')
+//     } else {
+//         if (data.condition !== 'close' || data.condition !== 'open' || data.condition !== 'change') {
+//             return new Error('Invalid hubTumper condition data')
+//         } else {
+//             return true
+//         }
+//     }
+// }
 
 export function doorSensorValidation (data: any) {
     if (!('component_source' in data) ||
