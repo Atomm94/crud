@@ -224,7 +224,7 @@
                             "name": "Wiegand 42bit"
                         },
                         {
-                            "id": 7,
+                            "id": -1,
                             "name": "OSDP"
                         }
                     ]
