@@ -278,15 +278,7 @@
                         },
                         {
                             "id": null,
-                            "name": 4800
-                        },
-                        {
-                            "id": null,
                             "name": 9600
-                        },
-                        {
-                            "id": null,
-                            "name": 14400
                         },
                         {
                             "id": null,
@@ -302,11 +294,7 @@
                         },
                         {
                             "id": null,
-                            "name": 56000
-                        },
-                        {
-                            "id": null,
-                            "name": 115200
+                            "name": 57600
                         }
                     ]
                 },
@@ -831,19 +819,19 @@
                     "type": "select",
                     "list": [
                         {
-                            "id": null,
+                            "id": -1,
                             "name": "Data 1/Data 0"
                         },
                         {
-                            "id": null,
+                            "id": 0,
                             "name": "ABA"
                         },
                         {
-                            "id": null,
+                            "id": 1,
                             "name": "2000 bit binary"
                         },
                         {
-                            "id": null,
+                            "id": 2,
                             "name": "RAW format"
                         }
                     ]
@@ -852,16 +840,20 @@
                     "type": "select",
                     "list": [
                         {
-                            "id": null,
+                            "id": -1,
                             "name": "No Keypad Decoding Defined"
                         },
                         {
-                            "id": null,
+                            "id": 0,
                             "name": "4-bit burst"
                         },
                         {
-                            "id": null,
+                            "id": 1,
                             "name": "8-bit burst"
+                        },
+                        {
+                            "id": 2,
+                            "name": "26-bit burst"
                         }
                     ]
                 },
@@ -903,11 +895,11 @@
                     "type": "select",
                     "list": [
                         {
-                            "id": null,
+                            "id": 0,
                             "name": "Locked"
                         },
                         {
-                            "id": null,
+                            "id": 1,
                             "name": "Unlocked"
                         }
                     ]

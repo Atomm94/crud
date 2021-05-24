@@ -20,7 +20,7 @@ import { config } from '../../../config'
 
 const public_path = path.join(appRoot.path, config.publicPath)
 
-const upload_files_path: string = process.env.UPLOAD_FILES_PATH ? process.env.UPLOAD_FILES_PATH : 'tmp/'
+// const upload_files_path: string = process.env.UPLOAD_FILES_PATH ? process.env.UPLOAD_FILES_PATH : '/'
 @EventSubscriber()
 export class PostSubscriber implements EntitySubscriberInterface<MainEntity> {
     /**
@@ -52,7 +52,7 @@ export class PostSubscriber implements EntitySubscriberInterface<MainEntity> {
                 file_path = file_path_obj.path
 
                 const file_name = file_path_obj.name
-                if (!fs.existsSync(file_path)) file_path = `${public_path}/${file_path}`
+                if (!fs.existsSync(file_path)) file_path = `${public_path}tmp/${file_path}`
 
                 if (!fs.existsSync(file_path)) {
                     if (New.avatar) {
@@ -63,11 +63,11 @@ export class PostSubscriber implements EntitySubscriberInterface<MainEntity> {
                         New.image = Old.image
                     }
                 } else {
-                    if (!fs.existsSync(`${public_path}/${upload_files_path}${model_name}/${New.id}`)) {
-                        fs.mkdirSync(`${public_path}/${upload_files_path}${model_name}/${New.id}`, { recursive: true })
+                    if (!fs.existsSync(`${public_path}${model_name}/${New.id}`)) {
+                        fs.mkdirSync(`${public_path}${model_name}/${New.id}`, { recursive: true })
                     }
                     const new_path = {
-                        path: `${upload_files_path}${model_name}/${New.id}/${path.basename(file_path)}`,
+                        path: `${model_name}/${New.id}/${path.basename(file_path)}`,
                         name: file_name
                     }
 
@@ -106,20 +106,20 @@ export class PostSubscriber implements EntitySubscriberInterface<MainEntity> {
                 file_path = data.image
             }
             if (file_path) {
-                file_path = JSON.parse(file_path).path
                 const file_name = JSON.parse(file_path).name
+                file_path = JSON.parse(file_path).path
 
-                if (!fs.existsSync(`${public_path}/${upload_files_path}${model_name}`)) {
-                    fs.mkdirSync(`${public_path}/${upload_files_path}${model_name}`, { recursive: true })
+                if (!fs.existsSync(`${public_path}/${model_name}`)) {
+                    fs.mkdirSync(`${public_path}/${model_name}`, { recursive: true })
                 }
 
-                fs.mkdirSync(`${public_path}/${upload_files_path}${model_name}/${data.id}`)
+                fs.mkdirSync(`${public_path}/${model_name}/${data.id}`)
                 const new_path = {
-                    path: `${upload_files_path}${model_name}/${data.id}/${file_path}`,
+                    path: `${model_name}/${data.id}/${file_path}`,
                     name: file_name
                 }
                 try {
-                    fs.renameSync(`${public_path}/${file_path}`, `${public_path}/${new_path.path}`)
+                    fs.renameSync(`${public_path}tmp/${file_path}`, `${public_path}/${new_path.path}`)
                 } catch (error) {
                     console.log(error)
                 }

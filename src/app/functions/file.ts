@@ -12,7 +12,7 @@ export function fileSave (imageFile: any) {
     const newName = path.concat(`.${imageType}`)
 
     try {
-        fs.rename(`${parentDir}/public/${path}`, `${parentDir}/public/${newName}`, (err) => {
+        fs.rename(`${parentDir}/public/${path}`, `${parentDir}/public/tmp/${newName}`, (err) => {
             if (err) throw err
             logger.info('Rename complete!')
         })
