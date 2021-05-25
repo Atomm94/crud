@@ -4,8 +4,8 @@ import checkRole from '../middleware/checkRole'
 const router = new Router()
 export default router
     // AccessPointZone controller CRUD endpoints
-    .post('AccessPointZone-addItem', 'accessPointZone', checkRole(), AccessPointZoneController.add)
-    .put('AccessPointZone-updateItem', 'accessPointZone', checkRole(), AccessPointZoneController.update)
-    .get('AccessPointZone-destroyItem', 'accessPointZone/:id', checkRole(), AccessPointZoneController.get)
-    .delete('AccessPointZone-getAllItems', 'accessPointZone', checkRole(), AccessPointZoneController.destroy)
-    .get('AccessPointZone-getItem', 'accessPointZone', checkRole(), AccessPointZoneController.getAll)
+    .post('AccessPoint-addItem', 'accessPointZone', checkRole(), AccessPointZoneController.add)
+    .put('AccessPoint-updateItem', 'accessPointZone', checkRole(), AccessPointZoneController.update)
+    .get('AccessPoint-destroyItem', 'accessPointZone/:id', checkRole(), AccessPointZoneController.get)
+    .delete('AccessPoint-getAllItems', 'accessPointZone', checkRole(), AccessPointZoneController.destroy)
+    .get('AccessPoint-getItem', 'accessPointZone', checkRole(), AccessPointZoneController.getAll)
