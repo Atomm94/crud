@@ -76,12 +76,7 @@ export class Role extends MainEntity {
     },
     CompanyDocuments: {
       actions: {
-        addItem: true,
-        updateItem: true,
-        getItem: true,
-        destroyItem: true,
-        saveFile: true,
-        deleteFile: true
+        getItem: true
       }
     },
     Department: {

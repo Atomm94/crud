@@ -220,6 +220,7 @@ export default class CompanyController {
             if (ctx.user && ctx.user.company) {
                 const relations = ['company_account', 'company_documents']
                 let company
+
                 if (ctx.user.companyData && ctx.user.companyData.parent_id) {
                     company = await Company.getItem(ctx.user.companyData.parent_id, relations)
                 } else {
@@ -261,11 +262,13 @@ export default class CompanyController {
      *              '404':
      *                  description: Data not found
      */
-     public static async getClientCompany (ctx: DefaultContext) {
+    public static async getClientCompany (ctx: DefaultContext) {
         try {
             if (ctx.user && ctx.user.company) {
-                const relations = ['company_account', 'company_documents']
-                ctx.body = await Company.getItem(+ctx.user.company, relations)
+                const relations = ['company_account']
+                if (!ctx.user.companyData.parent_id) {
+                    relations.push('company_documents')
+                } ctx.body = await Company.getItem(+ctx.user.company, relations)
             } else {
                 ctx.status = 400
                 ctx.body = {

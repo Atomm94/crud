@@ -119,6 +119,18 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
                             default_permissions.ServiceCompany = {
                                 actions: { getItem: true }
                             }
+                        } else {
+                            if (package_type.service) {
+                                default_permissions.CompanyDocuments = {
+                                    actions: {
+                                        saveFile: true,
+                                        deleteFile: true,
+                                        addItem: true,
+                                        updateItem: true,
+                                        destroyItem: true
+                                    }
+                                }
+                            }
                         }
 
                         if (default_permissions.Role) {
