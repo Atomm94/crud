@@ -58,18 +58,18 @@ export class Limitation extends MainEntity {
     public static async addItem (data: Limitation):Promise<Limitation> {
         const limitation = new Limitation()
 
-        limitation.enable_date = data.enable_date
-        limitation.valid_from = data.valid_from
-        limitation.valid_due = data.valid_due
-        limitation.pass_counter_enable = data.pass_counter_enable
-        limitation.pass_counter_passes = data.pass_counter_passes
-        limitation.pass_counter_current = data.pass_counter_current
-        limitation.first_use_counter_enable = data.first_use_counter_enable
-        limitation.first_use_counter_days = data.first_use_counter_days
-        limitation.first_use_counter_current = data.first_use_counter_current
-        limitation.last_use_counter_enable = data.last_use_counter_enable
-        limitation.last_use_counter_days = data.last_use_counter_days
-        limitation.last_use_counter_current = data.last_use_counter_current
+        if ('enable_date' in data) limitation.enable_date = data.enable_date
+        if ('valid_from' in data) limitation.valid_from = data.valid_from
+        if ('valid_due' in data) limitation.valid_due = data.valid_due
+        if ('pass_counter_enable' in data) limitation.pass_counter_enable = data.pass_counter_enable
+        if ('pass_counter_passes' in data) limitation.pass_counter_passes = data.pass_counter_passes
+        if ('pass_counter_current' in data) limitation.pass_counter_current = data.pass_counter_current
+        if ('first_use_counter_enable' in data) limitation.first_use_counter_enable = data.first_use_counter_enable
+        if ('first_use_counter_days' in data) limitation.first_use_counter_days = data.first_use_counter_days
+        if ('first_use_counter_current' in data) limitation.first_use_counter_current = data.first_use_counter_current
+        if ('last_use_counter_enable' in data) limitation.last_use_counter_enable = data.last_use_counter_enable
+        if ('last_use_counter_days' in data) limitation.last_use_counter_days = data.last_use_counter_days
+        if ('last_use_counter_current' in data) limitation.last_use_counter_current = data.last_use_counter_current
 
         return new Promise((resolve, reject) => {
             this.save(limitation)

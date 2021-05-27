@@ -113,6 +113,24 @@ export class RegistrationInvite extends MainEntity {
         })
     }
 
+    public static async createCardholderLink (data: any) {
+        const registrationInvite = new RegistrationInvite()
+
+        registrationInvite.email = data.email
+        registrationInvite.token = uid(32)
+
+        return new Promise((resolve, reject) => {
+            this.save(registrationInvite)
+                .then(async (item: RegistrationInvite) => {
+                    await Sendgrid.sendCardholderInvite(item.email, item.token)
+                    resolve(item)
+                })
+                .catch((error: any) => {
+                    reject(error)
+                })
+        })
+    }
+
     public static async getByLink (token: any) {
         try {
             const regToken = await RegistrationInvite.findOneOrFail({ token: token, used: false })

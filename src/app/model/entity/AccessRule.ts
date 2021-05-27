@@ -2,7 +2,8 @@ import {
     Entity,
     Column,
     ManyToOne,
-    JoinColumn
+    JoinColumn,
+    DeleteDateColumn
 } from 'typeorm'
 
 import {
@@ -25,6 +26,9 @@ export class AccessRule extends MainEntity {
 
     @Column('boolean', { name: 'access_in_holidays', default: false })
     access_in_holidays: boolean
+
+    @DeleteDateColumn({ type: 'timestamp', name: 'delete_date' })
+    public deleteDate: Date
 
     @Column('int', { name: 'company', nullable: false })
     company: number
@@ -110,8 +114,8 @@ export class AccessRule extends MainEntity {
     public static async destroyItem (data: any) {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
-            this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
-                this.remove(data)
+            this.findOneOrFail({ id: data.id, company: data.company ? data.company : null }).then((data: any) => {
+                this.softRemove(data)
                     .then(() => {
                         resolve({ message: 'success' })
                     })

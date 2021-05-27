@@ -7,8 +7,8 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
     const whiteList = ['login', 'swagger', 'favicon', 'page/saveFile', 'registration', 'mqttGetRequest', 'mqttPostRequest', 'account/forgotPassword']
 
     const path = ctx.request.url.split('?')[0].split('/').slice(1).join('/')
-    const invite = path.split('/')[1]
     const swagger = ctx.request.url.split('/')[1].split('-')[0]
+    const invite = path.split('/')[1]
 
     const token = <string>ctx.request.header.authorization
 

@@ -165,6 +165,31 @@ export class Sendgrid {
         return html
     }
 
+    public static async sendCardholderInvite (toEmail: string, token: string) {
+        const msg = {
+            to: `${toEmail}`,
+            from: this.from,
+            subject: 'You have been invited to Unimacs',
+            text: 'has invited you',
+            html: this.newMail({
+                title: 'You have been invited to Unimacs',
+                text: 'Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.',
+                link: `${this.mainDomain}/newpassword/${token}`,
+                button_text: 'Choose new Password',
+                end_text: 'Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.'
+            })// `<h2>Unimacs company has invited you to make a registration. Please click link bellow ${this.mainDomain}/registration/${item.token}</h2>`
+        }
+        try {
+            await sgMail.send(msg)
+        } catch (error) {
+            console.error(error)
+
+            if (error.response) {
+                console.error(error.response.body)
+            }
+        }
+    }
+
     private static newMail2 (mail: any) {
         const emailTemplate: any = fs.readFileSync(`${parentDir}/templates/updatestatus.template`)
         const template = _.template(emailTemplate)

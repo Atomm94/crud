@@ -97,10 +97,14 @@ export default class TimeframeController {
                 new SendDeviceMessage(operator, location, access_rule.access_points.acus.serial_number, send_data, user.id, access_rule.access_points.acus.session_id)
             }
         } catch (error) {
-            console.log(error)
-
             ctx.status = error.status || 400
-            ctx.body = error
+            if (error.message) {
+                ctx.body = {
+                    message: error.message
+                }
+            } else {
+                ctx.body = error
+            }
         }
         return ctx.body
     }

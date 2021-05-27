@@ -3,7 +3,8 @@ import {
     Column,
     ManyToOne,
     OneToMany,
-    JoinColumn
+    JoinColumn,
+    DeleteDateColumn
 } from 'typeorm'
 
 import { scheduleType } from '../../enums/scheduleType.enum'
@@ -28,8 +29,14 @@ export class Schedule extends MainEntity {
     @Column('enum', { name: 'type', nullable: false, enum: scheduleType })
     type: scheduleType
 
+    @Column('boolean', { name: 'custom', default: false })
+    custom: boolean
+
     @Column('date', { name: 'start_from', nullable: true })
     start_from: Date
+
+    @DeleteDateColumn({ type: 'timestamp', name: 'delete_date' })
+    public deleteDate: Date
 
     @Column('int', { name: 'company', nullable: false })
     company: number
@@ -41,7 +48,7 @@ export class Schedule extends MainEntity {
     @OneToMany(type => AccessRule, access_rule => access_rule.schedules)
     access_rules: AccessRule[];
 
-    @OneToMany(type => Timeframe, timeframe => timeframe.schedules)
+    @OneToMany(type => Timeframe, timeframe => timeframe.schedules, { cascade: true })
     timeframes: Timeframe[];
 
     @OneToMany(type => CardholderGroup, cardholder_group => cardholder_group.time_attendances)
@@ -60,6 +67,7 @@ export class Schedule extends MainEntity {
         schedule.description = data.description
         schedule.type = data.type
         if ('start_from' in data) schedule.start_from = data.start_from
+        if ('custom' in data) schedule.custom = data.custom
         schedule.company = data.company
 
         return new Promise((resolve, reject) => {
@@ -115,7 +123,7 @@ export class Schedule extends MainEntity {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
             this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
-                this.remove(data)
+                this.softRemove(data)
                     .then(() => {
                         resolve({ message: 'success' })
                     })

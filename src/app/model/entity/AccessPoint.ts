@@ -114,7 +114,7 @@ export class AccessPoint extends MainEntity {
         if ('access_point_group' in data) accessPoint.access_point_group = data.access_point_group
         if ('access_point_zone' in data) accessPoint.access_point_zone = data.access_point_zone
         accessPoint.acu = data.acu
-        if ('resources' in data) accessPoint.resources = data.resources
+        if ('resources' in data) accessPoint.resources = (typeof data.resources === 'string') ? data.resources : JSON.stringify(data.resources)
         accessPoint.company = data.company
 
         return new Promise((resolve, reject) => {
