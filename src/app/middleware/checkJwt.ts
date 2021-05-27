@@ -4,7 +4,7 @@ import * as jwt from 'jsonwebtoken'
 import { JwtToken } from '../model/entity/JwtToken'
 
 export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
-    const whiteList = ['login', 'swagger', 'favicon', 'page/saveFile', 'registration', 'mqttGetRequest', 'mqttPostRequest']
+    const whiteList = ['login', 'swagger', 'favicon', 'page/saveFile', 'registration', 'mqttGetRequest', 'mqttPostRequest', 'account/forgotPassword']
 
     const path = ctx.request.url.split('?')[0].split('/').slice(1).join('/')
     const swagger = ctx.request.url.split('/')[1].split('-')[0]
@@ -12,7 +12,7 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
 
     const token = <string>ctx.request.header.authorization
 
-    if (whiteList.includes(path) || whiteList.includes(swagger) || invite === 'invite') {
+    if (whiteList.includes(path) || whiteList.includes(swagger) || ((!token || token === 'undefined') && invite === 'invite')) {
         ctx.allowed = true
         return next()
     }

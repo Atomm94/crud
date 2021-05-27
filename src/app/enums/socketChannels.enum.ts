@@ -7,4 +7,5 @@ export enum socketChannels {
   DASHBOARD_MONITOR = 'dashboard_monitor',
   DASHBOARD_ACTIVITY = 'dashboard_activity',
   NOTIFICATION = 'notification',
+  ERROR_CHANNEL = 'error_channel'
 }

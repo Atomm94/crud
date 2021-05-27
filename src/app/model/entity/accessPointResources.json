@@ -11,43 +11,49 @@
                 "inputs": {
                     "Door_sensor": "Door_sensor",
                     "Exit_button": "Exit_button",
-                    "ACU_Tamper": "ACU_Tamper",
                     "Fire_Alarm_in": "Fire_Alarm_in"
                 },
                 "outputs": {
                     "Lock": "Lock",
-                    "Door_Ajar_Alarm_out": "Door_Ajar_Alarm_out",
-                    "Door_Forced_open_Alarm_out": "Door_Forced_open_Alarm_out"
+                    "Alarm_out": "Alarm_out"
                 }
             }
         },
         "turnstile": {
             "resources": {
-                "readers": {},
+                "readers": {
+                    "RFID": "RFID",
+                    "KEYPAD": {},
+                    "FINGER": {},
+                    "FACE": {}
+                },
                 "inputs": {
                     "Turnstile_ready": "Door_sensor",
                     "Pass_control": "Door_sensor",
                     "Entry_button": "Entry_button",
                     "Exit_button": "Exit_button",
-                    "ACU_Tamper": "ACU_Tamper",
                     "Fire_Alarm_in": "Fire_Alarm_in"
                 },
                 "outputs": {
                     "Entry_relay": "Lock",
                     "Exit_relay": "Lock",
                     "Block_Turnstile": "Block_Turnstile",
-                    "Emergency_open": "Block_Turnstile"
+                    "Emergency_open": "Block_Turnstile",
+                    "Alarm_out": "Alarm_out"
                 }
             }
         },
         "gate": {
             "resources": {
-                "readers": {},
+                "readers": {
+                    "RFID": "RFID",
+                    "KEYPAD": {},
+                    "FINGER": {},
+                    "FACE": {}
+                },
                 "inputs": {
-                    "Gate_ready": "Door_sensor",
                     "Loop_sensor": "Door_sensor",
                     "Open_button": "Exit_button",
-                    "ACU_Tamper": "ACU_Tamper",
                     "Fire_Alarm_in": "Fire_Alarm_in"
                 },
                 "outputs": {
@@ -57,15 +63,20 @@
         },
         "gateway": {
             "resources": {
-                "readers": {},
+                "readers": {
+                    "RFID": "RFID",
+                    "KEYPAD": {},
+                    "FINGER": {},
+                    "FACE": {}
+                },
                 "inputs": {
                     "Door_sensor": "Door_sensor",
                     "Open_button": "Exit_button",
-                    "ACU_Tamper": "ACU_Tamper",
                     "Fire_Alarm_in": "Fire_Alarm_in"
                 },
                 "outputs": {
-                    "Lock": "Lock"
+                    "Lock": "Lock",
+                    "Alarm_out": "Alarm_out"
                 }
             }
         },
@@ -78,7 +89,6 @@
                     "FACE": {}
                 },
                 "inputs": {
-                    "ACU_Tamper": "ACU_Tamper",
                     "Fire_Alarm_in": "Fire_Alarm_in"
                 },
                 "outputs": {
@@ -94,23 +104,35 @@
                     "type": "select",
                     "list": [
                         {
-                            "id": 4,
+                            "id": 0,
                             "name": "Wiegand 4bit"
                         },
                         {
-                            "id": 8,
+                            "id": 1,
                             "name": "Wiegand 8bit"
                         },
                         {
-                            "id": 26,
+                            "id": 2,
                             "name": "Wiegand 26bit"
                         },
                         {
-                            "id": 34,
+                            "id": 3,
                             "name": "Wiegand 34bit"
                         },
                         {
-                            "id": 0,
+                            "id": 4,
+                            "name": "Wiegand 37bit"
+                        },
+                        {
+                            "id": 5,
+                            "name": "Wiegand 40bit"
+                        },
+                        {
+                            "id": 6,
+                            "name": "Wiegand 42bit"
+                        },
+                        {
+                            "id": -1,
                             "name": "OSDP"
                         }
                     ]
@@ -142,11 +164,11 @@
                     "type": "select",
                     "list": [
                         {
-                            "id": "",
+                            "id": 0,
                             "name": "entry"
                         },
                         {
-                            "id": "",
+                            "id": 1,
                             "name": "exit"
                         }
                     ]
@@ -174,23 +196,35 @@
                     "type": "select",
                     "list": [
                         {
-                            "id": 4,
+                            "id": 0,
                             "name": "Wiegand 4bit"
                         },
                         {
-                            "id": 8,
+                            "id": 1,
                             "name": "Wiegand 8bit"
                         },
                         {
-                            "id": 26,
+                            "id": 2,
                             "name": "Wiegand 26bit"
                         },
                         {
-                            "id": 34,
+                            "id": 3,
                             "name": "Wiegand 34bit"
                         },
                         {
-                            "id": 0,
+                            "id": 4,
+                            "name": "Wiegand 37bit"
+                        },
+                        {
+                            "id": 5,
+                            "name": "Wiegand 40bit"
+                        },
+                        {
+                            "id": 6,
+                            "name": "Wiegand 42bit"
+                        },
+                        {
+                            "id": -1,
                             "name": "OSDP"
                         }
                     ]
@@ -222,11 +256,11 @@
                     "type": "select",
                     "list": [
                         {
-                            "id": "",
+                            "id": 0,
                             "name": "entry"
                         },
                         {
-                            "id": "",
+                            "id": 1,
                             "name": "exit"
                         }
                     ]
@@ -236,19 +270,15 @@
                     "list": [
                         {
                             "id": null,
+                            "name": "Auto"
+                        },
+                        {
+                            "id": null,
                             "name": 2400
                         },
                         {
                             "id": null,
-                            "name": 4800
-                        },
-                        {
-                            "id": null,
                             "name": 9600
-                        },
-                        {
-                            "id": null,
-                            "name": 14400
                         },
                         {
                             "id": null,
@@ -264,37 +294,615 @@
                         },
                         {
                             "id": null,
-                            "name": 56000
-                        },
-                        {
-                            "id": 0,
-                            "name": 115200
+                            "name": 57600
                         }
                     ]
                 },
                 "osdp_address": {
                     "type": "select",
-                    "list": "??????????????????????????"
+                    "list": [
+                        {
+                            "id": null,
+                            "name": 1
+                        },
+                        {
+                            "id": null,
+                            "name": 2
+                        },
+                        {
+                            "id": null,
+                            "name": 3
+                        },
+                        {
+                            "id": null,
+                            "name": 4
+                        },
+                        {
+                            "id": null,
+                            "name": 5
+                        },
+                        {
+                            "id": null,
+                            "name": 6
+                        },
+                        {
+                            "id": null,
+                            "name": 7
+                        },
+                        {
+                            "id": null,
+                            "name": 8
+                        },
+                        {
+                            "id": null,
+                            "name": 9
+                        },
+                        {
+                            "id": null,
+                            "name": 10
+                        },
+                        {
+                            "id": null,
+                            "name": 11
+                        },
+                        {
+                            "id": null,
+                            "name": 12
+                        },
+                        {
+                            "id": null,
+                            "name": 13
+                        },
+                        {
+                            "id": null,
+                            "name": 14
+                        },
+                        {
+                            "id": null,
+                            "name": 15
+                        },
+                        {
+                            "id": null,
+                            "name": 16
+                        },
+                        {
+                            "id": null,
+                            "name": 17
+                        },
+                        {
+                            "id": null,
+                            "name": 18
+                        },
+                        {
+                            "id": null,
+                            "name": 19
+                        },
+                        {
+                            "id": null,
+                            "name": 20
+                        },
+                        {
+                            "id": null,
+                            "name": 21
+                        },
+                        {
+                            "id": null,
+                            "name": 22
+                        },
+                        {
+                            "id": null,
+                            "name": 23
+                        },
+                        {
+                            "id": null,
+                            "name": 24
+                        },
+                        {
+                            "id": null,
+                            "name": 25
+                        },
+                        {
+                            "id": null,
+                            "name": 26
+                        },
+                        {
+                            "id": null,
+                            "name": 27
+                        },
+                        {
+                            "id": null,
+                            "name": 28
+                        },
+                        {
+                            "id": null,
+                            "name": 29
+                        },
+                        {
+                            "id": null,
+                            "name": 30
+                        },
+                        {
+                            "id": null,
+                            "name": 31
+                        },
+                        {
+                            "id": null,
+                            "name": 32
+                        },
+                        {
+                            "id": null,
+                            "name": 33
+                        },
+                        {
+                            "id": null,
+                            "name": 34
+                        },
+                        {
+                            "id": null,
+                            "name": 35
+                        },
+                        {
+                            "id": null,
+                            "name": 36
+                        },
+                        {
+                            "id": null,
+                            "name": 37
+                        },
+                        {
+                            "id": null,
+                            "name": 38
+                        },
+                        {
+                            "id": null,
+                            "name": 39
+                        },
+                        {
+                            "id": null,
+                            "name": 40
+                        },
+                        {
+                            "id": null,
+                            "name": 41
+                        },
+                        {
+                            "id": null,
+                            "name": 42
+                        },
+                        {
+                            "id": null,
+                            "name": 43
+                        },
+                        {
+                            "id": null,
+                            "name": 44
+                        },
+                        {
+                            "id": null,
+                            "name": 45
+                        },
+                        {
+                            "id": null,
+                            "name": 46
+                        },
+                        {
+                            "id": null,
+                            "name": 47
+                        },
+                        {
+                            "id": null,
+                            "name": 48
+                        },
+                        {
+                            "id": null,
+                            "name": 49
+                        },
+                        {
+                            "id": null,
+                            "name": 50
+                        },
+                        {
+                            "id": null,
+                            "name": 51
+                        },
+                        {
+                            "id": null,
+                            "name": 52
+                        },
+                        {
+                            "id": null,
+                            "name": 53
+                        },
+                        {
+                            "id": null,
+                            "name": 54
+                        },
+                        {
+                            "id": null,
+                            "name": 55
+                        },
+                        {
+                            "id": null,
+                            "name": 56
+                        },
+                        {
+                            "id": null,
+                            "name": 57
+                        },
+                        {
+                            "id": null,
+                            "name": 58
+                        },
+                        {
+                            "id": null,
+                            "name": 59
+                        },
+                        {
+                            "id": null,
+                            "name": 60
+                        },
+                        {
+                            "id": null,
+                            "name": 61
+                        },
+                        {
+                            "id": null,
+                            "name": 62
+                        },
+                        {
+                            "id": null,
+                            "name": 63
+                        },
+                        {
+                            "id": null,
+                            "name": 64
+                        },
+                        {
+                            "id": null,
+                            "name": 65
+                        },
+                        {
+                            "id": null,
+                            "name": 66
+                        },
+                        {
+                            "id": null,
+                            "name": 67
+                        },
+                        {
+                            "id": null,
+                            "name": 68
+                        },
+                        {
+                            "id": null,
+                            "name": 69
+                        },
+                        {
+                            "id": null,
+                            "name": 70
+                        },
+                        {
+                            "id": null,
+                            "name": 71
+                        },
+                        {
+                            "id": null,
+                            "name": 72
+                        },
+                        {
+                            "id": null,
+                            "name": 73
+                        },
+                        {
+                            "id": null,
+                            "name": 74
+                        },
+                        {
+                            "id": null,
+                            "name": 75
+                        },
+                        {
+                            "id": null,
+                            "name": 76
+                        },
+                        {
+                            "id": null,
+                            "name": 77
+                        },
+                        {
+                            "id": null,
+                            "name": 78
+                        },
+                        {
+                            "id": null,
+                            "name": 79
+                        },
+                        {
+                            "id": null,
+                            "name": 80
+                        },
+                        {
+                            "id": null,
+                            "name": 81
+                        },
+                        {
+                            "id": null,
+                            "name": 82
+                        },
+                        {
+                            "id": null,
+                            "name": 83
+                        },
+                        {
+                            "id": null,
+                            "name": 84
+                        },
+                        {
+                            "id": null,
+                            "name": 85
+                        },
+                        {
+                            "id": null,
+                            "name": 86
+                        },
+                        {
+                            "id": null,
+                            "name": 87
+                        },
+                        {
+                            "id": null,
+                            "name": 88
+                        },
+                        {
+                            "id": null,
+                            "name": 89
+                        },
+                        {
+                            "id": null,
+                            "name": 90
+                        },
+                        {
+                            "id": null,
+                            "name": 91
+                        },
+                        {
+                            "id": null,
+                            "name": 92
+                        },
+                        {
+                            "id": null,
+                            "name": 93
+                        },
+                        {
+                            "id": null,
+                            "name": 94
+                        },
+                        {
+                            "id": null,
+                            "name": 95
+                        },
+                        {
+                            "id": null,
+                            "name": 96
+                        },
+                        {
+                            "id": null,
+                            "name": 97
+                        },
+                        {
+                            "id": null,
+                            "name": 98
+                        },
+                        {
+                            "id": null,
+                            "name": 99
+                        },
+                        {
+                            "id": null,
+                            "name": 100
+                        },
+                        {
+                            "id": null,
+                            "name": 101
+                        },
+                        {
+                            "id": null,
+                            "name": 102
+                        },
+                        {
+                            "id": null,
+                            "name": 103
+                        },
+                        {
+                            "id": null,
+                            "name": 104
+                        },
+                        {
+                            "id": null,
+                            "name": 105
+                        },
+                        {
+                            "id": null,
+                            "name": 106
+                        },
+                        {
+                            "id": null,
+                            "name": 107
+                        },
+                        {
+                            "id": null,
+                            "name": 108
+                        },
+                        {
+                            "id": null,
+                            "name": 109
+                        },
+                        {
+                            "id": null,
+                            "name": 110
+                        },
+                        {
+                            "id": null,
+                            "name": 111
+                        },
+                        {
+                            "id": null,
+                            "name": 112
+                        },
+                        {
+                            "id": null,
+                            "name": 113
+                        },
+                        {
+                            "id": null,
+                            "name": 114
+                        },
+                        {
+                            "id": null,
+                            "name": 115
+                        },
+                        {
+                            "id": null,
+                            "name": 116
+                        },
+                        {
+                            "id": null,
+                            "name": 117
+                        },
+                        {
+                            "id": null,
+                            "name": 118
+                        },
+                        {
+                            "id": null,
+                            "name": 119
+                        },
+                        {
+                            "id": null,
+                            "name": 120
+                        },
+                        {
+                            "id": null,
+                            "name": 121
+                        },
+                        {
+                            "id": null,
+                            "name": 122
+                        },
+                        {
+                            "id": null,
+                            "name": 123
+                        },
+                        {
+                            "id": null,
+                            "name": 124
+                        },
+                        {
+                            "id": null,
+                            "name": 125
+                        },
+                        {
+                            "id": null,
+                            "name": 126
+                        },
+                        {
+                            "id": null,
+                            "name": 127
+                        },
+                        {
+                            "id": null,
+                            "name": 128
+                        }
+                    ]
                 },
                 "card_data_format_flags": {
                     "type": "select",
-                    "list": "??????????????????????????"
+                    "list": [
+                        {
+                            "id": -1,
+                            "name": "Data 1/Data 0"
+                        },
+                        {
+                            "id": 0,
+                            "name": "ABA"
+                        },
+                        {
+                            "id": 1,
+                            "name": "2000 bit binary"
+                        },
+                        {
+                            "id": 2,
+                            "name": "RAW format"
+                        }
+                    ]
                 },
                 "keypad_mode": {
                     "type": "select",
-                    "list": "??????????????????????????"
+                    "list": [
+                        {
+                            "id": -1,
+                            "name": "No Keypad Decoding Defined"
+                        },
+                        {
+                            "id": 0,
+                            "name": "4-bit burst"
+                        },
+                        {
+                            "id": 1,
+                            "name": "8-bit burst"
+                        },
+                        {
+                            "id": 2,
+                            "name": "26-bit burst"
+                        }
+                    ]
                 },
                 "configuration": {
                     "type": "select",
-                    "list": "??????????????????????????"
+                    "list": [
+                        {
+                            "id": 0,
+                            "name": "Single reader"
+                        },
+                        {
+                            "id": 1,
+                            "name": "Multi readers"
+                        }
+                    ]
                 },
                 "led_mode": {
                     "type": "select",
-                    "list": "??????????????????????????"
+                    "list": [
+                        {
+                            "id": null,
+                            "name": "LedMode1"
+                        },
+                        {
+                            "id": null,
+                            "name": "LedMode2"
+                        },
+                        {
+                            "id": null,
+                            "name": "LedMode3"
+                        },
+                        {
+                            "id": null,
+                            "name": "LedMode4"
+                        }
+                    ]
                 },
                 "offline_mode": {
                     "type": "select",
-                    "list": "??????????????????????????"
+                    "list": [
+                        {
+                            "id": 0,
+                            "name": "Locked"
+                        },
+                        {
+                            "id": 1,
+                            "name": "Unlocked"
+                        }
+                    ]
                 },
                 "enable_osdp_secure_channel": {
                     "type": "checkBox"
@@ -313,74 +921,9 @@
             }
         },
         "Door_sensor": {
-            "componentsource": {
+            "component_source": {
                 "type": "select",
-                "list": "acu"
-            },
-            "name": {
-                "type": "textInput"
-            },
-            "condition": {
-                "type": "select",
-                "list": [
-                    {
-                        "id": 0,
-                        "name": "close"
-                    },
-                    {
-                        "id": 1,
-                        "name": "open"
-                    },
-                    {
-                        "id": 2,
-                        "name": "change"
-                    }
-                ]
-            },
-            "input": {
-                "type": "numberInput ????????????????????????"
-            },
-            "alarm_settings": {
-                "door_ajar": {
-                    "enable_door_ajar_alarm": {
-                        "type": "checkBox"
-                    },
-                    "door_ajar_time": {
-                        "type": "numberInput"
-                    },
-                    "duration": {
-                        "type": "numberInput"
-                    },
-                    "trigger_output_if_door_ajar": {
-                        "type": "select",
-                        "list": [
-                            "output url"
-                        ]
-                    }
-                },
-                "door_forced_open": {
-                    "enable_door_forced_open_alarm": {
-                        "type": "checkBox"
-                    },
-                    "door_ajar_time": {
-                        "type": "numberInput"
-                    },
-                    "duration": {
-                        "type": "numberInput"
-                    },
-                    "trigger_output_if_door_forced-open": {
-                        "type": "select",
-                        "list": [
-                            "output url"
-                        ]
-                    }
-                }
-            }
-        },
-        "Exit_button": {
-            "componentsource": {
-                "type": "select",
-                "list": "acu"
+                "list": "extDevice"
             },
             "name": {
                 "type": "textInput"
@@ -406,10 +949,10 @@
                 "type": "numberInput"
             }
         },
-        "ACU_Tamper": {
-            "componentsource": {
+        "Exit_button": {
+            "component_source": {
                 "type": "select",
-                "list": "acu"
+                "list": "extDevice"
             },
             "name": {
                 "type": "textInput"
@@ -436,9 +979,9 @@
             }
         },
         "Fire_Alarm_in": {
-            "componentsource": {
+            "component_source": {
                 "type": "select",
-                "list": "acu"
+                "list": "extDevice"
             },
             "name": {
                 "type": "textInput"
@@ -465,15 +1008,15 @@
             }
         },
         "Block_Turnstile": {
-            "componentsource": {
+            "component_source": {
                 "type": "select",
-                "list": "acu"
+                "list": "extDevice"
             },
             "name": {
                 "type": "textInput"
             },
             "output": {
-                "type": "numberInput?????????????????????"
+                "type": "numberInput"
             },
             "relay_mode": {
                 "type": "select",
@@ -506,15 +1049,15 @@
             }
         },
         "Lock": {
-            "componentsource": {
+            "component_source": {
                 "type": "select",
-                "list": "acu"
+                "list": "extDevice"
             },
             "name": {
                 "type": "textInput"
             },
             "output": {
-                "type": "numberInput?????????????????????"
+                "type": "numberInput"
             },
             "relay_mode": {
                 "type": "select",
@@ -552,57 +1095,16 @@
                 "type": "checkBox"
             }
         },
-        "Door_Ajar_Alarm_out": {
-            "componentsource": {
+        "Alarm_out": {
+            "component_source": {
                 "type": "select",
-                "list": "acu"
+                "list": "extDevice"
             },
             "name": {
                 "type": "textInput"
             },
             "output": {
-                "type": "numberInput?????????????????????"
-            },
-            "relay_mode": {
-                "type": "select",
-                "list": [
-                    {
-                        "id": 0,
-                        "name": "trigger"
-                    },
-                    {
-                        "id": 1,
-                        "name": "impulse"
-                    }
-                ]
-            },
-            "impulse_time": {
                 "type": "numberInput"
-            },
-            "type": {
-                "type": "select",
-                "list": [
-                    {
-                        "id": 0,
-                        "name": "NO"
-                    },
-                    {
-                        "id": 1,
-                        "name": "NC"
-                    }
-                ]
-            }
-        },
-        "Door_Forced_open_Alarm_out": {
-            "componentsource": {
-                "type": "select",
-                "list": "acu"
-            },
-            "name": {
-                "type": "textInput"
-            },
-            "output": {
-                "type": "numberInput?????????????????????"
             },
             "relay_mode": {
                 "type": "select",

@@ -7,8 +7,9 @@ export default router
   .use('company/', companyDocuments.routes(), companyDocuments.allowedMethods())
   // Company controller CRUD endpoints
   .post('Company-addItem', 'company', checkRole(), CompanyController.add)
-  .put('Company-ServiceCompany-updateItem', 'company', checkRole(), CompanyController.update)
+  .put('Company-ClientCompany-updateItem', 'company', checkRole(), CompanyController.update)
   .get('ServiceCompany-getItem', 'serviceCompany', checkRole(), CompanyController.getServiceCompany)
+  .get('Company-ClientCompany-getItem', 'clientCompany', checkRole(), CompanyController.getClientCompany)
   .delete('Company-destroyItem', 'company', checkRole(), CompanyController.destroy)
   .get('Company-getAllItems', 'company', checkRole(), CompanyController.getAll)
   .get('Company-getItem', 'company/:id', checkRole(), CompanyController.get)

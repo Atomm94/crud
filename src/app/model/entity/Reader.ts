@@ -25,7 +25,13 @@ export class Reader extends MainEntity {
     port: number
 
     @Column('enum', { name: 'wg_type', nullable: true, enum: wiegandTypes })
-    wg_type: number | false
+    wg_type: number
+
+    @Column('longtext', { name: 'osdp_data', nullable: true })
+    osdp_data: string | null
+
+    @Column('int', { name: 'osdp_address', nullable: true })
+    osdp_address: number | null
 
     @Column('enum', { name: 'mode', nullable: false, default: 0, enum: readerModes })
     mode: number
@@ -81,7 +87,7 @@ export class Reader extends MainEntity {
     }
 
     public static async updateItem (data: Reader): Promise<{ [key: string]: any }> {
-        const reader = await this.findOneOrFail(data.id)
+        const reader = await this.findOneOrFail({ id: data.id })
         const oldData = Object.assign({}, reader)
 
         if ('port' in data) reader.port = data.port

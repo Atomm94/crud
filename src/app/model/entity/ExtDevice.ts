@@ -2,12 +2,18 @@ import {
     Entity,
     Column,
     ManyToOne,
-    JoinColumn
+    JoinColumn,
+    Index
 } from 'typeorm'
 
 import { MainEntity } from './MainEntity'
 import { Acu } from './Acu'
 import { expBrd } from '../../enums/expBrd.enum'
+import { extBrdInterface } from '../../enums/extBrdInterface.enum'
+import { extBrdProtocol } from '../../enums/extBrdProtocol.enum'
+import { expBrdBaudRate } from '../../enums/expBrdBaudRate.enum'
+
+@Index('acu|interface|address|port', ['acu', 'interface', 'address', 'port'], { unique: true })
 
 @Entity('ext_device')
 export class ExtDevice extends MainEntity {
@@ -17,14 +23,14 @@ export class ExtDevice extends MainEntity {
     @Column('int', { name: 'acu', nullable: false })
     acu: number
 
+    @Column('enum', { name: 'interface', nullable: false, enum: extBrdInterface })
+    interface: string
+
     @Column('enum', { name: 'ext_board', nullable: false, enum: expBrd })
     ext_board: string
 
-    @Column('int', { name: 'baud_rate', nullable: true })
-    baud_rate: number
-
-    @Column('int', { name: 'uart_mode', nullable: true })
-    uart_mode: number
+    @Column('enum', { name: 'baud_rate', nullable: false, enum: expBrdBaudRate })
+    baud_rate: string
 
     @Column('varchar', { name: 'address', nullable: false })
     address: string
@@ -32,7 +38,7 @@ export class ExtDevice extends MainEntity {
     @Column('int', { name: 'port', nullable: false })
     port: number
 
-    @Column('int', { name: 'protocol', nullable: false })
+    @Column('enum', { name: 'protocol', nullable: false, enum: extBrdProtocol })
     protocol: number
 
     @Column('int', { name: 'company', nullable: false })
@@ -51,11 +57,11 @@ export class ExtDevice extends MainEntity {
 
         if ('name' in data) extDevice.name = data.name
         extDevice.acu = data.acu
+        extDevice.interface = data.interface
         if ('ext_board' in data) extDevice.ext_board = data.ext_board
         if ('baud_rate' in data) extDevice.baud_rate = data.baud_rate
         if ('address' in data) extDevice.address = data.address
         if ('port' in data) extDevice.port = data.port
-        if ('uart_mode' in data) extDevice.uart_mode = data.uart_mode
         if ('protocol' in data) extDevice.protocol = data.protocol
         extDevice.company = data.company
 
@@ -71,16 +77,16 @@ export class ExtDevice extends MainEntity {
     }
 
     public static async updateItem (data: ExtDevice): Promise<{ [key: string]: any }> {
-        const extDevice = await this.findOneOrFail(data.id)
+        const extDevice = await this.findOneOrFail({ id: data.id })
         const oldData = Object.assign({}, extDevice)
 
         if ('name' in data) extDevice.name = data.name
         if ('acu' in data) extDevice.acu = data.acu
+        if ('interface' in data) extDevice.interface = data.interface
         if ('ext_board' in data) extDevice.ext_board = data.ext_board
         if ('baud_rate' in data) extDevice.baud_rate = data.baud_rate
         if ('address' in data) extDevice.address = data.address
         if ('port' in data) extDevice.port = data.port
-        if ('uart_mode' in data) extDevice.uart_mode = data.uart_mode
         if ('protocol' in data) extDevice.protocol = data.protocol
 
         if (!extDevice) return { status: 400, messsage: 'Item not found' }

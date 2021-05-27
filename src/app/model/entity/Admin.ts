@@ -33,6 +33,7 @@ import { IAdmins } from '../../Interfaces/Admins'
 import { logger } from '../../../../modules/winston/logger'
 import { StandardReport } from './StandardReport'
 import { Cardholder } from './Cardholder'
+import { adminStatus } from '../../enums/adminStatus.enum'
 
 const parentDir = join(__dirname, '../../..')
 
@@ -60,8 +61,8 @@ export class Admin extends MainEntity {
   @Column('int', { name: 'department', nullable: true })
   department: number | null;
 
-  @Column('boolean', { name: 'status', default: true })
-  status: boolean | true;
+  @Column('enum', { name: 'status', enum: adminStatus, default: adminStatus.active })
+  status: adminStatus
 
   @Column('boolean', { name: 'super', default: false })
   super: boolean;
@@ -99,11 +100,14 @@ export class Admin extends MainEntity {
   @Column('varchar', { name: 'address', nullable: true })
   address: string | null;
 
-  @Column('varchar', { name: 'viber', nullable: true })
-  viber: string | null;
+  @Column('boolean', { name: 'viber', default: false })
+  viber: boolean;
 
-  @Column('varchar', { name: 'whatsapp', nullable: true })
-  whatsapp: string | null;
+  @Column('boolean', { name: 'whatsapp', default: false })
+  whatsapp: boolean;
+
+  @Column('boolean', { name: 'telegram', default: false })
+  telegram: boolean;
 
   @Column('int', { name: 'cardholder', nullable: true })
   cardholder: number | null
@@ -119,6 +123,15 @@ export class Admin extends MainEntity {
 
   @Column('boolean', { name: 'role_inherited', default: false })
   role_inherited: boolean;
+
+  @Column('varchar', { name: 'date_format', nullable: true })
+  date_format: string | null;
+
+  @Column('varchar', { name: 'time_format', nullable: true })
+  time_format: string | null;
+
+  @Column('varchar', { name: 'time_zone', nullable: true })
+  time_zone: string | null;
 
   @ManyToOne(type => Department, department => department.users, { nullable: true })
   @JoinColumn({ name: 'department' })
@@ -169,6 +182,7 @@ export class Admin extends MainEntity {
   }
 
   public static resource: boolean = true
+  public static serviceResource: boolean = true
 
   public static async addItem (data: any, user: any = null): Promise<Admin> {
     const admin = new Admin()
@@ -176,8 +190,8 @@ export class Admin extends MainEntity {
     admin.username = data.username
     admin.email = data.email
     if ('password' in data) admin.password = data.password
-    admin.status = (data.status === 'true') ? true : (data.status === 'false') ? false : data.status
     if ('role' in data) admin.role = data.role
+    if ('status' in data) admin.status = data.status
     if ('department' in data) admin.department = data.department
     if ('avatar' in data) admin.avatar = data.avatar
     // if (file) admin.avatar = newFilePath
@@ -190,7 +204,6 @@ export class Admin extends MainEntity {
     // admin.phone_1 = data.phone_1
     if ('phone_1' in data) admin.phone_1 = data.phone_1
     if ('phone_2' in data) admin.phone_2 = data.phone_2
-    // admin.post_code = data.post_code
     if ('post_code' in data) admin.post_code = data.post_code
     if ('country' in data) admin.country = data.country
     if ('city' in data) admin.city = data.city
@@ -198,10 +211,14 @@ export class Admin extends MainEntity {
     if ('address' in data) admin.address = data.address
     if ('viber' in data) admin.viber = data.viber
     if ('whatsapp' in data) admin.whatsapp = data.whatsapp
+    if ('telegram' in data) admin.telegram = data.telegram
     if ('comment' in data) admin.comment = data.comment
     if ('account_group' in data) admin.account_group = data.account_group
     if ('role_inherited' in data) admin.role_inherited = data.role_inherited
     if ('cardholder' in data) admin.cardholder = data.cardholder
+    if ('date_format' in data) admin.date_format = data.date_format
+    if ('time_format' in data) admin.time_format = data.time_format
+    if ('time_zone' in data) admin.time_zone = data.time_zone
 
     if ('company' in data) {
       admin.company = data.company
@@ -212,21 +229,21 @@ export class Admin extends MainEntity {
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve, reject) => {
       // if (!user || !user.company) {
-      this.save(admin)
-        .then((item: Admin) => {
-          resolve(item)
-        })
-        .catch((error: any) => {
-          reject(error)
-        })
+        this.save(admin)
+          .then((item: Admin) => {
+            resolve(item)
+          })
+          .catch((error: any) => {
+            reject(error)
+          })
       // } else {
-      //   reject(Error(`Resource ${this.name} is limited for company ${user.company}!!`))
+        // reject(Error(`Resource ${this.name} is limited for company ${user.company}!!`))
       // }
     })
   }
 
   public static async updateItem (data: any): Promise<{ [key: string]: any }> {
-    const admin = await this.findOneOrFail(data.id)
+    const admin = await this.findOneOrFail({ id: data.id })
     const oldData = Object.assign({}, admin)
     delete admin.password
 
@@ -241,14 +258,19 @@ export class Admin extends MainEntity {
     if ('post_code' in data) admin.post_code = data.post_code
     if ('viber' in data) admin.viber = data.viber
     if ('whatsapp' in data) admin.whatsapp = data.whatsapp
+    if ('telegram' in data) admin.telegram = data.telegram
     if ('email' in data) admin.email = data.email
-    if ('status' in data) admin.status = (data.status === 'true') ? true : (data.status === 'false') ? false : data.status
     if ('role' in data) admin.role = data.role
+    if ('status' in data) admin.status = data.status
     if ('department' in data) admin.department = data.department
     if ('comment' in data) admin.comment = data.comment
     if ('avatar' in data) admin.avatar = data.avatar
     if ('account_group' in data) admin.account_group = data.account_group
     if ('role_inherited' in data) admin.role_inherited = data.role_inherited
+    if ('post_code' in data) admin.post_code = data.post_code
+    if ('date_format' in data) admin.date_format = data.date_format
+    if ('time_format' in data) admin.time_format = data.time_format
+    if ('time_zone' in data) admin.time_zone = data.time_zone
 
     if (!admin) return { status: 400, message: 'Item not found' }
     return new Promise((resolve, reject) => {

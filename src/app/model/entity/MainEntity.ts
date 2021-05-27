@@ -79,10 +79,21 @@ export abstract class MainEntity extends BaseEntity {
     public static gettingAttributes: boolean = true
 
     public static resource: boolean = false
+    public static serviceResource: boolean = false
     public static features: any = false
 
     public static async findByParams (data: any = {}) {
         let where: any = {}
+        if (data.status) {
+            let status = data.status
+            if (status === 'true') {
+                status = true
+            } else if (status === 'false') {
+                status = false
+            }
+            where.status = status
+        }
+
         if (data.where) {
             if (typeof data.where === 'string') data.where = JSON.parse(data.where)
             Object.keys(data.where).forEach(column => {

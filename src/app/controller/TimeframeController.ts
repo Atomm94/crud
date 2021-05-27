@@ -81,13 +81,17 @@ export default class TimeframeController {
             }
             for (const access_rule of access_rules) {
                 const send_data: any = { id: access_rule.id, access_point: access_rule.access_point, timeframes: timeframes }
-                SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, access_rule.access_points.acus.session_id, send_data)
+                SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, user.id, access_rule.access_points.acus.session_id, send_data)
             }
         } catch (error) {
-            console.log(error)
-
             ctx.status = error.status || 400
-            ctx.body = error
+            if (error.message) {
+                ctx.body = {
+                    message: error.message
+                }
+            } else {
+                ctx.body = error
+            }
         }
         return ctx.body
     }
@@ -168,7 +172,7 @@ export default class TimeframeController {
 
             for (const access_rule of access_rules) {
                 const send_data: any = { id: access_rule.id, access_point: access_rule.access_point, timeframes: timeframes }
-                SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, access_rule.access_points.acus.session_id, send_data)
+                SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, user.id, access_rule.access_points.acus.session_id, send_data)
             }
         } catch (error) {
             ctx.status = error.status || 400
@@ -273,7 +277,7 @@ export default class TimeframeController {
 
             for (const access_rule of access_rules) {
                 const send_data: any = { id: access_rule.id, access_point: access_rule.access_point, timeframes: timeframes }
-                SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, access_rule.access_points.acus.session_id, send_data)
+                SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, user.id, access_rule.access_points.acus.session_id, send_data)
             }
         } catch (error) {
             ctx.status = error.status || 400

@@ -37,7 +37,7 @@ export class Language extends MainEntity {
     }
 
     public static async updateItem (data: Language): Promise<{ [key: string]: any }> {
-        const language = await this.findOneOrFail(data.id)
+        const language = await this.findOneOrFail({ id: data.id })
         const oldData = Object.assign({}, language)
 
         if ('title' in data) language.title = data.title

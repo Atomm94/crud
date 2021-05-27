@@ -60,7 +60,7 @@ app.use(koaBody(
         multipart: true,
         // json: true,
         // text: true,
-        formidable: { uploadDir: `${parentDir}/public` },
+        formidable: { uploadDir: `${parentDir}/public/tmp` },
         parsedMethods: ['POST', 'PUT', 'DELETE']
     }
 ))

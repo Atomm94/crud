@@ -52,8 +52,10 @@ export class Role extends MainEntity {
   @OneToMany(type => AccountGroup, account_group => account_group.roles, { nullable: true })
   account_groups: AccountGroup[];
 
+  public static serviceResource: boolean = true
+
   public static default_partner_role: any = {
-    ServiceCompany: {
+    ClientCompany: {
       actions: {
         getItem: true,
         updateItem: true
@@ -61,31 +63,20 @@ export class Role extends MainEntity {
     },
     Role: {
       actions: {
-        addItem: true,
-        updateItem: true,
         getItem: true,
-        destroyItem: true,
-        getAllItems: true,
         getRole: true,
         getAllAccess: true
       }
     },
     Product: {
       actions: {
-        updateItem: true,
         getItem: true,
-        getAllItems: true,
-        destroyItem: true
+        getAllItems: true
       }
     },
     CompanyDocuments: {
       actions: {
-        addItem: true,
-        updateItem: true,
-        getItem: true,
-        destroyItem: true,
-        saveFile: true,
-        deleteFile: true
+        getItem: true
       }
     },
     Department: {
@@ -115,43 +106,6 @@ export class Role extends MainEntity {
         saveMessageImage: true,
         deleteMessageImage: true
       }
-    },
-    AccountGroup: {
-      actions: {
-        addItem: true,
-        updateItem: true,
-        getItem: true,
-        destroyItem: true,
-        getAllItems: true,
-        getGroupAccountsCounts: true
-      }
-    },
-    AccessPointGroup: {
-      actions: {
-        addItem: true,
-        updateItem: true,
-        getItem: true,
-        destroyItem: true,
-        getAllItems: true
-      }
-    },
-    AccessPointZone: {
-      actions: {
-        addItem: true,
-        updateItem: true,
-        getItem: true,
-        destroyItem: true,
-        getAllItems: true
-      }
-    },
-    Acu: {
-      actions: {
-        addItem: true,
-        updateItem: true,
-        getItem: true,
-        destroyItem: true,
-        getAllItems: true
-      }
     }
   }
 
@@ -177,6 +131,15 @@ export class Role extends MainEntity {
     Admin: {
       actions: {
         getItem: true
+      }
+    },
+    Cardholder: {
+      actions: {
+        addItem: true,
+        updateItem: true,
+        getItem: true,
+        getAllItems: true,
+        destroyItem: true
       }
     },
     Ticket: {
@@ -241,7 +204,7 @@ export class Role extends MainEntity {
   }
 
   public static async updateItem (data: Role): Promise<{ [key: string]: any }> {
-    const role = await this.findOneOrFail(data.id)
+    const role = await this.findOneOrFail({ id: data.id })
     const oldData = Object.assign({}, role)
 
     if ('slug' in data) role.slug = data.slug

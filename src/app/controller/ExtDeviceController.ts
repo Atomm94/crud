@@ -5,6 +5,7 @@ import { acuStatus } from '../enums/acuStatus.enum'
 import { ExtDevice } from '../model/entity/ExtDevice'
 import acuModels from '../model/entity/acuModels.json'
 import ExtensionDeviceController from './Hardware/ExtensionDeviceController'
+import { checkExtDeviceValidation } from '../functions/validator'
 
 export default class ExtDeviceController {
     /**
@@ -33,21 +34,32 @@ export default class ExtDeviceController {
      *                properties:
      *                  name:
      *                      type: string
+     *                      example: LR-RB16.001
      *                  acu:
      *                      type: number
+     *                      example: 1
      *                  ext_board:
-     *                      type: LR-RB16 | LR-IB16
+     *                      type: string
+     *                      enum: [LR-RB16, LR-IB16]
      *                      example: LR-RB16
+     *                  interface:
+     *                      type: number
+     *                      enum: [0, 1]
+     *                      example: 0
      *                  baud_rate:
-     *                      type: number
-     *                  uart_mode:
-     *                      type: number
+     *                      type: string
+     *                      enum: [2400, 9600, 19200, 28800, 38400, 57600]
+     *                      example: 2400
      *                  address:
      *                      type: string
+     *                      example: 12
      *                  port:
      *                      type: number
+     *                      example: 1
      *                  protocol:
-     *                      type: number
+     *                      type: string
+     *                      enum: [OSDP, OSDPe, default]
+     *                      example: OSDP
      *          responses:
      *              '201':
      *                  description: A extDevice object
@@ -61,13 +73,19 @@ export default class ExtDeviceController {
         try {
             const req_data: any = ctx.request.body
             const user = ctx.user
+            const company = user.company ? user.company : null
 
-            const acu: Acu = await Acu.findOneOrFail({ id: req_data.acu })
+            const check_ext_device = checkExtDeviceValidation(req_data)
+            if (check_ext_device !== true) {
+                ctx.status = 400
+                return ctx.body = { message: check_ext_device }
+            }
+
+            const acu: Acu = await Acu.findOneOrFail({ id: req_data.acu, company: company })
             if (acu.status === acuStatus.PENDING) {
                 ctx.status = 400
                 return ctx.body = { message: `You cant add extentionDevice when acu status is ${acuStatus.PENDING}` }
             }
-            const company = user.company ? user.company : null
 
             req_data.company = company
             const ext_device = await ExtDevice.addItem(req_data as ExtDevice)
@@ -95,7 +113,7 @@ export default class ExtDeviceController {
 
             }
             if (acu.status === acuStatus.ACTIVE) {
-                ExtensionDeviceController.setExtBrd(location, acu.serial_number, ext_device, acu.session_id)
+                ExtensionDeviceController.setExtBrd(location, acu.serial_number, ext_device, user.id, acu.session_id)
             }
         } catch (error) {
             ctx.status = error.status || 400
@@ -134,19 +152,32 @@ export default class ExtDeviceController {
      *                      example: 1
      *                  name:
      *                      type: string
+     *                      example: LR-RB16.001
      *                  acu:
      *                      type: number
+     *                      example: 1
      *                  ext_board:
-     *                      type: LR-RB16 | LR-IB16
+     *                      type: string
+     *                      enum: [LR-RB16, LR-IB16]
      *                      example: LR-RB16
+     *                  interface:
+     *                      type: number
+     *                      enum: [0, 1]
+     *                      example: 0
      *                  baud_rate:
-     *                      type: number
-     *                  uart_mode:
-     *                      type: number
+     *                      type: string
+     *                      enum: [2400, 9600, 19200, 28800, 38400, 57600]
+     *                      example: 2400
      *                  address:
      *                      type: string
+     *                      example: 12
      *                  port:
      *                      type: number
+     *                      example: 1
+     *                  protocol:
+     *                      type: string
+     *                      enum: [OSDP, OSDPe, default]
+     *                      example: OSDP
      *          responses:
      *              '201':
      *                  description: A extDevice updated object
@@ -160,10 +191,17 @@ export default class ExtDeviceController {
             const req_data: any = ctx.request.body
             const user = ctx.user
             const location = `${user.company_main}/${user.company}`
+
+            const check_ext_device = checkExtDeviceValidation(req_data)
+            if (check_ext_device !== true) {
+                ctx.status = 400
+                return ctx.body = { message: check_ext_device }
+            }
+
             const extDevice: ExtDevice = await ExtDevice.findOneOrFail(req_data.id)
             const acu: Acu = await Acu.findOneOrFail({ id: extDevice.acu })
             if (acu.status === acuStatus.ACTIVE) {
-                ExtensionDeviceController.setExtBrd(location, acu.serial_number, req_data, acu.session_id, true)
+                ExtensionDeviceController.setExtBrd(location, acu.serial_number, req_data, user.id, acu.session_id, true)
                 ctx.body = { message: 'Update pending' }
             } else if (acu.status === acuStatus.NO_HARDWARE) {
                 ctx.body = await ExtDevice.updateItem(req_data)
@@ -262,7 +300,7 @@ export default class ExtDeviceController {
             const location = `${user.company_main}/${user.company}`
             const acu: Acu = await Acu.findOneOrFail({ id: ext_device.acu })
             if (acu.status === acuStatus.ACTIVE) {
-                ExtensionDeviceController.delExtBrd(location, acu.serial_number, req_data, acu.session_id)
+                ExtensionDeviceController.delExtBrd(location, acu.serial_number, req_data, user.id, acu.session_id)
                 ctx.body = { message: 'Destroy pending' }
             } else {
                 ctx.body = await ExtDevice.destroyItem(where)
@@ -289,6 +327,12 @@ export default class ExtDeviceController {
      *                description: Authentication token
      *                schema:
      *                    type: string
+     *              - in: query
+     *                name: acu
+     *                description: acu
+     *                required : true
+     *                schema:
+     *                    type: string
      *          responses:
      *              '200':
      *                  description: Array of extDevice
@@ -297,7 +341,12 @@ export default class ExtDeviceController {
      */
     public static async getAll (ctx: DefaultContext) {
         try {
-            ctx.body = await ExtDevice.getAllItems(ctx.query)
+            const req_data = ctx.query
+            const user = ctx.user
+            const acu = ctx.query.acu
+            req_data.where = { acu: { '=': acu }, company: { '=': user.company } }
+
+            ctx.body = await ExtDevice.getAllItems(req_data)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

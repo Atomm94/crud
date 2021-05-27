@@ -57,6 +57,9 @@ export class Cardholder extends MainEntity {
     @Column('boolean', { name: 'user_account', default: false })
     user_account: boolean
 
+    @Column('boolean', { name: 'vip', default: false })
+    vip: boolean
+
     @Column('int', { name: 'cardholder_group', nullable: true })
     cardholder_group: number
 
@@ -173,6 +176,7 @@ export class Cardholder extends MainEntity {
         if ('guest' in data) cardholder.guest = data.guest
         if ('schedule_type' in data) cardholder.schedule_type = data.schedule_type
         if ('schedule' in data) cardholder.schedule = data.schedule
+        if ('vip' in data) cardholder.vip = data.vip
 
         cardholder.create_by = data.create_by
         cardholder.company = data.company
@@ -189,7 +193,7 @@ export class Cardholder extends MainEntity {
     }
 
     public static async updateItem (data: any, auth_user: any): Promise<{ [key: string]: any }> {
-        const cardholder = await this.findOneOrFail(data.id)
+        const cardholder = await this.findOneOrFail({ id: data.id })
         const oldData = Object.assign({}, cardholder)
 
         let group_data: any
@@ -259,6 +263,7 @@ export class Cardholder extends MainEntity {
         if ('access_right_inherited' in data) cardholder.access_right_inherited = data.access_right_inherited
         if ('schedule_type' in data) cardholder.schedule_type = data.schedule_type
         if ('schedule' in data) cardholder.schedule = data.schedule
+        if ('vip' in data) cardholder.vip = data.vip
 
         if (!cardholder) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {

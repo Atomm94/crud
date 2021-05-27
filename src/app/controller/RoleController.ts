@@ -3,6 +3,7 @@ import { DefaultContext } from 'koa'
 import { Role, Admin } from '../model/entity/index'
 // import { getRepository } from 'typeorm'
 import { checkPermissionsAccess } from '../functions/check-permissions-access'
+import { adminStatus } from '../enums/adminStatus.enum'
 
 class RoleController {
   /**
@@ -314,7 +315,7 @@ class RoleController {
             if (admin.length) {
               for (let i = 0; i < admin.length; i++) {
                 admin[i].role = null
-                admin[i].status = false
+                admin[i].status = adminStatus.inactive
                 delete admin[i].password
                 await Admin.updateItem(admin[i])
               }

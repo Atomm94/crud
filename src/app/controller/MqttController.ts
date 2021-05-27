@@ -35,6 +35,7 @@ export default class MqttController {
     public static async get (ctx: DefaultContext) {
         try {
             const main_id = +ctx.params.id
+            // const user = ctx.user
             const where = { account: main_id }
             const company = await Company.findOneOrFail({ where: where })
             if (!company) {
@@ -165,7 +166,14 @@ export default class MqttController {
                         Control_type: 0
                     }
                 }
-                new SendDeviceMessage('SetCtpTurnstile', '5/5', 1073493824, send_data, '52831102448461152410103211553534')
+                // const send_data2: any = {
+                //     operator: 'GetStatusACU',
+                //     session_id: '222222222222',
+                //     location: '5/5',
+                //     device_id: '1073493824',
+                //     info: 'none'
+                //     }
+                new SendDeviceMessage('SetCtpTurnstile', '5/5', 1073493824, send_data, 5, '52831102448461152410103211553534')
                     // MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
 
                 // const send_data: any = {

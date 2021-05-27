@@ -1,7 +1,10 @@
 import {
     Entity,
-    Column
+    Column,
+    JoinColumn,
+    OneToOne
 } from 'typeorm'
+import { Company } from '.'
 
 import { MainEntity } from './MainEntity'
 
@@ -12,6 +15,10 @@ export class CompanyResources extends MainEntity {
 
     @Column('longtext', { name: 'used', nullable: false })
     used: string
+
+    @OneToOne(type => Company, company => company.company_resources, { nullable: true })
+    @JoinColumn({ name: 'company' })
+    companies: Company | null;
 
     static gettingActions = false
 
@@ -33,7 +40,7 @@ export class CompanyResources extends MainEntity {
     }
 
     public static async updateItem (data: CompanyResources): Promise<{ [key: string]: any }> {
-        const companyResources = await this.findOneOrFail(data.id)
+        const companyResources = await this.findOneOrFail({ id: data.id })
 
         if ('company' in data) companyResources.company = data.company
         if ('used' in data) companyResources.used = data.used

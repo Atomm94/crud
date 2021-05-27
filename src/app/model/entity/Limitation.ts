@@ -83,7 +83,7 @@ export class Limitation extends MainEntity {
     }
 
     public static async updateItem (data: Limitation): Promise<{ [key: string]: any }> {
-        const limitation = await this.findOneOrFail(data.id)
+        const limitation = await this.findOneOrFail({ id: data.id })
         const oldData = Object.assign({}, limitation)
 
         if ('enable_date' in data) limitation.enable_date = data.enable_date

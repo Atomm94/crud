@@ -86,7 +86,7 @@ export class Ticket extends MainEntity {
     }
 
     public static async updateItem (data: Ticket): Promise<{ [key: string]: any }> {
-        const ticket = await this.findOneOrFail(data.id)
+        const ticket = await this.findOneOrFail({ id: data.id })
         const oldData = Object.assign({}, ticket)
 
         if ('department' in data) ticket.department = data.department

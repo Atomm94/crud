@@ -92,16 +92,16 @@ export default class AccessRuleController {
                 res_data.push(returnData)
                 const acu: Acu = await Acu.getItem({ id: access_point.acu })
                 if (acu.status === acuStatus.ACTIVE) {
-                    SdlController.setSdl(location, acu.serial_number, access_rule, acu.session_id)
+                    SdlController.setSdl(location, acu.serial_number, access_rule, user.id, acu.session_id)
 
                     const cardholders = await Cardholder.getAllItems({
                         relations: ['credentials'],
                         where: {
-                            access_right: access_rule.access_right,
-                            company: req_data.company
+                            access_right: { '=': access_rule.access_right },
+                            company: { '=': req_data.company }
                         }
                     })
-                    CardKeyController.editCardKey(location, req_data.company, access_rule, null, cardholders)
+                    CardKeyController.editCardKey(location, req_data.company, user.id, access_rule, null, cardholders)
                     ctx.body = true
                 }
             }
@@ -176,7 +176,7 @@ export default class AccessRuleController {
                         const schedule: Schedule = await Schedule.findOneOrFail({ id: req_data.schedule })
                         const timeframes = await Timeframe.find({ schedule: schedule.id })
                         const send_data = { ...req_data, schedule_type: schedule.type, start_from: schedule.start_from, timeframes: timeframes, access_point: access_point.id }
-                        SdlController.delSdl(location, acu.serial_number, send_data, schedule.type, acu.session_id, true)
+                        SdlController.delSdl(location, acu.serial_number, send_data, user.id, schedule.type, acu.session_id, true)
                     }
                     ctx.body = true
                 } else {
@@ -287,7 +287,7 @@ export default class AccessRuleController {
                     const schedule: Schedule = await Schedule.findOneOrFail({ id: access_rule.schedule })
 
                     const send_data = { id: access_rule.id, access_point: access_point.id }
-                    SdlController.delSdl(location, acu.serial_number, send_data, schedule.type, acu.session_id)
+                    SdlController.delSdl(location, acu.serial_number, send_data, user.id, schedule.type, acu.session_id)
                     ctx.body = { message: 'Delete pending' }
                 } else {
                     ctx.body = await AccessRule.destroyItem(where)

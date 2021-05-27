@@ -99,7 +99,7 @@ export default class AccessPointController {
             } else {
                 ctx.body = await AccessPoint.destroyItem(where)
                 if (access_point.acus.status === acuStatus.ACTIVE) {
-                    CtpController.delCtp(access_point.type, location, access_point.acus.serial_number, access_point.acus.session_id, req_data)
+                    CtpController.delCtp(access_point.type, location, access_point.acus.serial_number, req_data, user.id, access_point.acus.session_id)
                 }
             }
         } catch (error) {
@@ -193,7 +193,7 @@ export default class AccessPointController {
             req_data.access_point_type = reader.access_points.type
             ctx.body = await Reader.destroyItem(where)
             if (reader.access_points.acus.status === acuStatus.ACTIVE) {
-                RdController.delRd(location, reader.access_points.acus.serial_number, req_data, reader.access_points.acus.session_id)
+                RdController.delRd(location, reader.access_points.acus.serial_number, req_data, user, reader.access_points.acus.session_id)
                 ctx.body = true
             } else if (reader.access_points.acus.status === acuStatus.NO_HARDWARE) {
                 // ctx.body = await Reader.destroyItem(where)

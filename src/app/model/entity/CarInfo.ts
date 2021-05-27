@@ -50,7 +50,7 @@ export class CarInfo extends MainEntity {
     }
 
     public static async updateItem (data: CarInfo): Promise<{ [key: string]: any }> {
-        const carInfo = await this.findOneOrFail(data.id)
+        const carInfo = await this.findOneOrFail({ id: data.id })
 
         if ('model' in data) carInfo.model = data.model
         if ('color' in data) carInfo.color = data.color

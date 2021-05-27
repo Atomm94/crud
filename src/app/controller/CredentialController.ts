@@ -240,7 +240,7 @@ export default class CredentialController {
             const cardhoder = await Cardholder.findOneOrFail({ id: credential.cardhoder })
             cardhoder.credentials = [credential]
 
-            CardKeyController.editCardKey(location, req_data.company, null, access_points, [cardhoder])
+            CardKeyController.editCardKey(location, req_data.company, user.id, null, access_points, [cardhoder])
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -349,7 +349,7 @@ export default class CredentialController {
                 console.log('cardhoder', cardhoder)
                 cardhoder.credentials = [credential]
 
-                CardKeyController.editCardKey(location, req_data.company, null, access_points, [cardhoder])
+                CardKeyController.editCardKey(location, req_data.company, user.id, null, access_points, [cardhoder])
                 // const acus: any = await Acu.getAllItems(req_data)
                 // acus.forEach((acu: any) => {
                 //     access_points.forEach((access_point: any) => {

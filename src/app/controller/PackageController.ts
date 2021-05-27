@@ -1,18 +1,19 @@
 import { DefaultContext } from 'koa'
 import * as Models from '../model/entity/index'
-import { Packet } from '../model/entity/Packet'
+import { Package } from '../model/entity/Package'
+import { PackageType } from '../model/entity/PackageType'
 import { Company } from '../model/entity/Company'
 import { Feature } from '../middleware/feature'
 
-export default class PacketController {
+export default class PackageController {
     /**
      *
      * @swagger
-     *  /packet:
+     *  /package:
      *      post:
      *          tags:
-     *              - Packet
-     *          summary: Creates a packet.
+     *              - Package
+     *          summary: Creates a package.
      *          consumes:
      *              - application/json
      *          parameters:
@@ -23,8 +24,8 @@ export default class PacketController {
      *              schema:
      *                type: string
      *            - in: body
-     *              name: packet
-     *              description: The packet to create.
+     *              name: package
+     *              description: The package to create.
      *              schema:
      *                type: object
      *                required:
@@ -33,7 +34,7 @@ export default class PacketController {
      *                      type: string
      *                  description:
      *                      type: string
-     *                  packet_type:
+     *                  package_type:
      *                      type: number
      *                  free:
      *                      type: boolean
@@ -47,7 +48,7 @@ export default class PacketController {
      *                      type: boolean
      *          responses:
      *              '201':
-     *                  description: A packet object
+     *                  description: A package object
      *              '409':
      *                  description: Conflict
      *              '422':
@@ -56,7 +57,7 @@ export default class PacketController {
 
     public static async add (ctx: DefaultContext) {
         try {
-            ctx.body = await Packet.addItem(ctx.request.body as Packet)
+            ctx.body = await Package.addItem(ctx.request.body as Package)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -67,11 +68,11 @@ export default class PacketController {
     /**
      *
      * @swagger
-     *  /packet:
+     *  /package:
      *      put:
      *          tags:
-     *              - Packet
-     *          summary: Update a packet.
+     *              - Package
+     *          summary: Update a package.
      *          consumes:
      *              - application/json
      *          parameters:
@@ -82,8 +83,8 @@ export default class PacketController {
      *              schema:
      *                type: string
      *            - in: body
-     *              name: packet
-     *              description: The packet to create.
+     *              name: package
+     *              description: The package to create.
      *              schema:
      *                type: object
      *                required:
@@ -96,7 +97,7 @@ export default class PacketController {
      *                      type: string
      *                  description:
      *                      type: string
-     *                  packet_type:
+     *                  package_type:
      *                      type: number
      *                  free:
      *                      type: boolean
@@ -110,7 +111,7 @@ export default class PacketController {
      *                      type: boolean
      *          responses:
      *              '201':
-     *                  description: A packet updated object
+     *                  description: A package updated object
      *              '409':
      *                  description: Conflict
      *              '422':
@@ -118,7 +119,7 @@ export default class PacketController {
      */
     public static async update (ctx: DefaultContext) {
         try {
-            const updated = await Packet.updateItem(ctx.request.body as Packet)
+            const updated = await Package.updateItem(ctx.request.body as Package)
             ctx.oldData = updated.old
             ctx.body = updated.new
         } catch (error) {
@@ -131,11 +132,11 @@ export default class PacketController {
     /**
      *
      * @swagger
-     * /packet/{id}:
+     * /package/{id}:
      *      get:
      *          tags:
-     *              - Packet
-     *          summary: Return packet by ID
+     *              - Package
+     *          summary: Return package by ID
      *          parameters:
      *              - name: id
      *                in: path
@@ -164,13 +165,13 @@ export default class PacketController {
             if (user.company) {
                 const company = await Company.getItem(user.company)
                 where = {
-                    packet_type: company.packet_type,
+                    package_type: company.package_type,
                     status: true
                 }
             }
 
-            const relations = ['packet_types']
-            ctx.body = await Packet.getItem(+ctx.params.id, where, relations)
+            const relations = ['package_types']
+            ctx.body = await Package.getItem(+ctx.params.id, where, relations)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -181,11 +182,11 @@ export default class PacketController {
     /**
      *
      * @swagger
-     *  /packet:
+     *  /package:
      *      delete:
      *          tags:
-     *              - Packet
-     *          summary: Delete a packet.
+     *              - Package
+     *          summary: Delete a package.
      *          consumes:
      *              - application/json
      *          parameters:
@@ -196,8 +197,8 @@ export default class PacketController {
      *              schema:
      *                type: string
      *            - in: body
-     *              name: packet
-     *              description: The packet to create.
+     *              name: package
+     *              description: The package to create.
      *              schema:
      *                type: object
      *                required:
@@ -208,7 +209,7 @@ export default class PacketController {
      *                      example: 1
      *          responses:
      *              '200':
-     *                  description: packet has been deleted
+     *                  description: package has been deleted
      *              '422':
      *                  description: Wrong data
      */
@@ -216,7 +217,7 @@ export default class PacketController {
         try {
             const req_data: any = ctx.request.body
             const where = { id: req_data.id }
-            ctx.body = await Packet.destroyItem(where)
+            ctx.body = await Package.destroyItem(where)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -227,11 +228,11 @@ export default class PacketController {
     /**
      *
      * @swagger
-     * /packet:
+     * /package:
      *      get:
      *          tags:
-     *              - Packet
-     *          summary: Return packet list
+     *              - Package
+     *          summary: Return package list
      *          parameters:
      *              - in: header
      *                name: Authorization
@@ -241,32 +242,40 @@ export default class PacketController {
      *                    type: string
      *          responses:
      *              '200':
-     *                  description: Array of packet
+     *                  description: Array of package
      *              '401':
      *                  description: Unauthorized
      */
     public static async getAll (ctx: DefaultContext) {
         try {
             const req_data = ctx.query
-            req_data.relations = ['packet_types']
+            req_data.relations = ['package_types']
             const user = ctx.user
             if (user.company) {
                 const company = await Company.getItem(user.company)
                 req_data.where = {
-                    packet_type: {
-                        '=': company.packet_type
+                    package_type: {
+                        '=': company.package_type
                     },
                     status: {
                         '=': true
                     }
                 }
-                const data = await Packet.getAllItems(req_data)
+                const data = await Package.getAllItems(req_data)
+                const package_types = await PackageType.getAllItems({
+                    where: {
+                        status: { '=': true },
+                        service: { '=': false }
+                    }
+                })
+
                 ctx.body = {
                     data: data,
-                    selected: company.packet
+                    selected: company.package,
+                    package_types: package_types
                 }
             } else {
-                ctx.body = await Packet.getAllItems(req_data)
+                ctx.body = await Package.getAllItems(req_data)
             }
         } catch (error) {
             ctx.status = error.status || 400
@@ -278,11 +287,11 @@ export default class PacketController {
     /**
      *
      * @swagger
-     * /packetExtraSettings:
+     * /packageExtraSettings:
      *      get:
      *          tags:
-     *              - Packet
-     *          summary: Return packet extra settings
+     *              - Package
+     *          summary: Return package extra settings
      *          parameters:
      *              - in: header
      *                name: Authorization
@@ -290,9 +299,14 @@ export default class PacketController {
      *                description: Authentication token
      *                schema:
      *                    type: string
+     *              - in: query
+     *                name: service
+     *                description: service company
+     *                schema:
+     *                    type: boolean
      *          responses:
      *              '200':
-     *                  description: Packet settings
+     *                  description: Package settings
      *              '401':
      *                  description: Unauthorized
      */
@@ -304,23 +318,37 @@ export default class PacketController {
                 resources: [],
                 features: null
             }
-            const features: any = {}
-            Object.keys(models).forEach((model: string) => {
-                if (models[model].resource) {
-                    data.resources.push(model)
-                }
-            })
-            const featuresList = Object.getOwnPropertyNames(feature)
-            if (featuresList.length) {
-                featuresList.forEach((key: any) => {
-                    if (feature[key] && typeof feature[key] === 'object' && key !== 'prototype') {
-                        if (Object.getOwnPropertyNames(feature[key]).length) {
-                            features[key] = Object.getOwnPropertyNames(feature[key])
-                        }
+            if (ctx.query.service && ctx.query.service === 'true') {
+                const feature: any = Feature.ServiceFeatures
+                const features: any = {}
+                Object.keys(models).forEach((model: string) => {
+                    if (models[model].serviceResource) {
+                        data.resources.push(model)
                     }
                 })
+
+                const featureList = Object.keys(feature)
+                features.Features = featureList
+                if (Object.keys(features).length) data.features = features
+            } else {
+                const features: any = {}
+                Object.keys(models).forEach((model: string) => {
+                    if (models[model].resource) {
+                        data.resources.push(model)
+                    }
+                })
+                const featuresList = Object.getOwnPropertyNames(feature)
+                if (featuresList.length) {
+                    featuresList.forEach((key: any) => {
+                        if (feature[key] && typeof feature[key] === 'object' && key !== 'prototype') {
+                            if (Object.getOwnPropertyNames(feature[key]).length) {
+                                features[key] = Object.getOwnPropertyNames(feature[key])
+                            }
+                        }
+                    })
+                }
+                if (Object.keys(features).length) data.features = features
             }
-            if (Object.keys(features).length) data.features = features
 
             ctx.body = data
         } catch (error) {

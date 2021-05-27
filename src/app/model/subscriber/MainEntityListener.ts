@@ -16,9 +16,11 @@ import * as Models from '../entity/index'
 import fs from 'fs'
 import appRoot from 'app-root-path'
 import path from 'path'
-const public_path = path.join(appRoot.path, 'src/public')
+import { config } from '../../../config'
 
-const upload_files_path: string = process.env.UPLOAD_FILES_PATH ? process.env.UPLOAD_FILES_PATH : 'tmp/'
+const public_path = path.join(appRoot.path, config.publicPath)
+
+// const upload_files_path: string = process.env.UPLOAD_FILES_PATH ? process.env.UPLOAD_FILES_PATH : '/'
 @EventSubscriber()
 export class PostSubscriber implements EntitySubscriberInterface<MainEntity> {
     /**
@@ -46,11 +48,15 @@ export class PostSubscriber implements EntitySubscriberInterface<MainEntity> {
             }
 
             if (file_path) {
-                file_path = JSON.parse(file_path).path
-                const file_name = JSON.parse(file_path).name
-                if (!fs.existsSync(file_path)) file_path = `${public_path}/${file_path}`
+                const file_path_obj = JSON.parse(file_path)
+                file_path = file_path_obj.path
 
-                if (!fs.existsSync(file_path)) {
+                const file_name = file_path_obj.name
+                console.log('file_path1', file_path)
+                if (!fs.existsSync(`${public_path}${file_path}`)) file_path = `tmp/${file_path}`
+                console.log('file_path2', file_path)
+
+                if (!fs.existsSync(`${public_path}${file_path}`)) {
                     if (New.avatar) {
                         New.avatar = Old.avatar
                     } else if (New.file) {
@@ -59,16 +65,16 @@ export class PostSubscriber implements EntitySubscriberInterface<MainEntity> {
                         New.image = Old.image
                     }
                 } else {
-                    if (!fs.existsSync(`${public_path}/${upload_files_path}${model_name}/${New.id}`)) {
-                        fs.mkdirSync(`${public_path}/${upload_files_path}${model_name}/${New.id}`, { recursive: true })
+                    if (!fs.existsSync(`${public_path}${model_name}/${New.id}`)) {
+                        fs.mkdirSync(`${public_path}${model_name}/${New.id}`, { recursive: true })
                     }
                     const new_path = {
-                        path: `${upload_files_path}${model_name}/${New.id}/${path.basename(file_path)}`,
+                        path: `${model_name}/${New.id}/${path.basename(file_path)}`,
                         name: file_name
                     }
 
                     try {
-                        fs.renameSync(`${file_path}`, `${public_path}/${new_path.path}`)
+                        fs.renameSync(`${public_path}${file_path}`, `${public_path}${new_path.path}`)
                     } catch (error) {
                         console.log(error)
                     }
@@ -87,7 +93,7 @@ export class PostSubscriber implements EntitySubscriberInterface<MainEntity> {
         }
     }
 
-    async afterInsert (event: InsertEvent<MainEntity>) {
+    afterInsert (event: InsertEvent<MainEntity>) {
         try {
             const data: any = event.entity
             const models: any = Models
@@ -102,42 +108,45 @@ export class PostSubscriber implements EntitySubscriberInterface<MainEntity> {
                 file_path = data.image
             }
             if (file_path) {
-                file_path = JSON.parse(file_path).path
                 const file_name = JSON.parse(file_path).name
+                file_path = JSON.parse(file_path).path
 
-                if (!fs.existsSync(`${public_path}/${upload_files_path}${model_name}`)) {
-                    fs.mkdirSync(`${public_path}/${upload_files_path}${model_name}`, { recursive: true })
+                if (!fs.existsSync(`${public_path}/${model_name}`)) {
+                    fs.mkdirSync(`${public_path}/${model_name}`, { recursive: true })
                 }
 
-                fs.mkdirSync(`${public_path}/${upload_files_path}${model_name}/${data.id}`)
+                fs.mkdirSync(`${public_path}/${model_name}/${data.id}`)
                 const new_path = {
-                    path: `${upload_files_path}${model_name}/${data.id}/${file_path}`,
+                    path: `${model_name}/${data.id}/${path.basename(file_path)}`,
                     name: file_name
                 }
                 try {
-                    fs.renameSync(`${public_path}/${file_path}`, `${public_path}/${new_path.path}`)
-                } catch (error) {
-                    console.log(error)
-                }
-                await event.queryRunner.commitTransaction()
-                    .then(async () => {
+                    fs.renameSync(`${public_path}${file_path}`, `${public_path}${new_path.path}`)
+
+                event.queryRunner.commitTransaction()
+                    .then(() => {
                         event.queryRunner.startTransaction()
-                            .then(async () => {
-                                const update_data: any = await models[model_name].findOne({ id: data.id })
-                                if (data.avatar) {
-                                    update_data.avatar = JSON.stringify(new_path)
-                                } else if (data.file) {
-                                    update_data.file = JSON.stringify(new_path)
-                                } else if (data.image) {
-                                    update_data.image = JSON.stringify(new_path)
-                                }
-                                await update_data.save()
+                            .then(() => {
+                                models[model_name].findOne({ id: data.id }).then((update_data:any) => {
+                                    const new_path_string = JSON.stringify(new_path)
+                                    if (data.avatar) {
+                                        update_data.avatar = new_path_string
+                                    } else if (data.file) {
+                                        update_data.file = new_path_string
+                                    } else if (data.image) {
+                                        update_data.image = new_path_string
+                                    }
+                                    update_data.save()
+                                })
                             }).catch(error => {
                                 console.log('transaction error', error)
                             })
                     }).catch(error => {
                         console.log('transaction error 2', error)
                     })
+                } catch (error) {
+                    console.log(error)
+                }
             }
         } catch (error) {
             console.log('MAIN ENTITY afterInsert', error)
