@@ -6,8 +6,7 @@ import { CardholderGroup } from '../model/entity/CardholderGroup'
 import { AntipassBack } from '../model/entity/AntipassBack'
 import { Credential } from '../model/entity/Credential'
 import { acuStatus } from '../enums/acuStatus.enum'
-import { AccessPoint, AccessRight, AccessRule, Acu, Admin, Role, Schedule } from '../model/entity'
-import SendDeviceMessage from '../mqtt/SendDeviceMessage'
+import { AccessPoint, AccessRight, AccessRule, Admin, Role, Schedule } from '../model/entity'
 import { OperatorType } from '../mqtt/Operators'
 import { CheckCredentialSettings } from '../functions/check-credential'
 import { Sendgrid } from '../../component/sendgrid/sendgrid'
@@ -15,7 +14,9 @@ import { uid } from 'uid'
 import { validate } from '../functions/passValidator'
 import { scheduleCustomType } from '../enums/scheduleCustomType.enum'
 import { Timeframe } from '../model/entity/Timeframe'
-import { scheduleType } from '../enums/scheduleType.enum'
+import SdlController from './Hardware/SdlController'
+import CardKeyController from './Hardware/CardKeyController'
+
 // import SendDeviceMessage from '../mqtt/SendDeviceMessage'
 // import { OperatorType } from '../mqtt/Operators'
 
@@ -277,25 +278,8 @@ export default class CardholderController {
 
                     req_data.where = { status: { '=': acuStatus.ACTIVE } }
                 }
-                const access_points = await AccessPoint.createQueryBuilder('access_point')
-                    .innerJoin('access_point.acus', 'acu', 'acu.delete_date is null')
-                    .where(`acu.status = '${acuStatus.ACTIVE}'`)
-                    .andWhere(`acu.company = ${ctx.user.company}`)
-                    .select('access_point.id')
-                    .getMany()
-                if (access_points.length) {
-                    const access_rights = await AccessRight.findOneOrFail({ where: { id: cardholder.access_right }, relations: ['access_rules'] })
-                    cardholder.access_rights = access_rights
-                    cardholder.credentials = credentials
-                    const send_data = {
-                        access_points: access_points,
-                        cardholders: [cardholder]
-                    }
-                    const acus: any = await Acu.getAllItems(req_data)
-                    acus.forEach((acu: any) => {
-                        new SendDeviceMessage(OperatorType.ADD_CARD_KEY, location, acu.serial_number, send_data, auth_user.id, acu.session_id)
-                    })
-                }
+
+                CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, req_data.company, auth_user.id, null, [cardholder], null)
             }
             if (cardholder) {
                 const where = { id: cardholder.id }
@@ -556,37 +540,13 @@ export default class CardholderController {
                             cardholder.access_rights = access_rights
 
                             cardholder.credentials = credentials
-                            const send_add_data: { access_points: AccessPoint[], cardholders: Cardholder[] } = {
-                                access_points: access_points,
-                                cardholders: [cardholder]
-                            }
 
-                            let send_edit_data: { access_points: AccessPoint[], cardholders: Cardholder[] } | undefined
+                            CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, auth_user.company, null, [cardholder], null)
+
                             if (res_data.old.vip !== res_data.new.vip && old_credentials.length) {
                                 cardholder.credentials = old_credentials
-                                send_edit_data = {
-                                    access_points: access_points,
-                                    cardholders: [cardholder]
-                                }
+                                CardKeyController.editCardKey(location, req_data.company, auth_user.id, null, access_points, [cardholder])
                             }
-
-                            req_data.where = { status: { '=': acuStatus.ACTIVE } }
-                            const acus: any = await Acu.getAllItems(req_data)
-
-                            // credential.key_type = res_data.new.vip
-                            // acus.forEach((acu: any) => {
-                            //     access_points.forEach((access_point: any) => {
-                            //         credential.access_point = access_point.id
-                            //         new SendDeviceMessage(OperatorType.EDIT_KEY, location, acu.serial_number, credential, acu.session_id)
-                            //     })
-                            // })
-                            acus.forEach((acu: any) => {
-                                new SendDeviceMessage(OperatorType.ADD_CARD_KEY, location, acu.serial_number, send_add_data, auth_user.id, acu.session_id)
-
-                                if (send_edit_data) {
-                                    new SendDeviceMessage(OperatorType.EDIT_KEY, location, acu.serial_number, send_edit_data, auth_user.id, acu.session_id)
-                                }
-                            })
                         }
                     }
                 }
@@ -690,11 +650,8 @@ export default class CardholderController {
             const location = `${user.company_main}/${user.company}`
             const where = { id: req_data.id, company: user.company ? user.company : null }
             req_data.where = { company: { '=': user.company ? user.company : null }, status: { '=': acuStatus.ACTIVE } }
-            const acus: any = await Acu.getAllItems(req_data)
             ctx.body = await Cardholder.destroyItem(where)
-            acus.forEach((acu: any) => {
-                new SendDeviceMessage(OperatorType.DELL_KEYS, location, acu.serial_number, req_data, user.id, acu.session_id)
-            })
+            CardKeyController.dellKeys(location, user.company, req_data, user.id)
         } catch (error) {
             console.log(error)
 
@@ -1290,32 +1247,14 @@ export default class CardholderController {
                 console.log('access_rights', access_rights)
                 for (const access_rule of access_rights.access_rules) {
                     if (access_rule.access_points.acus.status === acuStatus.ACTIVE) {
-                        const send_sdl_data: any = { ...access_rule, timeframes: access_rule.schedules.timeframes }
-
-                        let operator: OperatorType = OperatorType.SET_SDL_DAILY
-                        const access_rule_schedule = access_rule.schedules
-                        if (access_rule_schedule.type === scheduleType.WEEKLY) {
-                            operator = OperatorType.SET_SDL_WEEKLY
-                        } else if (access_rule_schedule.type === scheduleType.FLEXITIME) {
-                            send_sdl_data.start_from = access_rule_schedule.start_from
-                            operator = OperatorType.SET_SDL_FLEXI_TIME
-                        } else if (access_rule_schedule.type === scheduleType.SPECIFIC) {
-                            operator = OperatorType.SET_SDL_SPECIFIED
-                        }
-                        new SendDeviceMessage(operator, location, access_rule.access_points.acus.serial_number, send_sdl_data, auth_user.id, access_rule.access_points.acus.session_id)
+                        SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, auth_user.id, access_rule.access_points.acus.session_id)
                     }
                 }
 
                 cardholder.access_rights = access_rights
                 cardholder.credentials = [credential]
-                const send_data = {
-                    access_points: access_points,
-                    cardholders: [cardholder]
-                }
-                const acus: any = await Acu.getAllItems({ where: { status: { '=': acuStatus.ACTIVE } } })
-                acus.forEach((item_acu: any) => {
-                    new SendDeviceMessage(OperatorType.ADD_CARD_KEY, location, item_acu.serial_number, send_data, auth_user.id, item_acu.session_id)
-                })
+
+                CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, req_data.company, auth_user.id, access_points, [cardholder], null)
             }
 
             const where = { id: cardholder.id }
@@ -1473,8 +1412,6 @@ export default class CardholderController {
             let new_timeframes: any
 
             if (req_data.schedule_type && req_data.schedule_type !== guest.schedule_type) {
-                console.log(12121212121212)
-
                 for (const guest_access_rule of guest.access_rights.access_rules) {
                     const acu = guest_access_rule.access_points.acus
                     if (acu.status === acuStatus.ACTIVE) {
@@ -1483,15 +1420,7 @@ export default class CardholderController {
                         const schedule: Schedule = await Schedule.findOneOrFail({ id: guest_access_rule.schedule })
                         console.log('schedule', schedule)
                         const send_data = { id: guest_access_rule.id, access_point: guest_access_rule.access_points.id }
-                        let operator: OperatorType = OperatorType.DEL_SDL_DAILY
-                        if (schedule.type === scheduleType.WEEKLY) {
-                            operator = OperatorType.DEL_SDL_WEEKLY
-                        } else if (schedule.type === scheduleType.FLEXITIME) {
-                            operator = OperatorType.DEL_SDL_FLEXI_TIME
-                        } else if (schedule.type === scheduleType.SPECIFIC) {
-                            operator = OperatorType.DEL_SDL_SPECIFIED
-                        }
-                        new SendDeviceMessage(operator, location, acu.serial_number, send_data, auth_user.id, acu.session_id)
+                        SdlController.delSdl(location, acu.serial_number, send_data, auth_user.id, schedule.type, acu.session_id)
                     } else {
                         await AccessRule.destroyItem(guest_access_rule)
                     }
@@ -1535,19 +1464,7 @@ export default class CardholderController {
                                 access_rule = await AccessRule.addItem(access_rule)
 
                                 if (acu.status === acuStatus.ACTIVE) {
-                                    const schedule: Schedule = await Schedule.findOneOrFail({ id: access_rule.schedule })
-                                    const timeframes = await Timeframe.find({ schedule: schedule.id })
-                                    const send_sdl_data: any = { ...access_rule, timeframes: timeframes }
-                                    let operator: OperatorType = OperatorType.SET_SDL_DAILY
-                                    if (schedule.type === scheduleType.WEEKLY) {
-                                        operator = OperatorType.SET_SDL_WEEKLY
-                                    } else if (schedule.type === scheduleType.FLEXITIME) {
-                                        send_sdl_data.start_from = schedule.start_from
-                                        operator = OperatorType.SET_SDL_FLEXI_TIME
-                                    } else if (schedule.type === scheduleType.SPECIFIC) {
-                                        operator = OperatorType.SET_SDL_SPECIFIED
-                                    }
-                                    new SendDeviceMessage(operator, location, acu.serial_number, send_sdl_data, auth_user.id, acu.session_id)
+                                    SdlController.setSdl(location, acu.serial_number, access_rule, auth_user.id, acu.session_id)
 
                                     const cardholders = await Cardholder.getAllItems({
                                         relations: ['credentials'],
@@ -1556,17 +1473,8 @@ export default class CardholderController {
                                             company: company
                                         }
                                     })
-                                    if (cardholders.length) {
-                                        const send_edit_data = {
-                                            access_rule: access_rule,
-                                            cardholders: cardholders
-                                        }
 
-                                        const acus: any = await Acu.getAllItems({ where: { status: { '=': acuStatus.ACTIVE } } })
-                                        acus.forEach((item_acu: any) => {
-                                            new SendDeviceMessage(OperatorType.EDIT_KEY, location, item_acu.serial_number, send_edit_data, auth_user.id, item_acu.session_id)
-                                        })
-                                    }
+                                    CardKeyController.editCardKey(location, req_data.company, auth_user.id, access_rule, null, cardholders)
                                 }
                                 break
                             }
@@ -1580,15 +1488,7 @@ export default class CardholderController {
                         if (acu.status === acuStatus.ACTIVE) {
                             const schedule: Schedule = await Schedule.findOneOrFail({ id: guest_access_rule.schedule })
                             const send_data = { id: guest_access_rule.id, access_point: guest_access_rule.access_points.id }
-                            let operator: OperatorType = OperatorType.DEL_SDL_DAILY
-                            if (schedule.type === scheduleType.WEEKLY) {
-                                operator = OperatorType.DEL_SDL_WEEKLY
-                            } else if (schedule.type === scheduleType.FLEXITIME) {
-                                operator = OperatorType.DEL_SDL_FLEXI_TIME
-                            } else if (schedule.type === scheduleType.SPECIFIC) {
-                                operator = OperatorType.DEL_SDL_SPECIFIED
-                            }
-                            new SendDeviceMessage(operator, location, acu.serial_number, send_data, auth_user.id, acu.session_id)
+                            SdlController.delSdl(location, acu.serial_number, send_data, auth_user.id, schedule.type, acu.session_id)
                         } else {
                             await AccessRule.destroyItem(guest_access_rule)
                         }
@@ -1805,19 +1705,7 @@ export default class CardholderController {
                 console.log('access_rights', access_rights)
                 for (const access_rule of access_rights.access_rules) {
                     if (access_rule.access_points.acus.status === acuStatus.ACTIVE) {
-                        const send_sdl_data: any = { ...access_rule, timeframes: access_rule.schedules.timeframes }
-
-                        let operator: OperatorType = OperatorType.SET_SDL_DAILY
-                        const access_rule_schedule = access_rule.schedules
-                        if (access_rule_schedule.type === scheduleType.WEEKLY) {
-                            operator = OperatorType.SET_SDL_WEEKLY
-                        } else if (access_rule_schedule.type === scheduleType.FLEXITIME) {
-                            send_sdl_data.start_from = access_rule_schedule.start_from
-                            operator = OperatorType.SET_SDL_FLEXI_TIME
-                        } else if (access_rule_schedule.type === scheduleType.SPECIFIC) {
-                            operator = OperatorType.SET_SDL_SPECIFIED
-                        }
-                        new SendDeviceMessage(operator, location, access_rule.access_points.acus.serial_number, send_sdl_data, auth_user.id, access_rule.access_points.acus.session_id)
+                        SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, auth_user.id, access_rule.access_points.acus.session_id)
                     }
                 }
             }
@@ -1842,14 +1730,8 @@ export default class CardholderController {
                     const access_rights = await AccessRight.findOneOrFail({ where: { id: cardholder.access_right }, relations: ['access_rules'] })
                     cardholder.access_rights = access_rights
                     cardholder.credentials = credentials
-                    const send_data = {
-                        access_points: access_points,
-                        cardholders: [cardholder]
-                    }
-                    const acus: any = await Acu.getAllItems(req_data)
-                    acus.forEach((acu: any) => {
-                        new SendDeviceMessage(OperatorType.ADD_CARD_KEY, location, acu.serial_number, send_data, auth_user.id, acu.session_id)
-                    })
+
+                    CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, req_data.company, auth_user.id, access_points, [cardholder], null)
                 }
             }
 
@@ -2021,15 +1903,7 @@ export default class CardholderController {
                     if (acu.status === acuStatus.ACTIVE) {
                         const schedule: Schedule = await Schedule.findOneOrFail({ id: created_cardholder_access_rule.schedule })
                         const send_data = { id: created_cardholder_access_rule.id, access_point: created_cardholder_access_rule.access_points.id }
-                        let operator: OperatorType = OperatorType.DEL_SDL_DAILY
-                        if (schedule.type === scheduleType.WEEKLY) {
-                            operator = OperatorType.DEL_SDL_WEEKLY
-                        } else if (schedule.type === scheduleType.FLEXITIME) {
-                            operator = OperatorType.DEL_SDL_FLEXI_TIME
-                        } else if (schedule.type === scheduleType.SPECIFIC) {
-                            operator = OperatorType.DEL_SDL_SPECIFIED
-                        }
-                        new SendDeviceMessage(operator, location, acu.serial_number, send_data, auth_user.id, acu.session_id)
+                        SdlController.delSdl(location, acu.serial_number, send_data, auth_user.id, schedule.type, acu.session_id)
                     } else {
                         await AccessRule.destroyItem(created_cardholder_access_rule)
                     }
@@ -2080,19 +1954,7 @@ export default class CardholderController {
                 console.log('access_rights', access_rights)
                 for (const access_rule of access_rights.access_rules) {
                     if (access_rule.access_points.acus.status === acuStatus.ACTIVE) {
-                        const send_sdl_data: any = { ...access_rule, timeframes: access_rule.schedules.timeframes }
-
-                        let operator: OperatorType = OperatorType.SET_SDL_DAILY
-                        const access_rule_schedule = access_rule.schedules
-                        if (access_rule_schedule.type === scheduleType.WEEKLY) {
-                            operator = OperatorType.SET_SDL_WEEKLY
-                        } else if (access_rule_schedule.type === scheduleType.FLEXITIME) {
-                            send_sdl_data.start_from = access_rule_schedule.start_from
-                            operator = OperatorType.SET_SDL_FLEXI_TIME
-                        } else if (access_rule_schedule.type === scheduleType.SPECIFIC) {
-                            operator = OperatorType.SET_SDL_SPECIFIED
-                        }
-                        new SendDeviceMessage(operator, location, access_rule.access_points.acus.serial_number, send_sdl_data, auth_user.id, access_rule.access_points.acus.session_id)
+                        SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, auth_user.id, access_rule.access_points.acus.session_id)
                     }
                 }
             }
@@ -2115,19 +1977,9 @@ export default class CardholderController {
                     const access_rights = await AccessRight.findOne({ where: { id: created_cardholder.access_right }, relations: ['access_rules'] })
                     if (access_rights) {
                         created_cardholder.access_rights = access_rights
-
                         created_cardholder.credentials = credentials
-                        const send_add_data: { access_points: AccessPoint[], cardholders: Cardholder[] } = {
-                            access_points: access_points,
-                            cardholders: [created_cardholder]
-                        }
 
-                        req_data.where = { status: { '=': acuStatus.ACTIVE } }
-                        const acus: any = await Acu.getAllItems(req_data)
-
-                        acus.forEach((acu: any) => {
-                            new SendDeviceMessage(OperatorType.ADD_CARD_KEY, location, acu.serial_number, send_add_data, auth_user.id, acu.session_id)
-                        })
+                        CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, req_data.company, auth_user.id, access_points, [created_cardholder], null)
                     }
                 }
             }

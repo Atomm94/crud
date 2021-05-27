@@ -4,8 +4,7 @@ import { Acu } from '../model/entity/Acu'
 import { acuStatus } from '../enums/acuStatus.enum'
 import { ExtDevice } from '../model/entity/ExtDevice'
 import acuModels from '../model/entity/acuModels.json'
-import SendDeviceMessage from '../mqtt/SendDeviceMessage'
-import { OperatorType } from '../mqtt/Operators'
+import ExtensionDeviceController from './Hardware/ExtensionDeviceController'
 import { checkExtDeviceValidation } from '../functions/validator'
 
 export default class ExtDeviceController {
@@ -114,7 +113,7 @@ export default class ExtDeviceController {
 
             }
             if (acu.status === acuStatus.ACTIVE) {
-                new SendDeviceMessage(OperatorType.SET_EXT_BRD, location, acu.serial_number, ext_device, user.id, acu.session_id)
+                ExtensionDeviceController.setExtBrd(location, acu.serial_number, ext_device, user.id, acu.session_id)
             }
         } catch (error) {
             ctx.status = error.status || 400
@@ -202,7 +201,7 @@ export default class ExtDeviceController {
             const extDevice: ExtDevice = await ExtDevice.findOneOrFail(req_data.id)
             const acu: Acu = await Acu.findOneOrFail({ id: extDevice.acu })
             if (acu.status === acuStatus.ACTIVE) {
-                new SendDeviceMessage(OperatorType.SET_EXT_BRD, location, acu.serial_number, req_data, user.id, acu.session_id, true)
+                ExtensionDeviceController.setExtBrd(location, acu.serial_number, req_data, user.id, acu.session_id, true)
                 ctx.body = { message: 'Update pending' }
             } else if (acu.status === acuStatus.NO_HARDWARE) {
                 ctx.body = await ExtDevice.updateItem(req_data)
@@ -301,7 +300,7 @@ export default class ExtDeviceController {
             const location = `${user.company_main}/${user.company}`
             const acu: Acu = await Acu.findOneOrFail({ id: ext_device.acu })
             if (acu.status === acuStatus.ACTIVE) {
-                new SendDeviceMessage(OperatorType.DEL_EXT_BRD, location, acu.serial_number, req_data, user.id, acu.session_id)
+                ExtensionDeviceController.delExtBrd(location, acu.serial_number, req_data, user.id, acu.session_id)
                 ctx.body = { message: 'Destroy pending' }
             } else {
                 ctx.body = await ExtDevice.destroyItem(where)
