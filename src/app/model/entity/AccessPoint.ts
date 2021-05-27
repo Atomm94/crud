@@ -114,7 +114,7 @@ export class AccessPoint extends MainEntity {
         if ('access_point_group' in data) accessPoint.access_point_group = data.access_point_group
         if ('access_point_zone' in data) accessPoint.access_point_zone = data.access_point_zone
         accessPoint.acu = data.acu
-        if ('resources' in data) accessPoint.resources = data.resources
+        if ('resources' in data) accessPoint.resources = (typeof data.resources === 'string') ? data.resources : JSON.stringify(data.resources)
         accessPoint.company = data.company
 
         return new Promise((resolve, reject) => {
@@ -144,7 +144,7 @@ export class AccessPoint extends MainEntity {
         if ('access_point_zone' in data) accessPoint.access_point_zone = data.access_point_zone
         if ('door_state' in data) accessPoint.door_state = data.door_state
         if ('acu' in data) accessPoint.acu = data.acu
-        if ('resources' in data) accessPoint.resources = data.resources
+        if ('resources' in data) accessPoint.resources = (typeof data.resources === 'string') ? data.resources : JSON.stringify(data.resources)
         if ('last_activity' in data) accessPoint.last_activity = (data.last_activity) ? JSON.stringify(data.last_activity) : null
 
         if (!accessPoint) return { status: 400, messsage: 'Item not found' }

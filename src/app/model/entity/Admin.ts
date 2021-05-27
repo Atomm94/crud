@@ -32,6 +32,8 @@ import { join } from 'path'
 import { IAdmins } from '../../Interfaces/Admins'
 import { logger } from '../../../../modules/winston/logger'
 import { StandardReport } from './StandardReport'
+import { Cardholder } from './Cardholder'
+import { adminStatus } from '../../enums/adminStatus.enum'
 
 const parentDir = join(__dirname, '../../..')
 
@@ -59,8 +61,8 @@ export class Admin extends MainEntity {
   @Column('int', { name: 'department', nullable: true })
   department: number | null;
 
-  @Column('boolean', { name: 'status', default: true })
-  status: boolean | true;
+  @Column('enum', { name: 'status', enum: adminStatus, default: adminStatus.active })
+  status: adminStatus
 
   @Column('boolean', { name: 'super', default: false })
   super: boolean;
@@ -106,6 +108,9 @@ export class Admin extends MainEntity {
 
   @Column('boolean', { name: 'telegram', default: false })
   telegram: boolean;
+
+  @Column('int', { name: 'cardholder', nullable: true })
+  cardholder: number | null
 
   @Column('int', { name: 'company', nullable: true })
   company: number | null;
@@ -156,6 +161,10 @@ export class Admin extends MainEntity {
   @OneToMany(type => StandardReport, report => report.authors)
   reports: StandardReport[];
 
+  @OneToOne(type => Cardholder, cardholder => cardholder.admins, { nullable: true })
+  @JoinColumn({ name: 'cardholder' })
+  cardholders: Cardholder | null;
+
   @BeforeInsert()
   async generatePassword () {
     if (this.password) {
@@ -181,8 +190,8 @@ export class Admin extends MainEntity {
     admin.username = data.username
     admin.email = data.email
     if ('password' in data) admin.password = data.password
-    admin.status = (data.status === 'true') ? true : (data.status === 'false') ? false : data.status
     if ('role' in data) admin.role = data.role
+    if ('status' in data) admin.status = data.status
     if ('department' in data) admin.department = data.department
     if ('avatar' in data) admin.avatar = data.avatar
     // if (file) admin.avatar = newFilePath
@@ -206,6 +215,7 @@ export class Admin extends MainEntity {
     if ('comment' in data) admin.comment = data.comment
     if ('account_group' in data) admin.account_group = data.account_group
     if ('role_inherited' in data) admin.role_inherited = data.role_inherited
+    if ('cardholder' in data) admin.cardholder = data.cardholder
     if ('date_format' in data) admin.date_format = data.date_format
     if ('time_format' in data) admin.time_format = data.time_format
     if ('time_zone' in data) admin.time_zone = data.time_zone
@@ -245,12 +255,13 @@ export class Admin extends MainEntity {
     if ('city' in data) admin.city = data.city
     if ('phone_1' in data) admin.phone_1 = data.phone_1
     if ('phone_2' in data) admin.phone_2 = data.phone_2
+    if ('post_code' in data) admin.post_code = data.post_code
     if ('viber' in data) admin.viber = data.viber
     if ('whatsapp' in data) admin.whatsapp = data.whatsapp
     if ('telegram' in data) admin.telegram = data.telegram
     if ('email' in data) admin.email = data.email
-    if ('status' in data) admin.status = (data.status === 'true') ? true : (data.status === 'false') ? false : data.status
     if ('role' in data) admin.role = data.role
+    if ('status' in data) admin.status = data.status
     if ('department' in data) admin.department = data.department
     if ('comment' in data) admin.comment = data.comment
     if ('avatar' in data) admin.avatar = data.avatar

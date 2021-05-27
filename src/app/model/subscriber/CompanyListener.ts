@@ -12,6 +12,7 @@ import { Company } from '../entity/Company'
 import { Acu } from '../entity/Acu'
 import { statusCompany } from '../../enums/statusCompany.enum'
 import { Feature } from '../../middleware/feature'
+import { adminStatus } from '../../enums/adminStatus.enum'
 const featureList: any = Feature
 @EventSubscriber()
 export class PostSubscriber implements EntitySubscriberInterface<Company> {
@@ -52,25 +53,25 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
         const { entity: New, databaseEntity: Old } = event
         if (Old.status !== New.status) {
             if (Old.status === statusCompany.DISABLE && New.status === statusCompany.ENABLE) {
-                const accounts = await Admin.find({ company: New.id, status: false })
+                const accounts = await Admin.find({ company: New.id, status: adminStatus.inactive })
                 for (const account of accounts) {
-                    account.status = true
+                    account.status = adminStatus.active
                     await account.save()
                 }
             } else if (New.status === statusCompany.DISABLE) {
-                const accounts = await Admin.find({ company: New.id, status: true })
+                const accounts = await Admin.find({ company: New.id, status: adminStatus.active })
                 for (const account of accounts) {
-                    account.status = false
+                    account.status = adminStatus.inactive
                     await account.save()
                 }
             } else if (Old.status === statusCompany.DISABLE && New.status === statusCompany.PENDING) {
                 const account = await Admin.findOneOrFail({ where: { id: New.account } })
-                account.status = true
+                account.status = adminStatus.active
                 await account.save()
             } else if (Old.status === statusCompany.ENABLE && New.status === statusCompany.PENDING) {
-                const accounts = await Admin.find({ where: { company: New.id, id: Not(New.account), status: true } })
+                const accounts = await Admin.find({ where: { company: New.id, id: Not(New.account), status: adminStatus.active } })
                 for (const account of accounts) {
-                    account.status = false
+                    account.status = adminStatus.inactive
                     await account.save()
                 }
             }

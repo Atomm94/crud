@@ -6,6 +6,8 @@ import { ExtDevice } from '../model/entity/ExtDevice'
 import acuModels from '../model/entity/acuModels.json'
 import SendDeviceMessage from '../mqtt/SendDeviceMessage'
 import { OperatorType } from '../mqtt/Operators'
+import { checkExtDeviceValidation } from '../functions/validator'
+
 export default class ExtDeviceController {
     /**
      *
@@ -33,21 +35,32 @@ export default class ExtDeviceController {
      *                properties:
      *                  name:
      *                      type: string
+     *                      example: LR-RB16.001
      *                  acu:
      *                      type: number
+     *                      example: 1
      *                  ext_board:
-     *                      type: LR-RB16 | LR-IB16
+     *                      type: string
+     *                      enum: [LR-RB16, LR-IB16]
      *                      example: LR-RB16
+     *                  interface:
+     *                      type: number
+     *                      enum: [0, 1]
+     *                      example: 0
      *                  baud_rate:
-     *                      type: number
-     *                  uart_mode:
-     *                      type: number
+     *                      type: string
+     *                      enum: [2400, 9600, 19200, 28800, 38400, 57600]
+     *                      example: 2400
      *                  address:
      *                      type: string
+     *                      example: 12
      *                  port:
      *                      type: number
+     *                      example: 1
      *                  protocol:
-     *                      type: number
+     *                      type: string
+     *                      enum: [OSDP, OSDPe, default]
+     *                      example: OSDP
      *          responses:
      *              '201':
      *                  description: A extDevice object
@@ -61,13 +74,19 @@ export default class ExtDeviceController {
         try {
             const req_data: any = ctx.request.body
             const user = ctx.user
+            const company = user.company ? user.company : null
 
-            const acu: Acu = await Acu.findOneOrFail({ id: req_data.acu })
+            const check_ext_device = checkExtDeviceValidation(req_data)
+            if (check_ext_device !== true) {
+                ctx.status = 400
+                return ctx.body = { message: check_ext_device }
+            }
+
+            const acu: Acu = await Acu.findOneOrFail({ id: req_data.acu, company: company })
             if (acu.status === acuStatus.PENDING) {
                 ctx.status = 400
                 return ctx.body = { message: `You cant add extentionDevice when acu status is ${acuStatus.PENDING}` }
             }
-            const company = user.company ? user.company : null
 
             req_data.company = company
             const ext_device = await ExtDevice.addItem(req_data as ExtDevice)
@@ -134,19 +153,32 @@ export default class ExtDeviceController {
      *                      example: 1
      *                  name:
      *                      type: string
+     *                      example: LR-RB16.001
      *                  acu:
      *                      type: number
+     *                      example: 1
      *                  ext_board:
-     *                      type: LR-RB16 | LR-IB16
+     *                      type: string
+     *                      enum: [LR-RB16, LR-IB16]
      *                      example: LR-RB16
+     *                  interface:
+     *                      type: number
+     *                      enum: [0, 1]
+     *                      example: 0
      *                  baud_rate:
-     *                      type: number
-     *                  uart_mode:
-     *                      type: number
+     *                      type: string
+     *                      enum: [2400, 9600, 19200, 28800, 38400, 57600]
+     *                      example: 2400
      *                  address:
      *                      type: string
+     *                      example: 12
      *                  port:
      *                      type: number
+     *                      example: 1
+     *                  protocol:
+     *                      type: string
+     *                      enum: [OSDP, OSDPe, default]
+     *                      example: OSDP
      *          responses:
      *              '201':
      *                  description: A extDevice updated object
@@ -160,6 +192,13 @@ export default class ExtDeviceController {
             const req_data: any = ctx.request.body
             const user = ctx.user
             const location = `${user.company_main}/${user.company}`
+
+            const check_ext_device = checkExtDeviceValidation(req_data)
+            if (check_ext_device !== true) {
+                ctx.status = 400
+                return ctx.body = { message: check_ext_device }
+            }
+
             const extDevice: ExtDevice = await ExtDevice.findOneOrFail(req_data.id)
             const acu: Acu = await Acu.findOneOrFail({ id: extDevice.acu })
             if (acu.status === acuStatus.ACTIVE) {

@@ -3,8 +3,8 @@ import {
   Entity,
   OneToMany,
   JoinColumn,
-  ManyToOne,
-  Index
+  ManyToOne
+  // Index
   // AfterInsert,
   // AfterUpdate,
   // AfterRemove
@@ -23,7 +23,7 @@ import { Company } from './Company'
 import { Admin } from './Admin'
 import { AccountGroup } from './AccountGroup'
 
-@Index('slug|company', ['slug', 'company'], { unique: true })
+// @Index('slug|company', ['slug', 'company'], { unique: true })
 
 @Entity('role')
 export class Role extends MainEntity {
@@ -109,7 +109,81 @@ export class Role extends MainEntity {
     }
   }
 
-  public static async addItem (data: Role):Promise<Role> {
+  public static default_cardholder_role: any = {
+    Role: {
+      actions: {
+        getItem: true
+      }
+    },
+    Product: {
+      actions: {
+        updateItem: true,
+        getItem: true,
+        getAllItems: true,
+        destroyItem: true
+      }
+    },
+    Department: {
+      actions: {
+        getAllItems: true
+      }
+    },
+    Admin: {
+      actions: {
+        getItem: true
+      }
+    },
+    Cardholder: {
+      actions: {
+        addItem: true,
+        updateItem: true,
+        getItem: true,
+        getAllItems: true,
+        destroyItem: true
+      }
+    },
+    Ticket: {
+      actions: {
+        addItem: true,
+        updateItem: true,
+        getItem: true,
+        destroyItem: true,
+        getAllItems: true,
+        saveImage: true,
+        deleteImage: true,
+        addMessage: true,
+        updateMessage: true,
+        getMessage: true,
+        destroyMessage: true,
+        getAllMessages: true,
+        saveMessageImage: true,
+        deleteMessageImage: true
+      }
+    },
+    AccessRight: {
+      actions: {
+        addItem: true,
+        getItem: true
+      }
+    },
+    AccessPointZone: {
+      actions: {
+        addItem: true,
+        updateItem: true,
+        getItem: true,
+        destroyItem: true,
+        getAllItems: true
+      }
+    },
+    Acu: {
+      actions: {
+        getItem: true,
+        getAllItems: true
+      }
+    }
+  }
+
+  public static async addItem (data: Role): Promise<Role> {
     const role = new Role()
 
     role.slug = data.slug
@@ -153,7 +227,7 @@ export class Role extends MainEntity {
     })
   }
 
-  public static async getItem (id: number, where?: any, relations?: Array<string>):Promise<Role> {
+  public static async getItem (id: number, where?: any, relations?: Array<string>): Promise<Role> {
     const itemId: number = id
     if (!where) where = {}
     where.id = itemId
@@ -174,24 +248,24 @@ export class Role extends MainEntity {
   public static async destroyItem (data: any) {
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve, reject) => {
-        this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
-            this.remove(data)
-                .then(() => {
-                    resolve({ message: 'success' })
-                })
-                .catch((error: any) => {
-                    reject(error)
-                })
-        }).catch((error: any) => {
+      this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
+        this.remove(data)
+          .then(() => {
+            resolve({ message: 'success' })
+          })
+          .catch((error: any) => {
             reject(error)
-        })
+          })
+      }).catch((error: any) => {
+        reject(error)
+      })
     })
-}
+  }
 
-  public static async getAllItems (params?: any):Promise<Role[]> {
+  public static async getAllItems (params?: any): Promise<Role[]> {
     return new Promise((resolve, reject) => {
       this.findByParams(params)
-        .then((items:Role[]) => {
+        .then((items: Role[]) => {
           resolve(items)
         })
         .catch((error: any) => {

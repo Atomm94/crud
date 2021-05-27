@@ -6,5 +6,5 @@ export enum wiegandTypes {
   WIEGAND37 = 4,
   WIEGAND40 = 5,
   WIEGAND42 = 6,
-  OSDP = -1
+  OSDP = -1,
 }

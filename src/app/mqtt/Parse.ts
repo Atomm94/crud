@@ -472,7 +472,7 @@ export default class Parse {
             }
         } else {
             if (!message.send_data.update) {
-                await ExtDevice.destroyItem({ id: message.send_data.data.id })
+                await ExtDevice.destroyItem({ id: message.send_data.data.id, company: message.company })
             }
         }
     }
@@ -487,7 +487,7 @@ export default class Parse {
     public static async deviceDelExtBrdAck (message: IMqttCrudMessaging) {
         // console.log('deviceDelExtBrdAck', message)
         if (message.result.errorNo === 0) {
-            await ExtDevice.destroyItem({ id: message.send_data.data.id })
+            await ExtDevice.destroyItem({ id: message.send_data.data.id, company: message.company })
             // console.log('DelExtDevice complete')
         }
     }
@@ -521,7 +521,7 @@ export default class Parse {
             }
         } else {
             if (!message.send_data.update) {
-                await Reader.destroyItem({ id: message.send_data.data.id })
+                await Reader.destroyItem({ id: message.send_data.data.id, company: message.company })
             }
         }
     }
@@ -536,7 +536,7 @@ export default class Parse {
     public static async deviceDelRdAck (message: IMqttCrudMessaging) {
         // console.log('deviceDelRdAck', message)
         if (message.result.errorNo === 0) {
-            await Reader.destroyItem({ id: message.send_data.data.id })
+            await Reader.destroyItem({ id: message.send_data.data.id, company: message.company })
             // console.log('deviceDelRdAck complete')
             const access_point: any = {
                 id: message.send_data.data.access_point,
@@ -591,7 +591,7 @@ export default class Parse {
             }
         } else {
             if (!message.send_data.update) {
-                await AccessPoint.destroyItem({ id: message.send_data.data.id })
+                await AccessPoint.destroyItem({ id: message.send_data.data.id, company: message.company })
             }
         }
     }
@@ -608,7 +608,7 @@ export default class Parse {
     public static async deviceGetCtpDoorAck (message: IMqttCrudMessaging) {
         // console.log('deviceGetCtpTurnstileAck', message)
         if (message.result.errorNo === 0) {
-            await AccessPoint.destroyItem({ id: message.send_data.data.id })
+            await AccessPoint.destroyItem({ id: message.send_data.data.id, company: message.company })
             // console.log('deviceGetCtpTurnstileAck insert completed')
         }
     }
@@ -626,7 +626,7 @@ export default class Parse {
             }
         } else {
             if (!message.send_data.update) {
-                await AccessPoint.destroyItem({ id: message.send_data.data.id })
+                await AccessPoint.destroyItem({ id: message.send_data.data.id, company: message.company })
             }
         }
     }
@@ -634,7 +634,7 @@ export default class Parse {
     public static async deviceDelCtpTurnstileAck (message: IMqttCrudMessaging) {
         // console.log('deviceDelCtpTurnstileAck', message)
         if (message.result.errorNo === 0) {
-            await AccessPoint.destroyItem({ id: message.send_data.data.id })
+            await AccessPoint.destroyItem({ id: message.send_data.data.id, company: message.company })
             // console.log('deviceDelCtpDoorAck insert completed')
         } else {
         }
@@ -643,7 +643,7 @@ export default class Parse {
     public static async deviceGetCtpTurnstileAck (message: IMqttCrudMessaging) {
         // console.log('deviceGetCtpTurnstileAck', message)
         if (message.result.errorNo === 0) {
-            await AccessPoint.destroyItem({ id: message.send_data.data.id })
+            await AccessPoint.destroyItem({ id: message.send_data.data.id, company: message.company })
             // console.log('deviceGetCtpTurnstileAck insert completed')
         } else {
         }
@@ -662,7 +662,7 @@ export default class Parse {
             }
         } else {
             if (!message.send_data.update) {
-                await AccessPoint.destroyItem({ id: message.send_data.data.id })
+                await AccessPoint.destroyItem({ id: message.send_data.data.id, company: message.company })
             }
         }
     }
@@ -670,7 +670,7 @@ export default class Parse {
     public static async deviceDelCtpGateAck (message: IMqttCrudMessaging) {
         // console.log('deviceDelCtpGateAck', message)
         if (message.result.errorNo === 0) {
-            await AccessPoint.destroyItem({ id: message.send_data.data.id })
+            await AccessPoint.destroyItem({ id: message.send_data.data.id, company: message.company })
             // console.log('deviceDelCtpGateAck insert completed')
         } else {
         }
@@ -679,7 +679,7 @@ export default class Parse {
     public static async deviceGetCtpGateAck (message: IMqttCrudMessaging) {
         // console.log('deviceGetCtpGateAck', message)
         if (message.result.errorNo === 0) {
-            await AccessPoint.destroyItem({ id: message.send_data.data.id })
+            await AccessPoint.destroyItem({ id: message.send_data.data.id, company: message.company })
             // console.log('deviceGetCtpGateAck insert completed')
         } else {
         }
@@ -698,7 +698,7 @@ export default class Parse {
             }
         } else {
             if (!message.send_data.update) {
-                await AccessPoint.destroyItem({ id: message.send_data.data.id })
+                await AccessPoint.destroyItem({ id: message.send_data.data.id, company: message.company })
             }
         }
     }
@@ -706,7 +706,7 @@ export default class Parse {
     public static async deviceDelCtpGatewayAck (message: IMqttCrudMessaging) {
         // console.log('deviceDelCtpGatewayAck', message)
         if (message.result.errorNo === 0) {
-            await AccessPoint.destroyItem({ id: message.send_data.data.id })
+            await AccessPoint.destroyItem({ id: message.send_data.data.id, company: message.company })
             // console.log('deviceDelCtpGatewayAck insert completed')
         } else {
         }
@@ -715,7 +715,7 @@ export default class Parse {
     public static async deviceGetCtpGatewayAck (message: IMqttCrudMessaging) {
         // console.log('deviceGetCtpGatewayAck', message)
         if (message.result.errorNo === 0) {
-            await AccessPoint.destroyItem({ id: message.send_data.data.id })
+            await AccessPoint.destroyItem({ id: message.send_data.data.id, company: message.company })
             // console.log('deviceGetCtpGatewayAck insert completed')
         } else {
         }
@@ -734,7 +734,7 @@ export default class Parse {
             }
         } else {
             if (!message.send_data.update) {
-                await AccessPoint.destroyItem({ id: message.send_data.data.id })
+                await AccessPoint.destroyItem({ id: message.send_data.data.id, company: message.company })
             }
         }
     }
@@ -742,7 +742,7 @@ export default class Parse {
     public static async deviceDelCtpFloorAck (message: IMqttCrudMessaging) {
         // console.log('deviceDelCtpFloorAck', message)
         if (message.result.errorNo === 0) {
-            await AccessPoint.destroyItem({ id: message.send_data.data.id })
+            await AccessPoint.destroyItem({ id: message.send_data.data.id, company: message.company })
             // console.log('deviceDelCtpFloorAck insert completed')
         } else {
         }
@@ -751,7 +751,7 @@ export default class Parse {
     public static async deviceGetCtpFloorAck (message: IMqttCrudMessaging) {
         // console.log('deviceGetCtpFloorAck', message)
         if (message.result.errorNo === 0) {
-            await AccessPoint.destroyItem({ id: message.send_data.data.id })
+            await AccessPoint.destroyItem({ id: message.send_data.data.id, company: message.company })
             // console.log('deviceGetCtpFloorAck insert completed')
         } else {
         }
@@ -873,21 +873,24 @@ export default class Parse {
             // console.log('setSdlDailyAck complete')
         } else {
             if (!message.send_data.update) {
-                await AccessRule.destroyItem({ id: message.send_data.data.id })
+                await AccessRule.destroyItem({ id: message.send_data.data.id, company: message.company })
             }
         }
     }
 
     public static async delSdlDailyAck (message: IMqttCrudMessaging) {
-        // console.log('delSdlDailyAck', message)
-        // const acu: any = await Acu.findOne({ serial_number: message.device_id, company: message.company })
+        try {
+            // console.log('delSdlDailyAck', message)
+            // const acu: any = await Acu.findOne({ serial_number: message.device_id, company: message.company })
 
-        if (message.result.errorNo === 0) {
-            if (!message.send_data.update) {
-                await AccessRule.destroyItem({ id: message.send_data.data.id })
-                // console.log('dellSheduleAck complete')
+            if (message.result.errorNo === 0) {
+                if (!message.send_data.update) {
+                    await AccessRule.destroyItem({ id: message.send_data.data.id, company: message.company })
+                    // console.log('dellSheduleAck complete')
+                }
             }
-        } else {
+        } catch (error) {
+            console.log('delSdlDailyAck error', error)
         }
     }
 
@@ -897,7 +900,7 @@ export default class Parse {
             await AccessRule.updateItem(message.send_data.data as AccessRule)
             // console.log('setSdlWeeklyAck complete')
         } else {
-            await AccessRule.destroyItem({ id: message.send_data.data.id })
+            await AccessRule.destroyItem({ id: message.send_data.data.id, company: message.company })
         }
     }
 
@@ -906,7 +909,7 @@ export default class Parse {
 
         if (message.result.errorNo === 0) {
             if (!message.send_data.update) {
-                await AccessRule.destroyItem({ id: message.send_data.data.id })
+                await AccessRule.destroyItem({ id: message.send_data.data.id, company: message.company })
                 // console.log('dellSheduleAck complete')
             }
         } else {
@@ -918,7 +921,6 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             // console.log('setSdlFlexiTimeAck complete')
             const user = message.send_data.user
-            message.send_data.data.adds_count = 0
             new SendDeviceMessage(OperatorType.ADD_DAY_FLEXI_TIME, message.location, message.device_id, message.send_data, user, message.session_id)
         }
     }
@@ -927,21 +929,20 @@ export default class Parse {
         // console.log('addDayFlexiTimeAck', message)
         if (message.result.errorNo === 0) {
             // console.log('addDayFlexiTimeAck complete')
-            const set_params = message.send_data.data.set_params
-            set_params.adds_count++
+            const days = message.send_data.data.days
             const user = message.send_data.user
-            if (set_params.adds_count === set_params.info.DaysCount) {
-                new SendDeviceMessage(OperatorType.END_SDL_FLEXI_TIME, message.location, message.device_id, set_params, user, message.session_id)
+            if (!Object.keys(days).length) {
+                new SendDeviceMessage(OperatorType.END_SDL_FLEXI_TIME, message.location, message.device_id, message.send_data.data, user, message.session_id)
             } else {
-                new SendDeviceMessage(OperatorType.ADD_DAY_FLEXI_TIME, message.location, message.device_id, set_params, user, message.session_id)
+                new SendDeviceMessage(OperatorType.ADD_DAY_FLEXI_TIME, message.location, message.device_id, message.send_data.data, user, message.session_id)
             }
-        } else {
         }
     }
 
-    public static endSdlFlexiTimeAck (message: IMqttCrudMessaging): void {
+    public static async endSdlFlexiTimeAck (message: IMqttCrudMessaging) {
         // console.log('endSdlFlexiTimeAck', message)
         if (message.result.errorNo === 0) {
+            await AccessRule.updateItem(message.send_data.data.data as AccessRule)
             // console.log('endSdlFlexiTimeAck complete')
         } else {
         }
@@ -952,7 +953,7 @@ export default class Parse {
 
         if (message.result.errorNo === 0) {
             if (message.send_data.update) {
-                await AccessRule.destroyItem({ id: message.send_data.data.id })
+                await AccessRule.destroyItem({ id: message.send_data.data.id, company: message.company })
                 // console.log('dellSheduleAck complete')
             }
         } else {
@@ -971,7 +972,9 @@ export default class Parse {
         // console.log('setSdlSpecifiedAck', message)
         if (message.result.errorNo === 0) {
             // console.log('setSdlSpecifiedAck complete')
-        } else {
+            const user = message.send_data.user
+
+            new SendDeviceMessage(OperatorType.ADD_DAY_SPECIFIED, message.location, message.device_id, message.send_data, user, message.session_id)
         }
     }
 
@@ -979,15 +982,22 @@ export default class Parse {
         // console.log('addDaySpecifiedAck', message)
         if (message.result.errorNo === 0) {
             // console.log('addDaySpecifiedAck complete')
-        } else {
+            const days = message.send_data.data.days
+            const user = message.send_data.user
+
+            if (!Object.keys(days).length) {
+                new SendDeviceMessage(OperatorType.END_SDL_SPECIFIED, message.location, message.device_id, message.send_data.data, user, message.session_id)
+            } else {
+                new SendDeviceMessage(OperatorType.ADD_DAY_SPECIFIED, message.location, message.device_id, message.send_data.data, user, message.session_id)
+            }
         }
     }
 
-    public static endSdlSpecifiedAck (message: IMqttCrudMessaging): void {
+    public static async endSdlSpecifiedAck (message: IMqttCrudMessaging) {
         // console.log('endSdlSpecifiedAck', message)
         if (message.result.errorNo === 0) {
+            await AccessRule.updateItem(message.send_data.data.data as AccessRule)
             // console.log('endSdlSpecifiedAck complete')
-        } else {
         }
     }
 
@@ -996,7 +1006,7 @@ export default class Parse {
 
         if (message.result.errorNo === 0) {
             if (message.send_data.update) {
-                await AccessRule.destroyItem({ id: message.send_data.data.id })
+                await AccessRule.destroyItem({ id: message.send_data.data.id, company: message.company })
                 // console.log('dellSheduleAck complete')
             }
         } else {

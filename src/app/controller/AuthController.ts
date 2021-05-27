@@ -104,7 +104,7 @@ export default class AuthController {
             }
         }
         company_main_data = { ...company_main_data, ...user }
-        const adminFiltered = _.pick(company_main_data, ['id', 'username', 'last_name', 'first_name', 'email', 'avatar', 'role', 'super', 'department', 'company', 'company_main', 'package'])
+        const adminFiltered = _.pick(company_main_data, ['id', 'username', 'last_name', 'first_name', 'email', 'avatar', 'role', 'super', 'department', 'company', 'company_main', 'cardholder', 'package'])
 
         if (user.company) {
             const company = await Company.findOne(user.company)

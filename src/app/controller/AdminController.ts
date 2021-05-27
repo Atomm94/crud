@@ -12,6 +12,7 @@ import { Sendgrid } from '../../component/sendgrid/sendgrid'
 import { uid } from 'uid'
 import { checkPermissionsAccess } from '../functions/check-permissions-access'
 import { AccountGroup } from '../model/entity/AccountGroup'
+import { adminStatus } from '../enums/adminStatus.enum'
 
 const parentDir = join(__dirname, '../..')
 
@@ -289,12 +290,13 @@ export default class AdminController {
         let role
 
         try {
+            reqData.status = adminStatus.pending
             const newAdmin: Admin = await Admin.addItem(reqData, user)
             role = await Role.findOne({
                 id: reqData.role
             })
             if (newAdmin && role) {
-                ctx.body = { success: true }
+                ctx.body = newAdmin
                 if (newAdmin.verify_token) {
                     await Sendgrid.SetPass(newAdmin.email, newAdmin.verify_token)
                 }
@@ -1024,6 +1026,7 @@ export default class AdminController {
             if (validate(password).success) {
                 user.password = password
                 user.verify_token = null
+                user.status = adminStatus.active
                 await user.save()
                 ctx.body = {
                     success: true

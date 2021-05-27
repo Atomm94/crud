@@ -26,7 +26,7 @@ export class Credential extends MainEntity {
     @Column('int', { name: 'cardholder' })
     cardholder: number
 
-    @Column('int', { name: 'facility' })
+    @Column('int', { name: 'facility', nullable: true })
     facility: number
 
     @Column('enum', { name: 'input_mode', enum: credentialInputMode })
