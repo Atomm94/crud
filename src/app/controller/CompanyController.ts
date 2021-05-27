@@ -128,10 +128,11 @@ export default class CompanyController {
      */
     public static async update (ctx: DefaultContext) {
         try {
-            if (ctx.user && ctx.user.company) {
+            const req_id = ctx.request.body.id
+            if (!req_id && ctx.user && ctx.user.company) {
                 ctx.request.body.id = ctx.user.company
             }
-            const updated = await Company.updateItem(ctx.request.body as Company)
+            const updated = await Company.updateItem(ctx.request.body as Company, req_id ? ctx.user : null)
             if (updated.old.status !== updated.new.status && updated.new.status === statusCompany.ENABLE) {
                 const main = await Admin.findOne({ id: updated.new.account })
                 if (main) {
@@ -218,7 +219,56 @@ export default class CompanyController {
         try {
             if (ctx.user && ctx.user.company) {
                 const relations = ['company_account', 'company_documents']
-                ctx.body = await Company.getItem(+ctx.user.company, relations)
+                let company
+
+                if (ctx.user.companyData && ctx.user.companyData.parent_id) {
+                    company = await Company.getItem(ctx.user.companyData.parent_id, relations)
+                } else {
+                    company = await Company.getItem(+ctx.user.company, relations)
+                }
+                ctx.body = company
+            } else {
+                ctx.status = 400
+                ctx.body = {
+                    status: 400,
+                    message: 'Company dose not exists'
+                }
+            }
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     * /clientCompany:
+     *      get:
+     *          tags:
+     *              - Company
+     *          summary: Return company by partner
+     *          parameters:
+     *              - in: header
+     *                name: Authorization
+     *                required: true
+     *                description: Authentication token
+     *                schema:
+     *                    type: string
+     *          responses:
+     *              '200':
+     *                  description: Data object
+     *              '404':
+     *                  description: Data not found
+     */
+    public static async getClientCompany (ctx: DefaultContext) {
+        try {
+            if (ctx.user && ctx.user.company) {
+                const relations = ['company_account']
+                if (!ctx.user.companyData.parent_id) {
+                    relations.push('company_documents')
+                } ctx.body = await Company.getItem(+ctx.user.company, relations)
             } else {
                 ctx.status = 400
                 ctx.body = {
@@ -270,7 +320,10 @@ export default class CompanyController {
     public static async destroy (ctx: DefaultContext) {
         try {
             const req_data: any = ctx.request.body
-            const where = { id: req_data.id }
+            const user: any = ctx.user
+            const where: any = { id: req_data.id }
+            if (user.company) where.parent_id = user.company
+
             ctx.body = await Company.destroyItem(where)
             const users: any = await Admin.getAllItems({ where: { company: { '=': req_data.id } } })
             for (const user of users) {
@@ -334,6 +387,11 @@ export default class CompanyController {
         try {
             const req_data = ctx.query
             const where: any = {}
+            if (ctx.user.company) {
+                where.parent_id = {
+                    '=': ctx.user.company
+                }
+            }
 
             if (req_data.start_date || req_data.end_date) {
                 if (req_data.start_date && req_data.end_date) {
@@ -469,6 +527,7 @@ export default class CompanyController {
                             message: 'Duplicate email!!'
                         }
                     } else {
+                        if (regToken.company) company_data.parent_id = regToken.company
                         const company = await Company.addItem(company_data as Company)
 
                         let permissions: string = JSON.stringify(Role.default_partner_role)

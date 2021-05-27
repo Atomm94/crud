@@ -202,6 +202,8 @@ export default class AdminController {
                     }
                 }
             } catch (error) {
+                console.log('error', error)
+
                 ctx.status = error.status || 400
                 ctx.body = error
                 if (error.detail && error.detail.includes('username')) {

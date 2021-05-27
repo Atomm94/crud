@@ -16,6 +16,7 @@ const getEventStatisticUrl = `${clickhouse_server}/eventStatistic`
 
 export class EventLog extends BaseClass {
     public static resource: boolean = true
+    public static serviceResource: boolean = true
 
     public static get (user: any, data?: any) {
         let url = `${getEventLogsUrl}?company=${user.company ? user.company : 0}&limit=100`// limit HARDCODE!!

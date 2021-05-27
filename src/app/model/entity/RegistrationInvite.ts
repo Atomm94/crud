@@ -19,6 +19,9 @@ export class RegistrationInvite extends MainEntity {
     @Column('boolean', { name: 'used', default: false })
     used: boolean
 
+    @Column('int', { name: 'company', nullable: true })
+    company: number | null
+
     // public static async addItem (data: RegistrationInvite) {
     //     const registrationInvite = new RegistrationInvite()
 
@@ -100,6 +103,7 @@ export class RegistrationInvite extends MainEntity {
 
         registrationInvite.email = data.email
         registrationInvite.token = uid(32)
+        if ('company' in data) registrationInvite.company = data.company
 
         return new Promise((resolve, reject) => {
             this.save(registrationInvite)

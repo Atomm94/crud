@@ -52,8 +52,10 @@ export class Role extends MainEntity {
   @OneToMany(type => AccountGroup, account_group => account_group.roles, { nullable: true })
   account_groups: AccountGroup[];
 
+  public static serviceResource: boolean = true
+
   public static default_partner_role: any = {
-    ServiceCompany: {
+    ClientCompany: {
       actions: {
         getItem: true,
         updateItem: true
@@ -74,12 +76,7 @@ export class Role extends MainEntity {
     },
     CompanyDocuments: {
       actions: {
-        addItem: true,
-        updateItem: true,
-        getItem: true,
-        destroyItem: true,
-        saveFile: true,
-        deleteFile: true
+        getItem: true
       }
     },
     Department: {

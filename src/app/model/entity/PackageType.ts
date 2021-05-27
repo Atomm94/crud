@@ -16,8 +16,8 @@ export class PackageType extends MainEntity {
     @Column('varchar', { name: 'description', nullable: true })
     description: string | null
 
-    @Column('boolean', { name: 'service_company', default: false })
-    service_company: boolean
+    @Column('boolean', { name: 'service', default: false })
+    service: boolean
 
     @Column('boolean', { name: 'status', default: true })
     status: boolean
@@ -34,7 +34,7 @@ export class PackageType extends MainEntity {
         packageType.name = data.name
         packageType.status = data.status
         packageType.description = data.description
-        if ('service_company' in data) packageType.service_company = data.service_company
+        if ('service' in data) packageType.service = data.service
 
         return new Promise((resolve, reject) => {
             this.save(packageType)
