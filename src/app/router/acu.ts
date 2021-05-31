@@ -11,5 +11,6 @@ export default router
     .get('Acu-getAllItems', 'acu', checkRole(), AcuController.getAll)
     .get('Acu-getAllItems', 'acu/attach/hardware', checkRole(), AcuController.getDevicesForAttach)
     .post('Acu-addItem', 'acu/attach/hardware', checkRole(), AcuController.attachHardware)
+    .post('Acu-addItem', 'acu/activate/hardware', checkRole(), AcuController.activateHardware)
     .get('Acu-getAllItems', 'acu/models', checkRole(), AcuController.getAcuModels)
     .get('Acu-getItem', 'acu/:id', checkRole(), AcuController.get)

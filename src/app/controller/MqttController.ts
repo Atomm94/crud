@@ -160,10 +160,9 @@ export default class MqttController {
                     device_id: '1073493824',
                     session_id: '0',
                     message_id: (new Date().getTime()).toString(),
-                    info:
+                    data:
                     {
-                        Control_point_idx: 3,
-                        Control_type: 0
+                        id: 3
                     }
                 }
                 // const send_data2: any = {
@@ -173,7 +172,11 @@ export default class MqttController {
                 //     device_id: '1073493824',
                 //     info: 'none'
                 //     }
-                new SendDeviceMessage('SetCtpTurnstile', '5/5', 1073493824, send_data, 5, '52831102448461152410103211553534')
+                console.log('send_data', send_data)
+
+                new SendDeviceMessage('SetCtpTurnstile', '5/5', 1073493824, {
+                    id: 3
+                }, 5, '52831102448461152410103211553534')
                     // MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
 
                 // const send_data: any = {

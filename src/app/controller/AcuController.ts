@@ -505,7 +505,7 @@ export default class AcuController {
      *              '404':
      *                  description: Data not found
      */
-     public static async get (ctx: DefaultContext) {
+    public static async get (ctx: DefaultContext) {
         try {
             const data = await Acu.createQueryBuilder('acu')
                 .leftJoinAndSelect('acu.access_points', 'access_point', 'access_point.delete_date is null')
@@ -842,5 +842,69 @@ export default class AcuController {
             ctx.body = error
         }
         return ctx.body
+    }
+
+    /**
+ *
+ * @swagger
+ *  /acu/activate/hardware:
+ *      post:
+ *          tags:
+ *              - Acu
+ *          summary: Creates a acu.
+ *          consumes:
+ *              - application/json
+ *          parameters:
+ *            - in: header
+ *              name: Authorization
+ *              required: true
+ *              description: Authentication token
+ *              schema:
+ *                type: string
+ *            - in: body
+ *              name: acu
+ *              description: The acu to activate.
+ *              schema:
+ *                type: object
+ *                required:
+ *                 - hardware
+ *                properties:
+ *                  hardware:
+ *                      type: number
+ *                      example: 1
+ *          responses:
+ *              '201':
+ *                  description: A acu object
+ *              '409':
+ *                  description: Conflict
+ *              '422':
+ *                  description: Wrong data
+ */
+
+    public static async activateHardware (ctx: DefaultContext) {
+        const req_data = ctx.request.body
+        const user = ctx.user
+        const company = user.company ? user.company : null
+        const location = `${user.company_main}/${user.company}`
+
+        const hardware = await Acu.findOne({
+            where: {
+                id: req_data.hardware,
+                status: acuStatus.PENDING,
+                company: company
+            }
+        })
+        if (!hardware) {
+            ctx.status = 400
+            return ctx.body = {
+                message: 'Invalid device id!!'
+            }
+        }
+        hardware.status = acuStatus.ACTIVE
+        await hardware.save()
+        CardKeyController.setAddCardKey(OperatorType.SET_CARD_KEYS, location, company, user.id, null, null, [hardware])
+        return ctx.body = {
+            message: 'success'
+        }
     }
 }
