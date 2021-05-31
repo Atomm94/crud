@@ -43,6 +43,9 @@ export default class Parse {
             case OperatorType.REGISTRATION:
                 this.deviceRegistration(message)
                 break
+            case OperatorType.CANCEL_REGISTRATION:
+                this.deviceCancelRegistration(message)
+                break
             case OperatorType.ACCEPT_ACK:
                 this.deviceAcceptAck(message)
                 break
@@ -252,12 +255,12 @@ export default class Parse {
             acu_data.description = message.info.note
             acu_data.serial_number = message.info.device_id
             acu_data.fw_version = message.info.firmware_ver
-            acu_data.time = JSON.stringify({
+            acu_data.time = {
                 time_zone: acu_data.gmt,
                 timezone_from_facility: false,
                 enable_daylight_saving_time: false,
                 daylight_saving_time_from_user_account: false
-            })
+            }
             acu_data.company = message.company
 
             await Acu.addItem(acu_data)
@@ -265,7 +268,15 @@ export default class Parse {
             new SendDeviceMessage(OperatorType.ACCEPT, message.location, message.device_id, 'none')
             // console.log('success:true')
         } catch (error) {
-            // console.log('error deviceRegistrion ', error)
+            console.log('error deviceRegistrion ', error)
+        }
+    }
+
+    public static async deviceCancelRegistration (message: IMqttCrudMessaging) {
+        // console.log('deviceCancelRegistration', message)
+        if (message.result.errorNo === 0) {
+            console.log('deviceCancelRegistration complete')
+        } else {
         }
     }
 
@@ -278,6 +289,7 @@ export default class Parse {
                 // when admin deleted this acu what we do ???
                 const send_data: any = {
                     username: acuData.username ? acuData.username : 'admin',
+                    // password: acuData.password ? acuData.password : 'admin'
                     password: acuData.password ? acuData.password : ''
                 }
                 new SendDeviceMessage(OperatorType.LOGIN, message.location, message.device_id, send_data, message.send_data.user, message.session_id)
@@ -287,26 +299,26 @@ export default class Parse {
 
     public static async deviceLoginAck (message: IMqttCrudMessaging) {
         // console.log('deviceLoginAck', message)
-        if (message.result.errorNo === 0) {
-            const acu: Acu = await Acu.findOneOrFail({ serial_number: message.device_id, company: message.company })
-            if (acu) {
-                if (acu.session_id == null) {
-                    /* OPEN FOR GENERATE PASSWORD */
-                    // const generate_pass = uid(32)
-                    const send_data = {
-                        username: 'admin',
-                        password: 'admin'/* generate_pass */,
-                        use_sha: 0
-                    }
-                    new SendDeviceMessage(OperatorType.SET_PASS, message.location, message.device_id, send_data)
+        // if (message.result.errorNo === 0) {
+        const acu: Acu = await Acu.findOneOrFail({ serial_number: message.device_id, company: message.company })
+        if (acu) {
+            if (acu.session_id == null) {
+                /* OPEN FOR GENERATE PASSWORD */
+                // const generate_pass = uid(32)
+                const send_data = {
+                    username: 'admin',
+                    password: 'admin'/* generate_pass */,
+                    use_sha: 0
                 }
-                acu.session_id = message.session_id
-                await acu.save()
-                // console.log('login complete')
-            } else {
-                // console.log('error deviceLoginAck', message)
+                new SendDeviceMessage(OperatorType.SET_PASS, message.location, message.device_id, send_data)
             }
+            acu.session_id = message.session_id
+            await acu.save()
+            // console.log('login complete')
+        } else {
+            // console.log('error deviceLoginAck', message)
         }
+        // }
     }
 
     public static async deviceLogOutAck (message: IMqttCrudMessaging) {
@@ -1037,7 +1049,7 @@ export default class Parse {
                 }
                 const user = message.send_data.user
 
-                new SendDeviceMessage(operator, message.location, acu.serial_number, message.send_data, user, acu.session_id)
+                new SendDeviceMessage(operator, message.location, acu.serial_number, message.send_data, user, acu.session_id, false)
                 // console.log('dellSheduleAck complete')
             }
         } else {

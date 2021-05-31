@@ -1,5 +1,6 @@
 export enum OperatorType {
     REGISTRATION = 'registration',
+    CANCEL_REGISTRATION = 'cancel_registration',
     ACCEPT = 'accept',
     ACCEPT_ACK = 'accept-Ack',
     LOGIN = 'login',

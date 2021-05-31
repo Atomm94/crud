@@ -53,25 +53,25 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
         const { entity: New, databaseEntity: Old } = event
         if (Old.status !== New.status) {
             if (Old.status === statusCompany.DISABLE && New.status === statusCompany.ENABLE) {
-                const accounts = await Admin.find({ company: New.id, status: adminStatus.inactive })
+                const accounts = await Admin.find({ company: New.id, status: adminStatus.INACTIVE })
                 for (const account of accounts) {
-                    account.status = adminStatus.active
+                    account.status = adminStatus.ACTIVE
                     await account.save()
                 }
             } else if (New.status === statusCompany.DISABLE) {
-                const accounts = await Admin.find({ company: New.id, status: adminStatus.active })
+                const accounts = await Admin.find({ company: New.id, status: adminStatus.ACTIVE })
                 for (const account of accounts) {
-                    account.status = adminStatus.inactive
+                    account.status = adminStatus.INACTIVE
                     await account.save()
                 }
             } else if (Old.status === statusCompany.DISABLE && New.status === statusCompany.PENDING) {
                 const account = await Admin.findOneOrFail({ where: { id: New.account } })
-                account.status = adminStatus.active
+                account.status = adminStatus.ACTIVE
                 await account.save()
             } else if (Old.status === statusCompany.ENABLE && New.status === statusCompany.PENDING) {
-                const accounts = await Admin.find({ where: { company: New.id, id: Not(New.account), status: adminStatus.active } })
+                const accounts = await Admin.find({ where: { company: New.id, id: Not(New.account), status: adminStatus.ACTIVE } })
                 for (const account of accounts) {
-                    account.status = adminStatus.inactive
+                    account.status = adminStatus.INACTIVE
                     await account.save()
                 }
             }

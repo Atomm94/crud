@@ -44,7 +44,7 @@ export class PostSubscriber implements EntitySubscriberInterface<Admin> {
     async afterUpdate (event: UpdateEvent<Admin>) {
         const { entity: New, databaseEntity: Old } = event
         if (New.status !== Old.status) {
-            if (New.status === adminStatus.inactive) {
+            if (New.status === adminStatus.INACTIVE) {
                 const tokens = await JwtToken.find({ account: New.id })
                 for (const token of tokens) {
                     token.expired = true

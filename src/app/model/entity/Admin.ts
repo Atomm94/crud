@@ -61,7 +61,7 @@ export class Admin extends MainEntity {
   @Column('int', { name: 'department', nullable: true })
   department: number | null;
 
-  @Column('enum', { name: 'status', enum: adminStatus, default: adminStatus.active })
+  @Column('enum', { name: 'status', enum: adminStatus, default: adminStatus.ACTIVE })
   status: adminStatus
 
   @Column('boolean', { name: 'super', default: false })

@@ -289,7 +289,7 @@ export default class AdminController {
         let role
 
         try {
-            reqData.status = adminStatus.pending
+            reqData.status = adminStatus.PENDING
             const newAdmin: Admin = await Admin.addItem(reqData, user)
             role = await Role.findOne({
                 id: reqData.role
@@ -1025,7 +1025,7 @@ export default class AdminController {
             if (validate(password).success) {
                 user.password = password
                 user.verify_token = null
-                user.status = adminStatus.active
+                user.status = adminStatus.ACTIVE
                 await user.save()
                 ctx.body = {
                     success: true

@@ -1,6 +1,6 @@
 
 export enum adminStatus {
-  inactive = 'inactive',
-  active = 'active',
-  pending = 'pending'
+  INACTIVE = 'inactive',
+  ACTIVE = 'active',
+  PENDING = 'pending'
 }

@@ -66,7 +66,7 @@ export class Cardholder extends MainEntity {
     @Column('int', { name: 'car_info', nullable: true })
     car_info: number | null
 
-    @Column('enum', { name: 'status', enum: cardholderStatus, default: cardholderStatus.inactive })
+    @Column('enum', { name: 'status', enum: cardholderStatus, default: cardholderStatus.INACTIVE })
     status: cardholderStatus
 
     @Column('boolean', { name: 'guest', default: false })

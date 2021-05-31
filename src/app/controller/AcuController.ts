@@ -567,7 +567,10 @@ export default class AcuController {
             const user = ctx.user
             const where = { id: req_data.id, company: user.company ? user.company : null }
 
+            const acu: Acu = await Acu.findOneOrFail(where)
+            const location = `${user.company_main}/${user.company}`
             ctx.body = await Acu.destroyItem(where)
+            DeviceController.delDevice(OperatorType.CANCEL_REGISTRATION, location, acu.serial_number, acu, user.id, acu.session_id)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

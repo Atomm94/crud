@@ -1,8 +1,8 @@
 
 export enum cardholderStatus {
-  inactive = 'inactive',
-  active = 'active',
-  expired = 'expired',
-  noCredential = 'noCredential',
-  pending = 'pending'
+  INACTIVE = 'inactive',
+  ACTIVE = 'active',
+  EXPIRED = 'expired',
+  NO_CREDENTIAL = 'noCredential',
+  PENDING = 'pending'
 }

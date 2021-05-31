@@ -73,7 +73,7 @@ export class Acu extends MainEntity {
 
         acu.name = data.name
         acu.description = data.note
-        acu.serial_number = data.serial_number
+        // acu.serial_number = data.serial_number
         acu.model = data.model // check or no ??
         acu.status = acuStatus.PENDING
         acu.fw_version = data.fw_version
@@ -104,7 +104,7 @@ export class Acu extends MainEntity {
 
         if ('name' in data) acu.name = data.name
         if ('description' in data) acu.description = data.description
-        if ('serial_number' in data) acu.serial_number = data.serial_number
+        // if ('serial_number' in data) acu.serial_number = data.serial_number
         if ('model' in data) acu.model = data.model
         if ('status' in data) acu.status = data.status
         if ('fw_version' in data) acu.fw_version = data.fw_version

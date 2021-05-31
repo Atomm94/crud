@@ -315,7 +315,7 @@ class RoleController {
             if (admin.length) {
               for (let i = 0; i < admin.length; i++) {
                 admin[i].role = null
-                admin[i].status = adminStatus.inactive
+                admin[i].status = adminStatus.INACTIVE
                 delete admin[i].password
                 await Admin.updateItem(admin[i])
               }
