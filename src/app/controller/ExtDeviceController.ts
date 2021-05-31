@@ -204,7 +204,8 @@ export default class ExtDeviceController {
                 ExtensionDeviceController.setExtBrd(location, acu.serial_number, req_data, user.id, acu.session_id, true)
                 ctx.body = { message: 'Update pending' }
             } else if (acu.status === acuStatus.NO_HARDWARE) {
-                ctx.body = await ExtDevice.updateItem(req_data)
+                const update = await ExtDevice.updateItem(req_data)
+                ctx.body = update.new
             } else {
                 ctx.status = 400
                 ctx.body = { message: 'Activate ACU before changes' }
