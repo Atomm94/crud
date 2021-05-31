@@ -118,11 +118,11 @@ export default class AcuController {
      *                                              type: number
      *                                          direction:
      *                                              type: number
-     *                                          beep:
+     *                                          enable_buzzer:
      *                                              type: boolean
-     *                                          crc:
+     *                                          enable_crc:
      *                                              type: boolean
-     *                                          reverse:
+     *                                          reverse_byte_order:
      *                                              type: boolean
      *          responses:
      *              '201':
@@ -295,11 +295,11 @@ export default class AcuController {
      *                                              type: number
      *                                          direction:
      *                                              type: number
-     *                                          beep:
+     *                                          enable_buzzer:
      *                                              type: boolean
-     *                                          crc:
+     *                                          enable_crc:
      *                                              type: boolean
-     *                                          reverse:
+     *                                          reverse_byte_order:
      *                                              type: boolean
      *                  network:
      *                      type: object

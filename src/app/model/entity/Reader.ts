@@ -39,14 +39,14 @@ export class Reader extends MainEntity {
     @Column('enum', { name: 'direction', nullable: false, default: 0, enum: readerDirections })
     direction: number
 
-    @Column('boolean', { name: 'beep', default: false })
-    beep: boolean
+    @Column('boolean', { name: 'enable_buzzer', default: false })
+    enable_buzzer: boolean
 
-    @Column('boolean', { name: 'crc', default: false })
-    crc: boolean
+    @Column('boolean', { name: 'enable_crc', default: false })
+    enable_crc: boolean
 
-    @Column('boolean', { name: 'reverse', default: false })
-    reverse: boolean
+    @Column('boolean', { name: 'reverse_byte_order', default: false })
+    reverse_byte_order: boolean
 
     @DeleteDateColumn({ type: 'timestamp', name: 'delete_date' })
     public deleteDate: Date
@@ -70,9 +70,9 @@ export class Reader extends MainEntity {
         if ('wg_type' in data) reader.wg_type = data.wg_type
         if ('mode' in data) reader.mode = data.mode
         if ('direction' in data) reader.direction = data.direction
-        if ('beep' in data) reader.beep = data.beep
-        if ('crc' in data) reader.crc = data.crc
-        if ('reverse' in data) reader.reverse = data.reverse
+        if ('enable_buzzer' in data) reader.enable_buzzer = data.enable_buzzer
+        if ('enable_crc' in data) reader.enable_crc = data.enable_crc
+        if ('reverse_byte_order' in data) reader.reverse_byte_order = data.reverse_byte_order
         reader.company = data.company
 
         return new Promise((resolve, reject) => {
@@ -94,9 +94,9 @@ export class Reader extends MainEntity {
         if ('wg_type' in data) reader.wg_type = data.wg_type
         if ('mode' in data) reader.mode = data.mode
         if ('direction' in data) reader.direction = data.direction
-        if ('beep' in data) reader.beep = data.beep
-        if ('crc' in data) reader.crc = data.crc
-        if ('reverse' in data) reader.reverse = data.reverse
+        if ('enable_buzzer' in data) reader.enable_buzzer = data.enable_buzzer
+        if ('enable_crc' in data) reader.enable_crc = data.enable_crc
+        if ('reverse_byte_order' in data) reader.reverse_byte_order = data.reverse_byte_order
 
         if (!reader) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {

@@ -93,7 +93,7 @@ export class PostSubscriber implements EntitySubscriberInterface<MainEntity> {
         }
     }
 
-    afterInsert (event: InsertEvent<MainEntity>) {
+    async afterInsert (event: InsertEvent<MainEntity>) {
         try {
             const data: any = event.entity
             const models: any = Models
@@ -121,29 +121,31 @@ export class PostSubscriber implements EntitySubscriberInterface<MainEntity> {
                     name: file_name
                 }
                 try {
-                    fs.renameSync(`${public_path}${file_path}`, `${public_path}${new_path.path}`)
+                    fs.renameSync(`${public_path}/${file_path}`, `${public_path}/${new_path.path}`)
 
-                event.queryRunner.commitTransaction()
-                    .then(() => {
-                        event.queryRunner.startTransaction()
-                            .then(() => {
-                                models[model_name].findOne({ id: data.id }).then((update_data:any) => {
-                                    const new_path_string = JSON.stringify(new_path)
-                                    if (data.avatar) {
-                                        update_data.avatar = new_path_string
-                                    } else if (data.file) {
-                                        update_data.file = new_path_string
-                                    } else if (data.image) {
-                                        update_data.image = new_path_string
-                                    }
-                                    update_data.save()
+                    await event.queryRunner.commitTransaction()
+                        .then(async () => {
+                            await event.queryRunner.startTransaction()
+                                .then(() => {
+                                    models[model_name].findOne({ id: data.id }).then(async (update_data: any) => {
+                                        const new_path_string = JSON.stringify(new_path)
+                                        if (data.avatar) {
+                                            update_data.avatar = new_path_string
+                                        } else if (data.file) {
+                                            update_data.file = new_path_string
+                                        } else if (data.image) {
+                                            update_data.image = new_path_string
+                                        }
+                                        console.log('new_path_string', new_path_string)
+
+                                        await update_data.save()
+                                    })
+                                }).catch(error => {
+                                    console.log('transaction error', error)
                                 })
-                            }).catch(error => {
-                                console.log('transaction error', error)
-                            })
-                    }).catch(error => {
-                        console.log('transaction error 2', error)
-                    })
+                        }).catch(error => {
+                            console.log('transaction error 2', error)
+                        })
                 } catch (error) {
                     console.log(error)
                 }

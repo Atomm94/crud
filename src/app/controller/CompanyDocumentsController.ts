@@ -255,9 +255,15 @@ export default class CompanyDocumentsController {
      *                  description: Wrong data
      */
     public static async companyFileUpload (ctx: DefaultContext) {
-        const file = ctx.request.files.file
-        const savedFile = await CompanyDocuments.saveFile(file)
-        return ctx.body = savedFile
+        try {
+            const file = ctx.request.files.file
+            const savedFile = await CompanyDocuments.saveFile(file)
+            ctx.body = savedFile
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
     }
 
     /**

@@ -16,10 +16,9 @@ import { adminStatus } from '../enums/adminStatus.enum'
 
 const parentDir = join(__dirname, '../..')
 
-if (!fs.existsSync(`${parentDir}/public/`)) {
+if (!fs.existsSync(`${parentDir}/public/tmp`)) {
     logger.info('!!!exists')
-
-    fs.mkdirSync(`${parentDir}/public`)
+    fs.mkdirSync(`${parentDir}/public/tmp`, { recursive: true })
 }
 
 // import { NotFound } from '../../constant/errors';
