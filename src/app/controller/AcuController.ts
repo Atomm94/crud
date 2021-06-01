@@ -781,7 +781,7 @@ export default class AcuController {
             device.session_id = hardware.session_id
             // device.time = hardware.time
             const updated = await device.save()
-            // await Acu.destroyItem({ id: hardware.id })
+            await Acu.destroyItem(hardware)
             ctx.body = updated
 
             const location = `${user.company_main}/${user.company}`
