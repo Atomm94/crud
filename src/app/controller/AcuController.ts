@@ -561,6 +561,7 @@ export default class AcuController {
      *              '422':
      *                  description: Wrong data
      */
+
     public static async destroy (ctx: DefaultContext) {
         try {
             const req_data = ctx.request.body
@@ -570,7 +571,9 @@ export default class AcuController {
             const acu: Acu = await Acu.findOneOrFail(where)
             const location = `${user.company_main}/${user.company}`
             ctx.body = await Acu.destroyItem(where)
-            DeviceController.delDevice(OperatorType.CANCEL_REGISTRATION, location, acu.serial_number, acu, user.id, acu.session_id)
+            if (acu.status === acuStatus.ACTIVE || acu.status === acuStatus.PENDING) {
+                DeviceController.delDevice(OperatorType.CANCEL_REGISTRATION, location, acu.serial_number, acu, user.id, acu.session_id)
+            }
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
