@@ -252,16 +252,20 @@ export default class PackageController {
             req_data.relations = ['package_types']
             const user = ctx.user
             if (user.company) {
-                const company = await Company.getItem(user.company)
-                req_data.where = {
-                    package_type: {
-                        '=': company.package_type
-                    },
-                    status: {
-                        '=': true
-                    }
+                const company = await Company.findOneOrFail({ where: { id: user.company }, relations: ['packages'] })
+                const where: any = {
+                    package_type: { '=': company.package_type },
+                    status: { '=': true }
                 }
-                const data = await Package.getAllItems(req_data)
+                if (company.package) {
+                    where.id = { '!=': company.package }
+                }
+                req_data.where = where
+                const data: any = await Package.getAllItems(req_data)
+                if (company.package) {
+                    data.push(company.packages)
+                }
+
                 const package_types = await PackageType.getAllItems({
                     where: {
                         status: { '=': true },

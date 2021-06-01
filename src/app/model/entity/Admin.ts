@@ -265,6 +265,7 @@ export class Admin extends MainEntity {
     if ('department' in data) admin.department = data.department
     if ('comment' in data) admin.comment = data.comment
     if ('avatar' in data) admin.avatar = data.avatar
+    if ('site' in data) admin.site = data.site
     if ('account_group' in data) admin.account_group = data.account_group
     if ('role_inherited' in data) admin.role_inherited = data.role_inherited
     if ('post_code' in data) admin.post_code = data.post_code

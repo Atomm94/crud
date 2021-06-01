@@ -224,7 +224,7 @@ class RoleController {
         ctx.body = { message: 'cant change your role!!' }
       } else {
         const where = {
-          id: user.role,
+          id: req_data.id,
           company: user.company ? user.company : null,
           main: false
         }
@@ -234,7 +234,7 @@ class RoleController {
           ctx.status = 400
           ctx.body = { message: 'something went wrong' }
         } else {
-          if (await checkPermissionsAccess(user, req_data.permissions)) {
+          if (!req_data.permissions || await checkPermissionsAccess(user, req_data.permissions)) {
             const updated = await Role.updateItem(req_data)
             ctx.oldData = updated.old
             ctx.body = updated.new
@@ -247,6 +247,8 @@ class RoleController {
         }
       }
     } catch (error) {
+      console.log(error)
+
       ctx.status = error.status || 400
       ctx.body = error
     }
@@ -300,7 +302,7 @@ class RoleController {
         ctx.body = { message: 'cant delete your role!!' }
       } else {
         const where = {
-          id: user.role,
+          id: id,
           company: user.company ? user.company : null,
           main: false
         }
@@ -320,13 +322,13 @@ class RoleController {
                 await Admin.updateItem(admin[i])
               }
 
-              role = await Role.destroyItem(id)
+              role = await Role.destroyItem(check_role_by_company)
 
               if (role) {
                 ctx.body = 'Deleted'
               }
             } else {
-              role = await Role.destroyItem(id)
+              role = await Role.destroyItem(check_role_by_company)
               ctx.body = 'Deleted'
             }
           } else {
