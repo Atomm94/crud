@@ -205,6 +205,7 @@ export default class ExtDeviceController {
                 ctx.body = { message: 'Update pending' }
             } else if (acu.status === acuStatus.NO_HARDWARE) {
                 const update = await ExtDevice.updateItem(req_data)
+                ctx.oldData = update.old
                 ctx.body = update.new
             } else {
                 ctx.status = 400

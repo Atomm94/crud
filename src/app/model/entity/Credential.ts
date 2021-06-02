@@ -43,14 +43,12 @@ export class Credential extends MainEntity {
     @JoinColumn({ name: 'cardholder' })
     cardholders: Cardholder;
 
-    public static resource: boolean = true
-
     public static async addItem (data: Credential): Promise<Credential> {
         const credential = new Credential()
 
         credential.type = data.type
         credential.code = data.code
-        credential.status = data.status
+        if ('status' in data) credential.status = data.status
         credential.cardholder = data.cardholder
         credential.facility = data.facility
         credential.input_mode = data.input_mode
