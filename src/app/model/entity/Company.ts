@@ -25,6 +25,7 @@ import {
     CompanyResources
 } from './index'
 
+import { minusResource } from '../../functions/minusResource'
 @Entity('company')
 export class Company extends MainEntity {
     @Column('varchar', { name: 'company_name', nullable: false })
@@ -168,6 +169,7 @@ export class Company extends MainEntity {
             this.findOneOrFail(where).then((data: any) => {
                 this.softRemove(data)
                     .then(() => {
+                        minusResource(this.name, data.company)
                         resolve({ message: 'success' })
                     })
                     .catch((error: any) => {

@@ -16,6 +16,7 @@ import { CardholderGroup } from './CardholderGroup'
 import { Cardholder } from '.'
 import { AutoTaskSchedule } from './AutoTaskSchedule'
 
+import { minusResource } from '../../functions/minusResource'
 @Entity('schedule')
 export class Schedule extends MainEntity {
     public static resource: boolean = true
@@ -125,6 +126,7 @@ export class Schedule extends MainEntity {
             this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
                 this.softRemove(data)
                     .then(() => {
+                        minusResource(this.name, data.company)
                         resolve({ message: 'success' })
                     })
                     .catch((error: any) => {

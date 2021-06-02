@@ -13,6 +13,7 @@ import { AccessPoint } from './AccessPoint'
 import { readerModes } from '../../enums/readerModes'
 import { readerDirections } from '../../enums/readerDirection'
 
+import { minusResource } from '../../functions/minusResource'
 @Entity('reader')
 export class Reader extends MainEntity {
     @Column('int', { name: 'access_point', nullable: false })
@@ -134,6 +135,7 @@ export class Reader extends MainEntity {
             this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
                 this.softRemove(data)
                     .then(() => {
+                        minusResource(this.name, data.company)
                         resolve({ message: 'success' })
                     })
                     .catch((error: any) => {

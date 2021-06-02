@@ -23,6 +23,7 @@ import { AntipassBack } from './AntipassBack'
 import { Schedule } from './Schedule'
 import { Admin } from '.'
 import { scheduleCustomType } from '../../enums/scheduleCustomType.enum'
+import { minusResource } from '../../functions/minusResource'
 const parentDir = join(__dirname, '../../..')
 
 @Entity('cardholder')
@@ -301,6 +302,7 @@ export class Cardholder extends MainEntity {
             this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
                 this.softRemove(data)
                     .then(() => {
+                        minusResource(this.name, data.company)
                         resolve({ message: 'success' })
                     })
                     .catch((error: any) => {

@@ -10,6 +10,8 @@ import { scheduleType } from '../../enums/scheduleType.enum'
 import { MainEntity } from './MainEntity'
 import { Schedule } from './Schedule'
 
+import { minusResource } from '../../functions/minusResource'
+
 @Entity('timeframe')
 export class Timeframe extends MainEntity {
     @Column('varchar', { name: 'name', nullable: false })
@@ -130,6 +132,7 @@ export class Timeframe extends MainEntity {
             return new Promise(async (resolve, reject) => {
                 this.softRemove(await this.findOneOrFail({ name: data.name, schedule: data.schedule }))
                     .then(() => {
+                        minusResource(this.name, data.company)
                         resolve({ message: 'success' })
                     })
                     .catch((error: any) => {
@@ -140,8 +143,9 @@ export class Timeframe extends MainEntity {
             // eslint-disable-next-line no-async-promise-executor
             return new Promise(async (resolve, reject) => {
                 this.softRemove(await this.findOneOrFail({ id: data.id }))
-                this.delete(data.id)
+
                     .then(() => {
+                        minusResource(this.name, data.company)
                         resolve({ message: 'success' })
                     })
                     .catch((error: any) => {

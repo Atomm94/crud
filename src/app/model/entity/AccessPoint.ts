@@ -19,6 +19,7 @@ import { accessPointType } from '../../enums/accessPointType.enum'
 import { accessPointDoorState } from '../../enums/accessPointDoorState.enum'
 import { AutoTaskSchedule } from './AutoTaskSchedule'
 import { Notification } from './Notification'
+import { minusResource } from '../../functions/minusResource'
 
 @Entity('access_point')
 export class AccessPoint extends MainEntity {
@@ -183,6 +184,7 @@ export class AccessPoint extends MainEntity {
             this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
                 this.softRemove(data)
                     .then(() => {
+                        minusResource(this.name, data.company)
                         resolve({ message: 'success' })
                     })
                     .catch((error: any) => {
