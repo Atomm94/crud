@@ -18,7 +18,7 @@ import {
     AfterInsert,
     AfterRemove
 } from 'typeorm'
-import { CompanyResources, Credential } from '.'
+import { CompanyResources } from '.'
 import { credentialType } from '../../enums/credentialType.enum'
 import { resourceKeys } from '../../enums/resourceKeys.enum'
 import * as Models from './index'
