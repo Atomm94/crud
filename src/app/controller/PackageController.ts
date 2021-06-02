@@ -4,6 +4,7 @@ import { Package } from '../model/entity/Package'
 import { PackageType } from '../model/entity/PackageType'
 import { Company } from '../model/entity/Company'
 import { Feature } from '../middleware/feature'
+import { resourceKeys } from '../enums/resourceKeys.enum'
 
 export default class PackageController {
     /**
@@ -323,14 +324,14 @@ export default class PackageController {
                 features: null
             }
             if (ctx.query.service && ctx.query.service === 'true') {
-                const feature: any = Feature.ServiceFeatures
-                const features: any = {}
                 Object.keys(models).forEach((model: string) => {
                     if (models[model].serviceResource) {
                         data.resources.push(model)
                     }
                 })
 
+                const feature: any = Feature.ServiceFeatures
+                const features: any = {}
                 const featureList = Object.keys(feature)
                 features.Features = featureList
                 if (Object.keys(features).length) data.features = features
@@ -341,6 +342,8 @@ export default class PackageController {
                         data.resources.push(model)
                     }
                 })
+                data.resources.push(resourceKeys.VIRTUAL_KEYS, resourceKeys.KEY_PER_USER)
+
                 const featuresList = Object.getOwnPropertyNames(feature)
                 if (featuresList.length) {
                     featuresList.forEach((key: any) => {

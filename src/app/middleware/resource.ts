@@ -3,6 +3,8 @@ import * as Model from '../model/entity'
 import { logger } from '../../../modules/winston/logger'
 import { AccessControl } from '../functions/access-control'
 import { DefaultContext } from 'koa'
+import { resourceKeys } from '../enums/resourceKeys.enum'
+
 export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
     const modelList: any = Model
     if (ctx.user && ctx.user.company && ctx.actionModel && ctx.actionName && ctx.actionName === 'addItem' && modelList[ctx.actionModel] && modelList[ctx.actionModel].resource) {
@@ -39,16 +41,22 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
     }
 }
 
-async function canCreate (company_id: number, resource: string): Promise<boolean> {
+export async function canCreate (company_id: number, resource: string, used_count: number | null = null): Promise<boolean> {
     try {
         const company = await Model.Company.findOneOrFail({ id: company_id })
         if (company && company.package) {
             const companyResources = await Model.CompanyResources.findOneOrFail({ company: company_id })
             if (companyResources && companyResources.used) {
                 const usedRes = JSON.parse(companyResources.used)
+                let usedResCount = (resource in usedRes) ? +usedRes[resource] : 0
+                if (resource === resourceKeys.VIRTUAL_KEYS && used_count) {
+                    usedResCount += used_count - 1
+                }
+                if (resource === resourceKeys.KEY_PER_USER && used_count) {
+                    usedResCount = used_count - 1
+                }
                 const resource_name = Number(resource) ? `package_type${resource}` : resource
-
-                return await AccessControl.companyCanAccessResource(company.package, resource_name, (resource in usedRes) ? +usedRes[resource] : 0)
+                return await AccessControl.companyCanAccessResource(company.package, resource_name, usedResCount)
             }
         }
         return false

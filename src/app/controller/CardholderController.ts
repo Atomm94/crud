@@ -220,12 +220,31 @@ export default class CardholderController {
 
             const auth_user = ctx.user
             const location = `${auth_user.company_main}/${auth_user.company}`
-            req_data.company = auth_user.company ? auth_user.company : null
+            const company = auth_user.company ? auth_user.company : null
+            req_data.company = company
             req_data.create_by = auth_user.id
+
+            const check_credentials = CheckCredentialSettings.checkSettings(req_data.credentials)
+            if (check_credentials !== true) {
+                ctx.status = 400
+                return ctx.body = { message: check_credentials }
+            }
+
+            const check_virt_keys = await CheckCredentialSettings.checkVirtualKeys(req_data.credentials, company)
+            if (check_virt_keys !== true) {
+                ctx.status = 403
+                return ctx.body = { message: check_virt_keys }
+            }
+
+            const check_key_per_user = await CheckCredentialSettings.checkKeyPerUser(req_data.credentials, company)
+            if (check_key_per_user !== true) {
+                ctx.status = 403
+                return ctx.body = { message: check_key_per_user }
+            }
 
             let group_data: any
             if (req_data.limitation_inherited || req_data.antipass_back_inherited || req_data.time_attendance_inherited || req_data.access_right_inherited) {
-                group_data = await CardholderGroup.getItem({ id: req_data.cardholder_group, company: req_data.company })
+                group_data = await CardholderGroup.getItem({ id: req_data.cardholder_group, company: company })
             }
 
             if (req_data.limitation_inherited && group_data) {
@@ -261,17 +280,10 @@ export default class CardholderController {
             }
             const cardholder: Cardholder = await Cardholder.addItem(req_data as Cardholder)
 
-            const check_credentials = CheckCredentialSettings.checkSettings(req_data.credentials)
-
-            if (check_credentials !== true) {
-                ctx.status = 400
-                return ctx.body = { message: check_credentials }
-            }
-
             if (req_data.credentials && req_data.credentials.length) {
                 const credentials: any = []
                 for (const credential of req_data.credentials) {
-                    credential.company = req_data.company
+                    credential.company = company
                     credential.cardholder = cardholder.id
                     const data: any = await Credential.addItem(credential as Credential)
                     credentials.push(data)
@@ -279,7 +291,7 @@ export default class CardholderController {
                     req_data.where = { status: { '=': acuStatus.ACTIVE } }
                 }
 
-                CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, req_data.company, auth_user.id, null, [cardholder], null)
+                CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, company, auth_user.id, null, [cardholder], null)
             }
             if (cardholder) {
                 const where = { id: cardholder.id }
@@ -496,7 +508,8 @@ export default class CardholderController {
         try {
             const req_data = ctx.request.body
             const auth_user = ctx.user
-            const where = { id: req_data.id, company: auth_user.company ? auth_user.company : null }
+            const company = auth_user.company ? auth_user.company : null
+            const where = { id: req_data.id, company: company }
             const check_by_company = await Cardholder.findOne(where)
 
             if (!check_by_company) {
@@ -509,6 +522,18 @@ export default class CardholderController {
                 if (check_credentials !== true) {
                     ctx.status = 400
                     return ctx.body = { message: check_credentials }
+                }
+
+                const check_virt_keys = await CheckCredentialSettings.checkVirtualKeys(req_data.credentials, company)
+                if (check_virt_keys !== true) {
+                    ctx.status = 403
+                    return ctx.body = { message: check_virt_keys }
+                }
+
+                const check_key_per_user = await CheckCredentialSettings.checkKeyPerUser(req_data.credentials, company)
+                if (check_key_per_user !== true) {
+                    ctx.status = 403
+                    return ctx.body = { message: check_key_per_user }
                 }
 
                 const res_data = await Cardholder.updateItem(req_data as Cardholder, auth_user)
@@ -545,7 +570,7 @@ export default class CardholderController {
 
                             if (res_data.old.vip !== res_data.new.vip && old_credentials.length) {
                                 cardholder.credentials = old_credentials
-                                CardKeyController.editCardKey(location, req_data.company, auth_user.id, null, access_points, [cardholder])
+                                CardKeyController.editCardKey(location, company, auth_user.id, null, access_points, [cardholder])
                             }
                         }
                     }
@@ -1663,6 +1688,24 @@ export default class CardholderController {
                 where: { id: auth_user.cardholder }
             })
 
+            const check_credentials = CheckCredentialSettings.checkSettings(req_data.credentials)
+            if (check_credentials !== true) {
+                ctx.status = 400
+                return ctx.body = { message: check_credentials }
+            }
+
+            const check_virt_keys = await CheckCredentialSettings.checkVirtualKeys(req_data.credentials, req_data.company)
+            if (check_virt_keys !== true) {
+                ctx.status = 403
+                return ctx.body = { message: check_virt_keys }
+            }
+
+            const check_key_per_user = await CheckCredentialSettings.checkKeyPerUser(req_data.credentials, req_data.company)
+            if (check_key_per_user !== true) {
+                ctx.status = 403
+                return ctx.body = { message: check_key_per_user }
+            }
+
             if (req_data.limitations) {
                 const limitation_data = await Limitation.addItem(req_data.limitations as Limitation)
                 if (limitation_data) {
@@ -1717,13 +1760,6 @@ export default class CardholderController {
                     credential.cardholder = cardholder.id
                     const data: any = await Credential.addItem(credential as Credential)
                     credentials.push(data)
-
-                    req_data.where = { status: { '=': acuStatus.ACTIVE } }
-                    const check = CheckCredentialSettings.checkSettings(credential)
-                    if (check !== true) {
-                        ctx.status = 400
-                        return ctx.body = { message: check }
-                    }
                 }
 
                 if (access_points.length) {
@@ -1876,6 +1912,24 @@ export default class CardholderController {
             const auth_user = ctx.user
             const company = auth_user.company ? auth_user.company : null
             const location = `${auth_user.company_main}/${company}`
+
+            const check_credentials = CheckCredentialSettings.checkSettings(req_data.credentials)
+            if (check_credentials !== true) {
+                ctx.status = 400
+                return ctx.body = { message: check_credentials }
+            }
+
+            const check_virt_keys = await CheckCredentialSettings.checkVirtualKeys(req_data.credentials, req_data.company)
+            if (check_virt_keys !== true) {
+                ctx.status = 403
+                return ctx.body = { message: check_virt_keys }
+            }
+
+            const check_key_per_user = await CheckCredentialSettings.checkKeyPerUser(req_data.credentials, req_data.company)
+            if (check_key_per_user !== true) {
+                ctx.status = 403
+                return ctx.body = { message: check_key_per_user }
+            }
 
             const invite_user: Cardholder = await Cardholder.findOneOrFail({
                 relations: ['access_rights', 'access_rights.access_rules'],

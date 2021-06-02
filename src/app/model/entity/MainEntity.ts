@@ -18,7 +18,9 @@ import {
     AfterInsert,
     AfterRemove
 } from 'typeorm'
-import { CompanyResources } from '.'
+import { CompanyResources, Credential } from '.'
+import { credentialType } from '../../enums/credentialType.enum'
+import { resourceKeys } from '../../enums/resourceKeys.enum'
 import * as Models from './index'
 
 export abstract class MainEntity extends BaseEntity {
@@ -47,6 +49,19 @@ export abstract class MainEntity extends BaseEntity {
                         used[model_name]++
                     } else {
                         used[model_name] = 1
+                    }
+                    company_resources.used = JSON.stringify(used)
+                    await company_resources.save()
+                }
+            } else if (model_name === 'Credential' && self.type === credentialType.VIKEY) {
+                const resource_name = resourceKeys.VIRTUAL_KEYS
+                const company_resources = await CompanyResources.findOne({ company: self.company })
+                if (company_resources) {
+                    const used: any = JSON.parse(company_resources.used)
+                    if (used[resource_name]) {
+                        used[resource_name]++
+                    } else {
+                        used[resource_name] = 1
                     }
                     company_resources.used = JSON.stringify(used)
                     await company_resources.save()

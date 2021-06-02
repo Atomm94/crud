@@ -99,8 +99,8 @@ export class AccessControl {
             const package_id = package_data.id
             const extra_settings: {
                 features: { [key: string]: boolean },
-                resources: { [key: string]: boolean },
-                package_types: { [key: string]: boolean }
+                resources: { [key: string]: number },
+                package_types: { [key: string]: number }
             } = JSON.parse(package_data.extra_settings)
             if (extra_settings.resources) {
                 Object.keys(extra_settings.resources).forEach(resource => {
