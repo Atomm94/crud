@@ -1,7 +1,7 @@
 import * as _ from 'lodash'
 import { DefaultContext } from 'koa'
 import { getRepository } from 'typeorm'
-import { Admin, Package, Role } from '../model/entity/index'
+import { Admin, Company, Role } from '../model/entity/index'
 import * as jwt from 'jsonwebtoken'
 import * as bcrypt from 'bcrypt'
 import fs from 'fs'
@@ -344,9 +344,10 @@ export default class AdminController {
                 ctx.body = adminFiltered
                 ctx.body.package = ctx.user.package ? ctx.user.package : null
                 if (ctx.user && ctx.user.company && ctx.user.package) {
-                    const packageData = await Package.findOne(ctx.user.package)
-                    if (packageData && packageData.extra_settings) {
-                        const extra_settings = JSON.parse(packageData.extra_settings)
+                const company = await Company.findOneOrFail({ where: { id: ctx.user.company }, relations: ['packages'] })
+
+                    if (company.packages && company.packages.extra_settings) {
+                        const extra_settings = JSON.parse(company.packages.extra_settings)
                         if (extra_settings.features) {
                             ctx.body.features = extra_settings.features
                         }

@@ -19,8 +19,6 @@ import { AutoTaskSchedule } from './AutoTaskSchedule'
 import { minusResource } from '../../functions/minusResource'
 @Entity('schedule')
 export class Schedule extends MainEntity {
-    public static resource: boolean = true
-
     @Column('varchar', { name: 'name', nullable: false })
     name: string
 
@@ -60,6 +58,8 @@ export class Schedule extends MainEntity {
 
     @OneToMany(type => AutoTaskSchedule, auto_task_schedule => auto_task_schedule.schedules)
     auto_task_schedules: AutoTaskSchedule[];
+
+    public static resource: boolean = true
 
     public static async addItem (data: Schedule) {
         const schedule = new Schedule()

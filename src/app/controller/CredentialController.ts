@@ -235,11 +235,8 @@ export default class CredentialController {
             .andWhere(`acu.company = ${ctx.user.company}`)
             .getMany()
             ctx.body = await Credential.destroyItem(where)
-            ctx.body = true
-
-            const cardhoder = await Cardholder.findOneOrFail({ id: credential.cardhoder })
+            const cardhoder = await Cardholder.findOneOrFail({ id: credential.cardholder })
             cardhoder.credentials = [credential]
-
             CardKeyController.editCardKey(location, req_data.company, user.id, null, access_points, [cardhoder])
         } catch (error) {
             ctx.status = error.status || 400
