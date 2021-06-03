@@ -71,7 +71,9 @@ export class AccessControl {
     }
 
     public static async GrantCompanyAccess () {
-        const packages: any = await Package.getAllItems()
+        const packages: any = await Package.createQueryBuilder('acu')
+            .withDeleted()
+            .getMany()
         this.ac.registerConditionFunction('limit', this.limitCheck)
         if (packages) {
             packages.forEach((package_data: Package) => {

@@ -108,7 +108,7 @@ export class Credential extends MainEntity {
             this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
                 this.softRemove(data)
                     .then(() => {
-                        if (data.type === credentialType.VIKEY) { minusResource(resourceKeys.VIRTUAL_KEYS, data.company) }
+                        if (data.type === credentialType.VIKEY) minusResource(resourceKeys.VIRTUAL_KEYS, data.company)
                         resolve({ message: 'success' })
                     })
                     .catch((error: any) => {
