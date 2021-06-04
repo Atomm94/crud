@@ -1,9 +1,10 @@
 import {
     Entity,
-    Column
+    Column,
+    In
 } from 'typeorm'
 
-import { MainEntity } from './index'
+import { Admin, MainEntity } from './index'
 
 @Entity('jwt_token')
 export class JwtToken extends MainEntity {
@@ -38,5 +39,16 @@ export class JwtToken extends MainEntity {
                     reject(error)
                 })
         })
+    }
+
+    public static async logoutAccounts (company: number, accounts: any = null) {
+        if (!accounts) {
+            accounts = await Admin.getAllItems({ where: { company: { '=': company } } })
+        }
+        const tokens = await JwtToken.find({ where: { account: In(accounts.map((account: Admin) => { return account.id })), expired: false } })
+        for (const token of tokens) {
+            token.expired = true
+            await token.save()
+        }
     }
 }

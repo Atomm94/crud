@@ -169,7 +169,9 @@ export class Company extends MainEntity {
             this.findOneOrFail(where).then((data: any) => {
                 this.softRemove(data)
                     .then(() => {
-                        minusResource(this.name, data.company)
+                        if (data.parent_id) {
+                            minusResource(data.package_type, data.parent_id)
+                        }
                         resolve({ message: 'success' })
                     })
                     .catch((error: any) => {

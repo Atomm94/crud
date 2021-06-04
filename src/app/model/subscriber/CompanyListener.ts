@@ -13,6 +13,7 @@ import { Acu } from '../entity/Acu'
 import { statusCompany } from '../../enums/statusCompany.enum'
 import { Feature } from '../../middleware/feature'
 import { adminStatus } from '../../enums/adminStatus.enum'
+import { JwtToken } from '../entity/JwtToken'
 const featureList: any = Feature
 @EventSubscriber()
 export class PostSubscriber implements EntitySubscriberInterface<Company> {
@@ -217,6 +218,8 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
                     }
                 }
             }
+
+            JwtToken.logoutAccounts(New.id)
         }
     }
 

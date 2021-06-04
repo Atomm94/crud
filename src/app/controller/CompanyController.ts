@@ -1,5 +1,4 @@
 import { DefaultContext } from 'koa'
-import { In } from 'typeorm'
 import { uid } from 'uid'
 import { Sendgrid } from '../../component/sendgrid/sendgrid'
 import { statusCompany } from '../enums/statusCompany.enum'
@@ -325,16 +324,12 @@ export default class CompanyController {
             if (user.company) where.parent_id = user.company
 
             ctx.body = await Company.destroyItem(where)
-            const users: any = await Admin.getAllItems({ where: { company: { '=': req_data.id } } })
-            for (const user of users) {
-                user.status = false
-                await user.save()
+            const accounts: any = await Admin.getAllItems({ where: { company: { '=': req_data.id } } })
+            for (const account of accounts) {
+                account.status = false
+                await account.save()
             }
-            const tokens = await JwtToken.find({ where: { account: In(users.map((user: Admin) => { return user.id })), expired: false } })
-            for (const token of tokens) {
-                token.expired = true
-                await token.save()
-            }
+            JwtToken.logoutAccounts(req_data.id, accounts)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
