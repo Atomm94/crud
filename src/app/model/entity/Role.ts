@@ -74,11 +74,6 @@ export class Role extends MainEntity {
         getAllItems: true
       }
     },
-    CompanyDocuments: {
-      actions: {
-        getItem: true
-      }
-    },
     Department: {
       actions: {
         getAllItems: true

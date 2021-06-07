@@ -207,7 +207,8 @@ export abstract class MainEntity extends BaseEntity {
         return res
     }
 
-    public static getActions () {
+    public static getActions (action_value: boolean = false) {
+        if (!action_value) action_value = false
         const self: any = this
         const model_actions = Object.getOwnPropertyNames(self)
             .filter((item: any) => typeof self[item] === 'function')
