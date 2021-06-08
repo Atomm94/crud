@@ -54,7 +54,7 @@ export class PackageType extends MainEntity {
         if ('name' in data) packageType.name = data.name
         if ('status' in data) packageType.status = data.status
         if ('description' in data) packageType.description = data.description
-        if ('service' in data) packageType.service = data.service
+        // if ('service' in data) packageType.service = data.service
 
         if (!packageType) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {

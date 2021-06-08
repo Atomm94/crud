@@ -208,14 +208,13 @@ export abstract class MainEntity extends BaseEntity {
     }
 
     public static getActions (action_value: boolean = false) {
-        if (!action_value) action_value = false
         const self: any = this
         const model_actions = Object.getOwnPropertyNames(self)
             .filter((item: any) => typeof self[item] === 'function')
         // console.log('model_actions', model_actions)
         const model_actions_data: any = {}
         model_actions.forEach(action => {
-            model_actions_data[action] = false
+            model_actions_data[action] = action_value
         })
 
         // const MainEntityClass: any = MainEntity
