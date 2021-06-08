@@ -163,7 +163,7 @@ export default class ScheduleController {
     public static async get(ctx: DefaultContext) {
         try {
             const data = await Schedule.createQueryBuilder('schedule')
-                .leftJoinAndSelect('schedule.timeframes', 'timeframe', 'timeframes.delete_date is null')
+                .leftJoinAndSelect('schedule.timeframes', 'timeframe', 'timeframe.delete_date is null')
                 .where(`schedule.id = ${+ctx.params.id}`)
                 .andWhere(`schedule.company = ${ctx.user.company}`)
                 .getMany()
