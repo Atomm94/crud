@@ -42,7 +42,7 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
                                 account_name: `${ctx.user.first_name} ${ctx.user.last_name}`,
                                 event: 'create',
                                 target: (ctx.user.company && ctx.actionFeature) ? ctx.actionFeature : ctx.actionModel,
-                                value: null
+                                value: ctx.body
                             }
 
                         }

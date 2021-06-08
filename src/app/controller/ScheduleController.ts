@@ -51,7 +51,7 @@ export default class ScheduleController {
      *                  description: Wrong data
      */
 
-    public static async add (ctx: DefaultContext) {
+    public static async add(ctx: DefaultContext) {
         try {
             const req_data = ctx.request.body
             const user = ctx.user
@@ -109,7 +109,7 @@ export default class ScheduleController {
      *              '422':
      *                  description: Wrong data
      */
-    public static async update (ctx: DefaultContext) {
+    public static async update(ctx: DefaultContext) {
         try {
             const req_data = ctx.request.body
             const user = ctx.user
@@ -160,12 +160,14 @@ export default class ScheduleController {
      *              '404':
      *                  description: Data not found
      */
-    public static async get (ctx: DefaultContext) {
+    public static async get(ctx: DefaultContext) {
         try {
-            const user = ctx.user
-            const where = { id: +ctx.params.id, company: user.company ? user.company : user.company }
-            const relations = ['timeframes']
-            ctx.body = await Schedule.getItem(where, relations)
+            const data = await Schedule.createQueryBuilder('schedule')
+                .leftJoinAndSelect('schedule.timeframes', 'timeframe', 'timeframes.delete_date is null')
+                .where(`schedule.id = ${+ctx.params.id}`)
+                .andWhere(`schedule.company = ${ctx.user.company}`)
+                .getMany()
+            ctx.body = data[0]
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -207,7 +209,7 @@ export default class ScheduleController {
      *              '422':
      *                  description: Wrong data
      */
-    public static async destroy (ctx: DefaultContext) {
+    public static async destroy(ctx: DefaultContext) {
         try {
             const req_data = ctx.request.body
             const user = ctx.user
@@ -242,7 +244,7 @@ export default class ScheduleController {
      *              '401':
      *                  description: Unauthorized
      */
-    public static async getAll (ctx: DefaultContext) {
+    public static async getAll(ctx: DefaultContext) {
         try {
             const req_data = ctx.query
             const user = ctx.user
@@ -276,7 +278,7 @@ export default class ScheduleController {
      *              '401':
      *                  description: Unauthorized
      */
-    public static async getTree (ctx: DefaultContext) {
+    public static async getTree(ctx: DefaultContext) {
         try {
             const user = ctx.user
             const company = user.company ? user.company : null
@@ -324,7 +326,7 @@ export default class ScheduleController {
      *              '404':
      *                  description: Data not found
      */
-    public static async getRelations (ctx: DefaultContext) {
+    public static async getRelations(ctx: DefaultContext) {
         try {
             const user = ctx.user
             const company = user.company ? user.company : null
