@@ -16,6 +16,7 @@ import { scheduleCustomType } from '../enums/scheduleCustomType.enum'
 import { Timeframe } from '../model/entity/Timeframe'
 import SdlController from './Hardware/SdlController'
 import CardKeyController from './Hardware/CardKeyController'
+import { logUserEvents } from '../enums/logUserEvents.enum'
 
 // import SendDeviceMessage from '../mqtt/SendDeviceMessage'
 // import { OperatorType } from '../mqtt/Operators'
@@ -224,6 +225,8 @@ export default class CardholderController {
             req_data.company = company
             req_data.create_by = auth_user.id
 
+            const logs_data = []
+
             const check_credentials = CheckCredentialSettings.checkSettings(req_data.credentials)
             if (check_credentials !== true) {
                 ctx.status = 400
@@ -251,6 +254,11 @@ export default class CardholderController {
                 req_data.limitation = group_data.limitation
             } else {
                 const limitation_data = await Limitation.addItem(req_data.limitations as Limitation)
+                logs_data.push({
+                    event: logUserEvents.CREATE,
+                    target: `${Cardholder.name}-${Limitation.name}/${req_data.first_name}`,
+                    value: limitation_data
+                })
                 if (limitation_data) {
                     req_data.limitation = limitation_data.id
                 }
@@ -260,6 +268,11 @@ export default class CardholderController {
                 req_data.antipass_back = group_data.antipass_back
             } else {
                 const antipass_back_data = await AntipassBack.addItem(req_data.antipass_backs as AntipassBack)
+                logs_data.push({
+                    event: logUserEvents.CREATE,
+                    target: `${Cardholder.name}-${AntipassBack.name}/${req_data.first_name}`,
+                    value: antipass_back_data
+                })
                 if (antipass_back_data) {
                     req_data.antipass_back = antipass_back_data.id
                 }
@@ -274,19 +287,34 @@ export default class CardholderController {
             }
             if (req_data.car_info) {
                 const car_info = await CarInfo.addItem(req_data.car_infos as CarInfo)
+                logs_data.push({
+                    event: logUserEvents.CREATE,
+                    target: `${Cardholder.name}-${CarInfo.name}/${req_data.first_name}`,
+                    value: car_info
+                })
                 if (car_info) {
                     req_data.car_info = car_info.id
                 }
             }
             const cardholder: Cardholder = await Cardholder.addItem(req_data as Cardholder)
+            logs_data.push({
+                event: logUserEvents.CREATE,
+                target: `${Cardholder.name}/${cardholder.first_name}`,
+                value: cardholder
+            })
 
             if (req_data.credentials && req_data.credentials.length) {
                 const credentials: any = []
                 for (const credential of req_data.credentials) {
                     credential.company = company
                     credential.cardholder = cardholder.id
-                    const data: any = await Credential.addItem(credential as Credential)
-                    credentials.push(data)
+                    const credential_data: any = await Credential.addItem(credential as Credential)
+                    logs_data.push({
+                        event: logUserEvents.CREATE,
+                        target: `${Credential.name}/${cardholder.first_name}/${credential_data.type}`,
+                        value: credential_data
+                    })
+                    credentials.push(credential_data)
 
                     req_data.where = { status: { '=': acuStatus.ACTIVE } }
                 }
@@ -298,6 +326,7 @@ export default class CardholderController {
                 const relations = ['car_infos', 'limitations', 'antipass_backs', 'time_attendances', 'access_rights', 'cardholder_groups', 'credentials']
                 ctx.body = await Cardholder.getItem(where, relations)
             }
+            ctx.logsData = logs_data
         } catch (error) {
             console.log(error)
 
@@ -512,6 +541,8 @@ export default class CardholderController {
             const where = { id: req_data.id, company: company }
             const check_by_company = await Cardholder.findOne(where)
 
+            const logs_data = []
+
             if (!check_by_company) {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
@@ -537,6 +568,13 @@ export default class CardholderController {
                 }
 
                 const res_data = await Cardholder.updateItem(req_data as Cardholder, auth_user)
+
+                logs_data.push(...res_data.logs_data)
+                logs_data.push({
+                    event: logUserEvents.CHANGE,
+                    target: `${Cardholder.name}/${res_data.old.first_name}`,
+                    value: res_data
+                })
                 const cardholder = res_data.new
 
                 const credentials: any = []
@@ -546,8 +584,13 @@ export default class CardholderController {
                         if (!credential.id) {
                             credential.company = auth_user.company
                             credential.cardholder = req_data.id
-                            const data: any = await Credential.addItem(credential as Credential)
-                            credentials.push(data)
+                            const credential_data: any = await Credential.addItem(credential as Credential)
+                            logs_data.push({
+                                event: logUserEvents.CREATE,
+                                target: `${Credential.name}/${cardholder.first_name}/${credential_data.type}`,
+                                value: credential_data
+                            })
+                            credentials.push(credential_data)
                         } else {
                             old_credentials.push(credential)
                         }
@@ -582,6 +625,8 @@ export default class CardholderController {
                 const where = { id: req_data.id }
                 const relations = ['car_infos', 'limitations', 'antipass_backs', 'time_attendances', 'access_rights', 'cardholder_groups', 'credentials']
                 ctx.body = await Cardholder.getItem(where, relations)
+
+                ctx.logsData = logs_data
             }
         } catch (error) {
             console.log('error', error)

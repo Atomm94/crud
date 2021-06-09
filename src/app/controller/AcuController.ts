@@ -13,6 +13,8 @@ import CardKeyController from './Hardware/CardKeyController'
 import RdController from './Hardware/RdController'
 import ExtensionDeviceController from './Hardware/ExtensionDeviceController'
 import CtpController from './Hardware/CtpController'
+import { readerTypes } from '../enums/readerTypes'
+import { logUserEvents } from '../enums/logUserEvents.enum'
 
 export default class AcuController {
     /**
@@ -140,6 +142,7 @@ export default class AcuController {
             req_data.company = user.company ? user.company : null
             // ctx.body = await Acu.addItem(req_data as Acu)
 
+            const logs_data = []
             const check_time = timeValidation(req_data.time)
             if (!check_time) {
                 ctx.status = 400
@@ -164,6 +167,11 @@ export default class AcuController {
 
             acu.time = JSON.stringify(req_data.time)
             const save_acu = await acu.save()
+            logs_data.push({
+                event: logUserEvents.CREATE,
+                target: `${Acu.name}/${save_acu.name}`,
+                value: save_acu
+            })
 
             if (req_data.access_points) {
                 for (const access_point of req_data.access_points) {
@@ -171,20 +179,29 @@ export default class AcuController {
                     access_point.company = acu.company
                     if (access_point.resources) access_point.resources = JSON.stringify(access_point.resources)
                     const save_access_point = await AccessPoint.addItem(access_point)
+                    logs_data.push({
+                        event: logUserEvents.CREATE,
+                        target: `${AccessPoint.name}/${save_acu.name}/${save_access_point.name}`,
+                        value: save_access_point
+                    })
                     if (save_access_point) {
                         for (const reader of access_point.readers) {
                             reader.company = acu.company
                             reader.access_point = save_access_point.id
-                            await Reader.addItem(reader)
+                            const save_reader: any = await Reader.addItem(reader)
+                            logs_data.push({
+                                event: logUserEvents.CREATE,
+                                target: `${Reader.name}/${save_acu.name}/${save_access_point.name}/${readerTypes[save_reader.type]}`,
+                                value: save_reader
+                            })
                         }
                     }
                 }
             }
 
+            ctx.logsData = logs_data
             ctx.body = save_acu
         } catch (error) {
-            console.log(error)
-
             ctx.status = error.status || 400
             ctx.body = error
         }
@@ -346,6 +363,8 @@ export default class AcuController {
             const acu: Acu | undefined = await Acu.findOne(where)
             const location = `${user.company_main}/${user.company}`
 
+            const logs_data = []
+
             if (!acu) {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
@@ -385,7 +404,13 @@ export default class AcuController {
                     }
                 }
 
-                const updated = await Acu.updateItem(req_data as Acu)
+                const acu_updated = await Acu.updateItem(req_data as Acu)
+
+                logs_data.push({
+                    event: logUserEvents.CHANGE,
+                    target: `${Acu.name}/${acu_updated.old.name}`,
+                    value: acu_updated
+                })
 
                 if (req_data.access_points) {
                     const check_access_points = checkAccessPointsValidation(req_data.access_points, acu.model, true)
@@ -418,9 +443,13 @@ export default class AcuController {
                                 access_point.acu = acu.id
                                 access_point.company = company
                                 if (access_point.resource) access_point.resource = JSON.stringify(access_point.resource)
-                                console.log('access_point addItem', access_point)
 
                                 access_point = await AccessPoint.addItem(access_point)
+                                logs_data.push({
+                                    event: logUserEvents.CREATE,
+                                    target: `${AccessPoint.name}/${acu_updated.old.name}/${access_point.name}`,
+                                    value: access_point
+                                })
                                 new_access_points.push(access_point)
                             } else {
                                 const old_access_point = await AccessPoint.findOneOrFail({ id: access_point.id, company: company })
@@ -432,6 +461,11 @@ export default class AcuController {
                             } else {
                                 if (access_point_update) {
                                     const access_point_update = await AccessPoint.updateItem(access_point)
+                                    logs_data.push({
+                                        event: logUserEvents.CHANGE,
+                                        target: `${AccessPoint.name}/${acu_updated.old.name}/${access_point_update.old.name}`,
+                                        value: access_point_update
+                                    })
                                     access_point = access_point_update.new
                                 }
                             }
@@ -443,6 +477,11 @@ export default class AcuController {
                                     reader.access_point = access_point.id
                                     reader.company = company
                                     reader = await Reader.addItem(reader)
+                                    logs_data.push({
+                                        event: logUserEvents.CREATE,
+                                        target: `${Reader.name}/${acu_updated.old.name}/${access_point.name}/${readerTypes[reader.type]}`,
+                                        value: reader
+                                    })
                                 } else {
                                     const old_reader = await Reader.findOneOrFail({ id: reader.id, company: company })
                                     reader.access_point = old_reader.access_point
@@ -452,7 +491,14 @@ export default class AcuController {
                                     reader.access_point_type = access_point.type
                                     RdController.setRd(location, acu.serial_number, reader, user.id, acu.session_id, reader_update)
                                 } else {
-                                    if (reader_update) await Reader.updateItem(reader)
+                                    if (reader_update) {
+                                        const reader_updated = await Reader.updateItem(reader)
+                                        logs_data.push({
+                                            event: logUserEvents.CHANGE,
+                                            target: `${Reader.name}/${acu_updated.old.name}/${access_point.name}/${readerTypes[reader_updated.old.type]}`,
+                                            value: reader_updated
+                                        })
+                                    }
                                 }
                             }
 
@@ -464,8 +510,9 @@ export default class AcuController {
                     }
                 }
 
-                ctx.oldData = updated.old
-                ctx.body = updated.new
+                ctx.logsData = logs_data
+                ctx.oldData = acu_updated.old
+                ctx.body = acu_updated.new
             }
         } catch (error) {
             console.log('error', error)
