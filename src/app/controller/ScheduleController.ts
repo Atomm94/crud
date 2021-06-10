@@ -51,7 +51,7 @@ export default class ScheduleController {
      *                  description: Wrong data
      */
 
-    public static async add(ctx: DefaultContext) {
+    public static async add (ctx: DefaultContext) {
         try {
             const req_data = ctx.request.body
             const user = ctx.user
@@ -109,7 +109,7 @@ export default class ScheduleController {
      *              '422':
      *                  description: Wrong data
      */
-    public static async update(ctx: DefaultContext) {
+    public static async update (ctx: DefaultContext) {
         try {
             const req_data = ctx.request.body
             const user = ctx.user
@@ -160,7 +160,7 @@ export default class ScheduleController {
      *              '404':
      *                  description: Data not found
      */
-    public static async get(ctx: DefaultContext) {
+    public static async get (ctx: DefaultContext) {
         try {
             const data = await Schedule.createQueryBuilder('schedule')
                 .leftJoinAndSelect('schedule.timeframes', 'timeframe', 'timeframe.delete_date is null')
@@ -209,7 +209,7 @@ export default class ScheduleController {
      *              '422':
      *                  description: Wrong data
      */
-    public static async destroy(ctx: DefaultContext) {
+    public static async destroy (ctx: DefaultContext) {
         try {
             const req_data = ctx.request.body
             const user = ctx.user
@@ -244,7 +244,7 @@ export default class ScheduleController {
      *              '401':
      *                  description: Unauthorized
      */
-    public static async getAll(ctx: DefaultContext) {
+    public static async getAll (ctx: DefaultContext) {
         try {
             const req_data = ctx.query
             const user = ctx.user
@@ -278,7 +278,7 @@ export default class ScheduleController {
      *              '401':
      *                  description: Unauthorized
      */
-    public static async getTree(ctx: DefaultContext) {
+    public static async getTree (ctx: DefaultContext) {
         try {
             const user = ctx.user
             const company = user.company ? user.company : null
@@ -326,7 +326,7 @@ export default class ScheduleController {
      *              '404':
      *                  description: Data not found
      */
-    public static async getRelations(ctx: DefaultContext) {
+    public static async getRelations (ctx: DefaultContext) {
         try {
             const user = ctx.user
             const company = user.company ? user.company : null

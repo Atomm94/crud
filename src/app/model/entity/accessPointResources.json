@@ -229,9 +229,6 @@
                         }
                     ]
                 },
-                "name": {
-                    "type": "textInput"
-                },
                 "port": {
                     "type": "numberInput"
                 },
@@ -262,39 +259,6 @@
                         {
                             "id": 1,
                             "name": "exit"
-                        }
-                    ]
-                },
-                "baud_rate": {
-                    "type": "select",
-                    "list": [
-                        {
-                            "id": null,
-                            "name": "Auto"
-                        },
-                        {
-                            "id": null,
-                            "name": 2400
-                        },
-                        {
-                            "id": null,
-                            "name": 9600
-                        },
-                        {
-                            "id": null,
-                            "name": 19200
-                        },
-                        {
-                            "id": null,
-                            "name": 28800
-                        },
-                        {
-                            "id": null,
-                            "name": 38400
-                        },
-                        {
-                            "id": null,
-                            "name": 57600
                         }
                     ]
                 },
@@ -815,108 +779,146 @@
                         }
                     ]
                 },
-                "card_data_format_flags": {
-                    "type": "select",
-                    "list": [
-                        {
-                            "id": -1,
-                            "name": "Data 1/Data 0"
-                        },
-                        {
-                            "id": 0,
-                            "name": "ABA"
-                        },
-                        {
-                            "id": 1,
-                            "name": "2000 bit binary"
-                        },
-                        {
-                            "id": 2,
-                            "name": "RAW format"
-                        }
-                    ]
-                },
-                "keypad_mode": {
-                    "type": "select",
-                    "list": [
-                        {
-                            "id": -1,
-                            "name": "No Keypad Decoding Defined"
-                        },
-                        {
-                            "id": 0,
-                            "name": "4-bit burst"
-                        },
-                        {
-                            "id": 1,
-                            "name": "8-bit burst"
-                        },
-                        {
-                            "id": 2,
-                            "name": "26-bit burst"
-                        }
-                    ]
-                },
-                "configuration": {
-                    "type": "select",
-                    "list": [
-                        {
-                            "id": 0,
-                            "name": "Single reader"
-                        },
-                        {
-                            "id": 1,
-                            "name": "Multi readers"
-                        }
-                    ]
-                },
-                "led_mode": {
-                    "type": "select",
-                    "list": [
-                        {
-                            "id": null,
-                            "name": "LedMode1"
-                        },
-                        {
-                            "id": null,
-                            "name": "LedMode2"
-                        },
-                        {
-                            "id": null,
-                            "name": "LedMode3"
-                        },
-                        {
-                            "id": null,
-                            "name": "LedMode4"
-                        }
-                    ]
-                },
-                "offline_mode": {
-                    "type": "select",
-                    "list": [
-                        {
-                            "id": 0,
-                            "name": "Locked"
-                        },
-                        {
-                            "id": 1,
-                            "name": "Unlocked"
-                        }
-                    ]
-                },
-                "enable_osdp_secure_channel": {
-                    "type": "checkBox"
-                },
-                "enable_osdp_tracing": {
-                    "type": "checkBox"
-                },
-                "leave_zone": {
-                    "type": "select",
-                    "list": "accessPointZone"
-                },
-                "coming_zone": {
-                    "type": "select",
-                    "list": "accessPointZone"
+                "osdp_data": {
+                    "name": {
+                        "type": "textInput"
+                    },
+                    "baud_rate": {
+                        "type": "select",
+                        "list": [
+                            {
+                                "id": null,
+                                "name": "Auto"
+                            },
+                            {
+                                "id": null,
+                                "name": 2400
+                            },
+                            {
+                                "id": null,
+                                "name": 9600
+                            },
+                            {
+                                "id": null,
+                                "name": 19200
+                            },
+                            {
+                                "id": null,
+                                "name": 28800
+                            },
+                            {
+                                "id": null,
+                                "name": 38400
+                            },
+                            {
+                                "id": null,
+                                "name": 57600
+                            }
+                        ]
+                    },
+                    "card_data_format_flags": {
+                        "type": "select",
+                        "list": [
+                            {
+                                "id": -1,
+                                "name": "Data 1/Data 0"
+                            },
+                            {
+                                "id": 0,
+                                "name": "ABA"
+                            },
+                            {
+                                "id": 1,
+                                "name": "2000 bit binary"
+                            },
+                            {
+                                "id": 2,
+                                "name": "RAW format"
+                            }
+                        ]
+                    },
+                    "keypad_mode": {
+                        "type": "select",
+                        "list": [
+                            {
+                                "id": -1,
+                                "name": "No Keypad Decoding Defined"
+                            },
+                            {
+                                "id": 0,
+                                "name": "4-bit burst"
+                            },
+                            {
+                                "id": 1,
+                                "name": "8-bit burst"
+                            },
+                            {
+                                "id": 2,
+                                "name": "26-bit burst"
+                            }
+                        ]
+                    },
+                    "configuration": {
+                        "type": "select",
+                        "list": [
+                            {
+                                "id": 0,
+                                "name": "Single reader"
+                            },
+                            {
+                                "id": 1,
+                                "name": "Multi readers"
+                            }
+                        ]
+                    },
+                    "led_mode": {
+                        "type": "select",
+                        "list": [
+                            {
+                                "id": null,
+                                "name": "LedMode1"
+                            },
+                            {
+                                "id": null,
+                                "name": "LedMode2"
+                            },
+                            {
+                                "id": null,
+                                "name": "LedMode3"
+                            },
+                            {
+                                "id": null,
+                                "name": "LedMode4"
+                            }
+                        ]
+                    },
+                    "offline_mode": {
+                        "type": "select",
+                        "list": [
+                            {
+                                "id": 0,
+                                "name": "Locked"
+                            },
+                            {
+                                "id": 1,
+                                "name": "Unlocked"
+                            }
+                        ]
+                    },
+                    "enable_osdp_secure_channel": {
+                        "type": "checkBox"
+                    },
+                    "enable_osdp_tracing": {
+                        "type": "checkBox"
+                    },
+                    "leave_zone": {
+                        "type": "select",
+                        "list": "accessPointZone"
+                    },
+                    "coming_zone": {
+                        "type": "select",
+                        "list": "accessPointZone"
+                    }
                 }
             }
         },

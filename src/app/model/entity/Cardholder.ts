@@ -24,6 +24,7 @@ import { Schedule } from './Schedule'
 import { Admin } from '.'
 import { scheduleCustomType } from '../../enums/scheduleCustomType.enum'
 import { minusResource } from '../../functions/minusResource'
+import { logUserEvents } from '../../enums/logUserEvents.enum'
 const parentDir = join(__dirname, '../../..')
 
 @Entity('cardholder')
@@ -196,6 +197,7 @@ export class Cardholder extends MainEntity {
     public static async updateItem (data: any, auth_user: any): Promise<{ [key: string]: any }> {
         const cardholder = await this.findOneOrFail({ id: data.id })
         const oldData = Object.assign({}, cardholder)
+        const logs_data: any = []
 
         let group_data: any
         if (data.limitation_inherited || data.antipass_back_inherited || data.time_attendance_inherited || data.access_right_inherited) {
@@ -210,9 +212,21 @@ export class Cardholder extends MainEntity {
             data.limitation = group_data.limitation
         } else {
             if (auth_user.cardholder || data.limitation_inherited === oldData.limitation_inherited) {
-                if (data.limitations) await Limitation.updateItem(data.limitations as Limitation)
+                if (data.limitations) {
+                    const limitation_data = await Limitation.updateItem(data.limitations as Limitation)
+                    logs_data.push({
+                        event: logUserEvents.CHANGE,
+                        target: `${Cardholder.name}-${Limitation.name}/${cardholder.first_name}`,
+                        value: limitation_data
+                    })
+                }
             } else {
                 const limitation_data: any = await Limitation.addItem(data.limitations as Limitation)
+                logs_data.push({
+                    event: logUserEvents.CREATE,
+                    target: `${Cardholder.name}-${Limitation.name}/${cardholder.first_name}`,
+                    value: limitation_data
+                })
                 data.limitation = limitation_data.id
             }
         }
@@ -221,10 +235,20 @@ export class Cardholder extends MainEntity {
             data.antipass_back = group_data.antipass_back
         } else {
             if (data.antipass_back_inherited === oldData.antipass_back_inherited) {
-                await AntipassBack.updateItem(data.antipass_backs as AntipassBack)
+                const antipass_back_data = await AntipassBack.updateItem(data.antipass_backs as AntipassBack)
+                logs_data.push({
+                    event: logUserEvents.CHANGE,
+                    target: `${Cardholder.name}-${AntipassBack.name}/${cardholder.first_name}`,
+                    value: antipass_back_data
+                })
             } else {
                 if (data.antipass_backs) {
                     const antipass_back_data: any = await AntipassBack.addItem(data.antipass_backs as AntipassBack)
+                    logs_data.push({
+                        event: logUserEvents.CREATE,
+                        target: `${Cardholder.name}-${AntipassBack.name}/${cardholder.first_name}`,
+                        value: antipass_back_data
+                    })
                     data.antipass_back = antipass_back_data.id
                 }
             }
@@ -272,7 +296,8 @@ export class Cardholder extends MainEntity {
                 .then((item: Cardholder) => {
                     resolve({
                         old: oldData,
-                        new: item
+                        new: item,
+                        logs_data: logs_data
                     })
                 })
                 .catch((error: any) => {
