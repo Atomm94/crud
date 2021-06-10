@@ -57,7 +57,7 @@ export default class TimeframeController {
      *                  description: Wrong data
      */
 
-    public static async add (ctx: DefaultContext) {
+    public static async add(ctx: DefaultContext) {
         try {
             const req_data = ctx.request.body
             const user = ctx.user
@@ -145,7 +145,7 @@ export default class TimeframeController {
      *              '422':
      *                  description: Wrong data
      */
-    public static async update (ctx: DefaultContext) {
+    public static async update(ctx: DefaultContext) {
         try {
             const req_data = ctx.request.body
             const user = ctx.user
@@ -210,7 +210,7 @@ export default class TimeframeController {
      *              '404':
      *                  description: Data not found
      */
-    public static async get (ctx: DefaultContext) {
+    public static async get(ctx: DefaultContext) {
         try {
             const user = ctx.user
             const where = { id: +ctx.params.id, company: user.company ? user.company : user.company }
@@ -256,14 +256,21 @@ export default class TimeframeController {
      *              '422':
      *                  description: Wrong data
      */
-    public static async destroy (ctx: DefaultContext) {
+    public static async destroy(ctx: DefaultContext) {
         try {
+
             const req_data = ctx.request.body
             const user = ctx.user
-            const timeframe: Timeframe = await Timeframe.findOneOrFail(req_data.id)
-            const where = { id: req_data.id, company: user.company ? user.company : null }
-
-            ctx.body = await Timeframe.destroyItem(where)
+            let where: any = { company: user.company }
+            if (req_data.id) {
+                where.id = req_data.id
+            } else {
+                where.schedule = req_data.schedule
+                where.name = req_data.name
+            }
+            const timeframe: Timeframe = await Timeframe.findOneOrFail({ where: where })
+            req_data.company = user.company
+            ctx.body = await Timeframe.destroyItem(req_data)
             const schedule = await Schedule.findOneOrFail({ id: timeframe.schedule })
 
             const access_rules = await AccessRule.createQueryBuilder('access_rule')
@@ -280,6 +287,8 @@ export default class TimeframeController {
                 SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, user.id, access_rule.access_points.acus.session_id, send_data)
             }
         } catch (error) {
+            console.log(error);
+
             ctx.status = error.status || 400
             ctx.body = error
         }
@@ -319,7 +328,7 @@ export default class TimeframeController {
      *              '401':
      *                  description: Unauthorized
      */
-    public static async getAll (ctx: DefaultContext) {
+    public static async getAll(ctx: DefaultContext) {
         try {
             const req_data = ctx.query
             const user = ctx.user
@@ -385,13 +394,18 @@ export default class TimeframeController {
      *              '422':
      *                  description: Wrong data
      */
-    public static async clone (ctx: DefaultContext) {
+    public static async clone(ctx: DefaultContext) {
         try {
             const req_data = ctx.request.body
             const user = ctx.user
+            console.log('reqdata', req_data);
+
             const where = { schedule: req_data.copy_id, name: req_data.copy_name, company: user.company }
             const timeFrames = await Timeframe.find(where)
             const deleteWhere = { schedule: req_data.paste_id, company: user.company, name: req_data.paste_name }
+            console.log('timeFrames', timeFrames);
+
+
             if (timeFrames.length) {
                 await Timeframe.delete(deleteWhere)
                 const newTimeFrames = []

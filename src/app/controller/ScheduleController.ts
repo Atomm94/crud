@@ -283,7 +283,7 @@ export default class ScheduleController {
             const user = ctx.user
             const company = user.company ? user.company : null
             ctx.body = await Schedule.createQueryBuilder('schedule')
-                .leftJoinAndSelect('schedule.timeframes', 'timeframe')
+                .leftJoinAndSelect('schedule.timeframes', 'timeframe', 'timeframe.delete_date is null')
                 .select('schedule.*')
                 .addSelect('timeframe.name')
                 .where(`schedule.company = ${company}`)
