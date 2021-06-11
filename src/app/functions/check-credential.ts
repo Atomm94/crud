@@ -8,8 +8,6 @@ import { resourceKeys } from '../enums/resourceKeys.enum'
 
 export class CheckCredentialSettings {
     public static checkSettings (credentials: Credential | Credential[] | null) {
-        console.log('checkSettings credentials', credentials)
-
         if (credentials) {
             if (!Array.isArray(credentials)) credentials = [credentials]
             for (const credential of credentials) {

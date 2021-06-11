@@ -5,6 +5,7 @@ import { Credential } from '../model/entity/Credential'
 import { AccessPoint, Cardholder } from '../model/entity'
 import { acuStatus } from '../enums/acuStatus.enum'
 import CardKeyController from './Hardware/CardKeyController'
+import { logUserEvents } from '../enums/logUserEvents.enum'
 
 export default class CredentialController {
     /**
@@ -225,8 +226,9 @@ export default class CredentialController {
             const user = ctx.user
             const location = `${user.company_main}/${user.company}`
             const req_data = ctx.request.body
+            let logs_data = []
             const where = { id: req_data.id, company: user.company ? user.company : null }
-            const credential: any = await Credential.getItem({ id: req_data.id })
+            const credential:any = await Credential.findOne({ relations: ['cardholders'], where: where })
             credential.status = 0
             req_data.where = { company: { '=': user.company ? user.company : null }, status: { '=': acuStatus.ACTIVE } }
             const access_points = await AccessPoint.createQueryBuilder('access_point')
@@ -235,6 +237,12 @@ export default class CredentialController {
             .andWhere(`acu.company = ${ctx.user.company}`)
             .getMany()
             ctx.body = await Credential.destroyItem(where)
+            logs_data.push({
+                event: logUserEvents.DELETE,
+                target: `${Credential.name}/${credential.cardholders.first_name}/${credential.code}`,
+                value: null
+            })
+            ctx.logsData = logs_data
             const cardhoder = await Cardholder.findOneOrFail({ id: credential.cardholder })
             cardhoder.credentials = [credential]
             CardKeyController.editCardKey(location, req_data.company, user.id, null, access_points, [cardhoder])

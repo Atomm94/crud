@@ -9,6 +9,8 @@ import { Reader } from '../model/entity/Reader'
 import accessPointResources from '../model/entity/accessPointResources.json'
 import CtpController from './Hardware/CtpController'
 import RdController from './Hardware/RdController'
+import { logUserEvents } from '../enums/logUserEvents.enum'
+import { readerTypes } from '../enums/readerTypes'
 
 export default class AccessPointController {
     /**
@@ -93,6 +95,8 @@ export default class AccessPointController {
             const where = { id: req_data.id, company: user.company ? user.company : null }
             const access_point = await AccessPoint.findOne({ relations: ['acus'], where: where })
             const location = `${user.company_main}/${user.company}`
+
+            const logs_data = []
             if (!access_point) {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
@@ -101,6 +105,12 @@ export default class AccessPointController {
                 if (access_point.acus.status === acuStatus.ACTIVE) {
                     CtpController.delCtp(access_point.type, location, access_point.acus.serial_number, req_data, user.id, access_point.acus.session_id)
                 }
+            logs_data.push({
+                event: logUserEvents.DELETE,
+                target: `${AccessPoint.name}/${access_point.acus.name}/${access_point.name}`,
+                value: null
+            })
+            ctx.logsData = logs_data
             }
         } catch (error) {
             console.log(error)
@@ -182,18 +192,27 @@ export default class AccessPointController {
      */
     public static async readerDestroy (ctx: DefaultContext) {
         try {
+
+            const logs_data = []
             const req_data: any = ctx.request.body
             const user = ctx.user
             const company = user.company ? user.company : null
             req_data.company = company
             const location = `${user.company_main}/${user.company}`
             const where = { id: req_data.id, company: company }
-            const reader: Reader = await Reader.findOneOrFail({ relations: ['access_points', 'access_points.acus'], where: where })
+            const reader: any = await Reader.findOneOrFail({ relations: ['access_points', 'access_points.acus'], where: where })
             req_data.direction = reader.direction
             req_data.port = reader.port
             req_data.access_point = reader.access_points.id
             req_data.access_point_type = reader.access_points.type
             ctx.body = await Reader.destroyItem(where)
+
+            logs_data.push({
+                event: logUserEvents.DELETE,
+                target: `${Reader.name}/${reader.access_points.acus.name}/${reader.access_points.name}/${readerTypes[reader.type]}`,
+                value: null
+            })
+            ctx.logsData = logs_data
             if (reader.access_points.acus.status === acuStatus.ACTIVE) {
                 RdController.delRd(location, reader.access_points.acus.serial_number, req_data, user, reader.access_points.acus.session_id)
                 ctx.body = true

@@ -93,7 +93,7 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
                                     account_name: `${ctx.user.first_name} ${ctx.user.last_name}`,
                                     event: logUserEvents.DELETE,
                                     target: target,
-                                    value: ctx.request.body.id
+                                    value: null
                                 }
                             }
                             MQTTBroker.publishMessage(SendTopics.LOG, JSON.stringify(dataLog))
