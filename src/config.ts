@@ -34,8 +34,6 @@ export interface IConfig {
         name: string,
         dbsslconn: boolean,
         synchronize: boolean,
-        migrationsRun: boolean,
-        
     };
     cors: {
         origin: string,
@@ -86,8 +84,7 @@ const config: IConfig = {
         port: normalizePort(_.defaultTo(process.env.DB_PORT, 5432)),
         name: _.defaultTo(process.env.DB_NAME, 'postgres'),
         dbsslconn: process.env.NODE_ENV === 'production',
-        synchronize: _.defaultTo(JSON.parse(process.env.DB_SYNC as string), false),
-        migrationsRun: true
+        synchronize: _.defaultTo(JSON.parse(process.env.DB_SYNC as string), false)
     },
     cors: {
         origin: process.env.ORIGIN ? process.env.ORIGIN : 'http://localhost:8080',

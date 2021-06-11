@@ -7,7 +7,8 @@ import { logger } from '../../../modules/winston/logger'
 export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
     const start = +new Date()
     const date = new Date().toISOString()
-    const req_data: string = `${ctx.method} ${ctx.originalUrl} reqBody - ${ctx.method === 'GET' ? ctx.query ? JSON.stringify(ctx.query) : '{}' : ctx.request.body ? JSON.stringify(ctx.request.body) : '{}'}`
+    let req_data: string = `${ctx.method} ${ctx.originalUrl} reqBody - ${ctx.method === 'GET' ? ctx.query ? JSON.stringify(ctx.query) : '{}' : ctx.request.body ? JSON.stringify(ctx.request.body) : '{}'}`
+    if (ctx.user) req_data += `, user - ${ctx.user.id} `
     logger.info(req_data)
 
     await next()

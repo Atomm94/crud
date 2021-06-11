@@ -3,7 +3,8 @@ import {
     Column,
     ManyToOne,
     JoinColumn,
-    DeleteDateColumn
+    DeleteDateColumn,
+    Index
 } from 'typeorm'
 
 import {
@@ -12,8 +13,10 @@ import {
     AccessPoint,
     Schedule
 } from './index'
-
 import { minusResource } from '../../functions/minusResource'
+
+@Index('access_right|access_point|delete_date', ['access_right', 'access_point', 'delete_date'], { unique: true })
+
 @Entity('access_rule')
 export class AccessRule extends MainEntity {
     @Column('int', { name: 'access_right', nullable: false })
@@ -29,7 +32,7 @@ export class AccessRule extends MainEntity {
     access_in_holidays: boolean
 
     @DeleteDateColumn({ type: 'timestamp', name: 'delete_date' })
-    public deleteDate: Date
+    public delete_date: Date
 
     @Column('int', { name: 'company', nullable: false })
     company: number
