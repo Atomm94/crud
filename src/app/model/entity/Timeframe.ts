@@ -130,7 +130,7 @@ export class Timeframe extends MainEntity {
         if (data.name && data.schedule) {
             // eslint-disable-next-line no-async-promise-executor
             return new Promise(async (resolve, reject) => {
-                this.softRemove(await this.findOneOrFail({ name: data.name, schedule: data.schedule,company:data.company }))
+                this.softRemove(await this.findOneOrFail({ name: data.name, schedule: data.schedule, company: data.company }))
                     .then(() => {
                         minusResource(this.name, data.company)
                         resolve({ message: 'success' })
@@ -142,7 +142,7 @@ export class Timeframe extends MainEntity {
         } else if (data.id) {
             // eslint-disable-next-line no-async-promise-executor
             return new Promise(async (resolve, reject) => {
-                this.softRemove(await this.findOneOrFail({ id: data.id ,company:data.company}))
+                this.softRemove(await this.findOneOrFail({ id: data.id, company: data.company }))
 
                     .then(() => {
                         minusResource(this.name, data.company)
