@@ -254,11 +254,6 @@ export default class CardholderController {
                 req_data.limitation = group_data.limitation
             } else {
                 const limitation_data = await Limitation.addItem(req_data.limitations as Limitation)
-                logs_data.push({
-                    event: logUserEvents.CREATE,
-                    target: `${Cardholder.name}-${Limitation.name}/${req_data.first_name}`,
-                    value: limitation_data
-                })
                 if (limitation_data) {
                     req_data.limitation = limitation_data.id
                 }
@@ -268,11 +263,6 @@ export default class CardholderController {
                 req_data.antipass_back = group_data.antipass_back
             } else {
                 const antipass_back_data = await AntipassBack.addItem(req_data.antipass_backs as AntipassBack)
-                logs_data.push({
-                    event: logUserEvents.CREATE,
-                    target: `${Cardholder.name}-${AntipassBack.name}/${req_data.first_name}`,
-                    value: antipass_back_data
-                })
                 if (antipass_back_data) {
                     req_data.antipass_back = antipass_back_data.id
                 }
@@ -287,11 +277,6 @@ export default class CardholderController {
             }
             if (req_data.car_info) {
                 const car_info = await CarInfo.addItem(req_data.car_infos as CarInfo)
-                logs_data.push({
-                    event: logUserEvents.CREATE,
-                    target: `${Cardholder.name}-${CarInfo.name}/${req_data.first_name}`,
-                    value: car_info
-                })
                 if (car_info) {
                     req_data.car_info = car_info.id
                 }
@@ -300,7 +285,7 @@ export default class CardholderController {
             logs_data.push({
                 event: logUserEvents.CREATE,
                 target: `${Cardholder.name}/${cardholder.first_name}`,
-                value: cardholder
+                value: null
             })
 
             if (req_data.credentials && req_data.credentials.length) {
@@ -312,7 +297,7 @@ export default class CardholderController {
                     logs_data.push({
                         event: logUserEvents.CREATE,
                         target: `${Credential.name}/${cardholder.first_name}/${credential_data.type}`,
-                        value: credential_data
+                        value: null
                     })
                     credentials.push(credential_data)
 

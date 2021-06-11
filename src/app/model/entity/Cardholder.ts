@@ -25,6 +25,8 @@ import { Admin } from '.'
 import { scheduleCustomType } from '../../enums/scheduleCustomType.enum'
 import { minusResource } from '../../functions/minusResource'
 import { logUserEvents } from '../../enums/logUserEvents.enum'
+import { getObjectDiff } from '../../functions/checkDifference'
+
 const parentDir = join(__dirname, '../../..')
 
 @Entity('cardholder')
@@ -151,7 +153,7 @@ export class Cardholder extends MainEntity {
 
     public static resource: boolean = true
 
-    public static async addItem (data: Cardholder): Promise<Cardholder> {
+    public static async addItem(data: Cardholder): Promise<Cardholder> {
         const cardholder = new Cardholder()
 
         cardholder.email = data.email
@@ -194,7 +196,7 @@ export class Cardholder extends MainEntity {
         })
     }
 
-    public static async updateItem (data: any, auth_user: any): Promise<{ [key: string]: any }> {
+    public static async updateItem(data: any, auth_user: any): Promise<{ [key: string]: any }> {
         const cardholder = await this.findOneOrFail({ id: data.id })
         const oldData = Object.assign({}, cardholder)
         const logs_data: any = []
@@ -214,19 +216,17 @@ export class Cardholder extends MainEntity {
             if (auth_user.cardholder || data.limitation_inherited === oldData.limitation_inherited) {
                 if (data.limitations) {
                     const limitation_data = await Limitation.updateItem(data.limitations as Limitation)
-                    logs_data.push({
-                        event: logUserEvents.CHANGE,
-                        target: `${Cardholder.name}-${Limitation.name}/${cardholder.first_name}`,
-                        value: limitation_data
-                    })
+                    const diff_limitation_data = getObjectDiff(limitation_data.new, limitation_data.old)
+                    if (Object.keys(diff_limitation_data).length) {
+                        logs_data.push({
+                            event: logUserEvents.CHANGE,
+                            target: `${Cardholder.name}-${Limitation.name}/${cardholder.first_name}`,
+                            value: diff_limitation_data
+                        })
+                    }
                 }
             } else {
                 const limitation_data: any = await Limitation.addItem(data.limitations as Limitation)
-                logs_data.push({
-                    event: logUserEvents.CREATE,
-                    target: `${Cardholder.name}-${Limitation.name}/${cardholder.first_name}`,
-                    value: limitation_data
-                })
                 data.limitation = limitation_data.id
             }
         }
@@ -236,19 +236,17 @@ export class Cardholder extends MainEntity {
         } else {
             if (data.antipass_back_inherited === oldData.antipass_back_inherited) {
                 const antipass_back_data = await AntipassBack.updateItem(data.antipass_backs as AntipassBack)
-                logs_data.push({
-                    event: logUserEvents.CHANGE,
-                    target: `${Cardholder.name}-${AntipassBack.name}/${cardholder.first_name}`,
-                    value: antipass_back_data
-                })
+                const diff_antipass_back_data = getObjectDiff(antipass_back_data.new, antipass_back_data.old)
+                if (Object.keys(diff_antipass_back_data).length) {
+                    logs_data.push({
+                        event: logUserEvents.CHANGE,
+                        target: `${Cardholder.name}-${AntipassBack.name}/${cardholder.first_name}`,
+                        value: diff_antipass_back_data
+                    })
+                }
             } else {
                 if (data.antipass_backs) {
                     const antipass_back_data: any = await AntipassBack.addItem(data.antipass_backs as AntipassBack)
-                    logs_data.push({
-                        event: logUserEvents.CREATE,
-                        target: `${Cardholder.name}-${AntipassBack.name}/${cardholder.first_name}`,
-                        value: antipass_back_data
-                    })
                     data.antipass_back = antipass_back_data.id
                 }
             }
@@ -263,7 +261,15 @@ export class Cardholder extends MainEntity {
         }
 
         if (data.car_infos) {
-            await CarInfo.updateItem(data.car_infos)
+            const car_info_data = await CarInfo.updateItem(data.car_infos)
+            const diff_car_info_data = getObjectDiff(car_info_data.new, car_info_data.old)
+            if (Object.keys(diff_car_info_data).length) {
+                logs_data.push({
+                    event: logUserEvents.CHANGE,
+                    target: `${Cardholder.name}-${AntipassBack.name}/${cardholder.first_name}`,
+                    value: diff_car_info_data
+                })
+            }
         }
 
         if ('email' in data) cardholder.email = data.email
@@ -306,7 +312,7 @@ export class Cardholder extends MainEntity {
         })
     }
 
-    public static async getItem (where: any, relations?: Array<string>) {
+    public static async getItem(where: any, relations?: Array<string>) {
         return new Promise((resolve, reject) => {
             this.findOneOrFail({
                 where: where,
@@ -321,7 +327,7 @@ export class Cardholder extends MainEntity {
         })
     }
 
-    public static async destroyItem (data: any) {
+    public static async destroyItem(data: any) {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
             this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
@@ -339,7 +345,7 @@ export class Cardholder extends MainEntity {
         })
     }
 
-    public static async getAllItems (params?: any): Promise<Cardholder[] | []> {
+    public static async getAllItems(params?: any): Promise<Cardholder[] | []> {
         return new Promise((resolve, reject) => {
             this.findByParams(params)
                 .then((items: Cardholder[]) => {
@@ -351,11 +357,11 @@ export class Cardholder extends MainEntity {
         })
     }
 
-    public static async saveImage (file: any) {
+    public static async saveImage(file: any) {
         return fileSave(file)
     }
 
-    public static async deleteImage (file: any) {
+    public static async deleteImage(file: any) {
         return fs.unlink(`${parentDir}/public/${file}`, (err) => {
             if (err) throw err
             logger.info('Delete complete!')

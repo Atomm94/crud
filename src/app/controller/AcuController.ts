@@ -170,7 +170,7 @@ export default class AcuController {
             logs_data.push({
                 event: logUserEvents.CREATE,
                 target: `${Acu.name}/${save_acu.name}`,
-                value: save_acu
+                value: null
             })
 
             if (req_data.access_points) {
@@ -182,18 +182,13 @@ export default class AcuController {
                     logs_data.push({
                         event: logUserEvents.CREATE,
                         target: `${AccessPoint.name}/${save_acu.name}/${save_access_point.name}`,
-                        value: save_access_point
+                        value: null
                     })
                     if (save_access_point) {
                         for (const reader of access_point.readers) {
                             reader.company = acu.company
                             reader.access_point = save_access_point.id
-                            const save_reader: any = await Reader.addItem(reader)
-                            logs_data.push({
-                                event: logUserEvents.CREATE,
-                                target: `${Reader.name}/${save_acu.name}/${save_access_point.name}/${readerTypes[save_reader.type]}`,
-                                value: save_reader
-                            })
+                            await Reader.addItem(reader)
                         }
                     }
                 }
