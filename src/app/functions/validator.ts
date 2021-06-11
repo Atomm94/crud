@@ -191,7 +191,7 @@ export function checkAccessPointsValidation(data: any, acu_model: string, update
                 if (reader.type && !acu_models.controllers[acu_model].readers[readerTypes[reader.type]]) {
                     return (`device model ${acu_model} cant have reader ${readerTypes[reader.type]}!`)
                 } else {
-                    if (!('wg_type' in reader) || reader.wg_type === null ) {
+                    if (!('wg_type' in reader) || reader.wg_type === null) {
                         return ('reader interface type is required!')
                     } else {
                         if ('port' in reader) {
