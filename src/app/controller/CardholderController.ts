@@ -215,7 +215,7 @@ export default class CardholderController {
      *                  description: Wrong data
      */
 
-    public static async add (ctx: DefaultContext) {
+    public static async add(ctx: DefaultContext) {
         try {
             const req_data = ctx.request.body
 
@@ -275,7 +275,7 @@ export default class CardholderController {
             if (req_data.time_attendance_inherited && group_data) {
                 req_data.time_attendance = group_data.time_attendance
             }
-            if (req_data.car_info) {
+            if (req_data.car_infos) {
                 const car_info = await CarInfo.addItem(req_data.car_infos as CarInfo)
                 if (car_info) {
                     req_data.car_info = car_info.id
@@ -307,14 +307,20 @@ export default class CardholderController {
                 CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, company, auth_user.id, null, [cardholder], null)
             }
             if (cardholder) {
-                const where = { id: cardholder.id }
-                const relations = ['car_infos', 'limitations', 'antipass_backs', 'time_attendances', 'access_rights', 'cardholder_groups', 'credentials']
-                ctx.body = await Cardholder.getItem(where, relations)
+                const cardholder_data = await Cardholder.createQueryBuilder('cardholder')
+                    .leftJoinAndSelect('cardholder.car_infos', 'car_info')
+                    .leftJoinAndSelect('cardholder.limitations', 'limitation')
+                    .leftJoinAndSelect('cardholder.antipass_backs', 'antipass_back')
+                    .leftJoinAndSelect('cardholder.time_attendances', 'time_attendance')
+                    .leftJoinAndSelect('cardholder.access_rights', 'access_right')
+                    .leftJoinAndSelect('cardholder.cardholder_groups', 'cardholder_group')
+                    .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null')
+                    .where(`cardholder.id = '${cardholder.id}'`)
+                    .getMany()
+                ctx.body = cardholder_data[0]
+                ctx.logsData = logs_data
             }
-            ctx.logsData = logs_data
         } catch (error) {
-            console.log(error)
-
             ctx.status = error.status || 400
             ctx.body = error
         }
@@ -518,7 +524,7 @@ export default class CardholderController {
      *              '422':
      *                  description: Wrong data
      */
-    public static async update (ctx: DefaultContext) {
+    public static async update(ctx: DefaultContext) {
         try {
             const req_data = ctx.request.body
             const auth_user = ctx.user
@@ -607,10 +613,17 @@ export default class CardholderController {
                 ctx.oldData = res_data.old
                 ctx.body = res_data.new
 
-                const where = { id: req_data.id }
-                const relations = ['car_infos', 'limitations', 'antipass_backs', 'time_attendances', 'access_rights', 'cardholder_groups', 'credentials']
-                ctx.body = await Cardholder.getItem(where, relations)
-
+                const cardholder_data = await Cardholder.createQueryBuilder('cardholder')
+                    .leftJoinAndSelect('cardholder.car_infos', 'car_info')
+                    .leftJoinAndSelect('cardholder.limitations', 'limitation')
+                    .leftJoinAndSelect('cardholder.antipass_backs', 'antipass_back')
+                    .leftJoinAndSelect('cardholder.time_attendances', 'time_attendance')
+                    .leftJoinAndSelect('cardholder.access_rights', 'access_right')
+                    .leftJoinAndSelect('cardholder.cardholder_groups', 'cardholder_group')
+                    .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null')
+                    .where(`cardholder.id = '${req_data.id}'`)
+                    .getMany()
+                ctx.body = cardholder_data[0]
                 ctx.logsData = logs_data
             }
         } catch (error) {
@@ -651,12 +664,22 @@ export default class CardholderController {
      *              '404':
      *                  description: Data not found
      */
-    public static async get (ctx: DefaultContext) {
+    public static async get(ctx: DefaultContext) {
         try {
             const user = ctx.user
-            const where = { id: +ctx.params.id, company: user.company ? user.company : user.company }
-            const relations = ['car_infos', 'limitations', 'antipass_backs', 'time_attendances', 'access_rights', 'cardholder_groups', 'credentials']
-            ctx.body = await Cardholder.getItem(where, relations)
+
+            const cardholder = await Cardholder.createQueryBuilder('cardholder')
+                .leftJoinAndSelect('cardholder.car_infos', 'car_info')
+                .leftJoinAndSelect('cardholder.limitations', 'limitation')
+                .leftJoinAndSelect('cardholder.antipass_backs', 'antipass_back')
+                .leftJoinAndSelect('cardholder.time_attendances', 'time_attendance')
+                .leftJoinAndSelect('cardholder.access_rights', 'access_right')
+                .leftJoinAndSelect('cardholder.cardholder_groups', 'cardholder_group')
+                .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null')
+                .where(`cardholder.id = '${+ctx.params.id}'`)
+                .andWhere(`cardholder.company = ${user.company}`)
+                .getMany()
+            ctx.body = cardholder[0]
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -698,7 +721,7 @@ export default class CardholderController {
      *              '422':
      *                  description: Wrong data
      */
-    public static async destroy (ctx: DefaultContext) {
+    public static async destroy(ctx: DefaultContext) {
         try {
             const req_data = ctx.request.body
             const user = ctx.user
@@ -737,7 +760,7 @@ export default class CardholderController {
      *              '401':
      *                  description: Unauthorized
      */
-    public static async getAll (ctx: DefaultContext) {
+    public static async getAll(ctx: DefaultContext) {
         try {
             const req_data = ctx.query
             const user = ctx.user
@@ -780,7 +803,7 @@ export default class CardholderController {
      *              '401':
      *                  description: Unauthorized
      */
-    public static async getAllGuests (ctx: DefaultContext) {
+    public static async getAllGuests(ctx: DefaultContext) {
         try {
             const req_data = ctx.query
             const user = ctx.user
@@ -828,7 +851,7 @@ export default class CardholderController {
      *              '422':
      *                  description: Wrong data
      */
-    public static async cardholderImageSave (ctx: DefaultContext) {
+    public static async cardholderImageSave(ctx: DefaultContext) {
         const file = ctx.request.files.file
         const savedFile = await Cardholder.saveImage(file)
         return ctx.body = savedFile
@@ -869,7 +892,7 @@ export default class CardholderController {
      *              '422':
      *                  description: Wrong data
      */
-    public static async cardholderImageDelete (ctx: DefaultContext) {
+    public static async cardholderImageDelete(ctx: DefaultContext) {
         const name = ctx.request.body.name
 
         try {
@@ -931,7 +954,7 @@ export default class CardholderController {
      *              '422':
      *                  description: Wrong data
      */
-    public static async updateMultipleCardholders (ctx: DefaultContext) {
+    public static async updateMultipleCardholders(ctx: DefaultContext) {
         try {
             const req_data = ctx.request.body
 
@@ -1003,7 +1026,7 @@ export default class CardholderController {
      *                  description: Wrong data
      */
 
-    public static async inviteCardholder (ctx: DefaultContext) {
+    public static async inviteCardholder(ctx: DefaultContext) {
         const reqData = ctx.request.body
         const user = ctx.user
         const company = (user.company) ? user.company : null
@@ -1083,7 +1106,7 @@ export default class CardholderController {
      *              '404':
      *                  description: Data not found
      */
-    public static async setCardholderPassword (ctx: DefaultContext) {
+    public static async setCardholderPassword(ctx: DefaultContext) {
         const verify_token: string = ctx.params.token
         const user = await Admin.findOne({ verify_token: verify_token })
         if (user) {
@@ -1211,7 +1234,7 @@ export default class CardholderController {
      *                  description: Wrong data
      */
 
-    public static async addGuest (ctx: DefaultContext) {
+    public static async addGuest(ctx: DefaultContext) {
         try {
             const req_data = ctx.request.body
 
@@ -1428,7 +1451,7 @@ export default class CardholderController {
      *              '422':
      *                  description: Wrong data
      */
-    public static async updateGuest (ctx: DefaultContext) {
+    public static async updateGuest(ctx: DefaultContext) {
         try {
             const req_data = ctx.request.body
 
@@ -1704,7 +1727,7 @@ export default class CardholderController {
      *                  description: Wrong data
      */
 
-    public static async addFromCabinet (ctx: DefaultContext) {
+    public static async addFromCabinet(ctx: DefaultContext) {
         try {
             const req_data = ctx.request.body
 
@@ -1935,7 +1958,7 @@ export default class CardholderController {
      *                  description: Wrong data
      */
 
-    public static async updateFromCabinet (ctx: DefaultContext) {
+    public static async updateFromCabinet(ctx: DefaultContext) {
         try {
             const req_data = ctx.request.body
 
