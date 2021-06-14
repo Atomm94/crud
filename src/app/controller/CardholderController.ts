@@ -1322,7 +1322,6 @@ export default class CardholderController {
                         'access_rules.access_points.acus'
                     ]
                 })
-                console.log('access_rights', access_rights)
                 for (const access_rule of access_rights.access_rules) {
                     if (access_rule.access_points.acus.status === acuStatus.ACTIVE) {
                         SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, auth_user.id, access_rule.access_points.acus.session_id)

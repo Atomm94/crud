@@ -8,7 +8,7 @@ import { Cardholder, MainEntity } from './index'
 
 @Entity('car_info')
 export class CarInfo extends MainEntity {
-    @Column('varchar', { name: 'model' })
+    @Column('varchar', { name: 'model' ,nullable: true })
     model: string
 
     @Column('varchar', { name: 'color', nullable: true })
