@@ -10,7 +10,7 @@ import autoTaskcommands from '../model/entity/autoTaskcommands.json'
 import { wiegandTypes } from '../enums/wiegandTypes'
 import { extBrdInterface } from '../enums/extBrdInterface.enum'
 
-export function ipValidation(string: string) {
+export function ipValidation (string: string) {
     const ipformat = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
     if (string.match(ipformat)) {
         return true
@@ -19,7 +19,7 @@ export function ipValidation(string: string) {
     }
 }
 
-export function networkValidation(data: any) {
+export function networkValidation (data: any) {
     if (!('connection_type' in data) ||
         !('ip_address' in data) ||
         !('gateway' in data) ||
@@ -58,7 +58,7 @@ export function networkValidation(data: any) {
     }
 }
 
-export function interfaceValidation(data: any) {
+export function interfaceValidation (data: any) {
     if (!('rs485_port_1' in data) || !('rs485_port_2' in data)) {
         return ('Invalid interface data')
     } else {
@@ -70,7 +70,7 @@ export function interfaceValidation(data: any) {
     }
 }
 
-export function timeValidation(data: any) {
+export function timeValidation (data: any) {
     if (!('timezone_from_facility' in data) ||
         !('enable_daylight_saving_time' in data) ||
         !('daylight_saving_time_from_user_account' in data) ||
@@ -92,7 +92,7 @@ export function timeValidation(data: any) {
     // const time_zone = time_zone_default + ' ' + gmt
 }
 
-export function maintainValidation(data: any) {
+export function maintainValidation (data: any) {
     if (!('maintain_update_manual' in data)) {
         return ('Invalid maintain data')
     } else {
@@ -104,7 +104,7 @@ export function maintainValidation(data: any) {
     }
 }
 
-export function checkAccessPointsValidation(data: any, acu_model: string, update: boolean) {
+export function checkAccessPointsValidation (data: any, acu_model: string, update: boolean) {
     const acu_models: any = acuModel
 
     const int_ports_addrs: any = {} // interface, port, address - is unique
@@ -240,7 +240,7 @@ export function checkAccessPointsValidation(data: any, acu_model: string, update
     return true
 }
 
-export function checkExtDeviceValidation(data: any) {
+export function checkExtDeviceValidation (data: any) {
     if (data.interface === extBrdInterface.RS485) {
         if (data.port < 1 || data.port > 4) {
             return (`RS485 port cant be ${data.port}, it must be (1-4)!`)
@@ -259,7 +259,7 @@ export function checkExtDeviceValidation(data: any) {
     return true
 }
 
-export function standartReportPeriodValidation(data: any) {
+export function standartReportPeriodValidation (data: any) {
     if (!('key' in data) || !('value' in data)) {
         return ('Invalid period data!')
     } else {
@@ -298,7 +298,7 @@ export function standartReportPeriodValidation(data: any) {
     return true
 }
 
-export function autoTaskScheduleValidation(data: any) {
+export function autoTaskScheduleValidation (data: any) {
     if (data.schedule_type === autoTaskScheduleType.CUSTOM_SCHEDULE) {
         if (!data.custom_schedule) {
             return ('set Custom Schedule data')

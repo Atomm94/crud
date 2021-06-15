@@ -192,7 +192,6 @@ export default class AccessPointController {
      */
     public static async readerDestroy (ctx: DefaultContext) {
         try {
-
             const logs_data = []
             const req_data: any = ctx.request.body
             const user = ctx.user

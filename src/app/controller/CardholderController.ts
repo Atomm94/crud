@@ -215,7 +215,7 @@ export default class CardholderController {
      *                  description: Wrong data
      */
 
-    public static async add(ctx: DefaultContext) {
+    public static async add (ctx: DefaultContext) {
         try {
             const req_data = ctx.request.body
 
@@ -524,7 +524,7 @@ export default class CardholderController {
      *              '422':
      *                  description: Wrong data
      */
-    public static async update(ctx: DefaultContext) {
+    public static async update (ctx: DefaultContext) {
         try {
             const req_data = ctx.request.body
             const auth_user = ctx.user
@@ -664,7 +664,7 @@ export default class CardholderController {
      *              '404':
      *                  description: Data not found
      */
-    public static async get(ctx: DefaultContext) {
+    public static async get (ctx: DefaultContext) {
         try {
             const user = ctx.user
 
@@ -721,7 +721,7 @@ export default class CardholderController {
      *              '422':
      *                  description: Wrong data
      */
-    public static async destroy(ctx: DefaultContext) {
+    public static async destroy (ctx: DefaultContext) {
         try {
             const req_data = ctx.request.body
             const user = ctx.user
@@ -760,7 +760,7 @@ export default class CardholderController {
      *              '401':
      *                  description: Unauthorized
      */
-    public static async getAll(ctx: DefaultContext) {
+    public static async getAll (ctx: DefaultContext) {
         try {
             const req_data = ctx.query
             const user = ctx.user
@@ -803,7 +803,7 @@ export default class CardholderController {
      *              '401':
      *                  description: Unauthorized
      */
-    public static async getAllGuests(ctx: DefaultContext) {
+    public static async getAllGuests (ctx: DefaultContext) {
         try {
             const req_data = ctx.query
             const user = ctx.user
@@ -851,7 +851,7 @@ export default class CardholderController {
      *              '422':
      *                  description: Wrong data
      */
-    public static async cardholderImageSave(ctx: DefaultContext) {
+    public static async cardholderImageSave (ctx: DefaultContext) {
         const file = ctx.request.files.file
         const savedFile = await Cardholder.saveImage(file)
         return ctx.body = savedFile
@@ -892,7 +892,7 @@ export default class CardholderController {
      *              '422':
      *                  description: Wrong data
      */
-    public static async cardholderImageDelete(ctx: DefaultContext) {
+    public static async cardholderImageDelete (ctx: DefaultContext) {
         const name = ctx.request.body.name
 
         try {
@@ -954,7 +954,7 @@ export default class CardholderController {
      *              '422':
      *                  description: Wrong data
      */
-    public static async updateMultipleCardholders(ctx: DefaultContext) {
+    public static async updateMultipleCardholders (ctx: DefaultContext) {
         try {
             const req_data = ctx.request.body
 
@@ -1026,7 +1026,7 @@ export default class CardholderController {
      *                  description: Wrong data
      */
 
-    public static async inviteCardholder(ctx: DefaultContext) {
+    public static async inviteCardholder (ctx: DefaultContext) {
         const reqData = ctx.request.body
         const user = ctx.user
         const company = (user.company) ? user.company : null
@@ -1106,7 +1106,7 @@ export default class CardholderController {
      *              '404':
      *                  description: Data not found
      */
-    public static async setCardholderPassword(ctx: DefaultContext) {
+    public static async setCardholderPassword (ctx: DefaultContext) {
         const verify_token: string = ctx.params.token
         const user = await Admin.findOne({ verify_token: verify_token })
         if (user) {
@@ -1234,7 +1234,7 @@ export default class CardholderController {
      *                  description: Wrong data
      */
 
-    public static async addGuest(ctx: DefaultContext) {
+    public static async addGuest (ctx: DefaultContext) {
         try {
             const req_data = ctx.request.body
 
@@ -1450,7 +1450,7 @@ export default class CardholderController {
      *              '422':
      *                  description: Wrong data
      */
-    public static async updateGuest(ctx: DefaultContext) {
+    public static async updateGuest (ctx: DefaultContext) {
         try {
             const req_data = ctx.request.body
 
@@ -1726,7 +1726,7 @@ export default class CardholderController {
      *                  description: Wrong data
      */
 
-    public static async addFromCabinet(ctx: DefaultContext) {
+    public static async addFromCabinet (ctx: DefaultContext) {
         try {
             const req_data = ctx.request.body
 
@@ -1957,7 +1957,7 @@ export default class CardholderController {
      *                  description: Wrong data
      */
 
-    public static async updateFromCabinet(ctx: DefaultContext) {
+    public static async updateFromCabinet (ctx: DefaultContext) {
         try {
             const req_data = ctx.request.body
 

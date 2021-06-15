@@ -153,7 +153,7 @@ export class Cardholder extends MainEntity {
 
     public static resource: boolean = true
 
-    public static async addItem(data: Cardholder): Promise<Cardholder> {
+    public static async addItem (data: Cardholder): Promise<Cardholder> {
         const cardholder = new Cardholder()
 
         cardholder.email = data.email
@@ -196,7 +196,7 @@ export class Cardholder extends MainEntity {
         })
     }
 
-    public static async updateItem(data: any, auth_user: any): Promise<{ [key: string]: any }> {
+    public static async updateItem (data: any, auth_user: any): Promise<{ [key: string]: any }> {
         const cardholder = await this.findOneOrFail({ id: data.id })
         const oldData = Object.assign({}, cardholder)
         const logs_data: any = []
@@ -312,7 +312,7 @@ export class Cardholder extends MainEntity {
         })
     }
 
-    public static async getItem(where: any, relations?: Array<string>) {
+    public static async getItem (where: any, relations?: Array<string>) {
         return new Promise((resolve, reject) => {
             this.findOneOrFail({
                 where: where,
@@ -327,7 +327,7 @@ export class Cardholder extends MainEntity {
         })
     }
 
-    public static async destroyItem(data: any) {
+    public static async destroyItem (data: any) {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
             this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
@@ -345,7 +345,7 @@ export class Cardholder extends MainEntity {
         })
     }
 
-    public static async getAllItems(params?: any): Promise<Cardholder[] | []> {
+    public static async getAllItems (params?: any): Promise<Cardholder[] | []> {
         return new Promise((resolve, reject) => {
             this.findByParams(params)
                 .then((items: Cardholder[]) => {
@@ -357,11 +357,11 @@ export class Cardholder extends MainEntity {
         })
     }
 
-    public static async saveImage(file: any) {
+    public static async saveImage (file: any) {
         return fileSave(file)
     }
 
-    public static async deleteImage(file: any) {
+    public static async deleteImage (file: any) {
         return fs.unlink(`${parentDir}/public/${file}`, (err) => {
             if (err) throw err
             logger.info('Delete complete!')

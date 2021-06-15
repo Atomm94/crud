@@ -226,7 +226,7 @@ export default class CredentialController {
             const user = ctx.user
             const location = `${user.company_main}/${user.company}`
             const req_data = ctx.request.body
-            let logs_data = []
+            const logs_data = []
             const where = { id: req_data.id, company: user.company ? user.company : null }
             const credential:any = await Credential.findOne({ relations: ['cardholders'], where: where })
             credential.status = 0

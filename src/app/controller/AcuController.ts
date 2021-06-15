@@ -609,7 +609,7 @@ export default class AcuController {
             const req_data = ctx.request.body
             const user = ctx.user
             const where = { id: req_data.id, company: user.company ? user.company : null }
-            let logs_data = []
+            const logs_data = []
             const acu: Acu = await Acu.findOneOrFail(where)
             const location = `${user.company_main}/${user.company}`
             ctx.body = await Acu.destroyItem(where)
