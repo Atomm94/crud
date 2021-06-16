@@ -86,28 +86,32 @@ export default class AccessRuleController {
             for (const access_point of access_points) {
                 const data = req_data
                 data.access_point = access_point.id
-                const access_rule: AccessRule = await AccessRule.addItem(data as AccessRule)
-                const relation = ['access_points']
-                const returnData = AccessRule.getItem({ id: access_rule.id }, relation)
-                res_data.push(returnData)
-                const acu: Acu = await Acu.getItem({ id: access_point.acu })
-                if (acu.status === acuStatus.ACTIVE) {
-                    SdlController.setSdl(location, acu.serial_number, access_rule, user.id, acu.session_id)
+                try {
+                    const access_rule: AccessRule = await AccessRule.addItem(data as AccessRule)
+                    const relation = ['access_points']
+                    const returnData = AccessRule.getItem({ id: access_rule.id }, relation)
+                    res_data.push(returnData)
+                    const acu: Acu = await Acu.getItem({ id: access_point.acu })
+                    if (acu.status === acuStatus.ACTIVE) {
+                        SdlController.setSdl(location, acu.serial_number, access_rule, user.id, acu.session_id)
 
-                    const cardholders = await Cardholder.getAllItems({
-                        relations: ['credentials'],
-                        where: {
-                            access_right: { '=': access_rule.access_right },
-                            company: { '=': req_data.company }
-                        }
-                    })
-                    CardKeyController.editCardKey(location, req_data.company, user.id, access_rule, null, cardholders)
-                    ctx.body = true
+                        const cardholders = await Cardholder.getAllItems({
+                            relations: ['credentials'],
+                            where: {
+                                access_right: { '=': access_rule.access_right },
+                                company: { '=': req_data.company }
+                            }
+                        })
+                        CardKeyController.editCardKey(location, req_data.company, user.id, access_rule, null, cardholders)
+                        ctx.body = true
+                    }
+                } catch (error) {
+                    console.log('error', error.message ? error.message : error)
                 }
             }
             ctx.body = await Promise.all(res_data)
         } catch (error) {
-            console.log('error', error)
+            console.log('error2', error)
 
             ctx.status = error.status || 400
             ctx.body = error
