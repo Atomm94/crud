@@ -101,7 +101,7 @@ export class Reader extends MainEntity {
         if ('enable_buzzer' in data) reader.enable_buzzer = data.enable_buzzer
         if ('enable_crc' in data) reader.enable_crc = data.enable_crc
         if ('reverse_byte_order' in data) reader.reverse_byte_order = data.reverse_byte_order
-        if ('osdp_data' in data) typeof reader.osdp_data === 'string' ? data.osdp_data : JSON.stringify(data.osdp_data)
+        if ('osdp_data' in data) reader.osdp_data = (typeof reader.osdp_data === 'string') ? data.osdp_data : JSON.stringify(data.osdp_data)
         if ('osdp_address' in data) reader.osdp_address = data.osdp_address
 
         if (!reader) return { status: 400, messsage: 'Item not found' }
