@@ -76,7 +76,7 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
                                     account_name: `${ctx.user.first_name} ${ctx.user.last_name}`,
                                     event: logUserEvents.CREATE,
                                     target: target,
-                                    value: ctx.body
+                                    value: null
                                 }
 
                             }
