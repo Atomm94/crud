@@ -15,7 +15,7 @@ import {
 } from './index'
 import { minusResource } from '../../functions/minusResource'
 
-@Index('access_right|access_point|delete_date', ['access_right', 'access_point', 'delete_date'], { unique: true })
+@Index('access_right|access_point|is_delete', ['access_right', 'access_point', 'is_delete'], { unique: true })
 
 @Entity('access_rule')
 export class AccessRule extends MainEntity {
@@ -30,6 +30,9 @@ export class AccessRule extends MainEntity {
 
     @Column('boolean', { name: 'access_in_holidays', default: false })
     access_in_holidays: boolean
+
+    @Column('varchar', { name: 'is_delete', default: 0 })
+    is_delete: string
 
     @DeleteDateColumn({ type: 'timestamp', name: 'delete_date' })
     public delete_date: Date
@@ -118,10 +121,21 @@ export class AccessRule extends MainEntity {
     public static async destroyItem (data: any) {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
-            this.findOneOrFail({ id: data.id, company: data.company ? data.company : null }).then((data: any) => {
+            const where: any = { id: data.id }
+            if (data.company) where.company = data.company
+            this.findOneOrFail(where).then((data: any) => {
                 this.softRemove(data)
-                    .then(() => {
+                    .then(async () => {
                         minusResource(this.name, data.company)
+
+                        let rule_data: any = await this.createQueryBuilder('access_rule')
+                            .where('id = :id', { id: data.id })
+                            .withDeleted()
+                            .getMany()
+                        rule_data = rule_data[0]
+                        rule_data.is_delete = (new Date()).getTime()
+                        await this.save(rule_data)
+
                         resolve({ message: 'success' })
                     })
                     .catch((error: any) => {

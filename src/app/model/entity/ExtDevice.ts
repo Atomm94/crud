@@ -3,7 +3,8 @@ import {
     Column,
     ManyToOne,
     JoinColumn,
-    Index
+    Index,
+    DeleteDateColumn
 } from 'typeorm'
 
 import { MainEntity } from './MainEntity'
@@ -40,6 +41,9 @@ export class ExtDevice extends MainEntity {
 
     @Column('enum', { name: 'protocol', nullable: false, enum: extBrdProtocol })
     protocol: number
+
+    @DeleteDateColumn({ type: 'timestamp', name: 'delete_date' })
+    public delete_date: Date
 
     @Column('int', { name: 'company', nullable: false })
     company: number
@@ -123,7 +127,7 @@ export class ExtDevice extends MainEntity {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
             this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
-                this.remove(data)
+                this.softRemove(data)
                     .then(() => {
                         resolve({ message: 'success' })
                     })

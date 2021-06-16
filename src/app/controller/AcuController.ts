@@ -552,7 +552,7 @@ export default class AcuController {
             const data = await Acu.createQueryBuilder('acu')
                 .leftJoinAndSelect('acu.access_points', 'access_point', 'access_point.delete_date is null')
                 .leftJoinAndSelect('access_point.readers', 'reader', 'reader.delete_date is null')
-                .leftJoinAndSelect('acu.ext_devices', 'ext_device')
+                .leftJoinAndSelect('acu.ext_devices', 'ext_device', 'ext_device.delete_date is null')
                 .where(`acu.id = ${+ctx.params.id}`)
                 .andWhere(`acu.company = ${ctx.user.company}`)
                 .getMany()
