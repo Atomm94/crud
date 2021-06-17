@@ -15,6 +15,7 @@ import SendSocketMessage from './SendSocketMessage'
 import { socketChannels } from '../enums/socketChannels.enum'
 import { Cardholder } from '../model/entity'
 import errorList from '../model/entity/errorList.json'
+import { checkAndDeleteAccessRight } from '../functions/accessRightDelete'
 
 // import { uid } from 'uid'
 
@@ -898,6 +899,7 @@ export default class Parse {
             if (message.result.errorNo === 0) {
                 if (!message.send_data.update) {
                     await AccessRule.destroyItem({ id: message.send_data.data.id, company: message.company })
+                    checkAndDeleteAccessRight(message.send_data.data, message.company)
                     // console.log('dellSheduleAck complete')
                 }
             }
@@ -922,6 +924,7 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             if (!message.send_data.update) {
                 await AccessRule.destroyItem({ id: message.send_data.data.id, company: message.company })
+                checkAndDeleteAccessRight(message.send_data.data, message.company)
                 // console.log('dellSheduleAck complete')
             }
         } else {
@@ -966,6 +969,7 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             if (message.send_data.update) {
                 await AccessRule.destroyItem({ id: message.send_data.data.id, company: message.company })
+                checkAndDeleteAccessRight(message.send_data.data, message.company)
                 // console.log('dellSheduleAck complete')
             }
         } else {
@@ -1019,6 +1023,7 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             if (message.send_data.update) {
                 await AccessRule.destroyItem({ id: message.send_data.data.id, company: message.company })
+                checkAndDeleteAccessRight(message.send_data.data, message.company)
                 // console.log('dellSheduleAck complete')
             }
         } else {

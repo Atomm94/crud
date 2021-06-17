@@ -3,8 +3,10 @@ import {
     Column,
     ManyToOne,
     OneToMany,
-    JoinColumn
+    JoinColumn,
+    DeleteDateColumn
 } from 'typeorm'
+import { minusResource } from '../../functions/minusResource'
 
 import {
     MainEntity,
@@ -21,6 +23,9 @@ export class AccessRight extends MainEntity {
 
     @Column('varchar', { name: 'description', nullable: true })
     description: string | null
+
+    @DeleteDateColumn({ type: 'timestamp', name: 'delete_date' })
+    public delete_date: Date
 
     @Column('int', { name: 'company', nullable: false })
     company: number
@@ -98,8 +103,9 @@ export class AccessRight extends MainEntity {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
             this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
-                this.remove(data)
-                    .then(() => {
+                this.softRemove(data)
+                    .then(async () => {
+                        minusResource(this.name, data.company)
                         resolve({ message: 'success' })
                     })
                     .catch((error: any) => {
