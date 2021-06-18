@@ -1,4 +1,5 @@
 import { DefaultContext } from 'koa'
+import { logUserEvents } from '../enums/logUserEvents.enum'
 import { CardholderGroup } from '../model/entity/CardholderGroup'
 import { Schedule } from '../model/entity/Schedule'
 // import { Timeframe } from '../model/entity/Timeframe'
@@ -215,7 +216,14 @@ export default class ScheduleController {
             const user = ctx.user
             const where = { id: req_data.id, company: user.company ? user.company : null }
 
+            const schedule = await Schedule.findOneOrFail({ where: where })
             ctx.body = await Schedule.destroyItem(where)
+
+            ctx.logsData = [{
+                event: logUserEvents.DELETE,
+                target: `${Schedule.name}/${schedule.name}`,
+                value: { name: schedule.name }
+            }]
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

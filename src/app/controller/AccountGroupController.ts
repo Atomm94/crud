@@ -1,4 +1,6 @@
 import { DefaultContext } from 'koa'
+import { logUserEvents } from '../enums/logUserEvents.enum'
+import { AccessPointGroup } from '../model/entity'
 import { AccountGroup } from '../model/entity/AccountGroup'
 export default class AccountGroupController {
     /**
@@ -212,7 +214,13 @@ export default class AccountGroupController {
             const req_data = ctx.request.body
             const user = ctx.user
             const where = { id: req_data.id, company: user.company ? user.company : null }
+            const account_group = await AccountGroup.findOneOrFail({ where: where })
             ctx.body = await AccountGroup.destroyItem(where)
+            ctx.logsData = [{
+                event: logUserEvents.DELETE,
+                target: `${AccessPointGroup.name}/${account_group.name}`,
+                value: { name: account_group.name }
+            }]
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

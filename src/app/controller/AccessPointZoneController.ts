@@ -1,4 +1,5 @@
 import { DefaultContext } from 'koa'
+import { logUserEvents } from '../enums/logUserEvents.enum'
 import { AccessPointZone } from '../model/entity/AccessPointZone'
 export default class AccessPointZoneController {
     /**
@@ -211,7 +212,13 @@ export default class AccessPointZoneController {
             const user = ctx.user
             const where = { id: req_data.id, company: user.company ? user.company : null }
 
-                ctx.body = await AccessPointZone.destroyItem(where)
+            const access_point_zone = await AccessPointZone.findOneOrFail({ where: where })
+            ctx.body = await AccessPointZone.destroyItem(where)
+            ctx.logsData = [{
+                event: logUserEvents.DELETE,
+                target: `${AccessPointZone.name}/${access_point_zone.name}`,
+                value: { name: access_point_zone.name }
+            }]
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

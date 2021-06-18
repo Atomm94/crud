@@ -4,6 +4,7 @@ import { Role, Admin } from '../model/entity/index'
 // import { getRepository } from 'typeorm'
 import { checkPermissionsAccess } from '../functions/check-permissions-access'
 import { adminStatus } from '../enums/adminStatus.enum'
+import { logUserEvents } from '../enums/logUserEvents.enum'
 
 class RoleController {
   /**
@@ -321,8 +322,13 @@ class RoleController {
                 delete admin[i].password
                 await Admin.updateItem(admin[i])
               }
-
+              const role_data = await Role.findOneOrFail({ where: where })
               role = await Role.destroyItem(check_role_by_company)
+              ctx.logsData = [{
+                  event: logUserEvents.DELETE,
+                  target: `${Role.name}/${role_data.slug}`,
+                  value: { slug: role_data.slug }
+              }]
 
               if (role) {
                 ctx.body = 'Deleted'

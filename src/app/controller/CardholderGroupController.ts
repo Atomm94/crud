@@ -1,4 +1,5 @@
 import { DefaultContext } from 'koa'
+import { logUserEvents } from '../enums/logUserEvents.enum'
 import { Cardholder, Limitation } from '../model/entity'
 import { AntipassBack } from '../model/entity/AntipassBack'
 import { CardholderGroup } from '../model/entity/CardholderGroup'
@@ -394,7 +395,13 @@ export default class CardholderGroupController {
                     ctx.status = 400
                     ctx.body = { message: 'Can\'t remove group with cardholders' }
                 } else {
+                    const cardholder_group = await CardholderGroup.findOneOrFail({ where: where })
                     ctx.body = await CardholderGroup.destroyItem(where)
+                    ctx.logsData = [{
+                        event: logUserEvents.DELETE,
+                        target: `${CardholderGroup.name}/${cardholder_group.name}`,
+                        value: { name: cardholder_group.name }
+                    }]
                 }
             }
         } catch (error) {

@@ -1,4 +1,5 @@
 import { DefaultContext } from 'koa'
+import { logUserEvents } from '../enums/logUserEvents.enum'
 import { AccessPointGroup } from '../model/entity/AccessPointGroup'
 export default class AccessPointGroupController {
     /**
@@ -196,7 +197,14 @@ export default class AccessPointGroupController {
             const user = ctx.user
             const where = { id: req_data.id, company: user.company ? user.company : null }
 
+            const access_point_group = await AccessPointGroup.findOneOrFail({ where: where })
                 ctx.body = await AccessPointGroup.destroyItem(where)
+
+            ctx.logsData = [{
+                event: logUserEvents.DELETE,
+                target: `${AccessPointGroup.name}/${access_point_group.name}`,
+                value: { name: access_point_group.name }
+            }]
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

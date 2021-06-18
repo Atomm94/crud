@@ -4,6 +4,7 @@ import { standartReportPeriodValidation } from '../functions/validator'
 import { EventLog } from '../model/entity'
 import { StandardReport } from '../model/entity/StandardReport'
 import eventList from '../model/entity/eventList.json'
+import { logUserEvents } from '../enums/logUserEvents.enum'
 
 export default class StandardReportController {
     /**
@@ -267,7 +268,13 @@ export default class StandardReportController {
             const req_data = ctx.request.body
             const user = ctx.user
             const where = { id: req_data.id, company: user.company ? user.company : null }
+            const report = await StandardReport.findOneOrFail({ where: where })
             ctx.body = await StandardReport.destroyItem(where)
+            ctx.logsData = [{
+                event: logUserEvents.DELETE,
+                target: `${StandardReport.name}/${report.name}`,
+                value: { name: report.name }
+            }]
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

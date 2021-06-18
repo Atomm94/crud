@@ -728,7 +728,14 @@ export default class CardholderController {
             const location = `${user.company_main}/${user.company}`
             const where = { id: req_data.id, company: user.company ? user.company : null }
             req_data.where = { company: { '=': user.company ? user.company : null }, status: { '=': acuStatus.ACTIVE } }
+            const cardholder = await Cardholder.findOneOrFail({ where: where })
             ctx.body = await Cardholder.destroyItem(where)
+
+            ctx.logsData = [{
+                event: logUserEvents.DELETE,
+                target: `${Cardholder.name}/${cardholder.first_name}`,
+                value: { name: cardholder.first_name }
+            }]
             CardKeyController.dellKeys(location, user.company, req_data, user.id)
         } catch (error) {
             console.log(error)

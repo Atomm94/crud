@@ -5,6 +5,7 @@ import { PackageType } from '../model/entity/PackageType'
 import { Company } from '../model/entity/Company'
 import { Feature } from '../middleware/feature'
 import { resourceKeys } from '../enums/resourceKeys.enum'
+import { logUserEvents } from '../enums/logUserEvents.enum'
 
 export default class PackageController {
     /**
@@ -218,7 +219,13 @@ export default class PackageController {
         try {
             const req_data: any = ctx.request.body
             const where = { id: req_data.id }
+            const package_data = await Package.findOneOrFail({ where: where })
             ctx.body = await Package.destroyItem(where)
+            ctx.logsData = [{
+                event: logUserEvents.DELETE,
+                target: `${Package.name}/${package_data.name}`,
+                value: { name: package_data.name }
+            }]
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

@@ -1,6 +1,7 @@
 import { DefaultContext } from 'koa'
 import { uid } from 'uid'
 import { Sendgrid } from '../../component/sendgrid/sendgrid'
+import { logUserEvents } from '../enums/logUserEvents.enum'
 import { statusCompany } from '../enums/statusCompany.enum'
 import {
     RegistrationInvite,
@@ -322,8 +323,13 @@ export default class CompanyController {
             const user: any = ctx.user
             const where: any = { id: req_data.id }
             if (user.company) where.parent_id = user.company
-
+            const company = await Company.findOneOrFail({ where: where })
             ctx.body = await Company.destroyItem(where)
+            ctx.logsData = [{
+                event: logUserEvents.DELETE,
+                target: `${Company.name}/${company.company_name}`,
+                value: { company_name: company.company_name }
+            }]
             const accounts: any = await Admin.getAllItems({ where: { company: { '=': req_data.id } } })
             for (const account of accounts) {
                 account.status = false

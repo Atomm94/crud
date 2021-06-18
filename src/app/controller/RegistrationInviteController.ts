@@ -65,6 +65,7 @@ export default class RegistrationInviteController {
             if (user.company) req_data.company = user.company
 
             ctx.body = await RegistrationInvite.createLink(req_data as RegistrationInvite)
+            ctx.logsData = []
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

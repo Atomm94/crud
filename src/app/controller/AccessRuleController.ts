@@ -8,6 +8,7 @@ import { AccessPoint } from '../model/entity/AccessPoint'
 import { AccessRule } from '../model/entity/AccessRule'
 import SdlController from './Hardware/SdlController'
 import CardKeyController from './Hardware/CardKeyController'
+import { logUserEvents } from '../enums/logUserEvents.enum'
 
 export default class AccessRuleController {
     /**
@@ -281,10 +282,12 @@ export default class AccessRuleController {
             const where = { id: req_data.id, company: user.company ? user.company : null }
             const access_rule = await AccessRule.findOne(where)
             const location = `${user.company_main}/${user.company}`
+            const logs_data = []
             if (!access_rule) {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
             } else {
+                ctx.logsData = []
                 const access_point: AccessPoint = await AccessPoint.findOneOrFail({ id: access_rule.access_point })
                 const acu: Acu = await Acu.findOneOrFail({ id: access_point.acu })
                 if (acu.status === acuStatus.ACTIVE) {
@@ -295,8 +298,14 @@ export default class AccessRuleController {
                     ctx.body = { message: 'Delete pending' }
                 } else {
                     ctx.body = await AccessRule.destroyItem(where)
+                    logs_data.push({
+                        event: logUserEvents.DELETE,
+                        target: `${AccessRule.name}/${access_point.name}`,
+                        value: { name: access_point.name }
+                    })
                 }
             }
+            ctx.logsData = logs_data
         } catch (error) {
             console.log(error)
 

@@ -1,4 +1,5 @@
 import { DefaultContext } from 'koa'
+import { logUserEvents } from '../enums/logUserEvents.enum'
 import { Department } from '../model/entity/Department'
 export default class DepartmentController {
     /**
@@ -182,7 +183,13 @@ export default class DepartmentController {
         try {
             const req_data = ctx.request.body
             const where = { id: req_data.id }
+            const department = await Department.findOneOrFail({ where: where })
             ctx.body = await Department.destroyItem(where)
+            ctx.logsData = [{
+                event: logUserEvents.DELETE,
+                target: `${Department.name}/${department.name}`,
+                value: { name: department.name }
+            }]
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

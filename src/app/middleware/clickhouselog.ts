@@ -68,6 +68,12 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
                         break
                     case 'POST': // create
                         if (ctx.user) {
+                            let value = null
+                            if (ctx.body.name) {
+                                value = { name: ctx.body.name }
+                            } else if (ctx.body.type) {
+                                value = { type: ctx.body.type }
+                            }
                             const dataLog = {
                                 operator: OperatorType.USER_LOG,
                                 data: {
@@ -76,10 +82,11 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
                                     account_name: `${ctx.user.first_name} ${ctx.user.last_name}`,
                                     event: logUserEvents.CREATE,
                                     target: target,
-                                    value: null
+                                    value: value
                                 }
 
                             }
+                            console.log('datalog', dataLog)
                             MQTTBroker.publishMessage(SendTopics.LOG, JSON.stringify(dataLog))
                         }
                         break

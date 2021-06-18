@@ -1,5 +1,6 @@
 import { DefaultContext } from 'koa'
 import { acuStatus } from '../enums/acuStatus.enum'
+import { logUserEvents } from '../enums/logUserEvents.enum'
 import { AccessRule, Cardholder } from '../model/entity'
 import { AccessRight } from '../model/entity/AccessRight'
 import { CardholderGroup } from '../model/entity/CardholderGroup'
@@ -212,6 +213,7 @@ export default class AccessRightController {
             const company = user.company ? user.company : null
             const where = { id: req_data.id, company: company }
             const location = `${user.company_main}/${user.company}`
+            const logs_data = []
 
             const cardholders = await Cardholder.findOne({ where: { access_right: req_data.id, company: company } })
             if (cardholders) {
@@ -239,13 +241,25 @@ export default class AccessRightController {
                     SdlController.delSdl(location, access_rule.access_points.acus.serial_number, send_data, user.id, access_rule.schedules.type, access_rule.access_points.acus.session_id)
                 } else {
                     AccessRule.destroyItem({ id: access_rule.id, company: access_rule.company })
+                    logs_data.push({
+                        event: logUserEvents.DELETE,
+                        target: `${AccessRule.name}/${access_rule.access_points.name}`,
+                        value: { name: access_rule.access_points.name }
+                    })
                 }
             }
             if (active_rule) {
                 ctx.body = { message: 'Delete pending' }
             } else {
+                const access_right = await AccessRight.findOneOrFail({ where: where })
                 ctx.body = await AccessRight.destroyItem(where)
+                logs_data.push({
+                    event: logUserEvents.DELETE,
+                    target: `${AccessRight.name}/${access_right.name}`,
+                    value: { name: access_right.name }
+                })
             }
+            ctx.logsData = logs_data
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

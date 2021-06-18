@@ -13,6 +13,7 @@ import { uid } from 'uid'
 import { checkPermissionsAccess } from '../functions/check-permissions-access'
 import { AccountGroup } from '../model/entity/AccountGroup'
 import { adminStatus } from '../enums/adminStatus.enum'
+import { logUserEvents } from '../enums/logUserEvents.enum'
 
 const parentDir = join(__dirname, '../..')
 
@@ -344,7 +345,7 @@ export default class AdminController {
                 ctx.body = adminFiltered
                 ctx.body.package = ctx.user.package ? ctx.user.package : null
                 if (ctx.user && ctx.user.company && ctx.user.package) {
-                const company = await Company.findOneOrFail({ where: { id: ctx.user.company }, relations: ['packages'] })
+                    const company = await Company.findOneOrFail({ where: { id: ctx.user.company }, relations: ['packages'] })
 
                     if (company.packages && company.packages.extra_settings) {
                         const extra_settings = JSON.parse(company.packages.extra_settings)
@@ -802,7 +803,14 @@ export default class AdminController {
         const user = ctx.user
         try {
             const where = { id: reqData.id, company: user.company ? user.company : null }
+
+            const admin = await Admin.findOneOrFail({ where: where })
             ctx.body = await Admin.destroyItem(where)
+            ctx.logsData = [{
+                event: logUserEvents.DELETE,
+                target: `${Admin.name}/${admin.username}`,
+                value: { name: admin.username }
+            }]
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

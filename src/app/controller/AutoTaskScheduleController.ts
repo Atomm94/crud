@@ -2,6 +2,7 @@ import { DefaultContext } from 'koa'
 import { AutoTaskSchedule } from '../model/entity/AutoTaskSchedule'
 import { autoTaskScheduleValidation } from '../functions/validator'
 import autoTaskcommands from '../model/entity/autoTaskcommands.json'
+import { logUserEvents } from '../enums/logUserEvents.enum'
 
 export default class AutoTaskScheduleController {
     /**
@@ -327,7 +328,14 @@ export default class AutoTaskScheduleController {
             const req_data = ctx.request.body
             const user = ctx.user
             const where = { id: req_data.id, company: user.company ? user.company : null }
+
+            const auto_task = await AutoTaskSchedule.findOneOrFail({ where: where })
             ctx.body = await AutoTaskSchedule.destroyItem(where)
+            ctx.logsData = [{
+                event: logUserEvents.DELETE,
+                target: `${AutoTaskSchedule.name}/${auto_task.name}`,
+                value: { name: auto_task.name }
+            }]
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

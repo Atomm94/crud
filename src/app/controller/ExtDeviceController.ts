@@ -6,6 +6,7 @@ import { ExtDevice } from '../model/entity/ExtDevice'
 import acuModels from '../model/entity/acuModels.json'
 import ExtensionDeviceController from './Hardware/ExtensionDeviceController'
 import { checkExtDeviceValidation } from '../functions/validator'
+import { logUserEvents } from '../enums/logUserEvents.enum'
 
 export default class ExtDeviceController {
     /**
@@ -298,6 +299,7 @@ export default class ExtDeviceController {
             const ext_device: ExtDevice = await ExtDevice.findOneOrFail({ id: ctx.request.body.id })
             const req_data: any = ctx.request.body
             const user = ctx.user
+            const logs_data = []
             const where = { id: req_data.id, company: user.company ? user.company : null }
             const location = `${user.company_main}/${user.company}`
             const acu: Acu = await Acu.findOneOrFail({ id: ext_device.acu })
@@ -306,7 +308,13 @@ export default class ExtDeviceController {
                 ctx.body = { message: 'Destroy pending' }
             } else {
                 ctx.body = await ExtDevice.destroyItem(where)
+                logs_data.push({
+                    event: logUserEvents.DELETE,
+                    target: `${ExtDevice.name}/${ext_device.name}`,
+                    value: { name: ext_device.name }
+                })
             }
+            ctx.logsData = logs_data
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

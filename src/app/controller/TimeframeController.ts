@@ -5,6 +5,7 @@ import { AccessRule } from '../model/entity/AccessRule'
 import { Timeframe } from '../model/entity/Timeframe'
 import { CheckScheduleSettings } from '../functions/check-schedule-settings'
 import SdlController from './Hardware/SdlController'
+import { logUserEvents } from '../enums/logUserEvents.enum'
 
 export default class TimeframeController {
     /**
@@ -274,6 +275,11 @@ export default class TimeframeController {
             const timeframe: Timeframe = await Timeframe.findOneOrFail({ where: where })
             req_data.company = user.company
             ctx.body = await Timeframe.destroyItem(req_data)
+            ctx.logsData = [{
+                event: logUserEvents.DELETE,
+                target: `${Timeframe.name}/${timeframe.name}`,
+                value: { name: timeframe.name }
+            }]
             const schedule = await Schedule.findOneOrFail({ id: timeframe.schedule })
 
             const access_rules = await AccessRule.createQueryBuilder('access_rule')
