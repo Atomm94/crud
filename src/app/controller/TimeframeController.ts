@@ -63,6 +63,8 @@ export default class TimeframeController {
             const user = ctx.user
             req_data.company = user.company ? user.company : null
             const save = await Timeframe.addItem(req_data as Timeframe)
+            console.log(',save', save)
+
             ctx.body = save
 
             const access_rules = await AccessRule.createQueryBuilder('access_rule')
@@ -84,6 +86,8 @@ export default class TimeframeController {
                 SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, user.id, access_rule.access_points.acus.session_id, send_data)
             }
         } catch (error) {
+            console.log('error', error)
+
             ctx.status = error.status || 400
             if (error.message) {
                 ctx.body = {

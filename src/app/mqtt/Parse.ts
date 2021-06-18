@@ -21,6 +21,7 @@ import errorList from '../model/entity/errorList.json'
 export default class Parse {
     public static deviceData (topic: string, data: string) {
         const message: IMqttCrudMessaging = JSON.parse(data)
+
         message.location = message.device_topic.split('/').slice(0, 2).join('/')
         message.company = Number(message.device_topic.split('/')[1])
         message.device_id = Number(message.device_topic.split('/')[3])
@@ -59,6 +60,7 @@ export default class Parse {
                 this.deviceLogOutEvent(message)
                 break
             case OperatorType.SET_PASS_ACK:
+
                 this.deviceSetPassAck(message)
                 break
             case OperatorType.SET_NET_SETTINGS_ACK:
@@ -343,7 +345,7 @@ export default class Parse {
             if (acu) {
                 acu.password = message.send_data.data.password
                 await acu.save()
-                // console.log('deviceSetPass complete')
+                new SendDeviceMessage(OperatorType.GET_NET_SETTINGS, message.location, message.device_id)
             } else {
                 // console.log('error deviceSetPass', message)
             }
@@ -399,40 +401,31 @@ export default class Parse {
         }
     }
 
-    public static deviceGetNetSettingsAck (message: any): void {
+    public static async deviceGetNetSettingsAck (message: any) {
         // {
-        //     "operator": "GetNetSettings-Ack",
-        //     "session_Id": "1111111111",
-        //     "message_Id": "222222222222",
-        //     "info":
-        //         {
-        //         "Use_DHCP":true,
-        //         "Time_Ap_On":0,
-        //         "Local_Ip_Address":"192.168.1.100",
-        //         "Local_Port":3777,
-        //         "Mask":"255.255.255.0",
-        //         "Gate":"192.168.1.1",
-        //         "DNS1":"192.168.1.1",
-        //         "DNS2":"8.8.8.8",
-        //         "NTP1":"pool.ntp.org",
-        //         "NTP2":"pool2.ntp.org:123",
-        //         "GMT":6,
-        //         "DST_GMT": false,
-        //         "DST_Start":1583636400,
-        //         "DST_End":1604196000,
-        //         "DST_Shift":3600,
-        //         "AP_SSID":"LmWf123456789",
-        //         "AP_PASS":"123456",
-        //         "HideSSID":false,
-        //         },
-        //     "result":
-        //              {
-        //               "errorNo":0,
-        //               "description":"ok",
-        //               "time": 1599904641
-        //              },
-        //     "topic": "587123122/5/Registration/123456789/Operate/Ack"
-        // }
+        try {
+            if (message.result.errorNo === 0) {
+                const company = message.company
+                const device_id = message.device_id
+                const acu: any = await Acu.findOne({ serial_number: device_id, company: 1 })
+
+                if (acu) {
+                    acu.network = JSON.stringify({
+                        connection_type: (message.info.connection_type === 0) ? acuConnectionType.WI_FI : acuConnectionType.ETHERNET,
+                        connection_mod: (message.info.dhcp) ? 0 : 1,
+                        ip_address: message.info.ip_address,
+                        subnet_mask: message.info.mask,
+                        gateway: message.info.Gate,
+                        dns_server: message.info.DNS1
+                    })
+                    await acu.save()
+                } else {
+                    console.log(`error - cant find acu with serial number ${device_id} and company ${company}`)
+                }
+            }
+        } catch (error) {
+            // console.log('error deviceSetNetSettingsAck', error)
+        }
     }
 
     public static async deviceSetDateTimeAck (message: IMqttCrudMessaging) {

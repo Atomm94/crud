@@ -39,7 +39,7 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
                     }
                 }
             } else {
-                let target = (ctx.user.company && ctx.actionFeature) ? ctx.actionFeature : ctx.actionModel
+                let target = (ctx.user && ctx.user.company && ctx.actionFeature) ? ctx.actionFeature : ctx.actionModel
                 if (ctx.body.name) {
                     target += `/${ctx.body.name}`
                 } else if (ctx.body.type) {
