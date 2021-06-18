@@ -762,6 +762,7 @@ export default class AcuController {
  *                required:
  *                 - device
  *                 - attached_hardware
+ *                 - detach
  *                properties:
  *                  device:
  *                      type: number
@@ -769,6 +770,9 @@ export default class AcuController {
  *                  attached_hardware:
  *                      type: number
  *                      example: 2
+ *                  detach:
+ *                      type: boolean
+ *                      example: true
  *          responses:
  *              '201':
  *                  description: A acu object
@@ -784,6 +788,8 @@ export default class AcuController {
             const user = ctx.user
             const company = user.company ? user.company : null
 
+            const detach = !!req_data.detach
+            const device_status = (detach) ? acuStatus.ACTIVE : acuStatus.NO_HARDWARE
             const device = await Acu.findOne({
                 relations: [
                     'ext_devices',
@@ -795,14 +801,14 @@ export default class AcuController {
                 ],
                 where: {
                     id: req_data.device,
-                    status: acuStatus.NO_HARDWARE,
+                    status: device_status,
                     company: company
                 }
             })
             if (!device) {
                 ctx.status = 400
                 return ctx.body = {
-                    message: 'Invalid device id!!'
+                    message: `Invalid ${device_status} device id!!`
                 }
             }
 
@@ -814,7 +820,7 @@ export default class AcuController {
             if (!hardware) {
                 ctx.status = 400
                 return ctx.body = {
-                    message: 'Invalid device id!!'
+                    message: 'Invalid hardware id!!'
                 }
             }
 
@@ -824,18 +830,27 @@ export default class AcuController {
                     message: 'device models are not same'
                 }
             }
+            const location = `${user.company_main}/${user.company}`
 
-            device.status = acuStatus.ACTIVE
-            device.network = hardware.network
-            device.interface = hardware.interface
-            device.serial_number = hardware.serial_number
-            device.session_id = hardware.session_id
+            const hardware_data = Object.assign({}, hardware)
+            if (!detach) {
+                device.status = acuStatus.ACTIVE
+            } else {
+                hardware.network = device.network
+                hardware.interface = device.interface
+                hardware.serial_number = device.serial_number
+                hardware.session_id = device.session_id
+                await hardware.save()
+                DeviceController.delDevice(OperatorType.CANCEL_REGISTRATION, location, device.serial_number, device, user.id, device.session_id)
+            }
+            device.network = hardware_data.network
+            device.interface = hardware_data.interface
+            device.serial_number = hardware_data.serial_number
+            device.session_id = hardware_data.session_id
             // device.time = hardware.time
             const updated = await device.save()
             await Acu.destroyItem(hardware)
             ctx.body = updated
-
-            const location = `${user.company_main}/${user.company}`
 
             // send extention Devices
             const ext_devices = device.ext_devices
