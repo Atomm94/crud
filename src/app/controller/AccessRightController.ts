@@ -1,6 +1,10 @@
 import { DefaultContext } from 'koa'
+import { acuStatus } from '../enums/acuStatus.enum'
+import { AccessRule, Cardholder } from '../model/entity'
 import { AccessRight } from '../model/entity/AccessRight'
 import { CardholderGroup } from '../model/entity/CardholderGroup'
+import SdlController from './Hardware/SdlController'
+
 export default class AccessRightController {
     /**
      *
@@ -205,9 +209,43 @@ export default class AccessRightController {
         try {
             const req_data = ctx.request.body
             const user = ctx.user
-            const where = { id: req_data.id, company: user.company ? user.company : null }
+            const company = user.company ? user.company : null
+            const where = { id: req_data.id, company: company }
+            const location = `${user.company_main}/${user.company}`
 
-            ctx.body = await AccessRight.destroyItem(where)
+            const cardholders = await Cardholder.findOne({ where: { access_right: req_data.id, company: company } })
+            if (cardholders) {
+                ctx.status = 400
+                return ctx.body = { message: `You can't destroy this AccessRight ${req_data.id}, foreign key with Cardholder` }
+            } else {
+                const cardholder_groups = await CardholderGroup.findOne({ where: { access_right: req_data.id, company: company } })
+                if (cardholder_groups) {
+                    ctx.status = 400
+                    return ctx.body = { message: `You can't destroy this AccessRight ${req_data.id}, foreign key with CardholderGroup` }
+                }
+            }
+
+            const access_rules: any = await AccessRule.getAllItems({ relations: ['schedules', 'access_points', 'access_points.acus'], where: { access_right: { '=': req_data.id } } })
+            let active_rule = false
+            for (const access_rule of access_rules) {
+                if (access_rule.access_points.acus.status === acuStatus.ACTIVE) {
+                    active_rule = true
+                    const send_data = {
+                        id: access_rule.id,
+                        access_point: access_rule.access_point,
+                        access_right: access_rule.access_right,
+                        access_right_delete: true
+                    }
+                    SdlController.delSdl(location, access_rule.access_points.acus.serial_number, send_data, user.id, access_rule.schedules.type, access_rule.access_points.acus.session_id)
+                } else {
+                    AccessRule.destroyItem({ id: access_rule.id, company: access_rule.company })
+                }
+            }
+            if (active_rule) {
+                ctx.body = { message: 'Delete pending' }
+            } else {
+                ctx.body = await AccessRight.destroyItem(where)
+            }
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
