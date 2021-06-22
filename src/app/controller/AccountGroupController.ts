@@ -1,6 +1,6 @@
 import { DefaultContext } from 'koa'
 import { logUserEvents } from '../enums/logUserEvents.enum'
-import { AccessPointGroup } from '../model/entity'
+import { AccessPointGroup, Admin } from '../model/entity'
 import { AccountGroup } from '../model/entity/AccountGroup'
 export default class AccountGroupController {
     /**
@@ -48,7 +48,7 @@ export default class AccountGroupController {
      *                  description: Wrong data
      */
 
-    public static async add (ctx: DefaultContext) {
+    public static async add(ctx: DefaultContext) {
         try {
             const req_data = ctx.request.body
             const user = ctx.user
@@ -109,7 +109,7 @@ export default class AccountGroupController {
      *              '422':
      *                  description: Wrong data
      */
-    public static async update (ctx: DefaultContext) {
+    public static async update(ctx: DefaultContext) {
         try {
             const req_data = ctx.request.body
             const user = ctx.user
@@ -160,7 +160,7 @@ export default class AccountGroupController {
      *              '404':
      *                  description: Data not found
      */
-    public static async get (ctx: DefaultContext) {
+    public static async get(ctx: DefaultContext) {
         try {
             const user = ctx.user
             const id: number = +ctx.params.id
@@ -209,18 +209,33 @@ export default class AccountGroupController {
      *              '422':
      *                  description: Wrong data
      */
-    public static async destroy (ctx: DefaultContext) {
+    public static async destroy(ctx: DefaultContext) {
         try {
             const req_data = ctx.request.body
             const user = ctx.user
             const where = { id: req_data.id, company: user.company ? user.company : null }
-            const account_group = await AccountGroup.findOneOrFail({ where: where })
-            ctx.body = await AccountGroup.destroyItem(where)
-            ctx.logsData = [{
-                event: logUserEvents.DELETE,
-                target: `${AccessPointGroup.name}/${account_group.name}`,
-                value: { name: account_group.name }
-            }]
+
+            const childs = await AccountGroup.find({ parent_id: req_data.id })
+            if (childs.length) {
+                ctx.status = 400
+                ctx.body = { message: 'Can\'t remove group with childs' }
+            } else {
+                const admins = await Admin.find({ account_group: req_data.id })
+                if (admins.length) {
+                    for (const admin of admins) {
+                        admin.account_group = null
+                        await admin.save()
+                    }
+                } else {
+                    const account_group = await AccountGroup.findOneOrFail({ where: where })
+                    ctx.body = await AccountGroup.destroyItem(where)
+                    ctx.logsData = [{
+                        event: logUserEvents.DELETE,
+                        target: `${AccessPointGroup.name}/${account_group.name}`,
+                        value: { name: account_group.name }
+                    }]
+                }
+            }
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -249,7 +264,7 @@ export default class AccountGroupController {
      *              '401':
      *                  description: Unauthorized
      */
-    public static async getAll (ctx: DefaultContext) {
+    public static async getAll(ctx: DefaultContext) {
         try {
             const req_data = ctx.query
             const user = ctx.user
@@ -292,7 +307,7 @@ export default class AccountGroupController {
      *              '401':
      *                  description: Unauthorized
      */
-    public static async getGroupAccountsCounts (ctx: DefaultContext) {
+    public static async getGroupAccountsCounts(ctx: DefaultContext) {
         try {
             const user = ctx.user
             ctx.body = await AccountGroup.getGroupByAccounts(+ctx.params.id, user.company ? user.company : null)

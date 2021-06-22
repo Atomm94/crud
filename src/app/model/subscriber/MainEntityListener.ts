@@ -55,7 +55,6 @@ export class PostSubscriber implements EntitySubscriberInterface<MainEntity> {
                     const old_field = JSON.parse(Old[field])
                     const is_array = Array.isArray(file_path_objs)
                     if (!is_array) file_path_objs = [file_path_objs]
-                    console.log('old_field.path', old_field.path)
 
                     if (old_field) {
                         if (!is_array) {
