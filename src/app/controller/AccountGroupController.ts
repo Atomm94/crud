@@ -48,7 +48,7 @@ export default class AccountGroupController {
      *                  description: Wrong data
      */
 
-    public static async add(ctx: DefaultContext) {
+    public static async add (ctx: DefaultContext) {
         try {
             const req_data = ctx.request.body
             const user = ctx.user
@@ -109,7 +109,7 @@ export default class AccountGroupController {
      *              '422':
      *                  description: Wrong data
      */
-    public static async update(ctx: DefaultContext) {
+    public static async update (ctx: DefaultContext) {
         try {
             const req_data = ctx.request.body
             const user = ctx.user
@@ -160,7 +160,7 @@ export default class AccountGroupController {
      *              '404':
      *                  description: Data not found
      */
-    public static async get(ctx: DefaultContext) {
+    public static async get (ctx: DefaultContext) {
         try {
             const user = ctx.user
             const id: number = +ctx.params.id
@@ -209,7 +209,7 @@ export default class AccountGroupController {
      *              '422':
      *                  description: Wrong data
      */
-    public static async destroy(ctx: DefaultContext) {
+    public static async destroy (ctx: DefaultContext) {
         try {
             const req_data = ctx.request.body
             const user = ctx.user
@@ -264,7 +264,7 @@ export default class AccountGroupController {
      *              '401':
      *                  description: Unauthorized
      */
-    public static async getAll(ctx: DefaultContext) {
+    public static async getAll (ctx: DefaultContext) {
         try {
             const req_data = ctx.query
             const user = ctx.user
@@ -307,7 +307,7 @@ export default class AccountGroupController {
      *              '401':
      *                  description: Unauthorized
      */
-    public static async getGroupAccountsCounts(ctx: DefaultContext) {
+    public static async getGroupAccountsCounts (ctx: DefaultContext) {
         try {
             const user = ctx.user
             ctx.body = await AccountGroup.getGroupByAccounts(+ctx.params.id, user.company ? user.company : null)
