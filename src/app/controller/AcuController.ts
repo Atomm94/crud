@@ -371,7 +371,7 @@ export default class AcuController {
                         return ctx.body = { message: check_network }
                     } else {
                         if (acu.status === acuStatus.ACTIVE) {
-                            DeviceController.setNetSettings(location, acu.serial_number, req_data, user.id, acu.session_id, true)
+                            DeviceController.setNetSettings(location, acu.serial_number, req_data, user, acu.session_id, true)
                             delete req_data.network
                         }
                         // else {
@@ -389,7 +389,7 @@ export default class AcuController {
                         return ctx.body = { message: check_time }
                     } else {
                         if (acu.status === acuStatus.ACTIVE || acu.status === acuStatus.PENDING) {
-                            DeviceController.setDateTime(location, acu.serial_number, req_data, user.id, acu.session_id, true)
+                            DeviceController.setDateTime(location, acu.serial_number, req_data, user, acu.session_id, true)
                             delete req_data.time
                         }
                         // else {
@@ -440,11 +440,6 @@ export default class AcuController {
                                 if (access_point.resource) access_point.resource = JSON.stringify(access_point.resource)
 
                                 access_point = await AccessPoint.addItem(access_point)
-                                logs_data.push({
-                                    event: logUserEvents.CREATE,
-                                    target: `${AccessPoint.name}/${acu_updated.old.name}/${access_point.name}`,
-                                    value: access_point
-                                })
                                 new_access_points.push(access_point)
                             } else {
                                 const old_access_point = await AccessPoint.findOneOrFail({ id: access_point.id, company: company })
@@ -452,7 +447,7 @@ export default class AcuController {
                             }
 
                             if (acu.status === acuStatus.ACTIVE) {
-                                CtpController.setCtp(access_point.type, location, acu.serial_number, access_point, user.id, acu.session_id, access_point_update)
+                                CtpController.setCtp(access_point.type, location, acu.serial_number, access_point, user, acu.session_id, access_point_update)
                             } else {
                                 if (access_point_update) {
                                     const access_point_update = await AccessPoint.updateItem(access_point)
@@ -462,6 +457,12 @@ export default class AcuController {
                                         value: access_point_update
                                     })
                                     access_point = access_point_update.new
+                                } else {
+                                    logs_data.push({
+                                        event: logUserEvents.CREATE,
+                                        target: `${AccessPoint.name}/${acu_updated.old.name}/${access_point.name}`,
+                                        value: access_point
+                                    })
                                 }
                             }
 
@@ -472,11 +473,6 @@ export default class AcuController {
                                     reader.access_point = access_point.id
                                     reader.company = company
                                     reader = await Reader.addItem(reader)
-                                    logs_data.push({
-                                        event: logUserEvents.CREATE,
-                                        target: `${Reader.name}/${acu_updated.old.name}/${access_point.name}/${readerTypes[reader.type]}`,
-                                        value: reader
-                                    })
                                 } else {
                                     const old_reader = await Reader.findOneOrFail({ id: reader.id, company: company })
                                     reader.access_point = old_reader.access_point
@@ -484,7 +480,7 @@ export default class AcuController {
 
                                 if (acu.status === acuStatus.ACTIVE) {
                                     reader.access_point_type = access_point.type
-                                    RdController.setRd(location, acu.serial_number, reader, user.id, acu.session_id, reader_update)
+                                    RdController.setRd(location, acu.serial_number, reader, user, acu.session_id, reader_update)
                                 } else {
                                     if (reader_update) {
                                         const reader_updated = await Reader.updateItem(reader)
@@ -493,13 +489,19 @@ export default class AcuController {
                                             target: `${Reader.name}/${acu_updated.old.name}/${access_point.name}/${readerTypes[reader_updated.old.type]}`,
                                             value: reader_updated
                                         })
+                                    } else {
+                                        logs_data.push({
+                                            event: logUserEvents.CREATE,
+                                            target: `${Reader.name}/${acu_updated.old.name}/${access_point.name}/${readerTypes[reader.type]}`,
+                                            value: reader
+                                        })
                                     }
                                 }
                             }
 
                             // send CardKeys
                             if (new_access_points.length) {
-                                CardKeyController.setAddCardKey(OperatorType.SET_CARD_KEYS, location, company, user.id, new_access_points)
+                                CardKeyController.setAddCardKey(OperatorType.SET_CARD_KEYS, location, company, user, new_access_points)
                             }
                         }
                     }
@@ -620,7 +622,7 @@ export default class AcuController {
             })
             ctx.logsData = logs_data
             if (acu.status === acuStatus.ACTIVE || acu.status === acuStatus.PENDING) {
-                DeviceController.delDevice(OperatorType.CANCEL_REGISTRATION, location, acu.serial_number, acu, user.id, acu.session_id)
+                DeviceController.delDevice(OperatorType.CANCEL_REGISTRATION, location, acu.serial_number, acu, user, acu.session_id)
             }
         } catch (error) {
             ctx.status = error.status || 400
@@ -841,7 +843,7 @@ export default class AcuController {
                 hardware.serial_number = device.serial_number
                 hardware.session_id = device.session_id
                 await hardware.save()
-                DeviceController.delDevice(OperatorType.CANCEL_REGISTRATION, location, device.serial_number, device, user.id, device.session_id)
+                DeviceController.delDevice(OperatorType.CANCEL_REGISTRATION, location, device.serial_number, device, user, device.session_id)
             }
             device.network = hardware_data.network
             device.interface = hardware_data.interface
@@ -876,30 +878,30 @@ export default class AcuController {
                     output: outputs
 
                 }
-                ExtensionDeviceController.setExtBrd(location, device.serial_number, ext_device, user.id, device.session_id)
+                ExtensionDeviceController.setExtBrd(location, device.serial_number, ext_device, user, device.session_id)
             }
 
             // send Access Points
             const access_points = device.access_points
             const access_point_update = false
             for (const access_point of access_points) {
-                CtpController.setCtp(access_point.type, location, device.serial_number, access_point, user.id, device.session_id, access_point_update)
+                CtpController.setCtp(access_point.type, location, device.serial_number, access_point, user, device.session_id, access_point_update)
                 // send Readers
                 const readers: any = access_point.readers
                 const reader_update = false
                 for (const reader of readers) {
                     reader.access_point_type = access_point.type
-                    RdController.setRd(location, device.serial_number, reader, user.id, device.session_id, reader_update)
+                    RdController.setRd(location, device.serial_number, reader, user, device.session_id, reader_update)
                 }
 
                 // send Schedules(Access Rules)
                 for (const access_rule of access_point.access_rules) {
-                    SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, user.id, access_rule.access_points.acus.session_id)
+                    SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, user, access_rule.access_points.acus.session_id)
                 }
 
                 // send CardKeys
 
-                CardKeyController.setAddCardKey(OperatorType.SET_CARD_KEYS, location, company, user.id, null, null, [device])
+                CardKeyController.setAddCardKey(OperatorType.SET_CARD_KEYS, location, company, user, null, null, [device])
             }
         } catch (error) {
             console.log(error)
@@ -968,7 +970,7 @@ export default class AcuController {
         }
         hardware.status = acuStatus.ACTIVE
         await hardware.save()
-        CardKeyController.setAddCardKey(OperatorType.SET_CARD_KEYS, location, company, user.id, null, null, [hardware])
+        CardKeyController.setAddCardKey(OperatorType.SET_CARD_KEYS, location, company, user, null, null, [hardware])
         return ctx.body = {
             message: 'success'
         }

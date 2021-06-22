@@ -59,7 +59,7 @@ export class ExtDevice extends MainEntity {
     public static async addItem (data: ExtDevice):Promise<ExtDevice> {
         const extDevice = new ExtDevice()
 
-        if ('name' in data) extDevice.name = data.name
+        extDevice.name = data.name
         extDevice.acu = data.acu
         extDevice.interface = data.interface
         if ('ext_board' in data) extDevice.ext_board = data.ext_board

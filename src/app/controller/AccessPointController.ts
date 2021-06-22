@@ -103,7 +103,7 @@ export default class AccessPointController {
             } else {
                 ctx.body = await AccessPoint.destroyItem(where)
                 if (access_point.acus.status === acuStatus.ACTIVE) {
-                    CtpController.delCtp(access_point.type, location, access_point.acus.serial_number, req_data, user.id, access_point.acus.session_id)
+                    CtpController.delCtp(access_point.type, location, access_point.acus.serial_number, req_data, user, access_point.acus.session_id)
                 }
             logs_data.push({
                 event: logUserEvents.DELETE,

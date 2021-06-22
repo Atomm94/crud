@@ -5,7 +5,7 @@ import { OperatorType } from '../../mqtt/Operators'
 import SendDeviceMessage from '../../mqtt/SendDeviceMessage'
 
 export default class SdlController {
-    public static async setSdl (location: string, serial_number: number, access_rule: any, user: number | null = null, session_id: string | null = '0', send_data: any = null) {
+    public static async setSdl (location: string, serial_number: number, access_rule: any, user: any, session_id: string | null = '0', send_data: any = null) {
         const schedule: Schedule = (access_rule.schedules) ? access_rule.schedules : await Schedule.findOneOrFail({ where: { id: access_rule.schedule }, relations: ['timeframes'] })
 
         let send_sdl_data
@@ -28,7 +28,7 @@ export default class SdlController {
         new SendDeviceMessage(operator, location, serial_number, send_sdl_data, user, session_id)
     }
 
-    public static async delSdl (location: string, serial_number: number, send_data: any, user: number | null = null, type: scheduleType, session_id: string | null = '0', update: boolean = false) {
+    public static async delSdl (location: string, serial_number: number, send_data: any, user: any, type: scheduleType, session_id: string | null = '0', update: boolean = false) {
         let operator: OperatorType = OperatorType.DEL_SDL_DAILY
         if (type === scheduleType.WEEKLY) {
             operator = OperatorType.DEL_SDL_WEEKLY

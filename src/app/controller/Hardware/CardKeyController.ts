@@ -5,7 +5,7 @@ import { OperatorType } from '../../mqtt/Operators'
 import SendDeviceMessage from '../../mqtt/SendDeviceMessage'
 
 export default class CardKeyController {
-    public static async setAddCardKey (operator: OperatorType.SET_CARD_KEYS | OperatorType.ADD_CARD_KEY, location: string, company: number, user: number | null = null, access_points: Array<{ id: number } | AccessPoint> | null, cardholders: Cardholder[] | null = null, acus: Acu[] | null = null) {
+    public static async setAddCardKey (operator: OperatorType.SET_CARD_KEYS | OperatorType.ADD_CARD_KEY, location: string, company: number, user: any, access_points: Array<{ id: number } | AccessPoint> | null, cardholders: Cardholder[] | null = null, acus: Acu[] | null = null) {
         let all_access_points: any
         if (access_points) {
             all_access_points = access_points
@@ -56,7 +56,7 @@ export default class CardKeyController {
         }
     }
 
-    public static async editCardKey (location: string, company: number, user: number | null = null, access_rule: AccessRule | null, access_points: Array<{ id: number } | AccessPoint> | null = null, cardholders: Cardholder[]) {
+    public static async editCardKey (location: string, company: number, user: any, access_rule: AccessRule | null, access_points: Array<{ id: number } | AccessPoint> | null = null, cardholders: Cardholder[]) {
         let send_edit_data: any
         if (access_points) {
             send_edit_data = {
@@ -105,7 +105,7 @@ export default class CardKeyController {
     //     new SendDeviceMessage(OperatorType.EDIT_KEY, location, serial_number, data, session_id)
     // }
 
-    public static async dellKeys (location: string, company: string, data: any, user: number | null = null) {
+    public static async dellKeys (location: string, company: string, data: any, user: any) {
         const acus: any = await Acu.getAllItems({ where: { status: { '=': acuStatus.ACTIVE }, company: { '=': company } } })
         acus.forEach((acu: any) => {
             new SendDeviceMessage(OperatorType.DELL_KEYS, location, acu.serial_number, data, user, acu.session_id)

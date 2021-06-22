@@ -1,6 +1,6 @@
 import _ from 'lodash'
 
-export function getObjectDiff (obj1: { [key: string]: any }, obj2: { [key: string]: any }) {
+export function getObjectDiff (obj1: { [key: string]: any }, obj2: { [key: string]: any }) { // new, old
     const diff: { [key: string]: any } = {}
     for (const key in obj1) {
         if (obj1.hasOwnProperty(key)) {

@@ -67,6 +67,11 @@ export default class TimeframeController {
             console.log(',save', save)
 
             ctx.body = save
+            ctx.logsData = [{
+                event: logUserEvents.CREATE,
+                target: `${Timeframe.name}/${save.name}`,
+                value: { name: save.name }
+            }]
 
             const access_rules = await AccessRule.createQueryBuilder('access_rule')
                 .innerJoinAndSelect('access_rule.access_points', 'access_point')
@@ -84,7 +89,7 @@ export default class TimeframeController {
             }
             for (const access_rule of access_rules) {
                 const send_data: any = { id: access_rule.id, access_point: access_rule.access_point, timeframes: timeframes }
-                SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, user.id, access_rule.access_points.acus.session_id, send_data)
+                SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, user, access_rule.access_points.acus.session_id, send_data)
             }
         } catch (error) {
             console.log('error', error)
@@ -155,6 +160,12 @@ export default class TimeframeController {
             const req_data = ctx.request.body
             const user = ctx.user
             const updated = await Timeframe.updateItem(req_data as Timeframe)
+
+            ctx.logsData = [{
+                event: logUserEvents.CHANGE,
+                target: `${Timeframe.name}/${updated.old.name}`,
+                value: updated
+            }]
             ctx.oldData = updated.old
             ctx.body = updated.new
 
@@ -177,7 +188,7 @@ export default class TimeframeController {
 
             for (const access_rule of access_rules) {
                 const send_data: any = { id: access_rule.id, access_point: access_rule.access_point, timeframes: timeframes }
-                SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, user.id, access_rule.access_points.acus.session_id, send_data)
+                SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, user, access_rule.access_points.acus.session_id, send_data)
             }
         } catch (error) {
             ctx.status = error.status || 400
@@ -293,7 +304,7 @@ export default class TimeframeController {
 
             for (const access_rule of access_rules) {
                 const send_data: any = { id: access_rule.id, access_point: access_rule.access_point, timeframes: timeframes }
-                SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, user.id, access_rule.access_points.acus.session_id, send_data)
+                SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, user, access_rule.access_points.acus.session_id, send_data)
             }
         } catch (error) {
             console.log(error)

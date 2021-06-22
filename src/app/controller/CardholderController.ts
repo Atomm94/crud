@@ -304,7 +304,7 @@ export default class CardholderController {
                     req_data.where = { status: { '=': acuStatus.ACTIVE } }
                 }
 
-                CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, company, auth_user.id, null, [cardholder], null)
+                CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, company, auth_user, null, [cardholder], null)
             }
             if (cardholder) {
                 const cardholder_data = await Cardholder.createQueryBuilder('cardholder')
@@ -600,7 +600,7 @@ export default class CardholderController {
 
                             cardholder.credentials = credentials
 
-                            CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, auth_user.company, null, [cardholder], null)
+                            CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, auth_user.company, auth_user, null, [cardholder], null)
 
                             if (res_data.old.vip !== res_data.new.vip && old_credentials.length) {
                                 cardholder.credentials = old_credentials
@@ -736,7 +736,7 @@ export default class CardholderController {
                 target: `${Cardholder.name}/${cardholder.first_name}`,
                 value: { name: cardholder.first_name }
             }]
-            CardKeyController.dellKeys(location, user.company, req_data, user.id)
+            CardKeyController.dellKeys(location, user.company, req_data, user)
         } catch (error) {
             console.log(error)
 
@@ -1331,14 +1331,14 @@ export default class CardholderController {
                 })
                 for (const access_rule of access_rights.access_rules) {
                     if (access_rule.access_points.acus.status === acuStatus.ACTIVE) {
-                        SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, auth_user.id, access_rule.access_points.acus.session_id)
+                        SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, auth_user, access_rule.access_points.acus.session_id)
                     }
                 }
 
                 cardholder.access_rights = access_rights
                 cardholder.credentials = [credential]
 
-                CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, req_data.company, auth_user.id, access_points, [cardholder], null)
+                CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, req_data.company, auth_user, access_points, [cardholder], null)
             }
 
             const where = { id: cardholder.id }
@@ -1504,7 +1504,7 @@ export default class CardholderController {
                         const schedule: Schedule = await Schedule.findOneOrFail({ id: guest_access_rule.schedule })
                         console.log('schedule', schedule)
                         const send_data = { id: guest_access_rule.id, access_point: guest_access_rule.access_points.id }
-                        SdlController.delSdl(location, acu.serial_number, send_data, auth_user.id, schedule.type, acu.session_id)
+                        SdlController.delSdl(location, acu.serial_number, send_data, auth_user, schedule.type, acu.session_id)
                     } else {
                         await AccessRule.destroyItem(guest_access_rule)
                     }
@@ -1548,7 +1548,7 @@ export default class CardholderController {
                                 access_rule = await AccessRule.addItem(access_rule)
 
                                 if (acu.status === acuStatus.ACTIVE) {
-                                    SdlController.setSdl(location, acu.serial_number, access_rule, auth_user.id, acu.session_id)
+                                    SdlController.setSdl(location, acu.serial_number, access_rule, auth_user, acu.session_id)
 
                                     const cardholders = await Cardholder.getAllItems({
                                         relations: ['credentials'],
@@ -1572,7 +1572,7 @@ export default class CardholderController {
                         if (acu.status === acuStatus.ACTIVE) {
                             const schedule: Schedule = await Schedule.findOneOrFail({ id: guest_access_rule.schedule })
                             const send_data = { id: guest_access_rule.id, access_point: guest_access_rule.access_points.id }
-                            SdlController.delSdl(location, acu.serial_number, send_data, auth_user.id, schedule.type, acu.session_id)
+                            SdlController.delSdl(location, acu.serial_number, send_data, auth_user, schedule.type, acu.session_id)
                         } else {
                             await AccessRule.destroyItem(guest_access_rule)
                         }
@@ -1807,7 +1807,7 @@ export default class CardholderController {
                 console.log('access_rights', access_rights)
                 for (const access_rule of access_rights.access_rules) {
                     if (access_rule.access_points.acus.status === acuStatus.ACTIVE) {
-                        SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, auth_user.id, access_rule.access_points.acus.session_id)
+                        SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, auth_user, access_rule.access_points.acus.session_id)
                     }
                 }
             }
@@ -1826,7 +1826,7 @@ export default class CardholderController {
                     cardholder.access_rights = access_rights
                     cardholder.credentials = credentials
 
-                    CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, req_data.company, auth_user.id, access_points, [cardholder], null)
+                    CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, req_data.company, auth_user, access_points, [cardholder], null)
                 }
             }
 
@@ -2016,7 +2016,7 @@ export default class CardholderController {
                     if (acu.status === acuStatus.ACTIVE) {
                         const schedule: Schedule = await Schedule.findOneOrFail({ id: created_cardholder_access_rule.schedule })
                         const send_data = { id: created_cardholder_access_rule.id, access_point: created_cardholder_access_rule.access_points.id }
-                        SdlController.delSdl(location, acu.serial_number, send_data, auth_user.id, schedule.type, acu.session_id)
+                        SdlController.delSdl(location, acu.serial_number, send_data, auth_user, schedule.type, acu.session_id)
                     } else {
                         await AccessRule.destroyItem(created_cardholder_access_rule)
                     }
@@ -2067,7 +2067,7 @@ export default class CardholderController {
                 console.log('access_rights', access_rights)
                 for (const access_rule of access_rights.access_rules) {
                     if (access_rule.access_points.acus.status === acuStatus.ACTIVE) {
-                        SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, auth_user.id, access_rule.access_points.acus.session_id)
+                        SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, auth_user, access_rule.access_points.acus.session_id)
                     }
                 }
             }
@@ -2092,7 +2092,7 @@ export default class CardholderController {
                         created_cardholder.access_rights = access_rights
                         created_cardholder.credentials = credentials
 
-                        CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, req_data.company, auth_user.id, access_points, [created_cardholder], null)
+                        CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, req_data.company, auth_user, access_points, [created_cardholder], null)
                     }
                 }
             }

@@ -238,7 +238,7 @@ export default class AccessRightController {
                         access_right: access_rule.access_right,
                         access_right_delete: true
                     }
-                    SdlController.delSdl(location, access_rule.access_points.acus.serial_number, send_data, user.id, access_rule.schedules.type, access_rule.access_points.acus.session_id)
+                    SdlController.delSdl(location, access_rule.access_points.acus.serial_number, send_data, user, access_rule.schedules.type, access_rule.access_points.acus.session_id)
                 } else {
                     AccessRule.destroyItem({ id: access_rule.id, company: access_rule.company })
                     logs_data.push({

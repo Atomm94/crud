@@ -1,11 +1,8 @@
 // import * as _ from 'lodash'
 import { DefaultContext } from 'koa'
-import { getObjectDiff } from '../functions/checkDifference'
-import MQTTBroker from '../mqtt/mqtt'
-import { SendTopics } from '../mqtt/Topics'
 import { logger } from '../../../modules/winston/logger'
-import { OperatorType } from '../mqtt/Operators'
 import { logUserEvents } from '../enums/logUserEvents.enum'
+import SendUserLogMessage from '../mqtt/SendUserLogMessage'
 
 export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
     const request = ctx.request
@@ -17,26 +14,7 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
         } else {
             if (ctx.logsData) {
                 for (const logData of ctx.logsData) {
-                    let value = logData.value
-                    let diff
-                    if (logData.event === logUserEvents.CHANGE) {
-                        diff = getObjectDiff(value.new, value.old)
-                        value = diff
-                    }
-                    if (logData.event !== logUserEvents.CHANGE || (logData.event === logUserEvents.CHANGE && diff && Object.keys(diff).length)) {
-                        const dataLog = {
-                            operator: OperatorType.USER_LOG,
-                            data: {
-                                company: (ctx.user.company) ? ctx.user.company : 0,
-                                account: ctx.user,
-                                account_name: `${ctx.user.first_name} ${ctx.user.last_name}`,
-                                event: logData.event,
-                                target: logData.target,
-                                value: value
-                            }
-                        }
-                        MQTTBroker.publishMessage(SendTopics.LOG, JSON.stringify(dataLog))
-                    }
+                    new SendUserLogMessage((ctx.user.company) ? ctx.user.company : 0, ctx.user, logData.event, logData.target, logData.value)
                 }
             } else {
                 let target = (ctx.user && ctx.user.company && ctx.actionFeature) ? ctx.actionFeature : ctx.actionModel
@@ -49,21 +27,7 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
                 switch (request.method) {
                     case 'PUT': // update
                         if (ctx.oldData && ctx.user) {
-                            const diff = getObjectDiff(ctx.body, ctx.oldData)
-                            if (Object.keys(diff).length) {
-                                const dataLog = {
-                                    operator: OperatorType.USER_LOG,
-                                    data: {
-                                        company: (ctx.user.company) ? ctx.user.company : 0,
-                                        account: ctx.user,
-                                        account_name: `${ctx.user.first_name} ${ctx.user.last_name}`,
-                                        event: logUserEvents.CHANGE,
-                                        target: target,
-                                        value: diff
-                                    }
-                                }
-                                MQTTBroker.publishMessage(SendTopics.LOG, JSON.stringify(dataLog))
-                            }
+                            new SendUserLogMessage((ctx.user.company) ? ctx.user.company : 0, ctx.user, logUserEvents.CHANGE, target, { new: ctx.body, old: ctx.oldData })
                         }
                         break
                     case 'POST': // create
@@ -74,36 +38,12 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
                             } else if (ctx.body.type) {
                                 value = { type: ctx.body.type }
                             }
-                            const dataLog = {
-                                operator: OperatorType.USER_LOG,
-                                data: {
-                                    company: (ctx.user.company) ? ctx.user.company : 0,
-                                    account: ctx.user,
-                                    account_name: `${ctx.user.first_name} ${ctx.user.last_name}`,
-                                    event: logUserEvents.CREATE,
-                                    target: target,
-                                    value: value
-                                }
-
-                            }
-                            console.log('datalog', dataLog)
-                            MQTTBroker.publishMessage(SendTopics.LOG, JSON.stringify(dataLog))
+                            new SendUserLogMessage((ctx.user.company) ? ctx.user.company : 0, ctx.user, logUserEvents.CREATE, target, value)
                         }
                         break
                     case 'DELETE': // delete
                         if (ctx.user) {
-                            const dataLog = {
-                                operator: OperatorType.USER_LOG,
-                                data: {
-                                    company: (ctx.user.company) ? ctx.user.company : 0,
-                                    account: ctx.user,
-                                    account_name: `${ctx.user.first_name} ${ctx.user.last_name}`,
-                                    event: logUserEvents.DELETE,
-                                    target: target,
-                                    value: null
-                                }
-                            }
-                            MQTTBroker.publishMessage(SendTopics.LOG, JSON.stringify(dataLog))
+                            new SendUserLogMessage((ctx.user.company) ? ctx.user.company : 0, ctx.user, logUserEvents.DELETE, target, null)
                         }
                         break
                     default:
