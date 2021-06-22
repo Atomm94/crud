@@ -430,7 +430,7 @@ export default class TimeframeController {
                 ctx.body = await Timeframe.save(newTimeFrames)
             } else {
                 ctx.status = 400
-                ctx.body = { message: 'something went wrong' }
+                ctx.body = { message: 'Can\'t clone a schedule without adding timeframes' }
             }
         } catch (error) {
             ctx.status = error.status || 400
