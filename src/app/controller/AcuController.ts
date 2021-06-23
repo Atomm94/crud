@@ -896,7 +896,7 @@ export default class AcuController {
 
                 // send Schedules(Access Rules)
                 for (const access_rule of access_point.access_rules) {
-                    SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, user, access_rule.access_points.acus.session_id)
+                    SdlController.setSdl(location, device.serial_number, access_rule, user, device.session_id)
                 }
 
                 // send CardKeys

@@ -2,7 +2,7 @@ import { OperatorType } from '../../mqtt/Operators'
 import SendDeviceMessage from '../../mqtt/SendDeviceMessage'
 
 export default class RdController {
-    public static async setRd (location: string, serial_number: number, reader: any, user: any, session_id: string | null = '', reader_update?: boolean) {
+    public static async setRd (location: string, serial_number: number, reader: any, user: any, session_id: string | null = '', reader_update: boolean = false) {
         new SendDeviceMessage(OperatorType.SET_RD, location, serial_number, reader, user, session_id, reader_update)
     }
 

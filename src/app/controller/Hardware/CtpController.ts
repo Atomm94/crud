@@ -3,7 +3,7 @@ import { OperatorType } from '../../mqtt/Operators'
 import SendDeviceMessage from '../../mqtt/SendDeviceMessage'
 
 export default class CtpController {
-    public static async setCtp (type: accessPointType, location: string, serial_number: number, data: any, user: any, session_id: string | null = '0', update?: boolean) {
+    public static async setCtp (type: accessPointType, location: string, serial_number: number, data: any, user: any, session_id: string | null = '0', update: boolean = false) {
         let operator = OperatorType.SET_CTP_DOOR
         if (type === accessPointType.TURNSTILE_ONE_SIDE || type === accessPointType.TURNSTILE_TWO_SIDE) {
             operator = OperatorType.SET_CTP_TURNSTILE

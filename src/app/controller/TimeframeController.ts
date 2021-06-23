@@ -88,8 +88,8 @@ export default class TimeframeController {
                 return ctx.body = { message: check_schedule }
             }
             for (const access_rule of access_rules) {
-                const send_data: any = { id: access_rule.id, access_point: access_rule.access_point, timeframes: timeframes }
-                SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, user, access_rule.access_points.acus.session_id, send_data)
+                const send_data: any = { id: access_rule.id, access_point: access_rule.access_point, timeframes: timeframes, timeframe_flag: 1 }
+                SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, user, access_rule.access_points.acus.session_id, false, send_data)
             }
         } catch (error) {
             console.log('error', error)
@@ -187,8 +187,8 @@ export default class TimeframeController {
             const timeframes = await Timeframe.find({ schedule: schedule.id })
 
             for (const access_rule of access_rules) {
-                const send_data: any = { id: access_rule.id, access_point: access_rule.access_point, timeframes: timeframes }
-                SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, user, access_rule.access_points.acus.session_id, send_data)
+                const send_data: any = { id: access_rule.id, access_point: access_rule.access_point, timeframes: timeframes, timeframe_flag: 1 }
+                SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, user, access_rule.access_points.acus.session_id, false, send_data)
             }
         } catch (error) {
             ctx.status = error.status || 400
@@ -303,8 +303,8 @@ export default class TimeframeController {
             const timeframes = await Timeframe.find({ schedule: schedule.id })
 
             for (const access_rule of access_rules) {
-                const send_data: any = { id: access_rule.id, access_point: access_rule.access_point, timeframes: timeframes }
-                SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, user, access_rule.access_points.acus.session_id, send_data)
+                const send_data: any = { id: access_rule.id, access_point: access_rule.access_point, timeframes: timeframes, timeframe_flag: 1 }
+                SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, user, access_rule.access_points.acus.session_id, false, send_data)
             }
         } catch (error) {
             console.log(error)
@@ -439,6 +439,20 @@ export default class TimeframeController {
                     newTimeFrames.push(timeframe)
                 }
                 ctx.body = await Timeframe.save(newTimeFrames)
+
+                const access_rules = await AccessRule.createQueryBuilder('access_rule')
+                    .innerJoinAndSelect('access_rule.access_points', 'access_point')
+                    .innerJoinAndSelect('access_point.acus', 'acu')
+                    .where(`acu.status = '${acuStatus.ACTIVE}'`)
+                    .andWhere(`access_rule.schedule = ${req_data.paste_id}`)
+                    .getMany()
+                const location = `${user.company_main}/${user.company}`
+                const timeframes = await Timeframe.find({ schedule: req_data.paste_id })
+
+                for (const access_rule of access_rules) {
+                    const send_data: any = { id: access_rule.id, access_point: access_rule.access_point, timeframes: timeframes, timeframe_flag: 1 }
+                    SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, user, access_rule.access_points.acus.session_id, false, send_data)
+                }
             } else {
                 ctx.status = 400
                 ctx.body = { message: 'Can\'t clone a schedule without adding timeframes' }

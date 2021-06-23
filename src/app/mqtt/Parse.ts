@@ -933,20 +933,25 @@ export default class Parse {
 
     public static async setSdlDailyAck (message: IMqttCrudMessaging) {
         // console.log('setSdlDailyAck', message)
+        const timframe_flag = message.send_data.data.timframe_flag
         if (message.result.errorNo === 0) {
-            const company = message.company
-            if (message.send_data.update) {
-                const save = await AccessRule.updateItem(message.send_data.data as AccessRule)
-                const access_point = await AccessPoint.findOneOrFail({ where: { id: save.old.access_point } })
-                new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.CHANGE, `${AccessRule.name}/${access_point.name}`, save)
-            } else {
-                const access_rule = await AccessRule.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['access_points'] })
-                new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.CREATE, `${AccessRule.name}/${access_rule.access_points.name}`, { name: access_rule.access_points.name })
+            if (!timframe_flag) {
+                const company = message.company
+                if (message.send_data.update) {
+                    const save = await AccessRule.updateItem(message.send_data.data as AccessRule)
+                    const access_point = await AccessPoint.findOneOrFail({ where: { id: save.old.access_point } })
+                    new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.CHANGE, `${AccessRule.name}/${access_point.name}`, save)
+                } else {
+                    const access_rule = await AccessRule.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['access_points'] })
+                    new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.CREATE, `${AccessRule.name}/${access_rule.access_points.name}`, { name: access_rule.access_points.name })
+                }
             }
             // console.log('setSdlDailyAck complete')
         } else {
-            if (!message.send_data.update) {
-                await AccessRule.destroyItem({ id: message.send_data.data.id, company: message.company })
+            if (!timframe_flag) {
+                if (!message.send_data.update) {
+                    await AccessRule.destroyItem({ id: message.send_data.data.id, company: message.company })
+                }
             }
         }
     }
@@ -974,19 +979,26 @@ export default class Parse {
 
     public static async setSdlWeeklyAck (message: IMqttCrudMessaging) {
         // console.log('setSdlWeeklyAck', message)
+        const timframe_flag = message.send_data.data.timframe_flag
         if (message.result.errorNo === 0) {
-            const company = message.company
-            if (message.send_data.update) {
-                const save = await AccessRule.updateItem(message.send_data.data as AccessRule)
-                const access_point = await AccessPoint.findOneOrFail({ where: { id: save.old.access_point } })
-                new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.CHANGE, `${AccessRule.name}/${access_point.name}`, save)
-            } else {
-                const access_rule = await AccessRule.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['access_points'] })
-                new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.CREATE, `${AccessRule.name}/${access_rule.access_points.name}`, { name: access_rule.access_points.name })
+            if (!timframe_flag) {
+                const company = message.company
+                if (message.send_data.update) {
+                    const save = await AccessRule.updateItem(message.send_data.data as AccessRule)
+                    const access_point = await AccessPoint.findOneOrFail({ where: { id: save.old.access_point } })
+                    new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.CHANGE, `${AccessRule.name}/${access_point.name}`, save)
+                } else {
+                    const access_rule = await AccessRule.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['access_points'] })
+                    new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.CREATE, `${AccessRule.name}/${access_rule.access_points.name}`, { name: access_rule.access_points.name })
+                }
+                // console.log('setSdlWeeklyAck complete')
             }
-            // console.log('setSdlWeeklyAck complete')
         } else {
-            await AccessRule.destroyItem({ id: message.send_data.data.id, company: message.company })
+            if (!timframe_flag) {
+                if (!message.send_data.update) {
+                    await AccessRule.destroyItem({ id: message.send_data.data.id, company: message.company })
+                }
+            }
         }
     }
 
@@ -1032,10 +1044,26 @@ export default class Parse {
 
     public static async endSdlFlexiTimeAck (message: IMqttCrudMessaging) {
         // console.log('endSdlFlexiTimeAck', message)
+        const timframe_flag = message.send_data.data.timframe_flag
         if (message.result.errorNo === 0) {
-            await AccessRule.updateItem(message.send_data.data.data as AccessRule)
-            // console.log('endSdlFlexiTimeAck complete')
+            const company = message.company
+            if (!timframe_flag) {
+                if (message.send_data.update) {
+                    const save = await AccessRule.updateItem(message.send_data.data as AccessRule)
+                    const access_point = await AccessPoint.findOneOrFail({ where: { id: save.old.access_point } })
+                    new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.CHANGE, `${AccessRule.name}/${access_point.name}`, save)
+                } else {
+                    const access_rule = await AccessRule.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['access_points'] })
+                    new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.CREATE, `${AccessRule.name}/${access_rule.access_points.name}`, { name: access_rule.access_points.name })
+                }
+                // console.log('endSdlFlexiTimeAck complete')
+            }
         } else {
+            if (!timframe_flag) {
+                if (!message.send_data.update) {
+                    await AccessRule.destroyItem({ id: message.send_data.data.id, company: message.company })
+                }
+            }
         }
     }
 
@@ -1091,9 +1119,26 @@ export default class Parse {
 
     public static async endSdlSpecifiedAck (message: IMqttCrudMessaging) {
         // console.log('endSdlSpecifiedAck', message)
+        const timframe_flag = message.send_data.data.timframe_flag
         if (message.result.errorNo === 0) {
-            await AccessRule.updateItem(message.send_data.data.data as AccessRule)
-            // console.log('endSdlSpecifiedAck complete')
+            if (!timframe_flag) {
+                const company = message.company
+                if (message.send_data.update) {
+                    const save = await AccessRule.updateItem(message.send_data.data as AccessRule)
+                    const access_point = await AccessPoint.findOneOrFail({ where: { id: save.old.access_point } })
+                    new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.CHANGE, `${AccessRule.name}/${access_point.name}`, save)
+                } else {
+                    const access_rule = await AccessRule.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['access_points'] })
+                    new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.CREATE, `${AccessRule.name}/${access_rule.access_points.name}`, { name: access_rule.access_points.name })
+                }
+                // console.log('endSdlSpecifiedAck complete')
+            }
+        } else {
+            if (!timframe_flag) {
+                if (!message.send_data.update) {
+                    await AccessRule.destroyItem({ id: message.send_data.data.id, company: message.company })
+                }
+            }
         }
     }
 
