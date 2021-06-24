@@ -183,7 +183,9 @@ export default class AccessRuleController {
                         const send_data = { ...req_data, schedule_type: schedule.type, start_from: schedule.start_from, timeframes: timeframes, access_point: access_point.id }
                         SdlController.delSdl(location, acu.serial_number, send_data, user, access_rule.schedules.type, acu.session_id, true)
                     }
-                    ctx.body = true
+                    ctx.body = {
+                        message: 'Update Pending'
+                    }
                 } else {
                     const updated = await AccessRule.updateItem(req_data as AccessRule)
                     ctx.oldData = updated.old

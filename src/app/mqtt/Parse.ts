@@ -618,7 +618,7 @@ export default class Parse {
                     console.log('AccessPoint update completed')
                 }
             } else {
-                const access_point: any = await Acu.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['acus'] })
+                const access_point: any = await AccessPoint.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['acus'] })
                 new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.CREATE, `${AccessPoint.name}/${access_point.acus.name}/${access_point.name}`, { name: access_point.name })
                 // console.log('AccessPoint insert completed')
             }
@@ -660,7 +660,7 @@ export default class Parse {
                     // console.log('AccessPoint update completed')
                 }
             } else {
-                const access_point: any = await Acu.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['acus'] })
+                const access_point: any = await AccessPoint.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['acus'] })
                 new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.CREATE, `${AccessPoint.name}/${access_point.acus.name}/${access_point.name}`, { name: access_point.name })
                 // console.log('AccessPoint insert completed')
             }
@@ -704,7 +704,7 @@ export default class Parse {
                     // console.log('AccessPoint update completed')
                 }
             } else {
-                const access_point: any = await Acu.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['acus'] })
+                const access_point: any = await AccessPoint.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['acus'] })
                 new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.CREATE, `${AccessPoint.name}/${access_point.acus.name}/${access_point.name}`, { name: access_point.name })
                 // console.log('AccessPoint insert completed')
             }
@@ -748,7 +748,7 @@ export default class Parse {
                     // console.log('AccessPoint update completed')
                 }
             } else {
-                const access_point: any = await Acu.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['acus'] })
+                const access_point: any = await AccessPoint.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['acus'] })
                 new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.CREATE, `${AccessPoint.name}/${access_point.acus.name}/${access_point.name}`, { name: access_point.name })
                 // console.log('AccessPoint insert completed')
             }
@@ -792,7 +792,7 @@ export default class Parse {
                     // console.log('AccessPoint update completed')
                 }
             } else {
-                const access_point: any = await Acu.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['acus'] })
+                const access_point: any = await AccessPoint.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['acus'] })
                 new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.CREATE, `${AccessPoint.name}/${access_point.acus.name}/${access_point.name}`, { name: access_point.name })
                 // console.log('AccessPoint insert completed')
             }
@@ -1044,24 +1044,24 @@ export default class Parse {
 
     public static async endSdlFlexiTimeAck (message: IMqttCrudMessaging) {
         // console.log('endSdlFlexiTimeAck', message)
-        const timframe_flag = message.send_data.data.timframe_flag
+        const timframe_flag = message.send_data.data.data.timframe_flag
         if (message.result.errorNo === 0) {
             const company = message.company
             if (!timframe_flag) {
-                if (message.send_data.update) {
-                    const save = await AccessRule.updateItem(message.send_data.data as AccessRule)
+                if (message.send_data.data.update) {
+                    const save = await AccessRule.updateItem(message.send_data.data.data as AccessRule)
                     const access_point = await AccessPoint.findOneOrFail({ where: { id: save.old.access_point } })
-                    new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.CHANGE, `${AccessRule.name}/${access_point.name}`, save)
+                    new SendUserLogMessage(company, message.send_data.data.user_data, logUserEvents.CHANGE, `${AccessRule.name}/${access_point.name}`, save)
                 } else {
-                    const access_rule = await AccessRule.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['access_points'] })
-                    new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.CREATE, `${AccessRule.name}/${access_rule.access_points.name}`, { name: access_rule.access_points.name })
+                    const access_rule = await AccessRule.findOneOrFail({ where: { id: message.send_data.data.data.id }, relations: ['access_points'] })
+                    new SendUserLogMessage(company, message.send_data.data.user_data, logUserEvents.CREATE, `${AccessRule.name}/${access_rule.access_points.name}`, { name: access_rule.access_points.name })
                 }
                 // console.log('endSdlFlexiTimeAck complete')
             }
         } else {
             if (!timframe_flag) {
                 if (!message.send_data.update) {
-                    await AccessRule.destroyItem({ id: message.send_data.data.id, company: message.company })
+                    await AccessRule.destroyItem({ id: message.send_data.data.data.id, company: message.company })
                 }
             }
         }
@@ -1119,24 +1119,24 @@ export default class Parse {
 
     public static async endSdlSpecifiedAck (message: IMqttCrudMessaging) {
         // console.log('endSdlSpecifiedAck', message)
-        const timframe_flag = message.send_data.data.timframe_flag
+        const timframe_flag = message.send_data.data.data.timframe_flag
         if (message.result.errorNo === 0) {
             if (!timframe_flag) {
                 const company = message.company
-                if (message.send_data.update) {
-                    const save = await AccessRule.updateItem(message.send_data.data as AccessRule)
+                if (message.send_data.data.update) {
+                    const save = await AccessRule.updateItem(message.send_data.data.data as AccessRule)
                     const access_point = await AccessPoint.findOneOrFail({ where: { id: save.old.access_point } })
-                    new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.CHANGE, `${AccessRule.name}/${access_point.name}`, save)
+                    new SendUserLogMessage(company, message.send_data.data.user_data, logUserEvents.CHANGE, `${AccessRule.name}/${access_point.name}`, save)
                 } else {
-                    const access_rule = await AccessRule.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['access_points'] })
-                    new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.CREATE, `${AccessRule.name}/${access_rule.access_points.name}`, { name: access_rule.access_points.name })
+                    const access_rule = await AccessRule.findOneOrFail({ where: { id: message.send_data.data.data.id }, relations: ['access_points'] })
+                    new SendUserLogMessage(company, message.send_data.data.user_data, logUserEvents.CREATE, `${AccessRule.name}/${access_rule.access_points.name}`, { name: access_rule.access_points.name })
                 }
                 // console.log('endSdlSpecifiedAck complete')
             }
         } else {
             if (!timframe_flag) {
                 if (!message.send_data.update) {
-                    await AccessRule.destroyItem({ id: message.send_data.data.id, company: message.company })
+                    await AccessRule.destroyItem({ id: message.send_data.data.data.id, company: message.company })
                 }
             }
         }
