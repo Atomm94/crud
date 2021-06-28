@@ -105,12 +105,12 @@ export default class AccessPointController {
                 if (access_point.acus.status === acuStatus.ACTIVE) {
                     CtpController.delCtp(access_point.type, location, access_point.acus.serial_number, req_data, user, access_point.acus.session_id)
                 }
-            logs_data.push({
-                event: logUserEvents.DELETE,
-                target: `${AccessPoint.name}/${access_point.acus.name}/${access_point.name}`,
-                value: null
-            })
-            ctx.logsData = logs_data
+                logs_data.push({
+                    event: logUserEvents.DELETE,
+                    target: `${AccessPoint.name}/${access_point.acus.name}/${access_point.name}`,
+                    value: { name: access_point.name }
+                })
+                ctx.logsData = logs_data
             }
         } catch (error) {
             console.log(error)
@@ -209,7 +209,7 @@ export default class AccessPointController {
             logs_data.push({
                 event: logUserEvents.DELETE,
                 target: `${Reader.name}/${reader.access_points.acus.name}/${reader.access_points.name}/${readerTypes[reader.type]}`,
-                value: null
+                value: { type: readerTypes[reader.type] }
             })
             ctx.logsData = logs_data
             if (reader.access_points.acus.status === acuStatus.ACTIVE) {
