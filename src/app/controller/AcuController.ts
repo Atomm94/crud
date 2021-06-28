@@ -413,7 +413,7 @@ export default class AcuController {
                         ctx.status = 400
                         return ctx.body = { message: check_access_points }
                     } else {
-                        if (acu.status === acuStatus.PENDING && req_data.access_points) {
+                        if (acu.status === acuStatus.PENDING && req_data.access_points && req_data.access_points.length) {
                             ctx.status = 400
                             return ctx.body = { message: `You cant add accessPoints when acu status is ${acuStatus.PENDING}` }
                         }
@@ -792,27 +792,40 @@ export default class AcuController {
 
             const detach = !!req_data.detach
             const device_status = (detach) ? acuStatus.ACTIVE : acuStatus.NO_HARDWARE
-            const device = await Acu.findOne({
-                relations: [
-                    'ext_devices',
-                    'access_points',
-                    'access_points.readers',
-                    'access_points.access_rules',
-                    'access_points.access_rules.schedules',
-                    'access_points.access_rules.schedules.timeframes'
-                ],
-                where: {
-                    id: req_data.device,
-                    status: device_status,
-                    company: company
-                }
-            })
-            if (!device) {
+            // const device = await Acu.findOne({
+            //     relations: [
+            //         'ext_devices',
+            //         'access_points',
+            //         'access_points.readers',
+            //         'access_points.access_rules',
+            //         'access_points.access_rules.schedules',
+            //         'access_points.access_rules.schedules.timeframes'
+            //     ],
+            //     where: {
+            //         id: req_data.device,
+            //         status: device_status,
+            //         company: company
+            //     }
+            // })
+            let device : any = await Acu.createQueryBuilder('acu')
+                .leftJoinAndSelect('acu.ext_devices', 'ext_device', 'ext_device.delete_date is null')
+                .leftJoinAndSelect('acu.access_points', 'access_point', 'access_point.delete_date is null')
+                .leftJoinAndSelect('access_point.readers', 'reader', 'reader.delete_date is null')
+                .leftJoinAndSelect('access_point.access_rules', 'access_rule', 'access_rule.delete_date is null')
+                .leftJoinAndSelect('access_rule.schedules', 'schedule', 'schedule.delete_date is null')
+                .leftJoinAndSelect('schedule.timeframes', 'timeframe', 'timeframe.delete_date is null')
+                .where(`acu.id = '${req_data.device}'`)
+                .andWhere(`acu.status = '${device_status}'`)
+                .andWhere(`acu.company = '${company}'`)
+                .getMany()
+
+            if (!device.length) {
                 ctx.status = 400
                 return ctx.body = {
                     message: `Invalid ${device_status} device id!!`
                 }
             }
+            device = device[0]
 
             const hardware = await Acu.findOne({
                 id: req_data.attached_hardware,
