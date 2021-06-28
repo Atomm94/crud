@@ -23,18 +23,25 @@ export default class CardKeyController {
             if (cardholders) {
                 all_cardholders = cardholders
             } else {
-                all_cardholders = await Cardholder.getAllItems({
-                    relations: [
-                        'credentials',
-                        'access_rights',
-                        'access_rights.access_rules'
-                    ],
-                    where: {
-                        company: {
-                            '=': company
-                        }
-                    }
-                })
+                // all_cardholders = await Cardholder.getAllItems({
+                //     relations: [
+                //         'credentials',
+                //         'access_rights',
+                //         'access_rights.access_rules'
+                //     ],
+                //     where: {
+                //         company: {
+                //             '=': company
+                //         }
+                //     }
+                // })
+
+                all_cardholders = await Cardholder.createQueryBuilder('cardholder')
+                    .leftJoinAndSelect('cardholder.access_rights', 'access_right')
+                    .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
+                    .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null')
+                    .where(`cardholder.company = '${company}'`)
+                    .getMany()
             }
 
             if (all_cardholders.length) {
@@ -73,18 +80,25 @@ export default class CardKeyController {
             if (cardholders) {
                 all_cardholders = cardholders
             } else {
-                all_cardholders = await Cardholder.getAllItems({
-                    relations: [
-                        'credentials',
-                        'access_rights',
-                        'access_rights.access_rules'
-                    ],
-                    where: {
-                        company: {
-                            '=': company
-                        }
-                    }
-                })
+                // all_cardholders = await Cardholder.getAllItems({
+                //     relations: [
+                //         'credentials',
+                //         'access_rights',
+                //         'access_rights.access_rules'
+                //     ],
+                //     where: {
+                //         company: {
+                //             '=': company
+                //         }
+                //     }
+                // })
+
+                all_cardholders = await Cardholder.createQueryBuilder('cardholder')
+                    .leftJoinAndSelect('cardholder.access_rights', 'access_right')
+                    .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
+                    .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null')
+                    .where(`cardholder.company = '${company}'`)
+                    .getMany()
             }
             if (all_cardholders.length) {
                 send_edit_data.cardholders = all_cardholders

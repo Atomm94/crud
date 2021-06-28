@@ -6,7 +6,16 @@ import SendDeviceMessage from '../../mqtt/SendDeviceMessage'
 
 export default class SdlController {
     public static async setSdl (location: string, serial_number: number, access_rule: any, user: any, session_id: string | null = '0', update: boolean = false, send_data: any = null) {
-        const schedule: Schedule = (access_rule.schedules) ? access_rule.schedules : await Schedule.findOneOrFail({ where: { id: access_rule.schedule }, relations: ['timeframes'] })
+        let schedule: any
+        if (access_rule.schedules) {
+            schedule = access_rule.schedules
+        } else {
+            // schedule = await Schedule.findOneOrFail({ where: { id: access_rule.schedule }, relations: ['timeframes'] })
+            schedule = await Schedule.createQueryBuilder('schedule')
+                .leftJoinAndSelect('schedule.timeframes', 'timeframe', 'timeframe.delete_date is null')
+                .where(`schedule.id = '${access_rule.schedule}'`)
+                .getOne()
+        }
 
         let send_sdl_data
         if (send_data) {

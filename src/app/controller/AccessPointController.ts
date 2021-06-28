@@ -144,11 +144,20 @@ export default class AccessPointController {
      */
     public static async getAll (ctx: DefaultContext) {
         try {
-            const req_data = ctx.query
+            // const req_data = ctx.query
             const user = ctx.user
-            req_data.where = { company: { '=': user.company ? user.company : null } }
-            req_data.relations = ['acus', 'access_point_groups', 'access_point_zones']
-            ctx.body = await AccessPoint.getAllItems(req_data)
+            // req_data.where = { company: { '=': user.company ? user.company : null } }
+            // req_data.relations = ['acus', 'access_point_groups', 'access_point_zones']
+            // ctx.body = await AccessPoint.getAllItems(req_data)
+
+            const access_points: any = await AccessPoint.createQueryBuilder('access_point')
+                .leftJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
+                .leftJoinAndSelect('access_point.access_point_groups', 'access_point_group')
+                .leftJoinAndSelect('access_point.access_point_zones', 'access_point_zones')
+                .andWhere(`access_point.company = '${user.company ? user.company : user.company}'`)
+                .getMany()
+
+                ctx.body = access_points
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -199,7 +208,17 @@ export default class AccessPointController {
             req_data.company = company
             const location = `${user.company_main}/${user.company}`
             const where = { id: req_data.id, company: company }
-            const reader: any = await Reader.findOneOrFail({ relations: ['access_points', 'access_points.acus'], where: where })
+            // const reader: any = await Reader.findOneOrFail({ relations: ['access_points', 'access_points.acus'], where: where })
+
+            let reader: any = await Reader.createQueryBuilder('reader')
+                .leftJoinAndSelect('reader.access_points', 'access_point', 'access_point.delete_date is null')
+                .leftJoinAndSelect('access_point.acus', 'acus', 'acus.delete_date is null')
+                .where(`reader.id = '${req_data.id}'`)
+                .andWhere(`reader.company = '${user.company ? user.company : user.company}'`)
+                .getMany()
+
+            reader = reader[0]
+
             req_data.direction = reader.direction
             req_data.port = reader.port
             req_data.access_point = reader.access_points.id

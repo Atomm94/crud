@@ -162,9 +162,16 @@ export default class AccessPointZoneController {
     public static async get (ctx: DefaultContext) {
         try {
             const user = ctx.user
-            const where = { id: +ctx.params.id, company: user.company ? user.company : user.company }
-            const relations = ['access_points']
-            ctx.body = await AccessPointZone.getItem(where, relations)
+            // const where = { id: +ctx.params.id, company: user.company ? user.company : user.company }
+            // const relations = ['access_points']
+            // ctx.body = await AccessPointZone.getItem(where, relations)
+
+            const access_point_zone: any = await AccessPointZone.createQueryBuilder('access_point_zone')
+                .leftJoinAndSelect('access_point_zone.access_points', 'access_point', 'access_point.delete_date is null')
+                .where(`access_point_zone.id = '${+ctx.params.id}'`)
+                .andWhere(`access_point_zone.company = '${user.company ? user.company : user.company}'`)
+                .getOne()
+            ctx.body = access_point_zone
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

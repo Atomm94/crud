@@ -89,20 +89,34 @@ export default class AccessRuleController {
                 data.access_point = access_point.id
                 try {
                     const access_rule: AccessRule = await AccessRule.addItem(data as AccessRule)
-                    const relation = ['access_points']
-                    const returnData = AccessRule.getItem({ id: access_rule.id }, relation)
+                    // const relation = ['access_points']
+                    // const returnData = AccessRule.getItem({ id: access_rule.id }, relation)
+
+                    let returnData: any = await AccessRule.createQueryBuilder('access_rule')
+                        .leftJoinAndSelect('access_rule.access_points', 'access_point', 'access_point.delete_date is null')
+                        .where(`access_rule.id = '${access_rule.id}'`)
+                        .getMany()
+
+                    returnData = returnData[0]
                     res_data.push(returnData)
                     const acu: Acu = await Acu.getItem({ id: access_point.acu })
                     if (acu.status === acuStatus.ACTIVE) {
                         SdlController.setSdl(location, acu.serial_number, access_rule, user, acu.session_id)
 
-                        const cardholders = await Cardholder.getAllItems({
-                            relations: ['credentials'],
-                            where: {
-                                access_right: { '=': access_rule.access_right },
-                                company: { '=': req_data.company }
-                            }
-                        })
+                        // const cardholders = await Cardholder.getAllItems({
+                        //     relations: ['credentials'],
+                        //     where: {
+                        //         access_right: { '=': access_rule.access_right },
+                        //         company: { '=': req_data.company }
+                        //     }
+                        // })
+
+                        const cardholders: any = await Cardholder.createQueryBuilder('cardholder')
+                            .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null')
+                            .where(`cardholder.access_right = '${access_rule.access_right}'`)
+                            .andWhere(`cardholder.company = '${req_data.company}'`)
+                            .getMany()
+
                         CardKeyController.editCardKey(location, req_data.company, user.id, access_rule, null, cardholders)
                         ctx.body = true
                     }
@@ -167,8 +181,14 @@ export default class AccessRuleController {
         try {
             const req_data = ctx.request.body
             const user = ctx.user
-            const where = { id: req_data.id, company: user.company ? user.company : null }
-            const access_rule: AccessRule = await AccessRule.findOneOrFail({ where: where, relations: ['schedules'] })
+            // const where = { id: req_data.id, company: user.company ? user.company : null }
+            // const access_rule: AccessRule = await AccessRule.findOneOrFail({ where: where, relations: ['schedules'] })
+            const access_rule: any = await AccessRule.createQueryBuilder('access_rule')
+                .leftJoinAndSelect('access_rule.schedules', 'schedule', 'schedule.delete_date is null')
+                .where(`access_rule.id = '${req_data.id}'`)
+                .andWhere(`access_rule.company = '${user.company ? user.company : null}'`)
+                .getMany()
+
             const location = `${user.company_main}/${user.company}`
             if (!access_rule) {
                 ctx.status = 400
@@ -233,9 +253,15 @@ export default class AccessRuleController {
     public static async get (ctx: DefaultContext) {
         try {
             const user = ctx.user
-            const where = { id: +ctx.params.id, company: user.company ? user.company : user.company }
-            const relations = ['schedules']
-            ctx.body = await AccessRule.getItem(where, relations)
+            // const where = { id: +ctx.params.id, company: user.company ? user.company : user.company }
+            // const relations = ['schedules']
+            const access_rule: any = await AccessRule.createQueryBuilder('access_rule')
+            .leftJoinAndSelect('access_rule.schedules', 'schedule', 'schedule.delete_date is null')
+            .where(`access_rule.id = '${+ctx.params.id}'`)
+            .andWhere(`access_rule.company = '${user.company ? user.company : null}'`)
+            .getMany()
+
+            ctx.body = access_rule[0]
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

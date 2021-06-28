@@ -228,19 +228,19 @@ export default class CredentialController {
             const req_data = ctx.request.body
             const logs_data = []
             const where = { id: req_data.id, company: user.company ? user.company : null }
-            const credential:any = await Credential.findOne({ relations: ['cardholders'], where: where })
+            const credential: any = await Credential.findOne({ relations: ['cardholders'], where: where })
             credential.status = 0
             req_data.where = { company: { '=': user.company ? user.company : null }, status: { '=': acuStatus.ACTIVE } }
             const access_points = await AccessPoint.createQueryBuilder('access_point')
-            .innerJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
-            .where(`acu.status = '${acuStatus.ACTIVE}'`)
-            .andWhere(`acu.company = ${ctx.user.company}`)
-            .getMany()
+                .innerJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
+                .where(`acu.status = '${acuStatus.ACTIVE}'`)
+                .andWhere(`acu.company = ${ctx.user.company}`)
+                .getMany()
             ctx.body = await Credential.destroyItem(where)
             logs_data.push({
                 event: logUserEvents.DELETE,
                 target: `${Credential.name}/${credential.cardholders.first_name}/${credential.code}`,
-                value: null
+                value: { code: credential.code }
             })
             ctx.logsData = logs_data
             const cardhoder = await Cardholder.findOneOrFail({ id: credential.cardholder })
@@ -343,10 +343,10 @@ export default class CredentialController {
                 credential.status = req_data.status
                 req_data.where = { company: { '=': user.company ? user.company : null }, status: { '=': acuStatus.ACTIVE } }
                 const access_points = await AccessPoint.createQueryBuilder('access_point')
-                .innerJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
-                .where(`acu.status = '${acuStatus.ACTIVE}'`)
-                .andWhere(`acu.company = ${ctx.user.company}`)
-                .getMany()
+                    .innerJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
+                    .where(`acu.status = '${acuStatus.ACTIVE}'`)
+                    .andWhere(`acu.company = ${ctx.user.company}`)
+                    .getMany()
 
                 console.log('credential', credential)
 

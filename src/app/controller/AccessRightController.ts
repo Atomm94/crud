@@ -227,7 +227,15 @@ export default class AccessRightController {
                 }
             }
 
-            const access_rules: any = await AccessRule.getAllItems({ relations: ['schedules', 'access_points', 'access_points.acus'], where: { access_right: { '=': req_data.id } } })
+            // const access_rules: any = await AccessRule.getAllItems({ relations: ['schedules', 'access_points', 'access_points.acus'], where: { access_right: { '=': req_data.id } } })
+
+            const access_rules: any = await AccessRule.createQueryBuilder('access_rule')
+            .leftJoinAndSelect('access_rule.schedules', 'schedule', 'schedule.delete_date is null')
+            .leftJoinAndSelect('access_rule.access_points', 'access_point', 'access_point.delete_date is null')
+            .leftJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
+            .where(`access_right.id = '${req_data.id}'`)
+            .getMany()
+
             let active_rule = false
             for (const access_rule of access_rules) {
                 if (access_rule.access_points.acus.status === acuStatus.ACTIVE) {

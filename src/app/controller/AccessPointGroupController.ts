@@ -146,10 +146,16 @@ export default class AccessPointGroupController {
     public static async get (ctx: DefaultContext) {
         try {
             const user = ctx.user
-            const where = { id: +ctx.params.id, company: user.company ? user.company : user.company }
-            const relations = ['access_points']
+            // const where = { id: +ctx.params.id, company: user.company ? user.company : user.company }
+            // const relations = ['access_points']
+            // ctx.body = await AccessPointGroup.getItem(where, relations)
+            const access_point_group: any = await AccessPointGroup.createQueryBuilder('access_point_group')
+                .leftJoinAndSelect('access_point_group.access_points', 'access_point', 'access_point.delete_date is null')
+                .where(`access_point_group.id = '${+ctx.params.id}'`)
+                .andWhere(`access_point_group.company = '${user.company ? user.company : user.company}'`)
+                .getOne()
 
-            ctx.body = await AccessPointGroup.getItem(where, relations)
+            ctx.body = access_point_group
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -198,7 +204,7 @@ export default class AccessPointGroupController {
             const where = { id: req_data.id, company: user.company ? user.company : null }
 
             const access_point_group = await AccessPointGroup.findOneOrFail({ where: where })
-                ctx.body = await AccessPointGroup.destroyItem(where)
+            ctx.body = await AccessPointGroup.destroyItem(where)
 
             ctx.logsData = [{
                 event: logUserEvents.DELETE,

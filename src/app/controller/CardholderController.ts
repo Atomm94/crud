@@ -594,7 +594,13 @@ export default class CardholderController {
                         .getMany()
 
                     if (access_points.length) {
-                        const access_rights = await AccessRight.findOne({ where: { id: cardholder.access_right }, relations: ['access_rules'] })
+                        // const access_rights = await AccessRight.findOne({ where: { id: cardholder.access_right }, relations: ['access_rules'] })
+                        let access_rights: any = await AccessRight.createQueryBuilder('access_right')
+                            .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
+                            .where(`access_right.id = '${cardholder.access_right}'`)
+                            .getMany()
+                        access_rights = access_rights[0]
+
                         if (access_rights) {
                             cardholder.access_rights = access_rights
 
@@ -617,7 +623,7 @@ export default class CardholderController {
                     .leftJoinAndSelect('cardholder.car_infos', 'car_info')
                     .leftJoinAndSelect('cardholder.limitations', 'limitation')
                     .leftJoinAndSelect('cardholder.antipass_backs', 'antipass_back')
-                    .leftJoinAndSelect('cardholder.time_attendances', 'time_attendance')
+                    .leftJoinAndSelect('cardholder.time_attendances', 'schedule')
                     .leftJoinAndSelect('cardholder.access_rights', 'access_right')
                     .leftJoinAndSelect('cardholder.cardholder_groups', 'cardholder_group')
                     .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null')
@@ -672,7 +678,7 @@ export default class CardholderController {
                 .leftJoinAndSelect('cardholder.car_infos', 'car_info')
                 .leftJoinAndSelect('cardholder.limitations', 'limitation')
                 .leftJoinAndSelect('cardholder.antipass_backs', 'antipass_back')
-                .leftJoinAndSelect('cardholder.time_attendances', 'time_attendance')
+                .leftJoinAndSelect('cardholder.time_attendances', 'schedule')
                 .leftJoinAndSelect('cardholder.access_rights', 'access_right')
                 .leftJoinAndSelect('cardholder.cardholder_groups', 'cardholder_group')
                 .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null')
@@ -769,19 +775,40 @@ export default class CardholderController {
      */
     public static async getAll (ctx: DefaultContext) {
         try {
-            const req_data = ctx.query
+            // const req_data = ctx.query
             const user = ctx.user
-            const where: any = { company: { '=': user.company ? user.company : null } }
+            // const where: any = { company: { '=': user.company ? user.company : null } }
 
-            req_data.relations = ['car_infos', 'limitations', 'antipass_backs', 'time_attendances', 'access_rights', 'cardholder_groups', 'credentials']
+            // req_data.relations = ['car_infos', 'limitations', 'antipass_backs', 'time_attendances', 'access_rights', 'cardholder_groups', 'credentials']
 
+            let cardholders: any
             if (user.cardholder) {
-                where.guest = { '=': false }
-                where.create_by = { '=': user.id }
-                req_data.relations = ['limitations', 'access_rights', 'credentials']
+                // where.guest = { '=': false }
+                // where.create_by = { '=': user.id }
+                // req_data.relations = ['limitations', 'access_rights', 'credentials']
+                cardholders = await Cardholder.createQueryBuilder('cardholder')
+                    .leftJoinAndSelect('cardholder.limitations', 'limitation')
+                    .leftJoinAndSelect('cardholder.access_rights', 'access_right')
+                    .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null')
+                    .where(`cardholder.company = '${user.company ? user.company : null}'`)
+                    .andWhere(`cardholder.guest = ${false}`)
+                    .andWhere(`cardholder.create_by = '${user.id}'`)
+                    .getMany()
+            } else {
+                cardholders = await Cardholder.createQueryBuilder('cardholder')
+                    .leftJoinAndSelect('cardholder.car_infos', 'car_info')
+                    .leftJoinAndSelect('cardholder.limitations', 'limitation')
+                    .leftJoinAndSelect('cardholder.antipass_backs', 'antipass_back')
+                    .leftJoinAndSelect('cardholder.time_attendances', 'schedule')
+                    .leftJoinAndSelect('cardholder.access_rights', 'access_right')
+                    .leftJoinAndSelect('cardholder.cardholder_groups', 'cardholder_group')
+                    .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null')
+                    .where(`cardholder.company = '${user.company ? user.company : null}'`)
+                    .getMany()
             }
-            req_data.where = where
-            ctx.body = await Cardholder.getAllItems(req_data)
+            // req_data.where = where
+            // ctx.body = await Cardholder.getAllItems(req_data)
+            ctx.body = cardholders
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -812,16 +839,25 @@ export default class CardholderController {
      */
     public static async getAllGuests (ctx: DefaultContext) {
         try {
-            const req_data = ctx.query
+            // const req_data = ctx.query
             const user = ctx.user
-            req_data.where = {
-                company: { '=': user.company ? user.company : null },
-                guest: { '=': true },
-                create_by: { '=': user.id }
-            }
-            req_data.relations = ['limitations', 'access_rights', 'credentials']
+            // req_data.where = {
+            //     company: { '=': user.company ? user.company : null },
+            //     guest: { '=': true },
+            //     create_by: { '=': user.id }
+            // }
+            // req_data.relations = ['limitations', 'access_rights', 'credentials']
+            // ctx.body = await Cardholder.getAllItems(req_data)
 
-            ctx.body = await Cardholder.getAllItems(req_data)
+            const cardholders = await Cardholder.createQueryBuilder('cardholder')
+                .leftJoinAndSelect('cardholder.limitations', 'limitation')
+                .leftJoinAndSelect('cardholder.access_rights', 'access_right')
+                .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null')
+                .where(`cardholder.company = '${user.company ? user.company : null}'`)
+                .andWhere(`cardholder.guest = ${true}`)
+                .andWhere(`cardholder.create_by = '${user.id}'`)
+                .getMany()
+            ctx.body = cardholders
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -1257,10 +1293,16 @@ export default class CardholderController {
             }
 
             // console.log('invite_user', auth_user)
-            const invite_user: Cardholder = await Cardholder.findOneOrFail({
-                relations: ['access_rights', 'access_rights.access_rules'],
-                where: { id: auth_user.cardholder }
-            })
+            // const invite_user: Cardholder = await Cardholder.findOneOrFail({
+            //     relations: ['access_rights', 'access_rights.access_rules'],
+            //     where: { id: auth_user.cardholder }
+            // })
+
+            const invite_user: any = await Cardholder.createQueryBuilder('cardholder')
+                .leftJoinAndSelect('cardholder.access_rights', 'access_right')
+                .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
+                .where(`cardholder.id = '${auth_user.cardholder}'`)
+                .getOne()
             // console.log('invite_user', invite_user)
 
             const access_point_ids = req_data.access_points
@@ -1319,16 +1361,25 @@ export default class CardholderController {
                 .getMany()
 
             if (access_points.length) {
-                const access_rights = await AccessRight.findOneOrFail({
-                    where: { id: cardholder.access_right },
-                    relations: [
-                        'access_rules',
-                        'access_rules.schedules',
-                        'access_rules.schedules.timeframes',
-                        'access_rules.access_points',
-                        'access_rules.access_points.acus'
-                    ]
-                })
+                // const access_rights = await AccessRight.findOneOrFail({
+                //     where: { id: cardholder.access_right },
+                //     relations: [
+                //         'access_rules',
+                //         'access_rules.schedules',
+                //         'access_rules.schedules.timeframes',
+                //         'access_rules.access_points',
+                //         'access_rules.access_points.acus'
+                //     ]
+                // })
+                const access_rights: any = await AccessRight.createQueryBuilder('access_right')
+                    .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
+                    .leftJoinAndSelect('access_rule.schedules', 'schedule', 'schedule.delete_date is null')
+                    .leftJoinAndSelect('schedule.timeframes', 'timeframe', 'timeframe.delete_date is null')
+                    .leftJoinAndSelect('access_rule.access_points', 'access_point', 'access_point.delete_date is null')
+                    .leftJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
+                    .where(`access_right.id = '${cardholder.access_right}'`)
+                    .getOne()
+
                 for (const access_rule of access_rights.access_rules) {
                     if (access_rule.access_points.acus.status === acuStatus.ACTIVE) {
                         SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, auth_user, access_rule.access_points.acus.session_id)
@@ -1341,9 +1392,17 @@ export default class CardholderController {
                 CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, req_data.company, auth_user, access_points, [cardholder], null)
             }
 
-            const where = { id: cardholder.id }
-            const relations = ['limitations', 'access_rights', 'credentials']
-            ctx.body = await Cardholder.getItem(where, relations)
+            // const where = { id: cardholder.id }
+            // const relations = ['limitations', 'access_rights', 'credentials']
+            // ctx.body = await Cardholder.getItem(where, relations)
+
+            const cardholders: any = await Cardholder.createQueryBuilder('cardholder')
+                .leftJoinAndSelect('cardholder.limitations', 'limitation')
+                .leftJoinAndSelect('cardholder.access_rights', 'access_right')
+                .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null')
+                .where(`access_right.id = '${cardholder.id}'`)
+                .getOne()
+            ctx.body = cardholders
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -1470,25 +1529,43 @@ export default class CardholderController {
                 return ctx.body = { message: 'Only invited Cardholder can update Guest' }
             }
 
-            const invite_user: Cardholder = await Cardholder.findOneOrFail({
-                relations: [
-                    'access_rights',
-                    'access_rights.access_rules',
-                    'access_rights.access_rules.access_points',
-                    'access_rights.access_rules.access_points.acus'
-                ],
-                where: { id: auth_user.cardholder }
-            })
+            // const invite_user: Cardholder = await Cardholder.findOneOrFail({
+            //     relations: [
+            //         'access_rights',
+            //         'access_rights.access_rules',
+            //         'access_rights.access_rules.access_points',
+            //         'access_rights.access_rules.access_points.acus'
+            //     ],
+            //     where: { id: auth_user.cardholder }
+            // })
 
-            const guest: Cardholder = await Cardholder.findOneOrFail({
-                relations: [
-                    'access_rights',
-                    'access_rights.access_rules',
-                    'access_rights.access_rules.access_points',
-                    'access_rights.access_rules.access_points.acus'
-                ],
-                where: { id: req_data.id, company: company }
-            })
+            const invite_user: any = await Cardholder.createQueryBuilder('cardholder')
+                .leftJoinAndSelect('cardholder.access_rights', 'access_right')
+                .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
+                .leftJoinAndSelect('access_rule.access_points', 'access_point', 'access_point.delete_date is null')
+                .leftJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
+                .where(`cardholder.id = '${auth_user.cardholder}'`)
+                .getOne()
+
+            // const guest: Cardholder = await Cardholder.findOneOrFail({
+            //     relations: [
+            //         'access_rights',
+            //         'access_rights.access_rules',
+            //         'access_rights.access_rules.access_points',
+            //         'access_rights.access_rules.access_points.acus'
+            //     ],
+            //     where: { id: req_data.id, company: company }
+            // })
+
+            const guest: any = await Cardholder.createQueryBuilder('cardholder')
+                .leftJoinAndSelect('cardholder.access_rights', 'access_right')
+                .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
+                .leftJoinAndSelect('access_rule.access_points', 'access_point', 'access_point.delete_date is null')
+                .leftJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
+                .where(`cardholder.id = '${req_data.id}'`)
+                .andWhere(`cardholder.company = '${company}'`)
+                .getOne()
+
             const access_point_ids = req_data.access_points ? req_data.access_points : []
 
             const timeframes = req_data.timeframes
@@ -1550,13 +1627,19 @@ export default class CardholderController {
                                 if (acu.status === acuStatus.ACTIVE) {
                                     SdlController.setSdl(location, acu.serial_number, access_rule, auth_user, acu.session_id)
 
-                                    const cardholders = await Cardholder.getAllItems({
-                                        relations: ['credentials'],
-                                        where: {
-                                            access_right: guest.access_right,
-                                            company: company
-                                        }
-                                    })
+                                    // const cardholders = await Cardholder.getAllItems({
+                                    //     relations: ['credentials'],
+                                    //     where: {
+                                    //         access_right: guest.access_right,
+                                    //         company: company
+                                    //     }
+                                    // })
+
+                                    const cardholders: any = await Cardholder.createQueryBuilder('cardholder')
+                                        .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null')
+                                        .where(`cardholder.company = '${company}'`)
+                                        .andWhere(`cardholder.access_right = '${guest.access_right}'`)
+                                        .getMany()
 
                                     CardKeyController.editCardKey(location, req_data.company, auth_user.id, access_rule, null, cardholders)
                                 }
@@ -1742,11 +1825,16 @@ export default class CardholderController {
             req_data.company = auth_user.company ? auth_user.company : null
             req_data.create_by = auth_user.id
 
-            const invite_user: Cardholder = await Cardholder.findOneOrFail({
-                relations: ['access_rights', 'access_rights.access_rules'],
-                where: { id: auth_user.cardholder }
-            })
+            // const invite_user: Cardholder = await Cardholder.findOneOrFail({
+            //     relations: ['access_rights', 'access_rights.access_rules'],
+            //     where: { id: auth_user.cardholder }
+            // })
 
+            const invite_user: any = await Cardholder.createQueryBuilder('cardholder')
+                .leftJoinAndSelect('cardholder.access_rights', 'access_right')
+                .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
+                .where(`cardholder.id = '${auth_user.cardholder}'`)
+                .getMany()
             const check_credentials = CheckCredentialSettings.checkSettings(req_data.credentials)
             if (check_credentials !== true) {
                 ctx.status = 400
@@ -1794,17 +1882,25 @@ export default class CardholderController {
                 .getMany()
 
             if (access_points.length) {
-                const access_rights = await AccessRight.findOneOrFail({
-                    where: { id: cardholder.access_right },
-                    relations: [
-                        'access_rules',
-                        'access_rules.schedules',
-                        'access_rules.schedules.timeframes',
-                        'access_rules.access_points',
-                        'access_rules.access_points.acus'
-                    ]
-                })
-                console.log('access_rights', access_rights)
+                // const access_rights = await AccessRight.findOneOrFail({
+                //     where: { id: cardholder.access_right },
+                //     relations: [
+                //         'access_rules',
+                //         'access_rules.schedules',
+                //         'access_rules.schedules.timeframes',
+                //         'access_rules.access_points',
+                //         'access_rules.access_points.acus'
+                //     ]
+                // })
+
+                const access_rights: any = await AccessRight.createQueryBuilder('access_right')
+                    .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
+                    .leftJoinAndSelect('access_rule.schedules', 'schedule', 'schedule.delete_date is null')
+                    .leftJoinAndSelect('schedule.timeframes', 'timeframe', 'timeframe.delete_date is null')
+                    .leftJoinAndSelect('access_rule.access_points', 'access_point', 'access_point.delete_date is null')
+                    .leftJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
+                    .where(`access_right.id = '${cardholder.access_right}'`)
+                    .getOne()
                 for (const access_rule of access_rights.access_rules) {
                     if (access_rule.access_points.acus.status === acuStatus.ACTIVE) {
                         SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, auth_user, access_rule.access_points.acus.session_id)
@@ -1822,7 +1918,12 @@ export default class CardholderController {
                 }
 
                 if (access_points.length) {
-                    const access_rights = await AccessRight.findOneOrFail({ where: { id: cardholder.access_right }, relations: ['access_rules'] })
+                    // const access_rights = await AccessRight.findOneOrFail({ where: { id: cardholder.access_right }, relations: ['access_rules'] })
+
+                    const access_rights: any = await AccessRight.createQueryBuilder('access_right')
+                        .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
+                        .where(`access_right.id = '${cardholder.access_right}'`)
+                        .getOne()
                     cardholder.access_rights = access_rights
                     cardholder.credentials = credentials
 
@@ -1830,9 +1931,17 @@ export default class CardholderController {
                 }
             }
 
-            const where = { id: cardholder.id }
-            const relations = ['limitations', 'access_rights', 'credentials']
-            ctx.body = await Cardholder.getItem(where, relations)
+            // const where = { id: cardholder.id }
+            // const relations = ['limitations', 'access_rights', 'credentials']
+            // ctx.body = await Cardholder.getItem(where, relations)
+
+            const cardholders = await Cardholder.createQueryBuilder('cardholder')
+                .leftJoinAndSelect('cardholder.limitations', 'limitation')
+                .leftJoinAndSelect('cardholder.access_rights', 'access_right')
+                .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null')
+                .where(`cardholder.id = '${cardholder.id}'`)
+                .getOne()
+            ctx.body = cardholders
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -1990,21 +2099,33 @@ export default class CardholderController {
                 return ctx.body = { message: check_key_per_user }
             }
 
-            const invite_user: Cardholder = await Cardholder.findOneOrFail({
-                relations: ['access_rights', 'access_rights.access_rules'],
-                where: { id: auth_user.cardholder }
-            })
+            // const invite_user: Cardholder = await Cardholder.findOneOrFail({
+            //     relations: ['access_rights', 'access_rights.access_rules'],
+            //     where: { id: auth_user.cardholder }
+            // })
+            const invite_user: any = await Cardholder.createQueryBuilder('cardholder')
+                .leftJoinAndSelect('cardholder.access_rights', 'access_right')
+                .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
+                .where(`cardholder.id = '${auth_user.cardholder}'`)
+                .getOne()
+            // const created_cardholder: Cardholder = await Cardholder.findOneOrFail({
+            //     relations: [
+            //         'access_rights',
+            //         'access_rights.access_rules',
+            //         'access_rights.access_rules.access_points',
+            //         'access_rights.access_rules.access_points.acus'
+            //     ],
+            //     where: { id: req_data.id, company: company }
+            // })
 
-            const created_cardholder: Cardholder = await Cardholder.findOneOrFail({
-                relations: [
-                    'access_rights',
-                    'access_rights.access_rules',
-                    'access_rights.access_rules.access_points',
-                    'access_rights.access_rules.access_points.acus'
-                ],
-                where: { id: req_data.id, company: company }
-            })
-
+            const created_cardholder: any = await Cardholder.createQueryBuilder('cardholder')
+                .leftJoinAndSelect('cardholder.access_rights', 'access_right')
+                .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
+                .leftJoinAndSelect('access_rule.access_points', 'access_point', 'access_point.delete_date is null')
+                .leftJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
+                .where(`cardholder.id = '${req_data.id}'`)
+                .andWhere(`cardholder.company = '${company}'`)
+                .getOne()
             if (req_data.limitations) {
                 await Limitation.updateItem(req_data.limitations as Limitation)
             }
@@ -2054,17 +2175,25 @@ export default class CardholderController {
                 .getMany()
 
             if (access_points.length) {
-                const access_rights = await AccessRight.findOneOrFail({
-                    where: { id: created_cardholder.access_right },
-                    relations: [
-                        'access_rules',
-                        'access_rules.schedules',
-                        'access_rules.schedules.timeframes',
-                        'access_rules.access_points',
-                        'access_rules.access_points.acus'
-                    ]
-                })
-                console.log('access_rights', access_rights)
+                // const access_rights = await AccessRight.findOneOrFail({
+                //     where: { id: created_cardholder.access_right },
+                //     relations: [
+                //         'access_rules',
+                //         'access_rules.schedules',
+                //         'access_rules.schedules.timeframes',
+                //         'access_rules.access_points',
+                //         'access_rules.access_points.acus'
+                //     ]
+                // })
+
+                const access_rights: any = await AccessRight.createQueryBuilder('access_right')
+                    .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
+                    .leftJoinAndSelect('access_rule.schedules', 'schedule', 'schedule.delete_date is null')
+                    .leftJoinAndSelect('schedule.timeframes', 'timeframe', 'timeframe.delete_date is null')
+                    .leftJoinAndSelect('access_rule.access_points', 'access_point', 'access_point.delete_date is null')
+                    .leftJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
+                    .where(`access_right.id = '${created_cardholder.access_right}'`)
+                    .getOne()
                 for (const access_rule of access_rights.access_rules) {
                     if (access_rule.access_points.acus.status === acuStatus.ACTIVE) {
                         SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, auth_user, access_rule.access_points.acus.session_id)
@@ -2087,7 +2216,12 @@ export default class CardholderController {
                 }
 
                 if (access_points.length) {
-                    const access_rights = await AccessRight.findOne({ where: { id: created_cardholder.access_right }, relations: ['access_rules'] })
+                    // const access_rights = await AccessRight.findOne({ where: { id: created_cardholder.access_right }, relations: ['access_rules'] })
+
+                    const access_rights: any = await AccessRight.createQueryBuilder('access_right')
+                        .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
+                        .where(`access_right.id = '${created_cardholder.access_right}'`)
+                        .getOne()
                     if (access_rights) {
                         created_cardholder.access_rights = access_rights
                         created_cardholder.credentials = credentials
