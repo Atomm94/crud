@@ -291,9 +291,9 @@ export default class Parse {
     public static deviceAcceptAck (message: IMqttCrudMessaging) {
         // console.log('deviceAcceptAck', message)
         if (message.result.errorNo === 0) {
-            const company = message.company
+            // const company = message.company
             const device_id = message.device_id
-            Acu.findOne({ serial_number: device_id, company: company }).then((acuData: Acu) => {
+            Acu.findOne({ serial_number: device_id /*, company: company */ }).then((acuData: Acu) => {
                 // when admin deleted this acu what we do ???
                 const send_data: any = {
                     username: acuData.username ? acuData.username : 'admin',
@@ -308,7 +308,7 @@ export default class Parse {
     public static async deviceLoginAck (message: IMqttCrudMessaging) {
         // console.log('deviceLoginAck', message)
         // if (message.result.errorNo === 0) {
-        const acu: Acu = await Acu.findOneOrFail({ serial_number: message.device_id, company: message.company })
+        const acu: Acu = await Acu.findOneOrFail({ serial_number: message.device_id /*, company: message.company */ })
         if (acu) {
             if (acu.session_id == null) {
                 /* OPEN FOR GENERATE PASSWORD */
@@ -333,9 +333,9 @@ export default class Parse {
         // console.log('deviceLogOutAck', message)
         if (message.result.errorNo === 0) {
             // console.log('logout complete')
-            const company = message.company
+            // const company = message.company
             const device_id = message.device_id
-            const acu = await Acu.findOneOrFail({ serial_number: device_id, company: company })
+            const acu = await Acu.findOneOrFail({ serial_number: device_id /*, company: company */ })
             acu.session_id = '0'
             await acu.save()
             // this.login(message.topic)
@@ -345,9 +345,9 @@ export default class Parse {
     public static async deviceSetPassAck (message: IMqttCrudMessaging) {
         // console.log('deviceSetPassAck', message)
         if (message.result.errorNo === 0) {
-            const company = message.company
+            // const company = message.company
             const device_id = message.device_id
-            const acu = await Acu.findOne({ serial_number: device_id, company: company })
+            const acu = await Acu.findOne({ serial_number: device_id /*, company: company */ })
             if (acu) {
                 acu.password = message.send_data.data.password
                 await acu.save()
@@ -361,9 +361,9 @@ export default class Parse {
     public static async deviceLogOutEvent (message: IMqttCrudMessaging) {
         // console.log('deviceLogOutEvent', message)
         if (message.result.errorNo === 0) {
-            const company = message.company
+            // const company = message.company
             const device_id = message.device_id
-            const acu: Acu = await Acu.findOneOrFail({ serial_number: device_id, company: company })
+            const acu: Acu = await Acu.findOneOrFail({ serial_number: device_id /*, company: company */ })
             if (acu) {
                 acu.session_id = '0'
                 await acu.save()
@@ -384,7 +384,7 @@ export default class Parse {
             if (message.result.errorNo === 0) {
                 const company = message.company
                 const device_id = message.device_id
-                const acu: any = await Acu.findOneOrFail({ serial_number: device_id, company: company })
+                const acu: any = await Acu.findOneOrFail({ serial_number: device_id /*, company: company */ })
                 if (acu) {
                     const info = message.send_data.data
                     acu.network = {
@@ -414,7 +414,7 @@ export default class Parse {
             if (message.result.errorNo === 0) {
                 const company = message.company
                 const device_id = message.device_id
-                const acu: any = await Acu.findOne({ serial_number: device_id, company: 1 })
+                const acu: any = await Acu.findOne({ serial_number: device_id /*, company: company */ })
 
                 if (acu) {
                     acu.network = JSON.stringify({
@@ -439,7 +439,7 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             const company = message.company
             const device_id = message.device_id
-            const acu: Acu = await Acu.findOneOrFail({ serial_number: device_id, company: company })
+            const acu: Acu = await Acu.findOneOrFail({ serial_number: device_id /*, company: company */ })
             if (acu) {
                 acu.time = JSON.stringify(message.send_data.data)
                 const update_acu = await Acu.updateItem({ id: acu.id, time: acu.time } as Acu)
@@ -488,7 +488,7 @@ export default class Parse {
             }
         } else {
             if (!message.send_data.update) {
-                await ExtDevice.destroyItem({ id: message.send_data.data.id, company: message.company })
+                await ExtDevice.destroyItem({ id: message.send_data.data.id /*, company: message.company */ })
             }
         }
     }
@@ -504,8 +504,8 @@ export default class Parse {
         // console.log('deviceDelExtBrdAck', message)
         if (message.result.errorNo === 0) {
             const company = message.company
-            const ext_device = await ExtDevice.findOneOrFail({ where: { id: message.send_data.data.id, company: message.company } })
-            await ExtDevice.destroyItem({ id: message.send_data.data.id, company: message.company })
+            const ext_device = await ExtDevice.findOneOrFail({ where: { id: message.send_data.data.id /*, company: message.company */ } })
+            await ExtDevice.destroyItem({ id: message.send_data.data.id /*, company: message.company */ })
             new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.DELETE, `${ExtDevice.name}/${ext_device.name}`, { name: ext_device.name })
             // console.log('DelExtDevice complete')
         }
@@ -545,7 +545,7 @@ export default class Parse {
             }
         } else {
             if (!message.send_data.update) {
-                await Reader.destroyItem({ id: message.send_data.data.id, company: message.company })
+                await Reader.destroyItem({ id: message.send_data.data.id /*, company: message.company */ })
             }
         }
     }
@@ -563,7 +563,7 @@ export default class Parse {
             const company = message.company
 
             const reader: any = await Reader.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['access_points', 'access_points.acus'] })
-            await Reader.destroyItem({ id: message.send_data.data.id, company: message.company })
+            await Reader.destroyItem({ id: message.send_data.data.id /*, company: message.company */ })
             new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.DELETE, `${Reader.name}/${reader.access_points.acus.name}/${reader.access_points.name}/${readerTypes[reader.type]}`, { type: readerTypes[reader.type] })
             // console.log('deviceDelRdAck complete')
             // const access_point: any = {
@@ -624,7 +624,7 @@ export default class Parse {
             }
         } else {
             if (!message.send_data.update) {
-                await AccessPoint.destroyItem({ id: message.send_data.data.id, company: message.company })
+                await AccessPoint.destroyItem({ id: message.send_data.data.id /*, company: message.company */ })
             }
         }
     }
@@ -634,7 +634,7 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             const company = message.company
             const access_point = await AccessPoint.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['acus'] })
-            await AccessPoint.destroyItem({ id: message.send_data.data.id, company: company })
+            await AccessPoint.destroyItem({ id: message.send_data.data.id /*, company: company */ })
             new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.DELETE, `${AccessPoint.name}/${access_point.acus.name}/${access_point.name}`, { name: access_point.name })
             // console.log('deviceDelCtpDoorAck delete completed')
         }
@@ -643,7 +643,7 @@ export default class Parse {
     public static async deviceGetCtpDoorAck (message: IMqttCrudMessaging) {
         // console.log('deviceGetCtpTurnstileAck', message)
         if (message.result.errorNo === 0) {
-            await AccessPoint.destroyItem({ id: message.send_data.data.id, company: message.company })
+            await AccessPoint.destroyItem({ id: message.send_data.data.id /*, company: message.company */ })
             // console.log('deviceGetCtpTurnstileAck insert completed')
         }
     }
@@ -666,7 +666,7 @@ export default class Parse {
             }
         } else {
             if (!message.send_data.update) {
-                await AccessPoint.destroyItem({ id: message.send_data.data.id, company: message.company })
+                await AccessPoint.destroyItem({ id: message.send_data.data.id /*, company: message.company */ })
             }
         }
     }
@@ -676,7 +676,7 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             const company = message.company
             const access_point = await AccessPoint.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['acus'] })
-            await AccessPoint.destroyItem({ id: message.send_data.data.id, company: company })
+            await AccessPoint.destroyItem({ id: message.send_data.data.id /*, company: company */ })
             new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.DELETE, `${AccessPoint.name}/${access_point.acus.name}/${access_point.name}`, { name: access_point.name })
             // console.log('deviceDelCtpDoorAck insert completed')
         } else {
@@ -710,7 +710,7 @@ export default class Parse {
             }
         } else {
             if (!message.send_data.update) {
-                await AccessPoint.destroyItem({ id: message.send_data.data.id, company: message.company })
+                await AccessPoint.destroyItem({ id: message.send_data.data.id /*, company: message.company */ })
             }
         }
     }
@@ -720,7 +720,7 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             const company = message.company
             const access_point = await AccessPoint.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['acus'] })
-            await AccessPoint.destroyItem({ id: message.send_data.data.id, company: company })
+            await AccessPoint.destroyItem({ id: message.send_data.data.id /*, company: company */ })
             new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.DELETE, `${AccessPoint.name}/${access_point.acus.name}/${access_point.name}`, { name: access_point.name })
             // console.log('deviceDelCtpGateAck insert completed')
         } else {
@@ -754,7 +754,7 @@ export default class Parse {
             }
         } else {
             if (!message.send_data.update) {
-                await AccessPoint.destroyItem({ id: message.send_data.data.id, company: message.company })
+                await AccessPoint.destroyItem({ id: message.send_data.data.id /*, company: message.company */ })
             }
         }
     }
@@ -764,7 +764,7 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             const company = message.company
             const access_point = await AccessPoint.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['acus'] })
-            await AccessPoint.destroyItem({ id: message.send_data.data.id, company: company })
+            await AccessPoint.destroyItem({ id: message.send_data.data.id /*, company: company */ })
             new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.DELETE, `${AccessPoint.name}/${access_point.acus.name}/${access_point.name}`, { name: access_point.name })
             // console.log('deviceDelCtpGatewayAck insert completed')
         } else {
@@ -798,7 +798,7 @@ export default class Parse {
             }
         } else {
             if (!message.send_data.update) {
-                await AccessPoint.destroyItem({ id: message.send_data.data.id, company: message.company })
+                await AccessPoint.destroyItem({ id: message.send_data.data.id /*, company: message.company */ })
             }
         }
     }
@@ -808,7 +808,7 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             const company = message.company
             const access_point = await AccessPoint.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['acus'] })
-            await AccessPoint.destroyItem({ id: message.send_data.data.id, company: company })
+            await AccessPoint.destroyItem({ id: message.send_data.data.id /*, company: company */ })
             new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.DELETE, `${AccessPoint.name}/${access_point.acus.name}/${access_point.name}`, { name: access_point.name })
             // console.log('deviceDelCtpFloorAck insert completed')
         } else {
@@ -950,7 +950,7 @@ export default class Parse {
         } else {
             if (!timframe_flag) {
                 if (!message.send_data.update) {
-                    await AccessRule.destroyItem({ id: message.send_data.data.id, company: message.company })
+                    await AccessRule.destroyItem({ id: message.send_data.data.id /*, company: message.company */ })
                 }
             }
         }
@@ -965,7 +965,7 @@ export default class Parse {
                 const company = message.company
                 if (!message.send_data.update) {
                     const access_rule = await AccessRule.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['access_points'] })
-                    await AccessRule.destroyItem({ id: message.send_data.data.id, company: message.company })
+                    await AccessRule.destroyItem({ id: message.send_data.data.id /*, company: message.company */ })
 
                     new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.DELETE, `${AccessRule.name}/${access_rule.access_points.name}`, { name: access_rule.access_points.name })
                     checkAndDeleteAccessRight(message.send_data.data, message.company, message.send_data.user_data)
@@ -996,7 +996,7 @@ export default class Parse {
         } else {
             if (!timframe_flag) {
                 if (!message.send_data.update) {
-                    await AccessRule.destroyItem({ id: message.send_data.data.id, company: message.company })
+                    await AccessRule.destroyItem({ id: message.send_data.data.id /*, company: message.company */ })
                 }
             }
         }
@@ -1009,7 +1009,7 @@ export default class Parse {
             const company = message.company
             if (!message.send_data.update) {
                 const access_rule = await AccessRule.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['access_points'] })
-                await AccessRule.destroyItem({ id: message.send_data.data.id, company: message.company })
+                await AccessRule.destroyItem({ id: message.send_data.data.id /*, company: message.company */ })
 
                 new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.DELETE, `${AccessRule.name}/${access_rule.access_points.name}`, { name: access_rule.access_points.name })
                 checkAndDeleteAccessRight(message.send_data.data, message.company, message.send_data.user_data)
@@ -1061,7 +1061,7 @@ export default class Parse {
         } else {
             if (!timframe_flag) {
                 if (!message.send_data.update) {
-                    await AccessRule.destroyItem({ id: message.send_data.data.data.id, company: message.company })
+                    await AccessRule.destroyItem({ id: message.send_data.data.data.id /*, company: message.company */ })
                 }
             }
         }
@@ -1074,7 +1074,7 @@ export default class Parse {
             const company = message.company
             if (message.send_data.update) {
                 const access_rule = await AccessRule.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['access_points'] })
-                await AccessRule.destroyItem({ id: message.send_data.data.id, company: message.company })
+                await AccessRule.destroyItem({ id: message.send_data.data.id /*, company: message.company */ })
 
                 new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.DELETE, `${AccessRule.name}/${access_rule.access_points.name}`, { name: access_rule.access_points.name })
                 checkAndDeleteAccessRight(message.send_data.data, message.company, message.send_data.user_data)
@@ -1136,7 +1136,7 @@ export default class Parse {
         } else {
             if (!timframe_flag) {
                 if (!message.send_data.update) {
-                    await AccessRule.destroyItem({ id: message.send_data.data.data.id, company: message.company })
+                    await AccessRule.destroyItem({ id: message.send_data.data.data.id /*, company: message.company */ })
                 }
             }
         }
@@ -1149,7 +1149,7 @@ export default class Parse {
             const company = message.company
             if (message.send_data.update) {
                 const access_rule = await AccessRule.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['access_points'] })
-                await AccessRule.destroyItem({ id: message.send_data.data.id, company: message.company })
+                await AccessRule.destroyItem({ id: message.send_data.data.id /*, company: message.company */ })
 
                 new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.DELETE, `${AccessRule.name}/${access_rule.access_points.name}`, { name: access_rule.access_points.name })
                 checkAndDeleteAccessRight(message.send_data.data, message.company, message.send_data.user_data)
@@ -1169,7 +1169,7 @@ export default class Parse {
 
     public static async dellSheduleAck (message: IMqttCrudMessaging) {
         // console.log('dellSheduleAck', message)
-        const acu = await Acu.findOneOrFail({ serial_number: message.device_id, company: message.company })
+        const acu = await Acu.findOneOrFail({ serial_number: message.device_id /*, company: message.company */ })
 
         if (message.result.errorNo === 0) {
             if (message.send_data.update) {
