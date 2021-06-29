@@ -343,7 +343,7 @@ export default class AccessRightController {
             const user = ctx.user
             const company = user.company ? user.company : null
             ctx.body = await CardholderGroup.createQueryBuilder('cardholder_group')
-                .innerJoin('cardholder_group.cardholders', 'cardholder', 'delete_date is null')
+                .innerJoin('cardholder_group.cardholders', 'cardholder', 'cardholder.delete_date is null')
                 .select('cardholder_group.name')
                 .addSelect('COUNT(cardholder.id) as cardholders_qty')
                 .where(`cardholder_group.company = ${company}`)

@@ -187,7 +187,7 @@ export default class AccessRuleController {
                 .leftJoinAndSelect('access_rule.schedules', 'schedule', 'schedule.delete_date is null')
                 .where(`access_rule.id = '${req_data.id}'`)
                 .andWhere(`access_rule.company = '${user.company ? user.company : null}'`)
-                .getMany()
+                .getOne()
 
             const location = `${user.company_main}/${user.company}`
             if (!access_rule) {
