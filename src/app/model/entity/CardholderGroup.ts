@@ -4,7 +4,8 @@ import {
     ManyToOne,
     // OneToMany,
     JoinColumn,
-    OneToMany
+    OneToMany,
+    DeleteDateColumn
 } from 'typeorm'
 import { AntipassBack } from './AntipassBack'
 
@@ -51,6 +52,9 @@ export class CardholderGroup extends MainEntity {
 
     @Column('boolean', { name: 'access_right_inherited', default: false })
     access_right_inherited: boolean
+
+    @DeleteDateColumn({ type: 'timestamp', name: 'delete_date' })
+    public deleteDate: Date
 
     @Column('int', { name: 'company', nullable: false })
     company: number
@@ -188,7 +192,7 @@ export class CardholderGroup extends MainEntity {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
             this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
-                this.remove(data)
+                this.softRemove(data)
                     .then(() => {
                         resolve({ message: 'success' })
                     })

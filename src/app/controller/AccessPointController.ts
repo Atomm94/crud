@@ -152,8 +152,8 @@ export default class AccessPointController {
 
             const access_points: any = await AccessPoint.createQueryBuilder('access_point')
                 .leftJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
-                .leftJoinAndSelect('access_point.access_point_groups', 'access_point_group')
-                .leftJoinAndSelect('access_point.access_point_zones', 'access_point_zones')
+                .leftJoinAndSelect('access_point.access_point_groups', 'access_point_group', 'access_point_group.delete_date is null')
+                .leftJoinAndSelect('access_point.access_point_zones', 'access_point_zone', 'access_point_zone.delete_date is null')
                 .andWhere(`access_point.company = '${user.company ? user.company : user.company}'`)
                 .getMany()
 
