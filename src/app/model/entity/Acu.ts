@@ -21,7 +21,7 @@ export class Acu extends MainEntity {
     @Column('varchar', { name: 'name', nullable: true })
     name: string | null
 
-    @Column('int', { name: 'serial_number', nullable: true })
+    @Column('bigint', { name: 'serial_number', nullable: true })
     serial_number: number
 
     @Column('varchar', { name: 'description', nullable: true })

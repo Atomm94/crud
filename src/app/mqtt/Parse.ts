@@ -502,7 +502,7 @@ export default class Parse {
 
     public static async deviceDelExtBrdAck (message: IMqttCrudMessaging) {
         // console.log('deviceDelExtBrdAck', message)
-        if (message.result.errorNo === 0) {
+        if (message.result.errorNo === 0 || message.result.errorNo === 11) {
             const company = message.company
             const ext_device = await ExtDevice.findOneOrFail({ where: { id: message.send_data.data.id /*, company: message.company */ } })
             await ExtDevice.destroyItem({ id: message.send_data.data.id /*, company: message.company */ })
@@ -559,7 +559,7 @@ export default class Parse {
 
     public static async deviceDelRdAck (message: IMqttCrudMessaging) {
         // console.log('deviceDelRdAck', message)
-        if (message.result.errorNo === 0) {
+        if (message.result.errorNo === 0 || message.result.errorNo === 11) {
             const company = message.company
 
             const reader: any = await Reader.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['access_points', 'access_points.acus'] })
@@ -631,7 +631,7 @@ export default class Parse {
 
     public static async deviceDelCtpDoorAck (message: IMqttCrudMessaging) {
         console.log('deviceDelCtpDoorAck', message)
-        if (message.result.errorNo === 0) {
+        if (message.result.errorNo === 0 || message.result.errorNo === 11) {
             const company = message.company
             const access_point = await AccessPoint.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['acus'] })
             await AccessPoint.destroyItem({ id: message.send_data.data.id /*, company: company */ })
@@ -673,7 +673,7 @@ export default class Parse {
 
     public static async deviceDelCtpTurnstileAck (message: IMqttCrudMessaging) {
         // console.log('deviceDelCtpTurnstileAck', message)
-        if (message.result.errorNo === 0) {
+        if (message.result.errorNo === 0 || message.result.errorNo === 11) {
             const company = message.company
             const access_point = await AccessPoint.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['acus'] })
             await AccessPoint.destroyItem({ id: message.send_data.data.id /*, company: company */ })
@@ -717,7 +717,7 @@ export default class Parse {
 
     public static async deviceDelCtpGateAck (message: IMqttCrudMessaging) {
         // console.log('deviceDelCtpGateAck', message)
-        if (message.result.errorNo === 0) {
+        if (message.result.errorNo === 0 || message.result.errorNo === 11) {
             const company = message.company
             const access_point = await AccessPoint.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['acus'] })
             await AccessPoint.destroyItem({ id: message.send_data.data.id /*, company: company */ })
@@ -761,7 +761,7 @@ export default class Parse {
 
     public static async deviceDelCtpGatewayAck (message: IMqttCrudMessaging) {
         // console.log('deviceDelCtpGatewayAck', message)
-        if (message.result.errorNo === 0) {
+        if (message.result.errorNo === 0 || message.result.errorNo === 11) {
             const company = message.company
             const access_point = await AccessPoint.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['acus'] })
             await AccessPoint.destroyItem({ id: message.send_data.data.id /*, company: company */ })
@@ -805,7 +805,7 @@ export default class Parse {
 
     public static async deviceDelCtpFloorAck (message: IMqttCrudMessaging) {
         // console.log('deviceDelCtpFloorAck', message)
-        if (message.result.errorNo === 0) {
+        if (message.result.errorNo === 0 || message.result.errorNo === 11) {
             const company = message.company
             const access_point = await AccessPoint.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['acus'] })
             await AccessPoint.destroyItem({ id: message.send_data.data.id /*, company: company */ })
@@ -961,7 +961,7 @@ export default class Parse {
             // console.log('delSdlDailyAck', message)
             // const acu: any = await Acu.findOne({ serial_number: message.device_id, company: message.company })
 
-            if (message.result.errorNo === 0) {
+            if (message.result.errorNo === 0 || message.result.errorNo === 11) {
                 const company = message.company
                 if (!message.send_data.update) {
                     const access_rule = await AccessRule.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['access_points'] })
@@ -1005,7 +1005,7 @@ export default class Parse {
     public static async delSdlWeeklyAck (message: IMqttCrudMessaging) {
         // console.log('delSdlWeeklyAck', message)
 
-        if (message.result.errorNo === 0) {
+        if (message.result.errorNo === 0 || message.result.errorNo === 11) {
             const company = message.company
             if (!message.send_data.update) {
                 const access_rule = await AccessRule.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['access_points'] })
@@ -1070,7 +1070,7 @@ export default class Parse {
     public static async delSdlFlexiTimeAck (message: IMqttCrudMessaging) {
         // console.log('delSdlFlexiTimeAck', message)
 
-        if (message.result.errorNo === 0) {
+        if (message.result.errorNo === 0 || message.result.errorNo === 11) {
             const company = message.company
             if (message.send_data.update) {
                 const access_rule = await AccessRule.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['access_points'] })
@@ -1145,7 +1145,7 @@ export default class Parse {
     public static async delSdlSpecifiedAck (message: IMqttCrudMessaging) {
         // console.log('delSdlSpecifiedAck', message)
 
-        if (message.result.errorNo === 0) {
+        if (message.result.errorNo === 0 || message.result.errorNo === 11) {
             const company = message.company
             if (message.send_data.update) {
                 const access_rule = await AccessRule.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['access_points'] })
