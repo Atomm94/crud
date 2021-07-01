@@ -286,19 +286,19 @@ export default class MqttController {
  *                      properties:
  *                          Group:
  *                              type: number
- *                              example: 10
+ *                              example: 2
  *                          Event_id:
  *                              type: number
- *                              example: 9
+ *                              example: 22
  *                          Key_id:
  *                              type: number
  *                              example: 10
  *                          DateTm:
  *                              type: number
- *                              example: 1
+ *                              example: 1599904641
  *                          Stp_idx:
  *                              type: number
- *                              example: 1599904641
+ *                              example: 1
  *          responses:
  *              '201':
  *                  description: A notification object

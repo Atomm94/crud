@@ -271,7 +271,7 @@ export default class Parse {
             }
             acu_data.company = message.company
 
-            await Acu.addItem(acu_data)
+            await acu_data.save()
             // const user = message.send_data
             new SendDeviceMessage(OperatorType.ACCEPT, message.location, message.device_id, 'none')
             // console.log('success:true')
