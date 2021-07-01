@@ -285,7 +285,7 @@ export default class CardholderController {
             logs_data.push({
                 event: logUserEvents.CREATE,
                 target: `${Cardholder.name}/${cardholder.first_name}`,
-                value: null
+                value: { name: cardholder.first_name }
             })
 
             if (req_data.credentials && req_data.credentials.length) {
@@ -297,7 +297,7 @@ export default class CardholderController {
                     logs_data.push({
                         event: logUserEvents.CREATE,
                         target: `${Credential.name}/${cardholder.first_name}/${credential_data.type}`,
-                        value: null
+                        value: { code: credential_data.code }
                     })
                     credentials.push(credential_data)
 

@@ -170,7 +170,7 @@ export default class AcuController {
             logs_data.push({
                 event: logUserEvents.CREATE,
                 target: `${Acu.name}/${save_acu.name}`,
-                value: null
+                value: { name: save_acu.name }
             })
 
             if (req_data.access_points) {
@@ -182,7 +182,7 @@ export default class AcuController {
                     logs_data.push({
                         event: logUserEvents.CREATE,
                         target: `${AccessPoint.name}/${save_acu.name}/${save_access_point.name}`,
-                        value: null
+                        value: { name: save_access_point.name }
                     })
                     if (save_access_point) {
                         for (const reader of access_point.readers) {
@@ -618,7 +618,7 @@ export default class AcuController {
             logs_data.push({
                 event: logUserEvents.DELETE,
                 target: `${Acu.name}/${acu.name}`,
-                value: null
+                value: { name: acu.name }
             })
             ctx.logsData = logs_data
             if (acu.status === acuStatus.ACTIVE || acu.status === acuStatus.PENDING) {
