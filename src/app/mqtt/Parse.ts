@@ -263,12 +263,12 @@ export default class Parse {
             acu_data.description = message.info.note
             acu_data.serial_number = message.info.device_id
             acu_data.fw_version = message.info.firmware_ver
-            acu_data.time = {
+            acu_data.time = JSON.stringify({
                 time_zone: acu_data.gmt,
                 timezone_from_facility: false,
                 enable_daylight_saving_time: false,
                 daylight_saving_time_from_user_account: false
-            }
+            })
             acu_data.company = message.company
 
             await Acu.save(acu_data)
