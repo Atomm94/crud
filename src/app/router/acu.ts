@@ -8,6 +8,7 @@ export default router
     .post('Acu-addItem', 'acu', checkRole(), resource(), AcuController.add)
     .put('Acu-updateItem', 'acu', checkRole(), AcuController.update)
     .delete('Acu-destroyItem', 'acu', checkRole(), AcuController.destroy)
+    .delete('Acu-destroyItem', 'acu/deactivate', checkRole(), AcuController.deactivate)
     .get('Acu-getAllItems', 'acu', checkRole(), AcuController.getAll)
     .get('Acu-getAllItems', 'acu/attach/hardware', checkRole(), AcuController.getDevicesForAttach)
     .post('Acu-addItem', 'acu/attach/hardware', checkRole(), AcuController.attachHardware)

@@ -807,7 +807,7 @@ export default class AcuController {
             //         company: company
             //     }
             // })
-            let device : any = await Acu.createQueryBuilder('acu')
+            let device: any = await Acu.createQueryBuilder('acu')
                 .leftJoinAndSelect('acu.ext_devices', 'ext_device', 'ext_device.delete_date is null')
                 .leftJoinAndSelect('acu.access_points', 'access_point', 'access_point.delete_date is null')
                 .leftJoinAndSelect('access_point.readers', 'reader', 'reader.delete_date is null')
@@ -987,5 +987,70 @@ export default class AcuController {
         return ctx.body = {
             message: 'success'
         }
+    }
+
+    /**
+     *
+     * @swagger
+     *  /acu/deactivate:
+     *      delete:
+     *          tags:
+     *              - Acu
+     *          summary: deactivate an acu.
+     *          consumes:
+     *              - application/json
+     *          parameters:
+     *            - in: header
+     *              name: Authorization
+     *              required: true
+     *              description: Authentication token
+     *              schema:
+     *                type: string
+     *            - in: body
+     *              name: acu
+     *              description: Deactivating of Acu.
+     *              schema:
+     *                type: object
+     *                required:
+     *                  - id
+     *                properties:
+     *                  id:
+     *                      type: number
+     *                      example: 1
+     *          responses:
+     *              '200':
+     *                  description: acu has been deactivated
+     *              '422':
+     *                  description: Wrong data
+     */
+
+    public static async deactivate (ctx: DefaultContext) {
+        try {
+            const req_data = ctx.request.body
+            const user = ctx.user
+            const where = { id: req_data.id, company: user.company ? user.company : null }
+            const logs_data = []
+            const acu: Acu = await Acu.findOneOrFail(where)
+            const location = `${user.company_main}/${user.company}`
+            if (acu.status !== acuStatus.ACTIVE) {
+                ctx.status = 400
+                ctx.body = {
+                    message: `Can't Deactivate Acu with not having status ${acuStatus.ACTIVE}`
+                }
+            } else {
+                ctx.body = await Acu.destroyItem(where)
+                logs_data.push({
+                    event: logUserEvents.DELETE,
+                    target: `${Acu.name}/${acu.name}`,
+                    value: { name: acu.name }
+                })
+                ctx.logsData = logs_data
+                DeviceController.delDevice(OperatorType.CANCEL_REGISTRATION, location, acu.serial_number, acu, user, acu.session_id)
+            }
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
     }
 }
