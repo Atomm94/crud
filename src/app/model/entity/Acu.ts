@@ -13,8 +13,6 @@ import { ExtDevice } from './ExtDevice'
 import { acuModel } from '../../enums/acuModel.enum'
 
 import { minusResource } from '../../functions/minusResource'
-import { Reader } from './Reader'
-import { AccessRule } from './AccessRule'
 
 @Entity('acu')
 export class Acu extends MainEntity {
@@ -185,16 +183,9 @@ export class Acu extends MainEntity {
                 this.softRemove(data)
                     .then(async () => {
                         minusResource(this.name, data.company)
-                        const access_points: any = await AccessPoint.getAllItems({ where: { acu: { '=': data.id } }, relations: ['readers', 'access_rules'] })
+                        const access_points: any = await AccessPoint.getAllItems({ where: { acu: { '=': data.id } }/* , relations: ['readers', 'access_rules'] */ })
                         for (const access_point of access_points) {
                             AccessPoint.destroyItem({ id: access_point.id, company: access_point.company })
-
-                            for (const reader of access_point.readers) {
-                                if (!reader.delete_date) Reader.destroyItem({ id: reader.id, company: reader.company })
-                            }
-                            for (const access_rule of access_point.access_rules) {
-                                if (!access_rule.delete_date) AccessRule.destroyItem({ id: access_rule.id, company: access_rule.company })
-                            }
                         }
                         const ext_devices: any = await ExtDevice.getAllItems({ where: { acu: { '=': data.id } } })
                         for (const ext_device of ext_devices) {

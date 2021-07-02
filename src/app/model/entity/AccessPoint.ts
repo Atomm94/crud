@@ -183,8 +183,19 @@ export class AccessPoint extends MainEntity {
         return new Promise(async (resolve, reject) => {
             this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
                 this.softRemove(data)
-                    .then(() => {
+                    .then(async () => {
                         minusResource(this.name, data.company)
+
+                        const readers: any = await Reader.getAllItems({ where: { access_point: { '=': data.id } } })
+                        for (const reader of readers) {
+                            if (!reader.delete_date) Reader.destroyItem({ id: reader.id, company: reader.company })
+                        }
+
+                        const access_rules: any = await AccessRule.getAllItems({ where: { access_point: { '=': data.id } } })
+                        for (const access_rule of access_rules) {
+                            if (!access_rule.delete_date) AccessRule.destroyItem({ id: access_rule.id, company: access_rule.company })
+                        }
+
                         resolve({ message: 'success' })
                     })
                     .catch((error: any) => {
