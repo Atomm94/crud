@@ -20,6 +20,8 @@ import { accessPointDoorState } from '../../enums/accessPointDoorState.enum'
 import { AutoTaskSchedule } from './AutoTaskSchedule'
 import { Notification } from './Notification'
 import { minusResource } from '../../functions/minusResource'
+import { socketChannels } from '../../enums/socketChannels.enum'
+import SendSocketMessage from '../../mqtt/SendSocketMessage'
 
 @Entity('access_point')
 export class AccessPoint extends MainEntity {
@@ -185,6 +187,15 @@ export class AccessPoint extends MainEntity {
                 this.softRemove(data)
                     .then(async () => {
                         minusResource(this.name, data.company)
+
+                        const modes: any = await this.createQueryBuilder('access_point')
+                            .select('access_point.name')
+                            .addSelect('access_point.mode')
+                            .addSelect('COUNT(access_point.id) as acp_qty')
+                            .where('access_point.company', data.company)
+                            .groupBy('access_point.mode')
+                            .getRawMany()
+                        new SendSocketMessage(socketChannels.DASHBOARD_ACCESS_POINT_MODES, modes, data.company)
 
                         const readers: any = await Reader.getAllItems({ where: { access_point: { '=': data.id } } })
                         for (const reader of readers) {

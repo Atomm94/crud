@@ -111,32 +111,32 @@ export class PostSubscriber implements EntitySubscriberInterface<Acu> {
      * Called after entity removal.
      */
     async afterRemove (event: RemoveEvent<Acu>) {
-        const data: any = event.entity
-        // const acus: any = await Acu.getAllItems({ company: { '=': data.company ? data.company : null } })
-        const promises = []
-        promises.push(Acu.createQueryBuilder('acu')
-            .select('acu.name')
-            .addSelect('acu.status')
-            .addSelect('COUNT(acu.id) as acu_qty')
-            .where('acu.company', data.company)
-            .groupBy('acu.status')
-            .getRawMany())
+        // const data: any = event.entity
+        // // const acus: any = await Acu.getAllItems({ company: { '=': data.company ? data.company : null } })
+        // const promises = []
+        // promises.push(Acu.createQueryBuilder('acu')
+        //     .select('acu.name')
+        //     .addSelect('acu.status')
+        //     .addSelect('COUNT(acu.id) as acu_qty')
+        //     .where('acu.company', data.company)
+        //     .groupBy('acu.status')
+        //     .getRawMany())
 
-        promises.push(Acu.createQueryBuilder('acu')
-            .innerJoin('acu.access_points', 'access_point')
-            .select('access_point.name')
-            .addSelect('acu.status')
-            .addSelect('COUNT(access_point.id) as acp_qty')
-            .where('access_point.company', data.company)
-            .groupBy('acu.status')
-            .getRawMany())
+        // promises.push(Acu.createQueryBuilder('acu')
+        //     .innerJoin('acu.access_points', 'access_point')
+        //     .select('access_point.name')
+        //     .addSelect('acu.status')
+        //     .addSelect('COUNT(access_point.id) as acp_qty')
+        //     .where('access_point.company', data.company)
+        //     .groupBy('acu.status')
+        //     .getRawMany())
 
-        const [acus, access_points]: any = await Promise.all(promises)
-        const send_data = {
-            acus: acus,
-            access_points: access_points
+        // const [acus, access_points]: any = await Promise.all(promises)
+        // const send_data = {
+        //     acus: acus,
+        //     access_points: access_points
 
-        }
-        new SendSocketMessage(socketChannels.DASHBOARD_ACU, send_data, data.company)
+        // }
+        // new SendSocketMessage(socketChannels.DASHBOARD_ACU, send_data, data.company)
     }
 }
