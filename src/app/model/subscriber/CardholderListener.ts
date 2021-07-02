@@ -6,7 +6,7 @@ import {
     RemoveEvent
 } from 'typeorm'
 // import * as Models from '../entity'
-import { Cardholder, CarInfo, Limitation } from '../entity'
+import { Cardholder, Limitation } from '../entity'
 import { AntipassBack } from '../entity/AntipassBack'
 
 @EventSubscriber()
@@ -37,15 +37,15 @@ export class PostSubscriber implements EntitySubscriberInterface<Cardholder> {
      */
 
     async afterRemove (event: RemoveEvent<Cardholder>) {
-        const data = event.databaseEntity
-        if (data.limitation_inherited === false) {
-            Limitation.destroyItem(data.limitation)
-        }
-        if (data.antipass_back_inherited === false) {
-            AntipassBack.destroyItem(data.antipass_back)
-        }
-        if (data.car_info) {
-            CarInfo.destroyItem(data.car_info)
-        }
+        // const data = event.databaseEntity
+        // if (data.limitation_inherited === false) {
+        //     Limitation.destroyItem(data.limitation)
+        // }
+        // if (data.antipass_back_inherited === false) {
+        //     AntipassBack.destroyItem(data.antipass_back)
+        // }
+        // if (data.car_info) {
+        //     CarInfo.destroyItem(data.car_info)
+        // }
     }
 }
