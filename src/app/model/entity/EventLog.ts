@@ -47,9 +47,13 @@ export class EventLog extends BaseClass {
         return new Promise((resolve, reject) => {
             getRequest(`${getEventStatisticUrl}?company=${user.company ? user.company : 0}&limit=100`) // limit HARDCODE!!
                 .then((res: string) => {
+                    console.log(11111111111111)
+
                     resolve(res)
                 })
                 .catch(rej => {
+                    console.log(22222222222222222)
+
                     reject(rej)
                 })
         })

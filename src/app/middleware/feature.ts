@@ -30,6 +30,12 @@ class Feature {
         }
     }
 
+    public static Dashboard: IFeatureModel = {
+        OnlineMonitorDashboard: {
+            check: OnlineMonitorDashboardCheck
+        }
+    }
+
     // public static Notification = {
     //     NotificationEmail: NotificationEmailCheck,
     //     NotificationIMBot: NotificationIMBotCheck,
@@ -65,9 +71,9 @@ class Feature {
         // ApartDirectionControl: {
         //     check: ApartDirectionControlCheck
         // },
-        OnlineMonitorDashboard: {
-            check: OnlineMonitorDashboardCheck
-        }
+        // OnlineMonitorDashboard: {
+        //     check: OnlineMonitorDashboardCheck
+        // }
         // AlarmAcknowledgment: {
         //     check: AlarmAcknowlegmentCheck
         // }

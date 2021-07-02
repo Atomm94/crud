@@ -30,6 +30,7 @@ import { AccessRule } from './AccessRule'
 import { Acu } from './Acu'
 import { ExtDevice } from './ExtDevice'
 import { StandardReport } from './StandardReport'
+import { Dashboard } from './Dashboard'
 export {
     MainEntity,
     Admin,
@@ -62,5 +63,6 @@ export {
     AccessRule,
     Acu,
     ExtDevice,
-    StandardReport
+    StandardReport,
+    Dashboard
 }
