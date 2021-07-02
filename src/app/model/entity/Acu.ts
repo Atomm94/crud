@@ -13,6 +13,8 @@ import { ExtDevice } from './ExtDevice'
 import { acuModel } from '../../enums/acuModel.enum'
 
 import { minusResource } from '../../functions/minusResource'
+import SendSocketMessage from '../../mqtt/SendSocketMessage'
+import { socketChannels } from '../../enums/socketChannels.enum'
 
 @Entity('acu')
 export class Acu extends MainEntity {
@@ -183,6 +185,33 @@ export class Acu extends MainEntity {
                 this.softRemove(data)
                     .then(async () => {
                         minusResource(this.name, data.company)
+
+                        const promises = []
+                        promises.push(Acu.createQueryBuilder('acu')
+                            .select('acu.name')
+                            .addSelect('acu.status')
+                            .addSelect('COUNT(acu.id) as acu_qty')
+                            .where('acu.company', data.company)
+                            .groupBy('acu.status')
+                            .getRawMany())
+
+                        promises.push(Acu.createQueryBuilder('acu')
+                            .innerJoin('acu.access_points', 'access_point')
+                            .select('access_point.name')
+                            .addSelect('acu.status')
+                            .addSelect('COUNT(access_point.id) as acp_qty')
+                            .where('access_point.company', data.company)
+                            .groupBy('acu.status')
+                            .getRawMany())
+
+                        const [d_acus, d_access_points]: any = await Promise.all(promises)
+                        const send_data = {
+                            acus: d_acus,
+                            access_points: d_access_points
+
+                        }
+                        new SendSocketMessage(socketChannels.DASHBOARD_ACU, send_data, data.company)
+
                         const access_points: any = await AccessPoint.getAllItems({ where: { acu: { '=': data.id } }/* , relations: ['readers', 'access_rules'] */ })
                         for (const access_point of access_points) {
                             AccessPoint.destroyItem({ id: access_point.id, company: access_point.company })

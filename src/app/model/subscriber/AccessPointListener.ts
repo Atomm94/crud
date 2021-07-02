@@ -63,15 +63,15 @@ export class PostSubscriber implements EntitySubscriberInterface<AccessPoint> {
      * Called after entity removal.
      */
     async afterRemove (event: RemoveEvent<AccessPoint>) {
-        const data: any = event.entity
-        const modes: any = await AccessPoint.createQueryBuilder('access_point')
-            .select('access_point.name')
-            .addSelect('access_point.mode')
-            .addSelect('COUNT(access_point.id) as acp_qty')
-            .where('access_point.company', data.company)
-            .groupBy('access_point.mode')
-            .getRawMany()
+        // const data: any = event.entity
+        // const modes: any = await AccessPoint.createQueryBuilder('access_point')
+        //     .select('access_point.name')
+        //     .addSelect('access_point.mode')
+        //     .addSelect('COUNT(access_point.id) as acp_qty')
+        //     .where('access_point.company', data.company)
+        //     .groupBy('access_point.mode')
+        //     .getRawMany()
 
-        new SendSocketMessage(socketChannels.DASHBOARD_ACCESS_POINT_MODES, modes, data.company)
+        // new SendSocketMessage(socketChannels.DASHBOARD_ACCESS_POINT_MODES, modes, data.company)
     }
 }
