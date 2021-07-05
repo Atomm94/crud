@@ -289,9 +289,16 @@ export default class AdminController {
         reqData.verify_token = uid(32)
         let role
 
+        const logs_data = []
         try {
             reqData.status = adminStatus.PENDING
             const newAdmin: Admin = await Admin.addItem(reqData, user)
+            logs_data.push({
+                event: logUserEvents.CREATE,
+                target: `${Admin.name}/${newAdmin.first_name}`,
+                value: { name: newAdmin.first_name }
+            })
+            ctx.logsData = logs_data
             role = await Role.findOne({
                 id: reqData.role
             })
