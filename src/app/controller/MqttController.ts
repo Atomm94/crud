@@ -175,8 +175,8 @@ export default class MqttController {
                 console.log('send_data', send_data)
 
                 new SendDeviceMessage('SetCtpTurnstile', '5/5', 1073493824, {
-                    id: 3
-                }, 5, '52831102448461152410103211553534')
+                    // id: 899999
+                }, { id: 5 }, '52831102448461152410103211553534')
                     // MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
 
                 // const send_data: any = {

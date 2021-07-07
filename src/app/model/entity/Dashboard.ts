@@ -7,7 +7,7 @@ export class Dashboard extends BaseClass {
     public static async getAll (user:any) {
         const promises = []
         promises.push(Acu.createQueryBuilder('acu')
-            .innerJoin('acu.access_points', 'access_point')
+            .innerJoin('acu.access_points', 'access_point', 'access_point.delete_date is null')
             .select('access_point.name')
             .addSelect('acu.status')
             .addSelect('COUNT(access_point.id) as acp_qty')
