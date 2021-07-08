@@ -8,8 +8,9 @@ import {
 // import SendDevice from '../../mqtt/SendDevice'
 // import { Company } from '../entity'
 import { socketChannels } from '../../enums/socketChannels.enum'
-import { AccessPoint } from '../entity'
+import { AccessPoint, Acu } from '../entity'
 import SendSocketMessage from '../../mqtt/SendSocketMessage'
+import { acuStatus } from '../../enums/acuStatus.enum'
 
 @EventSubscriber()
 export class PostSubscriber implements EntitySubscriberInterface<AccessPoint> {
@@ -35,6 +36,19 @@ export class PostSubscriber implements EntitySubscriberInterface<AccessPoint> {
             .getRawMany()
 
         new SendSocketMessage(socketChannels.DASHBOARD_ACCESS_POINT_MODES, modes, data.company)
+
+        const acu: any = await Acu.findOne({ where: { id: data.acu, status: acuStatus.ACTIVE } })
+        if (acu) {
+            const cloud_status_data = {
+                id: data.id,
+                acus: {
+                    id: acu.id,
+                    cloud_status: acu.cloud_status
+                }
+
+            }
+            new SendSocketMessage(socketChannels.DASHBOARD_CLOUD_STATUS, cloud_status_data, data.company)
+        }
     }
 
     /**
@@ -56,6 +70,14 @@ export class PostSubscriber implements EntitySubscriberInterface<AccessPoint> {
                 .getRawMany()
 
             new SendSocketMessage(socketChannels.DASHBOARD_ACCESS_POINT_MODES, modes, New.company)
+        }
+
+        if (New.door_state !== Old.door_state) {
+            const sended_door_state = {
+                id: New.id,
+                door_state: New.door_state
+            }
+            new SendSocketMessage(socketChannels.DASHBOARD_DOOR_STATE, sended_door_state, New.company)
         }
     }
 

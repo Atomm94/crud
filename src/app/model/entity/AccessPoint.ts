@@ -22,6 +22,7 @@ import { Notification } from './Notification'
 import { minusResource } from '../../functions/minusResource'
 import { socketChannels } from '../../enums/socketChannels.enum'
 import SendSocketMessage from '../../mqtt/SendSocketMessage'
+import { acuStatus } from '../../enums/acuStatus.enum'
 
 @Entity('access_point')
 export class AccessPoint extends MainEntity {
@@ -196,6 +197,19 @@ export class AccessPoint extends MainEntity {
                             .groupBy('access_point.mode')
                             .getRawMany()
                         new SendSocketMessage(socketChannels.DASHBOARD_ACCESS_POINT_MODES, modes, data.company)
+
+                        const acu: any = await Acu.findOne({ where: { id: data.acu, status: acuStatus.ACTIVE } })
+                        if (acu) {
+                            const cloud_status_data = {
+                                id: data.id,
+                                acus: {
+                                    id: acu.id,
+                                    cloud_status: acu.cloud_status
+                                },
+                                delete: true
+                            }
+                            new SendSocketMessage(socketChannels.DASHBOARD_CLOUD_STATUS, cloud_status_data, data.company)
+                        }
 
                         const readers: any = await Reader.getAllItems({ where: { access_point: { '=': data.id } } })
                         for (const reader of readers) {

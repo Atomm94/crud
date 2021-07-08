@@ -14,4 +14,8 @@ export default class DeviceController {
     public static async delDevice (operator:string, location: string, serial_number: number, data: any, user: any, session_id: string | null = '0') {
         new SendDeviceMessage(OperatorType.CANCEL_REGISTRATION, location, serial_number, data, user, session_id)
     }
+
+    public static async ping (location: string, serial_number: number, data: any, session_id: string | null = '0') {
+        new SendDeviceMessage(OperatorType.PING, location, serial_number, data, session_id)
+    }
 }

@@ -1,4 +1,6 @@
 export enum OperatorType {
+    PING = 'Ping',
+    PING_ACK = 'Ping-Ack',
     REGISTRATION = 'registration',
     CANCEL_REGISTRATION = 'cancel_registration',
     ACCEPT = 'accept',

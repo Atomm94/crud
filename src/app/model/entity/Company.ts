@@ -26,6 +26,7 @@ import {
 } from './index'
 
 import { minusResource } from '../../functions/minusResource'
+import { Acu } from './Acu'
 @Entity('company')
 export class Company extends MainEntity {
     @Column('varchar', { name: 'company_name', nullable: false })
@@ -90,6 +91,9 @@ export class Company extends MainEntity {
 
     @OneToMany(type => AccessRight, access_right => access_right.companies)
     access_rights: AccessRight[];
+
+    @OneToMany(type => Acu, acu => acu.companies)
+    acus: Acu[];
 
     public static async addItem (data: Company): Promise<Company> {
         const company = new Company()

@@ -2,6 +2,7 @@ import { BaseClass } from './BaseClass'
 import { Acu } from './Acu'
 import { AccessPoint } from './AccessPoint'
 import { EventLog } from './EventLog'
+import { acuStatus } from '../../enums/acuStatus.enum'
 
 export class Dashboard extends BaseClass {
     public static async getAll (user: any) {
@@ -11,6 +12,7 @@ export class Dashboard extends BaseClass {
             .select('access_point.name')
             .addSelect('acu.status')
             .addSelect('COUNT(access_point.id) as acp_qty')
+            .where(`acu.company = ${user.company}`)
             .groupBy('acu.status')
             .getRawMany())
 
@@ -18,6 +20,7 @@ export class Dashboard extends BaseClass {
             .select('acu.name')
             .addSelect('acu.status')
             .addSelect('COUNT(acu.id) as acu_qty')
+            .where(`acu.company = ${user.company}`)
             .groupBy('acu.status')
             .getRawMany())
 
@@ -25,15 +28,24 @@ export class Dashboard extends BaseClass {
             .select('access_point.name')
             .addSelect('access_point.mode')
             .addSelect('COUNT(access_point.id) as acp_qty')
+            .where(`access_point.company = ${user.company}`)
+            .groupBy('access_point.mode')
+            .getRawMany())
+
+        promises.push(Acu.createQueryBuilder('acu')
+            .leftJoin('acu.access_points', 'access_point', 'access_point.delete_date is null')
+            .where(`acu.company = ${user.company}`)
+            .where(`acu.status = ${acuStatus.ACTIVE}`)
             .groupBy('access_point.mode')
             .getRawMany())
 
         promises.push(EventLog.getEventStatistic(user))
-        const [access_point, acu, access_point_modes, events_data]: any = await Promise.all(promises)
+        const [access_point, acu, access_point_modes, all_access_points, events_data]: any = await Promise.all(promises)
         const send_data: any = {
             access_point_status: access_point,
             acus_status: acu,
             access_point_modes: access_point_modes,
+            access_points: all_access_points,
             events_statistic: events_data.events_statistic,
             logs: events_data.logs
         }

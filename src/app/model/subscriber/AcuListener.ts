@@ -12,6 +12,9 @@ import { SendTopics } from '../../mqtt/Topics'
 import { Acu } from '../entity/Acu'
 import { socketChannels } from '../../enums/socketChannels.enum'
 import SendSocketMessage from '../../mqtt/SendSocketMessage'
+import { acuStatus } from '../../enums/acuStatus.enum'
+import { AccessPoint, Company } from '../entity'
+import CronJob from './../../cron'
 
 @EventSubscriber()
 export class PostSubscriber implements EntitySubscriberInterface<Acu> {
@@ -52,6 +55,12 @@ export class PostSubscriber implements EntitySubscriberInterface<Acu> {
 
         }
         new SendSocketMessage(socketChannels.DASHBOARD_ACU, send_data, data.company)
+
+        if (data.status === acuStatus.ACTIVE) {
+            const company = await Company.findOne({ where: { id: data.company } })
+            const acu_data = { ...data, companies: company }
+            CronJob.active_devices[data.id] = acu_data
+        }
     }
 
     /**
@@ -91,6 +100,27 @@ export class PostSubscriber implements EntitySubscriberInterface<Acu> {
 
             }
             new SendSocketMessage(socketChannels.DASHBOARD_ACU, send_data, New.company)
+
+            if (New.status === acuStatus.ACTIVE) {
+                const company = await Company.findOne({ where: { id: New.company } })
+                const acu_data = { ...New, companies: company }
+                CronJob.active_devices[New.id] = acu_data
+            }
+        }
+
+        if (New.cloud_status !== Old.cloud_status) {
+            const access_points: any = await AccessPoint.getAllItems({ where: { acu: { '=': New.id } } })
+
+            for (const access_point of access_points) {
+                const sended_data = {
+                    id: access_point.id,
+                    acus: {
+                        id: New.id,
+                        cloud_status: New.cloud_status
+                    }
+                }
+                new SendSocketMessage(socketChannels.DASHBOARD_CLOUD_STATUS, sended_data, New.company)
+            }
         }
     }
 

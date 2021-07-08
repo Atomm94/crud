@@ -2,7 +2,9 @@ import {
     Entity,
     Column,
     OneToMany,
-    DeleteDateColumn
+    DeleteDateColumn,
+    ManyToOne,
+    JoinColumn
 } from 'typeorm'
 
 import { acuStatus } from '../../enums/acuStatus.enum'
@@ -16,6 +18,8 @@ import { acuCloudStatus } from '../../enums/acuCloudStatus.enum'
 import { minusResource } from '../../functions/minusResource'
 import SendSocketMessage from '../../mqtt/SendSocketMessage'
 import { socketChannels } from '../../enums/socketChannels.enum'
+import { Company } from './Company'
+import CronJob from './../../cron'
 
 @Entity('acu')
 export class Acu extends MainEntity {
@@ -34,8 +38,8 @@ export class Acu extends MainEntity {
     @Column('enum', { name: 'status', nullable: false, enum: acuStatus, default: acuStatus.PENDING })
     status: acuStatus
 
-    @Column('enum', { name: 'cloudStatus', nullable: false, enum: acuCloudStatus, default: acuCloudStatus.OFFLINE })
-    cloudStatus: acuCloudStatus
+    @Column('enum', { name: 'cloud_status', nullable: false, enum: acuCloudStatus, default: acuCloudStatus.OFFLINE })
+    cloud_status: acuCloudStatus
 
     @Column('varchar', { name: 'fw_version', nullable: true })
     fw_version: string | null
@@ -75,6 +79,10 @@ export class Acu extends MainEntity {
 
     @OneToMany(type => ExtDevice, ext_device => ext_device.acus)
     ext_devices: ExtDevice[];
+
+    @ManyToOne(type => Company, company => company.acus, { nullable: true })
+    @JoinColumn({ name: 'company' })
+    companies: Company | null;
 
     public static async addItem (data: any) {
         const acu = new Acu()
@@ -215,6 +223,10 @@ export class Acu extends MainEntity {
 
                         }
                         new SendSocketMessage(socketChannels.DASHBOARD_ACU, send_data, data.company)
+
+                        if (data.status === acuStatus.ACTIVE) {
+                            delete CronJob.active_devices[data.id]
+                        }
 
                         const access_points: any = await AccessPoint.getAllItems({ where: { acu: { '=': data.id } }/* , relations: ['readers', 'access_rules'] */ })
                         for (const access_point of access_points) {

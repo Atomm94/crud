@@ -303,9 +303,21 @@ export default class CardholderController {
 
                     req_data.where = { status: { '=': acuStatus.ACTIVE } }
                 }
+                if (credentials.length) {
+                    cardholder.credentials = credentials
 
-                CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, company, auth_user, null, [cardholder], null)
+                    const access_rights: any = await AccessRight.createQueryBuilder('access_right')
+                        .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
+                        .where(`access_right.id = '${cardholder.access_right}'`)
+                        .getOne()
+
+                    if (access_rights) {
+                        cardholder.access_rights = access_rights
+                        CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, company, auth_user, null, [cardholder], null)
+                    }
+                }
             }
+
             if (cardholder) {
                 const cardholder_data = await Cardholder.createQueryBuilder('cardholder')
                     .leftJoinAndSelect('cardholder.car_infos', 'car_info')
@@ -316,8 +328,8 @@ export default class CardholderController {
                     .leftJoinAndSelect('cardholder.cardholder_groups', 'cardholder_group')
                     .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null')
                     .where(`cardholder.id = '${cardholder.id}'`)
-                    .getMany()
-                ctx.body = cardholder_data[0]
+                    .getOne()
+                ctx.body = cardholder_data
                 ctx.logsData = logs_data
             }
         } catch (error) {

@@ -161,7 +161,7 @@ export default class AccessRightController {
                 .leftJoinAndSelect('access_rule.access_points', 'access_point')
                 .leftJoinAndSelect('access_rule.schedules', 'schedule')
                 .where(`access_right.id = '${+ctx.params.id}'`)
-                .andWhere(`access_right.company = '${user.company ? user.company : user.company}'`)
+                .andWhere(`access_right.company = '${user.company ? user.company : null}'`)
                 .getMany()
 
             ctx.body = access_right[0]

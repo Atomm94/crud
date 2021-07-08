@@ -169,7 +169,7 @@ export default class AccessPointZoneController {
             const access_point_zone: any = await AccessPointZone.createQueryBuilder('access_point_zone')
                 .leftJoinAndSelect('access_point_zone.access_points', 'access_point', 'access_point.delete_date is null')
                 .where(`access_point_zone.id = '${+ctx.params.id}'`)
-                .andWhere(`access_point_zone.company = '${user.company ? user.company : user.company}'`)
+                .andWhere(`access_point_zone.company = '${user.company ? user.company : null}'`)
                 .getOne()
             ctx.body = access_point_zone
         } catch (error) {

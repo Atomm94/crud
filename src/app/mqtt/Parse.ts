@@ -17,6 +17,8 @@ import { checkAndDeleteAccessRight } from '../functions/accessRightDelete'
 import SendUserLogMessage from './SendUserLogMessage'
 import { logUserEvents } from '../enums/logUserEvents.enum'
 import { readerTypes } from '../enums/readerTypes'
+import { acuCloudStatus } from '../enums/acuCloudStatus.enum'
+import { accessPointDoorState } from '../enums/accessPointDoorState.enum'
 
 // import { uid } from 'uid'
 
@@ -34,16 +36,20 @@ export default class Parse {
                 if (error !== 0) {
                     const user = message.send_data.user
                     const error_list: any = errorList
+                    const sended_data = (message.send_data.data === 'none') ? {} : Object.assign({}, message.send_data.data)
                     if (error_list[error]) {
-                        message.send_data.data.error_description = error_list[error].description
+                        sended_data.error_description = error_list[error].description
                     } else {
-                        message.send_data.data.error_description = 'Unknown Error'
+                        sended_data.error_description = 'Unknown Error'
                     }
-                    new SendSocketMessage(socketChannels.ERROR_CHANNEL, message.send_data.data, message.company, user)
+                    new SendSocketMessage(socketChannels.ERROR_CHANNEL, sended_data, message.company, user)
                 }
             }
 
             switch (message.operator) {
+                case OperatorType.PING_ACK:
+                    this.pingAck(message)
+                    break
                 case OperatorType.REGISTRATION:
                     this.deviceRegistration(message)
                     break
@@ -253,6 +259,42 @@ export default class Parse {
             }
         } catch (error) {
             console.log('error deviceData', topic, data)
+        }
+    }
+
+    public static async pingAck (message: IMqttCrudMessaging) {
+        try {
+            Acu.findOneOrFail({ serial_number: message.device_id /*, company: company */ }).then(async (acuData: Acu) => {
+                const access_points: any = await AccessPoint.getAllItems({ where: { acu: { '=': acuData.id } } })
+                if (message.result.errorNo === 0) {
+                    acuData.cloud_status = acuCloudStatus.ONLINE
+                    if (message.info) {
+                        for (const access_point of access_points) {
+                            if (access_point.resources) {
+                                const resources = JSON.parse(access_point.resources)
+                                const gpio_value = `Gpio_input_opt_${resources.Door_sensor.component_source}_idx_${resources.Door_sensor.input}`
+                                if (resources.Door_sensor && message.info[gpio_value]) {
+                                    if (message.info[gpio_value] === 0) {
+                                        access_point.door_state = accessPointDoorState.CLOSED
+                                    } else {
+                                        access_point.door_state = accessPointDoorState.OPEN
+                                    }
+                                } else {
+                                    access_point.door_state = accessPointDoorState.NO_SENSOR
+                                }
+
+                                await AccessPoint.save(access_point)
+                            }
+                        }
+                    }
+                } else {
+                    acuData.cloud_status = acuCloudStatus.OFFLINE
+                }
+
+                Acu.save(acuData)
+            })
+        } catch (error) {
+            console.log('error pingack ', error)
         }
     }
 

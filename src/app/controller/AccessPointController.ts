@@ -154,7 +154,7 @@ export default class AccessPointController {
                 .leftJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
                 .leftJoinAndSelect('access_point.access_point_groups', 'access_point_group', 'access_point_group.delete_date is null')
                 .leftJoinAndSelect('access_point.access_point_zones', 'access_point_zone', 'access_point_zone.delete_date is null')
-                .andWhere(`access_point.company = '${user.company ? user.company : user.company}'`)
+                .andWhere(`access_point.company = '${user.company ? user.company : null}'`)
                 .getMany()
 
                 ctx.body = access_points
@@ -214,7 +214,7 @@ export default class AccessPointController {
                 .leftJoinAndSelect('reader.access_points', 'access_point', 'access_point.delete_date is null')
                 .leftJoinAndSelect('access_point.acus', 'acus', 'acus.delete_date is null')
                 .where(`reader.id = '${req_data.id}'`)
-                .andWhere(`reader.company = '${user.company ? user.company : user.company}'`)
+                .andWhere(`reader.company = '${user.company ? user.company : null}'`)
                 .getMany()
 
             reader = reader[0]
