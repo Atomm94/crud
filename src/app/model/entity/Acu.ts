@@ -11,6 +11,7 @@ import { MainEntity } from './MainEntity'
 import { AccessPoint } from './AccessPoint'
 import { ExtDevice } from './ExtDevice'
 import { acuModel } from '../../enums/acuModel.enum'
+import { acuCloudStatus } from '../../enums/acuCloudStatus.enum'
 
 import { minusResource } from '../../functions/minusResource'
 import SendSocketMessage from '../../mqtt/SendSocketMessage'
@@ -32,6 +33,9 @@ export class Acu extends MainEntity {
 
     @Column('enum', { name: 'status', nullable: false, enum: acuStatus, default: acuStatus.PENDING })
     status: acuStatus
+
+    @Column('enum', { name: 'cloudStatus', nullable: false, enum: acuCloudStatus, default: acuCloudStatus.OFFLINE })
+    cloudStatus: acuCloudStatus
 
     @Column('varchar', { name: 'fw_version', nullable: true })
     fw_version: string | null
