@@ -4,7 +4,7 @@ import { AccessPoint } from './AccessPoint'
 import { EventLog } from './EventLog'
 
 export class Dashboard extends BaseClass {
-    public static async getAll (user:any) {
+    public static async getAll (user: any) {
         const promises = []
         promises.push(Acu.createQueryBuilder('acu')
             .innerJoin('acu.access_points', 'access_point', 'access_point.delete_date is null')
@@ -29,7 +29,7 @@ export class Dashboard extends BaseClass {
             .getRawMany())
 
         promises.push(EventLog.getEventStatistic(user))
-        const [access_point, acu, access_point_modes, events_data]:any = await Promise.all(promises)
+        const [access_point, acu, access_point_modes, events_data]: any = await Promise.all(promises)
         const send_data: any = {
             access_point_status: access_point,
             acus_status: acu,
@@ -40,7 +40,14 @@ export class Dashboard extends BaseClass {
         return send_data
     }
 
-    public static async getAllAccessPoints (data:any) {
-        return await AccessPoint.getAllItems(data)
+    public static async getAllAccessPoints (user: any) {
+        const access_points: any = await AccessPoint.createQueryBuilder('access_point')
+            .leftJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
+            .leftJoinAndSelect('access_point.access_point_groups', 'access_point_group', 'access_point_group.delete_date is null')
+            .leftJoinAndSelect('access_point.access_point_zones', 'access_point_zone', 'access_point_zone.delete_date is null')
+            .where(`access_point.company = '${user.company ? user.company : null}'`)
+            .getMany()
+
+        return access_points
     }
 }

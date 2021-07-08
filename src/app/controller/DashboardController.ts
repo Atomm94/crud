@@ -59,11 +59,8 @@ export default class DashboardController {
         */
     public static async getAllAccessPoints (ctx: DefaultContext) {
         try {
-            const req_data = ctx.query
             const user = ctx.user
-            req_data.where = { company: { '=': user.company ? user.company : null } }
-            req_data.relations = ['acus']
-            ctx.body = await Dashboard.getAllAccessPoints(req_data)
+            ctx.body = await Dashboard.getAllAccessPoints(user)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
