@@ -9,6 +9,8 @@ import { eventTypes } from '../../enums/eventTypes.enum'
 import { accessPointDoorState } from '../../enums/accessPointDoorState.enum'
 import { AccessPoint } from './AccessPoint'
 import SendSocketMessage from '../../mqtt/SendSocketMessage'
+import { cardholderPresense } from '../../enums/cardholderPresense.enum'
+import { Cardholder } from './Cardholder'
 
 const clickhouse_server: string = process.env.CLICKHOUSE_SERVER ? process.env.CLICKHOUSE_SERVER : 'http://localhost:4143'
 const getEventLogsUrl = `${clickhouse_server}/eventLog`
@@ -87,6 +89,17 @@ export class EventLog extends BaseClass {
 
         if (event.data.event_type === eventTypes.CARDHOLDER) {
             new SendSocketMessage(socketChannels.DASHBOARD_MONITOR, event.data, event.data.company)
+            if (event.data.cardholder) {
+                const cardholder = Object.assign({}, event.data.cardholder)
+                if (event.data.event_type.event_id === 25) {
+                    cardholder.presense = cardholderPresense.PRESENSE
+                } else if (event.data.event_type.event_id === 26) {
+                    cardholder.presense = cardholderPresense.ABSENT_BY_REASON
+                }
+                if (event.data.cardholder !== cardholder.presense) {
+                    await Cardholder.save(cardholder)
+                }
+            }
         }
     }
 }

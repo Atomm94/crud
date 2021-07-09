@@ -67,4 +67,36 @@ export default class DashboardController {
         }
         return ctx.body
     }
+
+        /**
+     *
+     * @swagger
+     * /Dashboard/getCardholders:
+     *      get:
+     *          tags:
+     *              - Dashboard
+     *          summary: Return Dashboard list
+     *          parameters:
+     *              - in: header
+     *                name: Authorization
+     *                required: true
+     *                description: Authentication token
+     *                schema:
+     *                    type: string
+     *          responses:
+     *              '200':
+     *                  description: Array of Dashboard
+     *              '401':
+     *                  description: Unauthorized
+     */
+         public static async getCardholders (ctx: DefaultContext) {
+            try {
+                const user = ctx.user
+                ctx.body = await Dashboard.getCardholders(user)
+            } catch (error) {
+                ctx.status = error.status || 400
+                ctx.body = error
+            }
+            return ctx.body
+        }
 }

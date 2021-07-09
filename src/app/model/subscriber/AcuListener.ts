@@ -32,8 +32,7 @@ export class PostSubscriber implements EntitySubscriberInterface<Acu> {
         const data: any = event.entity
         const promises = []
         promises.push(Acu.createQueryBuilder('acu')
-            .select('acu.name')
-            .addSelect('acu.status')
+            .select('acu.status')
             .addSelect('COUNT(acu.id) as acu_qty')
             .where('acu.company', data.company)
             .groupBy('acu.status')
@@ -41,8 +40,7 @@ export class PostSubscriber implements EntitySubscriberInterface<Acu> {
 
         promises.push(Acu.createQueryBuilder('acu')
             .innerJoin('acu.access_points', 'access_point')
-            .select('access_point.name')
-            .addSelect('acu.status')
+            .select('acu.status')
             .addSelect('COUNT(access_point.id) as acp_qty')
             .where('access_point.company', data.company)
             .groupBy('acu.status')
@@ -77,8 +75,7 @@ export class PostSubscriber implements EntitySubscriberInterface<Acu> {
             New.channel = socketChannels.DASHBOARD_ACU
             const promises = []
             promises.push(Acu.createQueryBuilder('acu')
-                .select('acu.name')
-                .addSelect('acu.status')
+                .select('acu.status')
                 .addSelect('COUNT(acu.id) as acu_qty')
                 .where('acu.company', New.company)
                 .groupBy('acu.status')
@@ -86,8 +83,7 @@ export class PostSubscriber implements EntitySubscriberInterface<Acu> {
 
             promises.push(Acu.createQueryBuilder('acu')
                 .innerJoin('acu.access_points', 'access_point')
-                .select('access_point.name')
-                .addSelect('acu.status')
+                .select('acu.status')
                 .addSelect('COUNT(access_point.id) as acp_qty')
                 .where('acu.company', New.company)
                 .groupBy('acu.status')

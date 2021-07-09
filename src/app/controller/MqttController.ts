@@ -3,8 +3,8 @@ import { Company } from '../model/entity'
 // import { OperatorType } from '../mqtt/Operators'
 // import SendDeviceMessage from '../mqtt/SendDeviceMessage'
 import MQTTBroker from '../mqtt/mqtt'
-// import { OperatorType } from '../mqtt/Operators'
 import SendDeviceMessage from '../mqtt/SendDeviceMessage'
+// import { OperatorType } from '../mqtt/Operators'
 // import { SendTopics } from '../mqtt/Topics'
 // import { TopicCodes } from '../mqtt/Topics'
 
@@ -175,7 +175,7 @@ export default class MqttController {
                 console.log('send_data', send_data)
 
                 new SendDeviceMessage('SetCtpTurnstile', '5/5', 1073493824, {
-                    // id: 899999
+                    id: 5
                     // send_data
                 }, { id: 5 }, '52831102448461152410103211553534')
                     // MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))

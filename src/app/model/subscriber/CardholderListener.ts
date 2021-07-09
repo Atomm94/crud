@@ -5,6 +5,8 @@ import {
     // getManager,
     RemoveEvent
 } from 'typeorm'
+// import { socketChannels } from '../../enums/socketChannels.enum'
+// import SendSocketMessage from '../../mqtt/SendSocketMessage'
 // import * as Models from '../entity'
 import { Cardholder, Limitation } from '../entity'
 import { AntipassBack } from '../entity/AntipassBack'
@@ -31,6 +33,14 @@ export class PostSubscriber implements EntitySubscriberInterface<Cardholder> {
                 AntipassBack.destroyItem(Old.antipass_back)
             }
         }
+
+        // if (New.presense !== Old.presense) {
+        //     const presense_data = {
+        //         new_value: New.presense,
+        //         old_value: Old.presense
+        //     }
+        //     new SendSocketMessage(socketChannels.DASHBOARD_CARDHOLDERS_PRESENSE, presense_data, New.company)
+        // }
     }
     /**
      * Called after post insertion.

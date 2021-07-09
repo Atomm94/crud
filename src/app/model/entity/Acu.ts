@@ -200,8 +200,7 @@ export class Acu extends MainEntity {
 
                         const promises = []
                         promises.push(Acu.createQueryBuilder('acu')
-                            .select('acu.name')
-                            .addSelect('acu.status')
+                            .select('acu.status')
                             .addSelect('COUNT(acu.id) as acu_qty')
                             .where('acu.company', data.company)
                             .groupBy('acu.status')
@@ -209,8 +208,7 @@ export class Acu extends MainEntity {
 
                         promises.push(Acu.createQueryBuilder('acu')
                             .innerJoin('acu.access_points', 'access_point')
-                            .select('access_point.name')
-                            .addSelect('acu.status')
+                            .select('acu.status')
                             .addSelect('COUNT(access_point.id) as acp_qty')
                             .where('access_point.company', data.company)
                             .groupBy('acu.status')

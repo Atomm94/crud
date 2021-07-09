@@ -25,6 +25,7 @@ import { Admin } from '.'
 import { scheduleCustomType } from '../../enums/scheduleCustomType.enum'
 import { minusResource } from '../../functions/minusResource'
 import { logUserEvents } from '../../enums/logUserEvents.enum'
+import { cardholderPresense } from '../../enums/cardholderPresense.enum'
 import { getObjectDiff } from '../../functions/checkDifference'
 
 const parentDir = join(__dirname, '../../..')
@@ -108,6 +109,9 @@ export class Cardholder extends MainEntity {
 
     @Column('enum', { name: 'schedule_type', enum: scheduleCustomType, default: scheduleCustomType.DEFAULT })
     schedule_type: scheduleCustomType
+
+    @Column('enum', { name: 'presense', enum: cardholderPresense, default: cardholderPresense.ABSENT_NO_REASON })
+    presense: cardholderPresense
 
     @Column('int', { name: 'schedule', nullable: true })
     schedule: number | null

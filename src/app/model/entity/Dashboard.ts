@@ -3,30 +3,28 @@ import { Acu } from './Acu'
 import { AccessPoint } from './AccessPoint'
 import { EventLog } from './EventLog'
 import { acuStatus } from '../../enums/acuStatus.enum'
+import { Cardholder } from './Cardholder'
 
 export class Dashboard extends BaseClass {
     public static async getAll (user: any) {
         const promises = []
         promises.push(Acu.createQueryBuilder('acu')
             .innerJoin('acu.access_points', 'access_point', 'access_point.delete_date is null')
-            .select('access_point.name')
-            .addSelect('acu.status')
+            .select('acu.status')
             .addSelect('COUNT(access_point.id) as acp_qty')
             .where(`acu.company = ${user.company}`)
             .groupBy('acu.status')
             .getRawMany())
 
         promises.push(Acu.createQueryBuilder('acu')
-            .select('acu.name')
-            .addSelect('acu.status')
+            .select('acu.status')
             .addSelect('COUNT(acu.id) as acu_qty')
             .where(`acu.company = ${user.company}`)
             .groupBy('acu.status')
             .getRawMany())
 
         promises.push(AccessPoint.createQueryBuilder('access_point')
-            .select('access_point.name')
-            .addSelect('access_point.mode')
+            .select('access_point.mode')
             .addSelect('COUNT(access_point.id) as acp_qty')
             .where(`access_point.company = ${user.company}`)
             .groupBy('access_point.mode')
@@ -35,7 +33,7 @@ export class Dashboard extends BaseClass {
         promises.push(Acu.createQueryBuilder('acu')
             .leftJoin('acu.access_points', 'access_point', 'access_point.delete_date is null')
             .where(`acu.company = ${user.company}`)
-            .where(`acu.status = ${acuStatus.ACTIVE}`)
+            .where(`acu.status = '${acuStatus.ACTIVE}'`)
             .groupBy('access_point.mode')
             .getRawMany())
 
@@ -61,5 +59,16 @@ export class Dashboard extends BaseClass {
             .getMany()
 
         return access_points
+    }
+
+    public static async getCardholders (user: any) {
+        const cardholders: any = await Cardholder.createQueryBuilder('cardholder')
+            .select('cardholder.presense')
+            .addSelect('COUNT(cardholder.id) as cardholder_qty')
+            .where(`cardholder.company = '${user.company ? user.company : null}'`)
+            .groupBy('cardholder.presense')
+            .getRawMany()
+
+        return cardholders
     }
 }
