@@ -11,6 +11,8 @@ import CtpController from './Hardware/CtpController'
 import RdController from './Hardware/RdController'
 import { logUserEvents } from '../enums/logUserEvents.enum'
 import { readerTypes } from '../enums/readerTypes'
+import { accessPointMode } from '../enums/accessPointMode.enum'
+import { accessPointDirection } from '../enums/accessPointDirection.enum'
 
 export default class AccessPointController {
     /**
@@ -157,7 +159,7 @@ export default class AccessPointController {
                 .andWhere(`access_point.company = '${user.company ? user.company : null}'`)
                 .getMany()
 
-                ctx.body = access_points
+            ctx.body = access_points
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -334,5 +336,108 @@ export default class AccessPointController {
             ctx.body = error
         }
         return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     *  /accessPoint/updateMode:
+     *      put:
+     *          tags:
+     *              - AccessPoint
+     *          summary: Update AccessPoint Mode.
+     *          consumes:
+     *              - application/json
+     *          parameters:
+     *            - in: header
+     *              name: Authorization
+     *              required: true
+     *              description: Authentication token
+     *              schema:
+     *                type: string
+     *            - in: body
+     *              name: accessPoint
+     *              description: Change of accessPoint mode.
+     *              schema:
+     *                type: object
+     *                required:
+     *                  - id
+     *                  - mode
+     *                properties:
+     *                  id:
+     *                      type: number
+     *                      example: 1
+     *                  mode:
+     *                      type: string
+     *                      enum: [open_once, N/A, credential, locked, unlocked, free_entry_block_exit, block_entry_free_exit]
+     *                      example: credential
+     *                  direction:
+     *                      type: string
+     *                      enum: [entry, exit]
+     *                      example: entry
+     *          responses:
+     *              '201':
+     *                  description: AccessPoint mode update
+     *              '409':
+     *                  description: Conflict
+     *              '422':
+     *                  description: Wrong data
+     */
+    public static async updateMode (ctx: DefaultContext) {
+        try {
+            const req_data = ctx.request.body
+            const user = ctx.user
+            const company = user.company ? user.company : null
+            const where = { id: req_data.id, company: company }
+            const access_point: any = await AccessPoint.findOneOrFail({ where: where, relations: ['acus'] })
+            const location = `${user.company_main}/${user.company}`
+
+            if (Object.values(accessPointMode).indexOf(req_data.mode) === -1) {
+                if (req_data.mode !== 'open_once') {
+                    ctx.status = 400
+                    ctx.body = {
+                        message: `Invalid AccessPoint Mode ${req_data.mode}`
+                    }
+                } else {
+                    if ('direction' in req_data) {
+                        if (Object.values(accessPointDirection).indexOf(req_data.direction) === -1) {
+                            ctx.body = {
+                                message: `Invalid AccessPoint Direction ${req_data.direction}`
+                            }
+                        } else {
+                            const single_pass_data: any = {
+                                id: access_point.id,
+                                direction: req_data.direction
+                            }
+                            CtpController.singlePass(location, access_point.acu.serial_number, single_pass_data, user, access_point.acus.session_id)
+                            ctx.body = {
+                                message: 'Open Once sended'
+                            }
+                        }
+                    } else {
+                        ctx.status = 400
+                        ctx.body = {
+                            message: `direction is required when AccessPoint Mode is ${req_data.mode}`
+                        }
+                    }
+                }
+            } else {
+                if (access_point.acu.status === acuStatus.ACTIVE) {
+                    const saved_data = AccessPoint.save(access_point)
+                    CtpController.setCtp(access_point.type, location, access_point.acu.serial_number, saved_data, user, access_point.acu.session_id, true)
+                    ctx.body = {
+                        message: 'update Pending'
+                    }
+                } else {
+                    ctx.status = 400
+                    ctx.body = {
+                        message: `Cant update AccessPoint Mode when Acu status is not ${acuStatus.ACTIVE}`
+                    }
+                }
+            }
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
     }
 }

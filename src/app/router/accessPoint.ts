@@ -7,6 +7,7 @@ export default router
     .delete('AccessPoint-destroyItem', 'accessPoint', checkRole(), AccessPointController.destroy)
     .get('AccessPoint-getAllItems', 'accessPoint', checkRole(), AccessPointController.getAll)
     .delete('AccessPoint-destroyItem', 'accessPoint/reader', checkRole(), AccessPointController.readerDestroy)
+    .put('Acu-updateItem', 'accessPoint/updateMode', checkRole(), AccessPointController.updateMode)
     .get('AccessPoint-getAllItems', 'accessPoint/resources/:type', checkRole(), AccessPointController.getAccessPointResources)
     .get('AccessPoint-getAllItems', 'accessPoint/types', checkRole(), AccessPointController.getAccessPointTypes)
     .get('AccessPoint-getItem', 'accessPoint/:id', checkRole(), AccessPointController.get)
