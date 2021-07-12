@@ -51,13 +51,21 @@ export class Dashboard extends BaseClass {
         return send_data
     }
 
-    public static async getAllAccessPoints (user: any) {
-        const access_points: any = await AccessPoint.createQueryBuilder('access_point')
+    public static async getAllAccessPoints (data: any, user: any) {
+        let access_points: any = await AccessPoint.createQueryBuilder('access_point')
             .leftJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
             .leftJoinAndSelect('access_point.access_point_groups', 'access_point_group', 'access_point_group.delete_date is null')
             .leftJoinAndSelect('access_point.access_point_zones', 'access_point_zone', 'access_point_zone.delete_date is null')
             .where(`access_point.company = '${user.company ? user.company : null}'`)
-            .getMany()
+
+        if (data.page) {
+            const take = data.page_items_count ? (data.page_items_count > 10000) ? 10000 : data.page_items_count : 25
+            const skip = data.page_items_count && data.page ? (data.page - 1) * data.page_items_count : 0
+            access_points = access_points
+                .take(take)
+                .skip(skip)
+        }
+        access_points = access_points.getMany()
 
         return access_points
     }
