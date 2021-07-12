@@ -35,4 +35,8 @@ export default class CtpController {
     public static async singlePass (location: string, serial_number: number, data: any, user: any, session_id: string | null = '0') {
         new SendDeviceMessage(OperatorType.SINGLE_PASS, location, serial_number, data, user, session_id)
     }
+
+    public static async setAccessMode (location: string, serial_number: number, data: any, user: any, session_id: string | null = '0') {
+        new SendDeviceMessage(OperatorType.SET_ACCESS_MODE, location, serial_number, data, user, session_id)
+    }
 }
