@@ -30,16 +30,16 @@ export class Dashboard extends BaseClass {
             .groupBy('access_point.mode')
             .getRawMany())
 
-        promises.push(Acu.createQueryBuilder('acu')
-            .leftJoin('acu.access_points', 'access_point', 'access_point.delete_date is null')
-            .where(`acu.company = ${user.company}`)
+        promises.push(AccessPoint.createQueryBuilder('access_point')
+            .leftJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
+            .where(`access_point.company = ${user.company}`)
             .where(`acu.status = '${acuStatus.ACTIVE}'`)
-            .groupBy('access_point.mode')
-            .getRawMany())
+            .getMany())
 
         promises.push(EventLog.getEventStatistic(user))
         const [access_point, acu, access_point_modes, all_access_points, events_data]: any = await Promise.all(promises)
         const send_data: any = {
+
             access_point_status: access_point,
             acus_status: acu,
             access_point_modes: access_point_modes,
@@ -47,6 +47,7 @@ export class Dashboard extends BaseClass {
             events_statistic: events_data.events_statistic,
             logs: events_data.logs
         }
+        console.log(send_data.access_points)
         return send_data
     }
 
