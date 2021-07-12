@@ -4,6 +4,6 @@ import checkRole from '../middleware/checkRole'
 const router = new Router()
 export default router
   // Notification controller CRUD endpoints
-  .put('Notification-updateItem', 'notification/confirm', checkRole(), NotificationController.confirm)
-  .get('Notification-getAllItems', 'notification', checkRole(), NotificationController.getAll)
-  .get('Notification-getItem', 'notification/:id', checkRole(), NotificationController.get)
+  .put('Dashboard-getAll', 'notification/confirm', checkRole(), NotificationController.confirm)
+  .get('Dashboard-getAll', 'notification', checkRole(), NotificationController.getAll)
+  .get('Dashboard-getAll', 'notification/:id', checkRole(), NotificationController.get)
