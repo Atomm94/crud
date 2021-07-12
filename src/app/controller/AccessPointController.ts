@@ -392,46 +392,46 @@ export default class AccessPointController {
             const access_point: any = await AccessPoint.findOneOrFail({ where: where, relations: ['acus'] })
             const location = `${user.company_main}/${user.company}`
 
-            if (Object.values(accessPointMode).indexOf(req_data.mode) === -1) {
-                if (req_data.mode !== 'open_once') {
-                    ctx.status = 400
-                    ctx.body = {
-                        message: `Invalid AccessPoint Mode ${req_data.mode}`
-                    }
-                } else {
-                    if ('direction' in req_data) {
-                        if (Object.values(accessPointDirection).indexOf(req_data.direction) === -1) {
-                            ctx.body = {
-                                message: `Invalid AccessPoint Direction ${req_data.direction}`
-                            }
-                        } else {
-                            const single_pass_data: any = {
-                                id: access_point.id,
-                                direction: req_data.direction
-                            }
-                            CtpController.singlePass(location, access_point.acu.serial_number, single_pass_data, user, access_point.acus.session_id)
-                            ctx.body = {
-                                message: 'Open Once sended'
-                            }
-                        }
-                    } else {
-                        ctx.status = 400
-                        ctx.body = {
-                            message: `direction is required when AccessPoint Mode is ${req_data.mode}`
-                        }
-                    }
+            if (access_point.acus.status !== acuStatus.ACTIVE) {
+                ctx.status = 400
+                ctx.body = {
+                    message: `Cant update AccessPoint Mode when Acu status is not ${acuStatus.ACTIVE}`
                 }
             } else {
-                if (access_point.acu.status === acuStatus.ACTIVE) {
-                    const saved_data = AccessPoint.save(access_point)
-                    CtpController.setCtp(access_point.type, location, access_point.acu.serial_number, saved_data, user, access_point.acu.session_id, true)
-                    ctx.body = {
-                        message: 'update Pending'
+                if (Object.values(accessPointMode).indexOf(req_data.mode) === -1) {
+                    if (req_data.mode !== 'open_once') {
+                        ctx.status = 400
+                        ctx.body = {
+                            message: `Invalid AccessPoint Mode ${req_data.mode}`
+                        }
+                    } else {
+                        if ('direction' in req_data) {
+                            if (Object.values(accessPointDirection).indexOf(req_data.direction) === -1) {
+                                ctx.body = {
+                                    message: `Invalid AccessPoint Direction ${req_data.direction}`
+                                }
+                            } else {
+                                const single_pass_data: any = {
+                                    id: access_point.id,
+                                    direction: req_data.direction
+                                }
+                                CtpController.singlePass(location, access_point.acus.serial_number, single_pass_data, user, access_point.acus.session_id)
+                                ctx.body = {
+                                    message: 'Open Once sended'
+                                }
+                            }
+                        } else {
+                            ctx.status = 400
+                            ctx.body = {
+                                message: `direction is required when AccessPoint Mode is ${req_data.mode}`
+                            }
+                        }
                     }
                 } else {
-                    ctx.status = 400
+                    const saved_data = AccessPoint.save(access_point)
+                    CtpController.setCtp(access_point.type, location, access_point.acus.serial_number, saved_data, user, access_point.acus.session_id, true)
                     ctx.body = {
-                        message: `Cant update AccessPoint Mode when Acu status is not ${acuStatus.ACTIVE}`
+                        message: 'update Pending'
                     }
                 }
             }
