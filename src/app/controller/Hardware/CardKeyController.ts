@@ -104,6 +104,8 @@ export default class CardKeyController {
                 send_edit_data.cardholders = all_cardholders
 
                 const acus: any = await Acu.getAllItems({ where: { status: { '=': acuStatus.ACTIVE }, company: { '=': company } } })
+                console.log('acus7777777777', company, acus)
+
                 acus.forEach((acu: any) => {
                     new SendDeviceMessage(OperatorType.EDIT_KEY, location, acu.serial_number, send_edit_data, user, acu.session_id)
                 })
