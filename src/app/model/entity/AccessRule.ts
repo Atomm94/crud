@@ -128,11 +128,10 @@ export class AccessRule extends MainEntity {
                     .then(async () => {
                         minusResource(this.name, data.company)
 
-                        let rule_data: any = await this.createQueryBuilder('access_rule')
+                        const rule_data: any = await this.createQueryBuilder('access_rule')
                             .where('id = :id', { id: data.id })
                             .withDeleted()
-                            .getMany()
-                        rule_data = rule_data[0]
+                            .getOne()
                         rule_data.is_delete = (new Date()).getTime()
                         await this.save(rule_data)
 

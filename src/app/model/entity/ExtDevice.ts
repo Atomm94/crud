@@ -14,7 +14,7 @@ import { extBrdInterface } from '../../enums/extBrdInterface.enum'
 import { extBrdProtocol } from '../../enums/extBrdProtocol.enum'
 import { expBrdBaudRate } from '../../enums/expBrdBaudRate.enum'
 
-@Index('acu|interface|address|port', ['acu', 'interface', 'address', 'port'], { unique: true })
+@Index('acu|interface|address|port|is_delete', ['acu', 'interface', 'address', 'port', 'is_delete'], { unique: true })
 
 @Entity('ext_device')
 export class ExtDevice extends MainEntity {
@@ -42,6 +42,9 @@ export class ExtDevice extends MainEntity {
     @Column('enum', { name: 'protocol', nullable: false, enum: extBrdProtocol })
     protocol: number
 
+    @Column('varchar', { name: 'is_delete', default: 0 })
+    is_delete: string
+
     @DeleteDateColumn({ type: 'timestamp', name: 'delete_date' })
     public delete_date: Date
 
@@ -56,7 +59,7 @@ export class ExtDevice extends MainEntity {
     public static gettingAttributes: boolean = false
     resources: { input: Number; output: Number }
 
-    public static async addItem (data: ExtDevice):Promise<ExtDevice> {
+    public static async addItem (data: ExtDevice): Promise<ExtDevice> {
         const extDevice = new ExtDevice()
 
         extDevice.name = data.name
@@ -128,7 +131,14 @@ export class ExtDevice extends MainEntity {
         return new Promise(async (resolve, reject) => {
             this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
                 this.softRemove(data)
-                    .then(() => {
+                    .then(async () => {
+                        const ext_device_data: any = await this.createQueryBuilder('access_rule')
+                            .where('id = :id', { id: data.id })
+                            .withDeleted()
+                            .getOne()
+                        ext_device_data.is_delete = (new Date()).getTime()
+                        await this.save(ext_device_data)
+
                         resolve({ message: 'success' })
                     })
                     .catch((error: any) => {

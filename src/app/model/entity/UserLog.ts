@@ -26,7 +26,17 @@ export class UserLog extends BaseClass {
                     resolve(res)
                 })
                 .catch(rej => {
-                    reject(rej)
+                    let reject_data
+                    try {
+                        reject_data = JSON.parse(rej)
+                    } catch (error) {
+                    }
+
+                    if (reject_data && reject_data.code && reject_data.code === 60) {
+                        resolve([])
+                    } else {
+                        reject(rej)
+                    }
                 })
         })
     }

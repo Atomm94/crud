@@ -39,7 +39,17 @@ export class EventLog extends BaseClass {
                     resolve(res)
                 })
                 .catch(rej => {
-                    reject(rej)
+                    let reject_data
+                    try {
+                        reject_data = JSON.parse(rej)
+                    } catch (error) {
+                    }
+
+                    if (reject_data && reject_data.code && reject_data.code === 60) {
+                        resolve([])
+                    } else {
+                        reject(rej)
+                    }
                 })
         })
     }
@@ -49,14 +59,20 @@ export class EventLog extends BaseClass {
         return new Promise((resolve, reject) => {
             getRequest(`${getEventStatisticUrl}?company=${user.company ? user.company : 0}&limit=100`) // limit HARDCODE!!
                 .then((res: string) => {
-                    console.log(11111111111111)
-
                     resolve(res)
                 })
                 .catch(rej => {
-                    console.log(22222222222222222)
+                    let reject_data
+                    try {
+                        reject_data = JSON.parse(rej)
+                    } catch (error) {
+                    }
 
-                    reject(rej)
+                    if (reject_data && reject_data.code && reject_data.code === 60) {
+                        resolve([])
+                    } else {
+                        reject(rej)
+                    }
                 })
         })
     }

@@ -15,7 +15,7 @@ export default class CronJob {
 
     public static async startCrons () {
         this.deleteOldTokens('0 0 0 * * *')
-        this.devicePing('*/5 * * * * *')
+        // this.devicePing('*/5 * * * * *')
     }
 
     public static deleteOldTokens (interval: string): void {
