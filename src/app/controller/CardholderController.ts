@@ -2277,8 +2277,8 @@ export default class CardholderController {
      *                  - status
      *                properties:
      *                  ids:
-     *                      type: number
-     *                      example: 1
+     *                      type: Array<number>
+     *                      example: [1]
      *                  status:
      *                      type: string
      *                      enum: [active, inactive]
@@ -2384,6 +2384,66 @@ export default class CardholderController {
                 Promise.all(save)
                 ctx.body = { success: true }
             }
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     *  /cardholder/groupDelete:
+     *      delete:
+     *          tags:
+     *              - Cardholder
+     *          summary: delete cardholders.
+     *          consumes:
+     *              - application/json
+     *          parameters:
+     *            - in: header
+     *              name: Authorization
+     *              required: true
+     *              description: Authentication token
+     *              schema:
+     *                type: string
+     *            - in: body
+     *              name: cardholder
+     *              description: Change status of Cardholder.
+     *              schema:
+     *                type: object
+     *                required:
+     *                  - ids
+     *                  - status
+     *                properties:
+     *                  ids:
+     *                      type: Array<number>
+     *                      example: [1]
+     *          responses:
+     *              '201':
+     *                  description: Change status of Cardholder
+     *              '409':
+     *                  description: Conflict
+     *              '422':
+     *                  description: Wrong data
+     */
+    public static async groupDelete (ctx: DefaultContext) {
+        try {
+            const req_data = ctx.request.body
+            const auth_user = ctx.user
+            const company = auth_user.company ? auth_user.company : null
+
+            const cardholders = await Cardholder.getAllItems({ where: { id: { in: req_data.ids }, company: { '=': company } } })
+            const save = []
+            for (const cardholder of cardholders) {
+                if (cardholder.status !== req_data.status) {
+                    cardholder.status = req_data.status
+                    save.push(Cardholder.destroyItem(cardholder))
+                }
+            }
+            Promise.all(save)
+            ctx.body = { success: true }
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
