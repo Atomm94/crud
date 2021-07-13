@@ -280,7 +280,7 @@ export default class MqttController {
  *                      example: 0
  *                  topic:
  *                      type: string
- *                      example: /5/5/1073493824/event
+ *                      example: /5/5/registration/1073493824/event
  *                  info:
  *                      type: object
  *                      required:
@@ -311,6 +311,7 @@ export default class MqttController {
 
     public static async post (ctx: DefaultContext) {
         try {
+            // "48/29/registration/1652472212/event",
                 const data = ctx.request.body
                 MQTTBroker.publishMessage(data.topic, JSON.stringify(data))
                 ctx.body = { message: 'succsess' }

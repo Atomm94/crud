@@ -898,10 +898,15 @@ export default class Parse {
         }
     }
 
-    public static deviceSetAccessModeAck (message: IMqttCrudMessaging): void {
+    public static async deviceSetAccessModeAck (message: IMqttCrudMessaging) {
         // console.log('deviceSetAccessModeAck', message)
         if (message.result.errorNo === 0) {
             // console.log('deviceSetAccessModeAck complete')
+            // const company = message.company
+            const access_point = await AccessPoint.findOneOrFail({ where: { id: message.send_data.data.id /*, company: company */ } })
+            if (message.send_data.data.mode) access_point.mode = message.send_data.data.mode
+            if (message.send_data.data.exit_mode) access_point.exit_mode = message.send_data.data.exit_mode
+            AccessPoint.save(access_point)
         } else {
         }
     }

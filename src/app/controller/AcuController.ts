@@ -15,6 +15,7 @@ import ExtensionDeviceController from './Hardware/ExtensionDeviceController'
 import CtpController from './Hardware/CtpController'
 import { readerTypes } from '../enums/readerTypes'
 import { logUserEvents } from '../enums/logUserEvents.enum'
+import { accessPointMode } from '../enums/accessPointMode.enum'
 
 export default class AcuController {
     /**
@@ -438,6 +439,7 @@ export default class AcuController {
                                 access_point.acu = acu.id
                                 access_point.company = company
                                 if (access_point.resource) access_point.resource = JSON.stringify(access_point.resource)
+                                access_point.mode = accessPointMode.CREDENTIAL
 
                                 access_point = await AccessPoint.addItem(access_point)
                                 new_access_points.push(access_point)

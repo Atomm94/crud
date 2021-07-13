@@ -44,6 +44,9 @@ export class AccessPoint extends MainEntity {
     @Column('enum', { name: 'mode', nullable: false, enum: accessPointMode, default: accessPointMode.NOT_AVAILABLE })
     mode: accessPointMode
 
+    @Column('enum', { name: 'exit_mode', nullable: false, enum: accessPointMode, default: accessPointMode.NOT_AVAILABLE })
+    exit_mode: accessPointMode
+
     @Column('boolean', { name: 'apb_enable_local', default: false })
     apb_enable_local: boolean
 
@@ -113,6 +116,7 @@ export class AccessPoint extends MainEntity {
         if ('status' in data) accessPoint.status = data.status
         if ('actual_passage' in data) accessPoint.actual_passage = data.actual_passage
         if ('mode' in data) accessPoint.mode = data.mode
+        if ('exit_mode' in data) accessPoint.exit_mode = data.exit_mode
         if ('apb_enable_local' in data) accessPoint.apb_enable_local = data.apb_enable_local
         if ('apb_enable_timer' in data) accessPoint.apb_enable_timer = data.apb_enable_timer
         if ('access_point_group' in data) accessPoint.access_point_group = data.access_point_group

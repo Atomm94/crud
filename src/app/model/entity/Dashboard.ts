@@ -52,7 +52,7 @@ export class Dashboard extends BaseClass {
     }
 
     public static async getAllAccessPoints (data: any, user: any) {
-        let access_points: any = await AccessPoint.createQueryBuilder('access_point')
+        let access_points: any = AccessPoint.createQueryBuilder('access_point')
             .leftJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
             .leftJoinAndSelect('access_point.access_point_groups', 'access_point_group', 'access_point_group.delete_date is null')
             .leftJoinAndSelect('access_point.access_point_zones', 'access_point_zone', 'access_point_zone.delete_date is null')
@@ -64,10 +64,16 @@ export class Dashboard extends BaseClass {
             access_points = access_points
                 .take(take)
                 .skip(skip)
-        }
-        access_points = access_points.getMany()
+            const [result, total] = await access_points.getManyAndCount()
 
-        return access_points
+            return {
+                data: result,
+                count: total
+            }
+        } else {
+            access_points = await access_points.getMany()
+            return access_points
+        }
     }
 
     public static async getCardholders (user: any) {
