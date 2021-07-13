@@ -112,9 +112,13 @@ export abstract class MainEntity extends BaseEntity {
         if (data.where) {
             if (typeof data.where === 'string') data.where = JSON.parse(data.where)
             Object.keys(data.where).forEach(column => {
-                Object.keys(data.where[column]).forEach((el: any) => {
-                    where[column] = this.changeAdvancedOptions(el, data.where[column][el])
-                })
+                if (typeof data.where[column] === 'object') {
+                    Object.keys(data.where[column]).forEach((el: any) => {
+                        where[column] = this.changeAdvancedOptions(el, data.where[column][el])
+                    })
+                } else {
+                    where[column] = this.changeAdvancedOptions('=', data.where[column])
+                }
             })
         }
 
@@ -122,9 +126,13 @@ export abstract class MainEntity extends BaseEntity {
             const orWhere: any = []
             data.orWhere.forEach((item: any) => {
                 Object.keys(item).forEach(column => {
-                    Object.keys(item[column]).forEach((el: any) => {
-                        item[column] = this.changeAdvancedOptions(el, item[column][el])
-                    })
+                    if (typeof item[column] === 'object') {
+                        Object.keys(item[column]).forEach((el: any) => {
+                            item[column] = this.changeAdvancedOptions(el, item[column][el])
+                        })
+                    } else {
+                        item[column] = this.changeAdvancedOptions('=', item[column])
+                    }
                 })
 
                 item = {

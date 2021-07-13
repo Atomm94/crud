@@ -27,6 +27,7 @@ export default router
     .delete('Cardholder-deleteImage', 'cardholder/image', checkRole(), CardholderController.cardholderImageDelete)
     .put('Cardholder-updateItem', 'cardholder/update/bulk', checkRole(), CardholderController.updateMultipleCardholders)
     .put('Cardholder-updateItem', 'cardholder/deActivate', checkRole(), CardholderController.deActivate)
+    .put('Cardholder-updateItem', 'cardholder/moveToGroup', checkRole(), CardholderController.moveToGroup)
 
     .post('Cardholder-addItem', 'cardholder/inviteCardholder', checkRole(), CardholderController.inviteCardholder)
     .get('Cardholder-getAllItems', 'cardholder/guests', checkRole(), CardholderController.getAllGuests)

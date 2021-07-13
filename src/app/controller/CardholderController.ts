@@ -17,6 +17,7 @@ import { Timeframe } from '../model/entity/Timeframe'
 import SdlController from './Hardware/SdlController'
 import CardKeyController from './Hardware/CardKeyController'
 import { logUserEvents } from '../enums/logUserEvents.enum'
+import { cardholderStatus } from '../enums/cardholderStatus.enum'
 
 // import SendDeviceMessage from '../mqtt/SendDeviceMessage'
 // import { OperatorType } from '../mqtt/Operators'
@@ -2272,14 +2273,15 @@ export default class CardholderController {
      *              schema:
      *                type: object
      *                required:
-     *                  - id
+     *                  - ids
      *                  - status
      *                properties:
-     *                  id:
+     *                  ids:
      *                      type: number
      *                      example: 1
      *                  status:
      *                      type: string
+     *                      enum: [active, inactive]
      *                      example: active
      *          responses:
      *              '201':
@@ -2289,29 +2291,98 @@ export default class CardholderController {
      *              '422':
      *                  description: Wrong data
      */
-     public static async deActivate (ctx: DefaultContext) {
+    public static async deActivate (ctx: DefaultContext) {
         try {
             const req_data = ctx.request.body
             const auth_user = ctx.user
             const company = auth_user.company ? auth_user.company : null
-            const where = { id: req_data.id, company: company }
-            const check_by_company = await Cardholder.findOne(where)
+
+            if (req_data.status === cardholderStatus.INACTIVE || req_data.status === cardholderStatus.ACTIVE) {
+                const cardholders = await Cardholder.getAllItems({ where: { id: { in: req_data.ids }, company: { '=': company } } })
+                const save = []
+                for (const cardholder of cardholders) {
+                    if (cardholder.status !== req_data.status) {
+                        cardholder.status = req_data.status
+                        save.push(Cardholder.save(cardholder))
+                    }
+                }
+                Promise.all(save)
+                ctx.body = { success: true }
+            } else {
+                ctx.body = {
+                    message: `Invalid status ${req_data.status}`
+                }
+            }
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     *  /cardholder/moveToGroup:
+     *      put:
+     *          tags:
+     *              - Cardholder
+     *          summary: cardholders move to group.
+     *          consumes:
+     *              - application/json
+     *          parameters:
+     *            - in: header
+     *              name: Authorization
+     *              required: true
+     *              description: Authentication token
+     *              schema:
+     *                type: string
+     *            - in: body
+     *              name: cardholder
+     *              description: Change status of Cardholder.
+     *              schema:
+     *                type: object
+     *                required:
+     *                  - id
+     *                  - status
+     *                properties:
+     *                  cardholder_group:
+     *                      type: number
+     *                      example: 1
+     *                  ids:
+     *                      type: Array<number>
+     *                      example: [1]
+     *          responses:
+     *              '201':
+     *                  description: Change status of Cardholder
+     *              '409':
+     *                  description: Conflict
+     *              '422':
+     *                  description: Wrong data
+     */
+    public static async moveToGroup (ctx: DefaultContext) {
+        try {
+            const req_data = ctx.request.body
+            const auth_user = ctx.user
+            const company = auth_user.company ? auth_user.company : null
+            const where = { id: req_data.cardholder_group, company: company }
+            const check_by_company = await CardholderGroup.findOne(where)
 
             if (!check_by_company) {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
             } else {
-                if (req_data.status === 'inactive' || req_data.status === 'active') {
-                    check_by_company.status = req_data.status
-                    await Cardholder.save(check_by_company)
-                    ctx.body = {
-                        success: true
-                    }
-                } else {
-                    ctx.body = {
-                        message: `Invalid status ${req_data.status}`
+                const cardholders = await Cardholder.getAllItems({ where: { id: { in: req_data.ids }, company: { '=': company } } })
+
+                const save = []
+                for (const cardholder of cardholders) {
+                    if (cardholder.cardholder_group !== req_data.cardholder_group) {
+                        cardholder.cardholder_group = req_data.cardholder_group
+                        save.push(Cardholder.updateItem(cardholder, auth_user))
                     }
                 }
+                Promise.all(save)
+                ctx.body = { success: true }
             }
         } catch (error) {
             ctx.status = error.status || 400
