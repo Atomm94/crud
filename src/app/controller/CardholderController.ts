@@ -2248,4 +2248,75 @@ export default class CardholderController {
         }
         return ctx.body
     }
+
+    /**
+     *
+     * @swagger
+     *  /cardholder/deActivate:
+     *      put:
+     *          tags:
+     *              - Cardholder
+     *          summary: Activate or deactivate cardholder.
+     *          consumes:
+     *              - application/json
+     *          parameters:
+     *            - in: header
+     *              name: Authorization
+     *              required: true
+     *              description: Authentication token
+     *              schema:
+     *                type: string
+     *            - in: body
+     *              name: cardholder
+     *              description: Change status of Cardholder.
+     *              schema:
+     *                type: object
+     *                required:
+     *                  - id
+     *                  - status
+     *                properties:
+     *                  id:
+     *                      type: number
+     *                      example: 1
+     *                  status:
+     *                      type: string
+     *                      example: active
+     *          responses:
+     *              '201':
+     *                  description: Change status of Cardholder
+     *              '409':
+     *                  description: Conflict
+     *              '422':
+     *                  description: Wrong data
+     */
+     public static async deActivate (ctx: DefaultContext) {
+        try {
+            const req_data = ctx.request.body
+            const auth_user = ctx.user
+            const company = auth_user.company ? auth_user.company : null
+            const where = { id: req_data.id, company: company }
+            const check_by_company = await Cardholder.findOne(where)
+
+            if (!check_by_company) {
+                ctx.status = 400
+                ctx.body = { message: 'something went wrong' }
+            } else {
+                if (req_data.status === 'inactive' || req_data.status === 'active') {
+                    check_by_company.status = req_data.status
+                    await Cardholder.save(check_by_company)
+                    ctx.body = {
+                        success: true
+                    }
+                } else {
+                    ctx.body = {
+                        message: `Invalid status ${req_data.status}`
+                    }
+                }
+            }
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
 }
