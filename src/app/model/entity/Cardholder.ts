@@ -334,7 +334,7 @@ export class Cardholder extends MainEntity {
     public static async destroyItem (data: any) {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
-            this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
+            this.findOneOrFail({ where: { id: data.id, company: data.company }, relations: ['credentials'] }).then((data: any) => {
                 this.softRemove(data)
                     .then(() => {
                         minusResource(this.name, data.company)
@@ -346,6 +346,11 @@ export class Cardholder extends MainEntity {
                         }
                         if (data.car_info) {
                             CarInfo.destroyItem(data.car_info)
+                        }
+                        for (const credential of data.credentials) {
+                            if (!credential.delete_date) {
+                                Credential.destroyItem(credential)
+                            }
                         }
                         resolve({ message: 'success' })
                     })

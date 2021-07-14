@@ -18,6 +18,8 @@ import SdlController from './Hardware/SdlController'
 import CardKeyController from './Hardware/CardKeyController'
 import { logUserEvents } from '../enums/logUserEvents.enum'
 import { cardholderStatus } from '../enums/cardholderStatus.enum'
+import { typeAntipassBack } from '../enums/typeAntipassBack.enum'
+import { credentialStatus } from '../enums/credentialStatus.enum'
 
 // import SendDeviceMessage from '../mqtt/SendDeviceMessage'
 // import { OperatorType } from '../mqtt/Operators'
@@ -2297,14 +2299,32 @@ export default class CardholderController {
             const auth_user = ctx.user
             const company = auth_user.company ? auth_user.company : null
 
+            const location = `${auth_user.company_main}/${auth_user.company}`
             if (req_data.status === cardholderStatus.INACTIVE || req_data.status === cardholderStatus.ACTIVE) {
-                const cardholders = await Cardholder.getAllItems({ where: { id: { in: req_data.ids }, company: { '=': company } } })
-                const save = []
+                const cardholders = await Cardholder.getAllItems({ where: { id: { in: req_data.ids }, company: { '=': company } }, relations: ['credentials'] })
+                const save: any = []
+                const access_points = await AccessPoint.createQueryBuilder('access_point')
+                    .innerJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
+                    .where(`acu.status = '${acuStatus.ACTIVE}'`)
+                    .andWhere(`acu.company = ${ctx.user.company}`)
+                    .getMany()
+
                 for (const cardholder of cardholders) {
                     if (cardholder.status !== req_data.status) {
                         cardholder.status = req_data.status
                         save.push(Cardholder.save(cardholder))
                     }
+
+                    for (const credential of cardholder.credentials) {
+                        if (req_data.status === cardholderStatus.ACTIVE) {
+                            credential.status = credentialStatus.ACTIVE
+                        } else {
+                            credential.status = credentialStatus.LOST
+                        }
+                        save.push(Credential.save(credential))
+                    }
+
+                    CardKeyController.editCardKey(location, company, auth_user.id, null, access_points, [cardholder])
                 }
                 Promise.all(save)
                 ctx.body = { success: true }
@@ -2314,6 +2334,8 @@ export default class CardholderController {
                 }
             }
         } catch (error) {
+            console.log(error)
+
             ctx.status = error.status || 400
             ctx.body = error
         }
@@ -2440,6 +2462,69 @@ export default class CardholderController {
                 if (cardholder.status !== req_data.status) {
                     cardholder.status = req_data.status
                     save.push(Cardholder.destroyItem(cardholder))
+                }
+            }
+            Promise.all(save)
+            ctx.body = { success: true }
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     *  /cardholder/resetAntipassBack:
+     *      put:
+     *          tags:
+     *              - Cardholder
+     *          summary: Activate or deactivate cardholder.
+     *          consumes:
+     *              - application/json
+     *          parameters:
+     *            - in: header
+     *              name: Authorization
+     *              required: true
+     *              description: Authentication token
+     *              schema:
+     *                type: string
+     *            - in: body
+     *              name: cardholder
+     *              description: Change status of Cardholder.
+     *              schema:
+     *                type: object
+     *                required:
+     *                  - ids
+     *                  - reset
+     *                properties:
+     *                  ids:
+     *                      type: Array<number>
+     *                      example: [1]
+     *                  reset:
+     *                      type: boolean
+     *                      example: true
+     *          responses:
+     *              '201':
+     *                  description: Change status of Cardholder
+     *              '409':
+     *                  description: Conflict
+     *              '422':
+     *                  description: Wrong data
+     */
+    public static async resetAntipassBack (ctx: DefaultContext) {
+        try {
+            const req_data = ctx.request.body
+            const auth_user = ctx.user
+            const company = auth_user.company ? auth_user.company : null
+
+            const cardholders: any = await Cardholder.getAllItems({ where: { id: { in: req_data.ids }, company: { '=': company } } })
+            const save = []
+            for (const cardholder of cardholders) {
+                if (req_data.reset) {
+                    cardholder.antipass_backs.type = typeAntipassBack.DISABLE
+                    save.push(Cardholder.save(cardholder))
                 }
             }
             Promise.all(save)
