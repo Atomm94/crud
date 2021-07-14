@@ -18,7 +18,7 @@ import SdlController from './Hardware/SdlController'
 import CardKeyController from './Hardware/CardKeyController'
 import { logUserEvents } from '../enums/logUserEvents.enum'
 import { cardholderStatus } from '../enums/cardholderStatus.enum'
-import { typeAntipassBack } from '../enums/typeAntipassBack.enum'
+// import { typeAntipassBack } from '../enums/typeAntipassBack.enum'
 import { credentialStatus } from '../enums/credentialStatus.enum'
 
 // import SendDeviceMessage from '../mqtt/SendDeviceMessage'
@@ -2473,66 +2473,66 @@ export default class CardholderController {
         return ctx.body
     }
 
-    /**
-     *
-     * @swagger
-     *  /cardholder/resetAntipassBack:
-     *      put:
-     *          tags:
-     *              - Cardholder
-     *          summary: Activate or deactivate cardholder.
-     *          consumes:
-     *              - application/json
-     *          parameters:
-     *            - in: header
-     *              name: Authorization
-     *              required: true
-     *              description: Authentication token
-     *              schema:
-     *                type: string
-     *            - in: body
-     *              name: cardholder
-     *              description: Change status of Cardholder.
-     *              schema:
-     *                type: object
-     *                required:
-     *                  - ids
-     *                  - reset
-     *                properties:
-     *                  ids:
-     *                      type: Array<number>
-     *                      example: [1]
-     *                  reset:
-     *                      type: boolean
-     *                      example: true
-     *          responses:
-     *              '201':
-     *                  description: Change status of Cardholder
-     *              '409':
-     *                  description: Conflict
-     *              '422':
-     *                  description: Wrong data
-     */
-    public static async resetAntipassBack (ctx: DefaultContext) {
-        try {
-            const req_data = ctx.request.body
-            const auth_user = ctx.user
-            const company = auth_user.company ? auth_user.company : null
+    // /**
+    //  *
+    //  * @swagger
+    //  *  /cardholder/resetAntipassBack:
+    //  *      put:
+    //  *          tags:
+    //  *              - Cardholder
+    //  *          summary: Activate or deactivate cardholder.
+    //  *          consumes:
+    //  *              - application/json
+    //  *          parameters:
+    //  *            - in: header
+    //  *              name: Authorization
+    //  *              required: true
+    //  *              description: Authentication token
+    //  *              schema:
+    //  *                type: string
+    //  *            - in: body
+    //  *              name: cardholder
+    //  *              description: Change status of Cardholder.
+    //  *              schema:
+    //  *                type: object
+    //  *                required:
+    //  *                  - ids
+    //  *                  - reset
+    //  *                properties:
+    //  *                  ids:
+    //  *                      type: Array<number>
+    //  *                      example: [1]
+    //  *                  reset:
+    //  *                      type: boolean
+    //  *                      example: true
+    //  *          responses:
+    //  *              '201':
+    //  *                  description: Change status of Cardholder
+    //  *              '409':
+    //  *                  description: Conflict
+    //  *              '422':
+    //  *                  description: Wrong data
+    //  */
+    // public static async resetAntipassBack (ctx: DefaultContext) {
+    //     try {
+    //         const req_data = ctx.request.body
+    //         const auth_user = ctx.user
+    //         const company = auth_user.company ? auth_user.company : null
 
-            const cardholders: any = await Cardholder.getAllItems({ where: { id: { in: req_data.ids }, company: { '=': company } } })
-            const save = []
-            for (const cardholder of cardholders) {
-                if (req_data.reset) {
-                    cardholder.antipass_backs.type = typeAntipassBack.DISABLE
-                    save.push(Cardholder.save(cardholder))
-                }
-            }
-            Promise.all(save)
-            ctx.body = { success: true }
-        } catch (error) {
-            ctx.status = error.status || 400
-            ctx.body = error
-        }
-        return ctx.body
-    }
+    //         const cardholders: any = await Cardholder.getAllItems({ where: { id: { in: req_data.ids }, company: { '=': company } } })
+    //         const save = []
+    //         for (const cardholder of cardholders) {
+    //             if (req_data.reset) {
+    //                 cardholder.antipass_backs.type = typeAntipassBack.DISABLE
+    //                 save.push(Cardholder.save(cardholder))
+    //             }
+    //         }
+    //         Promise.all(save)
+    //         ctx.body = { success: true }
+    //     } catch (error) {
+    //         ctx.status = error.status || 400
+    //         ctx.body = error
+    //     }
+    //     return ctx.body
+    // }
 }

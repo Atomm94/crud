@@ -1,11 +1,12 @@
 
 import { acuStatus } from '../../enums/acuStatus.enum'
 import { AccessPoint, AccessRule, Acu, Cardholder } from '../../model/entity'
+import { AntipassBack } from '../../model/entity/AntipassBack'
 import { OperatorType } from '../../mqtt/Operators'
 import SendDeviceMessage from '../../mqtt/SendDeviceMessage'
 
 export default class CardKeyController {
-    public static async setAddCardKey (operator: OperatorType.SET_CARD_KEYS | OperatorType.ADD_CARD_KEY, location: string, company: number, user: any, access_points: Array<{ id: number } | AccessPoint> | null, cardholders: Cardholder[] | null = null, acus: Acu[] | null = null) {
+    public static async setAddCardKey (operator: OperatorType.SET_CARD_KEYS | OperatorType.ADD_CARD_KEY, location: string, company: number, user: any, access_points: Array<{ id: number } | AccessPoint> | null, cardholders: any = null, acus: Acu[] | null = null) {
         let all_access_points: any
         if (access_points) {
             all_access_points = access_points
@@ -21,6 +22,11 @@ export default class CardKeyController {
         if (all_access_points.length) {
             let all_cardholders: any
             if (cardholders) {
+                for (const cardholder of cardholders) {
+                    if (!cardholder.antipass_backs) {
+                        cardholder.antipass_backs = await AntipassBack.findOne({ where: { id: cardholder.antipass_back } })
+                    }
+                }
                 all_cardholders = cardholders
             } else {
                 // all_cardholders = await Cardholder.getAllItems({
@@ -40,6 +46,7 @@ export default class CardKeyController {
                     .leftJoinAndSelect('cardholder.access_rights', 'access_right')
                     .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
                     .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null')
+                    .leftJoinAndSelect('cardholder.antipass_backs', 'antipass_back')
                     .where(`cardholder.company = '${company}'`)
                     .getMany()
             }

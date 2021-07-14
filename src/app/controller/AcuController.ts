@@ -127,6 +127,10 @@ export default class AcuController {
      *                                              type: boolean
      *                                          reverse_byte_order:
      *                                              type: boolean
+     *                                          leaving_zone:
+     *                                              type: number
+     *                                          came_to_zone:
+     *                                              type: number
      *          responses:
      *              '201':
      *                  description: A acu object
@@ -314,6 +318,10 @@ export default class AcuController {
      *                                              type: boolean
      *                                          reverse_byte_order:
      *                                              type: boolean
+     *                                          leaving_zone:
+     *                                              type: number
+     *                                          came_to_zone:
+     *                                              type: number
      *                  network:
      *                      type: object
      *                      properties:

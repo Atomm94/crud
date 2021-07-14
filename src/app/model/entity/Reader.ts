@@ -14,6 +14,7 @@ import { readerModes } from '../../enums/readerModes'
 import { readerDirections } from '../../enums/readerDirection'
 
 import { minusResource } from '../../functions/minusResource'
+import { AccessPointZone } from './AccessPointZone'
 @Entity('reader')
 export class Reader extends MainEntity {
     @Column('int', { name: 'access_point', nullable: false })
@@ -49,6 +50,12 @@ export class Reader extends MainEntity {
     @Column('boolean', { name: 'reverse_byte_order', default: false })
     reverse_byte_order: boolean
 
+    @Column('int', { name: 'leaving_zone', nullable: true })
+    leaving_zone: number | null
+
+    @Column('int', { name: 'came_to_zone', nullable: true })
+    came_to_zone: number | null
+
     @DeleteDateColumn({ type: 'timestamp', name: 'delete_date' })
     public deleteDate: Date
 
@@ -58,6 +65,14 @@ export class Reader extends MainEntity {
     @ManyToOne(type => AccessPoint, accessPoint => accessPoint.readers)
     @JoinColumn({ name: 'access_point' })
     access_points: AccessPoint;
+
+    @ManyToOne(type => AccessPointZone, leavingZone => leavingZone.leaving_readers)
+    @JoinColumn({ name: 'leaving_zone' })
+    leaving_zones: AccessPointZone;
+
+    @ManyToOne(type => AccessPointZone, cameToZone => cameToZone.caming_readers)
+    @JoinColumn({ name: 'came_to_zone' })
+    came_to_zones: AccessPointZone;
 
     public static gettingActions: boolean = false
     public static gettingAttributes: boolean = false
@@ -76,7 +91,8 @@ export class Reader extends MainEntity {
         if ('reverse_byte_order' in data) reader.reverse_byte_order = data.reverse_byte_order
         if ('osdp_data' in data) reader.osdp_data = (typeof data.osdp_data === 'string') ? data.osdp_data : JSON.stringify(data.osdp_data)
         if ('osdp_address' in data) reader.osdp_address = data.osdp_address
-
+        if ('leaving_zone' in data) reader.leaving_zone = data.leaving_zone
+        if ('came_to_zone' in data) reader.came_to_zone = data.came_to_zone
         reader.company = data.company
 
         return new Promise((resolve, reject) => {
@@ -103,6 +119,8 @@ export class Reader extends MainEntity {
         if ('reverse_byte_order' in data) reader.reverse_byte_order = data.reverse_byte_order
         if ('osdp_data' in data) reader.osdp_data = (typeof reader.osdp_data === 'string') ? data.osdp_data : JSON.stringify(data.osdp_data)
         if ('osdp_address' in data) reader.osdp_address = data.osdp_address
+        if ('leaving_zone' in data) reader.leaving_zone = data.leaving_zone
+        if ('came_to_zone' in data) reader.came_to_zone = data.came_to_zone
 
         if (!reader) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {

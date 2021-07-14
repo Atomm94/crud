@@ -6,6 +6,7 @@ import {
 } from 'typeorm'
 
 import { MainEntity, AccessPoint } from './index'
+import { Reader } from './Reader'
 
 @Entity('access_point_zone')
 export class AccessPointZone extends MainEntity {
@@ -35,6 +36,12 @@ export class AccessPointZone extends MainEntity {
 
     @OneToMany(type => AccessPoint, access_point => access_point.access_point_zones)
     access_points: AccessPoint[];
+
+    @OneToMany(type => Reader, reader => reader.leaving_zones)
+    leaving_readers: Reader[];
+
+    @OneToMany(type => Reader, reader => reader.came_to_zones)
+    caming_readers: Reader[];
 
     public static async addItem (data: AccessPointZone) {
         const accessPointZone = new AccessPointZone()
