@@ -33,7 +33,7 @@ export class Dashboard extends BaseClass {
         promises.push(AccessPoint.createQueryBuilder('access_point')
             .leftJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
             .where(`access_point.company = ${user.company}`)
-            .where(`acu.status = '${acuStatus.ACTIVE}'`)
+            .andWhere(`acu.status = '${acuStatus.ACTIVE}'`)
             .getMany())
 
         promises.push(EventLog.getEventStatistic(user))
