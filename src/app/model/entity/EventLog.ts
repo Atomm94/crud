@@ -11,6 +11,7 @@ import { AccessPoint } from './AccessPoint'
 import SendSocketMessage from '../../mqtt/SendSocketMessage'
 import { cardholderPresense } from '../../enums/cardholderPresense.enum'
 import { Cardholder } from './Cardholder'
+import { Package } from './Package'
 
 const clickhouse_server: string = process.env.CLICKHOUSE_SERVER ? process.env.CLICKHOUSE_SERVER : 'http://localhost:4143'
 const getEventLogsUrl = `${clickhouse_server}/eventLog`
@@ -20,8 +21,19 @@ export class EventLog extends BaseClass {
     public static resource: boolean = true
     public static serviceResource: boolean = true
 
-    public static get (user: any, data?: any) {
-        let url = `${getEventLogsUrl}?company=${user.company ? user.company : 0}&limit=100`// limit HARDCODE!!
+    public static async get (user: any, data?: any) {
+        let url = `${getEventLogsUrl}?company=${user.company ? user.company : 0}`
+
+        if (user.companyData && user.companyData.package) {
+            const package_data = await Package.findOneOrFail({ where: { id: user.companyData.package } })
+            if (package_data.extra_settings) {
+                const extra_settings: any = JSON.parse(package_data.extra_settings)
+                if (extra_settings.resources[this.name]) {
+                    url += `&resource_limit=${extra_settings.resources[this.name]}`
+                }
+            }
+        }
+
         if (data) {
             if (data.page) url += `&page=${data.page}`
             if (data.page_items_count) url += `&page_items_count=${data.page_items_count}`
@@ -56,8 +68,20 @@ export class EventLog extends BaseClass {
 
     public static getEventStatistic (user: any) {
         // eslint-disable-next-line no-async-promise-executor
-        return new Promise((resolve, reject) => {
-            getRequest(`${getEventStatisticUrl}?company=${user.company ? user.company : 0}&limit=100`) // limit HARDCODE!!
+        return new Promise(async (resolve, reject) => {
+            let url = `${getEventStatisticUrl}?company=${user.company ? user.company : 0}`
+
+            if (user.companyData && user.companyData.package) {
+                const package_data = await Package.findOneOrFail({ where: { id: user.companyData.package } })
+                if (package_data.extra_settings) {
+                    const extra_settings: any = JSON.parse(package_data.extra_settings)
+                    if (extra_settings.resources[this.name]) {
+                        url += `&resource_limit=${extra_settings.resources[this.name]}`
+                    }
+                }
+            }
+
+            getRequest(url)
                 .then((res: string) => {
                     resolve(res)
                 })

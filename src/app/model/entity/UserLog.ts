@@ -1,5 +1,6 @@
 import { BaseClass } from './BaseClass'
 import { getRequest } from '../../services/requestUtil'
+import { Package } from './Package'
 const clickhouse_server: string = process.env.CLICKHOUSE_SERVER ? process.env.CLICKHOUSE_SERVER : 'http://localhost:4143'
 const getUserLogsUrl = `${clickhouse_server}/userLog`
 
@@ -9,8 +10,19 @@ export class UserLog extends BaseClass {
 
     public static get (user: any, data?: any) {
         // eslint-disable-next-line no-async-promise-executor
-        return new Promise((resolve, reject) => {
-            let url = `${getUserLogsUrl}?company=${user.company ? user.company : 0}&limit=100`// limit HARDCODE!!
+        return new Promise(async (resolve, reject) => {
+            let url = `${getUserLogsUrl}?company=${user.company ? user.company : 0}`
+
+            if (user.companyData && user.companyData.package) {
+                const package_data = await Package.findOneOrFail({ where: { id: user.companyData.package } })
+                if (package_data.extra_settings) {
+                    const extra_settings: any = JSON.parse(package_data.extra_settings)
+                    if (extra_settings.resources[this.name]) {
+                        url += `&resource_limit=${extra_settings.resources[this.name]}`
+                    }
+                }
+            }
+
             if (data) {
                 if (data.page) url += `&page=${data.page}`
                 if (data.page_items_count) url += `&page_items_count=${data.page_items_count}`
@@ -21,7 +33,7 @@ export class UserLog extends BaseClass {
                 if (data.cardholders) url += `&cardholders=${data.cardholders}`
                 if (data.events) url += `&events=${data.events}`
             }
-            getRequest(url) // limit HARDCODE!!
+            getRequest(url)
                 .then((res: string) => {
                     resolve(res)
                 })

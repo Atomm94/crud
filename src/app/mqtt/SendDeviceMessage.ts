@@ -17,7 +17,7 @@ export default class SendDeviceMessage {
         } else {
             this.operator = operator
             this.topic = `${location}/registration/${device_id}/Operate/`
-            // this.topic = `5/5/registration/${device_id}/Operate/`
+            this.topic = `5/5/registration/${device_id}/Operate/`
             this.message_id = message_id
             this.session_id = session_id || '0'
             this.update = update
