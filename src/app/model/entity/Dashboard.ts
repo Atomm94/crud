@@ -47,7 +47,6 @@ export class Dashboard extends BaseClass {
             events_statistic: events_data.events_statistic,
             logs: events_data.logs
         }
-        console.log(send_data.access_points)
         return send_data
     }
 

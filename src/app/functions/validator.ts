@@ -186,7 +186,9 @@ export function checkAccessPointsValidation (data: any, acu_model: string, updat
                     return (`device model ${acu_model} outputs_count ${outputs_count} more than limit!`)
                 }
             }
-
+            if (access_point.readers.length > 4) {
+                return (`AccessPoint ${access_point.id} cant have more than 4 readers !`)
+            }
             for (const reader of access_point.readers) {
                 if (reader.type && !acu_models.controllers[acu_model].readers[readerTypes[reader.type]]) {
                     return (`device model ${acu_model} cant have reader ${readerTypes[reader.type]}!`)
