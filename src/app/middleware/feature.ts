@@ -32,7 +32,9 @@ class Feature {
 
     public static Dashboard: IFeatureModel = {
         OnlineMonitorDashboard: {
-            check: OnlineMonitorDashboardCheck
+            check: OnlineMonitorDashboardCheck,
+            model: 'Dashboard',
+            module: true
         }
     }
 

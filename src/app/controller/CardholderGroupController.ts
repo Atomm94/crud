@@ -160,6 +160,8 @@ export default class CardholderGroupController {
 
             ctx.body = await CardholderGroup.addItem(req_data as CardholderGroup)
         } catch (error) {
+            console.log('error', error)
+
             ctx.status = error.status || 400
             ctx.body = error
         }
