@@ -41,7 +41,7 @@ export class CardholderGroup extends MainEntity {
     @Column('boolean', { name: 'antipass_back_inherited', default: false })
     antipass_back_inherited: boolean
 
-    @Column('int', { name: 'time_attendance', nullable: false })
+    @Column('int', { name: 'time_attendance', nullable: true })
     time_attendance: number
 
     @Column('boolean', { name: 'time_attendance_inherited', default: false })
@@ -90,7 +90,7 @@ export class CardholderGroup extends MainEntity {
         if ('limitation_inherited' in data) cardholderGroup.limitation_inherited = data.limitation_inherited
         cardholderGroup.antipass_back = data.antipass_back
         if ('antipass_back_inherited' in data) cardholderGroup.antipass_back_inherited = data.antipass_back_inherited
-        cardholderGroup.time_attendance = data.time_attendance
+        if ('time_attendance' in data) cardholderGroup.time_attendance = data.time_attendance
         if ('time_attendance_inherited' in data) cardholderGroup.time_attendance_inherited = data.time_attendance_inherited
         cardholderGroup.access_right = data.access_right
         if ('access_right_inherited' in data) cardholderGroup.access_right_inherited = data.access_right_inherited
