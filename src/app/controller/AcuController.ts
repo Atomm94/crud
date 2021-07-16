@@ -476,6 +476,7 @@ export default class AcuController {
                                 }
                             }
 
+                            const set_rd_data: any = []
                             for (let reader of readers) {
                                 let reader_update = true
                                 if (!reader.id) {
@@ -490,7 +491,8 @@ export default class AcuController {
 
                                 if (acu.status === acuStatus.ACTIVE) {
                                     reader.access_point_type = access_point.type
-                                    RdController.setRd(location, acu.serial_number, reader, user, acu.session_id, reader_update)
+                                    set_rd_data.push({ ...reader, update: reader_update })
+                                    // RdController.setRd(location, acu.serial_number, readers, user, acu.session_id, reader_update)
                                 } else {
                                     if (reader_update) {
                                         const reader_updated = await Reader.updateItem(reader)
@@ -508,6 +510,7 @@ export default class AcuController {
                                     }
                                 }
                             }
+                            RdController.setRd(location, acu.serial_number, set_rd_data, user, acu.session_id)
 
                             // send CardKeys
                             if (new_access_points.length) {
@@ -912,10 +915,14 @@ export default class AcuController {
                 // send Readers
                 const readers: any = access_point.readers
                 const reader_update = false
+
+                const set_rd_data: any = []
                 for (const reader of readers) {
                     reader.access_point_type = access_point.type
-                    RdController.setRd(location, device.serial_number, reader, user, device.session_id, reader_update)
+                    set_rd_data.push({ ...reader, update: reader_update })
+                    // RdController.setRd(location, device.serial_number, reader, user, device.session_id, reader_update)
                 }
+                RdController.setRd(location, device.serial_number, set_rd_data, user, device.session_id)
 
                 // send Schedules(Access Rules)
                 for (const access_rule of access_point.access_rules) {

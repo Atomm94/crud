@@ -555,39 +555,26 @@ export default class Parse {
 
     public static async deviceSetRdAck (message: IMqttCrudMessaging) {
         // console.log('deviceSetRd', message)
+        const ind = message.send_data.data.answer_qty
+        const reader_data = message.send_data.data.readers[ind]
+
         if (message.result.errorNo === 0) {
             const company = message.company
             if (message.send_data.update) {
-                // const access_point: any = {
-                //     id: message.send_data.data.access_point,
-                //     readers: message.send_data.data
-                // }
-                // if (message.send_data.data.access_point_type === accessPointType.DOOR) {
-                //     new SendDeviceMessage(OperatorType.SET_CTP_DOOR, message.location, message.device_id, message.session_id, access_point)
-                // } else if (message.send_data.data.access_point_type === accessPointType.GATE) {
-                // new SendDeviceMessage(OperatorType.SET_CTP_GATE, message.location, message.device_id, message.session_id, access_point)
-                // } else if (message.send_data.data.access_point_type === accessPointType.GATEWAY) {
-                // new SendDeviceMessage(OperatorType.SET_CTP_GATEWAY, message.location, message.device_id, message.session_id, access_point)
-                // } else if (message.send_data.data.access_point_type === accessPointType.FLOOR) {
-                // new SendDeviceMessage(OperatorType.SET_CTP_FLOOR, message.location, message.device_id, message.session_id, access_point)
-                // } else if (message.send_data.data.access_point_type === accessPointType.TURNSTILE) {
-                // new SendDeviceMessage(OperatorType.SET_CTP_TURNSTILE, message.location, message.device_id, message.session_id, access_point)
-                // }
-                // }
-                const save = await Reader.updateItem(message.send_data.data as Reader)
+                const save = await Reader.updateItem(reader_data as Reader)
                 const access_point = await AccessPoint.findOneOrFail({ where: { id: save.old.access_point }, relations: ['acus'] })
                 new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.CHANGE, `${Reader.name}/${access_point.acus.name}/${access_point.name}/${readerTypes[save.old.type]}`, save)
                 if (save) {
                     // console.log('Reader update completed')
                 }
             } else {
-                const reader: any = await Reader.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['access_points', 'access_points.acus'] })
+                const reader: any = await Reader.findOneOrFail({ where: { id: reader_data.id }, relations: ['access_points', 'access_points.acus'] })
                 new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.CREATE, `${Reader.name}/${reader.access_points.acus.name}/${reader.access_points.name}/${readerTypes[reader.type]}`, { type: readerTypes[reader.type] })
                 // console.log('Reader insert completed')
             }
         } else {
-            if (!message.send_data.update) {
-                await Reader.destroyItem({ id: message.send_data.data.id /*, company: message.company */ })
+            if (!reader_data.update) {
+                await Reader.destroyItem({ id: reader_data.id /*, company: message.company */ })
             }
         }
     }

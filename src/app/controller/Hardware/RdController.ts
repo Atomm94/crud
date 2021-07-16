@@ -2,8 +2,15 @@ import { OperatorType } from '../../mqtt/Operators'
 import SendDeviceMessage from '../../mqtt/SendDeviceMessage'
 
 export default class RdController {
-    public static async setRd (location: string, serial_number: number, reader: any, user: any, session_id: string | null = '', reader_update: boolean = false) {
-        new SendDeviceMessage(OperatorType.SET_RD, location, serial_number, reader, user, session_id, reader_update)
+    public static async setRd (location: string, serial_number: number, readers: any, user: any, session_id: string | null = '') {
+        if (readers.length) {
+            const send_data = {
+                access_point: readers[0].access_point,
+                access_point_type: readers[0].access_point_type,
+                readers: readers
+            }
+            new SendDeviceMessage(OperatorType.SET_RD, location, serial_number, send_data, user, session_id)
+        }
     }
 
     public static async delRd (location: string, serial_number: number, data: any, user: any, session_id: string | null = '0') {
