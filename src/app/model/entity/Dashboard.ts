@@ -1,9 +1,10 @@
 import { BaseClass } from './BaseClass'
 import { Acu } from './Acu'
 import { AccessPoint } from './AccessPoint'
-import { EventLog } from './EventLog'
+// import { EventLog } from './EventLog'
 import { acuStatus } from '../../enums/acuStatus.enum'
 import { Cardholder } from './Cardholder'
+import { EventLog } from './EventLog'
 
 export class Dashboard extends BaseClass {
     public static async getAll (user: any) {
@@ -44,8 +45,8 @@ export class Dashboard extends BaseClass {
             acus_status: acu,
             access_point_modes: access_point_modes,
             access_points: all_access_points,
-            events_statistic: events_data.events_statistic,
-            logs: events_data.logs
+            events_statistic: events_data.events_statistic
+            // logs: events_data.logs
         }
         return send_data
     }

@@ -1,5 +1,5 @@
 import { DefaultContext } from 'koa'
-import { Dashboard } from '../model/entity'
+import { Dashboard, EventLog } from '../model/entity'
 // import { acuStatus } from '../enums/acuStatus.enum'
 // import { Dashboard } from '../model/entity/Dashboard'
 
@@ -39,7 +39,7 @@ export default class DashboardController {
     /**
         *
         * @swagger
-        * /Dashboard/getAllAccessPoints:
+        * /dashboard/getAllAccessPoints:
         *      get:
         *          tags:
         *              - Dashboard
@@ -72,7 +72,7 @@ export default class DashboardController {
     /**
  *
  * @swagger
- * /Dashboard/getCardholders:
+ * /dashboard/getCardholders:
  *      get:
  *          tags:
  *              - Dashboard
@@ -95,6 +95,42 @@ export default class DashboardController {
             const user = ctx.user
             ctx.body = await Dashboard.getCardholders(user)
         } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
+
+    /**
+        *
+        * @swagger
+        * /dashboard/getDashboardActivity:
+        *      get:
+        *          tags:
+        *              - Dashboard
+        *          summary: Return AccessPoints list
+        *          parameters:
+        *              - in: header
+        *                name: Authorization
+        *                required: true
+        *                description: Authentication token
+        *                schema:
+        *                    type: string
+        *          responses:
+        *              '200':
+        *                  description: Array of AccessPoints
+        *              '401':
+        *                  description: Unauthorized
+        */
+    public static async getDashboardActivity (ctx: DefaultContext) {
+        try {
+            const req_data = ctx.query
+            const user = ctx.user
+            const events_data: any = await EventLog.get(user, req_data)
+            ctx.body = events_data
+        } catch (error) {
+            console.log('3633', error)
+
             ctx.status = error.status || 400
             ctx.body = error
         }

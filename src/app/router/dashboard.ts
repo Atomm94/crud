@@ -8,3 +8,4 @@ export default router
     .get('Dashboard-getAll', 'dashboard', checkRole(), Feature.Dashboard.OnlineMonitorDashboard.check, DashboardController.getAll)
     .get('Dashboard-getAllAccessPoints', 'dashboard/getAllAccessPoints', checkRole(), Feature.Dashboard.OnlineMonitorDashboard.check, DashboardController.getAllAccessPoints)
     .get('Dashboard-getAll', 'dashboard/getCardholders', checkRole(), Feature.Dashboard.OnlineMonitorDashboard.check, DashboardController.getCardholders)
+    .get('Dashboard-getAll', 'dashboard/getDashboardActivity', checkRole(), Feature.Dashboard.OnlineMonitorDashboard.check, DashboardController.getDashboardActivity)
