@@ -314,7 +314,7 @@ export default class MqttController {
             // "48/29/registration/1652472212/event",
                 const data = ctx.request.body
                 MQTTBroker.publishMessage(data.topic, JSON.stringify(data))
-                ctx.body = { message: 'succsess' }
+                ctx.body = { message: 'success' }
             } catch (error) {
             console.log(333, error)
 
