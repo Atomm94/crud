@@ -14,6 +14,7 @@ import { checkPermissionsAccess } from '../functions/check-permissions-access'
 import { AccountGroup } from '../model/entity/AccountGroup'
 import { adminStatus } from '../enums/adminStatus.enum'
 import { logUserEvents } from '../enums/logUserEvents.enum'
+import { Notification } from '../model/entity/Notification'
 
 const parentDir = join(__dirname, '../..')
 
@@ -353,7 +354,8 @@ export default class AdminController {
                 ctx.body.package = ctx.user.package ? ctx.user.package : null
                 if (ctx.user && ctx.user.company && ctx.user.package) {
                     const company = await Company.findOneOrFail({ where: { id: ctx.user.company }, relations: ['packages'] })
-
+                    const notifications = await Notification.find({ where: { company: ctx.user.company, confirmed: null } })
+                    ctx.body.notifications = notifications.length
                     if (company.packages && company.packages.extra_settings) {
                         const extra_settings = JSON.parse(company.packages.extra_settings)
                         if (extra_settings.features) {
