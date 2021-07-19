@@ -280,7 +280,7 @@ export default class MqttController {
  *                      example: 0
  *                  topic:
  *                      type: string
- *                      example: /5/5/registration/1073493824/event
+ *                      example: 48/29/registration/1652472212/event
  *                  info:
  *                      type: object
  *                      required:
@@ -293,13 +293,13 @@ export default class MqttController {
  *                              example: 22
  *                          Key_id:
  *                              type: number
- *                              example: 10
+ *                              example: 5
  *                          DateTm:
  *                              type: number
  *                              example: 1599904641
  *                          Stp_idx:
  *                              type: number
- *                              example: 1
+ *                              example: 51
  *          responses:
  *              '201':
  *                  description: A notification object
