@@ -14,6 +14,9 @@ export default class CtpController {
         } else if (type === accessPointType.FLOOR) {
             operator = OperatorType.SET_CTP_FLOOR
         }
+
+        if (data.readers) delete data.readers // Readers we set in SetRd-Ack..
+
         new SendDeviceMessage(operator, location, serial_number, data, user, session_id, update)
     }
 
