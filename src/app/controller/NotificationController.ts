@@ -108,7 +108,7 @@ export default class NotificationController {
                 }
             } else {
                 const notifications: Notification[] = await Notification.find({ where: { company: company, confirmed: IsNull() } })
-                if (!notifications.length) {
+                if (notifications.length) {
                     ctx.status = 400
                     ctx.body = { message: 'All notifications are confirmed!' }
                 } else {
