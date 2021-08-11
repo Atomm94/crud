@@ -151,6 +151,7 @@ export default class AccessPointGroupController {
             // ctx.body = await AccessPointGroup.getItem(where, relations)
             const access_point_group: any = await AccessPointGroup.createQueryBuilder('access_point_group')
                 .leftJoinAndSelect('access_point_group.access_points', 'access_point', 'access_point.delete_date is null')
+                .leftJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
                 .where(`access_point_group.id = '${+ctx.params.id}'`)
                 .andWhere(`access_point_group.company = '${user.company ? user.company : null}'`)
                 .getOne()
