@@ -108,8 +108,8 @@ export default class NotificationController {
                 }
             } else {
                 const notifications: Notification[] = await Notification.find({ where: { company: company, confirmed: IsNull() } })
-                if (notifications.length) {
-                    ctx.status = 400
+                if (!notifications.length) {
+                    // ctx.status = 400
                     ctx.body = { message: 'All notifications are confirmed!' }
                 } else {
                     for (const notification of notifications) {
@@ -189,7 +189,9 @@ export default class NotificationController {
     public static async getAll (ctx: DefaultContext) {
         try {
             const req_data = ctx.query
+            const user = ctx.user
             req_data.relations = ['access_points']
+            req_data.where = { company: { '=': user.company } }
             ctx.body = await Notification.getAllItems(req_data)
         } catch (error) {
             ctx.status = error.status || 400
