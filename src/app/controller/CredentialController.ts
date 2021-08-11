@@ -2,10 +2,13 @@ import { DefaultContext } from 'koa'
 import { credentialType } from '../enums/credentialType.enum'
 import { Credential } from '../model/entity/Credential'
 // import { CheckCredentialSettings } from '../functions/check-credential'
-import { AccessPoint, Cardholder } from '../model/entity'
+import { AccessPoint, AccessRule, Cardholder, Company } from '../model/entity'
 import { acuStatus } from '../enums/acuStatus.enum'
 import CardKeyController from './Hardware/CardKeyController'
 import { logUserEvents } from '../enums/logUserEvents.enum'
+import * as jwt from 'jsonwebtoken'
+import { accessPointDirection } from '../enums/accessPointDirection.enum'
+import CtpController from './Hardware/CtpController'
 
 export default class CredentialController {
     /**
@@ -392,6 +395,209 @@ export default class CredentialController {
     public static async getCredentialTypes (ctx: DefaultContext) {
         try {
             ctx.body = Object.values(credentialType)
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     *  /credential/login/{code}:
+     *      post:
+     *          tags:
+     *              - Credential
+     *          summary: credential(vikey) login.
+     *          consumes:
+     *              - application/json
+     *          parameters:
+     *              - in: header
+     *                name: Authorization
+     *                required: false
+     *                description: Authentication token
+     *                schema:
+     *                    type: string
+     *              - in: path
+     *                name: code
+     *                required: true
+     *                description: Code
+     *                schema:
+     *                    type: varchar
+     *          responses:
+     *              '201':
+     *                  description: A token
+     *              '409':
+     *                  description: Conflict
+     *              '422':
+     *                  description: Wrong data
+     */
+    public static async login (ctx: DefaultContext) {
+        try {
+            const param_code = ctx.params.code
+            let vikey_data
+            if (ctx.vikey_data) {
+                vikey_data = ctx.vikey_data
+            }
+
+            const credential_from_param: Credential | undefined = await Credential.findOne({ code: param_code, type: credentialType.VIKEY })
+
+            if (vikey_data) {
+                if (vikey_data.code !== param_code) {
+                    const credential_from_token: Credential | undefined = await Credential.findOne({ code: param_code, type: credentialType.VIKEY })
+                    if (!(credential_from_param && credential_from_token!)) {
+                        ctx.status = 400
+                        ctx.body = { message: 'Wrong token and code!' }
+                    }
+                }
+            }
+
+            if (!credential_from_param) {
+                ctx.status = 400
+                ctx.body = { message: `Invalid code ${param_code}!` }
+            } else {
+                if (credential_from_param.isLogin) {
+                    ctx.status = 400
+                    ctx.body = { message: `code ${param_code} already used!` }
+                } else {
+                    const token = jwt.sign({ code: param_code, cardholder: credential_from_param.cardholder, company: credential_from_param.company }, 'jwtSecret')
+                    ctx.body = {
+                        token: token
+                    }
+                }
+            }
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     * /credential/accessPoints/{code}:
+     *      get:
+     *          tags:
+     *              - Credential
+     *          summary: Return accessPoints(from AccessRule) list of Cardholder
+     *          parameters:
+     *              - in: header
+     *                name: Authorization
+     *                required: true
+     *                description: Authentication token
+     *                schema:
+     *                    type: string
+     *              - in: path
+     *                name: code
+     *                required: true
+     *                description: Code
+     *                schema:
+     *                    type: varchar
+     *          responses:
+     *              '200':
+     *                  description: Array of credential types
+     *              '401':
+     *                  description: Unauthorized
+     */
+    public static async getVikeyAccessPoints (ctx: DefaultContext) {
+        try {
+            const vikey_data = ctx.vikey_data
+            const cardholder = await Cardholder.findOneOrFail({
+                where: { id: vikey_data.cardholder, company: vikey_data.company },
+                relations: ['limitations']
+            })
+            const access_rules = await AccessRule.getAllItems({
+                where: { access_right: { '=': cardholder.access_right } },
+                relations: ['access_points', 'access_points.acus', 'schedules', 'schedules.timeframes']
+            })
+            ctx.body = {
+                limitations: cardholder.limitations,
+                access_rules
+            }
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     *  /credential/accessPoint/open/{code}:
+     *      post:
+     *          tags:
+     *              - Credential
+     *          summary: open door with credential(vikey).
+     *          consumes:
+     *              - application/json
+     *          parameters:
+     *              - in: header
+     *                name: Authorization
+     *                required: true
+     *                description: Authentication token
+     *                schema:
+     *                    type: string
+     *              - in: path
+     *                name: code
+     *                required: true
+     *                description: Code
+     *                schema:
+     *                    type: varchar
+     *              - in: body
+     *                name: credential
+     *                description: Open AccessPoint from credential(vikey).
+     *                schema:
+     *                    type: object
+     *                    required:
+     *                      - access_point
+     *                    properties:
+     *                        access_point:
+     *                            type: number
+     *                            example: 1
+     *          responses:
+     *              '201':
+     *                  description: A token
+     *              '409':
+     *                  description: Conflict
+     *              '422':
+     *                  description: Wrong data
+     */
+    public static async accessPointOpen (ctx: DefaultContext) {
+        try {
+            const vikey_data = ctx.vikey_data
+            const access_point_id = ctx.request.body.access_point
+
+            const cardholder = await Cardholder.findOneOrFail({ id: vikey_data.cardholder, company: vikey_data.company })
+
+            const access_rule = await AccessRule.findOne({
+                where: { access_right: cardholder.access_right, access_point: access_point_id },
+                relations: ['access_points', 'access_points.acus']
+            })
+            if (!access_rule) {
+                ctx.status = 400
+                ctx.body = { message: `Invalid access_point ${access_point_id}!` }
+            } else {
+                if (access_rule.access_points.acus.status !== acuStatus.ACTIVE) {
+                    ctx.status = 400
+                    ctx.body = { message: `status of Acu must be ${acuStatus.ACTIVE}!` }
+                } else {
+                    const company = await Company.findOneOrFail({ id: vikey_data.company })
+                    const location = `${company.account}/${vikey_data.company}`
+
+                    const single_pass_data: any = {
+                        id: access_point_id,
+                        direction: accessPointDirection.ENTRY
+                    }
+
+                    CtpController.singlePass(location, access_rule.access_points.acus.serial_number, single_pass_data, {}, access_rule.access_points.acus.session_id)
+                    ctx.body = {
+                        message: 'Open Once sended'
+                    }
+                }
+            }
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

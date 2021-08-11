@@ -4,7 +4,19 @@ import * as jwt from 'jsonwebtoken'
 import { JwtToken } from '../model/entity/JwtToken'
 
 export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
-    const whiteList = ['login', 'swagger', 'favicon', 'page/saveFile', 'registration', 'mqttGetRequest', 'mqttPostRequest', 'account/forgotPassword']
+    const whiteList = [
+        'login',
+        'swagger',
+        'favicon',
+        'page/saveFile',
+        'registration',
+        'mqttGetRequest',
+        'mqttPostRequest',
+        'account/forgotPassword'
+        // 'credential/login',
+        // 'credential/accessPoints',
+        // 'credential/accessPoint/open'
+    ]
 
     const path = ctx.request.url.split('?')[0].split('/').slice(1).join('/')
     const swagger = ctx.request.url.split('/')[1].split('-')[0]
@@ -12,7 +24,11 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
 
     const token = <string>ctx.request.header.authorization
 
-    if (whiteList.includes(path) || whiteList.includes(swagger) || ((!token || token === 'undefined') && invite === 'invite')) {
+    if (whiteList.includes(path) || whiteList.includes(swagger) || ((!token || token === 'undefined') && invite === 'invite') ||
+        path.split('/').slice(0, -1).join('/') === 'credential/login' ||
+        path.split('/').slice(0, -1).join('/') === 'credential/accessPoints' ||
+        path.split('/').slice(0, -1).join('/') === 'credential/accessPoint/open'
+    ) {
         ctx.allowed = true
         return next()
     }

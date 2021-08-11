@@ -34,6 +34,9 @@ export class Credential extends MainEntity {
     @Column('enum', { name: 'input_mode', enum: credentialInputMode })
     input_mode: credentialInputMode
 
+    @Column('boolean', { name: 'isLogin', default: false })
+    isLogin: boolean;
+
     @DeleteDateColumn({ type: 'timestamp', name: 'delete_date' })
     public deleteDate: Date
 
