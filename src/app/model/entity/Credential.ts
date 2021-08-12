@@ -14,6 +14,8 @@ import { Cardholder } from './Cardholder'
 
 import { minusResource } from '../../functions/minusResource'
 import { resourceKeys } from '../../enums/resourceKeys.enum'
+import { v4 } from 'uuid'
+
 @Entity('credential')
 export class Credential extends MainEntity {
     @Column('enum', { name: 'type', enum: credentialType })
@@ -51,7 +53,11 @@ export class Credential extends MainEntity {
         const credential = new Credential()
 
         credential.type = data.type
-        credential.code = data.code
+        if (data.type === credentialType.VIKEY) {
+            credential.code = v4()
+        } else {
+            credential.code = data.code
+        }
         if ('status' in data) credential.status = data.status
         credential.cardholder = data.cardholder
         credential.facility = data.facility

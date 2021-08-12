@@ -457,10 +457,14 @@ export default class CredentialController {
                 ctx.status = 400
                 ctx.body = { message: `Invalid code ${param_code}!` }
             } else {
-                if (credential_from_param.isLogin) {
+                if (!vikey_data && credential_from_param.isLogin) {
                     ctx.status = 400
                     ctx.body = { message: `code ${param_code} already used!` }
                 } else {
+                    if (!vikey_data && !credential_from_param.isLogin) {
+                        credential_from_param.isLogin = true
+                        await credential_from_param.save()
+                    }
                     const token = jwt.sign({ code: param_code, cardholder: credential_from_param.cardholder, company: credential_from_param.company }, 'jwtSecret')
                     ctx.body = {
                         token: token
