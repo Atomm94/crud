@@ -445,10 +445,10 @@ export default class CredentialController {
 
             if (vikey_data) {
                 if (vikey_data.code !== param_code) {
-                    const credential_from_token: Credential | undefined = await Credential.findOne({ code: param_code, type: credentialType.VIKEY })
-                    if (!(credential_from_param && credential_from_token!)) {
+                    const credential_from_token: Credential | undefined = await Credential.findOne({ code: vikey_data.code, type: credentialType.VIKEY })
+                    if (!(credential_from_param && !credential_from_token)) {
                         ctx.status = 400
-                        ctx.body = { message: 'Wrong token and code!' }
+                        return ctx.body = { message: 'Wrong token and code!' }
                     }
                 }
             }
