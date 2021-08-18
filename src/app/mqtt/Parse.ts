@@ -594,6 +594,8 @@ export default class Parse {
             const reader: any = await Reader.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['access_points', 'access_points.acus'] })
             await Reader.destroyItem({ id: message.send_data.data.id /*, company: message.company */ })
             new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.DELETE, `${Reader.name}/${reader.access_points.acus.name}/${reader.access_points.name}/${readerTypes[reader.type]}`, { type: readerTypes[reader.type] })
+
+            new SendSocketMessage(socketChannels.READER_DELETE, reader, message.company, message.send_data.user)
             // console.log('deviceDelRdAck complete')
             // const access_point: any = {
             //     id: message.send_data.data.access_point,

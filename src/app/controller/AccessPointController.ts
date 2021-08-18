@@ -212,20 +212,17 @@ export default class AccessPointController {
             const where = { id: req_data.id, company: company }
             // const reader: any = await Reader.findOneOrFail({ relations: ['access_points', 'access_points.acus'], where: where })
 
-            let reader: any = await Reader.createQueryBuilder('reader')
+            const reader: any = await Reader.createQueryBuilder('reader')
                 .leftJoinAndSelect('reader.access_points', 'access_point', 'access_point.delete_date is null')
                 .leftJoinAndSelect('access_point.acus', 'acus', 'acus.delete_date is null')
                 .where(`reader.id = '${req_data.id}'`)
                 .andWhere(`reader.company = '${user.company ? user.company : null}'`)
-                .getMany()
-
-            reader = reader[0]
+                .getOne()
 
             req_data.direction = reader.direction
             req_data.port = reader.port
             req_data.access_point = reader.access_points.id
             req_data.access_point_type = reader.access_points.type
-            ctx.body = await Reader.destroyItem(where)
 
             logs_data.push({
                 event: logUserEvents.DELETE,
@@ -235,9 +232,9 @@ export default class AccessPointController {
             ctx.logsData = logs_data
             if (reader.access_points.acus.status === acuStatus.ACTIVE) {
                 RdController.delRd(location, reader.access_points.acus.serial_number, req_data, user, reader.access_points.acus.session_id)
-                ctx.body = true
+                ctx.body = { message: 'Delete pending' }
             } else if (reader.access_points.acus.status === acuStatus.NO_HARDWARE) {
-                // ctx.body = await Reader.destroyItem(where)
+                ctx.body = await Reader.destroyItem(where)
             } else {
                 ctx.status = 400
                 ctx.body = { message: 'You need to activate hardware' }
