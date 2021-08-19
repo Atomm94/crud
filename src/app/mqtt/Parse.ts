@@ -574,7 +574,9 @@ export default class Parse {
             }
         } else {
             if (!reader_data.update) {
+                const reader: any = await Reader.findOneOrFail({ where: { id: reader_data.id }, relations: ['access_points', 'access_points.acus'] })
                 await Reader.destroyItem({ id: reader_data.id /*, company: message.company */ })
+                new SendSocketMessage(socketChannels.READER_DELETE, reader, message.company, message.send_data.user)
             }
         }
     }
