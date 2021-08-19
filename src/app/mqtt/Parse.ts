@@ -555,12 +555,12 @@ export default class Parse {
 
     public static async deviceSetRdAck (message: IMqttCrudMessaging) {
         // console.log('deviceSetRd', message)
-        const ind = message.send_data.data.answer_qty - 1
+        const ind = message.send_data.data.answer_qty
         const reader_data = message.send_data.data.readers[ind]
 
         if (message.result.errorNo === 0) {
             const company = message.company
-            if (message.send_data.update) {
+            if (reader_data.update) {
                 const save = await Reader.updateItem(reader_data as Reader)
                 const access_point = await AccessPoint.findOneOrFail({ where: { id: save.old.access_point }, relations: ['acus'] })
                 new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.CHANGE, `${Reader.name}/${access_point.acus.name}/${access_point.name}/${readerTypes[save.old.type]}`, save)
