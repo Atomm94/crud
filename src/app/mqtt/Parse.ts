@@ -548,7 +548,7 @@ export default class Parse {
         // console.log('deviceDelExtBrdAck', message)
         if (message.result.errorNo === 0 || message.result.errorNo === 11) {
             const company = message.company
-            const ext_device = await ExtDevice.findOneOrFail({ where: { id: message.send_data.data.id /*, company: message.company */ } })
+            const ext_device = await ExtDevice.findOneOrFail({ where: { id: message.send_data.data.id /*, company: message.company */ }, relations: ['acus'] })
             await ExtDevice.destroyItem({ id: message.send_data.data.id /*, company: message.company */ })
             new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.DELETE, `${ExtDevice.name}/${ext_device.name}`, { name: ext_device.name })
 
