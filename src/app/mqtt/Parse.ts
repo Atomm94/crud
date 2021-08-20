@@ -521,7 +521,7 @@ export default class Parse {
             if (message.send_data.update) {
                 const save = await ExtDevice.updateItem(message.send_data.data as ExtDevice)
                 new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.CHANGE, `${ExtDevice.name}/${save.old.name}`, save)
-                new SendSocketMessage(socketChannels.READER_UPDATE, save, message.company, message.send_data.user)
+                new SendSocketMessage(socketChannels.EXT_BRD_UPDATE, save, message.company, message.send_data.user)
                 if (save) {
                     // console.log('ExtDevice update completed')
                 }
