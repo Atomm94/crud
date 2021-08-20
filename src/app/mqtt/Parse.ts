@@ -646,12 +646,16 @@ export default class Parse {
 
     public static async deviceSetCtpDoorAck (message: IMqttCrudMessaging) {
         // console.log('deviceSetCtpDoorAck', message)
-        if (message.result.errorNo === 0) {
+        if (message.result.errorNo === 0 || message.result.errorNo === 777) {
             const company = message.company
             if (message.send_data.update) {
                 const save = await AccessPoint.updateItem(message.send_data.data as AccessPoint)
                 const acu = await Acu.findOneOrFail({ where: { id: save.old.acu } })
+                const access_point: any = await AccessPoint.findOneOrFail({ where: { id: save.id }, relations: ['acus'] })
                 new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.CHANGE, `${AccessPoint.name}/${acu.name}/${save.old.name}`, save)
+                if (!message.send_data.data.readers) {
+                    new SendSocketMessage(socketChannels.ACCESS_POINT_UPDATE, access_point, message.company, message.send_data.user)
+                }
                 if (save) {
                     console.log('AccessPoint update completed')
                 }
@@ -693,7 +697,12 @@ export default class Parse {
             if (message.send_data.update) {
                 const save: any = await AccessPoint.updateItem(message.send_data.data as AccessPoint)
                 const acu = await Acu.findOneOrFail({ where: { id: save.old.acu } })
+
+                const access_point: any = await AccessPoint.findOneOrFail({ where: { id: save.id }, relations: ['acus'] })
                 new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.CHANGE, `${AccessPoint.name}/${acu.name}/${save.old.name}`, save)
+                if (!message.send_data.data.readers) {
+                    new SendSocketMessage(socketChannels.ACCESS_POINT_UPDATE, access_point, message.company, message.send_data.user)
+                }
                 if (save) {
                     // console.log('AccessPoint update completed')
                 }
@@ -737,7 +746,12 @@ export default class Parse {
             if (message.send_data.update) {
                 const save: any = await AccessPoint.updateItem(message.send_data.data as AccessPoint)
                 const acu = await Acu.findOneOrFail({ where: { id: save.old.acu } })
+
+                const access_point: any = await AccessPoint.findOneOrFail({ where: { id: save.id }, relations: ['acus'] })
                 new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.CHANGE, `${AccessPoint.name}/${acu.name}/${save.old.name}`, save)
+                if (!message.send_data.data.readers) {
+                    new SendSocketMessage(socketChannels.ACCESS_POINT_UPDATE, access_point, message.company, message.send_data.user)
+                }
                 if (save) {
                     // console.log('AccessPoint update completed')
                 }
@@ -781,7 +795,12 @@ export default class Parse {
             if (message.send_data.update) {
                 const save: any = await AccessPoint.updateItem(message.send_data.data as AccessPoint)
                 const acu = await Acu.findOneOrFail({ where: { id: save.old.acu } })
+
+                const access_point: any = await AccessPoint.findOneOrFail({ where: { id: save.id }, relations: ['acus'] })
                 new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.CHANGE, `${AccessPoint.name}/${acu.name}/${save.old.name}`, save)
+                if (!message.send_data.data.readers) {
+                    new SendSocketMessage(socketChannels.ACCESS_POINT_UPDATE, access_point, message.company, message.send_data.user)
+                }
                 if (save) {
                     // console.log('AccessPoint update completed')
                 }
@@ -825,7 +844,11 @@ export default class Parse {
             if (message.send_data.update) {
                 const save: any = await AccessPoint.updateItem(message.send_data.data as AccessPoint)
                 const acu = await Acu.findOneOrFail({ where: { id: save.old.acu } })
+                const access_point: any = await AccessPoint.findOneOrFail({ where: { id: save.id }, relations: ['acus'] })
                 new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.CHANGE, `${AccessPoint.name}/${acu.name}/${save.old.name}`, save)
+                if (!message.send_data.data.readers) {
+                    new SendSocketMessage(socketChannels.ACCESS_POINT_UPDATE, access_point, message.company, message.send_data.user)
+                }
                 if (save) {
                     // console.log('AccessPoint update completed')
                 }
