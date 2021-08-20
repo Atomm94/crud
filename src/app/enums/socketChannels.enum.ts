@@ -12,5 +12,7 @@ export enum socketChannels {
   NOTIFICATION = 'notification',
   ERROR_CHANNEL = 'error_channel',
   READER_DELETE = 'reader_delete',
+  READER_UPDATE = 'reader_update',
   EXT_BRD_DELETE = 'ext_brd_delete',
+  EXT_BRD_UPDATE = 'ext_brd_update',
 }
