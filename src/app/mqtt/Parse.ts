@@ -530,7 +530,9 @@ export default class Parse {
             }
         } else {
             if (!message.send_data.update) {
+                const ext_brd: any = await ExtDevice.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['acus'] })
                 await ExtDevice.destroyItem({ id: message.send_data.data.id /*, company: message.company */ })
+                new SendSocketMessage(socketChannels.EXT_BRD_DELETE, ext_brd, message.company, message.send_data.user)
             }
         }
     }
@@ -549,6 +551,8 @@ export default class Parse {
             const ext_device = await ExtDevice.findOneOrFail({ where: { id: message.send_data.data.id /*, company: message.company */ } })
             await ExtDevice.destroyItem({ id: message.send_data.data.id /*, company: message.company */ })
             new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.DELETE, `${ExtDevice.name}/${ext_device.name}`, { name: ext_device.name })
+
+            new SendSocketMessage(socketChannels.EXT_BRD_DELETE, ext_device, message.company, message.send_data.user)
             // console.log('DelExtDevice complete')
         }
     }
