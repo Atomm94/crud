@@ -129,10 +129,12 @@ export class ExtDevice extends MainEntity {
     public static async destroyItem (data: any) {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
-            this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
+            const where: any = { id: data.id }
+            if (data.company) where.company = data.company
+            this.findOneOrFail(where).then((data: any) => {
                 this.softRemove(data)
                     .then(async () => {
-                        const ext_device_data: any = await this.createQueryBuilder('access_rule')
+                        const ext_device_data: any = await this.createQueryBuilder('ext_device')
                             .where('id = :id', { id: data.id })
                             .withDeleted()
                             .getOne()
