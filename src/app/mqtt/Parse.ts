@@ -42,6 +42,7 @@ export default class Parse {
                     } else {
                         sended_data.error_description = 'Unknown Error'
                     }
+                    sended_data.device_id = message.device_id
                     new SendSocketMessage(socketChannels.ERROR_CHANNEL, sended_data, message.company, user)
                 }
             }
