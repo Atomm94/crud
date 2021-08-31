@@ -42,6 +42,7 @@ export default class Parse {
                     } else {
                         sended_data.error_description = 'Unknown Error'
                     }
+                    sended_data.device_id = message.device_id
                     new SendSocketMessage(socketChannels.ERROR_CHANNEL, sended_data, message.company, user)
                 }
             }
@@ -272,18 +273,20 @@ export default class Parse {
                         for (const access_point of access_points) {
                             if (access_point.resources) {
                                 const resources = JSON.parse(access_point.resources)
-                                const gpio_value = `Gpio_input_opt_${resources.Door_sensor.component_source}_idx_${resources.Door_sensor.input}`
-                                if (resources.Door_sensor && message.info[gpio_value]) {
-                                    if (message.info[gpio_value] === 0) {
-                                        access_point.door_state = accessPointDoorState.CLOSED
+                                if (resources.Door_sensor) {
+                                    const gpio_value = `Gpio_input_opt_${resources.Door_sensor.component_source}_idx_${resources.Door_sensor.input}`
+                                    if (resources.Door_sensor && gpio_value in message.info) {
+                                        if (message.info[gpio_value] === 0) {
+                                            access_point.door_state = accessPointDoorState.CLOSED
+                                        } else {
+                                            access_point.door_state = accessPointDoorState.OPEN
+                                        }
                                     } else {
-                                        access_point.door_state = accessPointDoorState.OPEN
+                                        access_point.door_state = accessPointDoorState.NO_SENSOR
                                     }
-                                } else {
-                                    access_point.door_state = accessPointDoorState.NO_SENSOR
-                                }
 
-                                await AccessPoint.save(access_point)
+                                    await AccessPoint.save(access_point)
+                                }
                             }
                         }
                     }
