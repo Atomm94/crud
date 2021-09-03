@@ -23,6 +23,7 @@ import cors from 'koa2-cors'
 
 import Koa from 'koa'
 import clickhouselog from './middleware/clickhouselog'
+// import bodyParser from 'koa-bodyparser'
 // console.log(checkRole)
 // import resource from './middleware/resource'
 
@@ -43,6 +44,10 @@ const app: Koa = new Koa()
 
 // Validation middleware -> adds ctx.validate
 app.use(validator.koa())
+// app.use(()=>{
+//     console.log('SMBO');
+
+// }))
 app.use(overrideValidator())
 
 // Provides important security headers to make your app more secure
@@ -53,13 +58,14 @@ app.use(cors({ ...config.cors, origin: checkOriginWhiteList }))
 
 // Enable bodyParser with default options
 // app.use(bodyParser(config.bodyParser))
-
 // app.use(addNameToRoute(router))
 app.use(koaBody(
     {
         multipart: true,
         // json: true,
         // text: true,
+        jsonLimit: '10mb',
+        formLimit: '10mb',
         formidable: { uploadDir: `${parentDir}/public/tmp` },
         parsedMethods: ['POST', 'PUT', 'DELETE']
     }
