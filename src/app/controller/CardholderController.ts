@@ -609,11 +609,10 @@ export default class CardholderController {
 
                     if (access_points.length) {
                         // const access_rights = await AccessRight.findOne({ where: { id: cardholder.access_right }, relations: ['access_rules'] })
-                        let access_rights: any = await AccessRight.createQueryBuilder('access_right')
+                        const access_rights: any = await AccessRight.createQueryBuilder('access_right')
                             .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
                             .where(`access_right.id = '${cardholder.access_right}'`)
-                            .getMany()
-                        access_rights = access_rights[0]
+                            .getOne()
 
                         if (access_rights) {
                             cardholder.access_rights = access_rights
