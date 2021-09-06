@@ -1,5 +1,7 @@
 
 import { acuStatus } from '../../enums/acuStatus.enum'
+import { credentialType } from '../../enums/credentialType.enum'
+
 import { AccessPoint, AccessRule, Acu, Cardholder } from '../../model/entity'
 import { AntipassBack } from '../../model/entity/AntipassBack'
 import { OperatorType } from '../../mqtt/Operators'
@@ -50,6 +52,11 @@ export default class CardKeyController {
                     .where(`cardholder.company = '${company}'`)
                     .getMany()
             }
+
+            all_cardholders = all_cardholders.filter((cardholder: Cardholder) => {
+                cardholder.credentials = cardholder.credentials.filter(credential => credential.type !== credentialType.VIKEY)
+                return cardholder.credentials.length
+            })
 
             if (all_cardholders.length) {
                 let all_acus: any
@@ -107,6 +114,12 @@ export default class CardKeyController {
                     .where(`cardholder.company = '${company}'`)
                     .getMany()
             }
+
+            all_cardholders = all_cardholders.filter((cardholder: Cardholder) => {
+                cardholder.credentials = cardholder.credentials.filter(credential => credential.type !== credentialType.VIKEY)
+                return cardholder.credentials.length
+            })
+
             if (all_cardholders.length) {
                 send_edit_data.cardholders = all_cardholders
 
