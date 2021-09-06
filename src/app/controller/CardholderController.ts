@@ -600,30 +600,34 @@ export default class CardholderController {
                             old_credentials.push(credential)
                         }
                     }
-                    const access_points: AccessPoint[] = await AccessPoint.createQueryBuilder('access_point')
-                        .innerJoin('access_point.acus', 'acu', 'acu.delete_date is null')
-                        .where(`acu.status = '${acuStatus.ACTIVE}'`)
-                        .andWhere(`acu.company = ${ctx.user.company}`)
-                        .select('access_point.id')
-                        .getMany()
 
-                    if (access_points.length) {
-                        // const access_rights = await AccessRight.findOne({ where: { id: cardholder.access_right }, relations: ['access_rules'] })
-                        const access_rights: any = await AccessRight.createQueryBuilder('access_right')
-                            .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
-                            .where(`access_right.id = '${cardholder.access_right}'`)
-                            .getOne()
+                    if (credentials.length || old_credentials.length) {
+                        const access_points: AccessPoint[] = await AccessPoint.createQueryBuilder('access_point')
+                            .innerJoin('access_point.acus', 'acu', 'acu.delete_date is null')
+                            .where(`acu.status = '${acuStatus.ACTIVE}'`)
+                            .andWhere(`acu.company = ${ctx.user.company}`)
+                            .select('access_point.id')
+                            .getMany()
 
-                        if (access_rights) {
-                            cardholder.access_rights = access_rights
+                        if (access_points.length) {
+                            // const access_rights = await AccessRight.findOne({ where: { id: cardholder.access_right }, relations: ['access_rules'] })
+                            const access_rights: any = await AccessRight.createQueryBuilder('access_right')
+                                .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
+                                .where(`access_right.id = '${cardholder.access_right}'`)
+                                .getOne()
 
-                            cardholder.credentials = credentials
+                            if (access_rights) {
+                                cardholder.access_rights = access_rights
 
-                            CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, auth_user.company, auth_user, null, [cardholder], null)
+                                if (credentials.length) {
+                                    cardholder.credentials = credentials
+                                    CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, auth_user.company, auth_user, null, [cardholder], null)
+                                }
 
-                            if (res_data.old.vip !== res_data.new.vip && old_credentials.length) {
-                                cardholder.credentials = old_credentials
-                                CardKeyController.editCardKey(location, company, auth_user.id, null, access_points, [cardholder])
+                                if (res_data.old.vip !== res_data.new.vip && old_credentials.length) {
+                                    cardholder.credentials = old_credentials
+                                    CardKeyController.editCardKey(location, company, auth_user.id, null, access_points, [cardholder])
+                                }
                             }
                         }
                     }
@@ -641,8 +645,8 @@ export default class CardholderController {
                     .leftJoinAndSelect('cardholder.cardholder_groups', 'cardholder_group')
                     .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null')
                     .where(`cardholder.id = '${req_data.id}'`)
-                    .getMany()
-                ctx.body = cardholder_data[0]
+                    .getOne()
+                ctx.body = cardholder_data
                 ctx.logsData = logs_data
             }
         } catch (error) {
