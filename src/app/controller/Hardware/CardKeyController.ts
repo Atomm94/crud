@@ -1,6 +1,6 @@
 
 import { acuStatus } from '../../enums/acuStatus.enum'
-import { credentialType } from '../../enums/credentialType.enum'
+import { filterCredentialToSendDevice } from '../../functions/credential'
 
 import { AccessPoint, AccessRule, Acu, Cardholder } from '../../model/entity'
 import { AntipassBack } from '../../model/entity/AntipassBack'
@@ -53,10 +53,7 @@ export default class CardKeyController {
                     .getMany()
             }
 
-            all_cardholders = all_cardholders.filter((cardholder: Cardholder) => {
-                cardholder.credentials = cardholder.credentials.filter(credential => credential.type !== credentialType.VIKEY)
-                return cardholder.credentials.length
-            })
+            all_cardholders = filterCredentialToSendDevice(all_cardholders)
 
             if (all_cardholders.length) {
                 let all_acus: any
@@ -70,6 +67,7 @@ export default class CardKeyController {
                     const send_data = {
                         access_points: all_access_points,
                         cardholders: all_cardholders
+                        // all_key_count: keys_count
                     }
                     new SendDeviceMessage(operator, location, acu.serial_number, send_data, user, acu.session_id)
                 })
@@ -115,10 +113,7 @@ export default class CardKeyController {
                     .getMany()
             }
 
-            all_cardholders = all_cardholders.filter((cardholder: Cardholder) => {
-                cardholder.credentials = cardholder.credentials.filter(credential => credential.type !== credentialType.VIKEY)
-                return cardholder.credentials.length
-            })
+            all_cardholders = filterCredentialToSendDevice(all_cardholders)
 
             if (all_cardholders.length) {
                 send_edit_data.cardholders = all_cardholders

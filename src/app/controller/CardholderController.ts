@@ -291,6 +291,8 @@ export default class CardholderController {
             })
 
             if (req_data.credentials && req_data.credentials.length) {
+                // const keys_count = calculateCredentialsKeysCountToSendDevice(req_data)
+
                 const credentials: any = []
                 for (const credential of req_data.credentials) {
                     credential.company = company
@@ -585,6 +587,8 @@ export default class CardholderController {
                 const credentials: any = []
                 const old_credentials: any = []
                 if (req_data.credentials && req_data.credentials.length) {
+                    // const keys_count = calculateCredentialsKeysCountToSendDevice(req_data)
+
                     for (const credential of req_data.credentials) {
                         if (!credential.id) {
                             credential.company = auth_user.company
