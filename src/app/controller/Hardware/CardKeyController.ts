@@ -1,6 +1,6 @@
 
 import { acuStatus } from '../../enums/acuStatus.enum'
-import { filterCredentialToSendDevice } from '../../functions/credential'
+import { calculateCredentialsKeysCountToSendDevice, filterCredentialToSendDevice } from '../../functions/credential'
 
 import { AccessPoint, AccessRule, Acu, Cardholder } from '../../model/entity'
 import { AntipassBack } from '../../model/entity/AntipassBack'
@@ -9,7 +9,7 @@ import SendDeviceMessage from '../../mqtt/SendDeviceMessage'
 
 export default class CardKeyController {
     public static async setAddCardKey (operator: OperatorType.SET_CARD_KEYS | OperatorType.ADD_CARD_KEY, location: string, company: number, user: any, access_points: Array<{ id: number } | AccessPoint> | null, cardholders: any = null, acus: Acu[] | null = null) {
-        let all_access_points: any
+        let all_access_points: AccessPoint[] | Array<{ id: number }>
         if (access_points) {
             all_access_points = access_points
         } else {
@@ -22,7 +22,28 @@ export default class CardKeyController {
         }
 
         if (all_access_points.length) {
-            let all_cardholders: any
+            // all_cardholders = await Cardholder.getAllItems({
+            //     relations: [
+            //         'credentials',
+            //         'access_rights',
+            //         'access_rights.access_rules'
+            //     ],
+            //     where: {
+            //         company: {
+            //             '=': company
+            //         }
+            //     }
+            // })
+
+            let all_cardholders: Cardholder[] = await Cardholder.createQueryBuilder('cardholder')
+                .leftJoinAndSelect('cardholder.access_rights', 'access_right')
+                .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
+                .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null')
+                .leftJoinAndSelect('cardholder.antipass_backs', 'antipass_back')
+                .where(`cardholder.company = '${company}'`)
+                .getMany()
+
+            const keys_count = calculateCredentialsKeysCountToSendDevice(all_cardholders)
             if (cardholders) {
                 for (const cardholder of cardholders) {
                     if (!cardholder.antipass_backs) {
@@ -30,27 +51,6 @@ export default class CardKeyController {
                     }
                 }
                 all_cardholders = cardholders
-            } else {
-                // all_cardholders = await Cardholder.getAllItems({
-                //     relations: [
-                //         'credentials',
-                //         'access_rights',
-                //         'access_rights.access_rules'
-                //     ],
-                //     where: {
-                //         company: {
-                //             '=': company
-                //         }
-                //     }
-                // })
-
-                all_cardholders = await Cardholder.createQueryBuilder('cardholder')
-                    .leftJoinAndSelect('cardholder.access_rights', 'access_right')
-                    .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
-                    .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null')
-                    .leftJoinAndSelect('cardholder.antipass_backs', 'antipass_back')
-                    .where(`cardholder.company = '${company}'`)
-                    .getMany()
             }
 
             all_cardholders = filterCredentialToSendDevice(all_cardholders)
@@ -63,11 +63,11 @@ export default class CardKeyController {
                     all_acus = await Acu.getAllItems({ where: { status: { '=': acuStatus.ACTIVE }, company: { '=': company } } })
                 }
 
-                all_acus.forEach((acu: any) => {
+                all_acus.forEach((acu: Acu) => {
                     const send_data = {
                         access_points: all_access_points,
-                        cardholders: all_cardholders
-                        // all_key_count: keys_count
+                        cardholders: all_cardholders,
+                        all_credentials_count: keys_count
                     }
                     new SendDeviceMessage(operator, location, acu.serial_number, send_data, user, acu.session_id)
                 })
