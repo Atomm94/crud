@@ -167,6 +167,21 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
                                 }
                             }
                         })
+                        if (permissions[Models.AccessPoint.name]) {
+                            const models_from_access_point = [Models.AccessPointGroup.name, Models.AccessPointZone.name]
+                            models_from_access_point.forEach(model => {
+                                if (models[model].gettingActions) {
+                                    const actions = models[model].getActions()
+                                    Object.keys(actions).forEach(action => {
+                                        actions[action] = true
+                                    })
+                                    permissions[model] = {
+                                        actions: actions
+                                    }
+                                }
+                            })
+                        }
+
                         Object.keys(extra_settings.features).forEach(model => {
                             Object.keys(extra_settings.features[model]).forEach(feature => {
                                 if (extra_settings.features[model][feature]) {
