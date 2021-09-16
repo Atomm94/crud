@@ -19,6 +19,7 @@ import { logUserEvents } from '../enums/logUserEvents.enum'
 import { readerTypes } from '../enums/readerTypes'
 import { acuCloudStatus } from '../enums/acuCloudStatus.enum'
 import { accessPointDoorState } from '../enums/accessPointDoorState.enum'
+import { acuStatus } from '../enums/acuStatus.enum'
 
 // import { uid } from 'uid'
 
@@ -303,13 +304,15 @@ export default class Parse {
 
     public static async deviceRegistration (message: IMqttCrudMessaging) {
         try {
-            const acu_data: any = {}
+            const device_id = message.info.device_id
+            const acu = Acu.findOne({ where: { serial_number: device_id, status: acuStatus.PENDING, company: message.company } })
+            const acu_data: any = acu || {}
             acu_data.name = message.info.name
             acu_data.description = message.info.note
-            acu_data.serial_number = message.info.device_id
+            acu_data.serial_number = device_id
             acu_data.fw_version = message.info.firmware_ver
             acu_data.time = JSON.stringify({
-                time_zone: acu_data.gmt,
+                time_zone: message.info.gmt,
                 timezone_from_facility: false,
                 enable_daylight_saving_time: false,
                 daylight_saving_time_from_user_account: false
@@ -318,7 +321,7 @@ export default class Parse {
 
             await Acu.save(acu_data)
             // const user = message.send_data
-            new SendDeviceMessage(OperatorType.ACCEPT, message.location, message.device_id, 'none')
+            new SendDeviceMessage(OperatorType.ACCEPT, message.location, device_id, 'none')
             // console.log('success:true')
         } catch (error) {
             console.log('error deviceRegistrion ', error)
