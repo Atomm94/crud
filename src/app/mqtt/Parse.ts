@@ -24,7 +24,7 @@ import { acuStatus } from '../enums/acuStatus.enum'
 // import { uid } from 'uid'
 
 export default class Parse {
-    public static deviceData (topic: string, data: string) {
+    public static deviceData(topic: string, data: string) {
         try {
             const message: IMqttCrudMessaging = JSON.parse(data)
 
@@ -264,7 +264,7 @@ export default class Parse {
         }
     }
 
-    public static async pingAck (message: IMqttCrudMessaging) {
+    public static async pingAck(message: IMqttCrudMessaging) {
         try {
             Acu.findOneOrFail({ serial_number: message.device_id /*, company: company */ }).then(async (acuData: Acu) => {
                 const access_points: any = await AccessPoint.getAllItems({ where: { acu: { '=': acuData.id } } })
@@ -302,10 +302,10 @@ export default class Parse {
         }
     }
 
-    public static async deviceRegistration (message: IMqttCrudMessaging) {
+    public static async deviceRegistration(message: IMqttCrudMessaging) {
         try {
             const device_id = message.info.device_id
-            const acu = Acu.findOne({ where: { serial_number: device_id, status: acuStatus.PENDING, company: message.company } })
+            const acu = await Acu.findOne({ where: { serial_number: device_id, status: acuStatus.PENDING, company: message.company } })
             const acu_data: any = acu || {}
             acu_data.name = message.info.name
             acu_data.description = message.info.note
@@ -318,7 +318,6 @@ export default class Parse {
                 daylight_saving_time_from_user_account: false
             })
             acu_data.company = message.company
-
             await Acu.save(acu_data)
             // const user = message.send_data
             new SendDeviceMessage(OperatorType.ACCEPT, message.location, device_id, 'none')
@@ -328,7 +327,7 @@ export default class Parse {
         }
     }
 
-    public static async deviceCancelRegistration (message: IMqttCrudMessaging) {
+    public static async deviceCancelRegistration(message: IMqttCrudMessaging) {
         // console.log('deviceCancelRegistration', message)
         if (message.result.errorNo === 0) {
             console.log('deviceCancelRegistration complete')
@@ -336,7 +335,7 @@ export default class Parse {
         }
     }
 
-    public static deviceAcceptAck (message: IMqttCrudMessaging) {
+    public static deviceAcceptAck(message: IMqttCrudMessaging) {
         // console.log('deviceAcceptAck', message)
         if (message.result.errorNo === 0) {
             // const company = message.company
@@ -353,7 +352,7 @@ export default class Parse {
         }
     }
 
-    public static async deviceLoginAck (message: IMqttCrudMessaging) {
+    public static async deviceLoginAck(message: IMqttCrudMessaging) {
         // console.log('deviceLoginAck', message)
         // if (message.result.errorNo === 0) {
         const acu: Acu = await Acu.findOneOrFail({ serial_number: message.device_id /*, company: message.company */ })
@@ -377,7 +376,7 @@ export default class Parse {
         // }
     }
 
-    public static async deviceLogOutAck (message: IMqttCrudMessaging) {
+    public static async deviceLogOutAck(message: IMqttCrudMessaging) {
         // console.log('deviceLogOutAck', message)
         if (message.result.errorNo === 0) {
             // console.log('logout complete')
@@ -390,7 +389,7 @@ export default class Parse {
         }
     }
 
-    public static async deviceSetPassAck (message: IMqttCrudMessaging) {
+    public static async deviceSetPassAck(message: IMqttCrudMessaging) {
         // console.log('deviceSetPassAck', message)
         if (message.result.errorNo === 0) {
             // const company = message.company
@@ -406,7 +405,7 @@ export default class Parse {
         }
     }
 
-    public static async deviceLogOutEvent (message: IMqttCrudMessaging) {
+    public static async deviceLogOutEvent(message: IMqttCrudMessaging) {
         // console.log('deviceLogOutEvent', message)
         if (message.result.errorNo === 0) {
             // const company = message.company
@@ -427,7 +426,7 @@ export default class Parse {
         }
     }
 
-    public static async deviceSetNetSettingsAck (message: IMqttCrudMessaging) {
+    public static async deviceSetNetSettingsAck(message: IMqttCrudMessaging) {
         try {
             if (message.result.errorNo === 0) {
                 const company = message.company
@@ -456,7 +455,7 @@ export default class Parse {
         }
     }
 
-    public static async deviceGetNetSettingsAck (message: any) {
+    public static async deviceGetNetSettingsAck(message: any) {
         // {
         try {
             if (message.result.errorNo === 0) {
@@ -483,7 +482,7 @@ export default class Parse {
         }
     }
 
-    public static async deviceSetDateTimeAck (message: IMqttCrudMessaging) {
+    public static async deviceSetDateTimeAck(message: IMqttCrudMessaging) {
         if (message.result.errorNo === 0) {
             const company = message.company
             const device_id = message.device_id
@@ -499,28 +498,28 @@ export default class Parse {
         }
     }
 
-    public static deviceSetMqttSettingsAck (message: IMqttCrudMessaging): void {
+    public static deviceSetMqttSettingsAck(message: IMqttCrudMessaging): void {
         // console.log('deviceSetMqttSettingsAck', message)
         if (message.result.errorNo === 0) {
             // console.log('deviceSetMqttSettingsAck complete')
         }
     }
 
-    public static deviceGetMqttSettingsAck (message: IMqttCrudMessaging): void {
+    public static deviceGetMqttSettingsAck(message: IMqttCrudMessaging): void {
         // console.log('deviceGetMqttSettingsAck', message)
         if (message.result.errorNo === 0) {
             // console.log('deviceGetMqttSettingsAck complete')
         }
     }
 
-    public static deviceGetStatusAcuAck (message: IMqttCrudMessaging): void {
+    public static deviceGetStatusAcuAck(message: IMqttCrudMessaging): void {
         // console.log('deviceGetStatusAcuAck', message)
         if (message.result.errorNo === 0) {
             // console.log('deviceGetStatusAcuAck complete')
         }
     }
 
-    public static async deviceSetExtBrdAck (message: IMqttCrudMessaging) {
+    public static async deviceSetExtBrdAck(message: IMqttCrudMessaging) {
         // console.log('deviceSetExtBrdAck', message)
         if (message.result.errorNo === 0) {
             const company = message.company
@@ -544,14 +543,14 @@ export default class Parse {
         }
     }
 
-    public static deviceGetExtBrdAck (message: IMqttCrudMessaging) {
+    public static deviceGetExtBrdAck(message: IMqttCrudMessaging) {
         // console.log('deviceGetExtBrdAck', message)
         if (message.result.errorNo === 0) {
             // console.log('ExtDevice complete')
         }
     }
 
-    public static async deviceDelExtBrdAck (message: IMqttCrudMessaging) {
+    public static async deviceDelExtBrdAck(message: IMqttCrudMessaging) {
         // console.log('deviceDelExtBrdAck', message)
         if (message.result.errorNo === 0 || message.result.errorNo === 11) {
             const company = message.company
@@ -563,7 +562,7 @@ export default class Parse {
         }
     }
 
-    public static async deviceSetRdAck (message: IMqttCrudMessaging) {
+    public static async deviceSetRdAck(message: IMqttCrudMessaging) {
         // console.log('deviceSetRd', message)
         const ind = message.send_data.data.answer_qty
         const reader_data = message.send_data.data.readers[ind]
@@ -592,14 +591,14 @@ export default class Parse {
         }
     }
 
-    public static deviceGetRdAck (message: IMqttCrudMessaging): void {
+    public static deviceGetRdAck(message: IMqttCrudMessaging): void {
         // console.log('deviceGetRdAck', message)
         if (message.result.errorNo === 0) {
             // console.log('deviceGetRdAck complete')
         }
     }
 
-    public static async deviceDelRdAck (message: IMqttCrudMessaging) {
+    public static async deviceDelRdAck(message: IMqttCrudMessaging) {
         // console.log('deviceDelRdAck', message)
         if (message.result.errorNo === 0 || message.result.errorNo === 11) {
             const company = message.company
@@ -629,28 +628,28 @@ export default class Parse {
         }
     }
 
-    public static deviceSetOutputAck (message: IMqttCrudMessaging): void {
+    public static deviceSetOutputAck(message: IMqttCrudMessaging): void {
         // console.log('deviceGetRdAck', message)
         if (message.result.errorNo === 0) {
             // console.log('deviceGetRdAck complete')
         }
     }
 
-    public static deviceGetOutputAck (message: IMqttCrudMessaging): void {
+    public static deviceGetOutputAck(message: IMqttCrudMessaging): void {
         // console.log('deviceGetOutputAck', message)
         if (message.result.errorNo === 0) {
             // console.log('deviceGetOutputAck complete')
         }
     }
 
-    public static deviceGetInputAck (message: IMqttCrudMessaging): void {
+    public static deviceGetInputAck(message: IMqttCrudMessaging): void {
         // console.log('deviceGetInputAck', message)
         if (message.result.errorNo === 0) {
             // console.log('deviceGetInputAck complete')
         }
     }
 
-    public static async deviceSetCtpDoorAck (message: IMqttCrudMessaging) {
+    public static async deviceSetCtpDoorAck(message: IMqttCrudMessaging) {
         // console.log('deviceSetCtpDoorAck', message)
         if (message.result.errorNo === 0 || message.result.errorNo === 777) {
             const company = message.company
@@ -677,7 +676,7 @@ export default class Parse {
         }
     }
 
-    public static async deviceDelCtpDoorAck (message: IMqttCrudMessaging) {
+    public static async deviceDelCtpDoorAck(message: IMqttCrudMessaging) {
         console.log('deviceDelCtpDoorAck', message)
         if (message.result.errorNo === 0 || message.result.errorNo === 11) {
             const company = message.company
@@ -688,7 +687,7 @@ export default class Parse {
         }
     }
 
-    public static async deviceGetCtpDoorAck (message: IMqttCrudMessaging) {
+    public static async deviceGetCtpDoorAck(message: IMqttCrudMessaging) {
         // console.log('deviceGetCtpTurnstileAck', message)
         if (message.result.errorNo === 0) {
             await AccessPoint.destroyItem({ id: message.send_data.data.id /*, company: message.company */ })
@@ -696,7 +695,7 @@ export default class Parse {
         }
     }
 
-    public static async deviceSetCtpTurnstileAck (message: IMqttCrudMessaging) {
+    public static async deviceSetCtpTurnstileAck(message: IMqttCrudMessaging) {
         // console.log('deviceSetCtpTurnstileAck', message)
         if (message.result.errorNo === 0) {
             const company = message.company
@@ -724,7 +723,7 @@ export default class Parse {
         }
     }
 
-    public static async deviceDelCtpTurnstileAck (message: IMqttCrudMessaging) {
+    public static async deviceDelCtpTurnstileAck(message: IMqttCrudMessaging) {
         // console.log('deviceDelCtpTurnstileAck', message)
         if (message.result.errorNo === 0 || message.result.errorNo === 11) {
             const company = message.company
@@ -736,7 +735,7 @@ export default class Parse {
         }
     }
 
-    public static async deviceGetCtpTurnstileAck (message: IMqttCrudMessaging) {
+    public static async deviceGetCtpTurnstileAck(message: IMqttCrudMessaging) {
         // console.log('deviceGetCtpTurnstileAck', message)
         if (message.result.errorNo === 0) {
             // await AccessPoint.destroyItem({ id: message.send_data.data.id, company: message.company })
@@ -745,7 +744,7 @@ export default class Parse {
         }
     }
 
-    public static async deviceSetCtpGateAck (message: IMqttCrudMessaging) {
+    public static async deviceSetCtpGateAck(message: IMqttCrudMessaging) {
         // console.log('deviceSetCtpGateAck', message)
         if (message.result.errorNo === 0) {
             const company = message.company
@@ -773,7 +772,7 @@ export default class Parse {
         }
     }
 
-    public static async deviceDelCtpGateAck (message: IMqttCrudMessaging) {
+    public static async deviceDelCtpGateAck(message: IMqttCrudMessaging) {
         // console.log('deviceDelCtpGateAck', message)
         if (message.result.errorNo === 0 || message.result.errorNo === 11) {
             const company = message.company
@@ -785,7 +784,7 @@ export default class Parse {
         }
     }
 
-    public static async deviceGetCtpGateAck (message: IMqttCrudMessaging) {
+    public static async deviceGetCtpGateAck(message: IMqttCrudMessaging) {
         // console.log('deviceGetCtpGateAck', message)
         if (message.result.errorNo === 0) {
             // await AccessPoint.destroyItem({ id: message.send_data.data.id, company: message.company })
@@ -794,7 +793,7 @@ export default class Parse {
         }
     }
 
-    public static async deviceSetCtpGatewayAck (message: IMqttCrudMessaging) {
+    public static async deviceSetCtpGatewayAck(message: IMqttCrudMessaging) {
         // console.log('deviceSetCtpGatewayAck', message)
         if (message.result.errorNo === 0) {
             const company = message.company
@@ -822,7 +821,7 @@ export default class Parse {
         }
     }
 
-    public static async deviceDelCtpGatewayAck (message: IMqttCrudMessaging) {
+    public static async deviceDelCtpGatewayAck(message: IMqttCrudMessaging) {
         // console.log('deviceDelCtpGatewayAck', message)
         if (message.result.errorNo === 0 || message.result.errorNo === 11) {
             const company = message.company
@@ -834,7 +833,7 @@ export default class Parse {
         }
     }
 
-    public static async deviceGetCtpGatewayAck (message: IMqttCrudMessaging) {
+    public static async deviceGetCtpGatewayAck(message: IMqttCrudMessaging) {
         // console.log('deviceGetCtpGatewayAck', message)
         if (message.result.errorNo === 0) {
             // await AccessPoint.destroyItem({ id: message.send_data.data.id, company: message.company })
@@ -843,7 +842,7 @@ export default class Parse {
         }
     }
 
-    public static async deviceSetCtpFloorAck (message: IMqttCrudMessaging) {
+    public static async deviceSetCtpFloorAck(message: IMqttCrudMessaging) {
         // console.log('deviceSetCtpFloorAck', message)
         if (message.result.errorNo === 0) {
             const company = message.company
@@ -870,7 +869,7 @@ export default class Parse {
         }
     }
 
-    public static async deviceDelCtpFloorAck (message: IMqttCrudMessaging) {
+    public static async deviceDelCtpFloorAck(message: IMqttCrudMessaging) {
         // console.log('deviceDelCtpFloorAck', message)
         if (message.result.errorNo === 0 || message.result.errorNo === 11) {
             const company = message.company
@@ -882,7 +881,7 @@ export default class Parse {
         }
     }
 
-    public static async deviceGetCtpFloorAck (message: IMqttCrudMessaging) {
+    public static async deviceGetCtpFloorAck(message: IMqttCrudMessaging) {
         // console.log('deviceGetCtpFloorAck', message)
         if (message.result.errorNo === 0) {
             // await AccessPoint.destroyItem({ id: message.send_data.data.id, company: message.company })
@@ -891,7 +890,7 @@ export default class Parse {
         }
     }
 
-    public static deviceEvent (message: IMqttCrudMessaging): void {
+    public static deviceEvent(message: IMqttCrudMessaging): void {
         // console.log('deviceEvent', message)
         if (message.info) {
             LogController.createEventFromDevice(message)
@@ -899,7 +898,7 @@ export default class Parse {
         }
     }
 
-    public static deviceSetEventsModAck (message: IMqttCrudMessaging): void {
+    public static deviceSetEventsModAck(message: IMqttCrudMessaging): void {
         // console.log('deviceSetEventsModAck', message)
         if (message.result.errorNo === 0) {
             // console.log('deviceSetEventsModAck complete')
@@ -907,7 +906,7 @@ export default class Parse {
         }
     }
 
-    public static deviceGetEventsModAck (message: IMqttCrudMessaging): void {
+    public static deviceGetEventsModAck(message: IMqttCrudMessaging): void {
         // console.log('deviceGetEventsModAck', message)
         if (message.result.errorNo === 0) {
             // console.log('deviceGetEventsModAck complete')
@@ -915,7 +914,7 @@ export default class Parse {
         }
     }
 
-    public static deviceGetEventsAck (message: IMqttCrudMessaging): void {
+    public static deviceGetEventsAck(message: IMqttCrudMessaging): void {
         // console.log('deviceGetEventsAck', message)
         if (message.result.errorNo === 0) {
             // console.log('deviceGetEventsAck complete')
@@ -923,7 +922,7 @@ export default class Parse {
         }
     }
 
-    public static async deviceSetAccessModeAck (message: IMqttCrudMessaging) {
+    public static async deviceSetAccessModeAck(message: IMqttCrudMessaging) {
         // console.log('deviceSetAccessModeAck', message)
         if (message.result.errorNo === 0) {
             // console.log('deviceSetAccessModeAck complete')
@@ -936,7 +935,7 @@ export default class Parse {
         }
     }
 
-    public static deviceGetAccessModeAck (message: IMqttCrudMessaging): void {
+    public static deviceGetAccessModeAck(message: IMqttCrudMessaging): void {
         // console.log('deviceGetAccessModeAck', message)
         if (message.result.errorNo === 0) {
             // console.log('deviceGetAccessModeAck complete')
@@ -944,7 +943,7 @@ export default class Parse {
         }
     }
 
-    public static deviceSinglePassAck (message: IMqttCrudMessaging): void {
+    public static deviceSinglePassAck(message: IMqttCrudMessaging): void {
         // console.log('deviceSinglePassAck', message)
         if (message.result.errorNo === 0) {
             // console.log('deviceSinglePassAck complete')
@@ -952,7 +951,7 @@ export default class Parse {
         }
     }
 
-    public static async setCardKeysAck (message: IMqttCrudMessaging) {
+    public static async setCardKeysAck(message: IMqttCrudMessaging) {
         // console.log('setCardKeysAck', message)
         if (message.result.errorNo === 0) {
             console.log('setCardKeysAck complete')
@@ -961,7 +960,7 @@ export default class Parse {
         }
     }
 
-    public static async addCardKeyAck (message: IMqttCrudMessaging) {
+    public static async addCardKeyAck(message: IMqttCrudMessaging) {
         // console.log('addCardKeyAck', message)
         if (message.result.errorNo === 0) {
             // console.log('addCardKeyAck complete')
@@ -970,7 +969,7 @@ export default class Parse {
         }
     }
 
-    public static async endCardKeyAck (message: IMqttCrudMessaging) {
+    public static async endCardKeyAck(message: IMqttCrudMessaging) {
         // console.log('endCardKeyAck', message)
         if (message.result.errorNo === 0) {
             // console.log('endCardKeyAck complete')
@@ -979,7 +978,7 @@ export default class Parse {
         }
     }
 
-    public static editKeyAck (message: IMqttCrudMessaging): void {
+    public static editKeyAck(message: IMqttCrudMessaging): void {
         // console.log('editKeyAck', message)
         if (message.result.errorNo === 0) {
             console.log('editKeyAck complete')
@@ -987,7 +986,7 @@ export default class Parse {
         }
     }
 
-    public static dellKeysAck (message: IMqttCrudMessaging): void {
+    public static dellKeysAck(message: IMqttCrudMessaging): void {
         // console.log('dellKeysAck', message)
         if (message.result.errorNo === 0) {
             // console.log('dellKeysAck complete')
@@ -995,7 +994,7 @@ export default class Parse {
         }
     }
 
-    public static dellAllKeysAck (message: IMqttCrudMessaging): void {
+    public static dellAllKeysAck(message: IMqttCrudMessaging): void {
         // console.log('dellAllKeysAck', message)
         if (message.result.errorNo === 0) {
             // console.log('dellAllKeysAck complete')
@@ -1003,7 +1002,7 @@ export default class Parse {
         }
     }
 
-    public static async setSdlDailyAck (message: IMqttCrudMessaging) {
+    public static async setSdlDailyAck(message: IMqttCrudMessaging) {
         // console.log('setSdlDailyAck', message)
         const timframe_flag = message.send_data.data.timframe_flag
         if (message.result.errorNo === 0) {
@@ -1028,7 +1027,7 @@ export default class Parse {
         }
     }
 
-    public static async delSdlDailyAck (message: IMqttCrudMessaging) {
+    public static async delSdlDailyAck(message: IMqttCrudMessaging) {
         try {
             // console.log('delSdlDailyAck', message)
             // const acu: any = await Acu.findOne({ serial_number: message.device_id, company: message.company })
@@ -1049,7 +1048,7 @@ export default class Parse {
         }
     }
 
-    public static async setSdlWeeklyAck (message: IMqttCrudMessaging) {
+    public static async setSdlWeeklyAck(message: IMqttCrudMessaging) {
         // console.log('setSdlWeeklyAck', message)
         const timframe_flag = message.send_data.data.timframe_flag
         if (message.result.errorNo === 0) {
@@ -1074,7 +1073,7 @@ export default class Parse {
         }
     }
 
-    public static async delSdlWeeklyAck (message: IMqttCrudMessaging) {
+    public static async delSdlWeeklyAck(message: IMqttCrudMessaging) {
         // console.log('delSdlWeeklyAck', message)
 
         if (message.result.errorNo === 0 || message.result.errorNo === 11) {
@@ -1091,7 +1090,7 @@ export default class Parse {
         }
     }
 
-    public static async setSdlFlexiTimeAck (message: IMqttCrudMessaging) {
+    public static async setSdlFlexiTimeAck(message: IMqttCrudMessaging) {
         // console.log('setSdlFlexiTimeAck', message)
         if (message.result.errorNo === 0) {
             // console.log('setSdlFlexiTimeAck complete')
@@ -1100,7 +1099,7 @@ export default class Parse {
         }
     }
 
-    public static async addDayFlexiTimeAck (message: IMqttCrudMessaging) {
+    public static async addDayFlexiTimeAck(message: IMqttCrudMessaging) {
         // console.log('addDayFlexiTimeAck', message)
         if (message.result.errorNo === 0) {
             // console.log('addDayFlexiTimeAck complete')
@@ -1114,7 +1113,7 @@ export default class Parse {
         }
     }
 
-    public static async endSdlFlexiTimeAck (message: IMqttCrudMessaging) {
+    public static async endSdlFlexiTimeAck(message: IMqttCrudMessaging) {
         // console.log('endSdlFlexiTimeAck', message)
         const timframe_flag = message.send_data.data.data.timframe_flag
         if (message.result.errorNo === 0) {
@@ -1139,7 +1138,7 @@ export default class Parse {
         }
     }
 
-    public static async delSdlFlexiTimeAck (message: IMqttCrudMessaging) {
+    public static async delSdlFlexiTimeAck(message: IMqttCrudMessaging) {
         // console.log('delSdlFlexiTimeAck', message)
 
         if (message.result.errorNo === 0 || message.result.errorNo === 11) {
@@ -1156,7 +1155,7 @@ export default class Parse {
         }
     }
 
-    public static delDayFlexiTimeAck (message: IMqttCrudMessaging): void {
+    public static delDayFlexiTimeAck(message: IMqttCrudMessaging): void {
         // console.log('delDayFlexiTimeAck', message)
         if (message.result.errorNo === 0) {
             // console.log('delDayFlexiTimeAck complete')
@@ -1164,7 +1163,7 @@ export default class Parse {
         }
     }
 
-    public static setSdlSpecifiedAck (message: IMqttCrudMessaging): void {
+    public static setSdlSpecifiedAck(message: IMqttCrudMessaging): void {
         // console.log('setSdlSpecifiedAck', message)
         if (message.result.errorNo === 0) {
             // console.log('setSdlSpecifiedAck complete')
@@ -1174,7 +1173,7 @@ export default class Parse {
         }
     }
 
-    public static addDaySpecifiedAck (message: IMqttCrudMessaging): void {
+    public static addDaySpecifiedAck(message: IMqttCrudMessaging): void {
         // console.log('addDaySpecifiedAck', message)
         if (message.result.errorNo === 0) {
             // console.log('addDaySpecifiedAck complete')
@@ -1189,7 +1188,7 @@ export default class Parse {
         }
     }
 
-    public static async endSdlSpecifiedAck (message: IMqttCrudMessaging) {
+    public static async endSdlSpecifiedAck(message: IMqttCrudMessaging) {
         // console.log('endSdlSpecifiedAck', message)
         const timframe_flag = message.send_data.data.data.timframe_flag
         if (message.result.errorNo === 0) {
@@ -1214,7 +1213,7 @@ export default class Parse {
         }
     }
 
-    public static async delSdlSpecifiedAck (message: IMqttCrudMessaging) {
+    public static async delSdlSpecifiedAck(message: IMqttCrudMessaging) {
         // console.log('delSdlSpecifiedAck', message)
 
         if (message.result.errorNo === 0 || message.result.errorNo === 11) {
@@ -1231,7 +1230,7 @@ export default class Parse {
         }
     }
 
-    public static dellDaySpecifiedAck (message: IMqttCrudMessaging): void {
+    public static dellDaySpecifiedAck(message: IMqttCrudMessaging): void {
         // console.log('dellDaySpecifiedAck', message)
         if (message.result.errorNo === 0) {
             // console.log('dellDaySpecifiedAck complete')
@@ -1239,7 +1238,7 @@ export default class Parse {
         }
     }
 
-    public static async dellSheduleAck (message: IMqttCrudMessaging) {
+    public static async dellSheduleAck(message: IMqttCrudMessaging) {
         // console.log('dellSheduleAck', message)
         const acu = await Acu.findOneOrFail({ serial_number: message.device_id /*, company: message.company */ })
 
@@ -1262,7 +1261,7 @@ export default class Parse {
         }
     }
 
-    public static deviceDevTestAck (message: IMqttCrudMessaging): void {
+    public static deviceDevTestAck(message: IMqttCrudMessaging): void {
         // console.log('deviceDevTestAck', message)
         if (message.result.errorNo === 0) {
             // console.log('deviceDevTestAck complete')
