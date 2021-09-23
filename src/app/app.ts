@@ -41,6 +41,8 @@ const app: Koa = new Koa()
 // app.on('error', (err: Error, ctx: Koa.DefaultContext): void => {
 
 // })
+// Console debug logging
+app.use(logging())
 
 // Validation middleware -> adds ctx.validate
 app.use(validator.koa())
@@ -80,9 +82,6 @@ app.use(requestId())
 
 // Adds an X-Response-Time header with a query execution time value
 app.use(responseTime())
-
-// Console debug logging
-app.use(logging())
 
 // Check Jwt Middleware
 
