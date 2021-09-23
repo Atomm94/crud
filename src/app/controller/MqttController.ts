@@ -226,7 +226,7 @@ export default class MqttController {
             //     info:
             //     {
             //         Group: 0,
-            //         Stp_idx: 9,
+            //         Ctp_idx: 9,
             //         Event_id: 10,
             //         Key_id: 1,
             //         DateTm: 1599904641
@@ -297,7 +297,7 @@ export default class MqttController {
  *                          DateTm:
  *                              type: number
  *                              example: 1599904641
- *                          Stp_idx:
+ *                          Ctp_idx:
  *                              type: number
  *                              example: 51
  *          responses:

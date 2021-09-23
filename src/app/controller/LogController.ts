@@ -77,8 +77,8 @@ export default class LogController {
 
     public static createEventFromDevice (message: IMqttCrudMessaging) {
         const message_data = message.info
-        const acu = Acu.findOneOrFail({ serial_number: message.device_id/*, company: message.company */ })
-        const access_point = AccessPoint.findOne(message_data.Stp_idx)
+        const acu = Acu.findOneOrFail({ serial_number: message.device_id, company: message.company })
+        const access_point = AccessPoint.findOne({ where: { id: message_data.Ctp_idx } })
         const credential = Credential.findOne({ where: { id: message_data.Key_id }, relations: ['cardholders', 'cardholders.access_rights', 'cardholders.antipass_backs', 'cardholders.car_infos', 'cardholders.limitations', 'cardholders.cardholder_groups'] })
 
         Promise.all([acu, access_point, credential]).then((data: any) => {
