@@ -162,7 +162,7 @@ export class Cardholder extends MainEntity {
 
         cardholder.email = data.email
         if ('avatar' in data) {
-            cardholder.avatar = (typeof data.avatar === 'string') ? data.avatar : JSON.stringify(data.avatar)
+            cardholder.avatar = (data.avatar && typeof data.avatar === 'object') ? JSON.stringify(data.avatar) : data.avatar
         }
         cardholder.password = data.password
         cardholder.first_name = data.first_name
@@ -280,7 +280,7 @@ export class Cardholder extends MainEntity {
 
         if ('email' in data) cardholder.email = data.email
         if ('avatar' in data) {
-            cardholder.avatar = (typeof data.avatar === 'string') ? data.avatar : JSON.stringify(data.avatar)
+            cardholder.avatar = (data.avatar && typeof data.avatar === 'object') ? JSON.stringify(data.avatar) : data.avatar
         }
         if ('password' in data) cardholder.password = data.password
         if ('first_name' in data) cardholder.first_name = data.first_name
