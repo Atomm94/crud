@@ -161,7 +161,9 @@ export class Cardholder extends MainEntity {
         const cardholder = new Cardholder()
 
         cardholder.email = data.email
-        if ('avatar' in data) cardholder.avatar = data.avatar
+        if ('avatar' in data) {
+            cardholder.avatar = (typeof data.avatar === 'string') ? data.avatar : JSON.stringify(data.avatar)
+        }
         cardholder.password = data.password
         cardholder.first_name = data.first_name
         cardholder.last_name = data.last_name
@@ -277,7 +279,9 @@ export class Cardholder extends MainEntity {
         }
 
         if ('email' in data) cardholder.email = data.email
-        if ('avatar' in data) cardholder.avatar = data.avatar
+        if ('avatar' in data) {
+            cardholder.avatar = (typeof data.avatar === 'string') ? data.avatar : JSON.stringify(data.avatar)
+        }
         if ('password' in data) cardholder.password = data.password
         if ('first_name' in data) cardholder.first_name = data.first_name
         if ('last_name' in data) cardholder.last_name = data.last_name

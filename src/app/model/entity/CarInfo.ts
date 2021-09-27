@@ -26,6 +26,9 @@ export class CarInfo extends MainEntity {
     @OneToOne(type => Cardholder, user => user.car_infos, { nullable: true })
     cardholders: Cardholder | null;
 
+    @Column('longtext', { name: 'avatar', nullable: true })
+    avatar: string | null
+
     public static gettingActions: boolean = false
     public static gettingAttributes: boolean = false
 
@@ -37,6 +40,9 @@ export class CarInfo extends MainEntity {
         carInfo.lp_number = data.lp_number
         carInfo.car_credential = data.car_credential
         carInfo.car_event = data.car_event
+        if ('avatar' in data) {
+            carInfo.avatar = (typeof data.avatar === 'string') ? data.avatar : JSON.stringify(data.avatar)
+        }
 
         return new Promise((resolve, reject) => {
             this.save(carInfo)
@@ -57,6 +63,9 @@ export class CarInfo extends MainEntity {
         if ('lp_number' in data) carInfo.lp_number = data.lp_number
         if ('car_credential' in data) carInfo.car_credential = data.car_credential
         if ('car_event' in data) carInfo.car_event = data.car_event
+        if ('avatar' in data) {
+            carInfo.avatar = (typeof data.avatar === 'string') ? data.avatar : JSON.stringify(data.avatar)
+        }
 
         if (!carInfo) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
