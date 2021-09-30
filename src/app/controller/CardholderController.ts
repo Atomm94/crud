@@ -106,6 +106,9 @@ export default class CardholderController {
      *                            car_event:
      *                                type: boolean
      *                                example: true
+     *                            avatar:
+     *                                type: string
+     *                                example: {}
      *                    limitation_inherited:
      *                        type: boolean
      *                        example: true
@@ -426,6 +429,9 @@ export default class CardholderController {
      *                          car_event:
      *                              type: boolean
      *                              example: true
+     *                          avatar:
+     *                              type: string
+     *                              example: {}
      *                  limitation_inherited:
      *                      type: boolean
      *                      example: true
