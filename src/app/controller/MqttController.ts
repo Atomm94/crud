@@ -229,7 +229,7 @@ export default class MqttController {
             //         Ctp_idx: 9,
             //         Event_id: 10,
             //         Key_id: 1,
-            //         DateTm: 1599904641
+            //         time: 1599904641
             //     }
             // }
             // MQTTBroker.publishMessage('/1/5/1073493824/event', JSON.stringify(send_event))
@@ -294,7 +294,7 @@ export default class MqttController {
  *                          Key_id:
  *                              type: number
  *                              example: 5
- *                          DateTm:
+ *                          time:
  *                              type: number
  *                              example: 1599904641
  *                          Ctp_idx:

@@ -82,7 +82,7 @@ export default class LogController {
         const credential = Credential.findOne({ where: { id: message_data.Key_id }, relations: ['cardholders', 'cardholders.access_rights', 'cardholders.antipass_backs', 'cardholders.car_infos', 'cardholders.limitations', 'cardholders.cardholder_groups'] })
 
         Promise.all([acu, access_point, credential]).then((data: any) => {
-            const eventData: any = { operator: OperatorType.EVENT_LOG, data: { company: message.company, date: message_data.DateTm } }
+            const eventData: any = { operator: OperatorType.EVENT_LOG, data: { company: message.company, date: message_data.time } }
             const acu: Acu = data[0]
             if (acu) {
                 const access_point: AccessPoint = data[1]
