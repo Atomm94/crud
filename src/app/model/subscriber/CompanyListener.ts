@@ -99,7 +99,11 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
                             role_permissions[action] = true
                         })
 
+                        console.log('package_type', package_type)
+
                         if (package_type.service) {
+                            console.log('111111111111 if (package_type.service)')
+
                             const reg_inv_permissions = RegistrationInvite.getActions()
                             Object.keys(reg_inv_permissions).forEach(action => {
                                 reg_inv_permissions[action] = true
