@@ -25,7 +25,11 @@ export class EventLog extends BaseClass {
         let url = `${getEventLogsUrl}?company=${user.company ? user.company : 0}`
 
         if (user.companyData && user.companyData.package) {
-            const package_data = await Package.findOneOrFail({ where: { id: user.companyData.package } })
+            const package_data = await Package.createQueryBuilder('package')
+                .where('id = :id', { id: user.companyData.package })
+                .withDeleted()
+                .getOne() as Package
+
             if (package_data.extra_settings) {
                 const extra_settings: any = JSON.parse(package_data.extra_settings)
                 if (extra_settings.resources[this.name]) {
@@ -72,7 +76,11 @@ export class EventLog extends BaseClass {
             let url = `${getEventStatisticUrl}?company=${user.company ? user.company : 0}`
 
             if (user.companyData && user.companyData.package) {
-                const package_data = await Package.findOneOrFail({ where: { id: user.companyData.package } })
+                const package_data = await Package.createQueryBuilder('package')
+                    .where('id = :id', { id: user.companyData.package })
+                    .withDeleted()
+                    .getOne() as Package
+
                 if (package_data.extra_settings) {
                     const extra_settings: any = JSON.parse(package_data.extra_settings)
                     if (extra_settings.resources[this.name]) {
