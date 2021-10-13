@@ -15,6 +15,8 @@ import SendSocketMessage from '../../mqtt/SendSocketMessage'
 import { acuStatus } from '../../enums/acuStatus.enum'
 import { AccessPoint, Company } from '../entity'
 import CronJob from './../../cron'
+import { AccessPointStatus } from '../entity/AccessPointStatus'
+import { AcuStatus } from '../entity/AcuStatus'
 
 @EventSubscriber()
 export class PostSubscriber implements EntitySubscriberInterface<Acu> {
@@ -58,6 +60,12 @@ export class PostSubscriber implements EntitySubscriberInterface<Acu> {
             const company = await Company.findOne({ where: { id: data.company } })
             const acu_data = { ...data, companies: company }
             CronJob.active_devices[data.id] = acu_data
+
+            AcuStatus.addItem(data)
+            const access_points: any = await AccessPoint.getAllItems({ where: { acu: data.id } })
+            for (const access_point of access_points) {
+                AccessPointStatus.addItem({ ...access_point, access_point: access_point.id })
+            }
         }
     }
 
@@ -101,6 +109,14 @@ export class PostSubscriber implements EntitySubscriberInterface<Acu> {
                 const company = await Company.findOne({ where: { id: New.company } })
                 const acu_data = { ...New, companies: company }
                 CronJob.active_devices[New.id] = acu_data
+
+                AcuStatus.addItem(New)
+                const access_points: any = await AccessPoint.getAllItems({ where: { acu: New.id } })
+                for (const access_point of access_points) {
+                    AccessPointStatus.addItem({ ...access_point, access_point: access_point.id })
+                }
+            } else if (Old.status === acuStatus.ACTIVE) {
+                AcuStatus.destroyItem({ acu: New.id })
             }
         }
 

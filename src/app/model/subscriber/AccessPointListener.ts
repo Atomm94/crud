@@ -11,6 +11,7 @@ import { socketChannels } from '../../enums/socketChannels.enum'
 import { AccessPoint, Acu } from '../entity'
 import SendSocketMessage from '../../mqtt/SendSocketMessage'
 import { acuStatus } from '../../enums/acuStatus.enum'
+import { AccessPointStatus } from '../entity/AccessPointStatus'
 
 @EventSubscriber()
 export class PostSubscriber implements EntitySubscriberInterface<AccessPoint> {
@@ -39,6 +40,7 @@ export class PostSubscriber implements EntitySubscriberInterface<AccessPoint> {
 
         const acu: any = await Acu.findOne({ where: { id: data.acu, status: acuStatus.ACTIVE } })
         if (acu) {
+            AccessPointStatus.addItem({ ...data, access_point: data.id })
             const cloud_status_data = {
                 id: data.id,
                 acus: {
@@ -78,6 +80,16 @@ export class PostSubscriber implements EntitySubscriberInterface<AccessPoint> {
                 door_state: New.door_state
             }
             new SendSocketMessage(socketChannels.DASHBOARD_DOOR_STATE, sended_door_state, New.company)
+        }
+
+        if (New.resources !== Old.resources) {
+            const acu: any = await Acu.findOne({ where: { id: New.acu, status: acuStatus.ACTIVE } })
+            if (acu) {
+                AccessPointStatus.updateItem({
+                    access_point: New.id,
+                    resources: New.resources
+                } as AccessPointStatus)
+            }
         }
     }
 
