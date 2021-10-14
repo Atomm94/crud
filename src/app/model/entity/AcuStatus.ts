@@ -1,7 +1,6 @@
 import {
     Entity,
     Column,
-    OneToMany,
     JoinColumn,
     ManyToOne
     // ManyToOne,
@@ -28,10 +27,6 @@ export class AcuStatus extends MainEntity {
 
     @Column('int', { name: 'company', nullable: false })
     company: number
-
-    @OneToMany(type => AccessPointStatus, access_point => access_point.acu_statuses, { cascade: true })
-    @JoinColumn({ name: 'acu' })
-    access_point_statuses: AccessPointStatus[];
 
     @ManyToOne(type => Acu, acu => acu.acu_statuses)
     @JoinColumn({ name: 'acu' })
@@ -99,15 +94,15 @@ export class AcuStatus extends MainEntity {
     public static async destroyItem (data: any) {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
-            this.findOne({ acu: data.acu }).then((acu_data: any) => {
-                this.remove(acu_data)
-                    .then(async () => {
-                        resolve({ message: 'success' })
-                    })
-                    .catch(() => {
-                        resolve({ message: 'AcuStatus delete failed' })
-                    })
-            })
+            this.remove(await this.findOneOrFail({ acu: data.acu }))
+                .then(async () => {
+                    AccessPointStatus.destroyItem({ acu: data.acu })
+                    resolve({ message: 'success' })
+                })
+                .catch((error: any) => {
+                    console.log('AcuStatus delete failed', error)
+                    resolve({ message: 'AcuStatus delete failed' })
+                })
         })
     }
 

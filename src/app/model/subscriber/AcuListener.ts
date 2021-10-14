@@ -61,7 +61,7 @@ export class PostSubscriber implements EntitySubscriberInterface<Acu> {
             const acu_data = { ...data, companies: company }
             CronJob.active_devices[data.id] = acu_data
 
-            AcuStatus.addItem(data)
+            AcuStatus.addItem({ ...data, acu: data.id })
             const access_points: any = await AccessPoint.getAllItems({ where: { acu: data.id } })
             for (const access_point of access_points) {
                 AccessPointStatus.addItem({ ...access_point, access_point: access_point.id })
@@ -79,6 +79,20 @@ export class PostSubscriber implements EntitySubscriberInterface<Acu> {
     async afterUpdate (event: UpdateEvent<Acu>) {
         const { entity: New, databaseEntity: Old }: any = event
         if (New.status !== Old.status) {
+            if (New.status === acuStatus.ACTIVE) {
+                const company = await Company.findOne({ where: { id: New.company } })
+                const acu_data = { ...New, companies: company }
+                CronJob.active_devices[New.id] = acu_data
+
+                AcuStatus.addItem({ ...New, acu: New.id })
+                const access_points: any = await AccessPoint.getAllItems({ where: { acu: New.id } })
+                for (const access_point of access_points) {
+                    AccessPointStatus.addItem({ ...access_point, access_point: access_point.id })
+                }
+            } else if (Old.status === acuStatus.ACTIVE) {
+                AcuStatus.destroyItem({ acu: New.id })
+            }
+
             New.topic = SendTopics.MQTT_SOCKET
             New.channel = socketChannels.DASHBOARD_ACU
             const promises = []
@@ -104,20 +118,6 @@ export class PostSubscriber implements EntitySubscriberInterface<Acu> {
 
             }
             new SendSocketMessage(socketChannels.DASHBOARD_ACU, send_data, New.company)
-
-            if (New.status === acuStatus.ACTIVE) {
-                const company = await Company.findOne({ where: { id: New.company } })
-                const acu_data = { ...New, companies: company }
-                CronJob.active_devices[New.id] = acu_data
-
-                AcuStatus.addItem(New)
-                const access_points: any = await AccessPoint.getAllItems({ where: { acu: New.id } })
-                for (const access_point of access_points) {
-                    AccessPointStatus.addItem({ ...access_point, access_point: access_point.id })
-                }
-            } else if (Old.status === acuStatus.ACTIVE) {
-                AcuStatus.destroyItem({ acu: New.id })
-            }
         }
 
         if (New.cloud_status !== Old.cloud_status) {

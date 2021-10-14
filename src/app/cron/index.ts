@@ -56,24 +56,28 @@ export default class CronJob {
 
     public static async updateAcuCloudStatus (interval: string) {
         new Cron.CronJob(interval, async () => {
-            const acu_statuses: any = await AcuStatus.getAllItems({ relations: ['acus', 'companies'] })
+            const acu_statuses: any = await AcuStatus.getAllItems({ relations: ['acus'] })
             for (const acu_status of acu_statuses) {
-                if (acu_status.timestamp > (new Date().getTime() - acu_cloud_status_change_time * 60 * 1000)) { // hard code!!
-                    acu_status.acus.cloud_status = acuCloudStatus.ONLINE
-                } else {
-                    acu_status.acus.cloud_status = acuCloudStatus.OFFLINE
+                let cloud_status = acuCloudStatus.OFFLINE
+                if (acu_status.timestamp > (new Date().getTime() - acu_cloud_status_change_time * 60 * 1000)) {
+                    cloud_status = acuCloudStatus.ONLINE
                 }
-                Acu.save(acu_status.acus)
+                if (acu_status.acus.cloud_status !== cloud_status) {
+                    acu_status.acus.cloud_status = cloud_status
+                    Acu.save(acu_status.acus)
+                }
             }
         }).start()
     }
 
     public static async updateAccessPointDoorState (interval: string) {
         new Cron.CronJob(interval, async () => {
-            const access_point_statuses: any = await AccessPointStatus.getAllItems({ relations: ['access_points', 'companies'] })
+            const access_point_statuses: any = await AccessPointStatus.getAllItems({ relations: ['access_points'] })
             for (const access_point_status of access_point_statuses) {
-                access_point_status.access_points.door_state = access_point_status.door_state
-                AccessPoint.save(access_point_status.access_points)
+                if (access_point_status.access_points.door_state !== access_point_status.door_state) {
+                    access_point_status.access_points.door_state = access_point_status.door_state
+                    AccessPoint.save(access_point_status.access_points)
+                }
             }
         }).start()
     }

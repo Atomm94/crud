@@ -9,7 +9,6 @@ import {
 } from 'typeorm'
 import { AccessPoint } from '.'
 import { accessPointDoorState } from '../../enums/accessPointDoorState.enum'
-import { AcuStatus } from './AcuStatus'
 
 import { MainEntity } from './MainEntity'
 // import { Company } from './Company'
@@ -31,14 +30,6 @@ export class AccessPointStatus extends MainEntity {
 
     @Column('int', { name: 'company', nullable: false })
     company: number
-
-    // @ManyToOne(type => Company, company => company.access_points)
-    // @JoinColumn({ name: 'company' })
-    // companies: Company;
-
-    @ManyToOne(type => AcuStatus, acu => acu.access_point_statuses)
-    @JoinColumn({ name: 'acu' })
-    acu_statuses: AcuStatus;
 
     @ManyToOne(type => AccessPoint, access_point => access_point.access_point_statuses)
     @JoinColumn({ name: 'access_point' })
@@ -103,17 +94,14 @@ export class AccessPointStatus extends MainEntity {
     public static async destroyItem (where: any) {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
-            this.find({ where: where }).then((data: any) => {
-                this.remove(data)
-                    .then(() => {
-                        resolve({ message: 'success' })
-                    })
-                    .catch(() => {
-                        resolve({ message: 'AccessPointStatus delete failed' })
-                    })
-            }).catch((error: any) => {
-                reject(error)
-            })
+            this.remove(await this.find(where))
+                .then(() => {
+                    resolve({ message: 'success' })
+                })
+                .catch((error: any) => {
+                    console.log('AccessPointStatus delete failed', error)
+                    resolve({ message: 'AccessPointStatus delete failed' })
+                })
         })
     }
 

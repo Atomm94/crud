@@ -228,6 +228,7 @@ export class Acu extends MainEntity {
 
                         if (data.status === acuStatus.ACTIVE) {
                             delete CronJob.active_devices[data.id]
+                            AcuStatus.destroyItem({ acu: data.id })
                         }
 
                         const access_points: any = await AccessPoint.getAllItems({ where: { acu: { '=': data.id } }/* , relations: ['readers', 'access_rules'] */ })
@@ -239,7 +240,6 @@ export class Acu extends MainEntity {
                             ExtDevice.destroyItem({ id: ext_device.id, company: ext_device.company })
                         }
 
-                        AcuStatus.destroyItem({ acu: data.id })
                         resolve({ message: 'success' })
                     })
                     .catch((error: any) => {
