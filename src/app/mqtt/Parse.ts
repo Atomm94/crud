@@ -654,7 +654,7 @@ export default class Parse {
 
     public static async deviceSetCtpDoorAck (message: IMqttCrudMessaging) {
         // console.log('deviceSetCtpDoorAck', message)
-        if (message.result.errorNo === 0 || message.result.errorNo === 777) {
+        if (message.result.errorNo === 0) {
             const company = message.company
             if (message.send_data.update) {
                 const save = await AccessPoint.updateItem(message.send_data.data as AccessPoint)
