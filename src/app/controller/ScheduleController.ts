@@ -360,8 +360,10 @@ export default class ScheduleController {
             const company = user.company ? user.company : null
             ctx.body = await CardholderGroup.createQueryBuilder('cardholder_group')
                 .innerJoin('cardholder_group.cardholders', 'cardholder', 'cardholder.delete_date is null')
+                .innerJoin('cardholder_group.access_rights', 'access_right', 'access_right.delete_date is null')
                 .select('cardholder_group.name')
                 .addSelect('COUNT(cardholder.id) as cardholders_qty')
+                .addSelect('access_right.name as access_right')
                 .where(`cardholder_group.company = ${company}`)
                 .andWhere(`cardholder_group.time_attendance = ${ctx.params.id}`)
                 .groupBy('cardholder.cardholder_group')
