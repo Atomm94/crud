@@ -23,6 +23,7 @@ import { minusResource } from '../../functions/minusResource'
 import { socketChannels } from '../../enums/socketChannels.enum'
 import SendSocketMessage from '../../mqtt/SendSocketMessage'
 import { acuStatus } from '../../enums/acuStatus.enum'
+import { AccessPointStatus } from './AccessPointStatus'
 
 @Entity('access_point')
 export class AccessPoint extends MainEntity {
@@ -104,6 +105,9 @@ export class AccessPoint extends MainEntity {
 
     @OneToMany(type => Notification, notification => notification.access_points)
     notifications: Notification[];
+
+    @OneToMany(type => AccessPointStatus, access_point_status => access_point_status.access_points)
+    access_point_statuses: AccessPointStatus[];
 
     public static resource: boolean = true
 
@@ -225,6 +229,7 @@ export class AccessPoint extends MainEntity {
                             if (!access_rule.delete_date) AccessRule.destroyItem({ id: access_rule.id, company: access_rule.company })
                         }
 
+                        AccessPointStatus.destroyItem({ access_point: data.id })
                         resolve({ message: 'success' })
                     })
                     .catch((error: any) => {

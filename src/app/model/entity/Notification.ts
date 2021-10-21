@@ -19,7 +19,7 @@ export class Notification extends MainEntity {
     @Column('varchar', { name: 'event', nullable: false })
     event: string
 
-    @Column('varchar', { name: 'description', nullable: true })
+    @Column('longtext', { name: 'description', nullable: true })
     description: string | null
 
     @Column('int', { name: 'company', nullable: false })
@@ -32,7 +32,7 @@ export class Notification extends MainEntity {
     public static async addItem (data: Notification) {
         const notification = new Notification()
 
-        notification.access_point = data.access_point
+        if ('access_point' in data) notification.access_point = data.access_point
         notification.event = data.event
         if ('description' in data) notification.description = data.description
         notification.company = data.company

@@ -17,11 +17,10 @@ import { checkAndDeleteAccessRight } from '../functions/accessRightDelete'
 import SendUserLogMessage from './SendUserLogMessage'
 import { logUserEvents } from '../enums/logUserEvents.enum'
 import { readerTypes } from '../enums/readerTypes'
-import { acuCloudStatus } from '../enums/acuCloudStatus.enum'
 import { accessPointDoorState } from '../enums/accessPointDoorState.enum'
 import { acuStatus } from '../enums/acuStatus.enum'
-
-// import { uid } from 'uid'
+import { AcuStatus } from '../model/entity/AcuStatus'
+import { AccessPointStatus } from '../model/entity/AccessPointStatus'
 
 export default class Parse {
     public static deviceData (topic: string, data: string) {
@@ -45,6 +44,14 @@ export default class Parse {
                     }
                     sended_data.device_id = message.device_id
                     new SendSocketMessage(socketChannels.ERROR_CHANNEL, sended_data, message.company, user)
+                    // if (error === 777) {
+                    //     const notification = {
+                    //         event: `Timeout ${topic} - ${message.operator}`,
+                    //         description: JSON.stringify(message),
+                    //         company: message.company
+                    //     }
+                    //     Notification.addItem(notification as Notification)
+                    // }
                 }
             }
 
@@ -266,36 +273,32 @@ export default class Parse {
 
     public static async pingAck (message: IMqttCrudMessaging) {
         try {
-            Acu.findOneOrFail({ serial_number: message.device_id /*, company: company */ }).then(async (acuData: Acu) => {
-                const access_points: any = await AccessPoint.getAllItems({ where: { acu: { '=': acuData.id } } })
+            AcuStatus.findOneOrFail({ serial_number: message.device_id, company: message.company }).then(async (acuStatusData: AcuStatus) => {
+                const access_point_statuses: any = await AccessPointStatus.getAllItems({ where: { acu: { '=': acuStatusData.acu } } })
                 if (message.result.errorNo === 0) {
-                    acuData.cloud_status = acuCloudStatus.ONLINE
+                    AcuStatus.updateItem(acuStatusData)
                     if (message.info) {
-                        for (const access_point of access_points) {
-                            if (access_point.resources) {
-                                const resources = JSON.parse(access_point.resources)
+                        for (const access_point_status of access_point_statuses) {
+                            if (access_point_status.resources) {
+                                const resources = JSON.parse(access_point_status.resources)
                                 if (resources.Door_sensor) {
                                     const gpio_value = `Gpio_input_opt_${resources.Door_sensor.component_source}_idx_${resources.Door_sensor.input}`
                                     if (resources.Door_sensor && gpio_value in message.info) {
                                         if (message.info[gpio_value] === 0) {
-                                            access_point.door_state = accessPointDoorState.CLOSED
+                                            access_point_status.door_state = accessPointDoorState.CLOSED
                                         } else {
-                                            access_point.door_state = accessPointDoorState.OPEN
+                                            access_point_status.door_state = accessPointDoorState.OPEN
                                         }
                                     } else {
-                                        access_point.door_state = accessPointDoorState.NO_SENSOR
+                                        access_point_status.door_state = accessPointDoorState.NO_SENSOR
                                     }
 
-                                    await AccessPoint.save(access_point)
+                                    await AccessPointStatus.updateItem(access_point_status)
                                 }
                             }
                         }
                     }
-                } else {
-                    acuData.cloud_status = acuCloudStatus.OFFLINE
                 }
-
-                Acu.save(acuData)
             })
         } catch (error) {
             console.log('error pingack ', error)
@@ -651,7 +654,7 @@ export default class Parse {
 
     public static async deviceSetCtpDoorAck (message: IMqttCrudMessaging) {
         // console.log('deviceSetCtpDoorAck', message)
-        if (message.result.errorNo === 0 || message.result.errorNo === 777) {
+        if (message.result.errorNo === 0) {
             const company = message.company
             if (message.send_data.update) {
                 const save = await AccessPoint.updateItem(message.send_data.data as AccessPoint)

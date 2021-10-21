@@ -20,6 +20,7 @@ import SendSocketMessage from '../../mqtt/SendSocketMessage'
 import { socketChannels } from '../../enums/socketChannels.enum'
 import { Company } from './Company'
 import CronJob from './../../cron'
+import { AcuStatus } from './AcuStatus'
 
 @Entity('acu')
 export class Acu extends MainEntity {
@@ -83,6 +84,9 @@ export class Acu extends MainEntity {
     @ManyToOne(type => Company, company => company.acus, { nullable: true })
     @JoinColumn({ name: 'company' })
     companies: Company | null;
+
+    @OneToMany(type => AcuStatus, acu_status => acu_status.acus)
+    acu_statuses: AcuStatus[];
 
     public static async addItem (data: any) {
         const acu = new Acu()
@@ -224,6 +228,7 @@ export class Acu extends MainEntity {
 
                         if (data.status === acuStatus.ACTIVE) {
                             delete CronJob.active_devices[data.id]
+                            AcuStatus.destroyItem({ acu: data.id })
                         }
 
                         const access_points: any = await AccessPoint.getAllItems({ where: { acu: { '=': data.id } }/* , relations: ['readers', 'access_rules'] */ })
@@ -234,6 +239,7 @@ export class Acu extends MainEntity {
                         for (const ext_device of ext_devices) {
                             ExtDevice.destroyItem({ id: ext_device.id, company: ext_device.company })
                         }
+
                         resolve({ message: 'success' })
                     })
                     .catch((error: any) => {
