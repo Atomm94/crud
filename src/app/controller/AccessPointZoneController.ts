@@ -2,6 +2,7 @@ import { DefaultContext } from 'koa'
 import { logUserEvents } from '../enums/logUserEvents.enum'
 import { AccessPoint } from '../model/entity'
 import { AccessPointZone } from '../model/entity/AccessPointZone'
+import { Reader } from '../model/entity/Reader'
 export default class AccessPointZoneController {
     /**
      *
@@ -221,18 +222,28 @@ export default class AccessPointZoneController {
             const user = ctx.user
             const where = { id: req_data.id, company: user.company ? user.company : null }
 
-            const childs = await AccessPointZone.find({ parent_id: req_data.id })
-            if (childs.length) {
+            const childs = await AccessPointZone.findOne({ parent_id: req_data.id })
+            if (childs) {
                 ctx.status = 400
                 ctx.body = { message: 'Can\'t remove group with subzones' }
             } else {
-                const access_points = await AccessPoint.find({ access_point_zone: req_data.id })
-                if (access_points.length) {
+                const access_points = await AccessPoint.findOne({ access_point_zone: req_data.id })
+                if (access_points) {
                     ctx.status = 400
                     ctx.body = { message: 'Can\'t remove group with access points' }
                 } else {
+                    const readers = await Reader.findOne({
+                        where: [
+                            { leaving_zone: req_data.id },
+                            { came_to_zone: req_data.id }
+                        ]
+                    })
+                    if (readers) {
+                        ctx.status = 400
+                        ctx.body = { message: 'Can\'t remove group with readers' }
+                    }
                     const access_point_zone = await AccessPointZone.findOneOrFail({ where: where })
-                    ctx.body = await AccessPointZone.destroyItem(where)
+                    // ctx.body = await AccessPointZone.destroyItem(where)
                     ctx.logsData = [{
                         event: logUserEvents.DELETE,
                         target: `${AccessPointZone.name}/${access_point_zone.name}`,
