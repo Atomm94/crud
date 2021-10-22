@@ -1,5 +1,6 @@
 import { DefaultContext } from 'koa'
 import { logUserEvents } from '../enums/logUserEvents.enum'
+import { AccessPoint } from '../model/entity'
 import { AccessPointZone } from '../model/entity/AccessPointZone'
 export default class AccessPointZoneController {
     /**
@@ -220,13 +221,25 @@ export default class AccessPointZoneController {
             const user = ctx.user
             const where = { id: req_data.id, company: user.company ? user.company : null }
 
-            const access_point_zone = await AccessPointZone.findOneOrFail({ where: where })
-            ctx.body = await AccessPointZone.destroyItem(where)
-            ctx.logsData = [{
-                event: logUserEvents.DELETE,
-                target: `${AccessPointZone.name}/${access_point_zone.name}`,
-                value: { name: access_point_zone.name }
-            }]
+            const childs = await AccessPointZone.find({ parent_id: req_data.id })
+            if (childs.length) {
+                ctx.status = 400
+                ctx.body = { message: 'Can\'t remove group with subzones' }
+            } else {
+                const access_points = await AccessPoint.find({ access_point_zone: req_data.id })
+                if (access_points.length) {
+                    ctx.status = 400
+                    ctx.body = { message: 'Can\'t remove group with access points' }
+                } else {
+                    const access_point_zone = await AccessPointZone.findOneOrFail({ where: where })
+                    ctx.body = await AccessPointZone.destroyItem(where)
+                    ctx.logsData = [{
+                        event: logUserEvents.DELETE,
+                        target: `${AccessPointZone.name}/${access_point_zone.name}`,
+                        value: { name: access_point_zone.name }
+                    }]
+                }
+            }
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
