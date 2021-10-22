@@ -98,7 +98,7 @@ export default class CardholderController {
      *                                type: string
      *                                example: some_color
      *                            lp_number:
-     *                                type: number
+     *                                type: string
      *                                example: 1
      *                            car_credential:
      *                                type: string
@@ -421,7 +421,7 @@ export default class CardholderController {
      *                              type: string
      *                              example: some_color
      *                          lp_number:
-     *                              type: number
+     *                              type: string
      *                              example: 1
      *                          car_credential:
      *                              type: string
