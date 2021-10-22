@@ -14,8 +14,8 @@ export class CarInfo extends MainEntity {
     @Column('varchar', { name: 'color', nullable: true })
     color: string | null
 
-    @Column('int', { name: 'lp_number', nullable: true })
-    lp_number: number | null
+    @Column('varchar', { name: 'lp_number', nullable: true })
+    lp_number: string | null
 
     @Column('varchar', { name: 'car_credential', nullable: true })
     car_credential: string | null
