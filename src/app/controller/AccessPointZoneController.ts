@@ -243,7 +243,7 @@ export default class AccessPointZoneController {
                         ctx.body = { message: 'Can\'t remove group with readers' }
                     }
                     const access_point_zone = await AccessPointZone.findOneOrFail({ where: where })
-                    // ctx.body = await AccessPointZone.destroyItem(where)
+                    ctx.body = await AccessPointZone.destroyItem(where)
                     ctx.logsData = [{
                         event: logUserEvents.DELETE,
                         target: `${AccessPointZone.name}/${access_point_zone.name}`,
