@@ -1117,4 +1117,56 @@ export default class AdminController {
         }
         return ctx.body
     }
+
+    /**
+       *
+       * @swagger
+       *  /account/changeSettings:
+       *      put:
+       *          tags:
+       *              - Admin
+       *          summary: Change settings.
+       *          consumes:
+       *              - application/json
+       *          parameters:
+       *            - in: header
+       *              name: Authorization
+       *              required: true
+       *              description: Authentication token
+       *              schema:
+       *                type: string
+       *            - in: body
+       *              name: admin
+       *              description: Change settings.
+       *              schema:
+       *                type: object
+       *                required:
+       *                  - settings
+       *                properties:
+       *                  settings:
+       *                      type: string
+       *                      example: {}
+       *          responses:
+       *              '201':
+       *                  description: A admin updated object
+       *              '409':
+       *                  description: Conflict
+       *              '422':
+       *                  description: Wrong data
+       */
+
+    public static async changeSettings (ctx: DefaultContext) {
+        try {
+            const req_data = ctx.request.body
+            const user = ctx.user
+            const admin = await Admin.findOneOrFail({ id: user.id })
+            const settings = (typeof req_data.settings === 'string') ? req_data.settings : JSON.stringify(req_data.settings)
+            admin.settings = settings
+            ctx.body = await admin.save()
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
 }
