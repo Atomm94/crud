@@ -1161,7 +1161,7 @@ export default class AdminController {
             const user = ctx.user
             const admin = await Admin.findOneOrFail({ id: user.id })
             delete admin.password
-            const settings = (typeof req_data.settings === 'string') ? req_data.settings : JSON.stringify(req_data.settings)
+            const settings = (req_data.settings && typeof req_data.settings === 'object') ? JSON.stringify(req_data.settings) : req_data.settings
             admin.settings = settings
             ctx.body = await admin.save()
         } catch (error) {
