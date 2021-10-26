@@ -23,6 +23,8 @@ export default router
   .get('account/invite/:token', AdminController.getUserByToken)
   .put('account/invite/:token', AdminController.setPassword)
 
+  .put('Admin-updateItem', 'account/changeSettings', checkRole(), AdminController.changeSettings)
+
   .get('Admin-getItem', 'account/:id', AdminController.get)
 
   // .post('Admin-addItem', 'user', AdminController.createAdmin)

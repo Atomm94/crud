@@ -133,6 +133,9 @@ export class Admin extends MainEntity {
   @Column('varchar', { name: 'time_zone', nullable: true })
   time_zone: string | null;
 
+  @Column('longtext', { name: 'settings', nullable: true })
+  settings: string | null;
+
   @ManyToOne(type => Department, department => department.users, { nullable: true })
   @JoinColumn({ name: 'department' })
   departments: Department | null;
