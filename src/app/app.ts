@@ -36,7 +36,7 @@ const validator = require('node-input-validator')
 const swaggerUi = require('swagger-ui-koa')
 
 const app: Koa = new Koa()
-
+require('koa-qs')(app)
 // centralized error handling
 // app.on('error', (err: Error, ctx: Koa.DefaultContext): void => {
 
