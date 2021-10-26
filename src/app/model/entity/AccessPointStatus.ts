@@ -40,7 +40,7 @@ export class AccessPointStatus extends MainEntity {
 
         accessPointStatus.access_point = data.access_point
         accessPointStatus.acu = data.acu
-        if ('resources' in data) accessPointStatus.resources = (typeof data.resources === 'string') ? data.resources : JSON.stringify(data.resources)
+        if ('resources' in data) accessPointStatus.resources = (data.resources && typeof data.resources === 'object') ? JSON.stringify(data.resources) : data.resources
         accessPointStatus.company = data.company
 
         return new Promise((resolve, reject) => {
@@ -58,7 +58,7 @@ export class AccessPointStatus extends MainEntity {
         const accessPointStatus = await this.findOneOrFail({ access_point: data.access_point })
         const oldData = Object.assign({}, accessPointStatus)
 
-        if ('resources' in data) accessPointStatus.resources = (typeof data.resources === 'string') ? data.resources : JSON.stringify(data.resources)
+        if ('resources' in data) accessPointStatus.resources = (data.resources && typeof data.resources === 'object') ? JSON.stringify(data.resources) : data.resources
         if ('door_state' in data) accessPointStatus.door_state = data.door_state
 
         if (!accessPointStatus) return { status: 400, messsage: 'Item not found' }
