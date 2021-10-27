@@ -23,7 +23,7 @@ export default router
   .get('account/invite/:token', AdminController.getUserByToken)
   .put('account/invite/:token', AdminController.setPassword)
 
-  .put('Admin-updateItem', 'account/changeSettings', checkRole(), AdminController.changeSettings)
+  .put('account/changeSettings', AdminController.changeSettings)
 
   .get('Admin-getItem', 'account/:id', AdminController.get)
 
