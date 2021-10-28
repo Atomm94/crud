@@ -74,27 +74,30 @@ export default class LogController {
             const cardholder_ids = event_logs_data.filter((event_log: any) => event_log.cardholder_id).map((event_log: any) => event_log.cardholder_id)
 
             console.log('cardholder_ids', cardholder_ids)
-            const delete_cardholders: any = await Cardholder.createQueryBuilder('cardholder')
-                .where('id in (:...ids)', { ids: cardholder_ids })
-                .andWhere('delete_date is not null')
-                .withDeleted()
-                .getMany()
+            if (cardholder_ids.length) {
+                const delete_cardholders: any = await Cardholder.createQueryBuilder('cardholder')
+                    .where('id in (:...ids)', { ids: cardholder_ids })
+                    .andWhere('delete_date is not null')
+                    .withDeleted()
+                    .getMany()
 
-            console.log('delete_cardholders', delete_cardholders)
+                console.log('delete_cardholders', delete_cardholders)
 
-            if (delete_cardholders.length) {
-                const delete_cardholder_ids = delete_cardholders.map((cardholder: Cardholder) => cardholder.id)
-                console.log('delete_cardholder_ids', delete_cardholder_ids)
-                for (const event_log of event_logs_data) {
-                    if (delete_cardholder_ids.includes(event_log.cardholder_id)) {
-                        const event_log_cardholder = JSON.parse(event_log.cardholder)
-                        event_log_cardholder.last_name = (event_log_cardholder.last_name) ? `${event_log_cardholder.last_name}(deleted)` : '(deleted)'
-                        event_log.cardholder = JSON.stringify(event_log_cardholder)
+                if (delete_cardholders.length) {
+                    const delete_cardholder_ids = delete_cardholders.map((cardholder: Cardholder) => cardholder.id)
+                    console.log('delete_cardholder_ids', delete_cardholder_ids)
+                    for (const event_log of event_logs_data) {
+                        if (delete_cardholder_ids.includes(event_log.cardholder_id)) {
+                            const event_log_cardholder = JSON.parse(event_log.cardholder)
+                            event_log_cardholder.last_name = (event_log_cardholder.last_name) ? `${event_log_cardholder.last_name}(deleted)` : '(deleted)'
+                            event_log.cardholder = JSON.stringify(event_log_cardholder)
 
-                        console.log('event_log', event_log)
+                            console.log('event_log', event_log)
+                        }
                     }
                 }
             }
+
             if (event_logs.data) {
                 event_logs.data = event_logs_data
             } else {
