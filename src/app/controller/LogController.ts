@@ -67,10 +67,11 @@ export default class LogController {
         try {
             const user = ctx.user
             const req_data = ctx.query
-            const event_logs: any = await EventLog.get(user, req_data)
+            let event_logs: any = await EventLog.get(user, req_data)
             console.log('event_logs', event_logs)
+            const event_logs_data = (event_logs.data) ? event_logs.data : event_logs
 
-            const cardholder_ids = event_logs.filter((event_log: any) => event_log.cardholder_id).map((event_log: any) => event_log.cardholder_id)
+            const cardholder_ids = event_logs_data.filter((event_log: any) => event_log.cardholder_id).map((event_log: any) => event_log.cardholder_id)
 
             console.log('cardholder_ids', cardholder_ids)
             const delete_cardholders: any = await Cardholder.createQueryBuilder('cardholder')
@@ -84,7 +85,7 @@ export default class LogController {
             if (delete_cardholders.length) {
                 const delete_cardholder_ids = delete_cardholders.map((cardholder: Cardholder) => cardholder.id)
                 console.log('delete_cardholder_ids', delete_cardholder_ids)
-                for (const event_log of event_logs) {
+                for (const event_log of event_logs_data) {
                     if (delete_cardholder_ids.includes(event_log.cardholder_id)) {
                         const event_log_cardholder = JSON.parse(event_log.cardholder)
                         event_log_cardholder.last_name = (event_log_cardholder.last_name) ? `${event_log_cardholder.last_name}(deleted)` : '(deleted)'
@@ -93,6 +94,11 @@ export default class LogController {
                         console.log('event_log', event_log)
                     }
                 }
+            }
+            if (event_logs.data) {
+                event_logs.data = event_logs_data
+            } else {
+                event_logs = event_logs_data
             }
             ctx.body = event_logs
         } catch (error) {
