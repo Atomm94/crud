@@ -88,6 +88,8 @@ export default class LogController {
             }
             ctx.body = event_logs
         } catch (error) {
+            console.log('errrrr', error)
+
             ctx.status = error.status || 400
             ctx.body = error
         }
