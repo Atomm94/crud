@@ -68,12 +68,10 @@ export default class LogController {
             const user = ctx.user
             const req_data = ctx.query
             let event_logs: any = await EventLog.get(user, req_data)
-            console.log('event_logs', event_logs)
             const event_logs_data = (event_logs.data) ? event_logs.data : event_logs
 
             const cardholder_ids = event_logs_data.filter((event_log: any) => event_log.cardholder_id).map((event_log: any) => event_log.cardholder_id)
 
-            console.log('cardholder_ids', cardholder_ids)
             if (cardholder_ids.length) {
                 const delete_cardholders: any = await Cardholder.createQueryBuilder('cardholder')
                     .where('id in (:...ids)', { ids: cardholder_ids })
@@ -81,18 +79,13 @@ export default class LogController {
                     .withDeleted()
                     .getMany()
 
-                console.log('delete_cardholders', delete_cardholders)
-
                 if (delete_cardholders.length) {
                     const delete_cardholder_ids = delete_cardholders.map((cardholder: Cardholder) => cardholder.id)
-                    console.log('delete_cardholder_ids', delete_cardholder_ids)
                     for (const event_log of event_logs_data) {
                         if (delete_cardholder_ids.includes(event_log.cardholder_id)) {
                             const event_log_cardholder = JSON.parse(event_log.cardholder)
                             event_log_cardholder.last_name = (event_log_cardholder.last_name) ? `${event_log_cardholder.last_name}(deleted)` : '(deleted)'
                             event_log.cardholder = JSON.stringify(event_log_cardholder)
-
-                            console.log('event_log', event_log)
                         }
                     }
                 }
@@ -105,8 +98,6 @@ export default class LogController {
             }
             ctx.body = event_logs
         } catch (error) {
-            console.log('errrrr', error)
-
             ctx.status = error.status || 400
             ctx.body = error
         }
