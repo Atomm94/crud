@@ -1,6 +1,6 @@
 import { DefaultContext } from 'koa'
 import { IMqttCrudMessaging } from '../Interfaces/messaging.interface'
-import { AccessPoint, Acu } from '../model/entity'
+import { AccessPoint, Acu, Cardholder } from '../model/entity'
 import { Credential } from '../model/entity/Credential'
 import { EventLog } from '../model/entity/EventLog'
 import { UserLog } from '../model/entity/UserLog'
@@ -67,7 +67,36 @@ export default class LogController {
         try {
             const user = ctx.user
             const req_data = ctx.query
-            ctx.body = await EventLog.get(user, req_data)
+            let event_logs: any = await EventLog.get(user, req_data)
+            const event_logs_data = (event_logs.data) ? event_logs.data : event_logs
+
+            const cardholder_ids = event_logs_data.filter((event_log: any) => event_log.cardholder_id).map((event_log: any) => event_log.cardholder_id)
+
+            if (cardholder_ids.length) {
+                const delete_cardholders: any = await Cardholder.createQueryBuilder('cardholder')
+                    .where('id in (:...ids)', { ids: cardholder_ids })
+                    .andWhere('delete_date is not null')
+                    .withDeleted()
+                    .getMany()
+
+                if (delete_cardholders.length) {
+                    const delete_cardholder_ids = delete_cardholders.map((cardholder: Cardholder) => cardholder.id)
+                    for (const event_log of event_logs_data) {
+                        if (delete_cardholder_ids.includes(event_log.cardholder_id)) {
+                            const event_log_cardholder = JSON.parse(event_log.cardholder)
+                            event_log_cardholder.last_name = (event_log_cardholder.last_name) ? `${event_log_cardholder.last_name}(deleted)` : '(deleted)'
+                            event_log.cardholder = JSON.stringify(event_log_cardholder)
+                        }
+                    }
+                }
+            }
+
+            if (event_logs.data) {
+                event_logs.data = event_logs_data
+            } else {
+                event_logs = event_logs_data
+            }
+            ctx.body = event_logs
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
