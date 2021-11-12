@@ -13,15 +13,22 @@ import { acuCloudStatus } from '../enums/acuCloudStatus.enum'
 import { AccessPointStatus } from '../model/entity/AccessPointStatus'
 const acu_cloud_status_change_time = process.env.ACU_CLOUD_STATUS_CHANGE_TIME ? Number(process.env.ACU_CLOUD_STATUS_CHANGE_TIME) : 1 // in minutes
 
+const delete_old_tokens_interval = process.env.DELETE_OLD_TOKENS_INTERVAL ? process.env.DELETE_OLD_TOKENS_INTERVAL : '0 0 0 * * *'
+// const device_ping_interval = process.env.DEVICE_PING_INTERVAL ? process.env.DEVICE_PING_INTERVAL : '*/15 * * * * *'
+const update_acucloud_status_interval = process.env.UPDATE_ACUCLOUD_STATUS_INTERVAL ? process.env.UPDATE_ACUCLOUD_STATUS_INTERVAL : '0 */10 * * * *'
+const update_accesspoint_door_state_interval = process.env.UPDATE_ACCESSPOINT_DOOR_STATE_INTERVAL ? process.env.UPDATE_ACCESSPOINT_DOOR_STATE_INTERVAL : '0 */10 * * * *'
+const send_set_heart_bit_interval = process.env.SEND_SET_HEART_BIT_INTERVAL ? process.env.SEND_SET_HEART_BIT_INTERVAL : '0 0 0 * * *'
+
 export default class CronJob {
     public static cronObj: any = {}
     public static active_devices: any = {}
 
     public static async startCrons () {
-        this.deleteOldTokens('0 0 0 * * *')
-        this.devicePing('*/15 * * * * *')
-        this.updateAcuCloudStatus('0 */10 * * * *')
-        this.updateAccessPointDoorState('0 */10 * * * *')
+        this.deleteOldTokens(delete_old_tokens_interval)
+        // this.devicePing('*/15 * * * * *')
+        this.updateAcuCloudStatus(update_acucloud_status_interval)
+        this.updateAccessPointDoorState(update_accesspoint_door_state_interval)
+        this.sendSetHeartBit(send_set_heart_bit_interval)
     }
 
     public static deleteOldTokens (interval: string): void {
@@ -78,6 +85,20 @@ export default class CronJob {
                     access_point_status.access_points.door_state = access_point_status.door_state
                     AccessPoint.save(access_point_status.access_points)
                 }
+            }
+        }).start()
+    }
+
+    public static async sendSetHeartBit (interval: string) {
+        new Cron.CronJob(interval, async () => {
+            const acus: any = await Acu.getAllItems({ where: { status: acuStatus.ACTIVE, heart_bit: false }, relation: ['companies'] })
+            for (const acu of acus) {
+                const location = `${acu.companies.account}/${acu.company}`
+                const set_heart_bit_data = {
+                    On: true,
+                    min: 1
+                }
+                DeviceController.setHeartBit(location, acu.serial_number, set_heart_bit_data, acu.session_id)
             }
         }).start()
     }

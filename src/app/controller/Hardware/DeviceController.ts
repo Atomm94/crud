@@ -18,4 +18,8 @@ export default class DeviceController {
     public static async ping (location: string, serial_number: number, data: any, session_id: string | null = '0') {
         new SendDeviceMessage(OperatorType.PING, location, serial_number, data, session_id)
     }
+
+    public static async setHeartBit (location: string, serial_number: number, data: any, session_id: string | null = '0') {
+        new SendDeviceMessage(OperatorType.SET_HEART_BIT, location, serial_number, data, session_id)
+    }
 }

@@ -21,6 +21,7 @@ import { accessPointDoorState } from '../enums/accessPointDoorState.enum'
 import { acuStatus } from '../enums/acuStatus.enum'
 import { AcuStatus } from '../model/entity/AcuStatus'
 import { AccessPointStatus } from '../model/entity/AccessPointStatus'
+import { In } from 'typeorm'
 
 export default class Parse {
     public static deviceData (topic: string, data: string) {
@@ -57,6 +58,7 @@ export default class Parse {
 
             switch (message.operator) {
                 case OperatorType.PING_ACK:
+                case OperatorType.HEART_BIT:
                     this.pingAck(message)
                     break
                 case OperatorType.REGISTRATION:
@@ -262,6 +264,9 @@ export default class Parse {
                 case OperatorType.DEV_TEST_ACK:
                     this.deviceDevTestAck(message)
                     break
+                case OperatorType.SET_HEART_BIT_ACK:
+                    this.setHeartBitAck(message)
+                    break
 
                 default:
                     break
@@ -308,23 +313,26 @@ export default class Parse {
     public static async deviceRegistration (message: IMqttCrudMessaging) {
         try {
             const device_id = message.info.device_id
-            const acu = await Acu.findOne({ where: { serial_number: device_id, status: acuStatus.PENDING, company: message.company } })
-            const acu_data: any = acu || {}
-            acu_data.name = message.info.name
-            acu_data.description = message.info.note
-            acu_data.serial_number = device_id
-            acu_data.fw_version = message.info.firmware_ver
-            acu_data.time = JSON.stringify({
-                time_zone: message.info.gmt,
-                timezone_from_facility: false,
-                enable_daylight_saving_time: false,
-                daylight_saving_time_from_user_account: false
-            })
-            acu_data.company = message.company
-            await Acu.save(acu_data)
-            // const user = message.send_data
-            new SendDeviceMessage(OperatorType.ACCEPT, message.location, device_id, 'none')
-            // console.log('success:true')
+            const acu = await Acu.findOne({ where: { serial_number: device_id, status: In([acuStatus.PENDING, acuStatus.ACTIVE]), company: message.company } })
+
+            if (!(acu && acu.status === acuStatus.ACTIVE)) {
+                const acu_data: any = acu || {}
+                acu_data.name = message.info.name
+                acu_data.description = message.info.note
+                acu_data.serial_number = device_id
+                acu_data.fw_version = message.info.firmware_ver
+                acu_data.time = JSON.stringify({
+                    time_zone: message.info.gmt,
+                    timezone_from_facility: false,
+                    enable_daylight_saving_time: false,
+                    daylight_saving_time_from_user_account: false
+                })
+                acu_data.company = message.company
+                await Acu.save(acu_data)
+                // const user = message.send_data
+                new SendDeviceMessage(OperatorType.ACCEPT, message.location, device_id, 'none')
+                // console.log('success:true')
+            }
         } catch (error) {
             console.log('error deviceRegistrion ', error)
         }
@@ -1268,6 +1276,19 @@ export default class Parse {
         // console.log('deviceDevTestAck', message)
         if (message.result.errorNo === 0) {
             // console.log('deviceDevTestAck complete')
+        } else {
+        }
+    }
+
+    public static async setHeartBitAck (message: IMqttCrudMessaging) {
+        // console.log('setHeartBitAck', message)
+        if (message.result.errorNo === 0) {
+            // console.log('setHeartBitAck complete')
+            const acu = await Acu.findOneOrFail({ serial_number: message.device_id, company: message.company })
+            if (!acu.heart_bit) {
+                acu.heart_bit = true
+                acu.save()
+            }
         } else {
         }
     }

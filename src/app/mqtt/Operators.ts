@@ -158,4 +158,8 @@ export enum OperatorType {
 
     DEV_TEST = 'DevTest',
     DEV_TEST_ACK = 'DevTest-Ack',
+
+    SET_HEART_BIT = 'SetHeartBit',
+    SET_HEART_BIT_ACK = 'SetHeartBit-Ack',
+    HEART_BIT = 'HeartBit',
 }

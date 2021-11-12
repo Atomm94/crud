@@ -69,6 +69,9 @@ export class Acu extends MainEntity {
     @Column('varchar', { name: 'password', nullable: true })
     password: string | null
 
+    @Column('boolean', { name: 'heart_bit', default: false })
+    heart_bit: boolean
+
     @DeleteDateColumn({ type: 'timestamp', name: 'delete_date' })
     public deleteDate: Date
 
