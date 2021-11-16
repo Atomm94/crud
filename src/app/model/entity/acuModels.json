@@ -75,6 +75,82 @@
             },
             "inputs": 12,
             "outputs": 9
+        },
+        "AIR-CR": {
+            "access_points_count": 1,
+            "access_point_types": {
+                "door": true,
+                "turnstile_one_side": true,
+                "turnstile_two_side": false,
+                "gate": true,
+                "gateway": true,
+                "floor": true
+            },
+            "readers": {
+                "RFID": true,
+                "KEYPAD": true,
+                "FINGER": false,
+                "FACE": false
+            },
+            "inputs": 3,
+            "outputs": 1
+        },
+        "AIR-CB": {
+            "access_points_count": 1,
+            "access_point_types": {
+                "door": true,
+                "turnstile_one_side": false,
+                "turnstile_two_side": false,
+                "gate": false,
+                "gateway": false,
+                "floor": false
+            },
+            "readers": {
+                "RFID": true,
+                "KEYPAD": true,
+                "FINGER": false,
+                "FACE": false
+            },
+            "inputs": 3,
+            "outputs": 1
+        },
+        "ICON-2": {
+            "access_points_count": 2,
+            "access_point_types": {
+                "door": true,
+                "turnstile_one_side": true,
+                "turnstile_two_side": true,
+                "gate": true,
+                "gateway": true,
+                "floor": true
+            },
+            "readers": {
+                "RFID": true,
+                "KEYPAD": true,
+                "FINGER": true,
+                "FACE": true
+            },
+            "inputs": 6,
+            "outputs": 5
+        },
+        "ICON-2E": {
+            "access_points_count": 4,
+            "access_point_types": {
+                "door": true,
+                "turnstile_one_side": true,
+                "turnstile_two_side": true,
+                "gate": true,
+                "gateway": true,
+                "floor": true
+            },
+            "readers": {
+                "RFID": true,
+                "KEYPAD": true,
+                "FINGER": true,
+                "FACE": true
+            },
+            "inputs": 12,
+            "outputs": 9
         }
     },
     "expansion_boards": {
