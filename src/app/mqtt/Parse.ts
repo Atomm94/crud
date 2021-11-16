@@ -320,6 +320,7 @@ export default class Parse {
                 acu_data.name = message.info.name
                 acu_data.description = message.info.note
                 acu_data.serial_number = device_id
+                acu_data.model = message.info.model
                 acu_data.fw_version = message.info.firmware_ver
                 acu_data.time = JSON.stringify({
                     time_zone: message.info.gmt,
