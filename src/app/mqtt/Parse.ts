@@ -22,6 +22,7 @@ import { acuStatus } from '../enums/acuStatus.enum'
 import { AcuStatus } from '../model/entity/AcuStatus'
 import { AccessPointStatus } from '../model/entity/AccessPointStatus'
 import { In } from 'typeorm'
+import { Notification } from '../model/entity/Notification'
 
 export default class Parse {
     public static deviceData (topic: string, data: string) {
@@ -45,14 +46,14 @@ export default class Parse {
                     }
                     sended_data.device_id = message.device_id
                     new SendSocketMessage(socketChannels.ERROR_CHANNEL, sended_data, message.company, user)
-                    // if (error === 777) {
-                    //     const notification = {
-                    //         event: `Timeout ${topic} - ${message.operator}`,
-                    //         description: JSON.stringify(message),
-                    //         company: message.company
-                    //     }
-                    //     Notification.addItem(notification as Notification)
-                    // }
+                    if (error === 777) {
+                        const notification = {
+                            event: `Timeout ${topic} - ${message.operator}`,
+                            description: JSON.stringify(message),
+                            company: message.company
+                        }
+                        Notification.addItem(notification as Notification)
+                    }
                 }
             }
 
