@@ -48,7 +48,7 @@ export default class Parse {
                     new SendSocketMessage(socketChannels.ERROR_CHANNEL, sended_data, message.company, user)
                     if (error === 777) {
                         const notification = {
-                            event: `Timeout ${topic} - ${message.operator}`,
+                            event: `Timeout ${message.device_topic} - ${message.operator}`,
                             description: JSON.stringify(message),
                             company: message.company
                         }
