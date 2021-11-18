@@ -7,6 +7,7 @@ import {
     OneToMany,
     DeleteDateColumn
 } from 'typeorm'
+import { minusResource } from '../../functions/minusResource'
 import { AntipassBack } from './AntipassBack'
 
 import {
@@ -194,6 +195,7 @@ export class CardholderGroup extends MainEntity {
             this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
                 this.softRemove(data)
                     .then(() => {
+                        minusResource(this.name, data.company)
                         resolve({ message: 'success' })
                     })
                     .catch((error: any) => {
