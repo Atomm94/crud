@@ -82,7 +82,7 @@ export class Schedule extends MainEntity {
         })
     }
 
-    public static async updateItem (data: Schedule): Promise<{old:Schedule, new:Schedule}|{ [key: string]: any }> {
+    public static async updateItem (data: Schedule): Promise<{ old: Schedule, new: Schedule } | { [key: string]: any }> {
         const schedule = await this.findOneOrFail({ id: data.id })
         const oldData = Object.assign({}, schedule)
 
@@ -125,8 +125,12 @@ export class Schedule extends MainEntity {
         return new Promise(async (resolve, reject) => {
             this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
                 this.softRemove(data)
-                    .then(() => {
+                    .then(async () => {
                         minusResource(this.name, data.company)
+                        const timeframes = await Timeframe.getAllItems({ where: { schedule: data.id } }) as Timeframe[]
+                        for (const timeframe of timeframes) {
+                            Timeframe.destroyItem({ id: timeframe.id, company: timeframe.company })
+                        }
                         resolve({ message: 'success' })
                     })
                     .catch((error: any) => {

@@ -132,7 +132,6 @@ export class Timeframe extends MainEntity {
             return new Promise(async (resolve, reject) => {
                 this.softRemove(await this.findOneOrFail({ name: data.name, schedule: data.schedule, company: data.company }))
                     .then(() => {
-                        minusResource(this.name, data.company)
                         resolve({ message: 'success' })
                     })
                     .catch((error: any) => {

@@ -18,6 +18,7 @@ import { Credential } from './Credential'
 import { CarInfo } from './CarInfo'
 import { Limitation } from './Limitation'
 import { Schedule } from './Schedule'
+import { Timeframe } from './Timeframe'
 import { AccessRight } from './AccessRight'
 import { CardholderGroup } from './CardholderGroup'
 import { EventLog } from './EventLog'
@@ -52,6 +53,7 @@ export {
     CarInfo,
     Limitation,
     Schedule,
+    Timeframe,
     AccessRight,
     CardholderGroup,
     EventLog,
