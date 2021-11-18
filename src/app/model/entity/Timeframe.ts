@@ -10,8 +10,6 @@ import { scheduleType } from '../../enums/scheduleType.enum'
 import { MainEntity } from './MainEntity'
 import { Schedule } from './Schedule'
 
-import { minusResource } from '../../functions/minusResource'
-
 @Entity('timeframe')
 export class Timeframe extends MainEntity {
     @Column('varchar', { name: 'name', nullable: false })
@@ -144,7 +142,6 @@ export class Timeframe extends MainEntity {
                 this.softRemove(await this.findOneOrFail({ id: data.id, company: data.company }))
 
                     .then(() => {
-                        minusResource(this.name, data.company)
                         resolve({ message: 'success' })
                     })
                     .catch((error: any) => {
