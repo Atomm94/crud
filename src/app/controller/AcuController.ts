@@ -995,7 +995,7 @@ export default class AcuController {
         if (!hardware) {
             ctx.status = 400
             return ctx.body = {
-                message: 'Invalid device id!!'
+                message: 'Invalid hardware id!!'
             }
         }
         hardware.status = acuStatus.ACTIVE

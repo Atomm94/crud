@@ -10,6 +10,8 @@ import {
     Role
 } from '../model/entity/index'
 import { JwtToken } from '../model/entity/JwtToken'
+import * as Models from '../model/entity/index'
+import { canCreate } from '../middleware/resource'
 
 export default class CompanyController {
     /**
@@ -623,6 +625,57 @@ export default class CompanyController {
                 ctx.status = 400
                 ctx.body = {
                     success: false
+                }
+            }
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     * /company/companyResource:
+     *      get:
+     *          tags:
+     *              - Company
+     *          summary: Return boolaen
+     *          parameters:
+     *              - in: header
+     *                name: Authorization
+     *                required: true
+     *                description: Authentication token
+     *                schema:
+     *                    type: string
+     *              - in: query
+     *                name: resource
+     *                required: true
+     *                description: check resource limit (enum - (AccessPoint, AccessRight, AccountGroup, Admin, Cardholder, CardholderGroup, EventLog, Schedule, UserLog))
+     *                schema:
+     *                    type: string
+     *                    enum: [AccessPoint, AccessRight, AccountGroup, Admin, Cardholder, CardholderGroup, EventLog, Schedule, UserLog]
+     *          responses:
+     *              '200':
+     *                  description: Data object
+     *              '404':
+     *                  description: Data not found
+     */
+    public static async checkResourceLimit (ctx: DefaultContext) {
+        try {
+            const resource = ctx.query.resource
+            const company = ctx.user.company
+            const models: any = Models
+            if (!models[resource] || !models[resource].resource) {
+                ctx.status = 400
+                ctx.body = {
+                    message: 'Invalid Resource!'
+                }
+            } else {
+                const can = await canCreate(company, resource)
+                ctx.body = {
+                    success: can
                 }
             }
         } catch (error) {

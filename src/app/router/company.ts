@@ -12,4 +12,5 @@ export default router
   .get('Company-ClientCompany-getItem', 'clientCompany', checkRole(), CompanyController.getClientCompany)
   .delete('Company-destroyItem', 'company', checkRole(), CompanyController.destroy)
   .get('Company-getAllItems', 'company', checkRole(), CompanyController.getAll)
+  .get('Company-ClientCompany-getItem', 'company/companyResource', checkRole(), CompanyController.checkResourceLimit)
   .get('Company-getItem', 'company/:id', checkRole(), CompanyController.get)
