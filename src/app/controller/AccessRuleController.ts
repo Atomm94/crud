@@ -188,7 +188,6 @@ export default class AccessRuleController {
                 .where(`access_rule.id = '${req_data.id}'`)
                 .andWhere(`access_rule.company = '${user.company ? user.company : null}'`)
                 .getOne()
-
             const location = `${user.company_main}/${user.company}`
             if (!access_rule) {
                 ctx.status = 400
@@ -201,7 +200,11 @@ export default class AccessRuleController {
                         const schedule: Schedule = await Schedule.findOneOrFail({ id: req_data.schedule })
                         const timeframes = await Timeframe.find({ schedule: schedule.id })
                         const send_data = { ...req_data, schedule_type: schedule.type, start_from: schedule.start_from, timeframes: timeframes, access_point: access_point.id }
-                        SdlController.delSdl(location, acu.serial_number, send_data, user, access_rule.schedules.type, acu.session_id, true)
+                        if (access_rule.schedules.type !== schedule.type) {
+                            SdlController.delSdl(location, acu.serial_number, send_data, user, access_rule.schedules.type, acu.session_id, true)
+                        } else {
+                            SdlController.setSdl(location, acu.serial_number, req_data, user, acu.session_id, true)
+                        }
                     }
                     ctx.body = {
                         message: 'Update Pending'
@@ -256,10 +259,10 @@ export default class AccessRuleController {
             // const where = { id: +ctx.params.id, company: user.company ? user.company : user.company }
             // const relations = ['schedules']
             const access_rule: any = await AccessRule.createQueryBuilder('access_rule')
-            .leftJoinAndSelect('access_rule.schedules', 'schedule', 'schedule.delete_date is null')
-            .where(`access_rule.id = '${+ctx.params.id}'`)
-            .andWhere(`access_rule.company = '${user.company ? user.company : null}'`)
-            .getMany()
+                .leftJoinAndSelect('access_rule.schedules', 'schedule', 'schedule.delete_date is null')
+                .where(`access_rule.id = '${+ctx.params.id}'`)
+                .andWhere(`access_rule.company = '${user.company ? user.company : null}'`)
+                .getMany()
 
             ctx.body = access_rule[0]
         } catch (error) {
