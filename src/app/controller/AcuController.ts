@@ -426,7 +426,7 @@ export default class AcuController {
                             ctx.status = 400
                             return ctx.body = { message: `You cant add accessPoints when acu status is ${acuStatus.PENDING}` }
                         }
-                        const new_access_points: AccessPoint[] = []
+                        // const new_access_points: AccessPoint[] = [] // for sending Set(Add)CardKey
                         for (let access_point of req_data.access_points) {
                             for (const resource in access_point.resources) {
                                 const component_source: number = access_point.resources[resource].component_source
@@ -450,7 +450,7 @@ export default class AcuController {
                                 access_point.mode = accessPointMode.CREDENTIAL
 
                                 access_point = await AccessPoint.addItem(access_point)
-                                new_access_points.push(access_point)
+                                // new_access_points.push(access_point)
                             } else {
                                 const old_access_point = await AccessPoint.findOneOrFail({ id: access_point.id, company: company })
                                 access_point.type = old_access_point.type
@@ -513,9 +513,9 @@ export default class AcuController {
                             RdController.setRd(location, acu.serial_number, set_rd_data, user, acu.session_id)
 
                             // send CardKeys
-                            if (new_access_points.length) {
-                                CardKeyController.setAddCardKey(OperatorType.SET_CARD_KEYS, location, company, user, new_access_points)
-                            }
+                            // if (new_access_points.length) {
+                            //     CardKeyController.setAddCardKey(OperatorType.SET_CARD_KEYS, location, company, user, new_access_points)
+                            // }
                         }
                     }
                 }
