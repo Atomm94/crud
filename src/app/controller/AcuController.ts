@@ -820,7 +820,7 @@ export default class AcuController {
             //         company: company
             //     }
             // })
-            let device: any = await Acu.createQueryBuilder('acu')
+            const device: any = await Acu.createQueryBuilder('acu')
                 .leftJoinAndSelect('acu.ext_devices', 'ext_device', 'ext_device.delete_date is null')
                 .leftJoinAndSelect('acu.access_points', 'access_point', 'access_point.delete_date is null')
                 .leftJoinAndSelect('access_point.readers', 'reader', 'reader.delete_date is null')
@@ -830,15 +830,14 @@ export default class AcuController {
                 .where(`acu.id = '${req_data.device}'`)
                 .andWhere(`acu.status = '${device_status}'`)
                 .andWhere(`acu.company = '${company}'`)
-                .getMany()
+                .getOne()
 
-            if (!device.length) {
+            if (!device) {
                 ctx.status = 400
                 return ctx.body = {
                     message: `Invalid ${device_status} device id!!`
                 }
             }
-            device = device[0]
 
             const hardware = await Acu.findOne({
                 id: req_data.attached_hardware,
@@ -911,9 +910,10 @@ export default class AcuController {
             const access_points = device.access_points
             const access_point_update = false
             for (const access_point of access_points) {
+                const readers: any = access_point.readers
                 CtpController.setCtp(access_point.type, location, device.serial_number, access_point, user, device.session_id, access_point_update)
                 // send Readers
-                const readers: any = access_point.readers
+
                 const reader_update = false
 
                 const set_rd_data: any = []

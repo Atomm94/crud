@@ -9,6 +9,7 @@ import { AccessRule } from '../model/entity/AccessRule'
 import SdlController from './Hardware/SdlController'
 import CardKeyController from './Hardware/CardKeyController'
 import { logUserEvents } from '../enums/logUserEvents.enum'
+import { OperatorType } from '../mqtt/Operators'
 
 export default class AccessRuleController {
     /**
@@ -111,13 +112,24 @@ export default class AccessRuleController {
                         //     }
                         // })
 
-                        const cardholders: any = await Cardholder.createQueryBuilder('cardholder')
+                        const cardholders: Cardholder[] = await Cardholder.createQueryBuilder('cardholder')
+                            .leftJoinAndSelect('cardholder.access_rights', 'access_right')
+                            .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
                             .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null')
+                            .leftJoinAndSelect('cardholder.antipass_backs', 'antipass_back')
+                            .leftJoinAndSelect('cardholder.limitations', 'limitation')
                             .where(`cardholder.access_right = '${access_rule.access_right}'`)
                             .andWhere(`cardholder.company = '${req_data.company}'`)
                             .getMany()
 
-                        CardKeyController.editCardKey(location, req_data.company, user.id, access_rule, null, cardholders)
+                        CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, req_data.company, user, [access_point], cardholders)
+
+                        // const cardholders: any = await Cardholder.createQueryBuilder('cardholder')
+                        //     .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null')
+                        //     .where(`cardholder.access_right = '${access_rule.access_right}'`)
+                        //     .andWhere(`cardholder.company = '${req_data.company}'`)
+                        //     .getMany()
+                        // CardKeyController.editCardKey(location, req_data.company, user.id, access_rule, null, cardholders)
                         ctx.body = true
                     }
                 } catch (error) {

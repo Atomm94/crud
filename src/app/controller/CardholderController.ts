@@ -611,32 +611,42 @@ export default class CardholderController {
                         }
                     }
 
-                    if (credentials.length || old_credentials.length) {
-                        const access_points: AccessPoint[] = await AccessPoint.createQueryBuilder('access_point')
-                            .innerJoin('access_point.acus', 'acu', 'acu.delete_date is null')
-                            .where(`acu.status = '${acuStatus.ACTIVE}'`)
-                            .andWhere(`acu.company = ${ctx.user.company}`)
-                            .select('access_point.id')
-                            .getMany()
+                    const limitations = await Limitation.findOne({ where: { id: req_data.limitations.id } })
+                    cardholder.limitations = limitations
 
-                        if (access_points.length) {
-                            // const access_rights = await AccessRight.findOne({ where: { id: cardholder.access_right }, relations: ['access_rules'] })
-                            const access_rights: any = await AccessRight.createQueryBuilder('access_right')
-                                .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
-                                .where(`access_right.id = '${cardholder.access_right}'`)
-                                .getOne()
+                    if (req_data.limitations && limitations &&
+                        (req_data.limitations.valid_from !== limitations.valid_from ||
+                            req_data.limitations.valid_due !== limitations.valid_due)
+                    ) {
+                        CardKeyController.setAddCardKey(OperatorType.SET_CARD_KEYS, location, auth_user.company, auth_user, null)
+                    } else {
+                        if (credentials.length || old_credentials.length) {
+                            const access_points: AccessPoint[] = await AccessPoint.createQueryBuilder('access_point')
+                                .innerJoin('access_point.acus', 'acu', 'acu.delete_date is null')
+                                .where(`acu.status = '${acuStatus.ACTIVE}'`)
+                                .andWhere(`acu.company = ${ctx.user.company}`)
+                                .select('access_point.id')
+                                .getMany()
 
-                            if (access_rights) {
-                                cardholder.access_rights = access_rights
+                            if (access_points.length) {
+                                // const access_rights = await AccessRight.findOne({ where: { id: cardholder.access_right }, relations: ['access_rules'] })
+                                const access_rights: any = await AccessRight.createQueryBuilder('access_right')
+                                    .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
+                                    .where(`access_right.id = '${cardholder.access_right}'`)
+                                    .getOne()
 
-                                if (credentials.length) {
-                                    cardholder.credentials = credentials
-                                    CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, auth_user.company, auth_user, null, [cardholder], null)
-                                }
+                                if (access_rights) {
+                                    cardholder.access_rights = access_rights
 
-                                if (res_data.old.vip !== res_data.new.vip && old_credentials.length) {
-                                    cardholder.credentials = old_credentials
-                                    CardKeyController.editCardKey(location, company, auth_user.id, null, access_points, [cardholder])
+                                    if (credentials.length) {
+                                        cardholder.credentials = credentials
+                                        CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, auth_user.company, auth_user, null, [cardholder], null)
+                                    }
+
+                                    if (res_data.old.vip !== res_data.new.vip && old_credentials.length) {
+                                        cardholder.credentials = old_credentials
+                                        CardKeyController.editCardKey(location, company, auth_user.id, null, access_points, [cardholder])
+                                    }
                                 }
                             }
                         }
@@ -2315,11 +2325,11 @@ export default class CardholderController {
             if (req_data.status === cardholderStatus.INACTIVE || req_data.status === cardholderStatus.ACTIVE) {
                 const cardholders = await Cardholder.getAllItems({ where: { id: { in: req_data.ids }, company: { '=': company } }, relations: ['credentials'] })
                 const save: any = []
-                const access_points = await AccessPoint.createQueryBuilder('access_point')
-                    .innerJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
-                    .where(`acu.status = '${acuStatus.ACTIVE}'`)
-                    .andWhere(`acu.company = ${ctx.user.company}`)
-                    .getMany()
+                // const access_points = await AccessPoint.createQueryBuilder('access_point')
+                //     .innerJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
+                //     .where(`acu.status = '${acuStatus.ACTIVE}'`)
+                //     .andWhere(`acu.company = ${ctx.user.company}`)
+                //     .getMany()
 
                 for (const cardholder of cardholders) {
                     if (cardholder.status !== req_data.status) {
@@ -2336,8 +2346,9 @@ export default class CardholderController {
                         save.push(Credential.save(credential))
                     }
 
-                    CardKeyController.editCardKey(location, company, auth_user.id, null, access_points, [cardholder])
+                    // CardKeyController.editCardKey(location, company, auth_user.id, null, access_points, [cardholder])
                 }
+                CardKeyController.setAddCardKey(OperatorType.SET_CARD_KEYS, location, company, auth_user, null)
                 Promise.all(save)
                 ctx.body = { success: true }
             } else {
