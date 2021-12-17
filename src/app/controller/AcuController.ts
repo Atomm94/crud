@@ -542,7 +542,7 @@ export default class AcuController {
                                     const old_reader = await Reader.findOneOrFail({ id: reader.id, company: company })
                                     reader.access_point = old_reader.access_point
                                     checkReaderSend = checkSendingDevice(old_reader, reader, Reader.fields_that_used_in_sending, Reader.required_fields_for_sending)
-                                    const checkReaderOSDPDataSend = checkSendingDevice(old_reader.osdp_data, reader, Reader.OSDP_fields_that_used_in_sending)
+                                    const checkReaderOSDPDataSend = checkSendingDevice(old_reader.osdp_data, reader.osdp_data, Reader.OSDP_fields_that_used_in_sending)
                                     if (checkReaderSend) {
                                         readersSend = true
                                         if (checkReaderOSDPDataSend) checkReaderSend.osdp_data = checkReaderOSDPDataSend
