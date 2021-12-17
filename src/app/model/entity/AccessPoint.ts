@@ -110,6 +110,8 @@ export class AccessPoint extends MainEntity {
     access_point_statuses: AccessPointStatus[];
 
     public static resource: boolean = true
+    public static fields_that_used_in_sending: Array<string> = ['resources']
+    public static required_fields_for_sending: Array<string> = ['type']
 
     public static async addItem (data: AccessPoint): Promise<AccessPoint> {
         const accessPoint = new AccessPoint()

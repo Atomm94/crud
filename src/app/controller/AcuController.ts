@@ -16,6 +16,7 @@ import CtpController from './Hardware/CtpController'
 import { readerTypes } from '../enums/readerTypes'
 import { logUserEvents } from '../enums/logUserEvents.enum'
 import { accessPointMode } from '../enums/accessPointMode.enum'
+import { checkSendingDevice } from '../functions/check-sending-device'
 
 export default class AcuController {
     /**
@@ -308,6 +309,25 @@ export default class AcuController {
      *                                              example: 1
      *                                          wg_type:
      *                                              type: number
+     *                                          osdp_data:
+     *                                              type: object
+     *                                              properties:
+     *                                                  baud_rate:
+     *                                                      type: string
+     *                                                  card_data_format_flags:
+     *                                                      type: string
+     *                                                  keypad_mode:
+     *                                                      type: string
+     *                                                  configuration:
+     *                                                      type: string
+     *                                                  led_mode:
+     *                                                      type: string
+     *                                                  offline_mode:
+     *                                                      type: string
+     *                                                  enable_osdp_secure_channel:
+     *                                                      type: boolean
+     *                                                  enable_osdp_tracing:
+     *                                                      type: boolean
      *                                          mode:
      *                                              type: number
      *                                          direction:
@@ -373,38 +393,44 @@ export default class AcuController {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
             } else {
-                if (req_data.network && JSON.stringify(req_data.network) !== acu.network) {
-                    const check_network = networkValidation(req_data.network)
-                    if (!check_network) {
-                        ctx.status = 400
-                        return ctx.body = { message: check_network }
-                    } else {
-                        if (acu.status === acuStatus.ACTIVE) {
-                            DeviceController.setNetSettings(location, acu.serial_number, req_data, user, acu.session_id, true)
-                            delete req_data.network
-                        }
-                        // else {
-                        //     acu.network = JSON.stringify(req_data.network)
-                        // }
+                if (req_data.network) {
+                    const checkNetworkSend = checkSendingDevice(acu.network, req_data.network)
+                    if (checkNetworkSend) {
+                        const check_network = networkValidation(req_data.network)
+                        if (!check_network) {
+                            ctx.status = 400
+                            return ctx.body = { message: check_network }
+                        } else {
+                            if (acu.status === acuStatus.ACTIVE) {
+                                DeviceController.setNetSettings(location, acu.serial_number, req_data, user, acu.session_id, true)
+                                delete req_data.network
+                            }
+                            // else {
+                            //     acu.network = JSON.stringify(req_data.network)
+                            // }
 
-                        // SendDevice.setNetSettings(`${user.company_main}/${user.company}`, acu.serial_number, acu.session_id ? acu.session_id : '0', network)
+                            // SendDevice.setNetSettings(`${user.company_main}/${user.company}`, acu.serial_number, acu.session_id ? acu.session_id : '0', network)
+                        }
                     }
                 }
 
-                if (req_data.time && JSON.stringify(req_data.time) !== acu.time) {
-                    const check_time = timeValidation(req_data.time)
-                    if (!check_time) {
-                        ctx.status = 400
-                        return ctx.body = { message: check_time }
-                    } else {
-                        if (acu.status === acuStatus.ACTIVE || acu.status === acuStatus.PENDING) {
-                            DeviceController.setDateTime(location, acu.serial_number, req_data, user, acu.session_id, true)
-                            delete req_data.time
+                if (req_data.time) {
+                    const checkDateTimeSend = checkSendingDevice(acu.time, req_data.time)
+                    if (checkDateTimeSend) {
+                        const check_time = timeValidation(req_data.time)
+                        if (!check_time) {
+                            ctx.status = 400
+                            return ctx.body = { message: check_time }
+                        } else {
+                            if (acu.status === acuStatus.ACTIVE || acu.status === acuStatus.PENDING) {
+                                DeviceController.setDateTime(location, acu.serial_number, checkDateTimeSend, user, acu.session_id, true)
+                                delete req_data.time
+                            }
+                            // else {
+                            //     acu.network = JSON.stringify(req_data.network)
+                            // }
+                            // SendDevice.setDateTime(location, acu.serial_number, acu.session_id ? acu.session_id : '0', time)
                         }
-                        // else {
-                        //     acu.network = JSON.stringify(req_data.network)
-                        // }
-                        // SendDevice.setDateTime(location, acu.serial_number, acu.session_id ? acu.session_id : '0', time)
                     }
                 }
 
@@ -442,6 +468,7 @@ export default class AcuController {
                             let access_point_update = true
                             const readers = access_point.readers
 
+                            let checkAccessPointSend: any = false
                             if (!access_point.id) {
                                 access_point_update = false
                                 access_point.acu = acu.id
@@ -453,11 +480,35 @@ export default class AcuController {
                                 // new_access_points.push(access_point)
                             } else {
                                 const old_access_point = await AccessPoint.findOneOrFail({ id: access_point.id, company: company })
-                                access_point.type = old_access_point.type
+                                const type = old_access_point.type
+                                access_point.type = type
+                                checkAccessPointSend = checkSendingDevice(old_access_point, access_point, AccessPoint.fields_that_used_in_sending, AccessPoint.required_fields_for_sending)
+                                const checkAccessPointResourcesSend = checkSendingDevice(old_access_point.resources, access_point.resources)
+                                if (checkAccessPointResourcesSend) {
+                                    if (checkAccessPointSend) {
+                                        checkAccessPointSend.resources = checkAccessPointResourcesSend
+                                    } else {
+                                        checkAccessPointSend = { id: access_point.id, type, resources: checkAccessPointResourcesSend }
+                                    }
+                                }
                             }
 
                             if (acu.status === acuStatus.ACTIVE) {
-                                CtpController.setCtp(access_point.type, location, acu.serial_number, access_point, user, acu.session_id, access_point_update)
+                                if (access_point_update) {
+                                    if (checkAccessPointSend) {
+                                        CtpController.setCtp(access_point.type, location, acu.serial_number, checkAccessPointSend, user, acu.session_id, access_point_update)
+                                    } else {
+                                        const access_point_update = await AccessPoint.updateItem(access_point)
+                                        logs_data.push({
+                                            event: logUserEvents.CHANGE,
+                                            target: `${AccessPoint.name}/${acu_updated.old.name}/${access_point_update.old.name}`,
+                                            value: access_point_update
+                                        })
+                                        access_point = access_point_update.new
+                                    }
+                                } else {
+                                    CtpController.setCtp(access_point.type, location, acu.serial_number, access_point, user, acu.session_id, access_point_update)
+                                }
                             } else {
                                 if (access_point_update) {
                                     const access_point_update = await AccessPoint.updateItem(access_point)
@@ -477,9 +528,12 @@ export default class AcuController {
                             }
 
                             const set_rd_data: any = []
+                            let readersSend = false
                             for (let reader of readers) {
+                                let checkReaderSend: any = false
                                 let reader_update = true
                                 if (!reader.id) {
+                                    readersSend = true
                                     reader_update = false
                                     reader.access_point = access_point.id
                                     reader.company = company
@@ -487,11 +541,34 @@ export default class AcuController {
                                 } else {
                                     const old_reader = await Reader.findOneOrFail({ id: reader.id, company: company })
                                     reader.access_point = old_reader.access_point
+                                    checkReaderSend = checkSendingDevice(old_reader, reader, Reader.fields_that_used_in_sending, Reader.required_fields_for_sending)
+                                    const checkReaderOSDPDataSend = checkSendingDevice(old_reader.osdp_data, reader, Reader.OSDP_fields_that_used_in_sending)
+                                    if (checkReaderSend) {
+                                        readersSend = true
+                                        if (checkReaderOSDPDataSend) checkReaderSend.osdp_data = checkReaderOSDPDataSend
+                                    } else {
+                                        if (checkReaderOSDPDataSend) {
+                                            readersSend = true
+                                            checkReaderSend = { id: reader.id, osdp_data: checkReaderOSDPDataSend }
+                                            for (const required_field of Reader.required_fields_for_sending) {
+                                                if (required_field in reader) checkReaderSend[required_field] = reader[required_field]
+                                            }
+                                        }
+                                    }
+                                    if (checkReaderSend) reader = checkReaderSend
                                 }
 
                                 if (acu.status === acuStatus.ACTIVE) {
                                     reader.access_point_type = access_point.type
                                     set_rd_data.push({ ...reader, update: reader_update })
+                                    if (!checkReaderSend) {
+                                        const reader_updated = await Reader.updateItem(reader)
+                                        logs_data.push({
+                                            event: logUserEvents.CHANGE,
+                                            target: `${Reader.name}/${acu_updated.old.name}/${access_point.name}/${readerTypes[reader_updated.old.type]}`,
+                                            value: reader_updated
+                                        })
+                                    }
                                     // RdController.setRd(location, acu.serial_number, readers, user, acu.session_id, reader_update)
                                 } else {
                                     if (reader_update) {
@@ -510,7 +587,7 @@ export default class AcuController {
                                     }
                                 }
                             }
-                            RdController.setRd(location, acu.serial_number, set_rd_data, user, acu.session_id)
+                            if (readersSend) RdController.setRd(location, acu.serial_number, set_rd_data, user, acu.session_id)
 
                             // send CardKeys
                             // if (new_access_points.length) {

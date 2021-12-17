@@ -58,6 +58,14 @@ export class ExtDevice extends MainEntity {
     public static gettingActions: boolean = false
     public static gettingAttributes: boolean = false
     resources: { input: Number; output: Number }
+    public static fields_that_used_in_sending: Array<string> = [
+        'protocol',
+        'port',
+        'address',
+        'baud_rate'
+    ]
+
+    public static required_fields_for_sending: Array<string> = ['resources']
 
     public static async addItem (data: ExtDevice): Promise<ExtDevice> {
         const extDevice = new ExtDevice()

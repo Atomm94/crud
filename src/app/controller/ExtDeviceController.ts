@@ -7,6 +7,7 @@ import acuModels from '../model/entity/acuModels.json'
 import ExtensionDeviceController from './Hardware/ExtensionDeviceController'
 import { checkExtDeviceValidation } from '../functions/validator'
 import { logUserEvents } from '../enums/logUserEvents.enum'
+import { checkSendingDevice } from '../functions/check-sending-device'
 
 export default class ExtDeviceController {
     /**
@@ -201,10 +202,18 @@ export default class ExtDeviceController {
 
             const extDevice: ExtDevice = await ExtDevice.findOneOrFail(req_data.id)
             const acu: Acu = await Acu.findOneOrFail({ id: extDevice.acu })
+
             if (acu.status === acuStatus.ACTIVE) {
-                ExtensionDeviceController.setExtBrd(location, acu.serial_number, req_data, user, acu.session_id, true)
-                ctx.body = { message: 'Update pending' }
-                ctx.logsData = []
+                const checkExtDeviceSend = checkSendingDevice(extDevice, req_data, ExtDevice.fields_that_used_in_sending, ExtDevice.required_fields_for_sending)
+                if (checkExtDeviceSend) {
+                    ExtensionDeviceController.setExtBrd(location, acu.serial_number, checkExtDeviceSend, user, acu.session_id, true)
+                    ctx.body = { message: 'Update pending' }
+                    ctx.logsData = []
+                } else {
+                    const update = await ExtDevice.updateItem(req_data)
+                    ctx.oldData = update.old
+                    ctx.body = update.new
+                }
             } else if (acu.status === acuStatus.NO_HARDWARE) {
                 const update = await ExtDevice.updateItem(req_data)
                 ctx.oldData = update.old

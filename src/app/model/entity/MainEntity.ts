@@ -96,6 +96,7 @@ export abstract class MainEntity extends BaseEntity {
     public static resource: boolean = false
     public static serviceResource: boolean = false
     public static features: any = false
+    public static fields_that_used_in_sending: Array<string> | null = null
 
     public static async findByParams (data: any = {}) {
         let where: any = {}

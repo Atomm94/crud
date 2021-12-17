@@ -76,6 +76,35 @@ export class Reader extends MainEntity {
 
     public static gettingActions: boolean = false
     public static gettingAttributes: boolean = false
+    public static fields_that_used_in_sending: Array<string> = [
+        'wg_type',
+        'reverse_byte_order',
+        'port',
+        'enable_buzzer',
+        'enable_crc',
+        'mode',
+        'osdp_address',
+        'port'
+    ]
+
+    public static OSDP_fields_that_used_in_sending: Array<string> = [
+        'baud_rate',
+        'card_data_format_flags',
+        'keypad_mode',
+        'configuration',
+        // 'led_mode',
+        'offline_mode',
+        'enable_osdp_secure_channel',
+        'enable_osdp_tracing'
+    ]
+
+    public static required_fields_for_sending: Array<string> = [
+        'access_point',
+        'wg_type',
+        'direction',
+        'leaving_zone',
+        'came_to_zone'
+    ]
 
     public static async addItem (data: Reader) {
         const reader = new Reader()
@@ -117,7 +146,7 @@ export class Reader extends MainEntity {
         if ('enable_buzzer' in data) reader.enable_buzzer = data.enable_buzzer
         if ('enable_crc' in data) reader.enable_crc = data.enable_crc
         if ('reverse_byte_order' in data) reader.reverse_byte_order = data.reverse_byte_order
-        if ('osdp_data' in data) reader.osdp_data = (typeof reader.osdp_data === 'string') ? data.osdp_data : JSON.stringify(data.osdp_data)
+        if ('osdp_data' in data) reader.osdp_data = (typeof data.osdp_data === 'string') ? data.osdp_data : JSON.stringify(data.osdp_data)
         if ('osdp_address' in data) reader.osdp_address = data.osdp_address
         if ('leaving_zone' in data) reader.leaving_zone = data.leaving_zone
         if ('came_to_zone' in data) reader.came_to_zone = data.came_to_zone

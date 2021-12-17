@@ -1652,8 +1652,6 @@ export default class CardholderController {
                     for (const access_point_id of access_point_ids) {
                         if (access_point_ids && access_point_ids.length) {
                             if (access_point_id === access_rule.access_point) {
-                                console.log(access_rule)
-
                                 const acu = access_rule.access_points.acus
                                 access_rule.access_right = guest.access_right
                                 if (new_schedule) {
