@@ -23,9 +23,15 @@ export function checkSendingDevice (old_data: any, new_data: any, fields_that_us
             }
         }
     }
+    if (!fields_that_used_in_sending) {
+        for (const key in old_data) {
+            if (!(key in new_data)) {
+                send_data[key] = -1
+            }
+        }
+    }
     let check_update = false
     if (Object.keys(send_data).length) check_update = true
-    console.log('send_data', check_update, send_data)
 
     if (check_update) {
         if (new_data.id) send_data.id = new_data.id
@@ -33,7 +39,6 @@ export function checkSendingDevice (old_data: any, new_data: any, fields_that_us
             if (required_field in new_data) send_data[required_field] = new_data[required_field]
         }
     }
-    console.log('send_data_full', check_update, send_data)
 
     return check_update ? send_data : false
 }
