@@ -8,6 +8,7 @@ import * as bcrypt from 'bcrypt'
 
 import { statusCompany } from '../enums/statusCompany.enum'
 import { JwtToken } from '../model/entity/JwtToken'
+import { adminStatus } from '../enums/adminStatus.enum'
 
 // import { NotFound } from '../../constant/errors';
 /**
@@ -77,17 +78,23 @@ export default class AuthController {
                         message: 'Wrong password'
                     })
                 } else {
-                    if (user.company) {
-                        const company = await Company.findOneOrFail({ id: user.company })
-                        company_main_data.company_main = company.account
-                        company_main_data.package = company.package
-                        if (company.status === statusCompany.DISABLE || (company.status === statusCompany.PENDING && company.account !== user.id)) {
-                            ctx.status = 400
-                            return ctx.body = {
-                                message: 'Company status is not valid!!'
+                    if (user.status !== adminStatus.ACTIVE) {
+                        ctx.status = 400
+                        return ctx.body = {
+                            message: 'User status is not valid'
+                        }
+                    } else
+                        if (user.company) {
+                            const company = await Company.findOneOrFail({ id: user.company })
+                            company_main_data.company_main = company.account
+                            company_main_data.package = company.package
+                            if (company.status === statusCompany.DISABLE || (company.status === statusCompany.PENDING && company.account !== user.id)) {
+                                ctx.status = 400
+                                return ctx.body = {
+                                    message: 'Company status is not valid'
+                                }
                             }
                         }
-                    }
 
                     user.last_login_date = new Date().toISOString().slice(0, 19).replace('T', ' ')
                     delete user.password
