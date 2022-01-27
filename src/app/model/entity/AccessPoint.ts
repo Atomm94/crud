@@ -158,7 +158,17 @@ export class AccessPoint extends MainEntity {
         if ('access_point_zone' in data) accessPoint.access_point_zone = data.access_point_zone
         if ('door_state' in data) accessPoint.door_state = data.door_state
         if ('acu' in data) accessPoint.acu = data.acu
-        if ('resources' in data) accessPoint.resources = (data.resources && typeof data.resources === 'object') ? JSON.stringify(data.resources) : data.resources
+        if ('resources' in data) {
+            let resources = (data.resources && typeof data.resources === 'object') ? JSON.stringify(data.resources) : data.resources
+            if (resources) {
+                const resourcesObj = JSON.parse(resources)
+                for (const resource in resourcesObj) {
+                    if (resourcesObj[resource] === -1) delete resourcesObj[resource]
+                }
+                resources = JSON.stringify(resourcesObj)
+            }
+            accessPoint.resources = resources
+        }
         if ('last_activity' in data) accessPoint.last_activity = (data.last_activity && typeof data.last_activity === 'object') ? JSON.stringify(data.last_activity) : data.last_activity
 
         if (!accessPoint) return { status: 400, messsage: 'Item not found' }
