@@ -484,12 +484,17 @@ export default class AcuController {
                                 access_point.type = type
                                 checkAccessPointSend = checkSendingDevice(old_access_point, access_point, AccessPoint.fields_that_used_in_sending, AccessPoint.required_fields_for_sending)
                                 const checkAccessPointResourcesSend = checkSendingDevice(old_access_point.resources, access_point.resources)
-                                checkAccessPointSend.resources = access_point.resources
                                 if (checkAccessPointResourcesSend) {
                                     if (checkAccessPointSend) {
                                         checkAccessPointSend.resourcesForSendDevice = checkAccessPointResourcesSend
+                                        checkAccessPointSend.resources = access_point.resources
                                     } else {
-                                        checkAccessPointSend.resourcesForSendDevice = { id: access_point.id, type, resources: checkAccessPointResourcesSend }
+                                        checkAccessPointSend = {
+                                            id: access_point.id,
+                                            type,
+                                            resourcesForSendDevice: checkAccessPointResourcesSend,
+                                            resources: access_point.resources
+                                        }
                                     }
                                 }
                             }
