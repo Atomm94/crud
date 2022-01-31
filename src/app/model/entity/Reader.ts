@@ -102,6 +102,8 @@ export class Reader extends MainEntity {
         'access_point',
         'wg_type',
         'direction',
+        'osdp_address',
+        'baud_rate',
         'leaving_zone',
         'came_to_zone'
     ]
