@@ -3,7 +3,7 @@ import { Company } from '../model/entity'
 // import { OperatorType } from '../mqtt/Operators'
 // import SendDeviceMessage from '../mqtt/SendDeviceMessage'
 import MQTTBroker from '../mqtt/mqtt'
-import SendDeviceMessage from '../mqtt/SendDeviceMessage'
+// import SendDeviceMessage from '../mqtt/SendDeviceMessage'
 // import { OperatorType } from '../mqtt/Operators'
 // import { SendTopics } from '../mqtt/Topics'
 // import { TopicCodes } from '../mqtt/Topics'
@@ -44,17 +44,17 @@ export default class MqttController {
                     message: 'Invalid id!!'
                 }
             } else {
-                // const location = `${main_id}/${company.id}`
-                // ctx.body = {
-                //     BrokerAdr: 'lumiring.msg.th',
-                //     BrokerPort: 3285,
-                //     ClientID: '101FRE1111325665454RETV123355',
-                //     Use_SSL: false,
-                //     use_enryption: false,
-                //     User_Name: 'TR2584567452121TFD',
-                //     User_Pass: 'ASTR565VFDF8787fdtrtJ76p',
-                //     Location: location
-                // }
+                const location = `${main_id}/${company.id}`
+                ctx.body = {
+                    BrokerAdr: '158.85.225.154',
+                    BrokerPort: 1883,
+                    ClientID: '101FRE1111325665454RETV123355',
+                    Use_SSL: false,
+                    use_enryption: false,
+                    User_Name: 'TR2584567452121TFD',
+                    User_Pass: 'ASTR565VFDF8787fdtrtJ76p',
+                    Location: location
+                }
                 // const send_message = {
                 //     operator: 'registration',
                 //     info: {
@@ -154,17 +154,17 @@ export default class MqttController {
                 // }
                 // MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(get_mqtt))
 
-                const send_data: any = {
-                    operator: 'SetCtpTurnstile',
-                    location: '5/5',
-                    device_id: '1073493824',
-                    session_id: '0',
-                    message_id: (new Date().getTime()).toString(),
-                    data:
-                    {
-                        id: 3
-                    }
-                }
+                // const send_data: any = {
+                //     operator: 'SetCtpTurnstile',
+                //     location: '5/5',
+                //     device_id: '1073493824',
+                //     session_id: '0',
+                //     message_id: (new Date().getTime()).toString(),
+                //     data:
+                //     {
+                //         id: 3
+                //     }
+                // }
                 // const send_data2: any = {
                 //     operator: 'GetStatusACU',
                 //     session_id: '222222222222',
@@ -172,12 +172,12 @@ export default class MqttController {
                 //     device_id: '1073493824',
                 //     info: 'none'
                 //     }
-                console.log('send_data', send_data)
+                // console.log('send_data', send_data)
 
-                new SendDeviceMessage('SetCtpTurnstile', '5/5', 1073493824, {
-                    id: 5
-                    // send_data
-                }, { id: 5 }, '52831102448461152410103211553534')
+                // new SendDeviceMessage('SetCtpTurnstile', '5/5', 1073493824, {
+                //     id: 5
+                //     // send_data
+                // }, { id: 5 }, '52831102448461152410103211553534')
                     // MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
 
                 // const send_data: any = {
@@ -238,7 +238,7 @@ export default class MqttController {
             //     password: 'admin'
             // }
             // const message = new SendDeviceMessage(OperatorType.LOGIN, `${main_id}/${company.id}`, 1073493824, loginData)
-            ctx.body = true
+            // ctx.body = true
         } catch (error) {
             console.log(error)
 
