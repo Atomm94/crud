@@ -100,8 +100,11 @@ export class Reader extends MainEntity {
 
     public static required_fields_for_sending: Array<string> = [
         'access_point',
+        'port',
         'wg_type',
         'direction',
+        'osdp_address',
+        'baud_rate',
         'leaving_zone',
         'came_to_zone'
     ]
