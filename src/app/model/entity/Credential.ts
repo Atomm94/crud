@@ -24,7 +24,7 @@ export class Credential extends MainEntity {
     @Column('longtext', { name: 'code' })
     code: string
 
-    @Column('enum', { name: 'status', enum: credentialStatus })
+    @Column('enum', { name: 'status', enum: credentialStatus, default: credentialStatus.ACTIVE })
     status: credentialStatus
 
     @Column('int', { name: 'cardholder' })
@@ -58,7 +58,11 @@ export class Credential extends MainEntity {
         } else {
             credential.code = data.code
         }
-        if ('status' in data) credential.status = data.status
+        if ('status' in data) {
+            credential.status = data.status
+        } else {
+            credential.status = credentialStatus.ACTIVE
+        }
         credential.cardholder = data.cardholder
         credential.facility = data.facility
         credential.input_mode = data.input_mode

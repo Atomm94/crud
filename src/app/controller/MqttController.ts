@@ -7,6 +7,10 @@ import MQTTBroker from '../mqtt/mqtt'
 // import { OperatorType } from '../mqtt/Operators'
 // import { SendTopics } from '../mqtt/Topics'
 // import { TopicCodes } from '../mqtt/Topics'
+const mqtt_host = process.env.MQTT_HOST
+const mqtt_port = process.env.MQTT_PORT
+const user_name = process.env.MQTT_USERNAME
+const user_pass = process.env.MQTT_PASSWORD
 
 export default class MqttController {
     /**
@@ -46,13 +50,13 @@ export default class MqttController {
             } else {
                 const location = `${main_id}/${company.id}`
                 ctx.body = {
-                    BrokerAdr: '158.85.225.154',
-                    BrokerPort: 1883,
-                    ClientID: '101FRE1111325665454RETV123355',
+                    BrokerAdr: mqtt_host,
+                    BrokerPort: mqtt_port,
+                    ClientID: false, // '101FRE1111325665454RETV123355'
                     Use_SSL: false,
                     use_enryption: false,
-                    User_Name: 'TR2584567452121TFD',
-                    User_Pass: 'ASTR565VFDF8787fdtrtJ76p',
+                    User_Name: user_name,
+                    User_Pass: user_pass,
                     Location: location
                 }
                 // const send_message = {

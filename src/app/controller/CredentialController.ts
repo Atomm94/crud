@@ -247,6 +247,7 @@ export default class CredentialController {
             })
             ctx.logsData = logs_data
             const cardhoder = await Cardholder.findOneOrFail({ id: credential.cardholder })
+            credential.isDelete = true
             cardhoder.credentials = [credential]
 
             CardKeyController.editCardKey(location, user.company, user, null, access_points, [cardhoder])
