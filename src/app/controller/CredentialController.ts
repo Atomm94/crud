@@ -246,7 +246,7 @@ export default class CredentialController {
                 value: { code: credential.code }
             })
             ctx.logsData = logs_data
-            const cardhoder = await Cardholder.findOneOrFail({ id: credential.cardholder })
+            const cardhoder = await Cardholder.findOneOrFail({ where: { id: credential.cardholder }, relations: ['access_rights', 'access_rights.access_rules'] })
             credential.isDelete = true
             cardhoder.credentials = [credential]
 
@@ -353,7 +353,8 @@ export default class CredentialController {
                     .andWhere(`acu.company = ${ctx.user.company}`)
                     .getMany()
 
-                const cardhoder = await Cardholder.findOneOrFail({ id: credential.cardholder })
+                const cardhoder = await Cardholder.findOneOrFail({ where: { id: credential.cardholder }, relations: ['access_rights', 'access_rights.access_rules'] })
+
                 cardhoder.credentials = [credential]
 
                 CardKeyController.editCardKey(location, user.company, user, null, access_points, [cardhoder])
