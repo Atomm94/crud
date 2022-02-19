@@ -1,5 +1,5 @@
 import { DefaultContext } from 'koa'
-import { Cardholder, Schedule } from '../model/entity'
+import { Schedule } from '../model/entity'
 import { Acu } from '../model/entity/Acu'
 import { acuStatus } from '../enums/acuStatus.enum'
 import { Timeframe } from '../model/entity/Timeframe'
@@ -112,17 +112,18 @@ export default class AccessRuleController {
                         //     }
                         // })
 
-                        const cardholders: Cardholder[] = await Cardholder.createQueryBuilder('cardholder')
-                            .leftJoinAndSelect('cardholder.access_rights', 'access_right')
-                            .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
-                            .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null')
-                            .leftJoinAndSelect('cardholder.antipass_backs', 'antipass_back')
-                            .leftJoinAndSelect('cardholder.limitations', 'limitation')
-                            .where(`cardholder.access_right = '${access_rule.access_right}'`)
-                            .andWhere(`cardholder.company = '${req_data.company}'`)
-                            .getMany()
+                        // const cardholders: Cardholder[] = await Cardholder.createQueryBuilder('cardholder')
+                        //     .leftJoinAndSelect('cardholder.access_rights', 'access_right')
+                        //     .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
+                        //     .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null')
+                        //     .leftJoinAndSelect('cardholder.antipass_backs', 'antipass_back')
+                        //     .leftJoinAndSelect('cardholder.limitations', 'limitation')
+                        //     .where(`cardholder.access_right = '${access_rule.access_right}'`)
+                        //     .andWhere(`cardholder.company = '${req_data.company}'`)
+                        //     .getMany()
 
-                        CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, req_data.company, user, [access_point], cardholders)
+                        // CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, req_data.company, user, [access_point], cardholders)
+                        CardKeyController.setAddCardKey(OperatorType.SET_CARD_KEYS, location, req_data.company, user, null)
 
                         // const cardholders: any = await Cardholder.createQueryBuilder('cardholder')
                         //     .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null')

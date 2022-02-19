@@ -3,6 +3,7 @@ import { Company } from '../model/entity'
 // import { OperatorType } from '../mqtt/Operators'
 // import SendDeviceMessage from '../mqtt/SendDeviceMessage'
 import MQTTBroker from '../mqtt/mqtt'
+// import * as crypto from 'crypto'
 // import SendDeviceMessage from '../mqtt/SendDeviceMessage'
 // import { OperatorType } from '../mqtt/Operators'
 // import { SendTopics } from '../mqtt/Topics'
@@ -11,6 +12,7 @@ const mqtt_host = process.env.MQTT_HOST
 const mqtt_port = process.env.MQTT_PORT
 const user_name = process.env.MQTT_USERNAME
 const user_pass = process.env.MQTT_PASSWORD
+var chacha20 = require('chacha20')
 
 export default class MqttController {
     /**
@@ -48,6 +50,20 @@ export default class MqttController {
                     message: 'Invalid id!!'
                 }
             } else {
+                // when need to encrypt pass with chacha20 just checkout comment
+                // var keyname = 'test'
+                var plaintext = user_pass as string
+                // var key = crypto.createHash('sha256').update(keyname).digest()
+                var nonce = Buffer.alloc(8)
+                nonce.fill(0)
+                var ciphertext = chacha20.encrypt('test', nonce, Buffer.from(plaintext))
+                ciphertext = ciphertext.toString('hex')
+                // var ciphertext2 = chacha20.decrypt('test', nonce, Buffer.from(ciphertext))
+                // console.log('Ciphertext:\t', ciphertext)
+                // console.log('Ciphertext:\t', ciphertext.toString('hex'))
+                // console.log('ciphertext2:\t', ciphertext2.toString('utf8'))
+                // User_Pass: ciphertext.toString('hex'))
+
                 const location = `${main_id}/${company.id}`
                 ctx.body = {
                     BrokerAdr: mqtt_host,
@@ -56,7 +72,7 @@ export default class MqttController {
                     Use_SSL: false,
                     use_enryption: false,
                     User_Name: user_name,
-                    User_Pass: user_pass,
+                    User_Pass: ciphertext,
                     Location: location
                 }
                 // const send_message = {
