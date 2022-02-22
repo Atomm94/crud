@@ -2320,8 +2320,8 @@ export default class CardholderController {
 
                     // CardKeyController.editCardKey(location, company, auth_user.id, null, access_points, [cardholder])
                 }
+                await Promise.all(save)
                 CardKeyController.setAddCardKey(OperatorType.SET_CARD_KEYS, location, company, auth_user, null)
-                Promise.all(save)
                 ctx.body = { success: true }
             } else {
                 ctx.body = {
