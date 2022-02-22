@@ -506,17 +506,19 @@ export default class AcuController {
                                 }
 
                                 if (access_point.access_point_zone !== old_access_point.access_point_zone) {
+                                    let access_point_zone: any = -1
                                     if (access_point.access_point_zone) {
-                                        let access_point_zone: any = await AccessPointZone.findOne({ where: { id: access_point.access_point_zone }, relations: ['antipass_backs'] })
-                                        if (!access_point_zone) access_point_zone = -1
-                                        if (checkAccessPointSend) {
-                                            checkAccessPointSend.access_point_zones = access_point_zone
-                                        } else {
-                                            checkAccessPointSend = {
-                                                id: access_point.id,
-                                                type,
-                                                access_point_zones: access_point_zone
-                                            }
+                                        access_point_zone = await AccessPointZone.findOne({ where: { id: access_point.access_point_zone }, relations: ['antipass_backs'] })
+                                    }
+                                    if (!access_point_zone) access_point_zone = -1
+                                    if (checkAccessPointSend) {
+                                        checkAccessPointSend.access_point_zones = access_point_zone
+                                    } else {
+                                        checkAccessPointSend = {
+                                            id: access_point.id,
+                                            type,
+                                            access_point_zone: access_point.access_point_zone,
+                                            access_point_zones: access_point_zone
                                         }
                                     }
                                 }
