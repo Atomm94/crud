@@ -17,6 +17,7 @@ import { readerTypes } from '../enums/readerTypes'
 import { logUserEvents } from '../enums/logUserEvents.enum'
 import { accessPointMode } from '../enums/accessPointMode.enum'
 import { checkSendingDevice } from '../functions/check-sending-device'
+import { AccessPointZone } from '../model/entity'
 
 export default class AcuController {
     /**
@@ -476,8 +477,14 @@ export default class AcuController {
                                 if (access_point.resource) access_point.resource = JSON.stringify(access_point.resource)
                                 access_point.mode = accessPointMode.CREDENTIAL
 
+                                let access_point_zone
+                                if (access_point.access_point_zone) {
+                                    access_point_zone = await AccessPointZone.findOne({ where: { id: access_point.access_point_zone }, relations: ['antipass_backs'] })
+                                }
                                 access_point = await AccessPoint.addItem(access_point)
                                 // new_access_points.push(access_point)
+
+                                access_point.access_point_zones = access_point_zone
                             } else {
                                 const old_access_point = await AccessPoint.findOneOrFail({ id: access_point.id, company: company })
                                 const type = old_access_point.type
@@ -494,6 +501,22 @@ export default class AcuController {
                                             type,
                                             resourcesForSendDevice: checkAccessPointResourcesSend,
                                             resources: access_point.resources
+                                        }
+                                    }
+                                }
+
+                                if (access_point.access_point_zone !== old_access_point.access_point_zone) {
+                                    if (access_point.access_point_zone) {
+                                        let access_point_zone: any = await AccessPointZone.findOne({ where: { id: access_point.access_point_zone }, relations: ['antipass_backs'] })
+                                        if (!access_point_zone) access_point_zone = -1
+                                        if (checkAccessPointSend) {
+                                            checkAccessPointSend.access_point_zones = access_point_zone
+                                        } else {
+                                            checkAccessPointSend = {
+                                                id: access_point.id,
+                                                type,
+                                                access_point_zones: access_point_zone
+                                            }
                                         }
                                     }
                                 }
@@ -908,6 +931,8 @@ export default class AcuController {
                 .leftJoinAndSelect('acu.access_points', 'access_point', 'access_point.delete_date is null')
                 .leftJoinAndSelect('access_point.readers', 'reader', 'reader.delete_date is null')
                 .leftJoinAndSelect('access_point.access_rules', 'access_rule', 'access_rule.delete_date is null')
+                .leftJoinAndSelect('access_point.access_point_zones', 'access_point_zone', 'access_point_zone.delete_date is null')
+                .leftJoinAndSelect('access_point_zone.antipass_backs', 'antipass_back')
                 .leftJoinAndSelect('access_rule.schedules', 'schedule', 'schedule.delete_date is null')
                 .leftJoinAndSelect('schedule.timeframes', 'timeframe', 'timeframe.delete_date is null')
                 .where(`acu.id = '${req_data.device}'`)

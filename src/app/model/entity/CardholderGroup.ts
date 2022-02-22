@@ -8,7 +8,6 @@ import {
     DeleteDateColumn
 } from 'typeorm'
 import { minusResource } from '../../functions/minusResource'
-import { AntipassBack } from './AntipassBack'
 
 import {
     Cardholder,
@@ -36,8 +35,8 @@ export class CardholderGroup extends MainEntity {
     @Column('boolean', { name: 'limitation_inherited', default: false })
     limitation_inherited: boolean
 
-    @Column('int', { name: 'antipass_back', nullable: false })
-    antipass_back: number
+    @Column('boolean', { name: 'enable_antipass_back', default: false })
+    enable_antipass_back: boolean
 
     @Column('boolean', { name: 'antipass_back_inherited', default: false })
     antipass_back_inherited: boolean
@@ -67,9 +66,9 @@ export class CardholderGroup extends MainEntity {
     @JoinColumn({ name: 'limitation' })
     limitations: Limitation | null;
 
-    @ManyToOne(type => AntipassBack, antipass_back => antipass_back.cardholder_groups, { nullable: true })
-    @JoinColumn({ name: 'antipass_back' })
-    antipass_backs: AntipassBack | null;
+    // @ManyToOne(type => AntipassBack, antipass_back => antipass_back.cardholder_groups, { nullable: true })
+    // @JoinColumn({ name: 'antipass_back' })
+    // antipass_backs: AntipassBack | null;
 
     @ManyToOne(type => Schedule, schedule => schedule.cardholder_groups, { nullable: true })
     @JoinColumn({ name: 'time_attendance' })
@@ -89,7 +88,7 @@ export class CardholderGroup extends MainEntity {
         if ('parent_id' in data) cardholderGroup.parent_id = data.parent_id
         cardholderGroup.limitation = data.limitation
         if ('limitation_inherited' in data) cardholderGroup.limitation_inherited = data.limitation_inherited
-        cardholderGroup.antipass_back = data.antipass_back
+        cardholderGroup.enable_antipass_back = data.enable_antipass_back
         if ('antipass_back_inherited' in data) cardholderGroup.antipass_back_inherited = data.antipass_back_inherited
         if ('time_attendance' in data) cardholderGroup.time_attendance = data.time_attendance
         if ('time_attendance_inherited' in data) cardholderGroup.time_attendance_inherited = data.time_attendance_inherited
@@ -128,15 +127,19 @@ export class CardholderGroup extends MainEntity {
             }
         }
 
+        // if (data.antipass_back_inherited && parent_data) {
+        //     data.antipass_back = parent_data.antipass_back
+        // } else {
+        //     if (data.antipass_back_inherited === oldData.antipass_back_inherited) {
+        //         await AntipassBack.updateItem(data.antipass_backs as AntipassBack)
+        //     } else {
+        //         const antipass_back_data: any = await AntipassBack.addItem(data.antipass_backs as AntipassBack)
+        //         data.antipass_back = antipass_back_data.id
+        //     }
+        // }
+
         if (data.antipass_back_inherited && parent_data) {
-            data.antipass_back = parent_data.antipass_back
-        } else {
-            if (data.antipass_back_inherited === oldData.antipass_back_inherited) {
-                await AntipassBack.updateItem(data.antipass_backs as AntipassBack)
-            } else {
-                const antipass_back_data: any = await AntipassBack.addItem(data.antipass_backs as AntipassBack)
-                data.antipass_back = antipass_back_data.id
-            }
+            data.enable_antipass_back = parent_data.enable_antipass_back
         }
 
         if (data.access_right_inherited && parent_data) {
@@ -152,7 +155,7 @@ export class CardholderGroup extends MainEntity {
         if ('parent_id' in data) cardholderGroup.parent_id = data.parent_id
         if ('limitation' in data) cardholderGroup.limitation = data.limitation
         if ('limitation_inherited' in data) cardholderGroup.limitation_inherited = data.limitation_inherited
-        if ('antipass_back' in data) cardholderGroup.antipass_back = data.antipass_back
+        if ('enable_antipass_back' in data) cardholderGroup.enable_antipass_back = data.enable_antipass_back
         if ('antipass_back_inherited' in data) cardholderGroup.antipass_back_inherited = data.antipass_back_inherited
         if ('time_attendance' in data) cardholderGroup.time_attendance = data.time_attendance
         if ('time_attendance_inherited' in data) cardholderGroup.time_attendance_inherited = data.time_attendance_inherited

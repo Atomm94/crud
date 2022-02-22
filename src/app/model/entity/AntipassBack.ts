@@ -6,8 +6,7 @@ import {
 import { typeAntipassBack } from '../../enums/typeAntipassBack.enum'
 import { timeTypeAntipassBack } from '../../enums/timeTypeAntipassBack.enum'
 import { MainEntity } from './MainEntity'
-import { CardholderGroup } from './CardholderGroup'
-import { Cardholder } from '.'
+import { AccessPointZone } from '.'
 
 @Entity('antipass_back')
 export class AntipassBack extends MainEntity {
@@ -23,11 +22,14 @@ export class AntipassBack extends MainEntity {
     @Column('enum', { name: 'time_type', enum: timeTypeAntipassBack, default: timeTypeAntipassBack.MINUTES })
     time_type: timeTypeAntipassBack
 
-    @OneToMany(type => CardholderGroup, cardholder_group => cardholder_group.antipass_backs)
-    cardholder_groups: CardholderGroup[];
+    // @OneToMany(type => CardholderGroup, cardholder_group => cardholder_group.antipass_backs)
+    // cardholder_groups: CardholderGroup[];
 
-    @OneToMany(type => Cardholder, cardholder => cardholder.antipass_backs)
-    cardholders: Cardholder[];
+    // @OneToMany(type => Cardholder, cardholder => cardholder.antipass_backs)
+    // cardholders: Cardholder[];
+
+    @OneToMany(type => AccessPointZone, access_point_zone => access_point_zone.antipass_backs)
+    access_point_zones: AccessPointZone[];
 
     public static gettingActions: boolean = false
     public static gettingAttributes: boolean = false

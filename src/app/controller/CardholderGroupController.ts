@@ -1,7 +1,6 @@
 import { DefaultContext } from 'koa'
 import { logUserEvents } from '../enums/logUserEvents.enum'
 import { Cardholder, Limitation } from '../model/entity'
-import { AntipassBack } from '../model/entity/AntipassBack'
 import { CardholderGroup } from '../model/entity/CardholderGroup'
 export default class CardholderGroupController {
     /**
@@ -85,21 +84,9 @@ export default class CardholderGroupController {
      *                  antipass_back_inherited:
      *                      type: boolean
      *                      example: false
-     *                  antipass_backs:
-     *                      type: object
-     *                      properties:
-     *                          type:
-     *                              type: disable | soft | semi_soft | hard | extra_hard
-     *                              example: disable
-     *                          enable_timer:
-     *                              type: boolean
-     *                              example: false
-     *                          time:
-     *                              type: number
-     *                              example: 60
-     *                          time_type:
-     *                              type: seconds | minutes | hours
-     *                              example: minutes
+     *                  enable_antipass_back:
+     *                      type: boolean
+     *                      example: false
      *                  time_attendance_inherited:
      *                      type: boolean
      *                      example: false
@@ -141,13 +128,17 @@ export default class CardholderGroupController {
                 }
             }
 
+            // if (req_data.antipass_back_inherited && parent_data) {
+            //     req_data.antipass_back = parent_data.antipass_back
+            // } else {
+            //     const antipass_back_data = await AntipassBack.addItem(req_data.antipass_backs as AntipassBack)
+            //     if (antipass_back_data) {
+            //         req_data.antipass_back = antipass_back_data.id
+            //     }
+            // }
+
             if (req_data.antipass_back_inherited && parent_data) {
-                req_data.antipass_back = parent_data.antipass_back
-            } else {
-                const antipass_back_data = await AntipassBack.addItem(req_data.antipass_backs as AntipassBack)
-                if (antipass_back_data) {
-                    req_data.antipass_back = antipass_back_data.id
-                }
+                req_data.enable_antipass_back = parent_data.enable_antipass_back
             }
 
             if (req_data.access_right_inherited && parent_data) {
@@ -250,21 +241,9 @@ export default class CardholderGroupController {
      *                  antipass_back_inherited:
      *                      type: boolean
      *                      example: false
-     *                  antipass_backs:
-     *                      type: object
-     *                      properties:
-     *                          type:
-     *                              type: disable | soft | semi_soft | hard | extra_hard
-     *                              example: disable
-     *                          enable_timer:
-     *                              type: boolean
-     *                              example: false
-     *                          time:
-     *                              type: number
-     *                              example: 60
-     *                          time_type:
-     *                              type: seconds | minutes | hours
-     *                              example: minutes
+     *                  enable_antipass_back:
+     *                      type: boolean
+     *                      example: false
      *                  time_attendance_inherited:
      *                      type: boolean
      *                      example: false
@@ -339,7 +318,7 @@ export default class CardholderGroupController {
         try {
             const user = ctx.user
             const where = { id: +ctx.params.id, company: user.company ? user.company : user.company }
-            const relations = ['limitations', 'antipass_backs', 'time_attendances', 'access_rights']
+            const relations = ['limitations', 'time_attendances', 'access_rights']
             ctx.body = await CardholderGroup.getItem(where, relations)
         } catch (error) {
             ctx.status = error.status || 400

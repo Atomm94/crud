@@ -2,6 +2,7 @@ import { DefaultContext } from 'koa'
 import { logUserEvents } from '../enums/logUserEvents.enum'
 import { AccessPoint } from '../model/entity'
 import { AccessPointZone } from '../model/entity/AccessPointZone'
+import { AntipassBack } from '../model/entity/AntipassBack'
 import { Reader } from '../model/entity/Reader'
 export default class AccessPointZoneController {
     /**
@@ -40,6 +41,22 @@ export default class AccessPointZoneController {
      *                      type: string
      *                  people_limits_max:
      *                      type: string
+     *                  antipass_backs:
+     *                      type: object
+     *                      properties:
+     *                          type:
+     *                              type: string
+     *                              enum: [disable, soft, semi_soft, hard, extra_hard]
+     *                              example: disable
+     *                          enable_timer:
+     *                              type: boolean
+     *                              example: false
+     *                          time:
+     *                              type: number
+     *                              example: 60
+     *                          time_type:
+     *                              type: seconds | minutes | hours
+     *                              example: minutes
      *          responses:
      *              '201':
      *                  description: A accessPointZone object
@@ -54,7 +71,13 @@ export default class AccessPointZoneController {
             const req_data = ctx.request.body
             const user = ctx.user
             req_data.company = user.company ? user.company : null
-            ctx.body = await AccessPointZone.addItem(req_data as AccessPointZone)
+
+            const antipass_back = await AntipassBack.addItem(req_data.antipass_backs as AntipassBack)
+            req_data.antipass_back = antipass_back.id
+            const access_point_zone = await AccessPointZone.addItem(req_data as AccessPointZone) as AccessPointZone
+            access_point_zone.antipass_backs = antipass_back
+
+            ctx.body = access_point_zone
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -102,6 +125,25 @@ export default class AccessPointZoneController {
      *                      type: string
      *                  people_limits_max:
      *                      type: string
+     *                  antipass_backs:
+     *                      type: object
+     *                      properties:
+     *                          id:
+     *                              type: number
+     *                              example: 1
+     *                          type:
+     *                              type: string
+     *                              enum: [disable, soft, semi_soft, hard, extra_hard]
+     *                              example: disable
+     *                          enable_timer:
+     *                              type: boolean
+     *                              example: false
+     *                          time:
+     *                              type: number
+     *                              example: 60
+     *                          time_type:
+     *                              type: seconds | minutes | hours
+     *                              example: minutes
      *          responses:
      *              '201':
      *                  description: A accessPointZone updated object
@@ -122,8 +164,9 @@ export default class AccessPointZoneController {
                 ctx.body = { message: 'something went wrong' }
             } else {
                 const updated = await AccessPointZone.updateItem(req_data as AccessPointZone)
+                const antipass_back_data = await AntipassBack.updateItem(req_data.antipass_backs as AntipassBack)
                 ctx.oldData = updated.old
-                ctx.body = updated.new
+                ctx.body = { ...updated.new, antipass_backs: antipass_back_data.new }
             }
         } catch (error) {
             ctx.status = error.status || 400

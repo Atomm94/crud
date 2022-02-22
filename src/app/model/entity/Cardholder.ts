@@ -86,8 +86,8 @@ export class Cardholder extends MainEntity {
     @Column('boolean', { name: 'limitation_inherited', default: false })
     limitation_inherited: boolean
 
-    @Column('int', { name: 'antipass_back', nullable: true })
-    antipass_back: number
+    @Column('boolean', { name: 'enable_antipass_back', default: false })
+    enable_antipass_back: boolean
 
     @Column('boolean', { name: 'antipass_back_inherited', default: false })
     antipass_back_inherited: boolean
@@ -137,9 +137,9 @@ export class Cardholder extends MainEntity {
     @JoinColumn({ name: 'limitation' })
     limitations: Limitation | null;
 
-    @ManyToOne(type => AntipassBack, antipass_back => antipass_back.cardholders, { nullable: true })
-    @JoinColumn({ name: 'antipass_back' })
-    antipass_backs: AntipassBack | null;
+    // @ManyToOne(type => AntipassBack, antipass_back => antipass_back.cardholders, { nullable: true })
+    // @JoinColumn({ name: 'antipass_back' })
+    // antipass_backs: AntipassBack | null;
 
     @ManyToOne(type => Schedule, schedule => schedule.cardholders, { nullable: true })
     @JoinColumn({ name: 'time_attendance' })
@@ -177,7 +177,7 @@ export class Cardholder extends MainEntity {
         if ('extra_features' in data) cardholder.extra_features = data.extra_features
         cardholder.limitation = data.limitation
         if ('limitation_inherited' in data) cardholder.limitation_inherited = data.limitation_inherited
-        cardholder.antipass_back = data.antipass_back
+        cardholder.enable_antipass_back = data.enable_antipass_back
         if ('antipass_back_inherited' in data) cardholder.antipass_back_inherited = data.antipass_back_inherited
         cardholder.time_attendance = data.time_attendance
         if ('time_attendance_inherited' in data) cardholder.time_attendance_inherited = data.time_attendance_inherited
@@ -237,25 +237,29 @@ export class Cardholder extends MainEntity {
             }
         }
 
+        // if (data.antipass_back_inherited && group_data) {
+        //     data.antipass_back = group_data.antipass_back
+        // } else {
+        //     if (data.antipass_back_inherited === oldData.antipass_back_inherited) {
+        //         const antipass_back_data = await AntipassBack.updateItem(data.antipass_backs as AntipassBack)
+        //         const diff_antipass_back_data = getObjectDiff(antipass_back_data.new, antipass_back_data.old)
+        //         if (Object.keys(diff_antipass_back_data).length) {
+        //             logs_data.push({
+        //                 event: logUserEvents.CHANGE,
+        //                 target: `${Cardholder.name}-${AntipassBack.name}/${cardholder.first_name}`,
+        //                 value: diff_antipass_back_data
+        //             })
+        //         }
+        //     } else {
+        //         if (data.antipass_backs) {
+        //             const antipass_back_data: any = await AntipassBack.addItem(data.antipass_backs as AntipassBack)
+        //             data.antipass_back = antipass_back_data.id
+        //         }
+        //     }
+        // }
+
         if (data.antipass_back_inherited && group_data) {
-            data.antipass_back = group_data.antipass_back
-        } else {
-            if (data.antipass_back_inherited === oldData.antipass_back_inherited) {
-                const antipass_back_data = await AntipassBack.updateItem(data.antipass_backs as AntipassBack)
-                const diff_antipass_back_data = getObjectDiff(antipass_back_data.new, antipass_back_data.old)
-                if (Object.keys(diff_antipass_back_data).length) {
-                    logs_data.push({
-                        event: logUserEvents.CHANGE,
-                        target: `${Cardholder.name}-${AntipassBack.name}/${cardholder.first_name}`,
-                        value: diff_antipass_back_data
-                    })
-                }
-            } else {
-                if (data.antipass_backs) {
-                    const antipass_back_data: any = await AntipassBack.addItem(data.antipass_backs as AntipassBack)
-                    data.antipass_back = antipass_back_data.id
-                }
-            }
+            data.enable_antipass_back = group_data.enable_antipass_back
         }
 
         if (data.access_right_inherited && group_data) {
@@ -294,7 +298,7 @@ export class Cardholder extends MainEntity {
         if ('extra_features' in data) cardholder.extra_features = data.extra_features
         if ('limitation' in data) cardholder.limitation = data.limitation
         if ('limitation_inherited' in data) cardholder.limitation_inherited = data.limitation_inherited
-        if ('antipass_back' in data) cardholder.antipass_back = data.antipass_back
+        if ('enable_antipass_back' in data) cardholder.enable_antipass_back = data.enable_antipass_back
         if ('antipass_back_inherited' in data) cardholder.antipass_back_inherited = data.antipass_back_inherited
         if ('time_attendance' in data) cardholder.time_attendance = data.time_attendance
         if ('time_attendance_inherited' in data) cardholder.time_attendance_inherited = data.time_attendance_inherited

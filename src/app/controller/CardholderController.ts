@@ -3,7 +3,6 @@ import { CarInfo } from '../model/entity/CarInfo'
 import { Limitation } from '../model/entity/Limitation'
 import { Cardholder } from '../model/entity/Cardholder'
 import { CardholderGroup } from '../model/entity/CardholderGroup'
-import { AntipassBack } from '../model/entity/AntipassBack'
 import { Credential } from '../model/entity/Credential'
 import { acuStatus } from '../enums/acuStatus.enum'
 import { AccessPoint, AccessRight, AccessRule, Admin, Role, Schedule } from '../model/entity'
@@ -154,22 +153,9 @@ export default class CardholderController {
      *                    antipass_back_inherited:
      *                        type: boolean
      *                        example: false
-     *                    antipass_backs:
-     *                        type: object
-     *                        properties:
-     *                            type:
-     *                                type: string
-     *                                enum: [disable, soft, semi_soft, hard, extra_hard]
-     *                                example: disable
-     *                            enable_timer:
-     *                                type: boolean
-     *                                example: false
-     *                            time:
-     *                                type: number
-     *                                example: 60
-     *                            time_type:
-     *                                type: seconds | minutes | hours
-     *                                example: minutes
+     *                    enable_antipass_back:
+     *                        type: boolean
+     *                        example: false
      *                    time_attendance_inherited:
      *                        type: boolean
      *                        example: false
@@ -264,13 +250,17 @@ export default class CardholderController {
                 }
             }
 
+            // if (req_data.antipass_back_inherited && group_data) {
+            //     req_data.antipass_back = group_data.antipass_back
+            // } else {
+            //     const antipass_back_data = await AntipassBack.addItem(req_data.antipass_backs as AntipassBack)
+            //     if (antipass_back_data) {
+            //         req_data.antipass_back = antipass_back_data.id
+            //     }
+            // }
+
             if (req_data.antipass_back_inherited && group_data) {
-                req_data.antipass_back = group_data.antipass_back
-            } else {
-                const antipass_back_data = await AntipassBack.addItem(req_data.antipass_backs as AntipassBack)
-                if (antipass_back_data) {
-                    req_data.antipass_back = antipass_back_data.id
-                }
+                req_data.enable_antipass_back = group_data.enable_antipass_back
             }
 
             if (req_data.access_right_inherited && group_data) {
@@ -329,7 +319,7 @@ export default class CardholderController {
                 const cardholder_data = await Cardholder.createQueryBuilder('cardholder')
                     .leftJoinAndSelect('cardholder.car_infos', 'car_info')
                     .leftJoinAndSelect('cardholder.limitations', 'limitation')
-                    .leftJoinAndSelect('cardholder.antipass_backs', 'antipass_back')
+                    // .leftJoinAndSelect('cardholder.antipass_backs', 'antipass_back')
                     .leftJoinAndSelect('cardholder.time_attendances', 'time_attendance')
                     .leftJoinAndSelect('cardholder.access_rights', 'access_right')
                     .leftJoinAndSelect('cardholder.cardholder_groups', 'cardholder_group')
@@ -480,25 +470,9 @@ export default class CardholderController {
      *                  antipass_back_inherited:
      *                      type: boolean
      *                      example: false
-     *                  antipass_backs:
-     *                      type: object
-     *                      properties:
-     *                          id:
-     *                              type: number
-     *                              example: 1
-     *                          type:
-     *                              type: string
-     *                              enum: [disable, soft, semi_soft, hard, extra_hard]
-     *                              example: disable
-     *                          enable_timer:
-     *                              type: boolean
-     *                              example: false
-     *                          time:
-     *                              type: number
-     *                              example: 60
-     *                          time_type:
-     *                              type: seconds | minutes | hours
-     *                              example: minutes
+     *                  enable_antipass_back:
+     *                        type: boolean
+     *                        example: false
      *                  time_attendance_inherited:
      *                      type: boolean
      *                      example: false
@@ -659,7 +633,7 @@ export default class CardholderController {
                 const cardholder_data = await Cardholder.createQueryBuilder('cardholder')
                     .leftJoinAndSelect('cardholder.car_infos', 'car_info')
                     .leftJoinAndSelect('cardholder.limitations', 'limitation')
-                    .leftJoinAndSelect('cardholder.antipass_backs', 'antipass_back')
+                    // .leftJoinAndSelect('cardholder.antipass_backs', 'antipass_back')
                     .leftJoinAndSelect('cardholder.time_attendances', 'schedule')
                     .leftJoinAndSelect('cardholder.access_rights', 'access_right')
                     .leftJoinAndSelect('cardholder.cardholder_groups', 'cardholder_group')
@@ -714,15 +688,15 @@ export default class CardholderController {
             const cardholder = await Cardholder.createQueryBuilder('cardholder')
                 .leftJoinAndSelect('cardholder.car_infos', 'car_info')
                 .leftJoinAndSelect('cardholder.limitations', 'limitation')
-                .leftJoinAndSelect('cardholder.antipass_backs', 'antipass_back')
+                // .leftJoinAndSelect('cardholder.antipass_backs', 'antipass_back')
                 .leftJoinAndSelect('cardholder.time_attendances', 'schedule')
                 .leftJoinAndSelect('cardholder.access_rights', 'access_right')
                 .leftJoinAndSelect('cardholder.cardholder_groups', 'cardholder_group')
                 .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null')
                 .where(`cardholder.id = '${+ctx.params.id}'`)
                 .andWhere(`cardholder.company = ${user.company}`)
-                .getMany()
-            ctx.body = cardholder[0]
+                .getOne()
+            ctx.body = cardholder
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -835,7 +809,7 @@ export default class CardholderController {
                 cardholders = await Cardholder.createQueryBuilder('cardholder')
                     .leftJoinAndSelect('cardholder.car_infos', 'car_info')
                     .leftJoinAndSelect('cardholder.limitations', 'limitation')
-                    .leftJoinAndSelect('cardholder.antipass_backs', 'antipass_back')
+                    // .leftJoinAndSelect('cardholder.antipass_backs', 'antipass_back')
                     .leftJoinAndSelect('cardholder.time_attendances', 'schedule')
                     .leftJoinAndSelect('cardholder.access_rights', 'access_right')
                     .leftJoinAndSelect('cardholder.cardholder_groups', 'cardholder_group')

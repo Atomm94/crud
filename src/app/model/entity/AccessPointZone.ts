@@ -2,8 +2,11 @@ import {
     Entity,
     Column,
     OneToMany,
-    DeleteDateColumn
+    DeleteDateColumn,
+    ManyToOne,
+    JoinColumn
 } from 'typeorm'
+import { AntipassBack } from './AntipassBack'
 
 import { MainEntity, AccessPoint } from './index'
 import { Reader } from './Reader'
@@ -15,6 +18,9 @@ export class AccessPointZone extends MainEntity {
 
     @Column('varchar', { name: 'description', nullable: true })
     description: string | null
+
+    @Column('int', { name: 'antipass_back', nullable: true })
+    antipass_back: number
 
     @Column('int', { name: 'parent_id', nullable: true })
     parent_id: number | null
@@ -33,6 +39,10 @@ export class AccessPointZone extends MainEntity {
 
     @Column('int', { name: 'company', nullable: false })
     company: number
+
+    @ManyToOne(type => AntipassBack, antipass_back => antipass_back.access_point_zones, { nullable: true })
+    @JoinColumn({ name: 'antipass_back' })
+    antipass_backs: AntipassBack | null;
 
     @OneToMany(type => AccessPoint, access_point => access_point.access_point_zones)
     access_points: AccessPoint[];
@@ -53,6 +63,7 @@ export class AccessPointZone extends MainEntity {
         accessPointZone.people_limits_min = data.people_limits_min
         accessPointZone.people_limits_max = data.people_limits_max
         accessPointZone.company = data.company
+        accessPointZone.antipass_back = data.antipass_back
 
         return new Promise((resolve, reject) => {
             this.save(accessPointZone)
@@ -75,6 +86,7 @@ export class AccessPointZone extends MainEntity {
         if ('apb_reset_timer' in data) accessPointZone.apb_reset_timer = data.apb_reset_timer
         if ('people_limits_min' in data) accessPointZone.people_limits_min = data.people_limits_min
         if ('people_limits_max' in data) accessPointZone.people_limits_max = data.people_limits_max
+        if ('antipass_back' in data) accessPointZone.antipass_back = data.antipass_back
 
         if (!accessPointZone) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {

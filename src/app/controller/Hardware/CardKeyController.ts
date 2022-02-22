@@ -3,7 +3,6 @@ import { acuStatus } from '../../enums/acuStatus.enum'
 import { calculateCredentialsKeysCountToSendDevice, filterCredentialToSendDevice } from '../../functions/credential'
 
 import { AccessPoint, AccessRule, Acu, Cardholder, Limitation } from '../../model/entity'
-import { AntipassBack } from '../../model/entity/AntipassBack'
 import { OperatorType } from '../../mqtt/Operators'
 import SendDeviceMessage from '../../mqtt/SendDeviceMessage'
 
@@ -39,7 +38,7 @@ export default class CardKeyController {
                 .leftJoinAndSelect('cardholder.access_rights', 'access_right')
                 .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
                 .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null')
-                .leftJoinAndSelect('cardholder.antipass_backs', 'antipass_back')
+                // .leftJoinAndSelect('cardholder.antipass_backs', 'antipass_back')
                 .leftJoinAndSelect('cardholder.limitations', 'limitation')
                 .where(`cardholder.company = '${company}'`)
                 .getMany()
@@ -47,9 +46,9 @@ export default class CardKeyController {
             const keys_count = calculateCredentialsKeysCountToSendDevice(all_cardholders)
             if (cardholders) {
                 for (const cardholder of cardholders) {
-                    if (!cardholder.antipass_backs) {
-                        cardholder.antipass_backs = await AntipassBack.findOne({ where: { id: cardholder.antipass_back } })
-                    }
+                    // if (!cardholder.antipass_backs) {
+                    //     cardholder.antipass_backs = await AntipassBack.findOne({ where: { id: cardholder.antipass_back } })
+                    // }
                     if (!cardholder.limitations) {
                         cardholder.limitations = await Limitation.findOne({ where: { id: cardholder.limitation } })
                     }

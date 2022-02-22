@@ -9,7 +9,7 @@ import {
 // import SendSocketMessage from '../../mqtt/SendSocketMessage'
 // import * as Models from '../entity'
 import { Cardholder, Limitation } from '../entity'
-import { AntipassBack } from '../entity/AntipassBack'
+// import { AntipassBack } from '../entity/AntipassBack'
 
 @EventSubscriber()
 export class PostSubscriber implements EntitySubscriberInterface<Cardholder> {
@@ -28,11 +28,11 @@ export class PostSubscriber implements EntitySubscriberInterface<Cardholder> {
             }
         }
 
-        if (New.antipass_back_inherited !== Old.antipass_back_inherited) {
-            if (New.antipass_back_inherited === true) {
-                AntipassBack.destroyItem(Old.antipass_back)
-            }
-        }
+        // if (New.antipass_back_inherited !== Old.antipass_back_inherited) {
+        //     if (New.antipass_back_inherited === true) {
+        //         AntipassBack.destroyItem(Old.antipass_back)
+        //     }
+        // }
 
         // if (New.presense !== Old.presense) {
         //     const presense_data = {
