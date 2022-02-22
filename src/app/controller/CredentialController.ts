@@ -248,7 +248,7 @@ export default class CredentialController {
             ctx.logsData = logs_data
             // const cardhoder = await Cardholder.findOneOrFail({ where: { id: credential.cardholder }, relations: ['access_rights', 'access_rights.access_rules'] })
             const cardhoder: any = await Cardholder.createQueryBuilder('cardholder')
-                .leftJoinAndSelect('access_rights', 'access_right', 'access_rights.delete_date is null')
+                .leftJoinAndSelect('cardholder.access_rights', 'access_right', 'access_right.delete_date is null')
                 .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
                 .where(`cardholder.id = '${credential.cardholder}'`)
                 .getOne()
@@ -368,7 +368,7 @@ export default class CredentialController {
                 // const cardhoder = await Cardholder.findOneOrFail({ where: { id: credential.cardholder }, relations: ['access_rights', 'access_rights.access_rules'] })
 
                 const cardhoder: any = await Cardholder.createQueryBuilder('cardholder')
-                    .leftJoinAndSelect('access_rights', 'access_right', 'access_rights.delete_date is null')
+                    .leftJoinAndSelect('cardholder.access_rights', 'access_right', 'access_right.delete_date is null')
                     .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
                     .where(`cardholder.id = '${credential.cardholder}'`)
                     .getOne()
