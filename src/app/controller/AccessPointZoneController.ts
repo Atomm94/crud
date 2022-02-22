@@ -212,11 +212,16 @@ export default class AccessPointZoneController {
             // ctx.body = await AccessPointZone.getItem(where, relations)
 
             const access_point_zone: any = await AccessPointZone.createQueryBuilder('access_point_zone')
-                .leftJoinAndSelect('access_point_zone.access_points', 'access_point', 'access_point.delete_date is null')
-                .leftJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
-                .where(`access_point_zone.id = '${+ctx.params.id}'`)
-                .andWhere(`access_point_zone.company = '${user.company ? user.company : null}'`)
-                .getOne()
+            .leftJoinAndSelect('access_point_zone.access_points', 'access_point', 'access_point.delete_date is null')
+            .leftJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
+            .leftJoinAndSelect('access_point_zone.antipass_backs', 'antipass_back')
+            .where(`access_point_zone.id = '${+ctx.params.id}'`)
+            .andWhere(`access_point_zone.company = '${user.company ? user.company : null}'`)
+            .getOne()
+            if (!access_point_zone) {
+                ctx.status = 400
+               return ctx.body = { message: 'Invalid AccessPointZone Id' }
+            }
             ctx.body = access_point_zone
         } catch (error) {
             ctx.status = error.status || 400
