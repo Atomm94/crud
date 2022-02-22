@@ -246,7 +246,19 @@ export default class CredentialController {
                 value: { code: credential.code }
             })
             ctx.logsData = logs_data
-            const cardhoder = await Cardholder.findOneOrFail({ where: { id: credential.cardholder }, relations: ['access_rights', 'access_rights.access_rules'] })
+            // const cardhoder = await Cardholder.findOneOrFail({ where: { id: credential.cardholder }, relations: ['access_rights', 'access_rights.access_rules'] })
+            const cardhoder: any = await Cardholder.createQueryBuilder('cardholder')
+                .leftJoinAndSelect('access_rights', 'access_right', 'access_rights.delete_date is null')
+                .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
+                .where(`cardholder.id = '${credential.cardholder}'`)
+                .getOne()
+            if (!cardhoder) {
+                ctx.status = 400
+                return ctx.body = {
+                    message: 'Invalid Cardholder Id'
+                }
+            }
+
             credential.isDelete = true
             cardhoder.credentials = [credential]
 
@@ -353,7 +365,19 @@ export default class CredentialController {
                     .andWhere(`acu.company = ${ctx.user.company}`)
                     .getMany()
 
-                const cardhoder = await Cardholder.findOneOrFail({ where: { id: credential.cardholder }, relations: ['access_rights', 'access_rights.access_rules'] })
+                // const cardhoder = await Cardholder.findOneOrFail({ where: { id: credential.cardholder }, relations: ['access_rights', 'access_rights.access_rules'] })
+
+                const cardhoder: any = await Cardholder.createQueryBuilder('cardholder')
+                    .leftJoinAndSelect('access_rights', 'access_right', 'access_rights.delete_date is null')
+                    .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
+                    .where(`cardholder.id = '${credential.cardholder}'`)
+                    .getOne()
+                if (!cardhoder) {
+                    ctx.status = 400
+                    return ctx.body = {
+                        message: 'Invalid Cardholder Id'
+                    }
+                }
 
                 cardhoder.credentials = [credential]
 
