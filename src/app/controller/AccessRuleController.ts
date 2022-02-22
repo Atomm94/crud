@@ -216,7 +216,7 @@ export default class AccessRuleController {
                         if (access_rule.schedules.type !== schedule.type) {
                             SdlController.delSdl(location, acu.serial_number, send_data, user, access_rule.schedules.type, acu.session_id, true)
                         } else {
-                            SdlController.setSdl(location, acu.serial_number, req_data, user, acu.session_id, true)
+                            SdlController.setSdl(location, acu.serial_number, send_data, user, acu.session_id, true)
                         }
                     }
                     ctx.body = {
