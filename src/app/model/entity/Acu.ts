@@ -21,6 +21,7 @@ import { socketChannels } from '../../enums/socketChannels.enum'
 import { Company } from './Company'
 import CronJob from './../../cron'
 import { AcuStatus } from './AcuStatus'
+import { AutoTaskSchedule } from './AutoTaskSchedule'
 
 @Entity('acu')
 export class Acu extends MainEntity {
@@ -90,6 +91,9 @@ export class Acu extends MainEntity {
 
     @OneToMany(type => AcuStatus, acu_status => acu_status.acus)
     acu_statuses: AcuStatus[];
+
+    @OneToMany(type => AutoTaskSchedule, auto_task_schedule => auto_task_schedule.acus)
+    auto_task_schedules: AutoTaskSchedule[];
 
     public static async addItem (data: any) {
         const acu = new Acu()

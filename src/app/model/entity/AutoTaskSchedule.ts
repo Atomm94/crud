@@ -6,10 +6,9 @@ import {
 } from 'typeorm'
 
 import { MainEntity } from './index'
-import { autoTaskScheduleType } from '../../enums/autoTaskScheduleType.enum'
 import { autoTaskStatus } from '../../enums/autoTaskStatus.enum'
+import { reactionType } from '../../enums/reactionType.enum'
 import { AccessPoint } from './AccessPoint'
-import { Schedule } from './Schedule'
 
 @Entity('auto_task_schedule')
 export class AutoTaskSchedule extends MainEntity {
@@ -22,17 +21,17 @@ export class AutoTaskSchedule extends MainEntity {
     @Column('int', { name: 'access_point', nullable: false })
     access_point: number
 
-    @Column('longtext', { name: 'command', nullable: false })
-    command: string
+    @Column('int', { name: 'acu', nullable: false })
+    acu: number
 
-    @Column('int', { name: 'schedule', nullable: true })
-    schedule: number | null
+    @Column('enum', { name: 'reaction_type', default: reactionType.MANAGEMENT_OF_ACCESS_POINTS, enum: reactionType })
+    reaction_type: string
 
-    @Column('enum', { name: 'schedule_type', enum: autoTaskScheduleType })
-    schedule_type: string
+    @Column('int', { name: 'reaction', nullable: false })
+    reaction: number
 
-    @Column('longtext', { name: 'custom_schedule', nullable: true })
-    custom_schedule: string | null
+    @Column('longtext', { name: 'conditions', nullable: true })
+    conditions: string
 
     @Column('enum', { name: 'condition', default: autoTaskStatus.PENDING, enum: autoTaskStatus })
     condition: string
@@ -50,9 +49,9 @@ export class AutoTaskSchedule extends MainEntity {
     @JoinColumn({ name: 'access_point' })
     access_points: AccessPoint;
 
-    @ManyToOne(type => Schedule, schedule => schedule.auto_task_schedules, { nullable: true })
-    @JoinColumn({ name: 'schedule' })
-    schedules: Schedule | null;
+    @ManyToOne(type => AccessPoint, acu => acu.auto_task_schedules)
+    @JoinColumn({ name: 'acu' })
+    acus: AccessPoint;
 
     public static async addItem (data: AutoTaskSchedule) {
         const autoTaskSchedule = new AutoTaskSchedule()
@@ -60,10 +59,10 @@ export class AutoTaskSchedule extends MainEntity {
         autoTaskSchedule.name = data.name
         if ('description' in data) autoTaskSchedule.description = data.description
         autoTaskSchedule.access_point = data.access_point
-        autoTaskSchedule.command = JSON.stringify(data.command)
-        if ('schedule' in data) autoTaskSchedule.schedule = data.schedule
-        autoTaskSchedule.schedule_type = data.schedule_type
-        if ('custom_schedule' in data) autoTaskSchedule.custom_schedule = (data.custom_schedule) ? JSON.stringify(data.custom_schedule) : null
+        autoTaskSchedule.acu = data.acu
+        if ('reaction_type' in data) autoTaskSchedule.reaction_type = data.reaction_type
+        autoTaskSchedule.reaction = data.reaction
+        if ('conditions' in data) autoTaskSchedule.conditions = JSON.stringify(data.conditions)
         autoTaskSchedule.condition = data.condition
         autoTaskSchedule.status = data.status
         if ('enable' in data) autoTaskSchedule.enable = data.enable
@@ -86,10 +85,10 @@ export class AutoTaskSchedule extends MainEntity {
         if ('name' in data) autoTaskSchedule.name = data.name
         if ('description' in data) autoTaskSchedule.description = data.description
         if ('access_point' in data) autoTaskSchedule.access_point = data.access_point
-        if ('command' in data) autoTaskSchedule.command = JSON.stringify(data.command)
-        if ('schedule' in data) autoTaskSchedule.schedule = data.schedule
-        if ('schedule_type' in data) autoTaskSchedule.schedule_type = data.schedule_type
-        if ('custom_schedule' in data) autoTaskSchedule.custom_schedule = (data.custom_schedule) ? JSON.stringify(data.custom_schedule) : null
+        if ('acu' in data) autoTaskSchedule.acu = data.acu
+        if ('reaction_type' in data) autoTaskSchedule.reaction_type = data.reaction_type
+        if ('reaction' in data) autoTaskSchedule.reaction = data.reaction
+        if ('conditions' in data) autoTaskSchedule.conditions = JSON.stringify(data.conditions)
         if ('condition' in data) autoTaskSchedule.condition = data.condition
         if ('status' in data) autoTaskSchedule.status = data.status
         if ('enable' in data) autoTaskSchedule.enable = data.enable

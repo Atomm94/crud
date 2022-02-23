@@ -1,12 +1,11 @@
 import { acuConnectionType } from '../enums/acuConnectionType.enum'
 import { standartReportPeriod } from '../enums/standartReportPeriod.enum'
 
-import { autoTaskRepeatUnit } from '../enums/autoTaskRepeatUnit.enum'
-import { autoTaskScheduleType } from '../enums/autoTaskScheduleType.enum'
+// import { autoTaskRepeatUnit } from '../enums/autoTaskRepeatUnit.enum'
 import { readerTypes } from '../enums/readerTypes'
 // import { AccessPoint } from '../model/entity/AccessPoint'
 import acuModel from '../model/entity/acuModels.json'
-import autoTaskcommands from '../model/entity/autoTaskcommands.json'
+// import autoTaskcommands from '../model/entity/autoTaskcommands.json'
 import { wiegandTypes } from '../enums/wiegandTypes'
 import { extBrdInterface } from '../enums/extBrdInterface.enum'
 
@@ -301,47 +300,9 @@ export function standartReportPeriodValidation (data: any) {
 }
 
 export function autoTaskScheduleValidation (data: any) {
-    if (data.schedule_type === autoTaskScheduleType.CUSTOM_SCHEDULE) {
-        if (!data.custom_schedule) {
-            return ('set Custom Schedule data')
-        } else {
-            if (!('start_date' in data.custom_schedule) ||
-                !('start_date_enable' in data.custom_schedule) ||
-                !('end_date' in data.custom_schedule) ||
-                !('end_date_enable' in data.custom_schedule) ||
-                !('start_time' in data.custom_schedule) ||
-                !('start_time_enable' in data.custom_schedule) ||
-                !('end_time' in data.custom_schedule) ||
-                !('end_time_enable' in data.custom_schedule) ||
-                !('repeat' in data.custom_schedule) ||
-                !('repeat_interval' in data.custom_schedule) ||
-                !('repeat_unit' in data.custom_schedule) ||
-                !('duration_days' in data.custom_schedule) ||
-                !('unlimited' in data.custom_schedule)) {
-                return ('Invalid Custom Schedule data')
-            } else {
-                if (!new Date(data.custom_schedule.start_date) || !new Date(data.custom_schedule.end_date)) {
-                    return ('Invalid start_date or end_date in Custom Schedule')
-                } else if (!Number(data.custom_schedule.repeat_interval) || !Number(data.custom_schedule.duration_days)) {
-                    return ('repeat_interval, duration_days must be number!')
-                } else if (Object.values(autoTaskRepeatUnit).indexOf(data.custom_schedule.repeat_unit) === -1) {
-                    return ('Invalid Repeat Unit in Custom Schedule data')
-                }
-            }
-        }
-    }
-
-    const auto_task_commands: any = autoTaskcommands
-    if (data.command) {
-        if (!Array.isArray(data.command)) {
-            return ('AutoTaskSchedule command must be Array')
-        } else {
-            for (const command_id of data.command) {
-                if (!auto_task_commands[command_id]) {
-                    return ('AutoTaskSchedule Invalid command id')
-                }
-            }
-        }
+    // if (!('start_date' in data.custom_schedule) {}
+    if (!new Date(data.conditions.TmBeginCondition) || !new Date(data.conditions.TmEndCondition)) {
+        return ('Invalid start_time or end_time in Schedule')
     }
     return true
 }
