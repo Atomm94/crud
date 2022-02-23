@@ -64,7 +64,7 @@ export default class MqttController {
                 // console.log('ciphertext2:\t', ciphertext2.toString('utf8'))
                 // User_Pass: ciphertext.toString('hex'))
 
-                const location = `${main_id}/${company.id}`
+                const location = `${main_id}/${company.id}/registration`
                 ctx.body = {
                     BrokerAdr: mqtt_host,
                     BrokerPort: mqtt_port,
