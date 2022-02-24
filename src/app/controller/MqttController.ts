@@ -50,14 +50,14 @@ export default class MqttController {
                 }
             } else {
                 // example 96-bit nonce
+                var plaintext = user_pass as string
                 const cipher = crypto.createCipheriv('aes-128-ecb', 'lumiring2022icon', null)
-                const final_pass = Buffer.concat([cipher.update('unimacs'), cipher.final()]).toString('hex')
+                const final_pass = Buffer.concat([cipher.update(plaintext), cipher.final()]).toString('hex')
 
                 // Using concatenation
 
                 // when need to encrypt pass with chacha20 just checkout comment
                 // var keyname = 'test'
-                var plaintext = user_pass as string
 
                 const location = `${main_id}/${company.id}/registration`
                 ctx.body = {
