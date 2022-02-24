@@ -12,8 +12,7 @@ const mqtt_host = process.env.MQTT_HOST
 const mqtt_port = process.env.MQTT_PORT
 const user_name = process.env.MQTT_USERNAME
 const user_pass = process.env.MQTT_PASSWORD
-var chacha20 = require('chacha20')
-
+const crypto = require('crypto')
 export default class MqttController {
     /**
      *
@@ -50,19 +49,15 @@ export default class MqttController {
                     message: 'Invalid id!!'
                 }
             } else {
+                // example 96-bit nonce
+                const cipher = crypto.createCipheriv('aes-128-ecb', 'lumiring2022icon', null)
+                const final_pass = Buffer.concat([cipher.update('unimacs'), cipher.final()]).toString('hex')
+
+                // Using concatenation
+
                 // when need to encrypt pass with chacha20 just checkout comment
                 // var keyname = 'test'
                 var plaintext = user_pass as string
-                // var key = crypto.createHash('sha256').update(keyname).digest()
-                var nonce = Buffer.alloc(8)
-                nonce.fill(0)
-                var ciphertext = chacha20.encrypt('test', nonce, Buffer.from(plaintext))
-                ciphertext = ciphertext.toString('hex')
-                // var ciphertext2 = chacha20.decrypt('test', nonce, Buffer.from(ciphertext))
-                // console.log('Ciphertext:\t', ciphertext)
-                // console.log('Ciphertext:\t', ciphertext.toString('hex'))
-                // console.log('ciphertext2:\t', ciphertext2.toString('utf8'))
-                // User_Pass: ciphertext.toString('hex'))
 
                 const location = `${main_id}/${company.id}/registration`
                 ctx.body = {
@@ -72,8 +67,9 @@ export default class MqttController {
                     Use_SSL: false,
                     use_enryption: false,
                     User_Name: user_name,
-                    User_Pass: ciphertext,
-                    Location: location
+                    User_Pass: final_pass,
+                    Location: location,
+                    length: plaintext.length
                 }
                 // const send_message = {
                 //     operator: 'registration',
@@ -198,7 +194,7 @@ export default class MqttController {
                 //     id: 5
                 //     // send_data
                 // }, { id: 5 }, '52831102448461152410103211553534')
-                    // MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
+                // MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
 
                 // const send_data: any = {
                 //     operator: 'SetSdlDaily',
@@ -332,10 +328,10 @@ export default class MqttController {
     public static async post (ctx: DefaultContext) {
         try {
             // "48/29/registration/1652472212/event",
-                const data = ctx.request.body
-                MQTTBroker.publishMessage(data.topic, JSON.stringify(data))
-                ctx.body = { message: 'success' }
-            } catch (error) {
+            const data = ctx.request.body
+            MQTTBroker.publishMessage(data.topic, JSON.stringify(data))
+            ctx.body = { message: 'success' }
+        } catch (error) {
             console.log(333, error)
 
             ctx.status = error.status || 400
