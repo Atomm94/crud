@@ -3,8 +3,8 @@ import {
     Column,
     ManyToOne,
     JoinColumn,
-    DeleteDateColumn
-    // Unique
+    DeleteDateColumn,
+    Unique
 } from 'typeorm'
 
 import { MainEntity } from './index'
@@ -17,7 +17,7 @@ import { minusResource } from '../../functions/minusResource'
 import { resourceKeys } from '../../enums/resourceKeys.enum'
 import { v4 } from 'uuid'
 
-// @Unique('code', ['code'])
+@Unique('code', ['code'])
 
 @Entity('credential')
 export class Credential extends MainEntity {
