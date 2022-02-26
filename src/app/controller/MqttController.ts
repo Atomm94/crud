@@ -42,11 +42,18 @@ export default class MqttController {
             const main_id = +ctx.params.id
             // const user = ctx.user
             const where = { account: main_id }
-            const company = await Company.findOneOrFail({ where: where })
+            const company = await Company.findOne({ where: where })
             if (!company) {
-                ctx.status = 400
-                ctx.body = {
-                    message: 'Invalid id!!'
+                 ctx.body = {
+                    BrokerAdr: '',
+                    BrokerPort: '',
+                    ClientID: false, // '101FRE1111325665454RETV123355'
+                    Use_SSL: false,
+                    use_enryption: false,
+                    User_Name: '',
+                    User_Pass: '',
+                    Location: '',
+                    length: 0
                 }
             } else {
                 // example 96-bit nonce
