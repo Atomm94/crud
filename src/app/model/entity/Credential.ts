@@ -4,7 +4,8 @@ import {
     ManyToOne,
     JoinColumn,
     DeleteDateColumn,
-    Unique
+    // Unique,
+    Index
 } from 'typeorm'
 
 import { MainEntity } from './index'
@@ -17,7 +18,9 @@ import { minusResource } from '../../functions/minusResource'
 import { resourceKeys } from '../../enums/resourceKeys.enum'
 import { v4 } from 'uuid'
 
-@Unique('code', ['code'])
+// @Unique('code', 'company', 'is_delete')
+
+@Index('code|company|is_delete', ['code', 'company', 'is_delete'], { unique: true })
 
 @Entity('credential')
 export class Credential extends MainEntity {
@@ -41,6 +44,9 @@ export class Credential extends MainEntity {
 
     @Column('boolean', { name: 'isLogin', default: false })
     isLogin: boolean;
+
+    @Column('varchar', { name: 'is_delete', default: 0 })
+    is_delete: string
 
     @DeleteDateColumn({ type: 'timestamp', name: 'delete_date' })
     public deleteDate: Date
@@ -123,8 +129,14 @@ export class Credential extends MainEntity {
         return new Promise(async (resolve, reject) => {
             this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
                 this.softRemove(data)
-                    .then(() => {
+                    .then(async () => {
                         if (data.type === credentialType.VIKEY) minusResource(resourceKeys.VIRTUAL_KEYS, data.company)
+                        const credential_data: any = await this.createQueryBuilder('credential')
+                            .where('id = :id', { id: data.id })
+                            .withDeleted()
+                            .getOne()
+                        credential_data.is_delete = (new Date()).getTime()
+                        await this.save(credential_data)
                         resolve({ message: 'success' })
                     })
                     .catch((error: any) => {
