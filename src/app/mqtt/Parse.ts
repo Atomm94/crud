@@ -1257,7 +1257,7 @@ export default class Parse {
 
     public static setSdlOrdinalAck (message: IMqttCrudMessaging): void {
         // console.log('setSdlSpecifiedAck', message)
-        if (message.result.errorNo === 0 || message.result.errorNo === 777) {
+        if (message.result.errorNo === 0) {
             // console.log('setSdlSpecifiedAck complete')
             const user = message.send_data.user
 
@@ -1284,7 +1284,7 @@ export default class Parse {
 
     public static async setDayOrdinalAck (message: IMqttCrudMessaging) {
         // console.log('setDayOrdinalAck', message)
-        if (message.result.errorNo === 0 || message.result.errorNo === 777) {
+        if (message.result.errorNo === 0) {
             // console.log('setDayOrdinalAck complete')
             const days = message.send_data.data.days
             const user = message.send_data.user
