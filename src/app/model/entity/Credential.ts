@@ -3,7 +3,8 @@ import {
     Column,
     ManyToOne,
     JoinColumn,
-    DeleteDateColumn
+    DeleteDateColumn,
+    Unique
 } from 'typeorm'
 
 import { MainEntity } from './index'
@@ -16,12 +17,14 @@ import { minusResource } from '../../functions/minusResource'
 import { resourceKeys } from '../../enums/resourceKeys.enum'
 import { v4 } from 'uuid'
 
+@Unique('code', ['code'])
+
 @Entity('credential')
 export class Credential extends MainEntity {
     @Column('enum', { name: 'type', enum: credentialType })
     type: credentialType
 
-    @Column('longtext', { name: 'code' })
+    @Column('varchar', { name: 'code', length: 512 })
     code: string
 
     @Column('enum', { name: 'status', enum: credentialStatus, default: credentialStatus.ACTIVE })
