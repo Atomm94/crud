@@ -34,6 +34,9 @@ export class Schedule extends MainEntity {
     @Column('date', { name: 'start_from', nullable: true })
     start_from: Date
 
+    @Column('int', { name: 'repeat_month', nullable: true })
+    repeat_month: number
+
     @DeleteDateColumn({ type: 'timestamp', name: 'delete_date' })
     public deleteDate: Date
 
@@ -69,6 +72,7 @@ export class Schedule extends MainEntity {
         schedule.type = data.type
         if ('start_from' in data) schedule.start_from = data.start_from
         if ('custom' in data) schedule.custom = data.custom
+        if ('repeat_month' in data) schedule.repeat_month = data.repeat_month
         schedule.company = data.company
 
         return new Promise((resolve, reject) => {
@@ -89,6 +93,7 @@ export class Schedule extends MainEntity {
         if ('name' in data) schedule.name = data.name
         if ('description' in data) schedule.description = data.description
         if ('start_from' in data) schedule.start_from = data.start_from
+        if ('repeat_month' in data) schedule.repeat_month = data.repeat_month
 
         if (!schedule) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {

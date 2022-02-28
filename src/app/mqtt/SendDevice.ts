@@ -993,6 +993,86 @@ export default class SendDevice {
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 
+    public static async setSdlOrdinal (location: string, device_id: number, session_id: string, data: any, update: boolean) {
+        const timeframe: any = await Timeframe.find({ schedule: data.schedule })
+        const days: any = {}
+        timeframe.forEach((time: Timeframe) => {
+            days[time.name] = true
+        })
+        const message_id = new Date().getTime()
+        const send_data: any = {
+            operator: OperatorType.SET_SDL_ORDINAL_ACK,
+            location: '5/5',
+            device_id: '1073493824',
+            session_id: '45451202021',
+            message_id: message_id.toString(),
+            info: {
+                Shedule_id: 1254888,
+                Ctp_idx: 105,
+                MonthPeriod: 1
+            }
+        }
+        if (update) send_data.new_data = data
+        MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
+    }
+
+    public static delSdlOrdinal (location: string, device_id: number, session_id: string): void {
+        const message_id = new Date().getTime()
+        const send_data: any = {
+            operator: OperatorType.DEL_SDL_ORDINAL_ACK,
+            location: location,
+            device_id: device_id,
+            session_id: session_id,
+            message_id: message_id.toString(),
+            info: {
+                Shedule_id: 1254888
+            }
+        }
+        MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
+    }
+
+    public static setDayOrdinal (location: string, device_id: number, session_id: string): void {
+        const message_id = new Date().getTime()
+        const send_data: any = {
+            operator: OperatorType.SET_DAY_ORDINAL_ACK,
+            location: location,
+            device_id: device_id,
+            session_id: session_id,
+            message_id: message_id.toString(),
+            info: {
+                Shedule_id: 1254888,
+                DayId: 1,
+                Condition_DayWeek: false,
+                StartDay: 105,
+                Tm1_Start: '32400;50400',
+                Tm1_End: '46800;64800',
+                Tm2_Start: '32400;50400',
+                Tm2_End: '46800;64800',
+                Tm3_Start: '32400;50400',
+                Tm3_End: '46800;64800',
+                Tm4_Start: '32400;50400',
+                Tm4_End: '46800;64800'
+            }
+        }
+        MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
+    }
+
+    public static delDayOrdinal (location: string, device_id: number, session_id: string): void {
+        const message_id = new Date().getTime()
+        const send_data: any = {
+            operator: OperatorType.DEL_DAY_ORDINAL_ACK,
+            location: location,
+            device_id: device_id,
+            session_id: session_id,
+            message_id: message_id.toString(),
+            info: {
+                Shedule_id: 1254888,
+                DayId: 1
+            }
+        }
+        MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
+    }
+
     public static dellShedule (location: string, device_id: number, session_id: string, data: any, type: string, old_data: any) {
         const message_id = new Date().getTime()
         const send_data: any = {
