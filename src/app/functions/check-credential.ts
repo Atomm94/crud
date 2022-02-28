@@ -11,7 +11,7 @@ export class CheckCredentialSettings {
     public static async checkSettings (credentials: Credential | Credential[] | null, company: number) {
         if (credentials) {
             if (!Array.isArray(credentials)) credentials = [credentials]
-            const credential_unique = await Credential.findOne({ where: { company: company, code: In(credentials.map(credential => credential.code)) } })
+            const credential_unique = await Credential.findOne({ where: { company: company, code: In(credentials.filter(credential => !credential.id).map(credential => credential.code)) } })
             if (credential_unique) {
                 return (`Dublicate Credential ${credential_unique.code}`)
             } else {
