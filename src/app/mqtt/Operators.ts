@@ -153,6 +153,16 @@ export enum OperatorType {
     DELL_DAY_SPECIFIED = 'DellDaySpecified',
     DELL_DAY_SPECIFIED_ACK = 'DellDaySpecified-Ack',
 
+    // Ordinal
+    SET_SDL_ORDINAL = 'SetSdlOrdinal',
+    SET_SDL_ORDINAL_ACK = 'SetSdlOrdinal-Ack',
+    DEL_SDL_ORDINAL = 'DelSdlOrdinal',
+    DEL_SDL_ORDINAL_ACK = 'DelSdlOrdinal-Ack',
+    SET_DAY_ORDINAL = 'SetDayOrdinal',
+    SET_DAY_ORDINAL_ACK = 'SetDayOrdinal-Ack',
+    DEL_DAY_ORDINAL = 'DelDayOrdinal',
+    DEL_DAY_ORDINAL_ACK = 'DelDayOrdinal-Ack',
+
     DELL_SHEDULE = 'DellShedule',
     DELL_SHEDULE_ACK = 'DellShedule-Ack',
 

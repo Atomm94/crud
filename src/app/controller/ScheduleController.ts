@@ -43,6 +43,9 @@ export default class ScheduleController {
      *                  start_from:
      *                      type: string | null
      *                      example: 2020-12-31
+     *                  repeat_month:
+     *                      type: number | null
+     *                      example: 1
      *          responses:
      *              '201':
      *                  description: A schedule object
@@ -102,6 +105,9 @@ export default class ScheduleController {
      *                  start_from:
      *                      type: string | null
      *                      example: 2020-12-31
+     *                  repeat_month:
+     *                      type: number | null
+     *                      example: 1
      *          responses:
      *              '201':
      *                  description: A schedule updated object
