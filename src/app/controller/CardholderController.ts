@@ -184,9 +184,6 @@ export default class CardholderController {
      *                                    type: string
      *                                    enum: [active, stolen, lost]
      *                                    example: active
-     *                                cardholder:
-     *                                    type: number
-     *                                    example: 1
      *                                facility:
      *                                    type: number
      *                                    example: 2

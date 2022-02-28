@@ -142,18 +142,13 @@ export class CheckScheduleSettings {
             } else if (schedule.repeat_month < 0 || schedule.repeat_month > 12) {
                 return 'repeat_month must be between 1-12'
             } else {
-                // const start_from = schedule.name.split('-').reverse().join('-')
-                if (!new Date(schedule.name)) {
+                if (!new Date(timeframe.name)) {
                     return 'Invalid week days '
                 } else {
-                    if (!Number(timeframe.name)) {
-                        return 'Invalid week days '
+                    if (timeframe.end < timeframe.start) {
+                        return 'End time cant be less than start'
                     } else {
-                        if (timeframe.end < timeframe.start) {
-                            return 'End time cant be less than start'
-                        } else {
-                            return true
-                        }
+                        return true
                     }
                 }
             }
