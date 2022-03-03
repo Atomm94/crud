@@ -137,9 +137,9 @@ export function checkAccessPointsValidation (data: any, acu_model: string, eleva
             if (typeof resources === 'string') resources = JSON.parse(resources)
             for (const resource in resources) {
                 const component_source = resources[resource].component_source
-                // if (elevator_mode && component_source === 0) {
-                //     return (`accessPoint ${access_point.name} cant have Resource with component source - ACU, when elevator_mode is enable!`)
-                // }
+                if (elevator_mode && component_source === 0) {
+                    return (`accessPoint ${access_point.name} cant have Resource with component source - ACU, when elevator_mode is enable!`)
+                }
                 if (!update && component_source !== 0) {
                     return ('in Component Source you cant set ext_device before add ACU!')
                 }
