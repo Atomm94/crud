@@ -259,6 +259,18 @@ export default class Parse {
                 case OperatorType.DELL_DAY_SPECIFIED_ACK:
                     this.dellDaySpecifiedAck(message)
                     break
+                case OperatorType.SET_SDL_ORDINAL_ACK:
+                    this.setSdlOrdinalAck(message)
+                    break
+                case OperatorType.DEL_SDL_ORDINAL_ACK:
+                    this.delSdlOrdinalAck(message)
+                    break
+                case OperatorType.SET_DAY_ORDINAL_ACK:
+                    this.setDayOrdinalAck(message)
+                    break
+                case OperatorType.DEL_DAY_ORDINAL_ACK:
+                    this.delDayOrdinalAck(message)
+                    break
                 case OperatorType.DELL_SHEDULE_ACK:
                     this.dellSheduleAck(message)
                     break
@@ -1243,6 +1255,69 @@ export default class Parse {
         }
     }
 
+    public static setSdlOrdinalAck (message: IMqttCrudMessaging): void {
+        // console.log('setSdlSpecifiedAck', message)
+        if (message.result.errorNo === 0) {
+            // console.log('setSdlSpecifiedAck complete')
+            const user = message.send_data.user
+
+            new SendDeviceMessage(OperatorType.SET_DAY_ORDINAL, message.location, message.device_id, message.send_data, user, message.session_id)
+        }
+    }
+
+    public static async delSdlOrdinalAck (message: IMqttCrudMessaging) {
+        // console.log('delSdlSpecifiedAck', message)
+
+        if (message.result.errorNo === 0 || message.result.errorNo === 11) {
+            const company = message.company
+            if (message.send_data.update) {
+                const access_rule = await AccessRule.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['access_points'] })
+                await AccessRule.destroyItem({ id: message.send_data.data.id /*, company: message.company */ })
+
+                new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.DELETE, `${AccessRule.name}/${access_rule.access_points.name}`, { name: access_rule.access_points.name })
+                checkAndDeleteAccessRight(message.send_data.data, message.company, message.send_data.user_data)
+                // console.log('dellSheduleAck complete')
+            }
+        } else {
+        }
+    }
+
+    public static async setDayOrdinalAck (message: IMqttCrudMessaging) {
+        // console.log('setDayOrdinalAck', message)
+        if (message.result.errorNo === 0) {
+            // console.log('setDayOrdinalAck complete')
+            const days = message.send_data.data.days
+            const user = message.send_data.user
+
+            if (Object.keys(days).length) {
+                new SendDeviceMessage(OperatorType.SET_DAY_ORDINAL, message.location, message.device_id, message.send_data.data, user, message.session_id)
+            } else {
+                const company = message.company
+                if (message.send_data.data.update) {
+                    const save = await AccessRule.updateItem(message.send_data.data.data as AccessRule)
+                    const access_point = await AccessPoint.findOneOrFail({ where: { id: save.old.access_point } })
+                    new SendUserLogMessage(company, message.send_data.data.user_data, logUserEvents.CHANGE, `${AccessRule.name}/${access_point.name}`, save)
+                } else {
+                    const access_rule = await AccessRule.findOneOrFail({ where: { id: message.send_data.data.data.id }, relations: ['access_points'] })
+                    new SendUserLogMessage(company, message.send_data.data.user_data, logUserEvents.CREATE, `${AccessRule.name}/${access_rule.access_points.name}`, { name: access_rule.access_points.name })
+                }
+                // console.log('setDayOrdinalAck complete')
+            }
+        } else {
+            if (!message.send_data.update) {
+                await AccessRule.destroyItem({ id: message.send_data.data.data.id /*, company: message.company */ })
+            }
+        }
+    }
+
+    public static delDayOrdinalAck (message: IMqttCrudMessaging): void {
+        // console.log('dellDaySpecifiedAck', message)
+        if (message.result.errorNo === 0) {
+            // console.log('dellDaySpecifiedAck complete')
+        } else {
+        }
+    }
+
     public static dellDaySpecifiedAck (message: IMqttCrudMessaging): void {
         // console.log('dellDaySpecifiedAck', message)
         if (message.result.errorNo === 0) {
@@ -1264,6 +1339,8 @@ export default class Parse {
                     operator = OperatorType.SET_SDL_FLEXI_TIME
                 } else if (message.send_data.data.schedule_type === scheduleType.SPECIFIC) {
                     operator = OperatorType.SET_SDL_SPECIFIED
+                } else if (message.send_data.data.schedule_type === scheduleType.ORDINAL) {
+                    operator = OperatorType.SET_SDL_ORDINAL
                 }
                 const user = message.send_data.user
 

@@ -110,7 +110,7 @@ export default class LogController {
         const access_point = AccessPoint.findOne({ where: { id: message_data.Ctp_idx, company: message.company } })
         const credential = Credential.findOne({
             where: { id: message_data.Key_id, company: message.company },
-            relations: ['cardholders', 'cardholders.access_rights', 'cardholders.antipass_backs', 'cardholders.car_infos', 'cardholders.limitations', 'cardholders.cardholder_groups']
+            relations: ['cardholders', 'cardholders.access_rights', 'cardholders.car_infos', 'cardholders.limitations', 'cardholders.cardholder_groups']
         })
 
         Promise.all([acu, access_point, credential]).then((data: any) => {

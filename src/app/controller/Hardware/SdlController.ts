@@ -33,6 +33,9 @@ export default class SdlController {
             operator = OperatorType.SET_SDL_FLEXI_TIME
         } else if (schedule.type === scheduleType.SPECIFIC) {
             operator = OperatorType.SET_SDL_SPECIFIED
+        } else if (schedule.type === scheduleType.ORDINAL) {
+            send_sdl_data.repeat_month = schedule.repeat_month
+            operator = OperatorType.SET_SDL_ORDINAL
         }
         new SendDeviceMessage(operator, location, serial_number, send_sdl_data, user, session_id, update)
     }
@@ -45,6 +48,8 @@ export default class SdlController {
             operator = OperatorType.DEL_SDL_FLEXI_TIME
         } else if (type === scheduleType.SPECIFIC) {
             operator = OperatorType.DEL_SDL_SPECIFIED
+        } else if (type === scheduleType.ORDINAL) {
+            operator = OperatorType.DEL_SDL_ORDINAL
         }
         new SendDeviceMessage(operator, location, serial_number, send_data, user, session_id, update)
     }

@@ -184,9 +184,6 @@ export default class CardholderController {
      *                                    type: string
      *                                    enum: [active, stolen, lost]
      *                                    example: active
-     *                                cardholder:
-     *                                    type: number
-     *                                    example: 1
      *                                facility:
      *                                    type: number
      *                                    example: 2
@@ -218,7 +215,7 @@ export default class CardholderController {
 
             const logs_data = []
 
-            const check_credentials = CheckCredentialSettings.checkSettings(req_data.credentials)
+            const check_credentials = await CheckCredentialSettings.checkSettings(req_data.credentials, company)
             if (check_credentials !== true) {
                 ctx.status = 400
                 return ctx.body = { message: check_credentials }
@@ -534,7 +531,7 @@ export default class CardholderController {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
             } else {
-                const check_credentials = CheckCredentialSettings.checkSettings(req_data.credentials)
+                const check_credentials = await CheckCredentialSettings.checkSettings(req_data.credentials, company)
                 const location = `${auth_user.company_main}/${auth_user.company}`
 
                 if (check_credentials !== true) {
@@ -1844,7 +1841,7 @@ export default class CardholderController {
                 .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
                 .where(`cardholder.id = '${auth_user.cardholder}'`)
                 .getMany()
-            const check_credentials = CheckCredentialSettings.checkSettings(req_data.credentials)
+            const check_credentials = await CheckCredentialSettings.checkSettings(req_data.credentials, auth_user.company)
             if (check_credentials !== true) {
                 ctx.status = 400
                 return ctx.body = { message: check_credentials }
@@ -2090,7 +2087,7 @@ export default class CardholderController {
             const company = auth_user.company ? auth_user.company : null
             const location = `${auth_user.company_main}/${company}`
 
-            const check_credentials = CheckCredentialSettings.checkSettings(req_data.credentials)
+            const check_credentials = await CheckCredentialSettings.checkSettings(req_data.credentials, company)
             if (check_credentials !== true) {
                 ctx.status = 400
                 return ctx.body = { message: check_credentials }

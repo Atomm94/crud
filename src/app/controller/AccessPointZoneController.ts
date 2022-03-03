@@ -332,6 +332,7 @@ export default class AccessPointZoneController {
             const req_data = ctx.query
             const user = ctx.user
             req_data.where = { company: { '=': user.company ? user.company : null } }
+            req_data.relations = ['antipass_backs']
             ctx.body = await AccessPointZone.getAllItems(req_data)
         } catch (error) {
             ctx.status = error.status || 400
