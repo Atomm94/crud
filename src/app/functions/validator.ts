@@ -9,6 +9,7 @@ import acuModel from '../model/entity/acuModels.json'
 import autoTaskcommands from '../model/entity/autoTaskcommands.json'
 import { wiegandTypes } from '../enums/wiegandTypes'
 import { extBrdInterface } from '../enums/extBrdInterface.enum'
+import { accessPointType } from '../enums/accessPointType.enum'
 
 export function ipValidation (string: string) {
     const ipformat = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
@@ -104,7 +105,7 @@ export function maintainValidation (data: any) {
     }
 }
 
-export function checkAccessPointsValidation (data: any, acu_model: string, update: boolean) {
+export function checkAccessPointsValidation (data: any, acu_model: string, elevator_mode: boolean, acu_reader: number | null, update: boolean) {
     const acu_models: any = acuModel
 
     const int_ports_addrs: any = {} // interface, port, address - is unique
@@ -116,6 +117,19 @@ export function checkAccessPointsValidation (data: any, acu_model: string, updat
 
     for (const access_point of data) {
         const type = access_point.type
+        if (elevator_mode) {
+            if (type !== accessPointType.FLOOR) {
+                return (`device ${acu_model} cant have accessPoint like ${type} when elevator_mode is enable!`)
+            } else {
+                if (access_point.readers && access_point.readers.length) {
+                    return (`accessPoint like ${type} can have only one reader!`)
+                }
+            }
+        } else {
+            if (type === accessPointType.FLOOR) {
+                return (`device ${acu_model} cant have accessPoint like ${type} when elevator_mode is disable!`)
+            }
+        }
         if (type && !acu_models.controllers[acu_model].access_point_types[type]) {
             return (`device ${acu_model} cant have accessPoint like ${type}!`)
         } else {
@@ -123,6 +137,9 @@ export function checkAccessPointsValidation (data: any, acu_model: string, updat
             if (typeof resources === 'string') resources = JSON.parse(resources)
             for (const resource in resources) {
                 const component_source = resources[resource].component_source
+                // if (elevator_mode && component_source === 0) {
+                //     return (`accessPoint ${access_point.name} cant have Resource with component source - ACU, when elevator_mode is enable!`)
+                // }
                 if (!update && component_source !== 0) {
                     return ('in Component Source you cant set ext_device before add ACU!')
                 }
@@ -238,6 +255,9 @@ export function checkAccessPointsValidation (data: any, acu_model: string, updat
             // Object.values(resources).forEach((resource: any) => {
             // })
         }
+    }
+    if (elevator_mode && !acu_reader && data.length) {
+        return ('Acu must have Reader when elevator_mode is enable!')
     }
     return true
 }

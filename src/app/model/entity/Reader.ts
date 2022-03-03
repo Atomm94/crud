@@ -3,7 +3,8 @@ import {
     Column,
     ManyToOne,
     JoinColumn,
-    DeleteDateColumn
+    DeleteDateColumn,
+    OneToOne
 } from 'typeorm'
 
 import { MainEntity } from './MainEntity'
@@ -15,10 +16,11 @@ import { readerDirections } from '../../enums/readerDirection'
 
 import { minusResource } from '../../functions/minusResource'
 import { AccessPointZone } from './AccessPointZone'
+import { Acu } from '.'
 @Entity('reader')
 export class Reader extends MainEntity {
-    @Column('int', { name: 'access_point', nullable: false })
-    access_point: number
+    @Column('int', { name: 'access_point', nullable: true })
+    access_point: number | null
 
     @Column('enum', { name: 'type', nullable: false, enum: readerTypes })
     type: string
@@ -74,6 +76,9 @@ export class Reader extends MainEntity {
     @JoinColumn({ name: 'came_to_zone' })
     came_to_zones: AccessPointZone;
 
+    @OneToOne(type => Acu, acu => acu.readers, { nullable: true })
+    acus: Acu | null;
+
     public static gettingActions: boolean = false
     public static gettingAttributes: boolean = false
     public static fields_that_used_in_sending: Array<string> = [
@@ -83,8 +88,7 @@ export class Reader extends MainEntity {
         'enable_buzzer',
         'enable_crc',
         'mode',
-        'osdp_address',
-        'port'
+        'osdp_address'
     ]
 
     public static OSDP_fields_that_used_in_sending: Array<string> = [
@@ -142,6 +146,7 @@ export class Reader extends MainEntity {
         const reader = await this.findOneOrFail({ id: data.id })
         const oldData = Object.assign({}, reader)
 
+        if ('type' in data) reader.type = data.type
         if ('port' in data) reader.port = data.port
         if ('wg_type' in data) reader.wg_type = data.wg_type
         if ('mode' in data) reader.mode = data.mode
