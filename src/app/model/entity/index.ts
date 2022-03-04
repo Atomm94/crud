@@ -32,6 +32,7 @@ import { Acu } from './Acu'
 import { ExtDevice } from './ExtDevice'
 import { StandardReport } from './StandardReport'
 import { Dashboard } from './Dashboard'
+import { AutoTaskSchedule } from './AutoTaskSchedule'
 export {
     MainEntity,
     Admin,
@@ -66,5 +67,6 @@ export {
     Acu,
     ExtDevice,
     StandardReport,
-    Dashboard
+    Dashboard,
+    AutoTaskSchedule
 }

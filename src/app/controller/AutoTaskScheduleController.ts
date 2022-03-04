@@ -4,6 +4,9 @@ import { autoTaskScheduleValidation } from '../functions/validator'
 import autoTaskcommands from '../model/entity/autoTaskcommands.json'
 import acpEventList from '../model/entity/acpEventList.json'
 import { logUserEvents } from '../enums/logUserEvents.enum'
+import DeviceController from './Hardware/DeviceController'
+import { Acu } from '../model/entity'
+import { acuStatus } from '../enums/acuStatus.enum'
 
 export default class AutoTaskScheduleController {
     /**
@@ -41,6 +44,9 @@ export default class AutoTaskScheduleController {
      *                  access_point:
      *                      type: number
      *                      example: 1
+     *                  reaction_access_points:
+     *                      type: Array<number>
+     *                      example: [1, 2]
      *                  acu:
      *                      type: number
      *                      example: 1
@@ -96,12 +102,18 @@ export default class AutoTaskScheduleController {
             const req_data = ctx.request.body
             const user = ctx.user
             req_data.company = user.company ? user.company : null
+            const location = `${user.company_main}/${user.company}`
+            const acu: Acu = await Acu.findOne({ where: { id: req_data.acu } }) as Acu
             const check = autoTaskScheduleValidation(req_data)
             if (check !== true) {
                 ctx.status = 400
                 return ctx.body = { message: check }
             }
-            ctx.body = await AutoTaskSchedule.addItem(req_data as AutoTaskSchedule)
+            const auto_task = await AutoTaskSchedule.addItem(req_data as AutoTaskSchedule)
+            if (acu.status === acuStatus.ACTIVE) {
+                DeviceController.setTask(location, acu.serial_number, auto_task, user, acu.session_id)
+            }
+            ctx.body = auto_task
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -145,6 +157,9 @@ export default class AutoTaskScheduleController {
      *                  access_point:
      *                      type: number
      *                      example: 1
+     *                  reaction_access_points:
+     *                      type: Array<number>
+     *                      example: [1, 2]
      *                  acu:
      *                      type: number
      *                      example: 1
@@ -161,17 +176,16 @@ export default class AutoTaskScheduleController {
      *                          TmBeginCondition:
      *                              type: string
      *                              example: 20:00:00
-     *                          TimeCondition:
-     *                              type: boolean
-     *                              example: true
      *                          TmEndCondition:
      *                              type: string
      *                              example: 20:00:00
      *                          repeat:
-     *                              type: boolean
+     *                              type: number
+     *                              enum: [0, 1, 3]
      *                              example: true
      *                          EventsDirection:
      *                              type: number
+     *                              enum: [0, 1, -1]
      *                              example: 1
      *                          EventsCondition:
      *                              type: Array<number>
@@ -197,14 +211,19 @@ export default class AutoTaskScheduleController {
     public static async update (ctx: DefaultContext) {
         try {
             const req_data = ctx.request.body
-            if (req_data.custom_schedule) {
-                const check = autoTaskScheduleValidation(req_data)
-                if (check !== true) {
-                    ctx.status = 400
-                    return ctx.body = { message: check }
-                }
+            const user = ctx.user
+            req_data.company = user.company ? user.company : null
+            const location = `${user.company_main}/${user.company}`
+            const acu: Acu = await Acu.findOne({ where: { id: req_data.acu } }) as Acu
+            const check = autoTaskScheduleValidation(req_data)
+            if (check !== true) {
+                ctx.status = 400
+                return ctx.body = { message: check }
             }
-            ctx.body = await AutoTaskSchedule.updateItem(req_data as AutoTaskSchedule)
+            if (acu.status === acuStatus.ACTIVE) {
+                DeviceController.setTask(location, acu.serial_number, req_data, user, acu.session_id, true)
+            }
+            ctx.body = { message: 'update Pending' }
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

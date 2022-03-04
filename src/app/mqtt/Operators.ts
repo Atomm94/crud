@@ -172,4 +172,8 @@ export enum OperatorType {
     SET_HEART_BIT = 'SetHeartBit',
     SET_HEART_BIT_ACK = 'SetHeartBit-Ack',
     HEART_BIT = 'HeartBit',
+    SET_TASK = 'SetTask',
+    SET_TASK_ACK = 'SetTask-Ack',
+    RESET_APB = 'Reset_apb',
+    RESET_APB_ACK = 'Reset_apb-Ack',
 }

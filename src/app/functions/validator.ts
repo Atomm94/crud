@@ -9,6 +9,8 @@ import acuModel from '../model/entity/acuModels.json'
 import { wiegandTypes } from '../enums/wiegandTypes'
 import { extBrdInterface } from '../enums/extBrdInterface.enum'
 
+import autoTaskcommands from '../model/entity/autoTaskcommands.json'
+import { reactionType } from '../enums/reactionType.enum'
 export function ipValidation (string: string) {
     const ipformat = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
     if (string.match(ipformat)) {
@@ -300,9 +302,22 @@ export function standartReportPeriodValidation (data: any) {
 }
 
 export function autoTaskScheduleValidation (data: any) {
-    // if (!('start_date' in data.custom_schedule) {}
-    if (!new Date(data.conditions.TmBeginCondition) || !new Date(data.conditions.TmEndCondition)) {
-        return ('Invalid start_time or end_time in Schedule')
+    const commands: any = autoTaskcommands
+    if (!('enable' in data)) {
+        return ('Invalid Autotask data')
+    } else {
+        if (!new Date(data.conditions.TmBeginCondition) || !new Date(data.conditions.TmEndCondition)) {
+            return ('Invalid start_time or end_time in Schedule')
+        } else {
+            if (!commands[data.reaction]) {
+                return ('Invalid reaction ')
+            } else {
+                if (data.reaction_type && Object.values(reactionType).indexOf(data.reaction_type) === -1) {
+                    return ('Invalid reaction type')
+                } else {
+                    return true
+                }
+            }
+        }
     }
-    return true
 }

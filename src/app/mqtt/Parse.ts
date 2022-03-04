@@ -23,6 +23,7 @@ import { AcuStatus } from '../model/entity/AcuStatus'
 import { AccessPointStatus } from '../model/entity/AccessPointStatus'
 import { In } from 'typeorm'
 import { Notification } from '../model/entity/Notification'
+import { AutoTaskSchedule } from '../model/entity/AutoTaskSchedule'
 
 export default class Parse {
     public static deviceData (topic: string, data: string) {
@@ -279,6 +280,12 @@ export default class Parse {
                     break
                 case OperatorType.SET_HEART_BIT_ACK:
                     this.setHeartBitAck(message)
+                    break
+                case OperatorType.SET_TASK_ACK:
+                    this.setTaskAck(message)
+                    break
+                case OperatorType.RESET_APB_ACK:
+                    this.resetApbAck(message)
                     break
 
                 default:
@@ -1369,6 +1376,24 @@ export default class Parse {
                 acu.save()
             }
         } else {
+        }
+    }
+
+    public static async setTaskAck (message: IMqttCrudMessaging) {
+        // console.log('setTaskAck', message)
+        if (message.result.errorNo === 0) {
+            if (message.send_data.update) {
+                await AutoTaskSchedule.updateItem(message.send_data.data)
+            }
+            // console.log('setTaskAck complete')
+        } else {
+            await AutoTaskSchedule.destroyItem({ id: message.send_data.data.id /*, company: message.company */ })
+        }
+    }
+
+    public static async resetApbAck (message: IMqttCrudMessaging) {
+        // console.log('resetApbAck', message)
+        if (message.result.errorNo === 0) {
         }
     }
 }
