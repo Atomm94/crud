@@ -2,15 +2,16 @@ import {
     Entity,
     Column,
     ManyToOne,
-    JoinColumn
+    JoinColumn,
+    Index
 } from 'typeorm'
 
 import { MainEntity } from './index'
-import { autoTaskScheduleType } from '../../enums/autoTaskScheduleType.enum'
 import { autoTaskStatus } from '../../enums/autoTaskStatus.enum'
+import { reactionType } from '../../enums/reactionType.enum'
 import { AccessPoint } from './AccessPoint'
-import { Schedule } from './Schedule'
-
+import { Acu } from './Acu'
+@Index('access_point', ['access_point'], { unique: true })
 @Entity('auto_task_schedule')
 export class AutoTaskSchedule extends MainEntity {
     @Column('varchar', { name: 'name', nullable: false })
@@ -22,23 +23,26 @@ export class AutoTaskSchedule extends MainEntity {
     @Column('int', { name: 'access_point', nullable: false })
     access_point: number
 
-    @Column('longtext', { name: 'command', nullable: false })
-    command: string
+    @Column('longtext', { name: 'reaction_access_points', nullable: false })
+    reaction_access_points: string
 
-    @Column('int', { name: 'schedule', nullable: true })
-    schedule: number | null
+    @Column('int', { name: 'acu', nullable: false })
+    acu: number
 
-    @Column('enum', { name: 'schedule_type', enum: autoTaskScheduleType })
-    schedule_type: string
+    @Column('enum', { name: 'reaction_type', default: reactionType.MANAGEMENT_OF_ACCESS_POINTS, enum: reactionType })
+    reaction_type: string
 
-    @Column('longtext', { name: 'custom_schedule', nullable: true })
-    custom_schedule: string | null
+    @Column('int', { name: 'reaction', nullable: false })
+    reaction: number
+
+    @Column('longtext', { name: 'conditions', nullable: true })
+    conditions: string
 
     @Column('enum', { name: 'condition', default: autoTaskStatus.PENDING, enum: autoTaskStatus })
     condition: string
 
-    @Column('enum', { name: 'status', default: autoTaskStatus.PENDING, enum: autoTaskStatus })
-    status: string
+    // @Column('enum', { name: 'condition', default: autoTaskStatus.PENDING, enum: autoTaskStatus })
+    // condition: string
 
     @Column('boolean', { name: 'enable', default: true })
     enable: boolean
@@ -50,24 +54,25 @@ export class AutoTaskSchedule extends MainEntity {
     @JoinColumn({ name: 'access_point' })
     access_points: AccessPoint;
 
-    @ManyToOne(type => Schedule, schedule => schedule.auto_task_schedules, { nullable: true })
-    @JoinColumn({ name: 'schedule' })
-    schedules: Schedule | null;
+    @ManyToOne(type => Acu, acu => acu.auto_task_schedules)
+    @JoinColumn({ name: 'acu' })
+    acus: Acu;
 
+    public static resource: boolean = true
     public static async addItem (data: AutoTaskSchedule) {
         const autoTaskSchedule = new AutoTaskSchedule()
 
         autoTaskSchedule.name = data.name
         if ('description' in data) autoTaskSchedule.description = data.description
         autoTaskSchedule.access_point = data.access_point
-        autoTaskSchedule.command = JSON.stringify(data.command)
-        if ('schedule' in data) autoTaskSchedule.schedule = data.schedule
-        autoTaskSchedule.schedule_type = data.schedule_type
-        if ('custom_schedule' in data) autoTaskSchedule.custom_schedule = (data.custom_schedule) ? JSON.stringify(data.custom_schedule) : null
+        autoTaskSchedule.acu = data.acu
+        if ('reaction_type' in data) autoTaskSchedule.reaction_type = data.reaction_type
+        autoTaskSchedule.reaction = data.reaction
+        if ('conditions' in data) autoTaskSchedule.conditions = JSON.stringify(data.conditions)
         autoTaskSchedule.condition = data.condition
-        autoTaskSchedule.status = data.status
         if ('enable' in data) autoTaskSchedule.enable = data.enable
         autoTaskSchedule.company = data.company
+        if ('reaction_access_points' in data) autoTaskSchedule.reaction_access_points = (data.reaction_access_points && typeof data.reaction_access_points === 'object') ? JSON.stringify(data.reaction_access_points) : data.reaction_access_points
 
         return new Promise((resolve, reject) => {
             this.save(autoTaskSchedule)
@@ -86,13 +91,16 @@ export class AutoTaskSchedule extends MainEntity {
         if ('name' in data) autoTaskSchedule.name = data.name
         if ('description' in data) autoTaskSchedule.description = data.description
         if ('access_point' in data) autoTaskSchedule.access_point = data.access_point
-        if ('command' in data) autoTaskSchedule.command = JSON.stringify(data.command)
-        if ('schedule' in data) autoTaskSchedule.schedule = data.schedule
-        if ('schedule_type' in data) autoTaskSchedule.schedule_type = data.schedule_type
-        if ('custom_schedule' in data) autoTaskSchedule.custom_schedule = (data.custom_schedule) ? JSON.stringify(data.custom_schedule) : null
+        if ('acu' in data) autoTaskSchedule.acu = data.acu
+        if ('reaction_type' in data) autoTaskSchedule.reaction_type = data.reaction_type
+        if ('reaction' in data) autoTaskSchedule.reaction = data.reaction
+        if ('conditions' in data) autoTaskSchedule.conditions = JSON.stringify(data.conditions)
         if ('condition' in data) autoTaskSchedule.condition = data.condition
-        if ('status' in data) autoTaskSchedule.status = data.status
         if ('enable' in data) autoTaskSchedule.enable = data.enable
+        if ('enable' in data) autoTaskSchedule.enable = data.enable
+        if ('reaction_access_points' in data) {
+            autoTaskSchedule.reaction_access_points = (data.reaction_access_points && typeof data.reaction_access_points === 'object') ? JSON.stringify(data.reaction_access_points) : data.reaction_access_points
+        }
 
         if (!autoTaskSchedule) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
@@ -122,7 +130,9 @@ export class AutoTaskSchedule extends MainEntity {
     public static async destroyItem (data: any) {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
-            this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
+            const where: any = { id: data.id }
+            if (data.company) where.company = data.company
+            this.findOneOrFail(where).then((data: any) => {
                 this.remove(data)
                     .then(() => {
                         resolve({ message: 'success' })

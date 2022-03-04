@@ -1,0 +1,8 @@
+{
+    "1": "Access_granted",
+    "2": "Access_denied",
+    "3": "Unknown_credentials",
+    "4": "Open_by_button",
+    "5": "Door_forced_open",
+    "6": "Door_ajar"
+}

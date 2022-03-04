@@ -1,16 +1,17 @@
 import { acuConnectionType } from '../enums/acuConnectionType.enum'
 import { standartReportPeriod } from '../enums/standartReportPeriod.enum'
 
-import { autoTaskRepeatUnit } from '../enums/autoTaskRepeatUnit.enum'
-import { autoTaskScheduleType } from '../enums/autoTaskScheduleType.enum'
+// import { autoTaskRepeatUnit } from '../enums/autoTaskRepeatUnit.enum'
 import { readerTypes } from '../enums/readerTypes'
 // import { AccessPoint } from '../model/entity/AccessPoint'
 import acuModel from '../model/entity/acuModels.json'
-import autoTaskcommands from '../model/entity/autoTaskcommands.json'
+// import autoTaskcommands from '../model/entity/autoTaskcommands.json'
 import { wiegandTypes } from '../enums/wiegandTypes'
 import { extBrdInterface } from '../enums/extBrdInterface.enum'
 import { accessPointType } from '../enums/accessPointType.enum'
 
+import autoTaskcommands from '../model/entity/autoTaskcommands.json'
+import { reactionType } from '../enums/reactionType.enum'
 export function ipValidation (string: string) {
     const ipformat = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
     if (string.match(ipformat)) {
@@ -322,47 +323,22 @@ export function standartReportPeriodValidation (data: any) {
 }
 
 export function autoTaskScheduleValidation (data: any) {
-    if (data.schedule_type === autoTaskScheduleType.CUSTOM_SCHEDULE) {
-        if (!data.custom_schedule) {
-            return ('set Custom Schedule data')
+    const commands: any = autoTaskcommands
+    if (!('enable' in data)) {
+        return ('Invalid Autotask data')
+    } else {
+        if (!new Date(data.conditions.TmBeginCondition) || !new Date(data.conditions.TmEndCondition)) {
+            return ('Invalid start_time or end_time in Schedule')
         } else {
-            if (!('start_date' in data.custom_schedule) ||
-                !('start_date_enable' in data.custom_schedule) ||
-                !('end_date' in data.custom_schedule) ||
-                !('end_date_enable' in data.custom_schedule) ||
-                !('start_time' in data.custom_schedule) ||
-                !('start_time_enable' in data.custom_schedule) ||
-                !('end_time' in data.custom_schedule) ||
-                !('end_time_enable' in data.custom_schedule) ||
-                !('repeat' in data.custom_schedule) ||
-                !('repeat_interval' in data.custom_schedule) ||
-                !('repeat_unit' in data.custom_schedule) ||
-                !('duration_days' in data.custom_schedule) ||
-                !('unlimited' in data.custom_schedule)) {
-                return ('Invalid Custom Schedule data')
+            if (!commands[data.reaction]) {
+                return ('Invalid reaction ')
             } else {
-                if (!new Date(data.custom_schedule.start_date) || !new Date(data.custom_schedule.end_date)) {
-                    return ('Invalid start_date or end_date in Custom Schedule')
-                } else if (!Number(data.custom_schedule.repeat_interval) || !Number(data.custom_schedule.duration_days)) {
-                    return ('repeat_interval, duration_days must be number!')
-                } else if (Object.values(autoTaskRepeatUnit).indexOf(data.custom_schedule.repeat_unit) === -1) {
-                    return ('Invalid Repeat Unit in Custom Schedule data')
+                if (data.reaction_type && Object.values(reactionType).indexOf(data.reaction_type) === -1) {
+                    return ('Invalid reaction type')
+                } else {
+                    return true
                 }
             }
         }
     }
-
-    const auto_task_commands: any = autoTaskcommands
-    if (data.command) {
-        if (!Array.isArray(data.command)) {
-            return ('AutoTaskSchedule command must be Array')
-        } else {
-            for (const command_id of data.command) {
-                if (!auto_task_commands[command_id]) {
-                    return ('AutoTaskSchedule Invalid command id')
-                }
-            }
-        }
-    }
-    return true
 }
