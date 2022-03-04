@@ -53,7 +53,7 @@ export default class AcuController {
      *                  model:
      *                      type: string
      *                      example: LRM3CRS
-     *                  shared_resource_mode:
+     *                  elevator_mode:
      *                      type: boolean
      *                      example: false
      *                  time:
@@ -133,6 +133,31 @@ export default class AcuController {
      *                                              type: number
      *                                          came_to_zone:
      *                                              type: number
+     *                  readers:
+     *                      type: object
+     *                      properties:
+     *                          type:
+     *                              type: number
+     *                              example: '0'
+     *                          port:
+     *                              type: number
+     *                              example: 1
+     *                          wg_type:
+     *                              type: number
+     *                          mode:
+     *                              type: number
+     *                          direction:
+     *                              type: number
+     *                          enable_buzzer:
+     *                              type: boolean
+     *                          enable_crc:
+     *                              type: boolean
+     *                          reverse_byte_order:
+     *                              type: boolean
+     *                          leaving_zone:
+     *                              type: number
+     *                          came_to_zone:
+     *                              type: number
      *          responses:
      *              '201':
      *                  description: A acu object
@@ -155,8 +180,14 @@ export default class AcuController {
                 ctx.status = 400
                 return ctx.body = { message: check_time }
             }
+            let acu_reader = req_data.readers
+            if (acu_reader) {
+                acu_reader.company = req_data.company
+                acu_reader = await Reader.addItem(acu_reader)
+            }
             if (req_data.access_points) {
-                const check_access_points = checkAccessPointsValidation(req_data.access_points, req_data.model, false)
+                const acu_reader_id = acu_reader ? acu_reader.id : 0
+                const check_access_points = checkAccessPointsValidation(req_data.access_points, req_data.model, req_data.elevator_mode, acu_reader_id, false)
                 if (check_access_points !== true) {
                     ctx.status = 400
                     return ctx.body = { message: check_access_points }
@@ -169,8 +200,9 @@ export default class AcuController {
             if ('description' in req_data) acu.description = req_data.description
             acu.model = req_data.model // check or no ??
             acu.status = acuStatus.NO_HARDWARE
-            if ('shared_resource_mode' in req_data) acu.shared_resource_mode = req_data.shared_resource_mode
+            if ('elevator_mode' in req_data) acu.elevator_mode = req_data.elevator_mode
             acu.company = user.company ? user.company : null
+            if (acu_reader) acu.reader = acu_reader.id
 
             acu.time = JSON.stringify(req_data.time)
             const save_acu = await acu.save()
@@ -204,6 +236,8 @@ export default class AcuController {
             ctx.logsData = logs_data
             ctx.body = save_acu
         } catch (error) {
+            console.log('error', error)
+
             ctx.status = error.status || 400
             ctx.body = error
         }
@@ -244,7 +278,7 @@ export default class AcuController {
      *                  description:
      *                      type: string
      *                      example: some description
-     *                  shared_resource_mode:
+     *                  elevator_mode:
      *                      type: boolean
      *                      example: false
      *                  time:
@@ -371,6 +405,34 @@ export default class AcuController {
      *                              type: boolean
      *                          rs485_port_2:
      *                              type: boolean
+     *                  readers:
+     *                      type: object
+     *                      properties:
+     *                          id:
+     *                              type: number
+     *                              example: 1
+     *                          type:
+     *                              type: number
+     *                              example: '0'
+     *                          port:
+     *                              type: number
+     *                              example: 1
+     *                          wg_type:
+     *                              type: number
+     *                          mode:
+     *                              type: number
+     *                          direction:
+     *                              type: number
+     *                          enable_buzzer:
+     *                              type: boolean
+     *                          enable_crc:
+     *                              type: boolean
+     *                          reverse_byte_order:
+     *                              type: boolean
+     *                          leaving_zone:
+     *                              type: number
+     *                          came_to_zone:
+     *                              type: number
      *          responses:
      *              '201':
      *                  description: A acu updated object
@@ -443,8 +505,11 @@ export default class AcuController {
                     value: acu_updated
                 })
 
+                let acu_reader = req_data.readers
+                let acuReaderSend = false
+
                 if (req_data.access_points) {
-                    const check_access_points = checkAccessPointsValidation(req_data.access_points, acu.model, true)
+                    const check_access_points = checkAccessPointsValidation(req_data.access_points, acu.model, acu.elevator_mode, acu.reader, true)
                     if (check_access_points !== true) {
                         ctx.status = 400
                         return ctx.body = { message: check_access_points }
@@ -454,6 +519,7 @@ export default class AcuController {
                             return ctx.body = { message: `You cant add accessPoints when acu status is ${acuStatus.PENDING}` }
                         }
                         // const new_access_points: AccessPoint[] = [] // for sending Set(Add)CardKey
+                        let access_point_ind = 0
                         for (let access_point of req_data.access_points) {
                             for (const resource in access_point.resources) {
                                 const component_source: number = access_point.resources[resource].component_source
@@ -471,6 +537,7 @@ export default class AcuController {
 
                             let checkAccessPointSend: any = false
                             if (!access_point.id) {
+                                if (acu.elevator_mode) acuReaderSend = true
                                 access_point_update = false
                                 access_point.acu = acu.id
                                 access_point.company = company
@@ -483,6 +550,7 @@ export default class AcuController {
                                 }
                                 access_point = await AccessPoint.addItem(access_point)
                                 // new_access_points.push(access_point)
+                                req_data.access_points[access_point_ind] = access_point
 
                                 access_point.access_point_zones = access_point_zone
                             } else {
@@ -624,13 +692,54 @@ export default class AcuController {
                             // if (new_access_points.length) {
                             //     CardKeyController.setAddCardKey(OperatorType.SET_CARD_KEYS, location, company, user, new_access_points)
                             // }
+                            access_point_ind++
+                        }
+
+                        if (acu.status === acuStatus.ACTIVE) {
+                            let checkAcuReaderSend: any = false
+                            const old_acu_reader = await Reader.findOneOrFail({ id: acu_reader.id, company: company })
+                            acu_reader.access_point = old_acu_reader.access_point
+                            checkAcuReaderSend = checkSendingDevice(old_acu_reader, acu_reader, Reader.fields_that_used_in_sending, Reader.required_fields_for_sending)
+                            const checkReaderOSDPDataSend = checkSendingDevice(old_acu_reader.osdp_data, acu_reader.osdp_data, Reader.OSDP_fields_that_used_in_sending)
+
+                            if (checkAcuReaderSend) {
+                                acuReaderSend = true
+                                if (checkReaderOSDPDataSend) checkAcuReaderSend.osdp_data = checkReaderOSDPDataSend
+                            } else {
+                                if (checkReaderOSDPDataSend) {
+                                    acuReaderSend = true
+                                    checkAcuReaderSend = { id: acu_reader.id, osdp_data: checkReaderOSDPDataSend }
+                                    for (const required_field of Reader.required_fields_for_sending) {
+                                        if (required_field in acu_reader) checkAcuReaderSend[required_field] = acu_reader[required_field]
+                                    }
+                                }
+                            }
+                            if (checkAcuReaderSend) acu_reader = checkAcuReaderSend
+
+                            if (acuReaderSend && acu.elevator_mode && req_data.access_points.length) {
+                                const set_acu_rd_data = {
+                                    ...acu_reader, update: true
+                                }
+                                RdController.setRdForFloor(location, acu.serial_number, set_acu_rd_data, req_data.access_points, user, acu.session_id)
+                            }
+                        } else {
+                            if (acu_reader) {
+                                const reader_updated = await Reader.updateItem(acu_reader)
+                                logs_data.push({
+                                    event: logUserEvents.CHANGE,
+                                    target: `${Reader.name}/${acu_updated.old.name}/${readerTypes[reader_updated.old.type]}`,
+                                    value: reader_updated
+                                })
+                            }
                         }
                     }
                 }
 
                 ctx.logsData = logs_data
                 ctx.oldData = acu_updated.old
-                ctx.body = acu_updated.new
+                const res_data = { ...acu_updated.new }
+                if (acu_reader) res_data.readers = { ...acu_reader }
+                ctx.body = res_data
             }
         } catch (error) {
             console.log('error', error)
@@ -676,14 +785,15 @@ export default class AcuController {
                 .leftJoinAndSelect('acu.access_points', 'access_point', 'access_point.delete_date is null')
                 .leftJoinAndSelect('access_point.readers', 'reader', 'reader.delete_date is null')
                 .leftJoinAndSelect('acu.ext_devices', 'ext_device', 'ext_device.delete_date is null')
-                .where(`acu.id = ${+ctx.params.id}`)
-                .andWhere(`acu.company = ${ctx.user.company}`)
-                .getMany()
-            if (!data.length) {
+                .leftJoinAndSelect('acu.readers', 'acu_reader', 'acu_reader.delete_date is null')
+                .where(`acu.id = ${+ctx.params.id} `)
+                .andWhere(`acu.company = ${ctx.user.company} `)
+                .getOne()
+            if (!data) {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
             } else {
-                ctx.body = data[0]
+                ctx.body = data
             }
         } catch (error) {
             ctx.status = error.status || 400
@@ -734,7 +844,7 @@ export default class AcuController {
             const where = { id: req_data.id, company: user.company ? user.company : null }
             const logs_data = []
             const acu: Acu = await Acu.findOneOrFail(where)
-            const location = `${user.company_main}/${user.company}`
+            const location = `${user.company_main} /${user.company}`
             ctx.body = await Acu.destroyItem(where)
             logs_data.push({
                 event: logUserEvents.DELETE,

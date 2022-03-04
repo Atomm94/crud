@@ -1,3 +1,4 @@
+import { AccessPoint } from '../../model/entity'
 import { OperatorType } from '../../mqtt/Operators'
 import SendDeviceMessage from '../../mqtt/SendDeviceMessage'
 
@@ -8,6 +9,17 @@ export default class RdController {
                 access_point: readers[0].access_point,
                 access_point_type: readers[0].access_point_type,
                 readers: readers
+            }
+            new SendDeviceMessage(OperatorType.SET_RD, location, serial_number, send_data, user, session_id)
+        }
+    }
+
+    public static async setRdForFloor (location: string, serial_number: number, reader: any, access_points: AccessPoint[] | Array<{ id: number }>, user: any, session_id: string | null = '') {
+        if (reader) {
+            const send_data = {
+                access_points: access_points,
+                reader: reader,
+                elevator_mode: true
             }
             new SendDeviceMessage(OperatorType.SET_RD, location, serial_number, send_data, user, session_id)
         }

@@ -596,8 +596,13 @@ export default class Parse {
 
     public static async deviceSetRdAck (message: IMqttCrudMessaging) {
         // console.log('deviceSetRd', message)
-        const ind = message.send_data.data.answer_qty
-        const reader_data = message.send_data.data.readers[ind]
+        let reader_data
+        if (message.send_data.data.elevator_mode) {
+            reader_data = message.send_data.data.reader
+        } else {
+            const ind = message.send_data.data.answer_qty
+            reader_data = message.send_data.data.readers[ind]
+        }
 
         if (message.result.errorNo === 0) {
             const company = message.company
