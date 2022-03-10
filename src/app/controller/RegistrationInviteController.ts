@@ -45,25 +45,38 @@ export default class RegistrationInviteController {
             const user = ctx.user
             if (user.company) {
                 const company: any = await Company.findOneOrFail({ where: { id: user.company }, relations: ['packages', 'company_resources', 'package_types'] })
+
+                // company = await Company.findOneOrFail({ where: { id: company.partition_parent_id }, relations: ['packages', 'company_resources', 'package_types'] })
                 const extra_settings = JSON.parse(company.packages.extra_settings)
                 const used = JSON.parse(company.company_resources.used)
-                let limit_complete = true
-                for (const package_type in extra_settings.package_types) {
-                    if (extra_settings.package_types[package_type]) {
-                        if (!used[package_type] || (used[package_type] && used[package_type] < extra_settings.package_types[package_type])) {
-                            limit_complete = false
-                            break
-                        }
-                    }
-                }
-                if (limit_complete) {
+                if (used.Company >= extra_settings.resources.Company) {
+                    console.log(323232)
+
                     ctx.status = 400
                     return ctx.body = { message: 'Can\'t invite. PackageResource limit reached!' }
                 }
+                // const extra_settings = JSON.parse(company.packages.extra_settings)
+                // const used = JSON.parse(company.company_resources.used)
+
+                console.log('extra_settings', extra_settings)
+                console.log('used', used)
+
+                // let limit_complete = true
+                // for (const package_type in extra_settings.package_types) {
+                //     if (extra_settings.package_types[package_type]) {
+                //         if (!used[package_type] || (used[package_type] && used[package_type] < extra_settings.package_types[package_type])) {
+                //             limit_complete = false
+                //             break
+                //         }
+                //     }
+                // }
+                // if (limit_complete) {
+                //     ctx.status = 400
+                //     return ctx.body = { message: 'Can\'t invite. PackageResource limit reached!' }
+                // }
+
+                if (user.company) req_data.company = user.company
             }
-
-            if (user.company) req_data.company = user.company
-
             ctx.body = await RegistrationInvite.createLink(req_data as RegistrationInvite)
             ctx.logsData = []
         } catch (error) {

@@ -48,6 +48,9 @@ export class Company extends MainEntity {
     @Column('int', { name: 'parent_id', nullable: true })
     parent_id: number | null
 
+    @Column('int', { name: 'partition_parent_id', nullable: true })
+    partition_parent_id: number | null
+
     @Column('enum', { name: 'status', enum: statusCompany, default: statusCompany.PENDING })
     status: statusCompany
 
@@ -98,6 +101,8 @@ export class Company extends MainEntity {
 
     @OneToMany(type => AcuStatus, acu_status => acu_status.companies)
     acu_statuses: AcuStatus[];
+
+    public static resource: boolean = true
 
     public static async addItem (data: Company): Promise<Company> {
         const company = new Company()

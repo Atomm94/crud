@@ -18,9 +18,10 @@ import {
     AfterInsert,
     AfterRemove
 } from 'typeorm'
-import { CompanyResources } from '.'
+import { CompanyResources, Company } from '.'
 import { credentialType } from '../../enums/credentialType.enum'
 import { resourceKeys } from '../../enums/resourceKeys.enum'
+
 import * as Models from './index'
 
 export abstract class MainEntity extends BaseEntity {
@@ -41,8 +42,13 @@ export abstract class MainEntity extends BaseEntity {
         const model_name: any = self.constructor.name
 
         if (self.company) {
+            let company = await Company.findOne({ id: self.company }) as Company
+
+            if (company.partition_parent_id) {
+                company = await Company.findOne({ id: company.partition_parent_id }) as Company
+            }
             if (models[model_name] && models[model_name].resource) {
-                const company_resources = await CompanyResources.findOne({ company: self.company })
+                const company_resources = await CompanyResources.findOne({ company: company.id })
                 if (company_resources) {
                     const used: any = JSON.parse(company_resources.used)
                     if (used[model_name]) {

@@ -8,7 +8,8 @@ import {
 } from 'typeorm'
 
 import {
-    MainEntity, Company,
+    MainEntity,
+    Company,
     AccessRight,
     AccessPoint,
     Schedule

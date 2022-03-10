@@ -154,6 +154,8 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
                         const extra_settings = JSON.parse(package_data.extra_settings)
 
                         const models: any = Models
+                        console.log('extra_settings.resources', extra_settings.resources)
+
                         Object.keys(extra_settings.resources).forEach(resource => {
                             if (extra_settings.resources[resource]) {
                                 if (models[resource] && models[resource].gettingActions) {
@@ -164,6 +166,18 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
                                     permissions[resource] = {
                                         actions: actions
                                     }
+                                }
+                                console.log(1212, extra_settings.resources.Company)
+
+                                if (extra_settings.resources.Company) {
+                                    const reg_inv_permissions = RegistrationInvite.getActions()
+                                    Object.keys(reg_inv_permissions).forEach(action => {
+                                        reg_inv_permissions[action] = true
+                                    })
+                                    default_permissions.RegistrationInvite = {
+                                        actions: { ...reg_inv_permissions }
+                                    }
+                                    console.log(5656566, default_permissions)
                                 }
                             }
                         })
@@ -228,6 +242,7 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
                         })
 
                         account_role.permissions = JSON.stringify(permissions)
+                        console.log(555, account_role)
 
                         await account_role.save()
                     }
