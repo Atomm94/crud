@@ -12,6 +12,10 @@ import SendSocketMessage from '../../mqtt/SendSocketMessage'
 import { cardholderPresense } from '../../enums/cardholderPresense.enum'
 import { Cardholder } from './Cardholder'
 import { Package } from './Package'
+import { AutoTaskSchedule } from '.'
+import { In } from 'typeorm'
+import CtpController from '../../controller/Hardware/CtpController'
+import DeviceController from '../../controller/Hardware/DeviceController'
 
 const clickhouse_server: string = process.env.CLICKHOUSE_SERVER ? process.env.CLICKHOUSE_SERVER : 'http://localhost:4143'
 const getEventLogsUrl = `${clickhouse_server}/eventLog`
@@ -128,6 +132,42 @@ export class EventLog extends BaseClass {
         if (event.data.access_point) {
             const last_activity = event.data
             AccessPoint.updateItem({ id: event.data.access_point, last_activity: last_activity } as AccessPoint)
+
+            const event_group_id = Number(event.data.event_group_id)
+            const event_id = Number(event.data.event_id)
+
+            if (event_group_id && event_id) {
+                if (
+                    (event_group_id === 0 && [120].includes(event_id)) ||
+                    (event_group_id === 1 && [4, 6, 8, 19, 20, 21, 118, 119].includes(event_id)) ||
+                    (event_group_id === 2 && [24].includes(event_id)) ||
+                    (event_group_id === 3 && [1, 2, 3, 5, 7, 9, 10, 11, 12, 13, 14, 15, 16, 17].includes(event_id))
+                ) {
+                    const auto_task = await AutoTaskSchedule.findOne({ where: { access_point: event.data.access_point } })
+
+                    if (auto_task && auto_task.reaction_access_points) {
+                        console.log(auto_task)
+                        const access_points = await AccessPoint.find({ where: { id: In(JSON.parse(auto_task.reaction_access_points)) }, relations: ['acus', 'companies'] })
+
+                        for (const access_point of access_points) {
+                            const location = `${access_point.companies.account}/${access_point.company}`
+                            if (auto_task.reaction !== 3) {
+                                const data = {
+                                    id: access_point.id,
+                                    work_mode: auto_task.reaction,
+                                    type: access_point.type
+                                }
+                                CtpController.setCtp(access_point.type, location, access_point.acus.serial_number, data, null, access_point.acus.session_id)
+                            } else {
+                                const data = {
+                                    access_point: access_point.id
+                                }
+                                DeviceController.resetApb(location, access_point.acus.serial_number, data, null, access_point.acus.session_id)
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         if (event.data.event_type === eventTypes.CARDHOLDER_ALARM || event.data.event_type === eventTypes.SYSTEM_ALARM) {

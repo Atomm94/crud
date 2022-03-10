@@ -4,7 +4,8 @@ import {
     OneToMany,
     DeleteDateColumn,
     ManyToOne,
-    JoinColumn
+    JoinColumn,
+    OneToOne
 } from 'typeorm'
 
 import { acuStatus } from '../../enums/acuStatus.enum'
@@ -21,6 +22,8 @@ import { socketChannels } from '../../enums/socketChannels.enum'
 import { Company } from './Company'
 import CronJob from './../../cron'
 import { AcuStatus } from './AcuStatus'
+import { AutoTaskSchedule } from './AutoTaskSchedule'
+import { Reader } from './Reader'
 
 @Entity('acu')
 export class Acu extends MainEntity {
@@ -48,8 +51,8 @@ export class Acu extends MainEntity {
     @Column('boolean', { name: 'maintain_update_manual', default: true })
     maintain_update_manual: boolean
 
-    @Column('boolean', { name: 'shared_resource_mode', default: false })
-    shared_resource_mode: boolean
+    @Column('boolean', { name: 'elevator_mode', default: false })
+    elevator_mode: boolean
 
     @Column('longtext', { name: 'network', nullable: true })
     network: string | null
@@ -72,6 +75,9 @@ export class Acu extends MainEntity {
     @Column('boolean', { name: 'heart_bit', default: false })
     heart_bit: boolean
 
+    @Column('int', { name: 'reader', nullable: true })
+    reader: number | null
+
     @DeleteDateColumn({ type: 'timestamp', name: 'delete_date' })
     public deleteDate: Date
 
@@ -90,6 +96,13 @@ export class Acu extends MainEntity {
 
     @OneToMany(type => AcuStatus, acu_status => acu_status.acus)
     acu_statuses: AcuStatus[];
+
+    @OneToMany(type => AutoTaskSchedule, auto_task_schedule => auto_task_schedule.acus)
+    auto_task_schedules: AutoTaskSchedule[];
+
+    @OneToOne(type => Reader, Reader => Reader.acus, { nullable: true })
+    @JoinColumn({ name: 'reader' })
+    readers: Reader | null;
 
     public static async addItem (data: any) {
         const acu = new Acu()
@@ -132,7 +145,7 @@ export class Acu extends MainEntity {
         if ('status' in data) acu.status = data.status
         if ('fw_version' in data) acu.fw_version = data.fw_version
         if ('maintain_update_manual' in data) acu.maintain_update_manual = data.maintain_update_manual
-        if ('shared_resource_mode' in data) acu.shared_resource_mode = data.shared_resource_mode
+        // if ('elevator_mode' in data) acu.elevator_mode = data.elevator_mode
         if ('network' in data) acu.network = data.network
         if ('interface' in data) acu.interface = data.interface
 

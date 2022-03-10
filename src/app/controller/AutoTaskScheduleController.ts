@@ -2,7 +2,11 @@ import { DefaultContext } from 'koa'
 import { AutoTaskSchedule } from '../model/entity/AutoTaskSchedule'
 import { autoTaskScheduleValidation } from '../functions/validator'
 import autoTaskcommands from '../model/entity/autoTaskcommands.json'
+import acpEventList from '../model/entity/acpEventList.json'
 import { logUserEvents } from '../enums/logUserEvents.enum'
+import DeviceController from './Hardware/DeviceController'
+import { Acu } from '../model/entity'
+import { acuStatus } from '../enums/acuStatus.enum'
 
 export default class AutoTaskScheduleController {
     /**
@@ -30,8 +34,7 @@ export default class AutoTaskScheduleController {
      *                required:
      *                  - name
      *                  - access_point
-     *                  - command
-     *                  - schedule_type
+     *                  - acu
      *                properties:
      *                  name:
      *                      type: string
@@ -41,59 +44,43 @@ export default class AutoTaskScheduleController {
      *                  access_point:
      *                      type: number
      *                      example: 1
-     *                  command:
+     *                  reaction_access_points:
      *                      type: Array<number>
      *                      example: [1, 2]
-     *                  schedule:
+     *                  acu:
      *                      type: number
      *                      example: 1
-     *                  schedule_type:
+     *                  reaction:
+     *                      type: number
+     *                      example: 1
+     *                  reaction_type:
      *                      type: string
-     *                      enum: [preset_schedule, custom_schedule]
-     *                      example: preset_schedule
-     *                  custom_schedule:
+     *                      enum: [OUTPUT_MANAGEMENT_RELAY_MODULE,MANAGEMENT_OF_OUTPUT_CONTROLLERS,MANAGEMENT_OF_ACCESS_POINTS]
+     *                      example: MANAGEMENT_OF_ACCESS_POINTS
+     *                  conditions:
      *                      type: object
      *                      properties:
-     *                          start_date:
+     *                          TmBeginCondition:
      *                              type: string
-     *                              example: 2020.02.22
-     *                          start_date_enable:
+     *                              example: 20:00:00
+     *                          TimeCondition:
      *                              type: boolean
      *                              example: true
-     *                          end_date:
+     *                          TmEndCondition:
      *                              type: string
-     *                              example: 2020.02.22
-     *                          end_date_enable:
-     *                              type: boolean
-     *                              example: false
-     *                          start_time:
-     *                              type: string
-     *                              example: 19:00:00
-     *                          start_time_enable:
-     *                              type: boolean
-     *                              example: true
-     *                          end_time:
-     *                              type: string
-     *                              example: 06:15:00
-     *                          end_time_enable:
-     *                              type: boolean
-     *                              example: true
+     *                              example: 20:00:00
      *                          repeat:
      *                              type: boolean
      *                              example: true
-     *                          repeat_interval:
+     *                          EventsDirection:
      *                              type: number
-     *                              example: 2
-     *                          repeat_unit:
-     *                              type: string
-     *                              enum: [hour, day, week, month]
-     *                              example: hour
-     *                          duration_days:
-     *                              type: number
-     *                              example: 60
-     *                          unlimited:
-     *                              type: boolean
-     *                              example: false
+     *                              example: 1
+     *                          EventsCondition:
+     *                              type: Array<number>
+     *                              example: [1, 2]
+     *                          DaysOfWeek:
+     *                              type: Array<number>
+     *                              example: [1, 2]
      *                  condition:
      *                      type: string
      *                      enum: [in_progress, finished, pending]
@@ -115,12 +102,18 @@ export default class AutoTaskScheduleController {
             const req_data = ctx.request.body
             const user = ctx.user
             req_data.company = user.company ? user.company : null
+            const location = `${user.company_main}/${user.company}`
+            const acu: Acu = await Acu.findOne({ where: { id: req_data.acu } }) as Acu
             const check = autoTaskScheduleValidation(req_data)
             if (check !== true) {
                 ctx.status = 400
                 return ctx.body = { message: check }
             }
-            ctx.body = await AutoTaskSchedule.addItem(req_data as AutoTaskSchedule)
+            const auto_task = await AutoTaskSchedule.addItem(req_data as AutoTaskSchedule)
+            if (acu.status === acuStatus.ACTIVE) {
+                DeviceController.setTask(location, acu.serial_number, auto_task, user, acu.session_id)
+            }
+            ctx.body = auto_task
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -164,59 +157,42 @@ export default class AutoTaskScheduleController {
      *                  access_point:
      *                      type: number
      *                      example: 1
-     *                  command:
+     *                  reaction_access_points:
      *                      type: Array<number>
      *                      example: [1, 2]
-     *                  schedule:
+     *                  acu:
      *                      type: number
      *                      example: 1
-     *                  schedule_type:
+     *                  reaction:
+     *                      type: number
+     *                      example: 1
+     *                  reaction_type:
      *                      type: string
-     *                      enum: [preset_schedule, custom_schedule]
-     *                      example: preset_schedule
-     *                  custom_schedule:
+     *                      enum: [OUTPUT_MANAGEMENT_RELAY_MODULE,MANAGEMENT_OF_OUTPUT_CONTROLLERS,MANAGEMENT_OF_ACCESS_POINTS]
+     *                      example: MANAGEMENT_OF_ACCESS_POINTS
+     *                  conditions:
      *                      type: object
      *                      properties:
-     *                          start_date:
+     *                          TmBeginCondition:
      *                              type: string
-     *                              example: 2020.02.22
-     *                          start_date_enable:
-     *                              type: boolean
-     *                              example: true
-     *                          end_date:
+     *                              example: 20:00:00
+     *                          TmEndCondition:
      *                              type: string
-     *                              example: 2020.02.22
-     *                          end_date_enable:
-     *                              type: boolean
-     *                              example: false
-     *                          start_time:
-     *                              type: string
-     *                              example: 19:00:00
-     *                          start_time_enable:
-     *                              type: boolean
-     *                              example: true
-     *                          end_time:
-     *                              type: string
-     *                              example: 06:15:00
-     *                          end_time_enable:
-     *                              type: boolean
-     *                              example: true
+     *                              example: 20:00:00
      *                          repeat:
-     *                              type: boolean
+     *                              type: number
+     *                              enum: [0, 1, 3]
      *                              example: true
-     *                          repeat_interval:
+     *                          EventsDirection:
      *                              type: number
-     *                              example: 2
-     *                          repeat_unit:
-     *                              type: string
-     *                              enum: [hour, day, week, month]
-     *                              example: hour
-     *                          duration_days:
-     *                              type: number
-     *                              example: 60
-     *                          unlimited:
-     *                              type: boolean
-     *                              example: false
+     *                              enum: [0, 1, -1]
+     *                              example: 1
+     *                          EventsCondition:
+     *                              type: Array<number>
+     *                              example: [1, 2]
+     *                          DaysOfWeek:
+     *                              type: Array<number>
+     *                              example: [1, 2]
      *                  condition:
      *                      type: string
      *                      enum: [in_progress, finished, pending]
@@ -235,14 +211,19 @@ export default class AutoTaskScheduleController {
     public static async update (ctx: DefaultContext) {
         try {
             const req_data = ctx.request.body
-            if (req_data.custom_schedule) {
-                const check = autoTaskScheduleValidation(req_data)
-                if (check !== true) {
-                    ctx.status = 400
-                    return ctx.body = { message: check }
-                }
+            const user = ctx.user
+            req_data.company = user.company ? user.company : null
+            const location = `${user.company_main}/${user.company}`
+            const acu: Acu = await Acu.findOne({ where: { id: req_data.acu } }) as Acu
+            const check = autoTaskScheduleValidation(req_data)
+            if (check !== true) {
+                ctx.status = 400
+                return ctx.body = { message: check }
             }
-            ctx.body = await AutoTaskSchedule.updateItem(req_data as AutoTaskSchedule)
+            if (acu.status === acuStatus.ACTIVE) {
+                DeviceController.setTask(location, acu.serial_number, req_data, user, acu.session_id, true)
+            }
+            ctx.body = { message: 'update Pending' }
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -281,7 +262,13 @@ export default class AutoTaskScheduleController {
      */
     public static async get (ctx: DefaultContext) {
         try {
-            ctx.body = await AutoTaskSchedule.getItem(+ctx.params.id)
+            const data = await AutoTaskSchedule.createQueryBuilder('auto_task_schedule')
+                .leftJoinAndSelect('auto_task_schedule.acus', 'acu', 'acu.delete_date is null')
+                .leftJoinAndSelect('auto_task_schedule.access_points', 'access_point', 'access_point.delete_date is null')
+                .where(`schedule.id = ${+ctx.params.id}`)
+                .andWhere(`schedule.company = ${ctx.user.company}`)
+                .getOne()
+            ctx.body = data
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -366,7 +353,11 @@ export default class AutoTaskScheduleController {
      */
     public static async getAll (ctx: DefaultContext) {
         try {
-            ctx.body = await AutoTaskSchedule.getAllItems(ctx.query)
+            const req_data = ctx.query
+            const user = ctx.user
+            req_data.relations = ['access_points']
+            req_data.where = { company: { '=': user.company ? user.company : null } }
+            ctx.body = await AutoTaskSchedule.getAllItems(req_data)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -397,7 +388,13 @@ export default class AutoTaskScheduleController {
      */
     public static async getCommandsList (ctx: DefaultContext) {
         try {
-            ctx.body = autoTaskcommands
+            const commands = autoTaskcommands
+            const events = acpEventList
+
+            ctx.body = {
+                commands,
+                events
+            }
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

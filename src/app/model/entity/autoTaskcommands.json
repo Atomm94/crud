@@ -1,10 +1,6 @@
 {
+    "0": "Set mode \"Convenience\"",
     "1":"Set mode \"Unlocked\"",
-    "2": "Set mode \"Convenience\"",
-    "3": "Set mode \"Locked\"",
-    "4": "Reset Antipass-back log",
-    "5": "Trigger Out 1(Lock)",
-    "6": "Trigger Out 2(Output.Ajar alarm)",
-    "7": "Trigger Out 3(Output.Forced open)",
-    "8": "Trigger Out 4(Led lamp for schedule)"
+    "2": "Set mode \"Locked\"",
+    "3": "Reset Antipass-back log"
 }
