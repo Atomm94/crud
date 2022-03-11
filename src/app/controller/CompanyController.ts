@@ -12,6 +12,7 @@ import {
 import { JwtToken } from '../model/entity/JwtToken'
 import * as Models from '../model/entity/index'
 import { canCreate } from '../middleware/resource'
+import { partition_unnecessary_roles, outUnnecessaryRoles } from '../model/entity/partitionUnnecessaryRoles'
 
 export default class CompanyController {
     /**
@@ -549,6 +550,167 @@ export default class CompanyController {
                         account_data.company = company.id
                         account_data.verify_token = uid(32)
                         account_data.role = new_company_role.id
+                        const admin = await Admin.addItem(account_data as Admin)
+
+                        company.account = admin.id
+                        await Company.save(company)
+                        await Sendgrid.sendNewPass(admin.email, admin.verify_token as string)
+
+                        // set registration token to null
+                        regToken.used = true
+                        await regToken.save()
+                        ctx.body = {
+                            success: true
+                        }
+                    }
+                }
+            } else {
+                ctx.status = 400
+                ctx.body = {
+                    message: 'Wrong token!!'
+                }
+            }
+        } catch (error) {
+            console.log(error)
+
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     * /registration/regPartition/{token}:
+     *      post:
+     *          tags:
+     *              - Company
+     *          summary: Create Partition, account and send emails
+     *          parameters:
+     *              - in: path
+     *                name: token
+     *                required: true
+     *                description: token
+     *                schema:
+     *                    type: string
+     *              - in: body
+     *                name: regForm
+     *                description: The registration of Partition.
+     *                schema:
+     *                  type: object
+     *                  required:
+     *                      - company
+     *                      - account
+     *                  properties:
+     *                      company:
+     *                          type: object
+     *                          required:
+     *                              - company_name
+     *                          properties:
+     *                              company_name:
+     *                                  type: string
+     *                                  example: some_company_name
+     *                      account:
+     *                          type: object
+     *                          required:
+     *                              - first_name
+     *                              - last_name
+     *                              - email
+     *                              - phone_1
+     *                              - post_code
+     *                          properties:
+     *                              first_name:
+     *                                  type: string
+     *                                  example: John
+     *                              last_name:
+     *                                  type: string
+     *                                  example: Smith
+     *                              email:
+     *                                  type: string
+     *                                  example: example@gmail.com
+     *                              phone_1:
+     *                                  type: string
+     *                                  example: +374XXXXXXXX
+     *                              post_code:
+     *                                  type: number
+     *                                  example: 0068
+     *                              avatar:
+     *                                  type: string
+     *                                  example: avatar
+     *                              phone_2:
+     *                                  type: string
+     *                                  example: +374XXXXXXXX
+     *                              country:
+     *                                  type: string
+     *                                  example: Armenia
+     *                              site:
+     *                                  type: string
+     *                                  example: https://unimax.com
+     *                              address:
+     *                                  type: string
+     *                                  example: some_address
+     *                              viber:
+     *                                  type: string
+     *                                  example: +374XXXXXXXX
+     *                              whatsapp:
+     *                                  type: string
+     *                                  example: +374XXXXXXXX
+     *          responses:
+     *              '200':
+     *                  description: Data object
+     *              '404':
+     *                  description: Data not found
+     */
+     public static async regPartitionValidation (ctx: DefaultContext) {
+        try {
+            const token = ctx.params.token
+            const regToken = await RegistrationInvite.findOne({ token: token, used: false })
+            const company_invite = await Company.findOne({ where: { id: regToken?.company } })
+            if (regToken) {
+                const req_data = ctx.request.body
+                const company_data = req_data.company
+                const account_data = req_data.account
+
+                if (!('first_name' in account_data && 'last_name' in account_data && 'email' in account_data && 'phone_1' in account_data && 'post_code' in account_data)) {
+                    ctx.status = 400
+                    ctx.body = {
+                        message: 'Fill in required inputs!!'
+                    }
+                } else {
+                    if (await Admin.findOne({ email: account_data.email })) {
+                        ctx.status = 400
+                        ctx.body = {
+                            message: 'Duplicate email!!'
+                        }
+                    } else {
+                        if (company_invite) {
+                            company_data.partition_parent_id = company_invite.id
+                            company_data.package = company_invite.package
+                            company_data.package_type = company_invite.package_type
+                        }
+                        const company = await Company.addItem(company_data as Company)
+
+                        const role = await Role.findOne({ where: { company: company_invite?.id, main: true } })
+
+                        let permissions: string = '' /* JSON.stringify(Role.default_partner_role) */
+                        if (role) {
+                             permissions = role.permissions
+                        }
+                        const final_permissions = outUnnecessaryRoles(permissions, partition_unnecessary_roles)
+
+                        const role_save_data = {
+                            slug: company.company_name,
+                            company: company.id,
+                            permissions: JSON.stringify(final_permissions),
+                            main: false
+                        }
+                        const new_company_role = await Role.addItem(role_save_data as Role)
+
+                        account_data.company = company.id
+                        account_data.verify_token = uid(32)
+                        account_data.role = new_company_role.id
+
                         const admin = await Admin.addItem(account_data as Admin)
 
                         company.account = admin.id

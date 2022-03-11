@@ -112,6 +112,8 @@ export class Company extends MainEntity {
         company.package_type = data.package_type
         if ('message' in data) company.message = data.message
         if ('parent_id' in data) company.parent_id = data.parent_id
+        if ('partition_parent_id' in data) company.partition_parent_id = data.partition_parent_id
+
         // company.status = data.status
 
         return new Promise((resolve, reject) => {

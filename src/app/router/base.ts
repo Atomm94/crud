@@ -65,6 +65,10 @@ export default router
   .post('Company-addItem', 'registration/:token', resource(), CompanyController.regValidation)
   .put('registration/:token', CompanyController.resendNewPassEmail)
 
+  .get('registration/registrationOfPartition/:token', RegistrationInviteController.getPartition)
+  .post('Company-addItem', 'registration/regPartition/:token', CompanyController.regPartitionValidation)
+  .put('registration/:token', CompanyController.resendNewPassEmail)
+
   // -----------------------------------------------------
 
   .get('UserLog-get', 'userLog', checkRole(), LogController.getUserLogs)

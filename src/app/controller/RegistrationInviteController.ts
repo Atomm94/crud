@@ -45,39 +45,33 @@ export default class RegistrationInviteController {
             const user = ctx.user
             if (user.company) {
                 const company: any = await Company.findOneOrFail({ where: { id: user.company }, relations: ['packages', 'company_resources', 'package_types'] })
-
-                // company = await Company.findOneOrFail({ where: { id: company.partition_parent_id }, relations: ['packages', 'company_resources', 'package_types'] })
                 const extra_settings = JSON.parse(company.packages.extra_settings)
                 const used = JSON.parse(company.company_resources.used)
-                if (used.Company >= extra_settings.resources.Company) {
-                    console.log(323232)
-
-                    ctx.status = 400
-                    return ctx.body = { message: 'Can\'t invite. PackageResource limit reached!' }
+                if (!company.package_types.service) {
+                    if (used.Company >= extra_settings.resources.Company) {
+                        ctx.status = 400
+                        return ctx.body = { message: 'Can\'t invite. PackageResource limit reached!' }
+                    }
+                    ctx.body = await RegistrationInvite.createPartitionLink(req_data as RegistrationInvite)
+                } else {
+                    let limit_complete = true
+                    for (const package_type in extra_settings.package_types) {
+                        if (extra_settings.package_types[package_type]) {
+                            if (!used[package_type] || (used[package_type] && used[package_type] < extra_settings.package_types[package_type])) {
+                                limit_complete = false
+                                break
+                            }
+                        }
+                    }
+                    if (limit_complete) {
+                        ctx.status = 400
+                        return ctx.body = { message: 'Can\'t invite. PackageResource limit reached!' }
+                    }
                 }
-                // const extra_settings = JSON.parse(company.packages.extra_settings)
-                // const used = JSON.parse(company.company_resources.used)
-
-                console.log('extra_settings', extra_settings)
-                console.log('used', used)
-
-                // let limit_complete = true
-                // for (const package_type in extra_settings.package_types) {
-                //     if (extra_settings.package_types[package_type]) {
-                //         if (!used[package_type] || (used[package_type] && used[package_type] < extra_settings.package_types[package_type])) {
-                //             limit_complete = false
-                //             break
-                //         }
-                //     }
-                // }
-                // if (limit_complete) {
-                //     ctx.status = 400
-                //     return ctx.body = { message: 'Can\'t invite. PackageResource limit reached!' }
-                // }
 
                 if (user.company) req_data.company = user.company
+                ctx.body = await RegistrationInvite.createLink(req_data as RegistrationInvite)
             }
-            ctx.body = await RegistrationInvite.createLink(req_data as RegistrationInvite)
             ctx.logsData = []
         } catch (error) {
             ctx.status = error.status || 400
@@ -191,6 +185,57 @@ export default class RegistrationInviteController {
                 ctx.status = 400
                 ctx.body = {
                     message: 'Wrong token!!'
+                }
+            }
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     * /registration/registrationOfPartition/{token}:
+     *      get:
+     *          tags:
+     *              - RegistrationInvite
+     *          summary: Return registrationInvite by token
+     *          parameters:
+     *              - name: token
+     *                in: path
+     *                required: true
+     *                description: Parameter description
+     *                schema:
+     *                    type: string
+     *          responses:
+     *              '200':
+     *                  description: Data object
+     *              '404':
+     *                  description: Data not found
+     */
+    public static async getPartition (ctx: DefaultContext) {
+        try {
+            // ctx.body = await RegistrationInvite.getByLink(ctx.params.token)
+            const token = ctx.params.token
+
+            const regToken = await RegistrationInvite.findOneOrFail({ token: token })
+            console.log(regToken)
+
+            if (regToken) {
+                if (regToken.company) {
+                    ctx.body = true
+                } else {
+                    ctx.status = 400
+                    ctx.body = {
+                        message: 'Wrong Company!!'
+                    }
+                }
+            } else {
+                ctx.status = 400
+                ctx.body = {
+                    message: 'Wrong Token!!'
                 }
             }
         } catch (error) {

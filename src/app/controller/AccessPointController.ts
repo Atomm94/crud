@@ -151,16 +151,28 @@ export default class AccessPointController {
             // req_data.where = { company: { '=': user.company ? user.company : null } }
             // req_data.relations = ['acus', 'access_point_groups', 'access_point_zones']
             // ctx.body = await AccessPoint.getAllItems(req_data)
-
-            const access_points: any = await AccessPoint.createQueryBuilder('access_point')
-                .leftJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
-                .leftJoinAndSelect('access_point.access_point_groups', 'access_point_group', 'access_point_group.delete_date is null')
-                .leftJoinAndSelect('access_point.readers', 'reader', 'reader.delete_date is null')
-                .leftJoinAndSelect('reader.leaving_zones', 'leaving_zone', 'leaving_zone.delete_date is null')
-                .leftJoinAndSelect('reader.came_to_zones', 'came_to_zone', 'came_to_zone.delete_date is null')
-                .leftJoinAndSelect('access_point.access_point_zones', 'access_point_zone', 'access_point_zone.delete_date is null')
-                .andWhere(`access_point.company = '${user.company ? user.company : null}'`)
-                .getMany()
+            let access_points: any = ''
+            if (!user.companyData.partition_parent_id) {
+                access_points = await AccessPoint.createQueryBuilder('access_point')
+                    .leftJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
+                    .leftJoinAndSelect('access_point.access_point_groups', 'access_point_group', 'access_point_group.delete_date is null')
+                    .leftJoinAndSelect('access_point.readers', 'reader', 'reader.delete_date is null')
+                    .leftJoinAndSelect('reader.leaving_zones', 'leaving_zone', 'leaving_zone.delete_date is null')
+                    .leftJoinAndSelect('reader.came_to_zones', 'came_to_zone', 'came_to_zone.delete_date is null')
+                    .leftJoinAndSelect('access_point.access_point_zones', 'access_point_zone', 'access_point_zone.delete_date is null')
+                    .andWhere(`access_point.company = '${user.company ? user.company : null}'`)
+                    .getMany()
+            } else {
+                access_points = await AccessPoint.createQueryBuilder('access_point')
+                    .leftJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
+                    .leftJoinAndSelect('access_point.access_point_groups', 'access_point_group', 'access_point_group.delete_date is null')
+                    .leftJoinAndSelect('access_point.readers', 'reader', 'reader.delete_date is null')
+                    .leftJoinAndSelect('reader.leaving_zones', 'leaving_zone', 'leaving_zone.delete_date is null')
+                    .leftJoinAndSelect('reader.came_to_zones', 'came_to_zone', 'came_to_zone.delete_date is null')
+                    .leftJoinAndSelect('access_point.access_point_zones', 'access_point_zone', 'access_point_zone.delete_date is null')
+                    .andWhere(`access_point.company = '${user.companyData.partition_parent_id}'`)
+                    .getMany()
+            }
 
             ctx.body = access_points
         } catch (error) {

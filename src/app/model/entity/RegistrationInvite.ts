@@ -117,6 +117,25 @@ export class RegistrationInvite extends MainEntity {
         })
     }
 
+    public static async createPartitionLink (data: any) {
+        const registrationInvite = new RegistrationInvite()
+
+        registrationInvite.email = data.email
+        registrationInvite.token = uid(32)
+        if ('company' in data) registrationInvite.company = data.company
+
+        return new Promise((resolve, reject) => {
+            this.save(registrationInvite)
+                .then(async (item: RegistrationInvite) => {
+                    await Sendgrid.sendPartitionInvite(item.email, item.token)
+                    resolve(item)
+                })
+                .catch((error: any) => {
+                    reject(error)
+                })
+        })
+    }
+
     public static async createCardholderLink (data: any) {
         const registrationInvite = new RegistrationInvite()
 
