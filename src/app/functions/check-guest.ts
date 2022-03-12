@@ -84,7 +84,6 @@ export class CheckGuest {
                 return `Invalid period - ${guest_data.period}!`
             }
             const check_times = this.checkTemporaryIntersectionOfTimeframes(company, guest_data.start_date, guest_data.end_date)
-            console.log('check_times Temporary', check_times)
 
             if (check_times !== true) {
                 return check_times
@@ -121,29 +120,18 @@ export class CheckGuest {
     }
 
     public static checkTemporaryIntersectionOfTimeframes (company: any, start_date: any, end_date: any) {
-        console.log('company', company)
-        console.log('start_date', start_date)
-        console.log('end_date', end_date)
-
         const start_date_timestamp = new Date(start_date).getTime()
         const end_date_timestamp = new Date(end_date).getTime()
         const diff_start_end = end_date_timestamp - start_date_timestamp
         const one_day_timestamp = 24 * 60 * 60 * 1000
-        console.log('start_date_timestamp', start_date_timestamp)
-        console.log('end_date_timestamp', end_date_timestamp)
-        console.log('diff_start_end', diff_start_end)
 
         if (diff_start_end < 7 * one_day_timestamp) {
             let need_timestamp = start_date_timestamp
             const start_day_of_month = new Date(start_date_timestamp).getDate()
             const end_day_of_month = new Date(end_date_timestamp).getDate()
             for (let i = 1; i <= 7; i++) {
-                console.log('----------------', i)
-
                 let need_day_of_week = new Date(need_timestamp).getDay()
                 if (need_day_of_week === 0) need_day_of_week = 7 // for sunday
-                console.log('need_timestamp', need_timestamp)
-                console.log('need_day_of_week', need_day_of_week)
                 const need_day_of_month = new Date(need_timestamp).getDate()
                 if (need_day_of_month > end_day_of_month) break
 
@@ -159,18 +147,9 @@ export class CheckGuest {
                         end_time = moment(end_date_timestamp).format('HH:mm:ss')
                     }
                 }
-                console.log('start_time', start_time)
-                console.log('end_time', end_time)
 
                 for (const timeframe of company.base_schedules.timeframes) {
-                    console.log('timeframe.name', timeframe.name)
-
                     if (Number(timeframe.name) === need_day_of_week) {
-                        console.log((start_time >= timeframe.start && start_time <= timeframe.end))
-                        console.log((end_time >= timeframe.start && end_time <= timeframe.end))
-                        console.log((timeframe.start >= start_time && timeframe.start <= end_time))
-                        console.log((timeframe.end >= start_time && timeframe.end <= end_time))
-
                         if ((start_time >= timeframe.start && start_time <= timeframe.end) ||
                             (end_time >= timeframe.start && end_time <= timeframe.end) ||
                             (timeframe.start >= start_time && timeframe.start <= end_time) ||
