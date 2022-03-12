@@ -176,4 +176,6 @@ export enum OperatorType {
     SET_TASK_ACK = 'SetTask-Ack',
     RESET_APB = 'Reset_apb',
     RESET_APB_ACK = 'Reset_apb-Ack',
+    ACTIVATE_CREDENTIAL = 'activateCredential',
+    ACTIVATE_CREDENTIAL_ACK = 'activateCredential-Ack',
 }

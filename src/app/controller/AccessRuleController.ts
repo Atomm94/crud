@@ -93,12 +93,11 @@ export default class AccessRuleController {
                     // const relation = ['access_points']
                     // const returnData = AccessRule.getItem({ id: access_rule.id }, relation)
 
-                    let returnData: any = await AccessRule.createQueryBuilder('access_rule')
+                    const returnData: any = await AccessRule.createQueryBuilder('access_rule')
                         .leftJoinAndSelect('access_rule.access_points', 'access_point', 'access_point.delete_date is null')
                         .where(`access_rule.id = '${access_rule.id}'`)
-                        .getMany()
+                        .getOne()
 
-                    returnData = returnData[0]
                     res_data.push(returnData)
                     const acu: Acu = await Acu.getItem({ id: access_point.acu })
                     if (acu.status === acuStatus.ACTIVE) {

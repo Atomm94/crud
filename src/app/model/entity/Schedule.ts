@@ -36,6 +36,12 @@ export class Schedule extends MainEntity {
     @Column('int', { name: 'repeat_month', nullable: true })
     repeat_month: number
 
+    @Column('timestamp', { name: 'start_date', nullable: true })
+    start_date: string | null
+
+    @Column('timestamp', { name: 'end_date', nullable: true })
+    end_date: string | null
+
     @DeleteDateColumn({ type: 'timestamp', name: 'delete_date' })
     public deleteDate: Date
 
@@ -58,6 +64,9 @@ export class Schedule extends MainEntity {
     @OneToMany(type => Cardholder, cardholder => cardholder.time_attendances)
     cardholders: Cardholder[];
 
+    @OneToMany(type => Company, company => company.base_schedules)
+    base_companies: Company[];
+
     public static resource: boolean = true
 
     public static async addItem (data: Schedule) {
@@ -69,6 +78,8 @@ export class Schedule extends MainEntity {
         if ('start_from' in data) schedule.start_from = data.start_from
         if ('custom' in data) schedule.custom = data.custom
         if ('repeat_month' in data) schedule.repeat_month = data.repeat_month
+        if ('start_date' in data) schedule.start_date = data.start_date
+        if ('end_date' in data) schedule.end_date = data.end_date
         schedule.company = data.company
 
         return new Promise((resolve, reject) => {
@@ -90,6 +101,8 @@ export class Schedule extends MainEntity {
         if ('description' in data) schedule.description = data.description
         if ('start_from' in data) schedule.start_from = data.start_from
         if ('repeat_month' in data) schedule.repeat_month = data.repeat_month
+        if ('start_date' in data) schedule.start_date = data.start_date
+        if ('end_date' in data) schedule.end_date = data.end_date
 
         if (!schedule) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
