@@ -45,6 +45,18 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
             parent_company_resources.used = JSON.stringify(parent_used)
             await parent_company_resources.save()
         }
+
+        if (data.partition_parent_id) {
+            const partition_parent_company_resources = await CompanyResources.findOneOrFail({ company: data.partition_parent_id })
+            const parent_used = JSON.parse(partition_parent_company_resources.used)
+            if (parent_used.Company) {
+                parent_used.Company++
+            } else {
+                parent_used.Company = 1
+            }
+            partition_parent_company_resources.used = JSON.stringify(parent_used)
+            await partition_parent_company_resources.save()
+        }
     }
 
     /**

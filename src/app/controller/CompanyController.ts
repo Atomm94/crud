@@ -536,7 +536,10 @@ export default class CompanyController {
                             message: 'Duplicate email!!'
                         }
                     } else {
-                        if (regToken.company) company_data.parent_id = regToken.company
+                        if (regToken.company) {
+                            company_data.parent_id = regToken.company
+                            company_data.status = statusCompany.PENDING
+                        }
                         const company = await Company.addItem(company_data as Company)
 
                         let permissions: string = JSON.stringify(Role.default_partner_role)
@@ -693,17 +696,16 @@ export default class CompanyController {
                             company_data.partition_parent_id = company_invite.id
                             company_data.package = company_invite.package
                             company_data.package_type = company_invite.package_type
+                            company_data.status = statusCompany.ENABLE
                         }
-                        const company = await Company.addItem(company_data as Company)
-
                         const role = await Role.findOne({ where: { company: company_invite?.id, main: true } })
-
                         let permissions: string = '' /* JSON.stringify(Role.default_partner_role) */
                         if (role) {
                             permissions = role.permissions
                         }
                         const final_permissions = outUnnecessaryRoles(permissions, partition_unnecessary_roles)
 
+                        const company = await Company.addItem(company_data as Company)
                         const role_save_data = {
                             slug: company.company_name,
                             company: company.id,
@@ -877,6 +879,8 @@ export default class CompanyController {
         try {
             const req_data = ctx.query
             const where: any = {}
+            console.log(865656565)
+
             if (ctx.user.company) {
                 where.partition_parent_id = {
                     '=': ctx.user.company
@@ -884,6 +888,8 @@ export default class CompanyController {
             }
             req_data.where = where
             req_data.relations = ['company_account']
+            console.log('req', req_data)
+
             ctx.body = await Company.getAllItems(req_data)
         } catch (error) {
             ctx.status = error.status || 400
@@ -936,6 +942,9 @@ export default class CompanyController {
      *                  access_right:
      *                      type: number
      *                      example: 1
+     *                  base_access_points:
+     *                      type: Array<number>
+     *                      example: [1,2]
      *          responses:
      *              '201':
      *                  description: A company updated object

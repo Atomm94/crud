@@ -52,7 +52,8 @@ export default class RegistrationInviteController {
                         ctx.status = 400
                         return ctx.body = { message: 'Can\'t invite. PackageResource limit reached!' }
                     }
-                    ctx.body = await RegistrationInvite.createPartitionLink(req_data as RegistrationInvite)
+                    if (user.company) req_data.company = user.company
+                    return ctx.body = await RegistrationInvite.createPartitionLink(req_data as RegistrationInvite)
                 } else {
                     let limit_complete = true
                     for (const package_type in extra_settings.package_types) {
@@ -70,8 +71,8 @@ export default class RegistrationInviteController {
                 }
 
                 if (user.company) req_data.company = user.company
-                ctx.body = await RegistrationInvite.createLink(req_data as RegistrationInvite)
             }
+            ctx.body = await RegistrationInvite.createLink(req_data as RegistrationInvite)
             ctx.logsData = []
         } catch (error) {
             ctx.status = error.status || 400
@@ -221,8 +222,6 @@ export default class RegistrationInviteController {
             const token = ctx.params.token
 
             const regToken = await RegistrationInvite.findOneOrFail({ token: token })
-            console.log(regToken)
-
             if (regToken) {
                 if (regToken.company) {
                     ctx.body = true

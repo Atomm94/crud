@@ -90,8 +90,10 @@ export function outUnnecessaryRoles (main_roles: any, unneed_roles: any) {
         }
     })
     Object.keys(main_roles).forEach(akey => {
-        if (Object.keys(main_roles[akey].actions).length === 0) {
-            delete main_roles[akey]
+        if (main_roles[akey].actions) {
+            if (Object.keys(main_roles[akey].actions).length === 0) {
+                delete main_roles[akey]
+            }
         }
     })
     return main_roles
