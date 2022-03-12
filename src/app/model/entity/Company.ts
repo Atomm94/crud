@@ -45,6 +45,12 @@ export class Company extends MainEntity {
     @Column('int', { name: 'account', nullable: true })
     account: number | null
 
+    @Column('int', { name: 'access_right', nullable: true })
+    access_right: number | null
+
+    @Column('longtext', { name: 'base_access_points', nullable: true })
+    base_access_points: string | null
+
     @Column('int', { name: 'parent_id', nullable: true })
     parent_id: number | null
 
@@ -102,6 +108,10 @@ export class Company extends MainEntity {
     @OneToMany(type => AcuStatus, acu_status => acu_status.companies)
     acu_statuses: AcuStatus[];
 
+    @ManyToOne(type => AccessRight, base_access_right => base_access_right.companies, { nullable: true })
+    @JoinColumn({ name: 'access_right' })
+    base_access_rights: AccessRight | null;
+
     public static resource: boolean = true
 
     public static async addItem (data: Company): Promise<Company> {
@@ -138,6 +148,8 @@ export class Company extends MainEntity {
         if ('package_type' in data) company.package_type = data.package_type
         if ('message' in data) company.message = data.message
         if ('status' in data) company.status = data.status
+        if ('access_right' in data) company.access_right = data.access_right
+        if ('base_access_points' in data) company.base_access_points = (data.base_access_points && typeof data.base_access_points === 'object') ? JSON.stringify(data.base_access_points) : data.base_access_points
 
         if (!company) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {

@@ -14,6 +14,11 @@ import * as Models from '../model/entity/index'
 import { canCreate } from '../middleware/resource'
 import { partition_unnecessary_roles, outUnnecessaryRoles } from '../model/entity/partitionUnnecessaryRoles'
 
+import { AccessPoint } from '../model/entity/AccessPoint'
+import { AccessRight } from '../model/entity/AccessRight'
+
+import { In } from 'typeorm'
+
 export default class CompanyController {
     /**
      *
@@ -662,7 +667,7 @@ export default class CompanyController {
      *              '404':
      *                  description: Data not found
      */
-     public static async regPartitionValidation (ctx: DefaultContext) {
+    public static async regPartitionValidation (ctx: DefaultContext) {
         try {
             const token = ctx.params.token
             const regToken = await RegistrationInvite.findOne({ token: token, used: false })
@@ -695,7 +700,7 @@ export default class CompanyController {
 
                         let permissions: string = '' /* JSON.stringify(Role.default_partner_role) */
                         if (role) {
-                             permissions = role.permissions
+                            permissions = role.permissions
                         }
                         const final_permissions = outUnnecessaryRoles(permissions, partition_unnecessary_roles)
 
@@ -846,4 +851,144 @@ export default class CompanyController {
         }
         return ctx.body
     }
+
+    /**
+     *
+     * @swagger
+     * /company/partitions:
+     *      get:
+     *          tags:
+     *              - Company
+     *          summary: Return partition list
+     *          parameters:
+     *              - in: header
+     *                name: Authorization
+     *                required: true
+     *                description: Authentication token
+     *                schema:
+     *                    type: string
+     *          responses:
+     *              '200':
+     *                  description: Array of company
+     *              '401':
+     *                  description: Unauthorized
+     */
+    public static async getAllPartitions (ctx: DefaultContext) {
+        try {
+            const req_data = ctx.query
+            const where: any = {}
+            if (ctx.user.company) {
+                where.partition_parent_id = {
+                    '=': ctx.user.company
+                }
+            }
+            req_data.where = where
+            req_data.relations = ['company_account']
+            ctx.body = await Company.getAllItems(req_data)
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     *  /company/updatePartition:
+     *      put:
+     *          tags:
+     *              - Company
+     *          summary: Update a company.
+     *          consumes:
+     *              - application/json
+     *          parameters:
+     *            - in: header
+     *              name: Authorization
+     *              required: true
+     *              description: Authentication token
+     *              schema:
+     *                type: string
+     *            - in: body
+     *              name: company
+     *              description: The company to create.
+     *              schema:
+     *                type: object
+     *                properties:
+     *                  id:
+     *                      type: number
+     *                      example: 1
+     *                  company_name:
+     *                      type: string
+     *                      example: 'Studio-One'
+     *                  first_name:
+     *                      type: string
+     *                      example: 'Oleg'
+     *                  phone_1:
+     *                      type: string
+     *                      example: '+374885566'
+     *                  email:
+     *                      type: string
+     *                      example: 'Oleg@gmail.com'
+     *                  message:
+     *                      type: string
+     *                      example: 'description'
+     *                  access_right:
+     *                      type: number
+     *                      example: 1
+     *          responses:
+     *              '201':
+     *                  description: A company updated object
+     *              '409':
+     *                  description: Conflict
+     *              '422':
+     *                  description: Wrong data
+     */
+    public static async updatePartition (ctx: DefaultContext) {
+        try {
+            const req_data = ctx.request.body
+            const company = await Company.findOne({ where: { id: req_data.id, partition_parent_id: ctx.user.company } }) as Company
+            if (!company) {
+                ctx.status = 400
+                    ctx.body = { message: 'Invalid Compnany' }
+                    }
+                const sended_access_points = req_data.base_access_points
+                if (sended_access_points) {
+                    const access_points = await AccessPoint.find({ where: { id: In(sended_access_points) } })
+
+                    if (access_points) {
+                        req_data.base_access_points = access_points.map(item => item.id)
+                    }
+                }
+                const sended_access_right = req_data.access_right
+                if (sended_access_right) {
+                    const access_right = await AccessRight.findOne({ where: { id: sended_access_right } })
+                    if (access_right) {
+                        req_data.access_right = access_right.id
+                    }
+                }
+                const updated = await Company.updateItem(req_data as Company)
+                const admin_data = {
+                    id: company.account,
+                    first_name: req_data.first_name,
+                    phone1: req_data.phone1,
+                    email: req_data.email
+                }
+
+                await Admin.updateItem(admin_data)
+
+                ctx.oldData = updated.old
+                ctx.body = updated.new
+            } catch (error) {
+                ctx.status = error.status || 400
+                if (error.message) {
+                    ctx.body = {
+                        message: error.message
+                    }
+                } else {
+                    ctx.body = error
+                }
+            }
+            return ctx.body
+        }
 }

@@ -43,6 +43,9 @@ export class AccessRight extends MainEntity {
     @OneToMany(type => Cardholder, cardholder => cardholder.access_rights)
     cardholders: Cardholder[];
 
+    @OneToMany(type => Company, company => company.base_access_rights)
+    base_companies: Company[];
+
     public static resource: boolean = true
 
     public static async addItem (data: AccessRight) {
