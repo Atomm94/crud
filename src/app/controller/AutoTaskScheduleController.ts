@@ -7,6 +7,7 @@ import { logUserEvents } from '../enums/logUserEvents.enum'
 import DeviceController from './Hardware/DeviceController'
 import { Acu } from '../model/entity'
 import { acuStatus } from '../enums/acuStatus.enum'
+import { locationGenerator } from '../functions/locationGenerator'
 
 export default class AutoTaskScheduleController {
     /**
@@ -102,7 +103,7 @@ export default class AutoTaskScheduleController {
             const req_data = ctx.request.body
             const user = ctx.user
             req_data.company = user.company ? user.company : null
-            const location = `${user.company_main}/${user.company}`
+            const location = await locationGenerator(user)
             const acu: Acu = await Acu.findOne({ where: { id: req_data.acu } }) as Acu
             const check = autoTaskScheduleValidation(req_data)
             if (check !== true) {
@@ -213,7 +214,7 @@ export default class AutoTaskScheduleController {
             const req_data = ctx.request.body
             const user = ctx.user
             req_data.company = user.company ? user.company : null
-            const location = `${user.company_main}/${user.company}`
+            const location = await locationGenerator(user)
             const acu: Acu = await Acu.findOne({ where: { id: req_data.acu } }) as Acu
             const check = autoTaskScheduleValidation(req_data)
             if (check !== true) {

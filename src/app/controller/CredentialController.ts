@@ -9,6 +9,7 @@ import { logUserEvents } from '../enums/logUserEvents.enum'
 import * as jwt from 'jsonwebtoken'
 import { accessPointDirection } from '../enums/accessPointDirection.enum'
 import CtpController from './Hardware/CtpController'
+import { locationGenerator } from '../functions/locationGenerator'
 
 export default class CredentialController {
     /**
@@ -227,7 +228,7 @@ export default class CredentialController {
     public static async destroy (ctx: DefaultContext) {
         try {
             const user = ctx.user
-            const location = `${user.company_main}/${user.company}`
+            const location = await locationGenerator(user)
             const req_data = ctx.request.body
             const logs_data = []
             const where = { id: req_data.id, company: user.company ? user.company : null }
@@ -355,7 +356,7 @@ export default class CredentialController {
                 ctx.body = { message: 'something went wrong' }
             } else {
                 ctx.body = await Credential.updateItem(req_data as Credential)
-                const location = `${user.company_main}/${user.company}`
+                const location = await locationGenerator(user)
                 const credential: any = await Credential.getItem({ id: req_data.id })
                 credential.status = req_data.status
                 req_data.where = { company: { '=': user.company ? user.company : null }, status: { '=': acuStatus.ACTIVE } }

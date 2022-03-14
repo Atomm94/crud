@@ -13,6 +13,7 @@ import { logUserEvents } from '../enums/logUserEvents.enum'
 import { readerTypes } from '../enums/readerTypes'
 import { accessPointMode } from '../enums/accessPointMode.enum'
 import { accessPointDirection } from '../enums/accessPointDirection.enum'
+import { locationGenerator } from '../functions/locationGenerator'
 
 export default class AccessPointController {
     /**
@@ -100,7 +101,7 @@ export default class AccessPointController {
             const user = ctx.user
             const where = { id: req_data.id, company: user.company ? user.company : null }
             const access_point = await AccessPoint.findOne({ relations: ['acus'], where: where })
-            const location = `${user.company_main}/${user.company}`
+            const location = await locationGenerator(user)
 
             const logs_data = []
             if (!access_point) {
@@ -229,7 +230,7 @@ export default class AccessPointController {
             const user = ctx.user
             const company = user.company ? user.company : null
             req_data.company = company
-            const location = `${user.company_main}/${user.company}`
+            const location = await locationGenerator(user)
             const where = { id: req_data.id, company: company }
             // const reader: any = await Reader.findOneOrFail({ relations: ['access_points', 'access_points.acus'], where: where })
 
@@ -412,7 +413,7 @@ export default class AccessPointController {
             const company = user.company ? user.company : null
             const where = { id: req_data.id, company: company }
             const access_point: any = await AccessPoint.findOneOrFail({ where: where, relations: ['acus'] })
-            const location = `${user.company_main}/${user.company}`
+            const location = await locationGenerator(user)
 
             if (access_point.acus.status !== acuStatus.ACTIVE) {
                 ctx.status = 400

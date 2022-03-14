@@ -5,6 +5,7 @@ import { AccessRule, Cardholder } from '../model/entity'
 import { AccessRight } from '../model/entity/AccessRight'
 import { CardholderGroup } from '../model/entity/CardholderGroup'
 import SdlController from './Hardware/SdlController'
+import { locationGenerator } from '../functions/locationGenerator'
 
 export default class AccessRightController {
     /**
@@ -233,7 +234,7 @@ export default class AccessRightController {
             const user = ctx.user
             const company = user.company ? user.company : null
             const where = { id: req_data.id, company: company }
-            const location = `${user.company_main}/${user.company}`
+            const location = await locationGenerator(user)
             const logs_data = []
 
             const cardholders = await Cardholder.findOne({ where: { access_right: req_data.id, company: company } })

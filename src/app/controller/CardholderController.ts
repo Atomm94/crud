@@ -18,6 +18,7 @@ import CardKeyController from './Hardware/CardKeyController'
 import { logUserEvents } from '../enums/logUserEvents.enum'
 import { cardholderStatus } from '../enums/cardholderStatus.enum'
 import { credentialStatus } from '../enums/credentialStatus.enum'
+import { locationGenerator } from '../functions/locationGenerator'
 
 // import SendDeviceMessage from '../mqtt/SendDeviceMessage'
 // import { OperatorType } from '../mqtt/Operators'
@@ -208,7 +209,7 @@ export default class CardholderController {
             const req_data = ctx.request.body
 
             const auth_user = ctx.user
-            const location = `${auth_user.company_main}/${auth_user.company}`
+            const location = await locationGenerator(auth_user)
             const company = auth_user.company ? auth_user.company : null
             req_data.company = company
             req_data.create_by = auth_user.id
@@ -532,7 +533,7 @@ export default class CardholderController {
                 ctx.body = { message: 'something went wrong' }
             } else {
                 const check_credentials = await CheckCredentialSettings.checkSettings(req_data.credentials, company)
-                const location = `${auth_user.company_main}/${auth_user.company}`
+                const location = await locationGenerator(auth_user)
 
                 if (check_credentials !== true) {
                     ctx.status = 400
@@ -739,7 +740,7 @@ export default class CardholderController {
         try {
             const req_data = ctx.request.body
             const user = ctx.user
-            const location = `${user.company_main}/${user.company}`
+            const location = await locationGenerator(user)
             const where = { id: req_data.id, company: user.company ? user.company : null }
             req_data.where = { company: { '=': user.company ? user.company : null }, status: { '=': acuStatus.ACTIVE } }
             const cardholder = await Cardholder.findOneOrFail({ where: where })
@@ -1290,7 +1291,7 @@ export default class CardholderController {
             const req_data = ctx.request.body
 
             const auth_user = ctx.user
-            const location = `${auth_user.company_main}/${auth_user.company}`
+            const location = await locationGenerator(auth_user)
             req_data.company = auth_user.company ? auth_user.company : null
             req_data.create_by = auth_user.id
             req_data.guest = true
@@ -1827,7 +1828,7 @@ export default class CardholderController {
             const req_data = ctx.request.body
 
             const auth_user = ctx.user
-            const location = `${auth_user.company_main}/${auth_user.company}`
+            const location = await locationGenerator(auth_user)
             req_data.company = auth_user.company ? auth_user.company : null
             req_data.create_by = auth_user.id
 
@@ -2290,7 +2291,7 @@ export default class CardholderController {
             const auth_user = ctx.user
             const company = auth_user.company ? auth_user.company : null
 
-            const location = `${auth_user.company_main}/${auth_user.company}`
+            const location = await locationGenerator(auth_user)
             if (req_data.status === cardholderStatus.INACTIVE || req_data.status === cardholderStatus.ACTIVE) {
                 const cardholders = await Cardholder.getAllItems({ where: { id: { in: req_data.ids }, company: { '=': company } }, relations: ['credentials'] })
                 const save: any = []

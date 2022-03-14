@@ -10,6 +10,7 @@ import SdlController from './Hardware/SdlController'
 import CardKeyController from './Hardware/CardKeyController'
 import { logUserEvents } from '../enums/logUserEvents.enum'
 import { OperatorType } from '../mqtt/Operators'
+import { locationGenerator } from '../functions/locationGenerator'
 
 export default class AccessRuleController {
     /**
@@ -71,7 +72,7 @@ export default class AccessRuleController {
         try {
             const req_data = ctx.request.body
             const user = ctx.user
-            const location = `${user.company_main}/${user.company}`
+            const location = await locationGenerator(user)
             req_data.company = user.company ? user.company : null
 
             let where: any
@@ -205,7 +206,7 @@ export default class AccessRuleController {
                 .where(`access_rule.id = '${req_data.id}'`)
                 .andWhere(`access_rule.company = '${user.company ? user.company : null}'`)
                 .getOne()
-            const location = `${user.company_main}/${user.company}`
+            const location = await locationGenerator(user)
             if (!access_rule) {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
@@ -345,7 +346,7 @@ export default class AccessRuleController {
             const user = ctx.user
             const where = { id: req_data.id, company: user.company ? user.company : null }
             const access_rule = await AccessRule.findOne(where)
-            const location = `${user.company_main}/${user.company}`
+            const location = await locationGenerator(user)
             const logs_data = []
             if (!access_rule) {
                 ctx.status = 400
