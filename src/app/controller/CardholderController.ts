@@ -1678,6 +1678,10 @@ export default class CardholderController {
                 }
             }
 
+            if (time_changed || new_access_point_ids.length || delete_access_rules.length) {
+                CardKeyController.setAddCardKey(OperatorType.SET_CARD_KEYS, location, auth_user.company, auth_user, null)
+            }
+
             guest_update.access_rights = guest.access_rights
             guest_update.access_rights.access_rules = finally_access_rules
             if (req_data.set_key) {
