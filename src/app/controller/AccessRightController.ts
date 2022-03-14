@@ -155,16 +155,37 @@ export default class AccessRightController {
     public static async get (ctx: DefaultContext) {
         try {
             const user = ctx.user
-
-            const access_right = await AccessRight.createQueryBuilder('access_right')
+            let access_right: any
+            access_right = await AccessRight.createQueryBuilder('access_right')
                 .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
                 .leftJoinAndSelect('access_rule.access_points', 'access_point')
                 .leftJoinAndSelect('access_rule.schedules', 'schedule')
                 .where(`access_right.id = '${+ctx.params.id}'`)
                 .andWhere(`access_right.company = '${user.company ? user.company : null}'`)
-                .getMany()
-
-            ctx.body = access_right[0]
+                .getOne()
+            if (user.companyData.partition_parent_id) {
+                if (user.companyData.access_right) {
+                    if (+ctx.params.id === user.companyData.access_right) {
+                        access_right = await AccessRight.createQueryBuilder('access_right')
+                            .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
+                            .leftJoinAndSelect('access_rule.access_points', 'access_point')
+                            .leftJoinAndSelect('access_rule.schedules', 'schedule')
+                            .where(`access_right.id = '${+user.companyData.access_right}'`)
+                            .andWhere(`access_right.company = '${user.companyData.partition_parent_id ? user.companyData.partition_parent_id : null}'`)
+                            .getOne()
+                            access_right.edit = false
+                    }
+                } else {
+                    access_right = await AccessRight.createQueryBuilder('access_right')
+                        .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
+                        .leftJoinAndSelect('access_rule.access_points', 'access_point')
+                        .leftJoinAndSelect('access_rule.schedules', 'schedule')
+                        .where(`access_right.id = '${+ctx.params.id}'`)
+                        .andWhere(`access_right.company = '${user.company ? user.company : null}'`)
+                        .getOne()
+                }
+            }
+            ctx.body = access_right
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -230,11 +251,11 @@ export default class AccessRightController {
             // const access_rules: any = await AccessRule.getAllItems({ relations: ['schedules', 'access_points', 'access_points.acus'], where: { access_right: { '=': req_data.id } } })
 
             const access_rules: any = await AccessRule.createQueryBuilder('access_rule')
-            .leftJoinAndSelect('access_rule.schedules', 'schedule', 'schedule.delete_date is null')
-            .leftJoinAndSelect('access_rule.access_points', 'access_point', 'access_point.delete_date is null')
-            .leftJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
-            .where(`access_rule.id = '${req_data.id}'`)
-            .getMany()
+                .leftJoinAndSelect('access_rule.schedules', 'schedule', 'schedule.delete_date is null')
+                .leftJoinAndSelect('access_rule.access_points', 'access_point', 'access_point.delete_date is null')
+                .leftJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
+                .where(`access_rule.id = '${req_data.id}'`)
+                .getMany()
 
             let active_rule = false
             for (const access_rule of access_rules) {
@@ -301,7 +322,18 @@ export default class AccessRightController {
             const req_data = ctx.query
             const user = ctx.user
             req_data.where = { company: { '=': user.company ? user.company : null } }
-            ctx.body = await AccessRight.getAllItems(req_data)
+            const access_rights: any = await AccessRight.getAllItems(req_data)
+            let pasted_access_right: any = ''
+            if (user.companyData.partition_parent_id) {
+                if (user.companyData.access_right) {
+                    pasted_access_right = await AccessRight.findOne({ where: { id: user.companyData.access_right } })
+                    if (pasted_access_right) {
+                        pasted_access_right.edit = false
+                        access_rights.push(pasted_access_right)
+                    }
+                }
+            }
+            ctx.body = access_rights
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

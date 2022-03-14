@@ -13,7 +13,6 @@ export const partition_unnecessary_roles =
         actions: {
             addItem: true,
             updateItem: true,
-            getItem: true,
             destroyItem: true
         }
     },

@@ -169,12 +169,30 @@ export default class ScheduleController {
      */
     public static async get (ctx: DefaultContext) {
         try {
+            const user = ctx.user
+            const company = ctx.user.company
+            const partition_parent_id = (user.companyData && user.companyData.partition_parent_id) ? user.companyData.partition_parent_id : null
             const data = await Schedule.createQueryBuilder('schedule')
                 .leftJoinAndSelect('schedule.timeframes', 'timeframe', 'timeframe.delete_date is null')
                 .where(`schedule.id = ${+ctx.params.id}`)
-                .andWhere(`schedule.company = ${ctx.user.company}`)
-                .getMany()
-            ctx.body = data[0]
+                .getOne()
+            if (!data) {
+                ctx.status = 400
+                return ctx.body = { message: 'Invalid id' }
+            }
+
+            if (partition_parent_id) {
+                if (![company, partition_parent_id].includes(data.company)) {
+                    ctx.status = 400
+                    return ctx.body = { message: 'Invalid id' }
+                }
+            } else {
+                if (data.company !== company) {
+                    ctx.status = 400
+                    return ctx.body = { message: 'Invalid id' }
+                }
+            }
+            ctx.body = data
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

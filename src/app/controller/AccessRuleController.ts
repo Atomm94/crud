@@ -74,7 +74,12 @@ export default class AccessRuleController {
             const location = `${user.company_main}/${user.company}`
             req_data.company = user.company ? user.company : null
 
-            const where: any = { company: req_data.company }
+            let where: any
+            where = { company: req_data.company }
+
+            if (user.companyData.partition_parent_id) {
+                where = { company: user.companyData.partition_parent_id }
+            }
             if (req_data.access_point) {
                 where.id = In(req_data.access_point)
             } else if (req_data.access_group) {
@@ -84,7 +89,6 @@ export default class AccessRuleController {
             }
             const access_points: AccessPoint[] = await AccessPoint.find({ ...where })
             const res_data: any = []
-
             for (const access_point of access_points) {
                 const data = req_data
                 data.access_point = access_point.id
@@ -269,15 +273,31 @@ export default class AccessRuleController {
     public static async get (ctx: DefaultContext) {
         try {
             const user = ctx.user
-            // const where = { id: +ctx.params.id, company: user.company ? user.company : user.company }
-            // const relations = ['schedules']
-            const access_rule: any = await AccessRule.createQueryBuilder('access_rule')
+            const company = ctx.user.company
+            const partition_parent_id = (user.companyData && user.companyData.partition_parent_id) ? user.companyData.partition_parent_id : null
+            const access_rule = await AccessRule.createQueryBuilder('access_rule')
                 .leftJoinAndSelect('access_rule.schedules', 'schedule', 'schedule.delete_date is null')
                 .where(`access_rule.id = '${+ctx.params.id}'`)
-                .andWhere(`access_rule.company = '${user.company ? user.company : null}'`)
-                .getMany()
+                .getOne()
 
-            ctx.body = access_rule[0]
+            if (!access_rule) {
+                ctx.status = 400
+                return ctx.body = { message: 'Invalid id' }
+            }
+
+            if (partition_parent_id) {
+                if (![company, partition_parent_id].includes(access_rule.company)) {
+                    ctx.status = 400
+                    return ctx.body = { message: 'Invalid id' }
+                }
+            } else {
+                if (access_rule.company !== company) {
+                    ctx.status = 400
+                    return ctx.body = { message: 'Invalid id' }
+                }
+            }
+
+            ctx.body = access_rule
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
