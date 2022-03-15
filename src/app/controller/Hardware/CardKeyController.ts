@@ -2,7 +2,7 @@
 import { acuStatus } from '../../enums/acuStatus.enum'
 import { calculateCredentialsKeysCountToSendDevice, filterCredentialToSendDevice } from '../../functions/credential'
 
-import { AccessPoint, AccessRule, Acu, Cardholder, Limitation } from '../../model/entity'
+import { AccessPoint, AccessRule, Acu, Cardholder, Company, Limitation } from '../../model/entity'
 import { OperatorType } from '../../mqtt/Operators'
 import SendDeviceMessage from '../../mqtt/SendDeviceMessage'
 
@@ -34,13 +34,21 @@ export default class CardKeyController {
             //     }
             // })
 
+            let parent_company_id = company
+            if (user.companyData.partition_parent_id) {
+                parent_company_id = user.companyData.partition_parent_id
+            }
+            const companies_that_need_send = [parent_company_id]
+            const partitions = await Company.find({ where: { partition_parent_id: parent_company_id } })
+            companies_that_need_send.push(...partitions.map(partition => partition.id))
+
             let all_cardholders: Cardholder[] = await Cardholder.createQueryBuilder('cardholder')
                 .leftJoinAndSelect('cardholder.access_rights', 'access_right')
                 .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
                 .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null')
                 // .leftJoinAndSelect('cardholder.antipass_backs', 'antipass_back')
                 .leftJoinAndSelect('cardholder.limitations', 'limitation')
-                .where(`cardholder.company = '${company}'`)
+                .where(`cardholder.company in (${companies_that_need_send})`)
                 .getMany()
 
             const keys_count = calculateCredentialsKeysCountToSendDevice(all_cardholders)
