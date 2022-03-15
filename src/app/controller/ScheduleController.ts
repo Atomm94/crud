@@ -290,7 +290,10 @@ export default class ScheduleController {
         try {
             const req_data = ctx.query
             const user = ctx.user
-            const where: any = { company: { '=': user.company ? user.company : null } }
+            const where: any = {
+                company: { '=': user.company ? user.company : null },
+                custom: { '=': false }
+            }
             if (req_data.type) {
                 if (!Object.values(scheduleType).includes(req_data.type)) {
                     ctx.status = 400

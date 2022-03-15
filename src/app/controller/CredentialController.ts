@@ -634,4 +634,58 @@ export default class CredentialController {
         }
         return ctx.body
     }
+
+    /**
+     *
+     * @swagger
+     * /guest/credential/{token}:
+     *      get:
+     *          tags:
+     *              - Credential
+     *          summary: Return Guest Credenial Info
+     *          parameters:
+     *              - in: path
+     *                name: token
+     *                required: true
+     *                description: Token
+     *                schema:
+     *                    type: varchar
+     *          responses:
+     *              '200':
+     *                  description: Array of credential types
+     *              '401':
+     *                  description: Unauthorized
+     */
+    public static async getGuestCredenialInfo (ctx: DefaultContext) {
+        try {
+            console.log('getGuestCredenialInfogetGuestCredenialInfogetGuestCredenialInfo')
+
+            const param_token = ctx.params.token
+            const credential: any = await Credential.createQueryBuilder('credential')
+                .leftJoinAndSelect('credential.cardholders', 'cardholder', 'cardholder.delete_date is null')
+                .leftJoinAndSelect('cardholder.access_rights', 'access_right', 'access_right.delete_date is null')
+                .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
+                .leftJoinAndSelect('access_rule.access_points', 'access_point', 'access_point.delete_date is null')
+                .leftJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
+                .where(`credential.token = '${param_token}'`)
+                .getOne()
+            if (!credential) {
+                ctx.status = 400
+                return ctx.body = { message: 'Invalid token' }
+            }
+
+            ctx.body = {
+                code: credential.code,
+                first_name: credential.cardholders.first_name,
+                last_name: credential.cardholders.last_name,
+                family_name: credential.cardholders.family_name,
+                start_date: credential.cardholders.start_date,
+                end_date: credential.cardholders.end_date
+            }
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
 }

@@ -3,7 +3,7 @@ import moment from 'moment'
 import { companyDayKeys } from '../enums/companyDayKeys.enum'
 import { guestKeyType } from '../enums/guestKeyType.enum'
 import { guestPeriod } from '../enums/guestPeriod.enum'
-import { Company } from '../model/entity'
+import { Company, Credential } from '../model/entity'
 
 export class CheckGuest {
     public static async checkSaveGuest (guest_data: any, company: Company, invite_user: any) {
@@ -185,5 +185,25 @@ export class CheckGuest {
             if (!check_day_in_base_schedule || check_times_range) return 'wrong Schedule, out of range base Schedule'
         }
         return true
+    }
+
+    public static async tryGeneratePinpassCode (company: number, try_qty: number = 0): Promise<any> {
+        const rand = Math.floor(Math.random() * 999999)
+        let code = rand.toString()
+        const code_length = code.length
+        for (let i = 0; i < 6 - code_length; i++) {
+            code = `0${code}`
+        }
+        const credential = await Credential.findOne({ where: { company, code } })
+        if (!credential) {
+            return code
+        } else {
+            try_qty++
+            if (try_qty < 10) {
+                return this.tryGeneratePinpassCode(company, try_qty)
+            } else {
+                throw new Error('Dublicate pinpass credentials!')
+            }
+        }
     }
 }

@@ -1316,6 +1316,11 @@ export default class CardholderController {
                 return ctx.body = { message: check_guest }
             }
 
+            let pinpass_code
+            if (req_data.key_type === guestKeyType.TEMPORARY) {
+                pinpass_code = await CheckGuest.tryGeneratePinpassCode(req_data.company)
+            }
+
             const selected_access_point: any = await AccessPoint.findOne({ where: { id: req_data.selected_access_point, company: req_data.company }, relations: ['acus'] })
             if (req_data.set_key) {
                 if (!selected_access_point) {
@@ -1327,7 +1332,11 @@ export default class CardholderController {
                 }
             }
 
-            const access_right: any = await AccessRight.addItem({ name: req_data.first_name, company: invite_user.company } as AccessRight)
+            const access_right: any = await AccessRight.addItem({
+                name: req_data.first_name,
+                custom: true,
+                company: invite_user.company
+            } as AccessRight)
             req_data.access_right = access_right.id
 
             let schedule: any
@@ -1405,7 +1414,7 @@ export default class CardholderController {
                     type: credentialType.PINPASS,
                     company: req_data.company,
                     cardholder: guest.id,
-                    code: uid(32)
+                    code: pinpass_code
                 } as Credential)
                 guest.credentials = [credential]
                 CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, req_data.company, auth_user, null, [guest], null)
@@ -1422,7 +1431,11 @@ export default class CardholderController {
             ctx.body = guest
         } catch (error) {
             ctx.status = error.status || 400
-            ctx.body = error
+            if (error.message) {
+                ctx.body = { message: error.message }
+            } else {
+                ctx.body = error
+            }
         }
         return ctx.body
     }
