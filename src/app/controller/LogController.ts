@@ -1,6 +1,6 @@
 import { DefaultContext } from 'koa'
 import { IMqttCrudMessaging } from '../Interfaces/messaging.interface'
-import { AccessPoint, Acu, Cardholder } from '../model/entity'
+import { AccessPoint, Acu, Cardholder, Company } from '../model/entity'
 import { Credential } from '../model/entity/Credential'
 import { EventLog } from '../model/entity/EventLog'
 import { UserLog } from '../model/entity/UserLog'
@@ -109,40 +109,57 @@ export default class LogController {
         const acu = Acu.findOneOrFail({ serial_number: message.device_id, company: message.company })
         const access_point = AccessPoint.findOne({ where: { id: message_data.Ctp_idx, company: message.company } })
         const credential = Credential.findOne({
-            where: { id: message_data.Key_id, company: message.company },
+            where: { id: message_data.Key_id },
             relations: ['cardholders', 'cardholders.access_rights', 'cardholders.car_infos', 'cardholders.limitations', 'cardholders.cardholder_groups']
         })
 
-        Promise.all([acu, access_point, credential]).then((data: any) => {
-            const eventData: any = { operator: OperatorType.EVENT_LOG, data: { company: message.company, date: message_data.time } }
+        Promise.all([acu, access_point, credential]).then(async (data: any) => {
             const acu: Acu = data[0]
             if (acu) {
                 const access_point: AccessPoint = data[1]
                 const credential: Credential = data[2]
-                if (credential) {
-                    eventData.data.credential = _.pick(credential, ['id', 'type', 'code'])
-                    eventData.data.cardholder_id = credential.cardholders ? credential.cardholders.id : null
-                    eventData.data.cardholder = credential.cardholders ? _.pick(credential.cardholders, ['id', 'email', 'phone', 'avatar', 'first_name', 'last_name', 'family_name', 'company_name', 'status', 'presense', 'vip', 'car_infos', 'limitations', 'access_rights', 'cardholder_groups']) : null
-                    eventData.data.access_right = credential.cardholders.access_rights ? _.pick(credential.cardholders.access_rights, ['id', 'name']) : null
-                }
-                if (access_point) {
-                    eventData.data.access_point = access_point.id
-                    eventData.data.access_points = _.pick(access_point, ['id', 'name'])
-                }
-                const EventList: any = eventList
-
-                if (EventList[message_data.Group]) {
-                    eventData.data.event_type = EventList[message_data.Group].name
-                    if (EventList[message_data.Group].events[message_data.Event_id]) {
-                        eventData.data.event_group_id = message_data.Group
-                        eventData.data.event_id = message_data.Event_id
-                        eventData.data.event = EventList[message_data.Group].events[message_data.Event_id].event
-                        eventData.data.event_source = EventList[message_data.Group].events[message_data.Event_id].source_entity
-                        eventData.data.result = EventList[message_data.Group].events[message_data.Event_id].description
+                const companies_that_send_events = [message.company]
+                if (credential && credential.company !== message.company) { // that means its event for partition
+                    companies_that_send_events.push(credential.company)
+                } else if (access_point) {
+                    const partitions = await Company.find({ where: { partition_parent_id: message.company } })
+                    for (const partition of partitions) {
+                        if (partition.base_access_points) {
+                            const base_access_points = JSON.parse(partition.base_access_points)
+                            if (base_access_points.includes(access_point.id)) {
+                                companies_that_send_events.push(partition.id)
+                            }
+                        }
                     }
                 }
+
+                for (const company_that_send_events of companies_that_send_events) {
+                    const eventData: any = { operator: OperatorType.EVENT_LOG, data: { company: company_that_send_events, date: message_data.time } }
+                    if (credential) {
+                        eventData.data.credential = _.pick(credential, ['id', 'type', 'code'])
+                        eventData.data.cardholder_id = credential.cardholders ? credential.cardholders.id : null
+                        eventData.data.cardholder = credential.cardholders ? _.pick(credential.cardholders, ['id', 'email', 'phone', 'avatar', 'first_name', 'last_name', 'family_name', 'company_name', 'status', 'presense', 'vip', 'car_infos', 'limitations', 'access_rights', 'cardholder_groups']) : null
+                        eventData.data.access_right = credential.cardholders.access_rights ? _.pick(credential.cardholders.access_rights, ['id', 'name']) : null
+                    }
+                    if (access_point) {
+                        eventData.data.access_point = access_point.id
+                        eventData.data.access_points = _.pick(access_point, ['id', 'name'])
+                    }
+                    const EventList: any = eventList
+
+                    if (EventList[message_data.Group]) {
+                        eventData.data.event_type = EventList[message_data.Group].name
+                        if (EventList[message_data.Group].events[message_data.Event_id]) {
+                            eventData.data.event_group_id = message_data.Group
+                            eventData.data.event_id = message_data.Event_id
+                            eventData.data.event = EventList[message_data.Group].events[message_data.Event_id].event
+                            eventData.data.event_source = EventList[message_data.Group].events[message_data.Event_id].source_entity
+                            eventData.data.result = EventList[message_data.Group].events[message_data.Event_id].description
+                        }
+                    }
+                    EventLog.create(eventData)
+                }
             }
-            EventLog.create(eventData)
         }).catch((error) => {
             console.log(error)
         })

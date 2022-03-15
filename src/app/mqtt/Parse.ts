@@ -26,12 +26,15 @@ import { Notification } from '../model/entity/Notification'
 import { AutoTaskSchedule } from '../model/entity/AutoTaskSchedule'
 
 export default class Parse {
-    public static deviceData (topic: string, data: string) {
+    public static async deviceData (topic: string, data: string) {
         try {
             const message: IMqttCrudMessaging = JSON.parse(data)
 
             message.location = message.device_topic.split('/').slice(0, 2).join('/')
             message.company = Number(message.device_topic.split('/')[1])
+            if (message.send_data && message.send_data.user_data && message.send_data.user_data.company) {
+                message.company = message.send_data.user_data.company
+            }
             message.device_id = Number(message.device_topic.split('/')[3])
 
             if ('result' in message && 'errorNo' in message.result) {
