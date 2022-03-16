@@ -659,8 +659,6 @@ export default class CredentialController {
      */
     public static async getGuestCredenialInfo (ctx: DefaultContext) {
         try {
-            console.log('getGuestCredenialInfogetGuestCredenialInfogetGuestCredenialInfo')
-
             const param_token = ctx.params.token
             const credential: any = await Credential.createQueryBuilder('credential')
                 .leftJoinAndSelect('credential.cardholders', 'cardholder', 'cardholder.delete_date is null')

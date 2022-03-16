@@ -696,7 +696,7 @@ export default class AcuController {
                             access_point_ind++
                         }
 
-                        if (acu.status === acuStatus.ACTIVE) {
+                        if (acu_reader && acu.status === acuStatus.ACTIVE) {
                             let checkAcuReaderSend: any = false
                             const old_acu_reader = await Reader.findOneOrFail({ id: acu_reader.id, company: company })
                             acu_reader.access_point = old_acu_reader.access_point
