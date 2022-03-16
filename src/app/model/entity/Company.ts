@@ -28,6 +28,7 @@ import {
 import { minusResource } from '../../functions/minusResource'
 import { Acu } from './Acu'
 import { AcuStatus } from './AcuStatus'
+import { companyDayKeys } from '../../enums/companyDayKeys.enum'
 @Entity('company')
 export class Company extends MainEntity {
     @Column('varchar', { name: 'company_name', nullable: false })
@@ -59,6 +60,18 @@ export class Company extends MainEntity {
 
     @Column('enum', { name: 'status', enum: statusCompany, default: statusCompany.PENDING })
     status: statusCompany
+
+    @Column('int', { name: 'schedule_id', nullable: true })
+    schedule_id: number | null
+
+    @Column('longtext', { name: 'time_keys', nullable: true })
+    time_keys: string | null
+
+    @Column('enum', { name: 'day_keys', enum: companyDayKeys, default: companyDayKeys.UP_TO_5_DAYS })
+    day_keys: companyDayKeys
+
+    @Column('boolean', { name: 'require_name_of_guest', default: false })
+    require_name_of_guest: boolean
 
     @DeleteDateColumn({ type: 'timestamp', name: 'delete_date' })
     public deleteDate: Date
@@ -113,6 +126,9 @@ export class Company extends MainEntity {
     base_access_rights: AccessRight | null;
 
     public static resource: boolean = true
+    @ManyToOne(type => Schedule, schedule => schedule.base_companies, { nullable: true })
+    @JoinColumn({ name: 'schedule_id' })
+    base_schedules: Schedule | null;
 
     public static async addItem (data: Company): Promise<Company> {
         const company = new Company()
@@ -151,6 +167,13 @@ export class Company extends MainEntity {
         if ('status' in data) company.status = data.status
         if ('access_right' in data) company.access_right = data.access_right
         if ('base_access_points' in data) company.base_access_points = (data.base_access_points && typeof data.base_access_points === 'object') ? JSON.stringify(data.base_access_points) : data.base_access_points
+
+        if ('schedule_id' in data) company.schedule_id = data.schedule_id
+        if ('time_keys' in data) {
+            company.time_keys = (data.time_keys && typeof data.time_keys === 'object') ? JSON.stringify(data.time_keys) : data.time_keys
+        }
+        if ('day_keys' in data) company.day_keys = data.day_keys
+        if ('require_name_of_guest' in data) company.require_name_of_guest = data.require_name_of_guest
 
         if (!company) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {

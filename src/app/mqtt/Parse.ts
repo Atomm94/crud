@@ -24,6 +24,8 @@ import { AccessPointStatus } from '../model/entity/AccessPointStatus'
 import { In } from 'typeorm'
 import { Notification } from '../model/entity/Notification'
 import { AutoTaskSchedule } from '../model/entity/AutoTaskSchedule'
+import { Credential } from '../model/entity/Credential'
+import CardKeyController from '../controller/Hardware/CardKeyController'
 
 export default class Parse {
     public static async deviceData (topic: string, data: string) {
@@ -289,6 +291,9 @@ export default class Parse {
                     break
                 case OperatorType.RESET_APB_ACK:
                     this.resetApbAck(message)
+                    break
+                case OperatorType.ACTIVATE_CREDENTIAL_ACK:
+                    this.activateCredentialAck(message)
                     break
 
                 default:
@@ -1402,6 +1407,32 @@ export default class Parse {
     public static async resetApbAck (message: IMqttCrudMessaging) {
         // console.log('resetApbAck', message)
         if (message.result.errorNo === 0) {
+        }
+    }
+
+    public static async activateCredentialAck (message: any) {
+        try {
+            // console.log('activateCredentialAck', message)
+            if (message.result.errorNo === 0) {
+                if (message.event_data) {
+                    const send_data = message.send_data
+                    const guest = send_data.data.cardholder
+                    const credential: any = await Credential.addItem({
+                        company: guest.company,
+                        cardholder: guest.id,
+                        code: parseInt(message.event_data.info.Key_HEX, 16).toString()
+                    } as Credential)
+                    new SendSocketMessage(socketChannels.GUEST_SET_KEY, credential, guest.company, send_data.user)
+
+                    guest.credentials = [credential]
+                    const location = message.device_topic.split('/').slice(0, 2).join('/')
+                    CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, guest.company, send_data.user, null, [guest], null)
+                }
+            } else {
+                //
+            }
+        } catch (error) {
+            console.log('activateCredentialAck error', error)
         }
     }
 }

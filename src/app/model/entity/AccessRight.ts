@@ -24,6 +24,9 @@ export class AccessRight extends MainEntity {
     @Column('varchar', { name: 'description', nullable: true })
     description: string | null
 
+    @Column('boolean', { name: 'custom', default: false })
+    custom: boolean
+
     @DeleteDateColumn({ type: 'timestamp', name: 'delete_date' })
     public delete_date: Date
 
@@ -53,6 +56,7 @@ export class AccessRight extends MainEntity {
 
         accessRight.name = data.name
         if ('description' in data) accessRight.description = data.description
+        if ('custom' in data) accessRight.custom = data.custom
         accessRight.company = data.company
 
         return new Promise((resolve, reject) => {

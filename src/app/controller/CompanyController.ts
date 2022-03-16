@@ -7,7 +7,8 @@ import {
     RegistrationInvite,
     Company,
     Admin,
-    Role
+    Role,
+    Schedule
 } from '../model/entity/index'
 import { JwtToken } from '../model/entity/JwtToken'
 import * as Models from '../model/entity/index'
@@ -18,6 +19,7 @@ import { AccessPoint } from '../model/entity/AccessPoint'
 import { AccessRight } from '../model/entity/AccessRight'
 
 import { In } from 'typeorm'
+import { scheduleType } from '../enums/scheduleType.enum'
 
 export default class CompanyController {
     /**
@@ -140,7 +142,22 @@ export default class CompanyController {
             if (!req_id && ctx.user && ctx.user.company) {
                 ctx.request.body.id = ctx.user.company
             }
-            const updated = await Company.updateItem(ctx.request.body as Company, req_id ? ctx.user : null)
+            const req_data = ctx.request.body
+            if (req_data.schedule_id) {
+                const base_schedule = await Schedule.findOne({ where: { id: req_data.schedule_id, custom: false } })
+                if (!base_schedule) {
+                    ctx.status = 400
+                    ctx.body = {
+                        message: { message: 'Invalid schedule_id' }
+                    }
+                } else if (base_schedule.type !== scheduleType.WEEKLY) {
+                    ctx.status = 400
+                    ctx.body = {
+                        message: { message: `base Schedule type must be ${scheduleType.WEEKLY}` }
+                    }
+                }
+            }
+            const updated = await Company.updateItem(req_data as Company, req_id ? ctx.user : null)
             if (updated.old.status !== updated.new.status && updated.new.status === statusCompany.ENABLE) {
                 const main = await Admin.findOne({ id: updated.new.account })
                 if (main) {

@@ -22,11 +22,13 @@ import { Credential } from './Credential'
 import { AntipassBack } from './AntipassBack'
 import { Schedule } from './Schedule'
 import { Admin } from '.'
-import { scheduleCustomType } from '../../enums/scheduleCustomType.enum'
+import { guestKeyType } from '../../enums/guestKeyType.enum'
 import { minusResource } from '../../functions/minusResource'
 import { logUserEvents } from '../../enums/logUserEvents.enum'
 import { cardholderPresense } from '../../enums/cardholderPresense.enum'
 import { getObjectDiff } from '../../functions/checkDifference'
+import { cardholderGuestCount } from '../../enums/cardholderGuestCount.enum'
+import { guestPeriod } from '../../enums/guestPeriod.enum'
 
 const parentDir = join(__dirname, '../../..')
 
@@ -80,8 +82,8 @@ export class Cardholder extends MainEntity {
     @Column('longtext', { name: 'extra_features', nullable: true })
     extra_features: string | null
 
-    @Column('int', { name: 'limitation', nullable: false })
-    limitation: number
+    @Column('int', { name: 'limitation', nullable: true })
+    limitation: number | null
 
     @Column('boolean', { name: 'limitation_inherited', default: false })
     limitation_inherited: boolean
@@ -107,14 +109,41 @@ export class Cardholder extends MainEntity {
     @Column('timestamp', { name: 'last_login_date', nullable: true })
     last_login_date: string | null
 
-    @Column('enum', { name: 'schedule_type', enum: scheduleCustomType, default: scheduleCustomType.DEFAULT })
-    schedule_type: scheduleCustomType
+    @Column('enum', { name: 'key_type', enum: guestKeyType, default: guestKeyType.TEMPORARY })
+    key_type: guestKeyType
+
+    @Column('enum', { name: 'period', enum: guestPeriod, default: guestPeriod.HOURS })
+    period: guestPeriod
+
+    @Column('int', { name: 'duration', nullable: true })
+    duration: number | null
+
+    @Column('timestamp', { name: 'start_date', nullable: true })
+    start_date: Date
+
+    @Column('timestamp', { name: 'end_date', nullable: true })
+    end_date: Date
+
+    @Column('longtext', { name: 'days_of_week', nullable: true })
+    days_of_week: string | null
+
+    @Column('varchar', { name: 'start_time', nullable: true })
+    start_time: string | null
+
+    @Column('varchar', { name: 'end_time', nullable: true })
+    end_time: string | null
+
+    @Column('int', { name: 'selected_access_point', nullable: true })
+    selected_access_point: number | null
 
     @Column('enum', { name: 'presense', enum: cardholderPresense, default: cardholderPresense.ABSENT_NO_REASON })
     presense: cardholderPresense
 
-    @Column('int', { name: 'schedule', nullable: true })
-    schedule: number | null
+    @Column('enum', { name: 'guest_count', enum: cardholderGuestCount, default: cardholderGuestCount.FOUR })
+    guest_count: number
+
+    @Column('boolean', { name: 'enable_create_guest', default: true })
+    enable_create_guest: boolean
 
     @DeleteDateColumn({ type: 'timestamp', name: 'delete_date' })
     public deleteDate: Date
@@ -184,9 +213,20 @@ export class Cardholder extends MainEntity {
         cardholder.access_right = data.access_right
         if ('access_right_inherited' in data) cardholder.access_right_inherited = data.access_right_inherited
         if ('guest' in data) cardholder.guest = data.guest
-        if ('schedule_type' in data) cardholder.schedule_type = data.schedule_type
-        if ('schedule' in data) cardholder.schedule = data.schedule
+        if ('key_type' in data) cardholder.key_type = data.key_type
+        if ('period' in data) cardholder.period = data.period
+        if ('duration' in data) cardholder.duration = data.duration
+        if ('start_date' in data) cardholder.start_date = data.start_date
+        if ('end_date' in data) cardholder.end_date = data.end_date
+        if ('days_of_week' in data) {
+            cardholder.days_of_week = (data.days_of_week && typeof data.days_of_week === 'object') ? JSON.stringify(data.days_of_week) : data.days_of_week
+        }
+        if ('start_time' in data) cardholder.start_time = data.start_time
+        if ('end_time' in data) cardholder.end_time = data.end_time
+        if ('selected_access_point' in data) cardholder.selected_access_point = data.selected_access_point
         if ('vip' in data) cardholder.vip = data.vip
+        if ('guest_count' in data) cardholder.guest_count = data.guest_count
+        if ('enable_create_guest' in data) cardholder.enable_create_guest = data.enable_create_guest
 
         cardholder.create_by = data.create_by
         cardholder.company = data.company
@@ -304,9 +344,19 @@ export class Cardholder extends MainEntity {
         if ('time_attendance_inherited' in data) cardholder.time_attendance_inherited = data.time_attendance_inherited
         if ('access_right' in data) cardholder.access_right = data.access_right
         if ('access_right_inherited' in data) cardholder.access_right_inherited = data.access_right_inherited
-        if ('schedule_type' in data) cardholder.schedule_type = data.schedule_type
-        if ('schedule' in data) cardholder.schedule = data.schedule
+        if ('key_type' in data) cardholder.key_type = data.key_type
+        if ('period' in data) cardholder.period = data.period
+        if ('duration' in data) cardholder.duration = data.duration
+        if ('start_date' in data) cardholder.start_date = data.start_date
+        if ('end_date' in data) cardholder.end_date = data.end_date
+        if ('days_of_week' in data) {
+            cardholder.days_of_week = (data.days_of_week && typeof data.days_of_week === 'object') ? JSON.stringify(data.days_of_week) : data.days_of_week
+        }
+        if ('start_time' in data) cardholder.start_time = data.start_time
+        if ('end_time' in data) cardholder.end_time = data.end_time
+        if ('selected_access_point' in data) cardholder.selected_access_point = data.selected_access_point
         if ('vip' in data) cardholder.vip = data.vip
+        if ('guest_count' in data) cardholder.guest_count = data.guest_count
 
         if (!cardholder) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {

@@ -174,7 +174,7 @@ export default class AccessRightController {
                             .where(`access_right.id = '${+user.companyData.access_right}'`)
                             .andWhere(`access_right.company = '${user.companyData.partition_parent_id ? user.companyData.partition_parent_id : null}'`)
                             .getOne()
-                            access_right.edit = false
+                        access_right.edit = false
                     }
                 } else {
                     access_right = await AccessRight.createQueryBuilder('access_right')
@@ -322,7 +322,10 @@ export default class AccessRightController {
         try {
             const req_data = ctx.query
             const user = ctx.user
-            req_data.where = { company: { '=': user.company ? user.company : null } }
+            req_data.where = {
+                company: { '=': user.company ? user.company : null },
+                custom: false
+            }
             const access_rights: any = await AccessRight.getAllItems(req_data)
             let pasted_access_right: any = ''
             if (user.companyData.partition_parent_id) {
