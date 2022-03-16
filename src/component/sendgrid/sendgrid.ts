@@ -58,6 +58,30 @@ export class Sendgrid {
         }
     }
 
+    public static async sendPartitionInvite (toEmail: string, token: string) {
+        const msg = {
+            to: `${toEmail}`,
+            from: this.from,
+            subject: 'Welcome to Unimacs.',
+            text: 'has invited you',
+            html: this.newMail({
+                title: 'Welcome to Unimacs.',
+                text: 'Your company has been invited to register an account. Please follow the link and fill in the company details. Thank you.',
+                link: `${this.mainDomain}/registrationofPartition/${token}`,
+                button_text: 'Create new Partition'
+            })// `<h2>Unimacs company has invited you to make a registration. Please click link bellow ${this.mainDomain}/registration/${item.token}</h2>`
+        }
+        try {
+            await sgMail.send(msg)
+        } catch (error) {
+            console.error(error)
+
+            if (error.response) {
+                console.error(error.response.body)
+            }
+        }
+    }
+
     public static async sendNewPass (toEmail: string, token: string) {
         const msg = {
             to: `${toEmail}`,

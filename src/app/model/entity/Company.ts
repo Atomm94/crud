@@ -28,6 +28,7 @@ import {
 import { minusResource } from '../../functions/minusResource'
 import { Acu } from './Acu'
 import { AcuStatus } from './AcuStatus'
+import { companyDayKeys } from '../../enums/companyDayKeys.enum'
 @Entity('company')
 export class Company extends MainEntity {
     @Column('varchar', { name: 'company_name', nullable: false })
@@ -45,11 +46,32 @@ export class Company extends MainEntity {
     @Column('int', { name: 'account', nullable: true })
     account: number | null
 
+    @Column('int', { name: 'access_right', nullable: true })
+    access_right: number | null
+
+    @Column('longtext', { name: 'base_access_points', nullable: true })
+    base_access_points: string | null
+
     @Column('int', { name: 'parent_id', nullable: true })
     parent_id: number | null
 
+    @Column('int', { name: 'partition_parent_id', nullable: true })
+    partition_parent_id: number | null
+
     @Column('enum', { name: 'status', enum: statusCompany, default: statusCompany.PENDING })
     status: statusCompany
+
+    @Column('int', { name: 'schedule_id', nullable: true })
+    schedule_id: number | null
+
+    @Column('longtext', { name: 'time_keys', nullable: true })
+    time_keys: string | null
+
+    @Column('enum', { name: 'day_keys', enum: companyDayKeys, default: companyDayKeys.UP_TO_5_DAYS })
+    day_keys: companyDayKeys
+
+    @Column('boolean', { name: 'require_name_of_guest', default: false })
+    require_name_of_guest: boolean
 
     @DeleteDateColumn({ type: 'timestamp', name: 'delete_date' })
     public deleteDate: Date
@@ -99,6 +121,15 @@ export class Company extends MainEntity {
     @OneToMany(type => AcuStatus, acu_status => acu_status.companies)
     acu_statuses: AcuStatus[];
 
+    @ManyToOne(type => AccessRight, base_access_right => base_access_right.companies, { nullable: true })
+    @JoinColumn({ name: 'access_right' })
+    base_access_rights: AccessRight | null;
+
+    public static resource: boolean = true
+    @ManyToOne(type => Schedule, schedule => schedule.base_companies, { nullable: true })
+    @JoinColumn({ name: 'schedule_id' })
+    base_schedules: Schedule | null;
+
     public static async addItem (data: Company): Promise<Company> {
         const company = new Company()
 
@@ -107,6 +138,9 @@ export class Company extends MainEntity {
         company.package_type = data.package_type
         if ('message' in data) company.message = data.message
         if ('parent_id' in data) company.parent_id = data.parent_id
+        if ('partition_parent_id' in data) company.partition_parent_id = data.partition_parent_id
+        if ('status' in data) company.status = data.status
+
         // company.status = data.status
 
         return new Promise((resolve, reject) => {
@@ -131,6 +165,15 @@ export class Company extends MainEntity {
         if ('package_type' in data) company.package_type = data.package_type
         if ('message' in data) company.message = data.message
         if ('status' in data) company.status = data.status
+        if ('access_right' in data) company.access_right = data.access_right
+        if ('base_access_points' in data) company.base_access_points = (data.base_access_points && typeof data.base_access_points === 'object') ? JSON.stringify(data.base_access_points) : data.base_access_points
+
+        if ('schedule_id' in data) company.schedule_id = data.schedule_id
+        if ('time_keys' in data) {
+            company.time_keys = (data.time_keys && typeof data.time_keys === 'object') ? JSON.stringify(data.time_keys) : data.time_keys
+        }
+        if ('day_keys' in data) company.day_keys = data.day_keys
+        if ('require_name_of_guest' in data) company.require_name_of_guest = data.require_name_of_guest
 
         if (!company) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {

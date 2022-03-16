@@ -9,6 +9,7 @@ import { logUserEvents } from '../enums/logUserEvents.enum'
 import * as jwt from 'jsonwebtoken'
 import { accessPointDirection } from '../enums/accessPointDirection.enum'
 import CtpController from './Hardware/CtpController'
+import { locationGenerator } from '../functions/locationGenerator'
 
 export default class CredentialController {
     /**
@@ -227,7 +228,7 @@ export default class CredentialController {
     public static async destroy (ctx: DefaultContext) {
         try {
             const user = ctx.user
-            const location = `${user.company_main}/${user.company}`
+            const location = await locationGenerator(user)
             const req_data = ctx.request.body
             const logs_data = []
             const where = { id: req_data.id, company: user.company ? user.company : null }
@@ -355,7 +356,7 @@ export default class CredentialController {
                 ctx.body = { message: 'something went wrong' }
             } else {
                 ctx.body = await Credential.updateItem(req_data as Credential)
-                const location = `${user.company_main}/${user.company}`
+                const location = await locationGenerator(user)
                 const credential: any = await Credential.getItem({ id: req_data.id })
                 credential.status = req_data.status
                 req_data.where = { company: { '=': user.company ? user.company : null }, status: { '=': acuStatus.ACTIVE } }
@@ -627,6 +628,60 @@ export default class CredentialController {
                         message: 'Open Once sended'
                     }
                 }
+            }
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     * /guest/credential/{token}:
+     *      get:
+     *          tags:
+     *              - Credential
+     *          summary: Return Guest Credenial Info
+     *          parameters:
+     *              - in: path
+     *                name: token
+     *                required: true
+     *                description: Token
+     *                schema:
+     *                    type: varchar
+     *          responses:
+     *              '200':
+     *                  description: Array of credential types
+     *              '401':
+     *                  description: Unauthorized
+     */
+    public static async getGuestCredenialInfo (ctx: DefaultContext) {
+        try {
+            console.log('getGuestCredenialInfogetGuestCredenialInfogetGuestCredenialInfo')
+
+            const param_token = ctx.params.token
+            const credential: any = await Credential.createQueryBuilder('credential')
+                .leftJoinAndSelect('credential.cardholders', 'cardholder', 'cardholder.delete_date is null')
+                .leftJoinAndSelect('cardholder.access_rights', 'access_right', 'access_right.delete_date is null')
+                .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
+                .leftJoinAndSelect('access_rule.access_points', 'access_point', 'access_point.delete_date is null')
+                .leftJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
+                .where(`credential.token = '${param_token}'`)
+                .getOne()
+            if (!credential) {
+                ctx.status = 400
+                return ctx.body = { message: 'Invalid token' }
+            }
+
+            ctx.body = {
+                code: credential.code,
+                first_name: credential.cardholders.first_name,
+                last_name: credential.cardholders.last_name,
+                family_name: credential.cardholders.family_name,
+                start_date: credential.cardholders.start_date,
+                end_date: credential.cardholders.end_date
             }
         } catch (error) {
             ctx.status = error.status || 400

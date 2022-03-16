@@ -27,6 +27,8 @@ export default class SdlController {
 
         let operator: OperatorType = OperatorType.SET_SDL_DAILY
         if (schedule.type === scheduleType.WEEKLY) {
+            send_sdl_data.start_date = schedule.start_date
+            send_sdl_data.end_date = schedule.end_date
             operator = OperatorType.SET_SDL_WEEKLY
         } else if (schedule.type === scheduleType.FLEXITIME) {
             send_sdl_data.start_from = schedule.start_from

@@ -45,6 +45,18 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
             parent_company_resources.used = JSON.stringify(parent_used)
             await parent_company_resources.save()
         }
+
+        if (data.partition_parent_id) {
+            const partition_parent_company_resources = await CompanyResources.findOneOrFail({ company: data.partition_parent_id })
+            const parent_used = JSON.parse(partition_parent_company_resources.used)
+            if (parent_used.Company) {
+                parent_used.Company++
+            } else {
+                parent_used.Company = 1
+            }
+            partition_parent_company_resources.used = JSON.stringify(parent_used)
+            await partition_parent_company_resources.save()
+        }
     }
 
     /**
@@ -154,6 +166,8 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
                         const extra_settings = JSON.parse(package_data.extra_settings)
 
                         const models: any = Models
+                        console.log('extra_settings.resources', extra_settings.resources)
+
                         Object.keys(extra_settings.resources).forEach(resource => {
                             if (extra_settings.resources[resource]) {
                                 if (models[resource] && models[resource].gettingActions) {
@@ -164,6 +178,18 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
                                     permissions[resource] = {
                                         actions: actions
                                     }
+                                }
+                                console.log(1212, extra_settings.resources.Company)
+
+                                if (extra_settings.resources.Company) {
+                                    const reg_inv_permissions = RegistrationInvite.getActions()
+                                    Object.keys(reg_inv_permissions).forEach(action => {
+                                        reg_inv_permissions[action] = true
+                                    })
+                                    default_permissions.RegistrationInvite = {
+                                        actions: { ...reg_inv_permissions }
+                                    }
+                                    console.log(5656566, default_permissions)
                                 }
                             }
                         })
@@ -228,6 +254,7 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
                         })
 
                         account_role.permissions = JSON.stringify(permissions)
+                        console.log(555, account_role)
 
                         await account_role.save()
                     }

@@ -16,6 +16,7 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
         // 'credential/login',
         // 'credential/accessPoints',
         // 'credential/accessPoint/open'
+        // 'guest/credential'
     ]
 
     const path = ctx.request.url.split('?')[0].split('/').slice(1).join('/')
@@ -27,7 +28,8 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
     if (whiteList.includes(path) || whiteList.includes(swagger) || ((!token || token === 'undefined') && invite === 'invite') ||
         path.split('/').slice(0, -1).join('/') === 'credential/login' ||
         path.split('/').slice(0, -1).join('/') === 'credential/accessPoints' ||
-        path.split('/').slice(0, -1).join('/') === 'credential/accessPoint/open'
+        path.split('/').slice(0, -1).join('/') === 'credential/accessPoint/open' ||
+        path.split('/').slice(0, -1).join('/') === 'guest/credential'
     ) {
         ctx.allowed = true
         return next()

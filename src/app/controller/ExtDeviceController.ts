@@ -8,6 +8,7 @@ import ExtensionDeviceController from './Hardware/ExtensionDeviceController'
 import { checkExtDeviceValidation } from '../functions/validator'
 import { logUserEvents } from '../enums/logUserEvents.enum'
 import { checkSendingDevice } from '../functions/check-sending-device'
+import { locationGenerator } from '../functions/locationGenerator'
 
 export default class ExtDeviceController {
     /**
@@ -92,7 +93,7 @@ export default class ExtDeviceController {
             req_data.company = company
             const ext_device = await ExtDevice.addItem(req_data as ExtDevice)
             ctx.body = ext_device
-            const location = `${user.company_main}/${user.company}`
+            const location = await locationGenerator(user)
             const acu_models: any = acuModels
             let inputs: Number, outputs: Number
             switch (req_data.ext_board) {
@@ -192,7 +193,7 @@ export default class ExtDeviceController {
         try {
             const req_data: any = ctx.request.body
             const user = ctx.user
-            const location = `${user.company_main}/${user.company}`
+            const location = await locationGenerator(user)
 
             const check_ext_device = checkExtDeviceValidation(req_data)
             if (check_ext_device !== true) {
@@ -311,7 +312,7 @@ export default class ExtDeviceController {
             const user = ctx.user
             const logs_data = []
             const where = { id: req_data.id, company: user.company ? user.company : null }
-            const location = `${user.company_main}/${user.company}`
+            const location = await locationGenerator(user)
             const acu: Acu = await Acu.findOneOrFail({ id: ext_device.acu })
             if (acu.status === acuStatus.ACTIVE) {
                 ExtensionDeviceController.delExtBrd(location, acu.serial_number, req_data, user, acu.session_id)

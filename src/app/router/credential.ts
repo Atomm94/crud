@@ -17,5 +17,7 @@ export default router
     .post('credential/login/:code', checkVikey(false), CredentialController.login)
     .get('credential/accessPoints/:code', checkVikey(true), CredentialController.getVikeyAccessPoints)
     .post('credential/accessPoint/open/:code', checkVikey(true), CredentialController.accessPointOpen)
+    // Guest Credentials(pinpass) api
+    .get('guest/credential/:token', CredentialController.getGuestCredenialInfo)
 
     .get('Cardholder-getItem', 'credential/:id', checkRole(), CredentialController.get)

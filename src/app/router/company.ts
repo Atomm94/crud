@@ -8,9 +8,11 @@ export default router
   // Company controller CRUD endpoints
   .post('Company-addItem', 'company', checkRole(), CompanyController.add)
   .put('Company-ClientCompany-updateItem', 'company', checkRole(), CompanyController.update)
+  .put('RegistrationInvite-createPartitionLink', 'company/updatePartition', checkRole(), CompanyController.updatePartition)
   .get('ServiceCompany-getItem', 'serviceCompany', checkRole(), CompanyController.getServiceCompany)
   .get('Company-ClientCompany-getItem', 'clientCompany', checkRole(), CompanyController.getClientCompany)
   .delete('Company-destroyItem', 'company', checkRole(), CompanyController.destroy)
   .get('Company-getAllItems', 'company', checkRole(), CompanyController.getAll)
   .get('Company-ClientCompany-getItem', 'company/companyResource', checkRole(), CompanyController.checkResourceLimit)
+  .get('Company-getAllItems', 'company/partitions', checkRole(), CompanyController.getAllPartitions)
   .get('Company-getItem', 'company/:id', checkRole(), CompanyController.get)

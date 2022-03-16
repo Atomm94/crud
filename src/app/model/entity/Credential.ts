@@ -45,6 +45,9 @@ export class Credential extends MainEntity {
     @Column('boolean', { name: 'isLogin', default: false })
     isLogin: boolean;
 
+    @Column('varchar', { name: 'token', nullable: true })
+    token: string | null;
+
     @Column('varchar', { name: 'is_delete', default: 0 })
     is_delete: string
 
@@ -76,6 +79,13 @@ export class Credential extends MainEntity {
         credential.facility = data.facility
         credential.input_mode = data.input_mode
         credential.company = data.company
+        if (data.type === credentialType.PINPASS) {
+            if (data.token) {
+                credential.token = data.token
+            } else {
+                credential.token = v4()
+            }
+        }
 
         return new Promise((resolve, reject) => {
             this.save(credential)

@@ -5,22 +5,26 @@ import { Cardholder } from '../model/entity/Cardholder'
 import { CardholderGroup } from '../model/entity/CardholderGroup'
 import { Credential } from '../model/entity/Credential'
 import { acuStatus } from '../enums/acuStatus.enum'
-import { AccessPoint, AccessRight, AccessRule, Admin, Role, Schedule } from '../model/entity'
+import { AccessPoint, AccessRight, AccessRule, Admin, Company, Role, Schedule } from '../model/entity'
 import { OperatorType } from '../mqtt/Operators'
 import { CheckCredentialSettings } from '../functions/check-credential'
 import { Sendgrid } from '../../component/sendgrid/sendgrid'
 import { uid } from 'uid'
 import { validate } from '../functions/passValidator'
-import { scheduleCustomType } from '../enums/scheduleCustomType.enum'
+import { guestKeyType } from '../enums/guestKeyType.enum'
 import { Timeframe } from '../model/entity/Timeframe'
 import SdlController from './Hardware/SdlController'
 import CardKeyController from './Hardware/CardKeyController'
 import { logUserEvents } from '../enums/logUserEvents.enum'
 import { cardholderStatus } from '../enums/cardholderStatus.enum'
 import { credentialStatus } from '../enums/credentialStatus.enum'
-
-// import SendDeviceMessage from '../mqtt/SendDeviceMessage'
-// import { OperatorType } from '../mqtt/Operators'
+import { locationGenerator } from '../functions/locationGenerator'
+import { CheckGuest } from '../functions/check-guest'
+import { guestPeriod } from '../enums/guestPeriod.enum'
+import moment from 'moment'
+import CtpController from './Hardware/CtpController'
+import { credentialType } from '../enums/credentialType.enum'
+import { cloneDeep } from 'lodash'
 
 export default class CardholderController {
     /**
@@ -208,7 +212,7 @@ export default class CardholderController {
             const req_data = ctx.request.body
 
             const auth_user = ctx.user
-            const location = `${auth_user.company_main}/${auth_user.company}`
+            const location = await locationGenerator(auth_user)
             const company = auth_user.company ? auth_user.company : null
             req_data.company = company
             req_data.create_by = auth_user.id
@@ -532,7 +536,7 @@ export default class CardholderController {
                 ctx.body = { message: 'something went wrong' }
             } else {
                 const check_credentials = await CheckCredentialSettings.checkSettings(req_data.credentials, company)
-                const location = `${auth_user.company_main}/${auth_user.company}`
+                const location = await locationGenerator(auth_user)
 
                 if (check_credentials !== true) {
                     ctx.status = 400
@@ -739,9 +743,8 @@ export default class CardholderController {
         try {
             const req_data = ctx.request.body
             const user = ctx.user
-            const location = `${user.company_main}/${user.company}`
+            const location = await locationGenerator(user)
             const where = { id: req_data.id, company: user.company ? user.company : null }
-            req_data.where = { company: { '=': user.company ? user.company : null }, status: { '=': acuStatus.ACTIVE } }
             const cardholder = await Cardholder.findOneOrFail({ where: where })
             ctx.body = await Cardholder.destroyItem(where)
 
@@ -1082,7 +1085,16 @@ export default class CardholderController {
         const user = ctx.user
         const company = (user.company) ? user.company : null
         try {
-            const cardholder: any = await Cardholder.findOneOrFail({ email: reqData.email })
+            const cardholder: any = await Cardholder.findOne({ email: reqData.email })
+            if (!cardholder) {
+                ctx.status = 400
+                ctx.body = { message: 'Invalid Cardholder email' }
+            }
+            const check_admin: any = await Admin.findOne({ email: reqData.email })
+            if (check_admin) {
+                ctx.status = 400
+                ctx.body = { message: `email ${reqData.email} already exists` }
+            }
             reqData.company = company
             reqData.verify_token = uid(32)
             reqData.cardholder = cardholder.id
@@ -1216,66 +1228,41 @@ export default class CardholderController {
      *                        type: string
      *                        enum: [inactive, active, expired, noCredential, pending]
      *                        example: active
-     *                    limitations:
-     *                        type: object
-     *                        properties:
-     *                            enable_date:
-     *                                type: boolean
-     *                                example: true
-     *                            valid_from:
-     *                                type: string
-     *                                example: 2020-04-04 00:00:00
-     *                            valid_due:
-     *                                type: string
-     *                                example: 2020-05-05 15:00:00
-     *                            pass_counter_enable:
-     *                                type: boolean
-     *                                example: true
-     *                            pass_counter_passes:
-     *                                type: number
-     *                                example: 25
-     *                            pass_counter_current:
-     *                                type: number
-     *                                example: 10
-     *                            first_use_counter_enable:
-     *                                type: boolean
-     *                                example: true
-     *                            first_use_counter_days:
-     *                                type: number
-     *                                example: 25
-     *                            first_use_counter_current:
-     *                                type: number
-     *                                example: 10
-     *                            last_use_counter_enable:
-     *                                type: boolean
-     *                                example: true
-     *                            last_use_counter_days:
-     *                                type: number
-     *                                example: 25
-     *                            last_use_counter_current:
-     *                                type: number
-     *                                example: 10
-     *                    schedule_type:
-     *                        type: string
-     *                        enum: [default, daily, weekly]
-     *                        example: default
      *                    access_points:
      *                        type: Array<number>
      *                        example: [1]
-     *                    timeframes:
-     *                        type: array
-     *                        items:
-     *                            type: object
-     *                            properties:
-     *                                name:
-     *                                    type: string
-     *                                    example: sun
-     *                                start:
-     *                                    type: string
-     *                                    example: 08:00
-     *                                end:
-     *                                    type: string
-     *                                    example: 09:30
+     *                    key_type:
+     *                        type: string
+     *                        enum: [temporary, permanent]
+     *                        example: temporary
+     *                    period:
+     *                        type: string
+     *                        enum: [hours, days]
+     *                        example: hours
+     *                    duration:
+     *                        type: number
+     *                        example: 30
+     *                    start_date:
+     *                        type: string
+     *                        example: '2022-02-05 14:14:14'
+     *                    end_date:
+     *                        type: string
+     *                        example: '2022-02-05 15:15:15'
+     *                    days_of_week:
+     *                        type: Array<number>
+     *                        example: [1,5,6]
+     *                    start_time:
+     *                        type: string
+     *                        example: '15:00:00'
+     *                    end_time:
+     *                        type: string
+     *                        example: '16:00:00'
+     *                    selected_access_point:
+     *                        type: number
+     *                        example: 55
+     *                    set_key:
+     *                        type: boolean
+     *                        example: false
      *          responses:
      *              '201':
      *                  description: A cardholder object
@@ -1290,7 +1277,7 @@ export default class CardholderController {
             const req_data = ctx.request.body
 
             const auth_user = ctx.user
-            const location = `${auth_user.company_main}/${auth_user.company}`
+            const location = await locationGenerator(auth_user)
             req_data.company = auth_user.company ? auth_user.company : null
             req_data.create_by = auth_user.id
             req_data.guest = true
@@ -1300,120 +1287,156 @@ export default class CardholderController {
                 return ctx.body = { message: 'Only invited Cardholder can create Guest' }
             }
 
-            // console.log('invite_user', auth_user)
-            // const invite_user: Cardholder = await Cardholder.findOneOrFail({
-            //     relations: ['access_rights', 'access_rights.access_rules'],
-            //     where: { id: auth_user.cardholder }
-            // })
-
             const invite_user: any = await Cardholder.createQueryBuilder('cardholder')
                 .leftJoinAndSelect('cardholder.access_rights', 'access_right')
                 .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
+                .leftJoinAndSelect('access_rule.access_points', 'access_point', 'access_point.delete_date is null')
+                .leftJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
                 .where(`cardholder.id = '${auth_user.cardholder}'`)
                 .getOne()
-            // console.log('invite_user', invite_user)
 
-            const access_point_ids = req_data.access_points
-            const timeframes = req_data.timeframes
+            const created_guests = await Cardholder.find({ create_by: auth_user.id, guest: true })
 
-            const access_rigth: any = await AccessRight.addItem({ name: req_data.first_name, company: invite_user.company } as AccessRight)
-            req_data.access_right = access_rigth.id
+            if (!invite_user.enable_create_guest) {
+                ctx.stx.body = { message: 'You have not permission to create Guest' }
+            }
+            if (created_guests.length >= invite_user.guest_count) {
+                ctx.status = 400
+                return ctx.body = { message: 'Guest limit has reached' }
+            }
+
+            const company: any = await Company.createQueryBuilder('company')
+                .leftJoinAndSelect('company.base_schedules', 'base_schedule')
+                .leftJoinAndSelect('base_schedule.timeframes', 'timeframe', 'timeframe.delete_date is null')
+                .where(`company.id = '${req_data.company}'`)
+                .getOne()
+
+            const check_guest = await CheckGuest.checkSaveGuest(req_data, company, invite_user)
+            if (check_guest !== true) {
+                ctx.status = 400
+                return ctx.body = { message: check_guest }
+            }
+
+            let pinpass_code
+            if (req_data.key_type === guestKeyType.TEMPORARY) {
+                pinpass_code = await CheckGuest.tryGeneratePinpassCode(req_data.company)
+            }
+
+            const selected_access_point: any = await AccessPoint.findOne({ where: { id: req_data.selected_access_point, company: req_data.company }, relations: ['acus'] })
+            if (req_data.set_key) {
+                if (!selected_access_point) {
+                    ctx.status = 400
+                    return ctx.body = { message: 'Invalid selected AccessPoint for set Key' }
+                } else if (selected_access_point.acus.status !== acuStatus.ACTIVE) {
+                    ctx.status = 400
+                    return ctx.body = { message: `status Acu of selected AccessPoint is not ${acuStatus.ACTIVE}` }
+                }
+            }
+
+            const access_right: any = await AccessRight.addItem({
+                name: req_data.first_name,
+                custom: true,
+                company: invite_user.company
+            } as AccessRight)
+            req_data.access_right = access_right.id
 
             let schedule: any
-            if (req_data.schedule_type && req_data.schedule_type !== scheduleCustomType.DEFAULT) {
+            const timeframes = []
+
+            if (req_data.key_type === guestKeyType.TEMPORARY) {
+                let end_date = req_data.end_date
+                if (req_data.period === guestPeriod.HOURS) {
+                    const end_date_timestamp = new Date(req_data.start_date).getTime() + req_data.duration * 60 * 1000
+                    end_date = moment(end_date_timestamp).format('YYYY-MM-DD HH:mm:ss')
+                }
                 schedule = await Schedule.addItem({
+                    ...company.base_schedules,
                     name: req_data.first_name,
-                    type: req_data.schedule_type,
+                    custom: true,
+                    company: invite_user.company,
+                    start_date: req_data.start_date,
+                    end_date: end_date
+                } as Schedule)
+                for (const timeframe of company.base_schedules.timeframes) {
+                    timeframe.schedule = schedule.id
+                    timeframe.company = invite_user.company
+                    timeframes.push(await Timeframe.addItem(timeframe))
+                }
+            } else if (req_data.key_type === guestKeyType.PERMANENT) {
+                schedule = await Schedule.addItem({
+                    ...company.base_schedules,
+                    name: req_data.first_name,
                     custom: true,
                     company: invite_user.company
                 } as Schedule)
+                for (const day_of_week of req_data.days_of_week) {
+                    const timeframe = {
+                        schedule: schedule.id,
+                        name: day_of_week,
+                        start: req_data.start_time,
+                        end: req_data.end_time,
+                        company: invite_user.company
+                    } as Timeframe
+                    timeframes.push(await Timeframe.addItem(timeframe))
+                }
             }
 
+            access_right.access_rules = []
+            const access_point_ids = req_data.access_points
             if (access_point_ids && access_point_ids.length) {
-                for (const access_rule of invite_user.access_rights.access_rules) {
-                    if (schedule) access_rule.schedule = schedule.id
-                    access_rule.access_right = access_rigth.id
-                    await AccessRule.addItem(access_rule)
-                }
-            }
+                for (const access_point_id of access_point_ids) {
+                    const access_rule = await AccessRule.addItem({
+                        access_right: access_right.id,
+                        access_point: access_point_id,
+                        schedule: schedule.id,
+                        company: invite_user.company
+                    } as AccessRule)
 
-            if (timeframes && timeframes.length && schedule) {
-                for (const timeframe of timeframes) {
-                    timeframe.schedule = schedule.id
-                    timeframe.company = invite_user.company
-                    await Timeframe.addItem(timeframe)
-                }
-            }
-
-            const limitation_data = await Limitation.addItem(req_data.limitations as Limitation)
-            if (limitation_data) {
-                req_data.limitation = limitation_data.id
-            }
-
-            if (schedule) req_data.schedule = schedule.id
-            const cardholder: Cardholder = await Cardholder.addItem(req_data as Cardholder)
-
-            const credential: any = await Credential.addItem({
-                company: req_data.company,
-                cardholder: cardholder.id,
-                code: uid(32)
-            } as Credential)
-
-            req_data.where = { status: { '=': acuStatus.ACTIVE } }
-
-            const access_points = await AccessPoint.createQueryBuilder('access_point')
-                .innerJoin('access_point.acus', 'acu', 'acu.delete_date is null')
-                .where(`acu.status = '${acuStatus.ACTIVE}'`)
-                .andWhere(`acu.company = ${ctx.user.company}`)
-                .select('access_point.id')
-                .getMany()
-
-            if (access_points.length) {
-                // const access_rights = await AccessRight.findOneOrFail({
-                //     where: { id: cardholder.access_right },
-                //     relations: [
-                //         'access_rules',
-                //         'access_rules.schedules',
-                //         'access_rules.schedules.timeframes',
-                //         'access_rules.access_points',
-                //         'access_rules.access_points.acus'
-                //     ]
-                // })
-                const access_rights: any = await AccessRight.createQueryBuilder('access_right')
-                    .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
-                    .leftJoinAndSelect('access_rule.schedules', 'schedule', 'schedule.delete_date is null')
-                    .leftJoinAndSelect('schedule.timeframes', 'timeframe', 'timeframe.delete_date is null')
-                    .leftJoinAndSelect('access_rule.access_points', 'access_point', 'access_point.delete_date is null')
-                    .leftJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
-                    .where(`access_right.id = '${cardholder.access_right}'`)
-                    .getOne()
-
-                for (const access_rule of access_rights.access_rules) {
-                    if (access_rule.access_points.acus.status === acuStatus.ACTIVE) {
-                        SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, auth_user, access_rule.access_points.acus.session_id)
+                    for (const parent_access_rule of invite_user.access_rights.access_rules) {
+                        if (parent_access_rule.access_point === access_point_id) {
+                            if (parent_access_rule.access_points.acus.status === acuStatus.ACTIVE) {
+                                access_rule.schedules = schedule
+                                access_rule.schedules.timeframes = timeframes
+                                // we need send setSdl....
+                                SdlController.setSdl(location, parent_access_rule.access_points.acus.serial_number, access_rule, auth_user, parent_access_rule.access_points.acus.session_id)
+                                access_right.access_rules.push(access_rule)
+                            }
+                        }
                     }
                 }
-
-                cardholder.access_rights = access_rights
-                cardholder.credentials = [credential]
-
-                CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, req_data.company, auth_user, access_points, [cardholder], null)
             }
 
-            // const where = { id: cardholder.id }
-            // const relations = ['limitations', 'access_rights', 'credentials']
-            // ctx.body = await Cardholder.getItem(where, relations)
+            req_data.time_attendance = schedule.id
+            const guest: Cardholder = await Cardholder.addItem(req_data as Cardholder)
 
-            const cardholders: any = await Cardholder.createQueryBuilder('cardholder')
-                .leftJoinAndSelect('cardholder.limitations', 'limitation')
-                .leftJoinAndSelect('cardholder.access_rights', 'access_right')
-                .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null')
-                .where(`access_right.id = '${cardholder.id}'`)
-                .getOne()
-            ctx.body = cardholders
+            guest.access_rights = access_right
+            if (req_data.key_type === guestKeyType.TEMPORARY) {
+                const credential: any = await Credential.addItem({
+                    type: credentialType.PINPASS,
+                    company: req_data.company,
+                    cardholder: guest.id,
+                    code: pinpass_code
+                } as Credential)
+                guest.credentials = [credential]
+                CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, req_data.company, auth_user, null, [guest], null)
+            }
+
+            if (req_data.set_key) {
+                const send_data = {
+                    access_point_id: selected_access_point.id,
+                    cardholder: guest
+                }
+                CtpController.activateCredential(location, selected_access_point.acus.serial_number, send_data, auth_user, selected_access_point.acus.session_id)
+            }
+
+            ctx.body = guest
         } catch (error) {
             ctx.status = error.status || 400
-            ctx.body = error
+            if (error.message) {
+                ctx.body = { message: error.message }
+            } else {
+                ctx.body = error
+            }
         }
         return ctx.body
     }
@@ -1443,79 +1466,51 @@ export default class CardholderController {
      *                required:
      *                  - id
      *                properties:
-     *                  id:
-     *                      type: number
-     *                      example: 1
-     *                  first_name:
-     *                      type: string
-     *                      example: some_first_name
-     *                  status:
-     *                      type: string
-     *                      enum: [inactive, active, expired, noCredential, pending]
-     *                      example: active
-     *                  limitations:
-     *                      type: object
-     *                      properties:
-     *                          id:
-     *                              type: number
-     *                              example: 1
-     *                          enable_date:
-     *                              type: boolean
-     *                              example: true
-     *                          valid_from:
-     *                              type: string
-     *                              example: 2020-04-04 00:00:00
-     *                          valid_due:
-     *                              type: string
-     *                              example: 2020-05-05 15:00:00
-     *                          pass_counter_enable:
-     *                              type: boolean
-     *                              example: true
-     *                          pass_counter_passes:
-     *                              type: number
-     *                              example: 25
-     *                          pass_counter_current:
-     *                              type: number
-     *                              example: 10
-     *                          first_use_counter_enable:
-     *                              type: boolean
-     *                              example: true
-     *                          first_use_counter_days:
-     *                              type: number
-     *                              example: 25
-     *                          first_use_counter_current:
-     *                              type: number
-     *                              example: 10
-     *                          last_use_counter_enable:
-     *                              type: boolean
-     *                              example: true
-     *                          last_use_counter_days:
-     *                              type: number
-     *                              example: 25
-     *                          last_use_counter_current:
-     *                              type: number
-     *                              example: 10
-     *                  schedule_type:
-     *                      type: string
-     *                      enum: [default, daily, weekly]
-     *                      example: default
-     *                  access_points:
-     *                      type: Array<number>
-     *                      example: [1]
-     *                  timeframes:
-     *                      type: array
-     *                      items:
-     *                          type: object
-     *                          properties:
-     *                              name:
-     *                                  type: string
-     *                                  example: sun
-     *                              start:
-     *                                  type: string
-     *                                  example: 08:00
-     *                              end:
-     *                                  type: string
-     *                                  example: 09:30
+     *                    id:
+     *                        type: number
+     *                        example: 1
+     *                    first_name:
+     *                        type: string
+     *                        example: some_first_name
+     *                    status:
+     *                        type: string
+     *                        enum: [inactive, active, expired, noCredential, pending]
+     *                        example: active
+     *                    access_points:
+     *                        type: Array<number>
+     *                        example: [1]
+     *                    key_type:
+     *                        type: string
+     *                        enum: [temporary, permanent]
+     *                        example: temporary
+     *                    period:
+     *                        type: string
+     *                        enum: [hours, days]
+     *                        example: hours
+     *                    duration:
+     *                        type: number
+     *                        example: 30
+     *                    start_date:
+     *                        type: string
+     *                        example: '2022-02-05 14:14:14'
+     *                    end_date:
+     *                        type: string
+     *                        example: '2022-02-05 15:15:15'
+     *                    days_of_week:
+     *                        type: Array<number>
+     *                        example: [1,5,6]
+     *                    start_time:
+     *                        type: string
+     *                        example: '15:00:00'
+     *                    end_time:
+     *                        type: string
+     *                        example: '16:00:00'
+     *                    selected_access_point:
+     *                        type: number
+     *                        example: 55
+     *                    set_key:
+     *                        type: boolean
+     *                        example: false
      *          responses:
      *              '201':
      *                  description: A cardholder updated object
@@ -1529,23 +1524,300 @@ export default class CardholderController {
             const req_data = ctx.request.body
 
             const auth_user = ctx.user
-            const company = auth_user.company ? auth_user.company : null
-            const location = `${auth_user.company_main}/${company}`
+            const company_id = auth_user.company ? auth_user.company : null
+            const location = `${auth_user.company_main}/${company_id}`
 
             if (!auth_user.cardholder) {
                 ctx.status = 400
                 return ctx.body = { message: 'Only invited Cardholder can update Guest' }
             }
 
-            // const invite_user: Cardholder = await Cardholder.findOneOrFail({
-            //     relations: [
-            //         'access_rights',
-            //         'access_rights.access_rules',
-            //         'access_rights.access_rules.access_points',
-            //         'access_rights.access_rules.access_points.acus'
-            //     ],
-            //     where: { id: auth_user.cardholder }
-            // })
+            const guest: any = await Cardholder.createQueryBuilder('cardholder')
+                .leftJoinAndSelect('cardholder.access_rights', 'access_right')
+                .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
+                .leftJoinAndSelect('access_rule.access_points', 'access_point', 'access_point.delete_date is null')
+                .leftJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
+                .where(`cardholder.id = '${req_data.id}'`)
+                .andWhere(`cardholder.create_by = '${auth_user.id}'`)
+                .getOne()
+            if (!guest) {
+                ctx.status = 400
+                return ctx.body = { message: 'Invalid guest id' }
+            }
+
+            const invite_user: any = await Cardholder.createQueryBuilder('cardholder')
+                .leftJoinAndSelect('cardholder.access_rights', 'access_right')
+                .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
+                .leftJoinAndSelect('access_rule.access_points', 'access_point', 'access_point.delete_date is null')
+                .leftJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
+                .leftJoinAndSelect('cardholder.time_attendances', 'time_attendance', 'time_attendance.delete_date is null')
+                .leftJoinAndSelect('time_attendance.timeframes', 'timeframe', 'timeframe.delete_date is null')
+                .where(`cardholder.id = '${auth_user.cardholder}'`)
+                .getOne()
+
+            const company: any = await Company.createQueryBuilder('company')
+                .leftJoinAndSelect('company.base_schedules', 'base_schedule')
+                .leftJoinAndSelect('base_schedule.timeframes', 'timeframe', 'timeframe.delete_date is null')
+                .where(`company.id = '${req_data.company}'`)
+                .getOne()
+
+            const check_guest = await CheckGuest.checkSaveGuest(req_data, company, invite_user)
+            if (check_guest !== true) {
+                ctx.status = 400
+                return ctx.body = { message: check_guest }
+            }
+
+            if (req_data.key_type && req_data.key_type !== guest.key_type) {
+                ctx.status = 400
+                return ctx.body = { message: 'cant change key_type' }
+            }
+
+            const selected_access_point: any = await AccessPoint.findOne({ where: { id: req_data.selected_access_point, company: req_data.company }, relations: ['acus'] })
+            if (req_data.set_key) {
+                if (!selected_access_point) {
+                    ctx.status = 400
+                    return ctx.body = { message: 'Invalid selected AccessPoint for set Key' }
+                } else if (selected_access_point.acus.status !== acuStatus.ACTIVE) {
+                    ctx.status = 400
+                    return ctx.body = { message: `status Acu of selected AccessPoint is not ${acuStatus.ACTIVE}` }
+                }
+            }
+
+            const guest_update = (await Cardholder.updateItem(req_data as Cardholder, auth_user)).new
+
+            let schedule = cloneDeep(guest.time_attendances)
+            let timeframes = cloneDeep(guest.time_attendances.timeframes)
+            let time_changed = false
+            if (req_data.key_type === guestKeyType.TEMPORARY) {
+                let end_date = req_data.end_date
+                if (req_data.period === guestPeriod.HOURS) {
+                    const end_date_timestamp = new Date(req_data.start_date).getTime() + req_data.duration * 60 * 1000
+                    end_date = moment(end_date_timestamp).format('YYYY-MM-DD HH:mm:ss')
+                }
+
+                if (req_data.start_date !== guest.start_date || end_date !== guest.end_date) {
+                    time_changed = true
+                    const save_schedule = await Schedule.updateItem({
+                        ...schedule,
+                        start_date: req_data.start_date,
+                        end_date: end_date
+                    } as Schedule)
+                    schedule = save_schedule.new
+
+                    for (const timeframe of timeframes) {
+                        await Timeframe.destroyItem({ id: timeframe.id, company: timeframe.company })
+                    }
+                    timeframes = []
+                    for (const timeframe of company.base_schedules.timeframes) {
+                        timeframe.schedule = schedule.id
+                        timeframe.company = invite_user.company
+                        timeframes.push(await Timeframe.addItem(timeframe))
+                    }
+                }
+            } else if (req_data.key_type === guestKeyType.PERMANENT) {
+                if (JSON.stringify(req_data.days_of_week) !== guest.days_of_week ||
+                    req_data.start_time !== guest.start_time ||
+                    req_data.end_time !== guest.end_time
+                ) {
+                    time_changed = true
+                    for (const timeframe of timeframes) {
+                        await Timeframe.destroyItem({ id: timeframe.id, company: timeframe.company })
+                    }
+                    timeframes = []
+                    for (const day_of_week of req_data.days_of_week) {
+                        const timeframe = {
+                            schedule: schedule.id,
+                            name: day_of_week,
+                            start: req_data.start_time,
+                            end: req_data.end_time,
+                            company: invite_user.company
+                        } as Timeframe
+                        timeframes.push(await Timeframe.addItem(timeframe))
+                    }
+                }
+            }
+
+            const access_point_ids = req_data.access_points ? req_data.access_points : []
+            const fixed_access_rules = []
+            const new_access_point_ids = [...access_point_ids]
+            const delete_access_rules = []
+            const finally_access_rules = []
+            for (const access_rule of guest.access_rights.access_rules) {
+                access_rule.schedules = schedule
+                access_rule.schedules.timeframes = timeframes
+                if (access_point_ids.includes(access_rule.access_point)) {
+                    fixed_access_rules.push(access_rule)
+                    finally_access_rules.push(access_rule)
+                    var ind = new_access_point_ids.indexOf(access_rule.access_point)
+                    if (ind !== -1) {
+                        new_access_point_ids.splice(ind, 1)
+                    }
+                } else {
+                    delete_access_rules.push(access_rule)
+                }
+            }
+
+            if (time_changed) {
+                for (const fixed_access_rule of fixed_access_rules) {
+                    if (fixed_access_rule.access_points.acus.status === acuStatus.ACTIVE) {
+                        SdlController.setSdl(location, fixed_access_rule.access_points.acus.serial_number, fixed_access_rule, auth_user, fixed_access_rule.access_points.acus.session_id, true)
+                    }
+                }
+            }
+
+            if (new_access_point_ids.length) {
+                for (const new_access_point_id of new_access_point_ids) {
+                    const access_rule = await AccessRule.addItem({
+                        access_right: guest.access_right,
+                        access_point: new_access_point_id,
+                        schedule: schedule.id,
+                        company: invite_user.company
+                    } as AccessRule)
+                    access_rule.schedules = schedule
+                    access_rule.schedules.timeframes = timeframes
+                    finally_access_rules.push(access_rule)
+                    const access_point = await AccessPoint.findOne({ where: { id: new_access_point_id }, relations: ['acus'] })
+                    if (access_point && access_point.acus.status === acuStatus.ACTIVE) {
+                        SdlController.setSdl(location, access_point.acus.serial_number, access_rule, auth_user, access_point.acus.session_id)
+                    }
+                }
+            }
+
+            if (delete_access_rules.length) {
+                for (const delete_access_rule of delete_access_rules) {
+                    if (delete_access_rule.access_points.acus.status === acuStatus.ACTIVE) {
+                        const send_data = { id: delete_access_rule.id, access_point: delete_access_rule.access_point }
+                        SdlController.delSdl(location, delete_access_rule.access_points.acus.serial_number, send_data, auth_user, schedule.type, delete_access_rule.access_points.acus.session_id)
+                    }
+                }
+            }
+
+            if (time_changed || new_access_point_ids.length || delete_access_rules.length) {
+                CardKeyController.setAddCardKey(OperatorType.SET_CARD_KEYS, location, auth_user.company, auth_user, null)
+            }
+
+            guest_update.access_rights = guest.access_rights
+            guest_update.access_rights.access_rules = finally_access_rules
+            if (req_data.set_key) {
+                const send_data = {
+                    access_point_id: selected_access_point.id,
+                    cardholder: guest_update
+                }
+                CtpController.activateCredential(location, selected_access_point.acus.serial_number, send_data, auth_user, selected_access_point.acus.session_id)
+            }
+
+            ctx.body = guest_update
+        } catch (error) {
+            console.log(error)
+
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     *  /cardholder/guest:
+     *      delete:
+     *          tags:
+     *              - Cardholder
+     *          summary: Delete a guest.
+     *          consumes:
+     *              - application/json
+     *          parameters:
+     *            - in: header
+     *              name: Authorization
+     *              required: true
+     *              description: Authentication token
+     *              schema:
+     *                type: string
+     *            - in: body
+     *              name: cardholder
+     *              description: The cardholder to create.
+     *              schema:
+     *                type: object
+     *                required:
+     *                  - id
+     *                properties:
+     *                  id:
+     *                      type: number
+     *                      example: 1
+     *          responses:
+     *              '200':
+     *                  description: cardholder has been deleted
+     *              '422':
+     *                  description: Wrong data
+     */
+    public static async destroyGuest (ctx: DefaultContext) {
+        try {
+            const req_data = ctx.request.body
+            const user = ctx.user
+            const company = user.company ? user.company : null
+            if (!user.cardholder) {
+                ctx.status = 400
+                return ctx.body = { message: 'Only invited Cardholder can delete Guest' }
+            }
+            const location = `${user.company_main}/${company}`
+            const where = { id: req_data.id, company: company }
+            const cardholder = await Cardholder.findOne({
+                where: {
+                    id: req_data.id,
+                    create_by: user.id
+                }
+            })
+            if (!cardholder) {
+                ctx.status = 400
+                return ctx.body = { message: 'Invalid Guest id' }
+            }
+
+            ctx.body = await Cardholder.destroyItem(where)
+
+            ctx.logsData = [{
+                event: logUserEvents.DELETE,
+                target: `${Cardholder.name}/${cardholder.first_name}`,
+                value: { name: cardholder.first_name }
+            }]
+            CardKeyController.dellKeys(location, user.company, req_data, user)
+        } catch (error) {
+            console.log(error)
+
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     * /cardholder/guestsLimit:
+     *      get:
+     *          tags:
+     *              - Cardholder
+     *          summary: Return limit for guest add
+     *          parameters:
+     *              - in: header
+     *                name: Authorization
+     *                required: true
+     *                description: Authentication token
+     *                schema:
+     *                    type: string
+     *          responses:
+     *              '200':
+     *                  description: Array of cardholder
+     *              '401':
+     *                  description: Unauthorized
+     */
+    public static async guestsLimit (ctx: DefaultContext) {
+        try {
+            const auth_user = ctx.user
+
+            if (!auth_user.cardholder) {
+                ctx.status = 400
+                return ctx.body = { message: 'Only invited Cardholder can see Guests limit' }
+            }
 
             const invite_user: any = await Cardholder.createQueryBuilder('cardholder')
                 .leftJoinAndSelect('cardholder.access_rights', 'access_right')
@@ -1555,148 +1827,14 @@ export default class CardholderController {
                 .where(`cardholder.id = '${auth_user.cardholder}'`)
                 .getOne()
 
-            // const guest: Cardholder = await Cardholder.findOneOrFail({
-            //     relations: [
-            //         'access_rights',
-            //         'access_rights.access_rules',
-            //         'access_rights.access_rules.access_points',
-            //         'access_rights.access_rules.access_points.acus'
-            //     ],
-            //     where: { id: req_data.id, company: company }
-            // })
+            const created_guests = await Cardholder.find({ create_by: auth_user.id, guest: true })
 
-            const guest: any = await Cardholder.createQueryBuilder('cardholder')
-                .leftJoinAndSelect('cardholder.access_rights', 'access_right')
-                .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
-                .leftJoinAndSelect('access_rule.access_points', 'access_point', 'access_point.delete_date is null')
-                .leftJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
-                .where(`cardholder.id = '${req_data.id}'`)
-                .andWhere(`cardholder.company = '${company}'`)
-                .getOne()
-
-            const access_point_ids = req_data.access_points ? req_data.access_points : []
-
-            const timeframes = req_data.timeframes
-            let new_schedule: any
-            let new_timeframes: any
-
-            if (req_data.schedule_type && req_data.schedule_type !== guest.schedule_type) {
-                for (const guest_access_rule of guest.access_rights.access_rules) {
-                    const acu = guest_access_rule.access_points.acus
-                    if (acu.status === acuStatus.ACTIVE) {
-                        console.log('guest_access_rule', guest_access_rule)
-
-                        const schedule: Schedule = await Schedule.findOneOrFail({ id: guest_access_rule.schedule })
-                        console.log('schedule', schedule)
-                        const send_data = { id: guest_access_rule.id, access_point: guest_access_rule.access_points.id }
-                        SdlController.delSdl(location, acu.serial_number, send_data, auth_user, schedule.type, acu.session_id)
-                    } else {
-                        await AccessRule.destroyItem(guest_access_rule)
-                    }
-                }
-
-                if (guest.schedule) {
-                    await Schedule.destroyItem({ id: guest.schedule, company: company })
-                }
-                if (req_data.schedule_type === scheduleCustomType.DEFAULT) {
-                    req_data.schedule = null
-                } else {
-                    new_schedule = await Schedule.addItem({
-                        name: guest.first_name,
-                        type: req_data.schedule_type,
-                        custom: true,
-                        company: invite_user.company
-                    } as Schedule)
-                    if (timeframes && timeframes.length) {
-                        new_timeframes = []
-                        for (const timeframe of timeframes) {
-                            timeframe.schedule = new_schedule.id
-                            timeframe.company = invite_user.company
-                            new_timeframes.push(await Timeframe.addItem(timeframe))
-                        }
-                    }
-
-                    req_data.schedule = new_schedule.id
-                }
-
-                for (let access_rule of invite_user.access_rights.access_rules) {
-                    for (const access_point_id of access_point_ids) {
-                        if (access_point_ids && access_point_ids.length) {
-                            if (access_point_id === access_rule.access_point) {
-                                const acu = access_rule.access_points.acus
-                                access_rule.access_right = guest.access_right
-                                if (new_schedule) {
-                                    access_rule.schedule = new_schedule.id
-                                }
-                                access_rule = await AccessRule.addItem(access_rule)
-
-                                if (acu.status === acuStatus.ACTIVE) {
-                                    SdlController.setSdl(location, acu.serial_number, access_rule, auth_user, acu.session_id)
-
-                                    // const cardholders = await Cardholder.getAllItems({
-                                    //     relations: ['credentials'],
-                                    //     where: {
-                                    //         access_right: guest.access_right,
-                                    //         company: company
-                                    //     }
-                                    // })
-
-                                    const cardholders: any = await Cardholder.createQueryBuilder('cardholder')
-                                        .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null')
-                                        .where(`cardholder.company = '${company}'`)
-                                        .andWhere(`cardholder.access_right = '${guest.access_right}'`)
-                                        .getMany()
-
-                                    CardKeyController.editCardKey(location, req_data.company, auth_user.id, access_rule, null, cardholders)
-                                }
-                                break
-                            }
-                        }
-                    }
-                }
-            } else {
-                for (const guest_access_rule of guest.access_rights.access_rules) {
-                    if (access_point_ids.indexOf(guest_access_rule.access_point) === -1) {
-                        const acu = guest_access_rule.access_points.acus
-                        if (acu.status === acuStatus.ACTIVE) {
-                            const schedule: Schedule = await Schedule.findOneOrFail({ id: guest_access_rule.schedule })
-                            const send_data = { id: guest_access_rule.id, access_point: guest_access_rule.access_points.id }
-                            SdlController.delSdl(location, acu.serial_number, send_data, auth_user, schedule.type, acu.session_id)
-                        } else {
-                            await AccessRule.destroyItem(guest_access_rule)
-                        }
-                    }
-                }
-
-                for (const access_point_id of access_point_ids) {
-                    let add_access_rule = true
-                    for (const guest_access_rule of guest.access_rights.access_rules) {
-                        if (access_point_id === guest_access_rule.access_point) {
-                            add_access_rule = false
-                        }
-                    }
-
-                    if (add_access_rule) {
-                        for (const invite_user_access_rule of invite_user.access_rights.access_rules) {
-                            if (access_point_id === invite_user_access_rule.id) {
-                                invite_user_access_rule.access_right = guest.access_right
-                                if (guest.schedule_type !== scheduleCustomType.DEFAULT && guest.schedule) invite_user_access_rule.schedule = guest.schedule
-                                await AccessRule.addItem(invite_user_access_rule)
-                            }
-                        }
-                    }
-                }
+            ctx.body = {
+                enable_create_guest: invite_user.enable_create_guest,
+                guest_count: invite_user.guest_count,
+                created_guests_count: created_guests.length
             }
-
-            const res_data = await Cardholder.updateItem(req_data as Cardholder, auth_user)
-            ctx.body = res_data.new
-
-            // const where = { id: cardholder.id }
-            // const relations = ['limitations', 'access_rights', 'credentials']
-            // ctx.body = await Cardholder.getItem(where, relations)
         } catch (error) {
-            console.log(error)
-
             ctx.status = error.status || 400
             ctx.body = error
         }
@@ -1827,7 +1965,7 @@ export default class CardholderController {
             const req_data = ctx.request.body
 
             const auth_user = ctx.user
-            const location = `${auth_user.company_main}/${auth_user.company}`
+            const location = await locationGenerator(auth_user)
             req_data.company = auth_user.company ? auth_user.company : null
             req_data.create_by = auth_user.id
 
@@ -1840,7 +1978,7 @@ export default class CardholderController {
                 .leftJoinAndSelect('cardholder.access_rights', 'access_right')
                 .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
                 .where(`cardholder.id = '${auth_user.cardholder}'`)
-                .getMany()
+                .getOne()
             const check_credentials = await CheckCredentialSettings.checkSettings(req_data.credentials, auth_user.company)
             if (check_credentials !== true) {
                 ctx.status = 400
@@ -2162,7 +2300,7 @@ export default class CardholderController {
                     for (const invite_user_access_rule of invite_user.access_rights.access_rules) {
                         if (access_point_id === invite_user_access_rule.id) {
                             invite_user_access_rule.access_right = created_cardholder.access_right
-                            if (created_cardholder.schedule_type !== scheduleCustomType.DEFAULT && created_cardholder.schedule) {
+                            if (created_cardholder.key_type !== guestKeyType.TEMPORARY && created_cardholder.schedule) {
                                 invite_user_access_rule.schedule = created_cardholder.schedule
                             }
                             await AccessRule.addItem(invite_user_access_rule)
@@ -2290,7 +2428,7 @@ export default class CardholderController {
             const auth_user = ctx.user
             const company = auth_user.company ? auth_user.company : null
 
-            const location = `${auth_user.company_main}/${auth_user.company}`
+            const location = await locationGenerator(auth_user)
             if (req_data.status === cardholderStatus.INACTIVE || req_data.status === cardholderStatus.ACTIVE) {
                 const cardholders = await Cardholder.getAllItems({ where: { id: { in: req_data.ids }, company: { '=': company } }, relations: ['credentials'] })
                 const save: any = []

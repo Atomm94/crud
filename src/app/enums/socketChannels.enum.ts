@@ -15,5 +15,6 @@ export enum socketChannels {
   READER_UPDATE = 'reader_update',
   EXT_BRD_DELETE = 'ext_brd_delete',
   EXT_BRD_UPDATE = 'ext_brd_update',
-  ACCESS_POINT_UPDATE = 'ACCESS_POINT_UPDATE'
+  ACCESS_POINT_UPDATE = 'ACCESS_POINT_UPDATE',
+  GUEST_SET_KEY = 'guest_set_key'
 }

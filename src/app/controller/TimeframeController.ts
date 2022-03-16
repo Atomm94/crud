@@ -6,6 +6,7 @@ import { Timeframe } from '../model/entity/Timeframe'
 import { CheckScheduleSettings } from '../functions/check-schedule-settings'
 import SdlController from './Hardware/SdlController'
 import { logUserEvents } from '../enums/logUserEvents.enum'
+import { locationGenerator } from '../functions/locationGenerator'
 
 export default class TimeframeController {
     /**
@@ -79,7 +80,7 @@ export default class TimeframeController {
                 .where(`acu.status = '${acuStatus.ACTIVE}'`)
                 .andWhere(`access_rule.schedule = ${req_data.schedule}`)
                 .getMany()
-            const location = `${user.company_main}/${user.company}`
+            const location = await locationGenerator(user)
             const schedule = await Schedule.findOneOrFail({ id: save.schedule })
             const timeframes = await Timeframe.find({ schedule: schedule.id })
             const check_schedule = CheckScheduleSettings.checkSettings(schedule.type, schedule, save)
@@ -175,7 +176,7 @@ export default class TimeframeController {
                 .where(`acu.status = '${acuStatus.ACTIVE}'`)
                 .andWhere(`access_rule.schedule = ${req_data.schedule}`)
                 .getMany()
-            const location = `${user.company_main}/${user.company}`
+            const location = await locationGenerator(user)
 
             let schedule
             if (req_data.id) {
@@ -299,7 +300,7 @@ export default class TimeframeController {
                 .where(`acu.status = '${acuStatus.ACTIVE}'`)
                 .andWhere(`access_rule.schedule = ${schedule.id}`)
                 .getMany()
-            const location = `${user.company_main}/${user.company}`
+            const location = await locationGenerator(user)
             const timeframes = await Timeframe.find({ schedule: schedule.id })
 
             for (const access_rule of access_rules) {
@@ -446,7 +447,7 @@ export default class TimeframeController {
                     .where(`acu.status = '${acuStatus.ACTIVE}'`)
                     .andWhere(`access_rule.schedule = ${req_data.paste_id}`)
                     .getMany()
-                const location = `${user.company_main}/${user.company}`
+                const location = await locationGenerator(user)
                 const timeframes = await Timeframe.find({ schedule: req_data.paste_id })
 
                 for (const access_rule of access_rules) {

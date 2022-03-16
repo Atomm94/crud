@@ -18,6 +18,7 @@ import { logUserEvents } from '../enums/logUserEvents.enum'
 import { accessPointMode } from '../enums/accessPointMode.enum'
 import { checkSendingDevice } from '../functions/check-sending-device'
 import { AccessPointZone } from '../model/entity'
+import { locationGenerator } from '../functions/locationGenerator'
 
 export default class AcuController {
     /**
@@ -448,7 +449,7 @@ export default class AcuController {
             const company = user.company ? user.company : null
             const where = { id: req_data.id, company: company }
             const acu: Acu | undefined = await Acu.findOne(where)
-            const location = `${user.company_main}/${user.company}`
+            const location = await locationGenerator(user)
 
             const logs_data = []
 
@@ -1077,7 +1078,7 @@ export default class AcuController {
                     message: 'device models are not same'
                 }
             }
-            const location = `${user.company_main}/${user.company}`
+            const location = await locationGenerator(user)
 
             const hardware_data = Object.assign({}, hardware)
             if (!detach) {
@@ -1203,7 +1204,7 @@ export default class AcuController {
         const req_data = ctx.request.body
         const user = ctx.user
         const company = user.company ? user.company : null
-        const location = `${user.company_main}/${user.company}`
+        const location = await locationGenerator(user)
 
         const hardware = await Acu.findOne({
             where: {
@@ -1268,7 +1269,7 @@ export default class AcuController {
             const where = { id: req_data.id, company: user.company ? user.company : null }
             const logs_data = []
             const acu: Acu = await Acu.findOneOrFail(where)
-            const location = `${user.company_main}/${user.company}`
+            const location = await locationGenerator(user)
             if (acu.status !== acuStatus.ACTIVE) {
                 ctx.status = 400
                 ctx.body = {

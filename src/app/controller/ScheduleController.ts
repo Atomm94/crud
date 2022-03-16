@@ -1,5 +1,6 @@
 import { DefaultContext } from 'koa'
 import { logUserEvents } from '../enums/logUserEvents.enum'
+import { scheduleType } from '../enums/scheduleType.enum'
 import { CardholderGroup } from '../model/entity/CardholderGroup'
 import { Schedule } from '../model/entity/Schedule'
 // import { Timeframe } from '../model/entity/Timeframe'
@@ -169,12 +170,30 @@ export default class ScheduleController {
      */
     public static async get (ctx: DefaultContext) {
         try {
+            const user = ctx.user
+            const company = ctx.user.company
+            const partition_parent_id = (user.companyData && user.companyData.partition_parent_id) ? user.companyData.partition_parent_id : null
             const data = await Schedule.createQueryBuilder('schedule')
                 .leftJoinAndSelect('schedule.timeframes', 'timeframe', 'timeframe.delete_date is null')
                 .where(`schedule.id = ${+ctx.params.id}`)
-                .andWhere(`schedule.company = ${ctx.user.company}`)
-                .getMany()
-            ctx.body = data[0]
+                .getOne()
+            if (!data) {
+                ctx.status = 400
+                return ctx.body = { message: 'Invalid id' }
+            }
+
+            if (partition_parent_id) {
+                if (![company, partition_parent_id].includes(data.company)) {
+                    ctx.status = 400
+                    return ctx.body = { message: 'Invalid id' }
+                }
+            } else {
+                if (data.company !== company) {
+                    ctx.status = 400
+                    return ctx.body = { message: 'Invalid id' }
+                }
+            }
+            ctx.body = data
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -272,6 +291,13 @@ export default class ScheduleController {
      *                description: Authentication token
      *                schema:
      *                    type: string
+     *              - in: query
+     *                name: type
+     *                description: search
+     *                schema:
+     *                    type: string
+     *                    enum: [daily, weekly, specific, flexitime, ordinal]
+     *                    example: weekly
      *          responses:
      *              '200':
      *                  description: Array of schedule
@@ -282,7 +308,19 @@ export default class ScheduleController {
         try {
             const req_data = ctx.query
             const user = ctx.user
-            req_data.where = { company: { '=': user.company ? user.company : null } }
+            const where: any = {
+                company: { '=': user.company ? user.company : null },
+                custom: { '=': false }
+            }
+            if (req_data.type) {
+                if (!Object.values(scheduleType).includes(req_data.type)) {
+                    ctx.status = 400
+                    return ctx.body = { message: 'Invalid Schedule type' }
+                } else {
+                    where.type = { '=': req_data.type }
+                }
+            }
+            req_data.where = where
             ctx.body = await Schedule.getAllItems(req_data)
         } catch (error) {
             ctx.status = error.status || 400
