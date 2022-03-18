@@ -394,7 +394,7 @@ export class Cardholder extends MainEntity {
         return new Promise(async (resolve, reject) => {
             this.findOneOrFail({ where: { id: data.id, company: data.company }, relations: ['credentials'] }).then((data: any) => {
                 this.softRemove(data)
-                    .then(() => {
+                    .then(async () => {
                         minusResource(this.name, data.company)
                         // if (data.limitation_inherited === false) {
                         //     Limitation.destroyItem(data.limitation)
@@ -407,7 +407,7 @@ export class Cardholder extends MainEntity {
                         // }
                         for (const credential of data.credentials) {
                             if (!credential.delete_date) {
-                                Credential.destroyItem(credential)
+                                await Credential.destroyItem(credential)
                             }
                         }
                         resolve({ message: 'success' })

@@ -38,10 +38,10 @@ export abstract class MainEntity extends BaseEntity {
     @AfterInsert()
     async increaseCompanyUsedResource () {
         const self: any = this
-        const models: any = Models
-        const model_name: any = self.constructor.name
 
-        if (self.company) {
+        if (self.company && self && self.constructor && self.constructor.name) {
+            const models: any = Models
+            const model_name: any = self.constructor.name
             let company = await Company.findOne({ id: self.company }) as Company
 
             if (company.partition_parent_id) {
@@ -79,9 +79,9 @@ export abstract class MainEntity extends BaseEntity {
     @AfterRemove()
     async decreaseCompanyUsedResource () {
         const self: any = this
-        const models: any = Models
-        const model_name: any = self.constructor.name
-        if (self.company) {
+        if (self.company && self && self.constructor && self.constructor.name) {
+            const models: any = Models
+            const model_name: any = self.constructor.name
             if (models[model_name] && models[model_name].resource) {
                 const company_resources = await CompanyResources.findOne({ company: self.company })
                 if (company_resources) {

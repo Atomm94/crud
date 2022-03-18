@@ -36,81 +36,83 @@ export class PostSubscriber implements EntitySubscriberInterface<MainEntity> {
             const New: any = event.entity
             const Old: any = event.databaseEntity
 
-            const model_name: any = New.constructor.name
+            if (New && Old) {
+                const model_name: any = New.constructor.name
 
-            const fields = []
-            if (New.avatar && New.avatar !== Old.avatar) {
-                fields.push('avatar')
-            }
-            if (New.image && New.image !== Old.image) {
-                fields.push('image')
-            }
-            if (New.file && New.file !== Old.file) {
-                fields.push('file')
-            }
+                const fields = []
+                if (New.avatar && New.avatar !== Old.avatar) {
+                    fields.push('avatar')
+                }
+                if (New.image && New.image !== Old.image) {
+                    fields.push('image')
+                }
+                if (New.file && New.file !== Old.file) {
+                    fields.push('file')
+                }
 
-            if (fields.length) {
-                for (const field of fields) {
-                    let file_path_objs = JSON.parse(New[field])
-                    const old_field = JSON.parse(Old[field])
-                    const is_array = Array.isArray(file_path_objs)
-                    if (!is_array) file_path_objs = [file_path_objs]
+                if (fields.length) {
+                    for (const field of fields) {
+                        let file_path_objs = JSON.parse(New[field])
+                        const old_field = JSON.parse(Old[field])
+                        const is_array = Array.isArray(file_path_objs)
+                        if (!is_array) file_path_objs = [file_path_objs]
 
-                    if (old_field) {
-                        if (!is_array) {
-                            let del_path = `${public_path}/${old_field.path}`
-                            if (!fs.existsSync(del_path)) del_path = `${public_path}/${old_field.path}`
-                            fs.unlinkSync(del_path)
-                        } else {
-                            for (const old_file_obj of old_field) {
-                                let is_del = true
-                                for (const file_path_obj of file_path_objs) {
-                                    if (old_file_obj.path === file_path_obj.path) {
-                                        is_del = false
+                        if (old_field) {
+                            if (!is_array) {
+                                let del_path = `${public_path}/${old_field.path}`
+                                if (!fs.existsSync(del_path)) del_path = `${public_path}/${old_field.path}`
+                                fs.unlinkSync(del_path)
+                            } else {
+                                for (const old_file_obj of old_field) {
+                                    let is_del = true
+                                    for (const file_path_obj of file_path_objs) {
+                                        if (old_file_obj.path === file_path_obj.path) {
+                                            is_del = false
+                                        }
+                                    }
+                                    if (is_del) {
+                                        fs.unlinkSync(`${public_path}/${old_file_obj.path}`)
                                     }
                                 }
-                                if (is_del) {
-                                    fs.unlinkSync(`${public_path}/${old_file_obj.path}`)
+                            }
+                        }
+
+                        const new_file_path_objs = []
+                        for (const file_path_obj of file_path_objs) {
+                            let file_path = file_path_obj.path
+                            const file_name = file_path_obj.name
+
+                            if (!fs.existsSync(file_path)) file_path = `${public_path}/${file_path}`
+
+                            if (!fs.existsSync(file_path)) {
+                                if (!is_array) {
+                                    new_file_path_objs.push(old_field)
                                 }
-                            }
-                        }
-                    }
-
-                    const new_file_path_objs = []
-                    for (const file_path_obj of file_path_objs) {
-                        let file_path = file_path_obj.path
-                        const file_name = file_path_obj.name
-
-                        if (!fs.existsSync(file_path)) file_path = `${public_path}/${file_path}`
-
-                        if (!fs.existsSync(file_path)) {
-                            if (!is_array) {
-                                new_file_path_objs.push(old_field)
-                            }
-                        } else {
-                            const file_base_name = path.basename(file_path)
-                            fs.mkdirSync(`${public_path}/${model_name}/${file_base_name[0]}/${file_base_name[1]}`, { recursive: true })
-                            if (!fs.existsSync(`${public_path}/${model_name}/${file_base_name[0]}/${file_base_name[1]}`)) {
+                            } else {
+                                const file_base_name = path.basename(file_path)
                                 fs.mkdirSync(`${public_path}/${model_name}/${file_base_name[0]}/${file_base_name[1]}`, { recursive: true })
-                            }
-                            const new_path = {
-                                path: `${model_name}/${file_base_name[0]}/${file_base_name[1]}/${file_base_name}`,
-                                name: file_name
-                            }
+                                if (!fs.existsSync(`${public_path}/${model_name}/${file_base_name[0]}/${file_base_name[1]}`)) {
+                                    fs.mkdirSync(`${public_path}/${model_name}/${file_base_name[0]}/${file_base_name[1]}`, { recursive: true })
+                                }
+                                const new_path = {
+                                    path: `${model_name}/${file_base_name[0]}/${file_base_name[1]}/${file_base_name}`,
+                                    name: file_name
+                                }
 
-                            try {
-                                fs.renameSync(`${file_path}`, `${public_path}/${new_path.path}`)
-                            } catch (error) {
-                                console.log(error)
-                            }
+                                try {
+                                    fs.renameSync(`${file_path}`, `${public_path}/${new_path.path}`)
+                                } catch (error) {
+                                    console.log(error)
+                                }
 
-                            new_file_path_objs.push(new_path)
+                                new_file_path_objs.push(new_path)
+                            }
                         }
-                    }
-                    if (is_array) {
-                        New[field] = new_file_path_objs.length ? JSON.stringify(new_file_path_objs) : null
-                    } else {
-                        New[field] = new_file_path_objs.length ? JSON.stringify(new_file_path_objs[0]) : null
+                        if (is_array) {
+                            New[field] = new_file_path_objs.length ? JSON.stringify(new_file_path_objs) : null
+                        } else {
+                            New[field] = new_file_path_objs.length ? JSON.stringify(new_file_path_objs[0]) : null
+                        }
                     }
                 }
             }
