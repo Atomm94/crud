@@ -13,10 +13,10 @@ export class Limitation extends MainEntity {
     @Column('boolean', { name: 'enable_date', default: false })
     enable_date: boolean
 
-    @Column('timestamp', { name: 'valid_from', nullable: true })
+    @Column('datetime', { name: 'valid_from', nullable: true })
     valid_from: string | null
 
-    @Column('timestamp', { name: 'valid_due', nullable: true })
+    @Column('datetime', { name: 'valid_due', nullable: true })
     valid_due: string | null
 
     @Column('boolean', { name: 'pass_counter_enable', default: false })
