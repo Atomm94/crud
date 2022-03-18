@@ -2588,6 +2588,7 @@ export default class CardholderController {
             const req_data = ctx.request.body
             const auth_user = ctx.user
             const company = auth_user.company ? auth_user.company : null
+            const location = await locationGenerator(auth_user)
 
             const cardholders = await Cardholder.getAllItems({ where: { id: { in: req_data.ids }, company: { '=': company } } })
             const save = []
@@ -2597,7 +2598,10 @@ export default class CardholderController {
                     save.push(Cardholder.destroyItem(cardholder))
                 }
             }
-            Promise.all(save)
+            await Promise.all(save)
+            if (cardholders.length) {
+                CardKeyController.dellKeys(location, company, cardholders, auth_user)
+            }
             ctx.body = { success: true }
         } catch (error) {
             ctx.status = error.status || 400

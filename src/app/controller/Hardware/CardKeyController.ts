@@ -146,9 +146,12 @@ export default class CardKeyController {
     // }
 
     public static async dellKeys (location: string, company: string, data: any, user: any) {
-        const acus: any = await Acu.getAllItems({ where: { status: { '=': acuStatus.ACTIVE }, company: { '=': company } } })
-        acus.forEach((acu: any) => {
-            new SendDeviceMessage(OperatorType.DELL_KEYS, location, acu.serial_number, data, user, acu.session_id)
-        })
+        if (!Array.isArray(data)) data = [data]
+        if (data.length) {
+            const acus: any = await Acu.getAllItems({ where: { status: { '=': acuStatus.ACTIVE }, company: { '=': company } } })
+            acus.forEach((acu: any) => {
+                new SendDeviceMessage(OperatorType.DELL_KEYS, location, acu.serial_number, data, user, acu.session_id)
+            })
+        }
     }
 }
