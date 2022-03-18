@@ -589,9 +589,12 @@ export default class CardholderController {
                     const limitations = await Limitation.findOne({ where: { id: req_data.limitations.id } })
                     cardholder.limitations = limitations
 
-                    if (req_data.limitations && limitations &&
-                        (req_data.limitations.valid_from !== limitations.valid_from ||
-                            req_data.limitations.valid_due !== limitations.valid_due)
+                    if (
+                        check_by_company.access_right !== cardholder.access_right ||
+                        (req_data.limitations && limitations &&
+                            (req_data.limitations.valid_from !== limitations.valid_from ||
+                                req_data.limitations.valid_due !== limitations.valid_due)
+                        )
                     ) {
                         CardKeyController.setAddCardKey(OperatorType.SET_CARD_KEYS, location, auth_user.company, auth_user, null)
                     } else {
