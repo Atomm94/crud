@@ -592,7 +592,7 @@ export default class Parse {
 
     public static async deviceDelExtBrdAck (message: IMqttCrudMessaging) {
         // console.log('deviceDelExtBrdAck', message)
-        if (message.result.errorNo === 0 || message.result.errorNo === 11) {
+        if (message.result.errorNo === 0 || message.result.errorNo === 12) {
             const company = message.company
             const ext_device = await ExtDevice.findOneOrFail({ where: { id: message.send_data.data.id /*, company: message.company */ }, relations: ['acus'] })
             await ExtDevice.destroyItem({ id: message.send_data.data.id /*, company: message.company */ })
@@ -645,7 +645,7 @@ export default class Parse {
 
     public static async deviceDelRdAck (message: IMqttCrudMessaging) {
         // console.log('deviceDelRdAck', message)
-        if (message.result.errorNo === 0 || message.result.errorNo === 11) {
+        if (message.result.errorNo === 0 || message.result.errorNo === 5) {
             const company = message.company
 
             const reader: any = await Reader.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['access_points', 'access_points.acus'] })
@@ -723,7 +723,7 @@ export default class Parse {
 
     public static async deviceDelCtpDoorAck (message: IMqttCrudMessaging) {
         console.log('deviceDelCtpDoorAck', message)
-        if (message.result.errorNo === 0 || message.result.errorNo === 11) {
+        if (message.result.errorNo === 0 || message.result.errorNo === 5) {
             const company = message.company
             const access_point = await AccessPoint.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['acus'] })
             await AccessPoint.destroyItem({ id: message.send_data.data.id /*, company: company */ })
@@ -770,7 +770,7 @@ export default class Parse {
 
     public static async deviceDelCtpTurnstileAck (message: IMqttCrudMessaging) {
         // console.log('deviceDelCtpTurnstileAck', message)
-        if (message.result.errorNo === 0 || message.result.errorNo === 11) {
+        if (message.result.errorNo === 0 || message.result.errorNo === 5) {
             const company = message.company
             const access_point = await AccessPoint.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['acus'] })
             await AccessPoint.destroyItem({ id: message.send_data.data.id /*, company: company */ })
@@ -819,7 +819,7 @@ export default class Parse {
 
     public static async deviceDelCtpGateAck (message: IMqttCrudMessaging) {
         // console.log('deviceDelCtpGateAck', message)
-        if (message.result.errorNo === 0 || message.result.errorNo === 11) {
+        if (message.result.errorNo === 0 || message.result.errorNo === 5) {
             const company = message.company
             const access_point = await AccessPoint.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['acus'] })
             await AccessPoint.destroyItem({ id: message.send_data.data.id /*, company: company */ })
@@ -868,7 +868,7 @@ export default class Parse {
 
     public static async deviceDelCtpGatewayAck (message: IMqttCrudMessaging) {
         // console.log('deviceDelCtpGatewayAck', message)
-        if (message.result.errorNo === 0 || message.result.errorNo === 11) {
+        if (message.result.errorNo === 0 || message.result.errorNo === 5) {
             const company = message.company
             const access_point = await AccessPoint.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['acus'] })
             await AccessPoint.destroyItem({ id: message.send_data.data.id /*, company: company */ })
@@ -916,7 +916,7 @@ export default class Parse {
 
     public static async deviceDelCtpFloorAck (message: IMqttCrudMessaging) {
         // console.log('deviceDelCtpFloorAck', message)
-        if (message.result.errorNo === 0 || message.result.errorNo === 11) {
+        if (message.result.errorNo === 0 || message.result.errorNo === 5) {
             const company = message.company
             const access_point = await AccessPoint.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['acus'] })
             await AccessPoint.destroyItem({ id: message.send_data.data.id /*, company: company */ })
