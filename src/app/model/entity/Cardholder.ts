@@ -396,15 +396,15 @@ export class Cardholder extends MainEntity {
                 this.softRemove(data)
                     .then(() => {
                         minusResource(this.name, data.company)
-                        if (data.limitation_inherited === false) {
-                            Limitation.destroyItem(data.limitation)
-                        }
-                        if (data.antipass_back_inherited === false) {
-                            AntipassBack.destroyItem(data.antipass_back)
-                        }
-                        if (data.car_info) {
-                            CarInfo.destroyItem(data.car_info)
-                        }
+                        // if (data.limitation_inherited === false) {
+                        //     Limitation.destroyItem(data.limitation)
+                        // }
+                        // if (data.antipass_back_inherited === false) {
+                        //     AntipassBack.destroyItem(data.antipass_back)
+                        // }
+                        // if (data.car_info) {
+                        //     CarInfo.destroyItem(data.car_info)
+                        // }
                         for (const credential of data.credentials) {
                             if (!credential.delete_date) {
                                 Credential.destroyItem(credential)
