@@ -39,7 +39,9 @@ export abstract class MainEntity extends BaseEntity {
     async increaseCompanyUsedResource () {
         const self: any = this
 
-        if (self.company && self && self.constructor && self.constructor.name) {
+        if (self && self.company && self.constructor && self.constructor.name) {
+            console.log('increaseCompanyUsedResource self', self.constructor.name, self)
+
             const models: any = Models
             const model_name: any = self.constructor.name
             let company = await Company.findOne({ id: self.company }) as Company
@@ -79,18 +81,22 @@ export abstract class MainEntity extends BaseEntity {
     @AfterRemove()
     async decreaseCompanyUsedResource () {
         const self: any = this
-        if (self.company && self && self.constructor && self.constructor.name) {
+        if (self && self.company && self.constructor && self.constructor.name) {
+            console.log('decreaseCompanyUsedResource self', self.constructor.name, self)
+
             const models: any = Models
             const model_name: any = self.constructor.name
             if (models[model_name] && models[model_name].resource) {
                 const company_resources = await CompanyResources.findOne({ company: self.company })
                 if (company_resources) {
                     const used: any = JSON.parse(company_resources.used)
-                    if (used[model_name]) {
+                    if (model_name in used) {
                         used[model_name]--
-                        company_resources.used = JSON.stringify(used)
-                        await company_resources.save()
+                    } else {
+                        used[model_name] = 0
                     }
+                    company_resources.used = JSON.stringify(used)
+                    await company_resources.save()
                 }
             }
         }

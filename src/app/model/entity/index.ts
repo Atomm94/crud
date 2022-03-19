@@ -17,6 +17,7 @@ import { Cardholder } from './Cardholder'
 import { Credential } from './Credential'
 import { CarInfo } from './CarInfo'
 import { Limitation } from './Limitation'
+import { AntipassBack } from './AntipassBack'
 import { Schedule } from './Schedule'
 import { Timeframe } from './Timeframe'
 import { AccessRight } from './AccessRight'
@@ -29,10 +30,12 @@ import { AccessPointZone } from './AccessPointZone'
 import { AccessPoint } from './AccessPoint'
 import { AccessRule } from './AccessRule'
 import { Acu } from './Acu'
+import { Reader } from './Reader'
 import { ExtDevice } from './ExtDevice'
 import { StandardReport } from './StandardReport'
 import { Dashboard } from './Dashboard'
 import { AutoTaskSchedule } from './AutoTaskSchedule'
+import { Notification } from './Notification'
 export {
     MainEntity,
     Admin,
@@ -53,6 +56,7 @@ export {
     Credential,
     CarInfo,
     Limitation,
+    AntipassBack,
     Schedule,
     Timeframe,
     AccessRight,
@@ -65,8 +69,10 @@ export {
     AccessPoint,
     AccessRule,
     Acu,
+    Reader,
     ExtDevice,
     StandardReport,
     Dashboard,
-    AutoTaskSchedule
+    AutoTaskSchedule,
+    Notification
 }
