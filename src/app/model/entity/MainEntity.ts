@@ -50,7 +50,11 @@ export abstract class MainEntity extends BaseEntity {
                 company = await Company.findOne({ id: company.partition_parent_id }) as Company
             }
             if (models[model_name] && models[model_name].resource) {
+                console.log('increaseCompanyUsedResource resource', true)
+
                 const company_resources = await CompanyResources.findOne({ company: company.id })
+                console.log('increaseCompanyUsedResource company_resources', company_resources)
+
                 if (company_resources) {
                     const used: any = JSON.parse(company_resources.used)
                     if (used[model_name]) {
@@ -58,6 +62,8 @@ export abstract class MainEntity extends BaseEntity {
                     } else {
                         used[model_name] = 1
                     }
+
+                    console.log('increaseCompanyUsedResource used', JSON.stringify(used))
                     company_resources.used = JSON.stringify(used)
                     await company_resources.save()
                 }
