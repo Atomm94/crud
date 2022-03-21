@@ -10,6 +10,8 @@ import * as jwt from 'jsonwebtoken'
 import { accessPointDirection } from '../enums/accessPointDirection.enum'
 import CtpController from './Hardware/CtpController'
 import { locationGenerator } from '../functions/locationGenerator'
+import { credentialStatus } from '../enums/credentialStatus.enum'
+import { cardholderStatus } from '../enums/cardholderStatus.enum'
 
 export default class CredentialController {
     /**
@@ -44,13 +46,15 @@ export default class CredentialController {
      *                - company
      *                properties:
      *                  type:
-     *                      type: rfid | pinpass | vikey| phone_bt | phone_nfc | fingerprint | face | face_temperature | car_lp_number
+     *                      type: string
+     *                      enum: [rfid, pinpass, vikey, phone_bt, phone_nfc, fingerprint, face, face_temperature, car_lp_number]
      *                      example: rfid
      *                  code:
      *                      type: string
      *                      example: 1245644
      *                  status:
-     *                      type: active | stolen | lost
+     *                      type: string
+     *                      enum: [inactive, active, stolen, lost]
      *                      example: active
      *                  cardholder:
      *                      type: number
@@ -59,7 +63,8 @@ export default class CredentialController {
      *                      type: number
      *                      example: 2
      *                  input_mode:
-     *                      type: serial_number | wiegand_26
+     *                      type: string
+     *                      enum: [serial_number, wiegand_26]
      *                      example: serial_number
      *                  company:
      *                       type:number
@@ -115,13 +120,15 @@ export default class CredentialController {
      *                      type: number
      *                      example: 1
      *                  type:
-     *                      type: rfid | pinpass | vikey| phone_bt | phone_nfc | fingerprint | face | face_temperature | car_lp_number
+     *                      type: string
+     *                      enum: [rfid, pinpass, vikey, phone_bt, phone_nfc, fingerprint, face, face_temperature, car_lp_number]
      *                      example: rfid
      *                  code:
      *                      type: string
      *                      example: 1245644
      *                  status:
-     *                      type: active | stolen | lost
+     *                      type: string
+     *                      enum: [inactive, active, stolen, lost]
      *                      example: active
      *                  cardholder:
      *                      type: number
@@ -130,7 +137,8 @@ export default class CredentialController {
      *                      type: number
      *                      example: 2
      *                  input_mode:
-     *                      type: serial_number | wiegand_26
+     *                      type: string
+     *                      enum: [serial_number, wiegand_26]
      *                      example: serial_number
      *          responses:
      *              '201':
@@ -233,6 +241,10 @@ export default class CredentialController {
             const logs_data = []
             const where = { id: req_data.id, company: user.company ? user.company : null }
             const credential: any = await Credential.findOne({ relations: ['cardholders'], where: where })
+            if (!credential) {
+                ctx.status = 400
+                ctx.body = { message: 'Invalid id' }
+            }
             credential.status = 0
             req_data.where = { company: { '=': user.company ? user.company : null }, status: { '=': acuStatus.ACTIVE } }
             const access_points = await AccessPoint.createQueryBuilder('access_point')
@@ -241,6 +253,15 @@ export default class CredentialController {
                 .andWhere(`acu.company = ${ctx.user.company}`)
                 .getMany()
             ctx.body = await Credential.destroyItem(where)
+
+            if (credential.status === credentialStatus.ACTIVE && credential.cardhodelders.status !== cardholderStatus.INACTIVE) {
+                const existed_credentials: any = await Credential.findOne({ where: { cardholder: credential.cardholder, status: credentialStatus.ACTIVE } }) as Credential
+                if (!existed_credentials) {
+                    credential.cardhodelders.status = cardholderStatus.INACTIVE
+                    await Cardholder.updateItem(credential.cardhodelders as Cardholder, user)
+                }
+            }
+
             logs_data.push({
                 event: logUserEvents.DELETE,
                 target: `${Credential.name}/${credential.cardholders.first_name}/${credential.code}`,
@@ -335,7 +356,8 @@ export default class CredentialController {
      *                      type: number
      *                      example: 1
      *                  status:
-     *                      type: active | stolen | lost
+     *                      type: string
+     *                      enum: [inactive, active, stolen, lost]
      *                      example: active
      *          responses:
      *              '201':
@@ -353,44 +375,57 @@ export default class CredentialController {
             const check_by_company = await Credential.findOne(where)
             if (!check_by_company) {
                 ctx.status = 400
-                ctx.body = { message: 'something went wrong' }
-            } else {
-                ctx.body = await Credential.updateItem(req_data as Credential)
-                const location = await locationGenerator(user)
-                const credential: any = await Credential.getItem({ id: req_data.id })
-                credential.status = req_data.status
-                req_data.where = { company: { '=': user.company ? user.company : null }, status: { '=': acuStatus.ACTIVE } }
-                const access_points = await AccessPoint.createQueryBuilder('access_point')
-                    .innerJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
-                    .where(`acu.status = '${acuStatus.ACTIVE}'`)
-                    .andWhere(`acu.company = ${ctx.user.company}`)
-                    .getMany()
-
-                // const cardhoder = await Cardholder.findOneOrFail({ where: { id: credential.cardholder }, relations: ['access_rights', 'access_rights.access_rules'] })
-
-                const cardhoder: any = await Cardholder.createQueryBuilder('cardholder')
-                    .leftJoinAndSelect('cardholder.access_rights', 'access_right', 'access_right.delete_date is null')
-                    .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
-                    .where(`cardholder.id = '${credential.cardholder}'`)
-                    .getOne()
-                if (!cardhoder) {
-                    ctx.status = 400
-                    return ctx.body = {
-                        message: 'Invalid Cardholder Id'
-                    }
-                }
-
-                cardhoder.credentials = [credential]
-
-                CardKeyController.editCardKey(location, user.company, user, null, access_points, [cardhoder])
-                // const acus: any = await Acu.getAllItems(req_data)
-                // acus.forEach((acu: any) => {
-                //     access_points.forEach((access_point: any) => {
-                //         credential.access_point = access_point.id
-                //         new SendDeviceMessage(OperatorType.EDIT_KEY, location, acu.serial_number, credential, acu.session_id)
-                //     })
-                // })
+                return ctx.body = { message: 'something went wrong' }
             }
+
+            if (req_data.status === check_by_company.status) {
+                ctx.status = 400
+                return ctx.body = { message: `status already ${req_data.status}` }
+            }
+
+            ctx.body = await Credential.updateItem(req_data as Credential)
+            const location = await locationGenerator(user)
+            const credential: any = await Credential.getItem({ id: req_data.id })
+            credential.status = req_data.status
+            req_data.where = { company: { '=': user.company ? user.company : null }, status: { '=': acuStatus.ACTIVE } }
+            const access_points = await AccessPoint.createQueryBuilder('access_point')
+                .innerJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
+                .where(`acu.status = '${acuStatus.ACTIVE}'`)
+                .andWhere(`acu.company = ${ctx.user.company}`)
+                .getMany()
+
+            const cardhoder: any = await Cardholder.createQueryBuilder('cardholder')
+                .leftJoinAndSelect('cardholder.access_rights', 'access_right', 'access_right.delete_date is null')
+                .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
+                .where(`cardholder.id = '${credential.cardholder}'`)
+                .getOne()
+            if (!cardhoder) {
+                ctx.status = 400
+                return ctx.body = {
+                    message: 'Invalid Cardholder Id'
+                }
+            }
+
+            if (req_data.status === credentialStatus.ACTIVE && cardhoder.status !== cardholderStatus.ACTIVE) {
+                cardhoder.status = cardholderStatus.ACTIVE
+                await Cardholder.updateItem(cardhoder, user)
+            } else if (req_data.status === credentialStatus.INACTIVE && cardhoder.status !== cardholderStatus.INACTIVE) {
+                const check_credentials = await Credential.findOne({ where: { cardholder: cardhoder.id, status: credentialStatus.ACTIVE } })
+                if (!check_credentials) {
+                    cardhoder.status = cardholderStatus.INACTIVE
+                    await Cardholder.updateItem(cardhoder, user)
+                }
+            }
+            cardhoder.credentials = [credential]
+
+            CardKeyController.editCardKey(location, user.company, user, null, access_points, [cardhoder])
+            // const acus: any = await Acu.getAllItems(req_data)
+            // acus.forEach((acu: any) => {
+            //     access_points.forEach((access_point: any) => {
+            //         credential.access_point = access_point.id
+            //         new SendDeviceMessage(OperatorType.EDIT_KEY, location, acu.serial_number, credential, acu.session_id)
+            //     })
+            // })
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

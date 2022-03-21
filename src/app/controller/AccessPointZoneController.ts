@@ -55,7 +55,8 @@ export default class AccessPointZoneController {
      *                              type: number
      *                              example: 60
      *                          time_type:
-     *                              type: seconds | minutes | hours
+     *                              type: string
+     *                              enum: [seconds, minutes, hours]
      *                              example: minutes
      *          responses:
      *              '201':
@@ -142,7 +143,8 @@ export default class AccessPointZoneController {
      *                              type: number
      *                              example: 60
      *                          time_type:
-     *                              type: seconds | minutes | hours
+     *                              type: string
+     *                              enum: [seconds, minutes, hours]
      *                              example: minutes
      *          responses:
      *              '201':

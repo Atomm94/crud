@@ -39,7 +39,8 @@ export default class ScheduleController {
      *                      type: string
      *                      example: description
      *                  type:
-     *                      type: daily | weekly | specific | flexitime | ordinal
+     *                      type: string
+     *                      enum: [daily, weekly, specific, flexitime, ordinal]
      *                      example: daily
      *                  start_from:
      *                      type: string | null

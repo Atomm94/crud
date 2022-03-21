@@ -90,7 +90,8 @@ export default class AcuController {
      *                                  type: boolean
      *                                  example: true
      *                              mode:
-     *                                  type: N/A | credential | locked | unlocked | free_entry_block_exit | block_entry_free_exit
+     *                                  type: string
+     *                                  enum: [N/A, credential, locked, unlocked, free_entry_block_exit, block_entry_free_exit]
      *                                  example: credential
      *                              apb_enable_local:
      *                                  type: boolean
@@ -315,7 +316,8 @@ export default class AcuController {
      *                                  type: boolean
      *                                  example: true
      *                              mode:
-     *                                  type: N/A | credential | locked | unlocked | free_entry_block_exit | block_entry_free_exit
+     *                                  type: string
+     *                                  enum: [N/A, credential, locked, unlocked, free_entry_block_exit, block_entry_free_exit]
      *                                  example: credential
      *                              apb_enable_local:
      *                                  type: boolean

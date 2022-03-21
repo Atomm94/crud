@@ -64,7 +64,8 @@ export default class CompanyController {
      *                      type: string
      *                      example: some_message
      *                  status:
-     *                      type: pending | disable | enable
+     *                      type: string
+     *                      enum: [pending, disable, enable]
      *                      example: pending
      *          responses:
      *              '201':
@@ -126,7 +127,8 @@ export default class CompanyController {
      *                      type: string
      *                      example: some_message
      *                  status:
-     *                      type: pending | disable | enable
+     *                      type: string
+     *                      enum: [pending, disable, enable]
      *                      example: pending
      *          responses:
      *              '201':

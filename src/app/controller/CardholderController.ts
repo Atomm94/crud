@@ -88,7 +88,8 @@ export default class CardholderController {
      *                        type: number
      *                        example: 1
      *                    status:
-     *                        type: inactive | active | expired | noCredential | pending
+     *                        type: string
+     *                        enum: [inactive, active, expired, noCredential, pending]
      *                        example: active
      *                    car_infos:
      *                        type: object
@@ -396,8 +397,9 @@ export default class CardholderController {
      *                      type: number
      *                      example: 1
      *                  status:
-     *                      type: inactive | active | expired | noCredential | pending
-     *                      example: active
+     *                        type: string
+     *                        enum: [inactive, active, expired, noCredential, pending]
+     *                        example: active
      *                  car_infos:
      *                      type: object
      *                      required:
@@ -492,7 +494,8 @@ export default class CardholderController {
      *                          type: object
      *                          properties:
      *                              type:
-     *                                  type: rfid | pinpass | vikey| phone_bt | phone_nfc | fingerprint | face | face_temperature | car_lp_number
+     *                                  type: string
+     *                                  enum: [rfid, pinpass, vikey, phone_bt, phone_nfc, fingerprint, face, face_temperature, car_lp_number]
      *                                  example: rfid
      *                              code:
      *                                  type: string
@@ -508,7 +511,8 @@ export default class CardholderController {
      *                                  type: number
      *                                  example: 2
      *                              input_mode:
-     *                                  type: serial_number | wiegand_26
+     *                                  type: string
+     *                                  enum: [serial_number, wiegand_26]
      *                                  example: serial_number
      *                              company:
      *                                   type:number
@@ -567,13 +571,19 @@ export default class CardholderController {
 
                 const credentials: any = []
                 const old_credentials: any = []
+                const updated_credentials: any = []
                 if (req_data.credentials && req_data.credentials.length) {
                     // const keys_count = calculateCredentialsKeysCountToSendDevice(req_data)
 
-                    for (const credential of req_data.credentials) {
+                    for (let credential of req_data.credentials) {
                         if (!credential.id) {
                             credential.company = auth_user.company
                             credential.cardholder = req_data.id
+                            if (cardholder.status === cardholderStatus.ACTIVE) {
+                                credential.status = credentialStatus.ACTIVE
+                            } else {
+                                credential.status = credentialStatus.INACTIVE
+                            }
                             const credential_data: any = await Credential.addItem(credential as Credential)
                             logs_data.push({
                                 event: logUserEvents.CREATE,
@@ -582,6 +592,15 @@ export default class CardholderController {
                             })
                             credentials.push(credential_data)
                         } else {
+                            if (cardholder.status === cardholderStatus.ACTIVE && credential.status === credentialStatus.INACTIVE) {
+                                credential.status = credentialStatus.ACTIVE
+                                credential = await Credential.updateItem(credential)
+                                updated_credentials.push(credential)
+                            } else if (cardholder.status === cardholderStatus.INACTIVE && credential.status === credentialStatus.ACTIVE) {
+                                credential.status = credentialStatus.INACTIVE
+                                credential = await Credential.updateItem(credential)
+                                updated_credentials.push(credential)
+                            }
                             old_credentials.push(credential)
                         }
                     }
@@ -623,6 +642,11 @@ export default class CardholderController {
 
                                     if (res_data.old.vip !== res_data.new.vip && old_credentials.length) {
                                         cardholder.credentials = old_credentials
+                                        CardKeyController.editCardKey(location, company, auth_user.id, null, access_points, [cardholder])
+                                    }
+
+                                    if (updated_credentials.length) {
+                                        cardholder.credentials = updated_credentials
                                         CardKeyController.editCardKey(location, company, auth_user.id, null, access_points, [cardholder])
                                     }
                                 }
@@ -998,7 +1022,8 @@ export default class CardholderController {
      *                        type: object
      *                        properties:
      *                            status:
-     *                                type: inactive | active | expired | noCredential | pending
+     *                                type: string
+     *                                enum: [inactive, active, expired, noCredential, pending]
      *                                example: active
      *                            cardholder_group:
      *                                type: number
@@ -2433,14 +2458,14 @@ export default class CardholderController {
 
             const location = await locationGenerator(auth_user)
             if (req_data.status === cardholderStatus.INACTIVE || req_data.status === cardholderStatus.ACTIVE) {
-                const cardholders = await Cardholder.getAllItems({ where: { id: { in: req_data.ids }, company: { '=': company } }, relations: ['credentials'] })
+                const cardholders = await Cardholder.createQueryBuilder('cardholder')
+                    .innerJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null')
+                    .where(`cardholder.id in(${req_data.ids})`)
+                    .andWhere(`cardholder.company = ${ctx.user.company}`)
+                    .getMany()
                 const save: any = []
-                // const access_points = await AccessPoint.createQueryBuilder('access_point')
-                //     .innerJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
-                //     .where(`acu.status = '${acuStatus.ACTIVE}'`)
-                //     .andWhere(`acu.company = ${ctx.user.company}`)
-                //     .getMany()
 
+                let send_card_key = false
                 for (const cardholder of cardholders) {
                     if (cardholder.status !== req_data.status) {
                         cardholder.status = req_data.status
@@ -2448,18 +2473,23 @@ export default class CardholderController {
                     }
 
                     for (const credential of cardholder.credentials) {
-                        if (req_data.status === cardholderStatus.ACTIVE) {
+                        if (req_data.status === cardholderStatus.ACTIVE && credential.status === credentialStatus.INACTIVE) {
+                            send_card_key = true
                             credential.status = credentialStatus.ACTIVE
-                        } else {
-                            credential.status = credentialStatus.LOST
+                            save.push(Credential.save(credential))
+                        } else if (req_data.status === cardholderStatus.INACTIVE && credential.status === credentialStatus.ACTIVE) {
+                            send_card_key = true
+                            credential.status = credentialStatus.INACTIVE
+                            save.push(Credential.save(credential))
                         }
-                        save.push(Credential.save(credential))
                     }
 
                     // CardKeyController.editCardKey(location, company, auth_user.id, null, access_points, [cardholder])
                 }
                 await Promise.all(save)
-                CardKeyController.setAddCardKey(OperatorType.SET_CARD_KEYS, location, company, auth_user, null)
+                if (send_card_key) {
+                    CardKeyController.setAddCardKey(OperatorType.SET_CARD_KEYS, location, company, auth_user, null)
+                }
                 ctx.body = { success: true }
             } else {
                 ctx.body = {

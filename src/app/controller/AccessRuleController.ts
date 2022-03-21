@@ -184,7 +184,8 @@ export default class AccessRuleController {
      *                      example: 1
      *                      minimum: 1
      *                  access_in_holidays:
-     *                      type: enable | disable
+     *                      type: string
+     *                      enum: [enable, disable]
      *                      example: disable
      *          responses:
      *              '201':
