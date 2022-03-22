@@ -78,6 +78,15 @@ export class Acu extends MainEntity {
     @Column('int', { name: 'reader', nullable: true })
     reader: number | null
 
+    @Column('varchar', { name: 'rev', nullable: true }) // HW Ver
+    rev: string | null
+
+    @Column('varchar', { name: 'api_ver', nullable: true }) // API Ver
+    api_ver: string | null
+
+    @Column('varchar', { name: 'acu_comment', nullable: true }) // ACU Comment
+    acu_comment: string | null
+
     @DeleteDateColumn({ type: 'timestamp', name: 'delete_date' })
     public deleteDate: Date
 
@@ -94,8 +103,8 @@ export class Acu extends MainEntity {
     @JoinColumn({ name: 'company' })
     companies: Company | null;
 
-    @OneToMany(type => AcuStatus, acu_status => acu_status.acus)
-    acu_statuses: AcuStatus[];
+    @OneToOne(type => AcuStatus, acu_status => acu_status.acus)
+    acu_statuses: AcuStatus;
 
     @OneToMany(type => AutoTaskSchedule, auto_task_schedule => auto_task_schedule.acus)
     auto_task_schedules: AutoTaskSchedule[];

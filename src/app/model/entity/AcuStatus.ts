@@ -2,7 +2,8 @@ import {
     Entity,
     Column,
     JoinColumn,
-    ManyToOne
+    ManyToOne,
+    OneToOne
     // ManyToOne,
     // OneToMany,
     // JoinColumn
@@ -28,7 +29,7 @@ export class AcuStatus extends MainEntity {
     @Column('int', { name: 'company', nullable: false })
     company: number
 
-    @ManyToOne(type => Acu, acu => acu.acu_statuses)
+    @OneToOne(type => Acu, acu => acu.acu_statuses)
     @JoinColumn({ name: 'acu' })
     acus: Acu;
 
