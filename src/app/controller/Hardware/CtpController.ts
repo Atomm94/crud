@@ -18,6 +18,8 @@ export default class CtpController {
         if (data.readers) delete data.readers // Readers we set in SetRd-Ack..
         if (data.resources && typeof data.resources === 'string') data.resources = JSON.parse(data.resources)
 
+        if (!update && !data.resourcesForSendDevice) data.resourcesForSendDevice = data.resources
+
         new SendDeviceMessage(operator, location, serial_number, data, user, session_id, update)
     }
 
