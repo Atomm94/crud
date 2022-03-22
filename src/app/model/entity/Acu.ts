@@ -87,6 +87,9 @@ export class Acu extends MainEntity {
     @Column('varchar', { name: 'acu_comment', nullable: true }) // ACU Comment
     acu_comment: string | null
 
+    @Column('datetime', { name: 'registration_date', nullable: true }) // ACU Comment
+    registration_date: string | null
+
     @DeleteDateColumn({ type: 'timestamp', name: 'delete_date' })
     public deleteDate: Date
 

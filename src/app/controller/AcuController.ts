@@ -1098,6 +1098,12 @@ export default class AcuController {
             device.interface = hardware_data.interface
             device.serial_number = hardware_data.serial_number
             device.session_id = hardware_data.session_id
+            device.fw_version = hardware_data.fw_version
+            device.rev = hardware_data.rev
+            device.api_ver = hardware_data.api_ver
+            device.acu_comment = hardware_data.acu_comment
+            device.registration_date = hardware_data.registration_date
+
             // device.time = hardware.time
             const updated = await device.save()
             await Acu.destroyItem(hardware)
