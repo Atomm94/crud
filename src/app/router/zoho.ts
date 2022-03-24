@@ -7,5 +7,6 @@ export default router
   .post('Zoho-addItem', 'zoho', checkRole(), ZohoController.add)
   .put('Zoho-updateItem', 'zoho', checkRole(), ZohoController.update)
   .delete('Zoho-destroyItem', 'zoho', checkRole(), ZohoController.destroy)
+  .get('zoho/code', ZohoController.getCodeOfZoho)
   .get('Zoho-getAllItems', 'zoho', checkRole(), ZohoController.getAll)
   .get('Zoho-getItem', 'zoho/:id', checkRole(), ZohoController.get)

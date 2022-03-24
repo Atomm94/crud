@@ -12,11 +12,12 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
         'registration',
         'mqttGetRequest',
         'mqttPostRequest',
-        'account/forgotPassword'
+        'account/forgotPassword',
         // 'credential/login',
         // 'credential/accessPoints',
         // 'credential/accessPoint/open'
         // 'guest/credential'
+        'zoho/code'
     ]
 
     const path = ctx.request.url.split('?')[0].split('/').slice(1).join('/')

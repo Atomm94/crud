@@ -9,7 +9,7 @@ export async function getRequest<T> (link:string) {
                 reject(err)
             } else {
                 if (_res.statusCode !== 200) {
-                    console.error(body)
+                    console.error(888888888888888)
                     return reject(body)
                 }
                 return resolve(JSON.parse(body))

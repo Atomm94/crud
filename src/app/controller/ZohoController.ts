@@ -1,4 +1,5 @@
 import { DefaultContext } from 'koa'
+import { updateZohoConfig } from '../functions/update-zoho-config'
 import { Zoho } from '../model/entity/Zoho'
 
 export default class ZohoController {
@@ -131,6 +132,7 @@ export default class ZohoController {
             }
 
             const updated = await Zoho.updateItem(req_data as Zoho)
+            await updateZohoConfig()
             ctx.oldData = updated.old
             ctx.body = updated.new
         } catch (error) {
@@ -268,6 +270,47 @@ export default class ZohoController {
             }
 
             ctx.body = await Zoho.getAllItems({})
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     * /zoho/code:
+     *      get:
+     *          tags:
+     *              - Zoho
+     *          summary: Return zoho by ID
+     *          parameters:
+     *              - in: query
+     *                name: code
+     *                description: code of zoho
+     *                schema:
+     *                    type: string
+     *          responses:
+     *              '200':
+     *                  description: Data object
+     *              '404':
+     *                  description: Data not found
+     */
+    public static async getCodeOfZoho (ctx: DefaultContext) {
+        try {
+            const code = ctx.query.code
+            if (code) {
+                console.log(code)
+                const zoho = await Zoho.findOne()
+                if (zoho) {
+                    zoho.code = code
+                    await zoho.save()
+
+                    await updateZohoConfig()
+                }
+            }
+            ctx.body = { success: true }
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
