@@ -88,7 +88,9 @@ export class Reader extends MainEntity {
         'enable_buzzer',
         'enable_crc',
         'mode',
-        'osdp_address'
+        'osdp_address',
+        'leaving_zone',
+        'came_to_zone'
     ]
 
     public static OSDP_fields_that_used_in_sending: Array<string> = [
