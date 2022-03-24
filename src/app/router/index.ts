@@ -23,6 +23,7 @@ import extDevice from './extDevice'
 import autoTaskSchedule from './autoTaskSchedule'
 import dashboard from './dashboard'
 import notification from './notification'
+import zoho from './zoho'
 
 const router = new Router()
 
@@ -49,6 +50,7 @@ router.use('/', credential.routes(), credential.allowedMethods())
 router.use('/', standardReport.routes(), standardReport.allowedMethods())
 router.use('/', dashboard.routes(), dashboard.allowedMethods())
 router.use('/', notification.routes(), notification.allowedMethods())
+router.use('/', zoho.routes(), zoho.allowedMethods())
 
 export {
     router

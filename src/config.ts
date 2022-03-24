@@ -56,6 +56,15 @@ export interface IConfig {
         fromEmail: string,
         apiKey: string
     };
+    zoho: {
+        client_id: string,
+        client_secret: string,
+        code: string,
+        scope: string,
+        redirect_uri: string,
+        product_id: string,
+        organization_id:string
+    };
     nodeEnv: string;
     isTest: boolean;
     isProduction: boolean;
@@ -64,7 +73,7 @@ export interface IConfig {
 
 }
 
-const config: IConfig = {
+var config: IConfig = {
     server: {
         port: normalizePort(_.defaultTo(process.env.PORT, 3000)),
         root: ROOT
@@ -106,6 +115,16 @@ const config: IConfig = {
     sendgrid: {
         fromEmail: _.defaultTo(process.env.SENDGRID_FROM_EMAIL, 'g.israelyan@studio-one.am'),
         apiKey: _.defaultTo(process.env.SENDGRID_API_KEY, 'empty')
+    },
+    zoho: {
+        client_id: '',
+        client_secret: '',
+        code: '',
+        scope: '',
+        redirect_uri: '',
+        product_id: _.defaultTo('2857260000000093003', 'empty'),
+        organization_id: _.defaultTo('762669996', 'empty')
+
     },
     nodeEnv: process.env.NODE_ENV,
     isTest: !!(process.env.NODE_ENV === 'test' && process.env.NODE_TEST),

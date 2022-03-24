@@ -9,7 +9,7 @@ export async function getRequest<T> (link:string) {
                 reject(err)
             } else {
                 if (_res.statusCode !== 200) {
-                    console.error(body)
+                    console.error(888888888888888)
                     return reject(body)
                 }
                 return resolve(JSON.parse(body))
@@ -18,11 +18,12 @@ export async function getRequest<T> (link:string) {
     })
 }
 
-export function postBodyRequest<T> (link:string, body:object|string) {
-    const headers = {
-        'Content-Type': 'application/json'
-    }
-
+export function postBodyRequest<T> (link:string, body:object|string, headers?:object) {
+    if (!headers) {
+        headers = {
+           'Content-Type': 'application/json'
+       }
+   }
     return new Promise<T>((resolve, reject) => {
         request.post(
             {
@@ -31,6 +32,40 @@ export function postBodyRequest<T> (link:string, body:object|string) {
                 body: body,
                 method: 'POST',
                 json: true
+            },
+            // tslint:disable-next-line:variable-name
+            (err, _res, body) => {
+                if (err) {
+                    console.error(err)
+                    reject(err)
+                } else {
+                    if (_res.statusCode !== 200) {
+                        console.error(body)
+                        return reject(body)
+                    }
+                    // if (body && !body.length) return resolve()
+                    // const resp = JSON.parse(body)
+                    return resolve(body)
+                }
+            }
+        )
+    })
+}
+
+export function postBodyRequestForToken<T> (link:string, body:object|string, headers?:object) {
+    if (!headers) {
+         headers = {
+            'Content-Type': 'multipart/form-data'
+        }
+    }
+
+    return new Promise<T>((resolve, reject) => {
+        request.post(
+            {
+                headers,
+                uri: link,
+                form: body,
+                method: 'POST'
             },
             // tslint:disable-next-line:variable-name
             (err, _res, body) => {
