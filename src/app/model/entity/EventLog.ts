@@ -171,7 +171,8 @@ export class EventLog extends BaseClass {
         }
 
         if (event.data.event_type === eventTypes.CARDHOLDER_ALARM || event.data.event_type === eventTypes.SYSTEM_ALARM) {
-            const notification = await Notification.addItem(event.data as Notification)
+            const notification: any = await Notification.addItem(event.data as Notification)
+            notification.access_points = event.data.access_points
             new SendSocketMessage(socketChannels.NOTIFICATION, notification, event.data.company)
         }
 
