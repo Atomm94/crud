@@ -157,7 +157,7 @@ export class Acu extends MainEntity {
         if ('status' in data) acu.status = data.status
         if ('fw_version' in data) acu.fw_version = data.fw_version
         if ('maintain_update_manual' in data) acu.maintain_update_manual = data.maintain_update_manual
-        // if ('elevator_mode' in data) acu.elevator_mode = data.elevator_mode
+        if ('elevator_mode' in data) acu.elevator_mode = data.elevator_mode
         if ('network' in data) acu.network = data.network
         if ('interface' in data) acu.interface = data.interface
 

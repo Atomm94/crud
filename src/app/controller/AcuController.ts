@@ -512,7 +512,7 @@ export default class AcuController {
                 let acuReaderSend = false
 
                 if (req_data.access_points) {
-                    const check_access_points = checkAccessPointsValidation(req_data.access_points, acu.model, acu.elevator_mode, acu.reader, true)
+                    const check_access_points = checkAccessPointsValidation(req_data.access_points, acu.model, acu_updated.new.elevator_mode, acu.reader, true)
                     if (check_access_points !== true) {
                         ctx.status = 400
                         return ctx.body = { message: check_access_points }
