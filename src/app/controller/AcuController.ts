@@ -512,7 +512,7 @@ export default class AcuController {
                 let acuReaderSend = false
 
                 if (req_data.access_points) {
-                    const check_access_points = checkAccessPointsValidation(req_data.access_points, acu.model, acu_updated.new.elevator_mode, acu.reader, true)
+                    const check_access_points = checkAccessPointsValidation(req_data.access_points, acu.model, req_data.elevator_mode, acu.reader, true)
                     if (check_access_points !== true) {
                         ctx.status = 400
                         return ctx.body = { message: check_access_points }
@@ -712,13 +712,13 @@ export default class AcuController {
                             access_point_ind++
                         }
 
-                        let acu_reader_update = true
-                        if (acu_reader && acu.status === acuStatus.ACTIVE) {
+                        if (req_data.elevator_mode && acu_reader && acu.status === acuStatus.ACTIVE) {
                             let checkAcuReaderSend: any = false
                             if (!acu_reader.id) {
-                                acu_reader_update = false
                                 acu_reader.company = company
                                 acu_reader = await Reader.addItem(acu_reader)
+                                await Acu.updateItem({ id: acu.id, reader: acu_reader.id } as Acu)
+                                acu_updated.new.reader = acu_reader.id
                             } else {
                                 const old_acu_reader = await Reader.findOneOrFail({ id: acu_reader.id, company: company })
                                 acu_reader.access_point = old_acu_reader.access_point
@@ -743,18 +743,25 @@ export default class AcuController {
                             if (acuReaderSend && acu.elevator_mode && req_data.access_points.length) {
                                 const set_acu_rd_data = {
                                     ...acu_reader,
-                                    update: acu_reader_update
+                                    update: true
                                 }
                                 RdController.setRdForFloor(location, acu.serial_number, set_acu_rd_data, req_data.access_points, user, acu.session_id)
                             }
                         } else {
-                            if (acu_reader) {
-                                const reader_updated = await Reader.updateItem(acu_reader)
-                                logs_data.push({
-                                    event: logUserEvents.CHANGE,
-                                    target: `${Reader.name}/${acu_updated.old.name}/${readerTypes[reader_updated.old.type]}`,
-                                    value: reader_updated
-                                })
+                            if (req_data.elevator_mode && acu_reader) {
+                                if (!acu_reader.id) {
+                                    acu_reader.company = company
+                                    acu_reader = await Reader.addItem(acu_reader)
+                                    await Acu.updateItem({ id: acu.id, reader: acu_reader.id } as Acu)
+                                    acu_updated.new.reader = acu_reader.id
+                                } else {
+                                    acu_reader = (await Reader.updateItem(acu_reader)).new
+                                    logs_data.push({
+                                        event: logUserEvents.CHANGE,
+                                        target: `${Reader.name}/${acu_updated.old.name}/${readerTypes[acu_reader.type]}`,
+                                        value: acu_reader
+                                    })
+                                }
                             }
                         }
                     }

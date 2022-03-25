@@ -73,6 +73,7 @@ export function interfaceValidation (data: any) {
 }
 
 export function timeValidation (data: any) {
+    if (typeof data === 'string') data = JSON.parse(data)
     if (!('timezone_from_facility' in data) ||
         !('enable_daylight_saving_time' in data) ||
         !('daylight_saving_time_from_user_account' in data) ||

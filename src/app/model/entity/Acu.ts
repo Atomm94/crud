@@ -126,6 +126,7 @@ export class Acu extends MainEntity {
         acu.status = acuStatus.PENDING
         acu.fw_version = data.fw_version
         acu.company = data.company
+        if ('reader' in data) acu.reader = data.reader
 
         return new Promise((resolve, reject) => {
             if (data.time) {
@@ -160,6 +161,7 @@ export class Acu extends MainEntity {
         if ('elevator_mode' in data) acu.elevator_mode = data.elevator_mode
         if ('network' in data) acu.network = data.network
         if ('interface' in data) acu.interface = data.interface
+        if ('reader' in data) acu.reader = data.reader
 
         if (!acu) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
