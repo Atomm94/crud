@@ -712,32 +712,38 @@ export default class AcuController {
                             access_point_ind++
                         }
 
+                        let acu_reader_update = true
                         if (acu_reader && acu.status === acuStatus.ACTIVE) {
                             let checkAcuReaderSend: any = false
-                            const old_acu_reader = await Reader.findOneOrFail({ id: acu_reader.id, company: company })
-                            acu_reader.access_point = old_acu_reader.access_point
-                            checkAcuReaderSend = checkSendingDevice(old_acu_reader, acu_reader, Reader.fields_that_used_in_sending, Reader.required_fields_for_sending)
-                            const checkReaderOSDPDataSend = checkSendingDevice(old_acu_reader.osdp_data, acu_reader.osdp_data, Reader.OSDP_fields_that_used_in_sending)
-
-                            if (checkAcuReaderSend) {
-                                acuReaderSend = true
-                                if (checkReaderOSDPDataSend) checkAcuReaderSend.osdp_data = checkReaderOSDPDataSend
+                            if (!acu_reader.id) {
+                                acu_reader_update = false
+                                acu_reader.company = company
+                                acu_reader = await Reader.addItem(acu_reader)
                             } else {
-                                if (checkReaderOSDPDataSend) {
+                                const old_acu_reader = await Reader.findOneOrFail({ id: acu_reader.id, company: company })
+                                acu_reader.access_point = old_acu_reader.access_point
+                                checkAcuReaderSend = checkSendingDevice(old_acu_reader, acu_reader, Reader.fields_that_used_in_sending, Reader.required_fields_for_sending)
+                                const checkReaderOSDPDataSend = checkSendingDevice(old_acu_reader.osdp_data, acu_reader.osdp_data, Reader.OSDP_fields_that_used_in_sending)
+                                if (checkAcuReaderSend) {
                                     acuReaderSend = true
-                                    checkAcuReaderSend = { id: acu_reader.id, osdp_data: checkReaderOSDPDataSend }
-                                    for (const required_field of Reader.required_fields_for_sending) {
-                                        if (required_field in acu_reader) checkAcuReaderSend[required_field] = acu_reader[required_field]
+                                    if (checkReaderOSDPDataSend) checkAcuReaderSend.osdp_data = checkReaderOSDPDataSend
+                                } else {
+                                    if (checkReaderOSDPDataSend) {
+                                        acuReaderSend = true
+                                        checkAcuReaderSend = { id: acu_reader.id, osdp_data: checkReaderOSDPDataSend }
+                                        for (const required_field of Reader.required_fields_for_sending) {
+                                            if (required_field in acu_reader) checkAcuReaderSend[required_field] = acu_reader[required_field]
+                                        }
                                     }
                                 }
                             }
+
                             if (checkAcuReaderSend) acu_reader = checkAcuReaderSend
 
                             if (acuReaderSend && acu.elevator_mode && req_data.access_points.length) {
                                 const set_acu_rd_data = {
                                     ...acu_reader,
-                                    acu_reader,
-                                    update: true
+                                    update: acu_reader_update
                                 }
                                 RdController.setRdForFloor(location, acu.serial_number, set_acu_rd_data, req_data.access_points, user, acu.session_id)
                             }
