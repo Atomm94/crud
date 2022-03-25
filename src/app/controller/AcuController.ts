@@ -689,7 +689,21 @@ export default class AcuController {
                                     }
                                 }
                             }
-                            if (readersSend) RdController.setRd(location, acu.serial_number, set_rd_data, user, acu.session_id)
+                            if (readersSend) {
+                                let access_point_zone: any = null
+                                if (access_point_update) {
+                                    if (checkAccessPointSend && checkAccessPointSend.access_point_zones) {
+                                        access_point_zone = checkAccessPointSend.access_point_zones
+                                    } else if (access_point.access_point_zones) {
+                                        access_point_zone = access_point.access_point_zones
+                                    } else if (access_point.access_point_zone) {
+                                        access_point_zone = await AccessPointZone.findOne({ where: { id: access_point.access_point_zone }, relations: ['antipass_backs'] })
+                                    }
+                                } else {
+                                    access_point_zone = access_point.access_point_zones
+                                }
+                                RdController.setRd(location, acu.serial_number, set_rd_data, access_point_zone, user, acu.session_id)
+                            }
 
                             // send CardKeys
                             // if (new_access_points.length) {
@@ -721,7 +735,9 @@ export default class AcuController {
 
                             if (acuReaderSend && acu.elevator_mode && req_data.access_points.length) {
                                 const set_acu_rd_data = {
-                                    ...acu_reader, update: true
+                                    ...acu_reader,
+                                    acu_reader,
+                                    update: true
                                 }
                                 RdController.setRdForFloor(location, acu.serial_number, set_acu_rd_data, req_data.access_points, user, acu.session_id)
                             }
@@ -1152,7 +1168,7 @@ export default class AcuController {
                     set_rd_data.push({ ...reader, update: reader_update })
                     // RdController.setRd(location, device.serial_number, reader, user, device.session_id, reader_update)
                 }
-                RdController.setRd(location, device.serial_number, set_rd_data, user, device.session_id)
+                RdController.setRd(location, device.serial_number, set_rd_data, access_point.access_point_zones, user, device.session_id)
 
                 // send Schedules(Access Rules)
                 for (const access_rule of access_point.access_rules) {

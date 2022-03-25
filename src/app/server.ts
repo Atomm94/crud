@@ -9,12 +9,10 @@ import MQTTBroker from '../app/mqtt/mqtt'
 import { logger } from '../../modules/winston/logger'
 import CronJob from './cron'
 
-const database = new Database()
+const database = new Database();
 // create connection with database
 // note that its not active database connection
 // TypeORM creates you connection pull to uses connections from pull on your requests
-
-console.log('config', config.zoho);
 
 (async () => {
     try {
