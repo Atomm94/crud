@@ -60,6 +60,7 @@ export default class Parse {
                             company: message.company
                         }
                         Notification.addItem(notification as Notification)
+                        new SendSocketMessage(socketChannels.NOTIFICATION, notification, message.company)
                     }
                 }
             }
