@@ -188,8 +188,7 @@ export default class AcuController {
                 acu_reader = await Reader.addItem(acu_reader)
             }
             if (req_data.access_points) {
-                const acu_reader_id = acu_reader ? acu_reader.id : 0
-                const check_access_points = checkAccessPointsValidation(req_data.access_points, req_data.model, req_data.elevator_mode, acu_reader_id, false)
+                const check_access_points = checkAccessPointsValidation(req_data.access_points, req_data.model, req_data.elevator_mode, acu_reader, false)
                 if (check_access_points !== true) {
                     ctx.status = 400
                     return ctx.body = { message: check_access_points }
@@ -512,7 +511,7 @@ export default class AcuController {
                 let acuReaderSend = false
 
                 if (req_data.access_points) {
-                    const check_access_points = checkAccessPointsValidation(req_data.access_points, acu.model, req_data.elevator_mode, acu.reader, true)
+                    const check_access_points = checkAccessPointsValidation(req_data.access_points, acu.model, req_data.elevator_mode, acu_reader, true)
                     if (check_access_points !== true) {
                         ctx.status = 400
                         return ctx.body = { message: check_access_points }
@@ -715,6 +714,7 @@ export default class AcuController {
                         if (req_data.elevator_mode && acu_reader && acu.status === acuStatus.ACTIVE) {
                             let checkAcuReaderSend: any = false
                             if (!acu_reader.id) {
+                                acuReaderSend = true
                                 acu_reader.company = company
                                 acu_reader = await Reader.addItem(acu_reader)
                                 await Acu.updateItem({ id: acu.id, reader: acu_reader.id } as Acu)

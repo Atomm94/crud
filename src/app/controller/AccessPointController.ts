@@ -108,16 +108,20 @@ export default class AccessPointController {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
             } else {
-                ctx.body = await AccessPoint.destroyItem(where)
                 if (access_point.acus.status === acuStatus.ACTIVE) {
                     CtpController.delCtp(access_point.type, location, access_point.acus.serial_number, req_data, user, access_point.acus.session_id)
+                    ctx.body = {
+                        message: 'delete pending'
+                    }
+                } else {
+                    ctx.body = await AccessPoint.destroyItem(where)
+                    logs_data.push({
+                        event: logUserEvents.DELETE,
+                        target: `${AccessPoint.name}/${access_point.acus.name}/${access_point.name}`,
+                        value: { name: access_point.name }
+                    })
+                    ctx.logsData = logs_data
                 }
-                logs_data.push({
-                    event: logUserEvents.DELETE,
-                    target: `${AccessPoint.name}/${access_point.acus.name}/${access_point.name}`,
-                    value: { name: access_point.name }
-                })
-                ctx.logsData = logs_data
             }
         } catch (error) {
             console.log(error)

@@ -12,6 +12,8 @@ import { accessPointType } from '../enums/accessPointType.enum'
 
 import autoTaskcommands from '../model/entity/autoTaskcommands.json'
 import { reactionType } from '../enums/reactionType.enum'
+import { Reader } from '../model/entity'
+
 export function ipValidation (string: string) {
     const ipformat = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
     if (string.match(ipformat)) {
@@ -107,7 +109,7 @@ export function maintainValidation (data: any) {
     }
 }
 
-export function checkAccessPointsValidation (data: any, acu_model: string, elevator_mode: boolean, acu_reader: number | null, update: boolean) {
+export function checkAccessPointsValidation (data: any, acu_model: string, elevator_mode: boolean, acu_readers: Reader | null, update: boolean) {
     const acu_models: any = acuModel
 
     const int_ports_addrs: any = {} // interface, port, address - is unique
@@ -259,7 +261,7 @@ export function checkAccessPointsValidation (data: any, acu_model: string, eleva
             // })
         }
     }
-    if (elevator_mode && !acu_reader && data.length) {
+    if (elevator_mode && !acu_readers && data.length) {
         return ('Acu must have Reader when elevator_mode is enable!')
     }
     return true
