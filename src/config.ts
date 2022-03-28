@@ -63,7 +63,16 @@ export interface IConfig {
         scope: string,
         redirect_uri: string,
         product_id: string,
-        organization_id:string
+        organization_id: string,
+        access_token: string,
+        refresh_token: string,
+        token_expire_time: string,
+        urls: {
+            tokenFromRefreshTokenUrl: string,
+            createPlanUrl: string,
+            createCustomerUrl: string,
+            createSubscriptionUrl: string
+        }
     };
     nodeEnv: string;
     isTest: boolean;
@@ -123,7 +132,16 @@ var config: IConfig = {
         scope: '',
         redirect_uri: '',
         product_id: _.defaultTo('2857260000000093003', 'empty'),
-        organization_id: _.defaultTo('762669996', 'empty')
+        organization_id: _.defaultTo('762669996', 'empty'),
+        access_token: '',
+        refresh_token: '',
+        token_expire_time: '',
+        urls: {
+            tokenFromRefreshTokenUrl: 'https://accounts.zoho.com/oauth/v2/token',
+            createPlanUrl: 'https://subscriptions.zoho.com/api/v1/plans',
+            createCustomerUrl: 'https://subscriptions.zoho.com/api/v1/customers',
+            createSubscriptionUrl: 'https://subscriptions.zoho.com/api/v1/subscriptions'
+        }
 
     },
     nodeEnv: process.env.NODE_ENV,

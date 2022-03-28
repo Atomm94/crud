@@ -11,6 +11,8 @@ import DeviceController from '../controller/Hardware/DeviceController'
 import { AcuStatus } from '../model/entity/AcuStatus'
 import { acuCloudStatus } from '../enums/acuCloudStatus.enum'
 import { AccessPointStatus } from '../model/entity/AccessPointStatus'
+import { postBodyRequestForToken } from '../services/requestUtil'
+import fs from 'fs'
 const acu_cloud_status_change_time = process.env.ACU_CLOUD_STATUS_CHANGE_TIME ? Number(process.env.ACU_CLOUD_STATUS_CHANGE_TIME) : 1 // in minutes
 
 const delete_old_tokens_interval = process.env.DELETE_OLD_TOKENS_INTERVAL ? process.env.DELETE_OLD_TOKENS_INTERVAL : '0 0 0 * * *'
@@ -29,6 +31,7 @@ export default class CronJob {
         this.updateAcuCloudStatus(update_acucloud_status_interval)
         this.updateAccessPointDoorState(update_accesspoint_door_state_interval)
         this.sendSetHeartBit(send_set_heart_bit_interval)
+        // this.testZoho('0 0 * * * *')
     }
 
     public static deleteOldTokens (interval: string): void {
@@ -100,6 +103,26 @@ export default class CronJob {
                 }
                 DeviceController.setHeartBit(location, acu.serial_number, set_heart_bit_data, acu.session_id)
             }
+        }).start()
+    }
+
+    public static async testZoho (interval: string) {
+        new Cron.CronJob(interval, async () => {
+            const tokenBody = {
+                refresh_token: '1000.99547e7704523e647cba11d91983c084.24fca9e20858c398d9236442276807b2',
+                client_id: '1000.G60JL3Z8NMVLGV730OLU4MTVKL0JWF',
+                client_secret: '66e15bbc878b690911941d139525724685abd1ab1b',
+                redirect_uri: 'https://api.unimacs.studio-one.am/zoho/code',
+                grant_type: 'refresh_token'
+            }
+
+            const linkForToken = 'https://accounts.zoho.com/oauth/v2/token'
+
+            let token: any = await postBodyRequestForToken(linkForToken, tokenBody)
+            token = JSON.parse(token)
+            let old_reses = fs.readFileSync(`${__dirname}/responses.txt`, 'utf-8')
+            old_reses = `${old_reses}\n${new Date()} - ${JSON.stringify(token)}`
+            fs.writeFileSync(`${__dirname}/responses.txt`, old_reses)
         }).start()
     }
 }

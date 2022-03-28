@@ -14,6 +14,7 @@ import { JwtToken } from '../model/entity/JwtToken'
 import * as Models from '../model/entity/index'
 import { canCreate } from '../middleware/resource'
 import { partition_unnecessary_roles, outUnnecessaryRoles } from '../model/entity/partitionUnnecessaryRoles'
+import { createCustomer, createSubsciption } from '../functions/zoho-utils'
 
 import { AccessPoint } from '../model/entity/AccessPoint'
 import { AccessRight } from '../model/entity/AccessRight'
@@ -160,6 +161,13 @@ export default class CompanyController {
                 }
             }
             const updated = await Company.updateItem(req_data as Company, req_id ? ctx.user : null)
+            if (req_data.package) {
+                if (!updated.new.create_customer_zoho_sync) {
+                    await createCustomer(req_data.id)
+                }
+                await createSubsciption(req_data.id)
+            }
+
             if (updated.old.status !== updated.new.status && updated.new.status === statusCompany.ENABLE) {
                 const main = await Admin.findOne({ id: updated.new.account })
                 if (main) {
@@ -978,45 +986,45 @@ export default class CompanyController {
             const company = await Company.findOne({ where: { id: req_data.id, partition_parent_id: ctx.user.company } }) as Company
             if (!company) {
                 ctx.status = 400
-                    ctx.body = { message: 'Invalid Compnany' }
-                    }
-                const sended_access_points = req_data.base_access_points
-                if (sended_access_points) {
-                    const access_points = await AccessPoint.find({ where: { id: In(sended_access_points) } })
+                ctx.body = { message: 'Invalid Compnany' }
+            }
+            const sended_access_points = req_data.base_access_points
+            if (sended_access_points) {
+                const access_points = await AccessPoint.find({ where: { id: In(sended_access_points) } })
 
-                    if (access_points) {
-                        req_data.base_access_points = access_points.map(item => item.id)
-                    }
-                }
-                const sended_access_right = req_data.access_right
-                if (sended_access_right) {
-                    const access_right = await AccessRight.findOne({ where: { id: sended_access_right } })
-                    if (access_right) {
-                        req_data.access_right = access_right.id
-                    }
-                }
-                const updated = await Company.updateItem(req_data as Company)
-                const admin_data = {
-                    id: company.account,
-                    first_name: req_data.first_name,
-                    phone1: req_data.phone1,
-                    email: req_data.email
-                }
-
-                await Admin.updateItem(admin_data)
-
-                ctx.oldData = updated.old
-                ctx.body = updated.new
-            } catch (error) {
-                ctx.status = error.status || 400
-                if (error.message) {
-                    ctx.body = {
-                        message: error.message
-                    }
-                } else {
-                    ctx.body = error
+                if (access_points) {
+                    req_data.base_access_points = access_points.map(item => item.id)
                 }
             }
-            return ctx.body
+            const sended_access_right = req_data.access_right
+            if (sended_access_right) {
+                const access_right = await AccessRight.findOne({ where: { id: sended_access_right } })
+                if (access_right) {
+                    req_data.access_right = access_right.id
+                }
+            }
+            const updated = await Company.updateItem(req_data as Company)
+            const admin_data = {
+                id: company.account,
+                first_name: req_data.first_name,
+                phone1: req_data.phone1,
+                email: req_data.email
+            }
+
+            await Admin.updateItem(admin_data)
+
+            ctx.oldData = updated.old
+            ctx.body = updated.new
+        } catch (error) {
+            ctx.status = error.status || 400
+            if (error.message) {
+                ctx.body = {
+                    message: error.message
+                }
+            } else {
+                ctx.body = error
+            }
         }
+        return ctx.body
+    }
 }

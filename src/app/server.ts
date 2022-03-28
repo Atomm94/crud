@@ -4,7 +4,7 @@ import { Database } from '../component/db'
 import { Sendgrid } from '../component/sendgrid/sendgrid'
 // import { logger } from '../../modules/winston/logger'
 import { AccessControl } from './functions/access-control'
-import { updateZohoConfig } from './functions/update-zoho-config'
+import { updateZohoConfig } from './functions/zoho-utils'
 import MQTTBroker from '../app/mqtt/mqtt'
 import { logger } from '../../modules/winston/logger'
 import CronJob from './cron'
@@ -21,10 +21,10 @@ const database = new Database();
         await AccessControl.GrantCompanyAccess()
         await Sendgrid.init(config.sendgrid.apiKey)
         await MQTTBroker.init()
+        await updateZohoConfig()
         CronJob.startCrons()
         app.listen(config.server.port, () => {
             logger.info(`APP listening at port ${config.server.port}`)
-            updateZohoConfig()
         }
         )
 
