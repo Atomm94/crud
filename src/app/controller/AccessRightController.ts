@@ -291,6 +291,8 @@ export default class AccessRightController {
             }
             ctx.logsData = logs_data
         } catch (error) {
+            console.log('error', error)
+
             ctx.status = error.status || 400
             ctx.body = error
         }
