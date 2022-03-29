@@ -29,6 +29,7 @@ import { minusResource } from '../../functions/minusResource'
 import { Acu } from './Acu'
 import { AcuStatus } from './AcuStatus'
 import { companyDayKeys } from '../../enums/companyDayKeys.enum'
+import { zohoCallbackStatus } from '../../enums/zohoCallbackStatus.enum'
 @Entity('company')
 export class Company extends MainEntity {
     @Column('varchar', { name: 'company_name', nullable: false })
@@ -72,6 +73,18 @@ export class Company extends MainEntity {
 
     @Column('boolean', { name: 'require_name_of_guest', default: false })
     require_name_of_guest: boolean
+
+    @Column('boolean', { name: 'create_customer_zoho_sync', default: false })
+    create_customer_zoho_sync: boolean
+
+    @Column('boolean', { name: 'create_subscription_zoho_sync', default: false })
+    create_subscription_zoho_sync: boolean
+
+    @Column('int', { name: 'zoho_customer_id', nullable: true })
+    zoho_customer_id: number | null
+
+    @Column('enum', { name: 'zoho_callback_status', enum: zohoCallbackStatus, default: zohoCallbackStatus.NONE })
+    zoho_callback_status: zohoCallbackStatus
 
     @DeleteDateColumn({ type: 'timestamp', name: 'delete_date' })
     public deleteDate: Date

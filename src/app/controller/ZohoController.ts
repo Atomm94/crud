@@ -1,6 +1,11 @@
 import { DefaultContext } from 'koa'
-import { updateZohoConfig } from '../functions/update-zoho-config'
+import { updateZohoConfig } from '../functions/zoho-utils'
 import { Zoho } from '../model/entity/Zoho'
+import { config } from '../../config'
+import { postBodyRequestForToken } from '../services/requestUtil'
+import { Company } from '../model/entity'
+import { zohoCallbackStatus } from '../enums/zohoCallbackStatus.enum'
+import { statusCompany } from '../enums/statusCompany.enum'
 
 export default class ZohoController {
     /**
@@ -302,14 +307,88 @@ export default class ZohoController {
             const code = ctx.query.code
             if (code) {
                 console.log(code)
-                const zoho = await Zoho.findOne()
+                const zoho: any = await Zoho.findOne()
                 if (zoho) {
                     zoho.code = code
                     await zoho.save()
-
                     await updateZohoConfig()
+                    const tokenBody = {
+                        refresh_token: config.zoho.refresh_token,
+                        client_id: config.zoho.client_id,
+                        client_secret: config.zoho.client_secret,
+                        redirect_uri: config.zoho.redirect_uri,
+                        grant_type: 'refresh_token'
+                    }
+                    const linkForToken = 'https://accounts.zoho.com/oauth/v2/token'
+                    let token: any = await postBodyRequestForToken(linkForToken, tokenBody)
+                    token = JSON.parse(token)
+                    zoho.access_token = token.access_token
+                    await zoho.save()
                 }
             }
+            ctx.body = { success: true }
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     * /zoho/callback:
+     *      get:
+     *          tags:
+     *              - Zoho
+     *          summary: Return zoho by ID
+     *          parameters:
+     *              - in: query
+     *                name: code
+     *                description: code of zoho
+     *                schema:
+     *                    type: string
+     *          responses:
+     *              '200':
+     *                  description: Data object
+     *              '404':
+     *                  description: Data not found
+     */
+    public static async zohoCallback (ctx: DefaultContext) {
+        try {
+            const req_data = ctx.request.body
+            const customer_id = req_data.customer.customer_id
+            const company = await Company.findOneOrFail({ where: { zoho_customer_id: customer_id } })
+            const status: zohoCallbackStatus = req_data.status
+            switch (status) {
+                case zohoCallbackStatus.LIVE:
+                case zohoCallbackStatus.TRIAL:
+                    if (company.status === statusCompany.PENDING) {
+                        company.status = statusCompany.ENABLE
+                    }
+                    company.zoho_callback_status = status
+                    await company.save()
+                    break
+                case zohoCallbackStatus.UNPAID:
+                case zohoCallbackStatus.CANCELLED:
+                case zohoCallbackStatus.CREATION_FAILED:
+                case zohoCallbackStatus.EXPIRED:
+                case zohoCallbackStatus.TRIAL_EXPIRED:
+                    if (company.status === statusCompany.ENABLE) {
+                        company.status = statusCompany.DISABLE
+                        await company.save()
+                    }
+                    company.zoho_callback_status = status
+                    await company.save()
+                    break
+                // case zohoCallbackStatus.NON_RENEWING:
+                // case zohoCallbackStatus.DUNNING:
+                // case zohoCallbackStatus.CANCELLED_FROM_DUNNING:
+                // case zohoCallbackStatus.FUTURE:
+                default:
+                    break
+            }
+
             ctx.body = { success: true }
         } catch (error) {
             ctx.status = error.status || 400

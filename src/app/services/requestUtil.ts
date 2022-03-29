@@ -1,6 +1,6 @@
 import * as request from 'request'
 
-export async function getRequest<T> (link:string) {
+export async function getRequest<T> (link: string) {
     return new Promise<T>((resolve, reject) => {
         const headers = {}
         request.get(link, headers, (err, _res, body) => {
@@ -9,7 +9,6 @@ export async function getRequest<T> (link:string) {
                 reject(err)
             } else {
                 if (_res.statusCode !== 200) {
-                    console.error(888888888888888)
                     return reject(body)
                 }
                 return resolve(JSON.parse(body))
@@ -18,12 +17,12 @@ export async function getRequest<T> (link:string) {
     })
 }
 
-export function postBodyRequest<T> (link:string, body:object|string, headers?:object) {
+export function postBodyRequest<T> (link: string, body: object | string, headers?: object) {
     if (!headers) {
         headers = {
-           'Content-Type': 'application/json'
-       }
-   }
+            'Content-Type': 'application/json'
+        }
+    }
     return new Promise<T>((resolve, reject) => {
         request.post(
             {
@@ -34,27 +33,28 @@ export function postBodyRequest<T> (link:string, body:object|string, headers?:ob
                 json: true
             },
             // tslint:disable-next-line:variable-name
-            (err, _res, body) => {
+            (err, _res, res_body) => {
                 if (err) {
-                    console.error(err)
                     reject(err)
                 } else {
-                    if (_res.statusCode !== 200) {
-                        console.error(body)
-                        return reject(body)
+                    if (![200, 201].includes(_res.statusCode)) {
+                        console.error(33333, res_body)
+                        return reject(res_body)
                     }
                     // if (body && !body.length) return resolve()
                     // const resp = JSON.parse(body)
-                    return resolve(body)
+                    console.log('postBodyRequest', link, body, res_body)
+
+                    return resolve(res_body)
                 }
             }
         )
     })
 }
 
-export function postBodyRequestForToken<T> (link:string, body:object|string, headers?:object) {
+export function postBodyRequestForToken<T> (link: string, body: object | string, headers?: object) {
     if (!headers) {
-         headers = {
+        headers = {
             'Content-Type': 'multipart/form-data'
         }
     }
@@ -68,25 +68,26 @@ export function postBodyRequestForToken<T> (link:string, body:object|string, hea
                 method: 'POST'
             },
             // tslint:disable-next-line:variable-name
-            (err, _res, body) => {
+            (err, _res, res_body) => {
                 if (err) {
                     console.error(err)
                     reject(err)
                 } else {
                     if (_res.statusCode !== 200) {
-                        console.error(body)
-                        return reject(body)
+                        console.error(res_body)
+                        return reject(res_body)
                     }
+                    console.log('postBodyRequestForToken', link, body, res_body)
                     // if (body && !body.length) return resolve()
                     // const resp = JSON.parse(body)
-                    return resolve(body)
+                    return resolve(res_body)
                 }
             }
         )
     })
 }
 
-export function putBodyRequest<T> (link:string, body:object) {
+export function putBodyRequest<T> (link: string, body: object) {
     const headers = {
         'Content-Type': 'application/json'
     }

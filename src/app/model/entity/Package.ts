@@ -40,6 +40,9 @@ export class Package extends MainEntity {
     @Column('boolean', { name: 'status', default: true })
     status: boolean
 
+    @Column('boolean', { name: 'create_package_zoho_sync', default: false })
+    create_package_zoho_sync: boolean
+
     @DeleteDateColumn({ type: 'timestamp', name: 'delete_date' })
     public deleteDate: Date
 
