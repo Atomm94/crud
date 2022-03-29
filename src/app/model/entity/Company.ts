@@ -80,8 +80,8 @@ export class Company extends MainEntity {
     @Column('boolean', { name: 'create_subscription_zoho_sync', default: false })
     create_subscription_zoho_sync: boolean
 
-    @Column('int', { name: 'zoho_customer_id', nullable: true })
-    zoho_customer_id: number | null
+    @Column('varchar', { name: 'zoho_customer_id', nullable: true })
+    zoho_customer_id: string | null
 
     @Column('enum', { name: 'zoho_callback_status', enum: zohoCallbackStatus, default: zohoCallbackStatus.NONE })
     zoho_callback_status: zohoCallbackStatus
