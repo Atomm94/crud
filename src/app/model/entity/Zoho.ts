@@ -1,3 +1,4 @@
+
 import {
     Entity,
     Column
@@ -28,6 +29,15 @@ export class Zoho extends MainEntity {
     @Column('varchar', { name: 'organization_id', nullable: false })
     organization_id: string
 
+    @Column('varchar', { name: 'access_token', nullable: false })
+    access_token: string
+
+    @Column('varchar', { name: 'refresh_token', nullable: false })
+    refresh_token: string
+
+    @Column('varchar', { name: 'token_expire_time', nullable: true })
+    token_expire_time: string
+
     public static async addItem (data: Zoho): Promise<Zoho> {
         const zoho = new Zoho()
 
@@ -38,6 +48,8 @@ export class Zoho extends MainEntity {
         zoho.redirect_uri = data.redirect_uri
         zoho.product_id = data.product_id
         zoho.organization_id = data.organization_id
+        zoho.access_token = data.access_token
+        zoho.refresh_token = data.refresh_token
 
         return new Promise((resolve, reject) => {
             this.save(zoho)
@@ -61,6 +73,8 @@ export class Zoho extends MainEntity {
         if ('redirect_uri' in data) zoho.redirect_uri = data.redirect_uri
         if ('product_id' in data) zoho.product_id = data.product_id
         if ('organization_id' in data) zoho.organization_id = data.organization_id
+        if ('access_token' in data) zoho.access_token = data.access_token
+        if ('refresh_token' in data) zoho.refresh_token = data.refresh_token
 
         if (!zoho) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {

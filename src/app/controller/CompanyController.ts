@@ -14,6 +14,7 @@ import { JwtToken } from '../model/entity/JwtToken'
 import * as Models from '../model/entity/index'
 import { canCreate } from '../middleware/resource'
 import { partition_unnecessary_roles, outUnnecessaryRoles } from '../model/entity/partitionUnnecessaryRoles'
+import { createCustomer, createSubsciption } from '../functions/zoho-utils'
 
 import { AccessPoint } from '../model/entity/AccessPoint'
 import { AccessRight } from '../model/entity/AccessRight'
@@ -160,6 +161,13 @@ export default class CompanyController {
                 }
             }
             const updated = await Company.updateItem(req_data as Company, req_id ? ctx.user : null)
+            if (req_data.package) {
+                if (!updated.new.create_customer_zoho_sync) {
+                    await createCustomer(req_data.id)
+                }
+                await createSubsciption(req_data.id)
+            }
+
             if (updated.old.status !== updated.new.status && updated.new.status === statusCompany.ENABLE) {
                 const main = await Admin.findOne({ id: updated.new.account })
                 if (main) {
