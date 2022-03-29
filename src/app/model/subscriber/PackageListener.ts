@@ -41,6 +41,6 @@ export class PostSubscriber implements EntitySubscriberInterface<Package> {
         if (data.status && data.extra_settings) {
             AccessControl.addCompanyGrant(data)
         }
-        await createPlan(data)
+        createPlan(data)
     }
 }
