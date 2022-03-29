@@ -112,7 +112,7 @@ export async function createSubsciption (company_id: Number) {
             }
             const createSubsciption = config.zoho.urls.createSubscriptionUrl
             const bodyForSubsciption = {
-                customer_id: String(company.zoho_customer_id),
+                customer_id: company.zoho_customer_id,
                 auto_collect: false,
                 plan: {
                     plan_code: String(company.package)

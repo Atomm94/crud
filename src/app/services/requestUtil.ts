@@ -34,6 +34,7 @@ export function postBodyRequest<T> (link: string, body: object | string, headers
             },
             // tslint:disable-next-line:variable-name
             (err, _res, res_body) => {
+                console.log('postBodyRequest', link, body, res_body)
                 if (err) {
                     reject(err)
                 } else {
@@ -43,7 +44,6 @@ export function postBodyRequest<T> (link: string, body: object | string, headers
                     }
                     // if (body && !body.length) return resolve()
                     // const resp = JSON.parse(body)
-                    console.log('postBodyRequest', link, body, res_body)
 
                     return resolve(res_body)
                 }
@@ -69,6 +69,7 @@ export function postBodyRequestForToken<T> (link: string, body: object | string,
             },
             // tslint:disable-next-line:variable-name
             (err, _res, res_body) => {
+                console.log('postBodyRequestForToken', link, body, res_body)
                 if (err) {
                     console.error(err)
                     reject(err)
@@ -77,7 +78,6 @@ export function postBodyRequestForToken<T> (link: string, body: object | string,
                         console.error(res_body)
                         return reject(res_body)
                     }
-                    console.log('postBodyRequestForToken', link, body, res_body)
                     // if (body && !body.length) return resolve()
                     // const resp = JSON.parse(body)
                     return resolve(res_body)
