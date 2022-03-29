@@ -292,6 +292,11 @@ export default class CardholderController {
                 for (const credential of req_data.credentials) {
                     credential.company = company
                     credential.cardholder = cardholder.id
+                    if (cardholder.status === cardholderStatus.ACTIVE) {
+                        credential.status = credentialStatus.ACTIVE
+                    } else if (cardholder.status === cardholderStatus.INACTIVE) {
+                        credential.status = credentialStatus.INACTIVE
+                    }
                     const credential_data: any = await Credential.addItem(credential as Credential)
                     logs_data.push({
                         event: logUserEvents.CREATE,
