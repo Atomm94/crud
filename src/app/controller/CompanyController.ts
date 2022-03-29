@@ -543,7 +543,7 @@ export default class CompanyController {
                 const company_data = req_data.company
                 const account_data = req_data.account
 
-                if (!('first_name' in account_data && 'last_name' in account_data && 'email' in account_data && 'phone_1' in account_data && 'post_code' in account_data)) {
+                if (!('first_name' in account_data && 'last_name' in account_data && 'email' in account_data && 'phone_1' in account_data)) {
                     ctx.status = 400
                     ctx.body = {
                         message: 'Fill in required inputs!!'
@@ -699,7 +699,7 @@ export default class CompanyController {
                 const company_data = req_data.company
                 const account_data = req_data.account
 
-                if (!('first_name' in account_data && 'last_name' in account_data && 'email' in account_data && 'phone_1' in account_data && 'post_code' in account_data)) {
+                if (!('first_name' in account_data && 'last_name' in account_data && 'email' in account_data && 'phone_1' in account_data)) {
                     ctx.status = 400
                     ctx.body = {
                         message: 'Fill in required inputs!!'
