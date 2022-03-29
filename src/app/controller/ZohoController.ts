@@ -338,16 +338,30 @@ export default class ZohoController {
      *
      * @swagger
      * /zoho/callback:
-     *      get:
+     *      post:
      *          tags:
      *              - Zoho
-     *          summary: Return zoho by ID
+     *          summary: callback url for zoho webhooks.
+     *          consumes:
+     *              - application/json
      *          parameters:
-     *              - in: query
-     *                name: code
-     *                description: code of zoho
-     *                schema:
-     *                    type: string
+     *            - in: body
+     *              name: zoho
+     *              description: The zoho to create.
+     *              schema:
+     *                  type: object
+     *                  required:
+     *                  properties:
+     *                      customer:
+     *                          type: object
+     *                          properties:
+     *                              customer_id:
+     *                                  type: string
+     *                                  example: '903000000000099'
+     *                      status:
+     *                          type: string
+     *                          enum: [live, trial, dunning, unpaid, non_renewing, cancelled, creation_failed, cancelled_from_dunning, expired, trial_expired, future]
+     *                          example: live
      *          responses:
      *              '200':
      *                  description: Data object

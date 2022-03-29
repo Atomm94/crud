@@ -17,7 +17,8 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
         // 'credential/accessPoints',
         // 'credential/accessPoint/open'
         // 'guest/credential'
-        'zoho/code'
+        'zoho/code',
+        'zoho/callback'
     ]
 
     const path = ctx.request.url.split('?')[0].split('/').slice(1).join('/')
