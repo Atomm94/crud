@@ -855,15 +855,21 @@ export default class CompanyController {
             const resource = ctx.query.resource
             const company = ctx.user.company
             const models: any = Models
-            if (!models[resource] || !models[resource].resource) {
-                ctx.status = 400
+            if (!company) {
                 ctx.body = {
-                    message: 'Invalid Resource!'
+                    success: true
                 }
             } else {
-                const can = await canCreate(company, resource)
-                ctx.body = {
-                    success: can
+                if (!models[resource] || !models[resource].resource) {
+                    ctx.status = 400
+                    ctx.body = {
+                        message: 'Invalid Resource!'
+                    }
+                } else {
+                    const can = await canCreate(company, resource)
+                    ctx.body = {
+                        success: can
+                    }
                 }
             }
         } catch (error) {
@@ -978,45 +984,45 @@ export default class CompanyController {
             const company = await Company.findOne({ where: { id: req_data.id, partition_parent_id: ctx.user.company } }) as Company
             if (!company) {
                 ctx.status = 400
-                    ctx.body = { message: 'Invalid Compnany' }
-                    }
-                const sended_access_points = req_data.base_access_points
-                if (sended_access_points) {
-                    const access_points = await AccessPoint.find({ where: { id: In(sended_access_points) } })
+                ctx.body = { message: 'Invalid Compnany' }
+            }
+            const sended_access_points = req_data.base_access_points
+            if (sended_access_points) {
+                const access_points = await AccessPoint.find({ where: { id: In(sended_access_points) } })
 
-                    if (access_points) {
-                        req_data.base_access_points = access_points.map(item => item.id)
-                    }
-                }
-                const sended_access_right = req_data.access_right
-                if (sended_access_right) {
-                    const access_right = await AccessRight.findOne({ where: { id: sended_access_right } })
-                    if (access_right) {
-                        req_data.access_right = access_right.id
-                    }
-                }
-                const updated = await Company.updateItem(req_data as Company)
-                const admin_data = {
-                    id: company.account,
-                    first_name: req_data.first_name,
-                    phone1: req_data.phone1,
-                    email: req_data.email
-                }
-
-                await Admin.updateItem(admin_data)
-
-                ctx.oldData = updated.old
-                ctx.body = updated.new
-            } catch (error) {
-                ctx.status = error.status || 400
-                if (error.message) {
-                    ctx.body = {
-                        message: error.message
-                    }
-                } else {
-                    ctx.body = error
+                if (access_points) {
+                    req_data.base_access_points = access_points.map(item => item.id)
                 }
             }
-            return ctx.body
+            const sended_access_right = req_data.access_right
+            if (sended_access_right) {
+                const access_right = await AccessRight.findOne({ where: { id: sended_access_right } })
+                if (access_right) {
+                    req_data.access_right = access_right.id
+                }
+            }
+            const updated = await Company.updateItem(req_data as Company)
+            const admin_data = {
+                id: company.account,
+                first_name: req_data.first_name,
+                phone1: req_data.phone1,
+                email: req_data.email
+            }
+
+            await Admin.updateItem(admin_data)
+
+            ctx.oldData = updated.old
+            ctx.body = updated.new
+        } catch (error) {
+            ctx.status = error.status || 400
+            if (error.message) {
+                ctx.body = {
+                    message: error.message
+                }
+            } else {
+                ctx.body = error
+            }
         }
+        return ctx.body
+    }
 }
