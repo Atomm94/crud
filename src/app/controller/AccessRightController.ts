@@ -260,7 +260,7 @@ export default class AccessRightController {
 
             let active_rule = false
             for (const access_rule of access_rules) {
-                if (access_rule.access_points.acus.status === acuStatus.ACTIVE) {
+                if (access_rule.access_points && access_rule.access_points.acus && access_rule.access_points.acus.status === acuStatus.ACTIVE) {
                     active_rule = true
                     const send_data = {
                         id: access_rule.id,
