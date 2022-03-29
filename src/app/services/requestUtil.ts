@@ -1,4 +1,5 @@
 import * as request from 'request'
+import { config } from '../../config'
 
 export async function getRequest<T> (link: string) {
     return new Promise<T>((resolve, reject) => {
@@ -34,13 +35,17 @@ export function postBodyRequest<T> (link: string, body: object | string, headers
             },
             // tslint:disable-next-line:variable-name
             (err, _res, res_body) => {
-                console.log('postBodyRequest', link, body, res_body)
+                console.log('postBodyRequest', link, body, _res.statusCode, res_body)
                 if (err) {
                     reject(err)
                 } else {
                     if (![200, 201].includes(_res.statusCode)) {
                         console.error(33333, res_body)
-                        return reject(res_body)
+                        if (link === config.zoho.urls.createPlanUrl && res_body.code === 100502) {
+                            return resolve(res_body)
+                        } else {
+                            return reject(res_body)
+                        }
                     }
                     // if (body && !body.length) return resolve()
                     // const resp = JSON.parse(body)
@@ -69,7 +74,7 @@ export function postBodyRequestForToken<T> (link: string, body: object | string,
             },
             // tslint:disable-next-line:variable-name
             (err, _res, res_body) => {
-                console.log('postBodyRequestForToken', link, body, res_body)
+                console.log('postBodyRequestForToken', link, body, _res.statusCode, res_body)
                 if (err) {
                     console.error(err)
                     reject(err)

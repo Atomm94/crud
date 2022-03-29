@@ -68,7 +68,7 @@ export async function createPlan (package_data: Package) {
         }
 
         const plan: any = await postBodyRequest(createPlan, body, headers)
-        if (plan.code === 0) {
+        if (plan.code === 0 || plan.code === 100502) {
             package_data.create_package_zoho_sync = true
             await package_data.save()
         }
