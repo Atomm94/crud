@@ -243,7 +243,7 @@ export default class ScheduleController {
             const where = { id: req_data.id, company: user.company ? user.company : null }
             let schedule: any = await Schedule.createQueryBuilder('schedule')
                 .leftJoinAndSelect('schedule.cardholders', 'cardholder', 'cardholder.delete_date is null')
-                .leftJoinAndSelect('schedule.cardholder_groups', 'cardholder_group')
+                .leftJoinAndSelect('schedule.cardholder_groups', 'cardholder_group', 'cardholder_group.delete_date is null')
                 .leftJoinAndSelect('schedule.access_rules', 'access_rule', 'access_rule.delete_date is null')
                 .where(`schedule.id = '${where.id}'`)
                 .andWhere(`schedule.company = '${where.company}'`)
