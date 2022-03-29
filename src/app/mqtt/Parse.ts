@@ -27,6 +27,7 @@ import { AutoTaskSchedule } from '../model/entity/AutoTaskSchedule'
 import { Credential } from '../model/entity/Credential'
 import CardKeyController from '../controller/Hardware/CardKeyController'
 import moment from 'moment'
+import { generateMessageForOperator } from '../functions/checkOperator'
 
 export default class Parse {
     public static async deviceData (topic: string, data: string) {
@@ -55,7 +56,7 @@ export default class Parse {
                     new SendSocketMessage(socketChannels.ERROR_CHANNEL, sended_data, message.company, user)
                     if (error === 777) {
                         const notification = {
-                            event: `Timeout ${message.device_topic} - ${message.operator}`,
+                            event: `Timeout ${message.device_topic} - ${generateMessageForOperator(message.operator)}`,
                             description: JSON.stringify(message),
                             company: message.company
                         }

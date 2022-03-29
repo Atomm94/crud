@@ -863,15 +863,21 @@ export default class CompanyController {
             const resource = ctx.query.resource
             const company = ctx.user.company
             const models: any = Models
-            if (!models[resource] || !models[resource].resource) {
-                ctx.status = 400
+            if (!company) {
                 ctx.body = {
-                    message: 'Invalid Resource!'
+                    success: true
                 }
             } else {
-                const can = await canCreate(company, resource)
-                ctx.body = {
-                    success: can
+                if (!models[resource] || !models[resource].resource) {
+                    ctx.status = 400
+                    ctx.body = {
+                        message: 'Invalid Resource!'
+                    }
+                } else {
+                    const can = await canCreate(company, resource)
+                    ctx.body = {
+                        success: can
+                    }
                 }
             }
         } catch (error) {
