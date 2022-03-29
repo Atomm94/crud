@@ -255,7 +255,7 @@ export default class AccessRightController {
                 .leftJoinAndSelect('access_rule.schedules', 'schedule', 'schedule.delete_date is null')
                 .leftJoinAndSelect('access_rule.access_points', 'access_point', 'access_point.delete_date is null')
                 .leftJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
-                .where(`access_rule.id = '${req_data.id}'`)
+                .where(`access_rule.access_right = '${req_data.id}'`)
                 .getMany()
 
             let active_rule = false
