@@ -132,7 +132,7 @@ export async function createSubsciption (company_id: Number) {
                     customer_id: company.zoho_customer_id,
                     auto_collect: false,
                     plan: {
-                        plan_code: String(company.package)
+                        plan_code: String(company.upgraded_package_id)
                     }
                 }
                 const subscription: any = await postBodyRequest(createSubsciption, bodyForSubsciption, headers)

@@ -381,7 +381,7 @@ export default class ZohoController {
     public static async zohoCallback (ctx: DefaultContext) {
         try {
             const req_data = ctx.request.body
-            console.log('req_data zohoCallback', req_data)
+            console.log('req_data zohoCallback', JSON.stringify(req_data))
 
             const customer_id = req_data.data.subscription.customer_id
             const package_id = req_data.data.subscription.plan.plan_code
