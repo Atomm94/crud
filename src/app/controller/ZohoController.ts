@@ -378,6 +378,8 @@ export default class ZohoController {
     public static async zohoCallback (ctx: DefaultContext) {
         try {
             const req_data = ctx.request.body
+            console.log('req_data zohoCallback', req_data)
+
             const customer_id = req_data.customer.customer_id
             const package_id = req_data.plan.plan_code
             const coming_package = await Package.findOne({ id: package_id }) as Package
