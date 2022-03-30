@@ -38,6 +38,9 @@ export class Company extends MainEntity {
     @Column('int', { name: 'package', nullable: true })
     package: number | null
 
+    @Column('int', { name: 'upgraded_package_id', nullable: true })
+    upgraded_package_id: number | null
+
     @Column('int', { name: 'package_type', nullable: false })
     package_type: number
 
@@ -187,6 +190,7 @@ export class Company extends MainEntity {
         }
         if ('day_keys' in data) company.day_keys = data.day_keys
         if ('require_name_of_guest' in data) company.require_name_of_guest = data.require_name_of_guest
+        if ('upgraded_package_id' in data) company.upgraded_package_id = data.upgraded_package_id
 
         if (!company) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
