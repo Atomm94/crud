@@ -353,22 +353,28 @@ export default class ZohoController {
      *                  type: object
      *                  required:
      *                  properties:
-     *                      customer:
+     *                      data:
      *                          type: object
      *                          properties:
-     *                              customer_id:
-     *                                  type: string
-     *                                  example: '903000000000099'
-     *                      status:
-     *                          type: string
-     *                          enum: [live, trial, dunning, unpaid, non_renewing, cancelled, creation_failed, cancelled_from_dunning, expired, trial_expired, future]
-     *                          example: live
-     *                      plan:
-     *                          type: object
-     *                          properties:
-     *                              plan_code:
-     *                                  type: string
-     *                                  example: '15'
+     *                              subscription:
+     *                                  type: object
+     *                                  properties:
+     *                                      customer:
+     *                                          type: object
+     *                                          properties:
+     *                                              customer_id:
+     *                                                  type: string
+     *                                                  example: '903000000000099'
+     *                                      status:
+     *                                          type: string
+     *                                          enum: [live, trial, dunning, unpaid, non_renewing, cancelled, creation_failed, cancelled_from_dunning, expired, trial_expired, future]
+     *                                          example: live
+     *                                      plan:
+     *                                          type: object
+     *                                          properties:
+     *                                              plan_code:
+     *                                                  type: string
+     *                                                  example: '15'
      *          responses:
      *              '200':
      *                  description: Data object
@@ -380,11 +386,11 @@ export default class ZohoController {
             const req_data = ctx.request.body
             console.log('req_data zohoCallback', req_data)
 
-            const customer_id = req_data.customer.customer_id
-            const package_id = req_data.plan.plan_code
+            const customer_id = req_data.data.subscription.customer.customer_id
+            const package_id = req_data.data.subscription.plan.plan_code
             const coming_package = await Package.findOne({ id: package_id }) as Package
             const company: any = await Company.findOneOrFail({ where: { zoho_customer_id: customer_id }, relations: ['company_account'] })
-            const status: zohoCallbackStatus = req_data.status
+            const status: zohoCallbackStatus = req_data.data.subscription.status
             const main = company.company_account
             switch (status) {
                 case zohoCallbackStatus.LIVE:
