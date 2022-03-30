@@ -3,7 +3,7 @@ import { updateZohoConfig } from '../functions/zoho-utils'
 import { Zoho } from '../model/entity/Zoho'
 import { config } from '../../config'
 import { postBodyRequestForToken } from '../services/requestUtil'
-import { Company } from '../model/entity'
+import { Company, Package } from '../model/entity'
 import { zohoCallbackStatus } from '../enums/zohoCallbackStatus.enum'
 import { statusCompany } from '../enums/statusCompany.enum'
 import { Sendgrid } from '../../component/sendgrid/sendgrid'
@@ -378,8 +378,11 @@ export default class ZohoController {
     public static async zohoCallback (ctx: DefaultContext) {
         try {
             const req_data = ctx.request.body
+            console.log('req_data zohoCallback', req_data)
+
             const customer_id = req_data.customer.customer_id
             const package_id = req_data.plan.plan_code
+            const coming_package = await Package.findOne({ id: package_id }) as Package
             const company: any = await Company.findOneOrFail({ where: { zoho_customer_id: customer_id }, relations: ['company_account'] })
             const status: zohoCallbackStatus = req_data.status
             const main = company.company_account
@@ -404,8 +407,12 @@ export default class ZohoController {
                 case zohoCallbackStatus.EXPIRED:
                 case zohoCallbackStatus.TRIAL_EXPIRED:
                     if (company.status === statusCompany.ENABLE) {
-                        company.status = statusCompany.DISABLE
-                        await company.save()
+                        const default_package = await Package.findOne({ where: { package_type: coming_package.package_type, price: 0 } })
+                        if (default_package) {
+                            company.package = default_package.id
+                        } else {
+                            company.status = statusCompany.DISABLE
+                       }
                     }
                     company.zoho_callback_status = status
                     await company.save()

@@ -161,8 +161,18 @@ export default class AccessPointController {
             // req_data.relations = ['acus', 'access_point_groups', 'access_point_zones']
             // ctx.body = await AccessPoint.getAllItems(req_data)
             let access_points: any
+            let resurce_limited
+            let take_limit
+              if (ctx.query.packageExtraSettings) {
+                if (ctx.query.packageExtraSettings.resources.Cardholder) {
+                    take_limit = ctx.query.packageExtraSettings.resources.Cardholder
+                } else {
+                    take_limit = 0
+                }
+                resurce_limited = true
+            }
             if (!user.companyData.partition_parent_id) {
-                access_points = await AccessPoint.createQueryBuilder('access_point')
+                access_points = AccessPoint.createQueryBuilder('access_point')
                     .leftJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
                     .leftJoinAndSelect('access_point.access_point_groups', 'access_point_group', 'access_point_group.delete_date is null')
                     .leftJoinAndSelect('access_point.readers', 'reader', 'reader.delete_date is null')
@@ -170,10 +180,9 @@ export default class AccessPointController {
                     .leftJoinAndSelect('reader.came_to_zones', 'came_to_zone', 'came_to_zone.delete_date is null')
                     .leftJoinAndSelect('access_point.access_point_zones', 'access_point_zone', 'access_point_zone.delete_date is null')
                     .andWhere(`access_point.company = '${user.company ? user.company : null}'`)
-                    .getMany()
             } else {
                 const base_access_points: any = JSON.parse(user.companyData.base_access_points)
-                access_points = await AccessPoint.createQueryBuilder('access_point')
+                access_points = AccessPoint.createQueryBuilder('access_point')
                     .leftJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
                     .leftJoinAndSelect('access_point.access_point_groups', 'access_point_group', 'access_point_group.delete_date is null')
                     .leftJoinAndSelect('access_point.readers', 'reader', 'reader.delete_date is null')
@@ -182,6 +191,14 @@ export default class AccessPointController {
                     .leftJoinAndSelect('access_point.access_point_zones', 'access_point_zone', 'access_point_zone.delete_date is null')
                     .andWhere(`access_point.company = '${user.companyData.partition_parent_id}'`)
                     .andWhere(`access_point.id in(${base_access_points}) `)
+            }
+            if (!resurce_limited) {
+                access_points = await access_points
+                    .getMany()
+            } else {
+                access_points = await access_points
+                    .orderBy('cardholder.id', 'DESC')
+                    .take(take_limit)
                     .getMany()
             }
 

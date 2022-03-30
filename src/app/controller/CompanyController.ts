@@ -450,6 +450,7 @@ export default class CompanyController {
 
             req_data.where = where
             req_data.relations = ['company_account', 'packages', 'package_types', 'company_documents']
+
             ctx.body = await Company.getAllItems(req_data)
         } catch (error) {
             ctx.status = error.status || 400

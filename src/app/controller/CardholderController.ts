@@ -820,7 +820,16 @@ export default class CardholderController {
         try {
             // const req_data = ctx.query
             const user = ctx.user
-            // const where: any = { company: { '=': user.company ? user.company : null } }
+            let take_limit
+            let resurce_limited = false
+            if (ctx.query.packageExtraSettings) {
+                if (ctx.query.packageExtraSettings.resources.Cardholder) {
+                    take_limit = ctx.query.packageExtraSettings.resources.Cardholder
+                } else {
+                    take_limit = 0
+                }
+                resurce_limited = true
+            }
 
             // req_data.relations = ['car_infos', 'limitations', 'antipass_backs', 'time_attendances', 'access_rights', 'cardholder_groups', 'credentials']
 
@@ -829,16 +838,15 @@ export default class CardholderController {
                 // where.guest = { '=': false }
                 // where.create_by = { '=': user.id }
                 // req_data.relations = ['limitations', 'access_rights', 'credentials']
-                cardholders = await Cardholder.createQueryBuilder('cardholder')
+                cardholders = Cardholder.createQueryBuilder('cardholder')
                     .leftJoinAndSelect('cardholder.limitations', 'limitation')
                     .leftJoinAndSelect('cardholder.access_rights', 'access_right')
                     .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null')
                     .where(`cardholder.company = '${user.company ? user.company : null}'`)
                     .andWhere(`cardholder.guest = ${false}`)
                     .andWhere(`cardholder.create_by = '${user.id}'`)
-                    .getMany()
             } else {
-                cardholders = await Cardholder.createQueryBuilder('cardholder')
+                cardholders = Cardholder.createQueryBuilder('cardholder')
                     .leftJoinAndSelect('cardholder.car_infos', 'car_info')
                     .leftJoinAndSelect('cardholder.limitations', 'limitation')
                     // .leftJoinAndSelect('cardholder.antipass_backs', 'antipass_back')
@@ -847,6 +855,15 @@ export default class CardholderController {
                     .leftJoinAndSelect('cardholder.cardholder_groups', 'cardholder_group')
                     .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null')
                     .where(`cardholder.company = '${user.company ? user.company : null}'`)
+            }
+
+            if (!resurce_limited) {
+                cardholders = await cardholders
+                    .getMany()
+            } else {
+                cardholders = await cardholders
+                    .orderBy('cardholder.id', 'DESC')
+                    .take(take_limit)
                     .getMany()
             }
             // req_data.where = where

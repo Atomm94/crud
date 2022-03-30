@@ -58,8 +58,11 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
                             if (company.partition_parent_id) {
                                 company = await Company.findOne({ where: { id: company.partition_parent_id }, relations: ['packages'] })
                             }
-                            if (company.packages) {
-                                ctx.query.packageExtraSettings = JSON.parse(company.packages.extra_settings)
+                            if (company && company.packages) {
+                                ctx.query = {
+                                    ...ctx.query,
+                                    packageExctraSettings: JSON.parse(company.packages.extra_settings)
+                                  }
                             }
                         }
                     }
