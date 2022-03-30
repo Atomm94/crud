@@ -351,9 +351,10 @@ export default class AdminController {
                 admin = await Admin.findOneOrFail(ctx.user.id)
                 const adminFiltered = _.omit(admin, ['password', 'super', 'verify_token'])
                 ctx.body = adminFiltered
-                ctx.body.package = ctx.user.package ? ctx.user.package : null
                 if (ctx.user && ctx.user.company && ctx.user.package) {
                     const company = await Company.findOneOrFail({ where: { id: ctx.user.company }, relations: ['packages'] })
+                    ctx.body.package = company.package
+                    ctx.body.upgraded_package_id = company.upgraded_package_id
                     const notifications = await Notification.find({ where: { company: ctx.user.company, confirmed: null } })
                     ctx.body.notifications = notifications.length
                     if (company.packages && company.packages.extra_settings) {

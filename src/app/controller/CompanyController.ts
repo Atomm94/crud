@@ -160,7 +160,14 @@ export default class CompanyController {
                     }
                 }
             }
-            const updated = await Company.updateItem(req_data as Company, req_id ? ctx.user : null)
+            const save_data = Object.assign({}, req_data)
+            if (save_data.package) {
+                save_data.upgraded_package_id = save_data.package
+                delete save_data.package
+            }
+
+            const updated = await Company.updateItem(save_data as Company, req_id ? ctx.user : null)
+
             if (req_data.package) {
                 if (!updated.new.create_customer_zoho_sync) {
                     await createCustomer(req_data.id)

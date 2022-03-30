@@ -6,6 +6,7 @@ import { postBodyRequestForToken } from '../services/requestUtil'
 import { Company } from '../model/entity'
 import { zohoCallbackStatus } from '../enums/zohoCallbackStatus.enum'
 import { statusCompany } from '../enums/statusCompany.enum'
+import { Sendgrid } from '../../component/sendgrid/sendgrid'
 
 export default class ZohoController {
     /**
@@ -362,6 +363,12 @@ export default class ZohoController {
      *                          type: string
      *                          enum: [live, trial, dunning, unpaid, non_renewing, cancelled, creation_failed, cancelled_from_dunning, expired, trial_expired, future]
      *                          example: live
+     *                      plan:
+     *                          type: object
+     *                          properties:
+     *                              plan_code:
+     *                                  type: string
+     *                                  example: '15'
      *          responses:
      *              '200':
      *                  description: Data object
@@ -372,8 +379,10 @@ export default class ZohoController {
         try {
             const req_data = ctx.request.body
             const customer_id = req_data.customer.customer_id
-            const company = await Company.findOneOrFail({ where: { zoho_customer_id: customer_id } })
+            const package_id = req_data.plan.plan_code
+            const company: any = await Company.findOneOrFail({ where: { zoho_customer_id: customer_id }, relations: ['company_account'] })
             const status: zohoCallbackStatus = req_data.status
+            const main = company.company_account
             switch (status) {
                 case zohoCallbackStatus.LIVE:
                 case zohoCallbackStatus.TRIAL:
@@ -381,7 +390,13 @@ export default class ZohoController {
                         company.status = statusCompany.ENABLE
                     }
                     company.zoho_callback_status = status
+                    company.package = package_id
+                    company.upgraded_package_id = null
                     await company.save()
+
+                    if (main) {
+                        await Sendgrid.updateStatus(main.email)
+                    }
                     break
                 case zohoCallbackStatus.UNPAID:
                 case zohoCallbackStatus.CANCELLED:
