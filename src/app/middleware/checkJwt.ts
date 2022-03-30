@@ -2,6 +2,7 @@
 import { DefaultContext } from 'koa'
 import * as jwt from 'jsonwebtoken'
 import { JwtToken } from '../model/entity/JwtToken'
+import { Company } from '../model/entity'
 
 export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
     const whiteList = [
@@ -49,6 +50,18 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
                 } else {
                     if (ctx.user.super) {
                         ctx.allowed = true
+                    }
+                    if (ctx.user.company) {
+                        let company: any = await Company.findOne({ where: { id: ctx.user.company }, relations: ['packages'] })
+
+                        if (company) {
+                            if (company.partition_parent_id) {
+                                company = await Company.findOne({ where: { id: company.partition_parent_id }, relations: ['packages'] })
+                            }
+                            if (company.packages) {
+                                ctx.query.packageExtraSettings = JSON.parse(company.packages.extra_settings)
+                            }
+                        }
                     }
                     return await next()
                 }

@@ -163,8 +163,19 @@ export abstract class MainEntity extends BaseEntity {
             where = orWhere
         }
 
-        const take = data.page ? data.page_items_count ? (data.page_items_count > 10000) ? 10000 : data.page_items_count : 25 : 100
+        let take = data.page ? data.page_items_count ? (data.page_items_count > 10000) ? 10000 : data.page_items_count : 25 : 100
         const skip = data.page_items_count && data.page ? (data.page - 1) * data.page_items_count : 0
+        let finally_total
+
+        if (this.resource && data.packageExtraSettings) {
+            const model_name = this.constructor.name
+            if (!data.packageExtraSettings.resources[model_name]) data.packageExtraSettings.resources[model_name] = 0
+            const resource_limit = Number(data.packageExtraSettings.resources[model_name])
+            if (take > resource_limit) {
+                take = resource_limit
+                finally_total = resource_limit
+            }
+        }
 
         const [result, total] = await this.findAndCount({
             where: where,
@@ -174,10 +185,11 @@ export abstract class MainEntity extends BaseEntity {
             relations: data.relations ? data.relations : []
         })
 
+        if (!finally_total) finally_total = total
         if (data.page) {
             return {
                 data: result,
-                count: total
+                count: finally_total
             }
         } else {
             return result
