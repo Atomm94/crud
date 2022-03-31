@@ -393,7 +393,7 @@ export default class ZohoController {
                 case zohoCallbackStatus.LIVE:
                 case zohoCallbackStatus.TRIAL:
                     company.zoho_callback_status = status
-                    company.package = package_id
+                    company.package = Number(package_id)
                     company.upgraded_package_id = null
                     await company.save()
                     if (company.status === statusCompany.PENDING) {

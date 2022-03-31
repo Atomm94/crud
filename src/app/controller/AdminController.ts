@@ -351,7 +351,7 @@ export default class AdminController {
                 admin = await Admin.findOneOrFail(ctx.user.id)
                 const adminFiltered = _.omit(admin, ['password', 'super', 'verify_token'])
                 ctx.body = adminFiltered
-                if (ctx.user && ctx.user.company && ctx.user.package) {
+                if (ctx.user && ctx.user.company) {
                     const company = await Company.findOneOrFail({ where: { id: ctx.user.company }, relations: ['packages'] })
                     ctx.body.package = company.package
                     ctx.body.upgraded_package_id = company.upgraded_package_id
