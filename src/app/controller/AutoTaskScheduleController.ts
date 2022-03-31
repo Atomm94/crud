@@ -63,13 +63,13 @@ export default class AutoTaskScheduleController {
      *                      properties:
      *                          TmBeginCondition:
      *                              type: string
-     *                              example: 20:00:00
+     *                              example: '20:00:00'
      *                          TimeCondition:
      *                              type: boolean
      *                              example: true
      *                          TmEndCondition:
      *                              type: string
-     *                              example: 20:00:00
+     *                              example: '20:00:00'
      *                          repeat:
      *                              type: boolean
      *                              example: true
@@ -176,10 +176,10 @@ export default class AutoTaskScheduleController {
      *                      properties:
      *                          TmBeginCondition:
      *                              type: string
-     *                              example: 20:00:00
+     *                              example: '20:00:00'
      *                          TmEndCondition:
      *                              type: string
-     *                              example: 20:00:00
+     *                              example: '20:00:00'
      *                          repeat:
      *                              type: number
      *                              enum: [0, 1, 3]
