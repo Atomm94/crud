@@ -392,13 +392,14 @@ export default class ZohoController {
             switch (status) {
                 case zohoCallbackStatus.LIVE:
                 case zohoCallbackStatus.TRIAL:
-                    if (company.status === statusCompany.PENDING) {
-                        company.status = statusCompany.ENABLE
-                    }
                     company.zoho_callback_status = status
                     company.package = package_id
                     company.upgraded_package_id = null
                     await company.save()
+                    if (company.status === statusCompany.PENDING) {
+                        company.status = statusCompany.ENABLE
+                        await company.save()
+                    }
 
                     if (main) {
                         await Sendgrid.updateStatus(main.email)
