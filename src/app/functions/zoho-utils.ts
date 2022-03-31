@@ -100,7 +100,7 @@ export async function createCustomer (company_id: Number) {
             const bodyForCustomer = {
                 display_name: `${admin.first_name}(${admin.id})`,
                 email: admin.email,
-                company_name: company.name,
+                company_name: company.company_name,
                 phone: company.company_account.phone_1
             }
 
