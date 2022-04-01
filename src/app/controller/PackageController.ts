@@ -349,7 +349,11 @@ export default class PackageController {
                         data.resources.push(model)
                     }
                 })
-                data.resources.push(resourceKeys.VIRTUAL_KEYS, resourceKeys.KEY_PER_USER)
+                data.resources.push(resourceKeys.VIRTUAL_KEYS,
+                    resourceKeys.KEY_PER_USER,
+                    resourceKeys.ELEVATOR,
+                    resourceKeys.TURNSTILE
+                )
 
                 const featuresList = Object.getOwnPropertyNames(feature)
                 if (featuresList.length) {

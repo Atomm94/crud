@@ -55,6 +55,10 @@ export async function canCreate (company_id: number, resource: string, used_coun
                 if (resource === resourceKeys.KEY_PER_USER && used_count) {
                     usedResCount = used_count - 1
                 }
+                if (['AccessPoint', resourceKeys.ELEVATOR, resourceKeys.TURNSTILE].includes(resource as resourceKeys) && used_count) {
+                    usedResCount += used_count - 1
+                }
+
                 const resource_name = Number(resource) ? `package_type${resource}` : resource
                 return await AccessControl.companyCanAccessResource(company.package, resource_name, usedResCount)
             }

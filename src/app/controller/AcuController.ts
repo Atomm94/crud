@@ -19,6 +19,7 @@ import { accessPointMode } from '../enums/accessPointMode.enum'
 import { checkSendingDevice } from '../functions/check-sending-device'
 import { AccessPointZone } from '../model/entity'
 import { locationGenerator } from '../functions/locationGenerator'
+import { CheckAccessPoint } from '../functions/check-accessPoint'
 
 export default class AcuController {
     /**
@@ -214,6 +215,12 @@ export default class AcuController {
             })
 
             if (req_data.access_points) {
+                const check_resources_limit = await CheckAccessPoint.checkResourcesLimit(req_data.access_points, req_data.company)
+                if (check_resources_limit !== true) {
+                    ctx.status = 403
+                    return ctx.body = { message: check_resources_limit }
+                }
+
                 for (const access_point of req_data.access_points) {
                     access_point.acu = save_acu.id
                     access_point.company = acu.company
@@ -515,103 +522,98 @@ export default class AcuController {
                     if (check_access_points !== true) {
                         ctx.status = 400
                         return ctx.body = { message: check_access_points }
-                    } else {
-                        if (acu.status === acuStatus.PENDING && req_data.access_points && req_data.access_points.length) {
-                            ctx.status = 400
-                            return ctx.body = { message: `You cant add accessPoints when acu status is ${acuStatus.PENDING}` }
+                    }
+
+                    if (acu.status === acuStatus.PENDING && req_data.access_points && req_data.access_points.length) {
+                        ctx.status = 400
+                        return ctx.body = { message: `You cant add accessPoints when acu status is ${acuStatus.PENDING}` }
+                    }
+
+                    const check_resources_limit = await CheckAccessPoint.checkResourcesLimit(req_data.access_points, company)
+                    if (check_resources_limit !== true) {
+                        ctx.status = 403
+                        return ctx.body = { message: check_resources_limit }
+                    }
+
+                    // const new_access_points: AccessPoint[] = [] // for sending Set(Add)CardKey
+                    let access_point_ind = 0
+                    for (let access_point of req_data.access_points) {
+                        for (const resource in access_point.resources) {
+                            const component_source: number = access_point.resources[resource].component_source
+                            if (component_source !== 0) { // when component source is 0, so it is device
+                                const ext_device = await ExtDevice.findOne({ id: component_source, company: company })
+                                if (!ext_device) {
+                                    ctx.status = 400
+                                    return ctx.body = { message: `Invalid Component Source ${component_source}!` }
+                                }
+                            }
                         }
-                        // const new_access_points: AccessPoint[] = [] // for sending Set(Add)CardKey
-                        let access_point_ind = 0
-                        for (let access_point of req_data.access_points) {
-                            for (const resource in access_point.resources) {
-                                const component_source: number = access_point.resources[resource].component_source
-                                if (component_source !== 0) { // when component source is 0, so it is device
-                                    const ext_device = await ExtDevice.findOne({ id: component_source, company: company })
-                                    if (!ext_device) {
-                                        ctx.status = 400
-                                        return ctx.body = { message: `Invalid Component Source ${component_source}!` }
+
+                        let access_point_update = true
+                        const readers = access_point.readers
+
+                        let checkAccessPointSend: any = false
+                        if (!access_point.id) {
+                            if (acu.elevator_mode) acuReaderSend = true
+                            access_point_update = false
+                            access_point.acu = acu.id
+                            access_point.company = company
+                            if (access_point.resource) access_point.resource = JSON.stringify(access_point.resource)
+                            access_point.mode = accessPointMode.CREDENTIAL
+
+                            let access_point_zone
+                            if (access_point.access_point_zone) {
+                                access_point_zone = await AccessPointZone.findOne({ where: { id: access_point.access_point_zone }, relations: ['antipass_backs'] })
+                            }
+                            access_point = await AccessPoint.addItem(access_point)
+                            // new_access_points.push(access_point)
+                            req_data.access_points[access_point_ind] = access_point
+
+                            access_point.access_point_zones = access_point_zone
+                        } else {
+                            const old_access_point = await AccessPoint.findOneOrFail({ id: access_point.id, company: company })
+                            const type = old_access_point.type
+                            access_point.type = type
+                            checkAccessPointSend = checkSendingDevice(old_access_point, access_point, AccessPoint.fields_that_used_in_sending, AccessPoint.required_fields_for_sending)
+                            const checkAccessPointResourcesSend = checkSendingDevice(old_access_point.resources, access_point.resources)
+                            if (checkAccessPointResourcesSend) {
+                                if (checkAccessPointSend) {
+                                    checkAccessPointSend.resourcesForSendDevice = checkAccessPointResourcesSend
+                                    checkAccessPointSend.resources = access_point.resources
+                                } else {
+                                    checkAccessPointSend = {
+                                        id: access_point.id,
+                                        type,
+                                        resourcesForSendDevice: checkAccessPointResourcesSend,
+                                        resources: access_point.resources
                                     }
                                 }
                             }
 
-                            let access_point_update = true
-                            const readers = access_point.readers
-
-                            let checkAccessPointSend: any = false
-                            if (!access_point.id) {
-                                if (acu.elevator_mode) acuReaderSend = true
-                                access_point_update = false
-                                access_point.acu = acu.id
-                                access_point.company = company
-                                if (access_point.resource) access_point.resource = JSON.stringify(access_point.resource)
-                                access_point.mode = accessPointMode.CREDENTIAL
-
-                                let access_point_zone
+                            if (access_point.access_point_zone !== old_access_point.access_point_zone) {
+                                let access_point_zone: any = -1
                                 if (access_point.access_point_zone) {
                                     access_point_zone = await AccessPointZone.findOne({ where: { id: access_point.access_point_zone }, relations: ['antipass_backs'] })
                                 }
-                                access_point = await AccessPoint.addItem(access_point)
-                                // new_access_points.push(access_point)
-                                req_data.access_points[access_point_ind] = access_point
-
-                                access_point.access_point_zones = access_point_zone
-                            } else {
-                                const old_access_point = await AccessPoint.findOneOrFail({ id: access_point.id, company: company })
-                                const type = old_access_point.type
-                                access_point.type = type
-                                checkAccessPointSend = checkSendingDevice(old_access_point, access_point, AccessPoint.fields_that_used_in_sending, AccessPoint.required_fields_for_sending)
-                                const checkAccessPointResourcesSend = checkSendingDevice(old_access_point.resources, access_point.resources)
-                                if (checkAccessPointResourcesSend) {
-                                    if (checkAccessPointSend) {
-                                        checkAccessPointSend.resourcesForSendDevice = checkAccessPointResourcesSend
-                                        checkAccessPointSend.resources = access_point.resources
-                                    } else {
-                                        checkAccessPointSend = {
-                                            id: access_point.id,
-                                            type,
-                                            resourcesForSendDevice: checkAccessPointResourcesSend,
-                                            resources: access_point.resources
-                                        }
-                                    }
-                                }
-
-                                if (access_point.access_point_zone !== old_access_point.access_point_zone) {
-                                    let access_point_zone: any = -1
-                                    if (access_point.access_point_zone) {
-                                        access_point_zone = await AccessPointZone.findOne({ where: { id: access_point.access_point_zone }, relations: ['antipass_backs'] })
-                                    }
-                                    if (!access_point_zone) access_point_zone = -1
-                                    if (checkAccessPointSend) {
-                                        checkAccessPointSend.access_point_zones = access_point_zone
-                                    } else {
-                                        checkAccessPointSend = {
-                                            id: access_point.id,
-                                            type,
-                                            access_point_zone: access_point.access_point_zone,
-                                            access_point_zones: access_point_zone
-                                        }
+                                if (!access_point_zone) access_point_zone = -1
+                                if (checkAccessPointSend) {
+                                    checkAccessPointSend.access_point_zones = access_point_zone
+                                } else {
+                                    checkAccessPointSend = {
+                                        id: access_point.id,
+                                        type,
+                                        access_point_zone: access_point.access_point_zone,
+                                        access_point_zones: access_point_zone
                                     }
                                 }
                             }
+                        }
 
-                            if (acu.status === acuStatus.ACTIVE) {
-                                if (access_point_update) {
-                                    if (checkAccessPointSend) {
-                                        CtpController.setCtp(access_point.type, location, acu.serial_number, checkAccessPointSend, user, acu.session_id, access_point_update)
-                                    } else {
-                                        const access_point_update = await AccessPoint.updateItem(access_point)
-                                        logs_data.push({
-                                            event: logUserEvents.CHANGE,
-                                            target: `${AccessPoint.name}/${acu_updated.old.name}/${access_point_update.old.name}`,
-                                            value: access_point_update
-                                        })
-                                        access_point = access_point_update.new
-                                    }
+                        if (acu.status === acuStatus.ACTIVE) {
+                            if (access_point_update) {
+                                if (checkAccessPointSend) {
+                                    CtpController.setCtp(access_point.type, location, acu.serial_number, checkAccessPointSend, user, acu.session_id, access_point_update)
                                 } else {
-                                    CtpController.setCtp(access_point.type, location, acu.serial_number, access_point, user, acu.session_id, access_point_update)
-                                }
-                            } else {
-                                if (access_point_update) {
                                     const access_point_update = await AccessPoint.updateItem(access_point)
                                     logs_data.push({
                                         event: logUserEvents.CHANGE,
@@ -619,149 +621,161 @@ export default class AcuController {
                                         value: access_point_update
                                     })
                                     access_point = access_point_update.new
+                                }
+                            } else {
+                                CtpController.setCtp(access_point.type, location, acu.serial_number, access_point, user, acu.session_id, access_point_update)
+                            }
+                        } else {
+                            if (access_point_update) {
+                                const access_point_update = await AccessPoint.updateItem(access_point)
+                                logs_data.push({
+                                    event: logUserEvents.CHANGE,
+                                    target: `${AccessPoint.name}/${acu_updated.old.name}/${access_point_update.old.name}`,
+                                    value: access_point_update
+                                })
+                                access_point = access_point_update.new
+                            } else {
+                                logs_data.push({
+                                    event: logUserEvents.CREATE,
+                                    target: `${AccessPoint.name}/${acu_updated.old.name}/${access_point.name}`,
+                                    value: access_point
+                                })
+                            }
+                        }
+
+                        const set_rd_data: any = []
+                        let readersSend = false
+                        for (let reader of readers) {
+                            let checkReaderSend: any = false
+                            let reader_update = true
+                            if (!reader.id) {
+                                readersSend = true
+                                reader_update = false
+                                reader.access_point = access_point.id
+                                reader.company = company
+                                reader = await Reader.addItem(reader)
+                            } else {
+                                const old_reader = await Reader.findOneOrFail({ id: reader.id, company: company })
+                                reader.access_point = old_reader.access_point
+                                checkReaderSend = checkSendingDevice(old_reader, reader, Reader.fields_that_used_in_sending, Reader.required_fields_for_sending)
+                                const checkReaderOSDPDataSend = checkSendingDevice(old_reader.osdp_data, reader.osdp_data, Reader.OSDP_fields_that_used_in_sending)
+                                if (checkReaderSend) {
+                                    readersSend = true
+                                    if (checkReaderOSDPDataSend) checkReaderSend.osdp_data = checkReaderOSDPDataSend
+                                } else {
+                                    if (checkReaderOSDPDataSend) {
+                                        readersSend = true
+                                        checkReaderSend = { id: reader.id, osdp_data: checkReaderOSDPDataSend }
+                                        for (const required_field of Reader.required_fields_for_sending) {
+                                            if (required_field in reader) checkReaderSend[required_field] = reader[required_field]
+                                        }
+                                    }
+                                }
+                                if (checkReaderSend) reader = checkReaderSend
+                            }
+
+                            if (acu.status === acuStatus.ACTIVE) {
+                                reader.access_point_type = access_point.type
+                                set_rd_data.push({ ...reader, update: reader_update })
+                                if (!checkReaderSend) {
+                                    const reader_updated = await Reader.updateItem(reader)
+                                    logs_data.push({
+                                        event: logUserEvents.CHANGE,
+                                        target: `${Reader.name}/${acu_updated.old.name}/${access_point.name}/${readerTypes[reader_updated.old.type]}`,
+                                        value: reader_updated
+                                    })
+                                }
+                                // RdController.setRd(location, acu.serial_number, readers, user, acu.session_id, reader_update)
+                            } else {
+                                if (reader_update) {
+                                    const reader_updated = await Reader.updateItem(reader)
+                                    logs_data.push({
+                                        event: logUserEvents.CHANGE,
+                                        target: `${Reader.name}/${acu_updated.old.name}/${access_point.name}/${readerTypes[reader_updated.old.type]}`,
+                                        value: reader_updated
+                                    })
                                 } else {
                                     logs_data.push({
                                         event: logUserEvents.CREATE,
-                                        target: `${AccessPoint.name}/${acu_updated.old.name}/${access_point.name}`,
-                                        value: access_point
+                                        target: `${Reader.name}/${acu_updated.old.name}/${access_point.name}/${readerTypes[reader.type]}`,
+                                        value: reader
                                     })
                                 }
                             }
-
-                            const set_rd_data: any = []
-                            let readersSend = false
-                            for (let reader of readers) {
-                                let checkReaderSend: any = false
-                                let reader_update = true
-                                if (!reader.id) {
-                                    readersSend = true
-                                    reader_update = false
-                                    reader.access_point = access_point.id
-                                    reader.company = company
-                                    reader = await Reader.addItem(reader)
-                                } else {
-                                    const old_reader = await Reader.findOneOrFail({ id: reader.id, company: company })
-                                    reader.access_point = old_reader.access_point
-                                    checkReaderSend = checkSendingDevice(old_reader, reader, Reader.fields_that_used_in_sending, Reader.required_fields_for_sending)
-                                    const checkReaderOSDPDataSend = checkSendingDevice(old_reader.osdp_data, reader.osdp_data, Reader.OSDP_fields_that_used_in_sending)
-                                    if (checkReaderSend) {
-                                        readersSend = true
-                                        if (checkReaderOSDPDataSend) checkReaderSend.osdp_data = checkReaderOSDPDataSend
-                                    } else {
-                                        if (checkReaderOSDPDataSend) {
-                                            readersSend = true
-                                            checkReaderSend = { id: reader.id, osdp_data: checkReaderOSDPDataSend }
-                                            for (const required_field of Reader.required_fields_for_sending) {
-                                                if (required_field in reader) checkReaderSend[required_field] = reader[required_field]
-                                            }
-                                        }
-                                    }
-                                    if (checkReaderSend) reader = checkReaderSend
-                                }
-
-                                if (acu.status === acuStatus.ACTIVE) {
-                                    reader.access_point_type = access_point.type
-                                    set_rd_data.push({ ...reader, update: reader_update })
-                                    if (!checkReaderSend) {
-                                        const reader_updated = await Reader.updateItem(reader)
-                                        logs_data.push({
-                                            event: logUserEvents.CHANGE,
-                                            target: `${Reader.name}/${acu_updated.old.name}/${access_point.name}/${readerTypes[reader_updated.old.type]}`,
-                                            value: reader_updated
-                                        })
-                                    }
-                                    // RdController.setRd(location, acu.serial_number, readers, user, acu.session_id, reader_update)
-                                } else {
-                                    if (reader_update) {
-                                        const reader_updated = await Reader.updateItem(reader)
-                                        logs_data.push({
-                                            event: logUserEvents.CHANGE,
-                                            target: `${Reader.name}/${acu_updated.old.name}/${access_point.name}/${readerTypes[reader_updated.old.type]}`,
-                                            value: reader_updated
-                                        })
-                                    } else {
-                                        logs_data.push({
-                                            event: logUserEvents.CREATE,
-                                            target: `${Reader.name}/${acu_updated.old.name}/${access_point.name}/${readerTypes[reader.type]}`,
-                                            value: reader
-                                        })
-                                    }
-                                }
-                            }
-                            if (readersSend) {
-                                let access_point_zone: any = null
-                                if (access_point_update) {
-                                    if (checkAccessPointSend && checkAccessPointSend.access_point_zones) {
-                                        access_point_zone = checkAccessPointSend.access_point_zones
-                                    } else if (access_point.access_point_zones) {
-                                        access_point_zone = access_point.access_point_zones
-                                    } else if (access_point.access_point_zone) {
-                                        access_point_zone = await AccessPointZone.findOne({ where: { id: access_point.access_point_zone }, relations: ['antipass_backs'] })
-                                    }
-                                } else {
+                        }
+                        if (readersSend) {
+                            let access_point_zone: any = null
+                            if (access_point_update) {
+                                if (checkAccessPointSend && checkAccessPointSend.access_point_zones) {
+                                    access_point_zone = checkAccessPointSend.access_point_zones
+                                } else if (access_point.access_point_zones) {
                                     access_point_zone = access_point.access_point_zones
+                                } else if (access_point.access_point_zone) {
+                                    access_point_zone = await AccessPointZone.findOne({ where: { id: access_point.access_point_zone }, relations: ['antipass_backs'] })
                                 }
-                                RdController.setRd(location, acu.serial_number, set_rd_data, access_point_zone, user, acu.session_id)
+                            } else {
+                                access_point_zone = access_point.access_point_zones
                             }
-
-                            // send CardKeys
-                            // if (new_access_points.length) {
-                            //     CardKeyController.setAddCardKey(OperatorType.SET_CARD_KEYS, location, company, user, new_access_points)
-                            // }
-                            access_point_ind++
+                            RdController.setRd(location, acu.serial_number, set_rd_data, access_point_zone, user, acu.session_id)
                         }
 
-                        if (req_data.elevator_mode && acu_reader && acu.status === acuStatus.ACTIVE) {
-                            let checkAcuReaderSend: any = false
-                            if (!acu_reader.id) {
+                        // send CardKeys
+                        // if (new_access_points.length) {
+                        //     CardKeyController.setAddCardKey(OperatorType.SET_CARD_KEYS, location, company, user, new_access_points)
+                        // }
+                        access_point_ind++
+                    }
+
+                    if (req_data.elevator_mode && acu_reader && acu.status === acuStatus.ACTIVE) {
+                        let checkAcuReaderSend: any = false
+                        if (!acu_reader.id) {
+                            acuReaderSend = true
+                            acu_reader.company = company
+                            acu_reader = await Reader.addItem(acu_reader)
+                            await Acu.updateItem({ id: acu.id, reader: acu_reader.id } as Acu)
+                            acu_updated.new.reader = acu_reader.id
+                        } else {
+                            const old_acu_reader = await Reader.findOneOrFail({ id: acu_reader.id, company: company })
+                            acu_reader.access_point = old_acu_reader.access_point
+                            checkAcuReaderSend = checkSendingDevice(old_acu_reader, acu_reader, Reader.fields_that_used_in_sending, Reader.required_fields_for_sending)
+                            const checkReaderOSDPDataSend = checkSendingDevice(old_acu_reader.osdp_data, acu_reader.osdp_data, Reader.OSDP_fields_that_used_in_sending)
+                            if (checkAcuReaderSend) {
                                 acuReaderSend = true
+                                if (checkReaderOSDPDataSend) checkAcuReaderSend.osdp_data = checkReaderOSDPDataSend
+                            } else {
+                                if (checkReaderOSDPDataSend) {
+                                    acuReaderSend = true
+                                    checkAcuReaderSend = { id: acu_reader.id, osdp_data: checkReaderOSDPDataSend }
+                                    for (const required_field of Reader.required_fields_for_sending) {
+                                        if (required_field in acu_reader) checkAcuReaderSend[required_field] = acu_reader[required_field]
+                                    }
+                                }
+                            }
+                        }
+
+                        if (checkAcuReaderSend) acu_reader = checkAcuReaderSend
+
+                        if (acuReaderSend && acu.elevator_mode && req_data.access_points.length) {
+                            const set_acu_rd_data = {
+                                ...acu_reader,
+                                update: true
+                            }
+                            RdController.setRdForFloor(location, acu.serial_number, set_acu_rd_data, req_data.access_points, user, acu.session_id)
+                        }
+                    } else {
+                        if (req_data.elevator_mode && acu_reader) {
+                            if (!acu_reader.id) {
                                 acu_reader.company = company
                                 acu_reader = await Reader.addItem(acu_reader)
                                 await Acu.updateItem({ id: acu.id, reader: acu_reader.id } as Acu)
                                 acu_updated.new.reader = acu_reader.id
                             } else {
-                                const old_acu_reader = await Reader.findOneOrFail({ id: acu_reader.id, company: company })
-                                acu_reader.access_point = old_acu_reader.access_point
-                                checkAcuReaderSend = checkSendingDevice(old_acu_reader, acu_reader, Reader.fields_that_used_in_sending, Reader.required_fields_for_sending)
-                                const checkReaderOSDPDataSend = checkSendingDevice(old_acu_reader.osdp_data, acu_reader.osdp_data, Reader.OSDP_fields_that_used_in_sending)
-                                if (checkAcuReaderSend) {
-                                    acuReaderSend = true
-                                    if (checkReaderOSDPDataSend) checkAcuReaderSend.osdp_data = checkReaderOSDPDataSend
-                                } else {
-                                    if (checkReaderOSDPDataSend) {
-                                        acuReaderSend = true
-                                        checkAcuReaderSend = { id: acu_reader.id, osdp_data: checkReaderOSDPDataSend }
-                                        for (const required_field of Reader.required_fields_for_sending) {
-                                            if (required_field in acu_reader) checkAcuReaderSend[required_field] = acu_reader[required_field]
-                                        }
-                                    }
-                                }
-                            }
-
-                            if (checkAcuReaderSend) acu_reader = checkAcuReaderSend
-
-                            if (acuReaderSend && acu.elevator_mode && req_data.access_points.length) {
-                                const set_acu_rd_data = {
-                                    ...acu_reader,
-                                    update: true
-                                }
-                                RdController.setRdForFloor(location, acu.serial_number, set_acu_rd_data, req_data.access_points, user, acu.session_id)
-                            }
-                        } else {
-                            if (req_data.elevator_mode && acu_reader) {
-                                if (!acu_reader.id) {
-                                    acu_reader.company = company
-                                    acu_reader = await Reader.addItem(acu_reader)
-                                    await Acu.updateItem({ id: acu.id, reader: acu_reader.id } as Acu)
-                                    acu_updated.new.reader = acu_reader.id
-                                } else {
-                                    acu_reader = (await Reader.updateItem(acu_reader)).new
-                                    logs_data.push({
-                                        event: logUserEvents.CHANGE,
-                                        target: `${Reader.name}/${acu_updated.old.name}/${readerTypes[acu_reader.type]}`,
-                                        value: acu_reader
-                                    })
-                                }
+                                acu_reader = (await Reader.updateItem(acu_reader)).new
+                                logs_data.push({
+                                    event: logUserEvents.CHANGE,
+                                    target: `${Reader.name}/${acu_updated.old.name}/${readerTypes[acu_reader.type]}`,
+                                    value: acu_reader
+                                })
                             }
                         }
                     }

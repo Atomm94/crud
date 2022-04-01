@@ -1,3 +1,4 @@
+import { resourceKeys } from '../enums/resourceKeys.enum'
 import { CompanyResources } from '../model/entity'
 import * as Models from '../model/entity/index'
 
@@ -5,7 +6,9 @@ export async function minusResource (resource_name: string, company: number) {
     console.log('minusResource resource_name', resource_name)
     console.log('minusResource company', company)
     const models: any = Models
-    if (models[resource_name] && models[resource_name].resource) {
+    if (Object.values(resourceKeys).includes(resource_name as resourceKeys) ||
+        (models[resource_name] && models[resource_name].resource)
+    ) {
         const company_resources: any = await CompanyResources.findOne({ company: company })
         if (company_resources) {
             console.log('minusResource company_resources', company_resources)

@@ -24,6 +24,7 @@ import { socketChannels } from '../../enums/socketChannels.enum'
 import SendSocketMessage from '../../mqtt/SendSocketMessage'
 import { acuStatus } from '../../enums/acuStatus.enum'
 import { AccessPointStatus } from './AccessPointStatus'
+import { resourceKeys } from '../../enums/resourceKeys.enum'
 
 @Entity('access_point')
 export class AccessPoint extends MainEntity {
@@ -209,7 +210,13 @@ export class AccessPoint extends MainEntity {
             this.findOneOrFail(where).then((data: any) => {
                 this.softRemove(data)
                     .then(async () => {
-                        minusResource(this.name, data.company)
+                        let resource_name = this.name
+                        if (data.type === accessPointType.FLOOR) {
+                            resource_name = resourceKeys.ELEVATOR
+                        } else if ([accessPointType.TURNSTILE_ONE_SIDE, accessPointType.TURNSTILE_TWO_SIDE].includes(data.type)) {
+                            resource_name = resourceKeys.TURNSTILE
+                        }
+                        minusResource(resource_name, data.company)
 
                         const modes: any = await this.createQueryBuilder('access_point')
                             .select('access_point.name')

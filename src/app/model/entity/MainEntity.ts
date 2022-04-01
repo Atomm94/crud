@@ -19,6 +19,7 @@ import {
     AfterRemove
 } from 'typeorm'
 import { CompanyResources, Company } from '.'
+import { accessPointType } from '../../enums/accessPointType.enum'
 import { credentialType } from '../../enums/credentialType.enum'
 import { resourceKeys } from '../../enums/resourceKeys.enum'
 
@@ -43,7 +44,7 @@ export abstract class MainEntity extends BaseEntity {
             console.log('increaseCompanyUsedResource self', self.constructor.name, self)
 
             const models: any = Models
-            const model_name: any = self.constructor.name
+            let model_name: any = self.constructor.name
             let company = await Company.findOne({ id: self.company }) as Company
 
             if (company.partition_parent_id) {
@@ -54,6 +55,13 @@ export abstract class MainEntity extends BaseEntity {
 
                 const company_resources = await CompanyResources.findOne({ company: company.id })
                 console.log('increaseCompanyUsedResource company_resources', company_resources)
+                if (model_name === 'AccessPoint') {
+                    if (self.type === accessPointType.FLOOR) {
+                        model_name = resourceKeys.ELEVATOR
+                    } else if ([accessPointType.TURNSTILE_ONE_SIDE, accessPointType.TURNSTILE_TWO_SIDE].includes(self.type)) {
+                        model_name = resourceKeys.TURNSTILE
+                    }
+                }
 
                 if (company_resources) {
                     const used: any = JSON.parse(company_resources.used)
