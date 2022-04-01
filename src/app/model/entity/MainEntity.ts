@@ -101,7 +101,12 @@ export abstract class MainEntity extends BaseEntity {
             const models: any = Models
             const model_name: any = self.constructor.name
             if (models[model_name] && models[model_name].resource) {
-                const company_resources = await CompanyResources.findOne({ company: self.company })
+                let company = await Company.findOne({ id: self.company }) as Company
+                if (company.partition_parent_id) {
+                    company = await Company.findOne({ id: company.partition_parent_id }) as Company
+                }
+
+                const company_resources = await CompanyResources.findOne({ company: company.id })
                 if (company_resources) {
                     const used: any = JSON.parse(company_resources.used)
                     if (model_name in used) {
