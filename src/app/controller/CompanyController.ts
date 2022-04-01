@@ -131,6 +131,9 @@ export default class CompanyController {
      *                      type: string
      *                      enum: [pending, disable, enable]
      *                      example: pending
+     *                  schedule_id:
+     *                      type: number
+     *                      example: 1
      *          responses:
      *              '201':
      *                  description: A company updated object
@@ -147,7 +150,7 @@ export default class CompanyController {
             }
             const req_data = ctx.request.body
             if (req_data.schedule_id) {
-                const base_schedule = await Schedule.findOne({ where: { id: req_data.schedule_id, custom: false } })
+                const base_schedule = await Schedule.findOne({ where: { id: req_data.schedule_id, company: ctx.request.body.id, custom: false } })
                 if (!base_schedule) {
                     ctx.status = 400
                     ctx.body = {
