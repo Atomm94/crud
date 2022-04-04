@@ -8,7 +8,8 @@ import {
     Company,
     Admin,
     Role,
-    Schedule
+    Schedule,
+    Credential
 } from '../model/entity/index'
 import { JwtToken } from '../model/entity/JwtToken'
 import * as Models from '../model/entity/index'
@@ -19,8 +20,12 @@ import { createCustomer, createSubsciption } from '../functions/zoho-utils'
 import { AccessPoint } from '../model/entity/AccessPoint'
 import { AccessRight } from '../model/entity/AccessRight'
 
-import { In } from 'typeorm'
+import { Brackets, In } from 'typeorm'
 import { scheduleType } from '../enums/scheduleType.enum'
+import { resourceKeys } from '../enums/resourceKeys.enum'
+import { credentialType } from '../enums/credentialType.enum'
+import { accessPointType } from '../enums/accessPointType.enum'
+import { AccessControl } from '../functions/access-control'
 
 export default class CompanyController {
     /**
@@ -1041,6 +1046,123 @@ export default class CompanyController {
             } else {
                 ctx.body = error
             }
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     * /company/updateAllCompanyResources:
+     *      put:
+     *          tags:
+     *              - Company
+     *          summary: Update a CompanyResources.
+     *          consumes:
+     *              - application/json
+     *          parameters:
+     *            - in: header
+     *              name: Authorization
+     *              required: true
+     *              description: Authentication token
+     *              schema:
+     *                type: string
+     *          responses:
+     *              '201':
+     *                  description: A company updated object
+     *              '409':
+     *                  description: Conflict
+     *              '422':
+     *                  description: Wrong data
+     */
+    public static async updateAllCompanyResources (ctx: DefaultContext) {
+        try {
+            if (!ctx.user.super) {
+                ctx.status = 400
+                ctx.body = { message: 'not have Permission' }
+            }
+            const models: any = Models
+            const companies: any = await Company.find({ relations: ['company_resources'] })
+            const parents: any = {}
+            for (const company of companies) {
+                if (!company.partition_parent_id) {
+                    company.child_companies = []
+                    parents[company.id] = company
+                }
+            }
+            for (const company of companies) {
+                if (company.partition_parent_id && parents[company.partition_parent_id]) {
+                    parents[company.partition_parent_id].child_companies.push(company.id)
+                }
+            }
+            for (const parent_company of Object.values(parents)) {
+                const parent_company_any: any = parent_company
+                const need_companies = [parent_company_any.id, ...parent_company_any.child_companies]
+
+                const resources_used = JSON.parse(parent_company_any.company_resources.used)
+                for (const resource in resources_used) {
+                    if (Object.values(resourceKeys).includes(resource as resourceKeys)) {
+                        let vikeys
+                        let floors
+                        let turnstiles
+                        switch (resource) {
+                            case resourceKeys.VIRTUAL_KEYS:
+                                vikeys = await Credential.createQueryBuilder('credential')
+                                    .where(`credential.type = '${credentialType.VIKEY}'`)
+                                    .andWhere(`credential.company in (${need_companies})`)
+                                    .getCount()
+                                resources_used[resource] = vikeys
+                                break
+                            case resourceKeys.ELEVATOR:
+                                floors = await AccessPoint.createQueryBuilder('access_point')
+                                    .where(`access_point.type = '${accessPointType.FLOOR}'`)
+                                    .andWhere(`access_point.company in (${need_companies})`)
+                                    .getCount()
+                                resources_used[resource] = floors
+                                break
+                            case resourceKeys.TURNSTILE:
+                                turnstiles = await AccessPoint.createQueryBuilder('access_point')
+                                    .where(`access_point.company in (${need_companies})`)
+                                    .andWhere(
+                                        new Brackets((qb) => {
+                                            qb.where(`access_point.type = '${accessPointType.TURNSTILE_ONE_SIDE}'`)
+                                                .orWhere(`access_point.type = '${accessPointType.TURNSTILE_TWO_SIDE}'`)
+                                        })
+                                    )
+                                    .getCount()
+                                resources_used[resource] = turnstiles
+                                break
+                            default:
+                                break
+                        }
+                    } else if (models[resource] && models[resource].resource) {
+                        if (resource === 'AccessPoint') {
+                            const access_points = await AccessPoint.createQueryBuilder('access_point')
+                                .where(`access_point.company in (${need_companies})`)
+                                .andWhere(`access_point.type != '${accessPointType.FLOOR}'`)
+                                .andWhere(`access_point.type != '${accessPointType.TURNSTILE_ONE_SIDE}'`)
+                                .andWhere(`access_point.type != '${accessPointType.TURNSTILE_TWO_SIDE}'`)
+                                .getCount()
+                            resources_used[resource] = access_points
+                        } else {
+                            var resource_qty = await models[resource].createQueryBuilder('access_point')
+                                .where(`access_point.company in (${need_companies})`)
+                                .getCount()
+                            resources_used[resource] = resource_qty
+                        }
+                    }
+                }
+                parent_company_any.company_resources.used = JSON.stringify(resources_used)
+                await parent_company_any.company_resources.save()
+            }
+            await AccessControl.GrantCompanyAccess()
+
+            ctx.body = { success: true }
+        } catch (error) {
+            console.log('error', error)
+
+            ctx.status = error.status || 400
+            ctx.body = error
         }
         return ctx.body
     }

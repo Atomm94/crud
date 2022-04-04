@@ -15,4 +15,5 @@ export default router
   .get('Company-getAllItems', 'company', checkRole(), CompanyController.getAll)
   .get('Company-ClientCompany-getItem', 'company/companyResource', checkRole(), CompanyController.checkResourceLimit)
   .get('Company-getAllItems', 'company/partitions', checkRole(), CompanyController.getAllPartitions)
+  .put('Company-addItem', 'company/updateAllCompanyResources', checkRole(), CompanyController.updateAllCompanyResources)
   .get('Company-getItem', 'company/:id', checkRole(), CompanyController.get)
