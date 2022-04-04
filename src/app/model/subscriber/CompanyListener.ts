@@ -3,8 +3,8 @@ import {
     EventSubscriber,
     InsertEvent,
     UpdateEvent,
-    getManager,
-    Not
+    getManager
+    // Not
 } from 'typeorm'
 import * as Models from '../entity'
 import { Admin, CompanyResources, Role, PackageType, RegistrationInvite } from '../entity'
@@ -82,11 +82,11 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
                 account.status = adminStatus.ACTIVE
                 await account.save()
             } else if (Old.status === statusCompany.ENABLE && New.status === statusCompany.PENDING) {
-                const accounts = await Admin.find({ where: { company: New.id, id: Not(New.account), status: adminStatus.ACTIVE } })
-                for (const account of accounts) {
-                    account.status = adminStatus.INACTIVE
-                    await account.save()
-                }
+                // const accounts = await Admin.find({ where: { company: New.id, id: Not(New.account), status: adminStatus.ACTIVE } })
+                // for (const account of accounts) {
+                //     account.status = adminStatus.INACTIVE
+                //     await account.save()
+                // }
             }
         }
 
