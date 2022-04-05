@@ -261,7 +261,7 @@ export function checkAccessPointsValidation (data: any, acu_model: string, eleva
             // })
         }
     }
-    if (elevator_mode && !acu_readers && data.length) {
+    if (elevator_mode && !acu_readers /*  && data.length */) {
         return ('Acu must have Reader when elevator_mode is enable!')
     }
     return true

@@ -725,62 +725,61 @@ export default class AcuController {
                         // }
                         access_point_ind++
                     }
+                }
 
-                    if (req_data.elevator_mode && acu_reader && acu.status === acuStatus.ACTIVE) {
-                        let checkAcuReaderSend: any = false
-                        if (!acu_reader.id) {
+                if (req_data.elevator_mode && acu_reader && acu.status === acuStatus.ACTIVE) {
+                    let checkAcuReaderSend: any = false
+                    if (!acu_reader.id) {
+                        acuReaderSend = true
+                        acu_reader.company = company
+                        acu_reader = await Reader.addItem(acu_reader)
+                        await Acu.updateItem({ id: acu.id, reader: acu_reader.id } as Acu)
+                        acu_updated.new.reader = acu_reader.id
+                    } else {
+                        const old_acu_reader = await Reader.findOneOrFail({ id: acu_reader.id, company: company })
+                        acu_reader.access_point = old_acu_reader.access_point
+                        checkAcuReaderSend = checkSendingDevice(old_acu_reader, acu_reader, Reader.fields_that_used_in_sending, Reader.required_fields_for_sending)
+                        const checkReaderOSDPDataSend = checkSendingDevice(old_acu_reader.osdp_data, acu_reader.osdp_data, Reader.OSDP_fields_that_used_in_sending)
+                        if (checkAcuReaderSend) {
                             acuReaderSend = true
+                            if (checkReaderOSDPDataSend) checkAcuReaderSend.osdp_data = checkReaderOSDPDataSend
+                        } else {
+                            if (checkReaderOSDPDataSend) {
+                                acuReaderSend = true
+                                checkAcuReaderSend = { id: acu_reader.id, osdp_data: checkReaderOSDPDataSend }
+                                for (const required_field of Reader.required_fields_for_sending) {
+                                    if (required_field in acu_reader) checkAcuReaderSend[required_field] = acu_reader[required_field]
+                                }
+                            }
+                        }
+                    }
+
+                    if (checkAcuReaderSend) acu_reader = checkAcuReaderSend
+
+                    if (acuReaderSend && acu.elevator_mode && req_data.access_points) {
+                        const set_acu_rd_data = {
+                            ...acu_reader,
+                            update: true
+                        }
+                        RdController.setRdForFloor(location, acu.serial_number, set_acu_rd_data, req_data.access_points, user, acu.session_id)
+                    }
+                } else {
+                    if (req_data.elevator_mode && acu_reader) {
+                        if (!acu_reader.id) {
                             acu_reader.company = company
                             acu_reader = await Reader.addItem(acu_reader)
                             await Acu.updateItem({ id: acu.id, reader: acu_reader.id } as Acu)
                             acu_updated.new.reader = acu_reader.id
                         } else {
-                            const old_acu_reader = await Reader.findOneOrFail({ id: acu_reader.id, company: company })
-                            acu_reader.access_point = old_acu_reader.access_point
-                            checkAcuReaderSend = checkSendingDevice(old_acu_reader, acu_reader, Reader.fields_that_used_in_sending, Reader.required_fields_for_sending)
-                            const checkReaderOSDPDataSend = checkSendingDevice(old_acu_reader.osdp_data, acu_reader.osdp_data, Reader.OSDP_fields_that_used_in_sending)
-                            if (checkAcuReaderSend) {
-                                acuReaderSend = true
-                                if (checkReaderOSDPDataSend) checkAcuReaderSend.osdp_data = checkReaderOSDPDataSend
-                            } else {
-                                if (checkReaderOSDPDataSend) {
-                                    acuReaderSend = true
-                                    checkAcuReaderSend = { id: acu_reader.id, osdp_data: checkReaderOSDPDataSend }
-                                    for (const required_field of Reader.required_fields_for_sending) {
-                                        if (required_field in acu_reader) checkAcuReaderSend[required_field] = acu_reader[required_field]
-                                    }
-                                }
-                            }
-                        }
-
-                        if (checkAcuReaderSend) acu_reader = checkAcuReaderSend
-
-                        if (acuReaderSend && acu.elevator_mode && req_data.access_points.length) {
-                            const set_acu_rd_data = {
-                                ...acu_reader,
-                                update: true
-                            }
-                            RdController.setRdForFloor(location, acu.serial_number, set_acu_rd_data, req_data.access_points, user, acu.session_id)
-                        }
-                    } else {
-                        if (req_data.elevator_mode && acu_reader) {
-                            if (!acu_reader.id) {
-                                acu_reader.company = company
-                                acu_reader = await Reader.addItem(acu_reader)
-                                await Acu.updateItem({ id: acu.id, reader: acu_reader.id } as Acu)
-                                acu_updated.new.reader = acu_reader.id
-                            } else {
-                                acu_reader = (await Reader.updateItem(acu_reader)).new
-                                logs_data.push({
-                                    event: logUserEvents.CHANGE,
-                                    target: `${Reader.name}/${acu_updated.old.name}/${readerTypes[acu_reader.type]}`,
-                                    value: acu_reader
-                                })
-                            }
+                            acu_reader = (await Reader.updateItem(acu_reader)).new
+                            logs_data.push({
+                                event: logUserEvents.CHANGE,
+                                target: `${Reader.name}/${acu_updated.old.name}/${readerTypes[acu_reader.type]}`,
+                                value: acu_reader
+                            })
                         }
                     }
                 }
-
                 ctx.logsData = logs_data
                 ctx.oldData = acu_updated.old
                 const res_data = { ...acu_updated.new }
