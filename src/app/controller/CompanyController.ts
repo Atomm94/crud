@@ -26,6 +26,7 @@ import { resourceKeys } from '../enums/resourceKeys.enum'
 import { credentialType } from '../enums/credentialType.enum'
 import { accessPointType } from '../enums/accessPointType.enum'
 import { AccessControl } from '../functions/access-control'
+import { acuStatus } from '../enums/acuStatus.enum'
 
 export default class CompanyController {
     /**
@@ -168,12 +169,22 @@ export default class CompanyController {
                     }
                 }
             }
+
             const save_data = Object.assign({}, req_data)
             if (save_data.package) {
+                save_data.status = acuStatus.PENDING
                 save_data.upgraded_package_id = save_data.package
                 delete save_data.package
             }
 
+            if (!ctx.user.company) {
+                if (req_data.status && req_data.status === statusCompany.ENABLE) {
+                    const company = await Company.findOneOrFail({ where: { id: req_id } })
+                    company.package = company.upgraded_package_id
+                    company.upgraded_package_id = null
+                    await company.save()
+                }
+            }
             const updated = await Company.updateItem(save_data as Company, req_id ? ctx.user : null)
 
             if (req_data.package) {
@@ -182,13 +193,15 @@ export default class CompanyController {
                 }
                 await createSubsciption(req_data.id)
             }
-
-            if (updated.old.status !== updated.new.status && updated.new.status === statusCompany.ENABLE) {
-                const main = await Admin.findOne({ id: updated.new.account })
-                if (main) {
-                    await Sendgrid.updateStatus(main.email)
+            if (!ctx.user.company) {
+                if (updated.old.status !== updated.new.status && updated.new.status === statusCompany.ENABLE) {
+                    const main = await Admin.findOne({ id: updated.new.account })
+                    if (main) {
+                        await Sendgrid.updateStatus(main.email)
+                    }
                 }
             }
+
             ctx.oldData = updated.old
             ctx.body = updated.new
         } catch (error) {
