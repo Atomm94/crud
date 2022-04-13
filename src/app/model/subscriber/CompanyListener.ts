@@ -187,6 +187,8 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
                                     default_permissions.RegistrationInvite = {
                                         actions: { ...reg_inv_permissions }
                                     }
+                                } else {
+                                    delete default_permissions.RegistrationInvite
                                 }
                             }
                         })
