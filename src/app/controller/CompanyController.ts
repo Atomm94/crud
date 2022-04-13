@@ -387,6 +387,9 @@ export default class CompanyController {
             const where: any = { id: req_data.id }
             if (user.company) where.parent_id = user.company
             const company = await Company.findOneOrFail({ where: where })
+            company.message = `${company.message}... MainAccount - ${company.account}`
+            company.account = null
+            await company.save()
             ctx.body = await Company.destroyItem(where)
             ctx.logsData = [{
                 event: logUserEvents.DELETE,
@@ -395,8 +398,9 @@ export default class CompanyController {
             }]
             const accounts: any = await Admin.getAllItems({ where: { company: { '=': req_data.id } } })
             for (const account of accounts) {
-                account.status = false
-                await account.save()
+                // account.status = false
+                await Admin.destroyItem(account)
+                // await account.save()
             }
             JwtToken.logoutAccounts(req_data.id, accounts)
         } catch (error) {

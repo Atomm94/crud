@@ -41,52 +41,54 @@ export abstract class MainEntity extends BaseEntity {
         const self: any = this
 
         if (self && self.company && self.constructor && self.constructor.name) {
-            console.log('increaseCompanyUsedResource self', self.constructor.name, self)
+            // console.log('increaseCompanyUsedResource self', self.constructor.name, self.id)
 
             const models: any = Models
             let model_name: any = self.constructor.name
             let company = await Company.findOne({ id: self.company }) as Company
 
-            if (company.partition_parent_id) {
+            if (company && company.partition_parent_id) {
                 company = await Company.findOne({ id: company.partition_parent_id }) as Company
             }
-            if (models[model_name] && models[model_name].resource) {
-                console.log('increaseCompanyUsedResource resource', true)
+            if (company) {
+                if (models[model_name] && models[model_name].resource) {
+                    // console.log('increaseCompanyUsedResource resource', true)
 
-                const company_resources = await CompanyResources.findOne({ company: company.id })
-                console.log('increaseCompanyUsedResource company_resources', company_resources)
-                if (model_name === 'AccessPoint') {
-                    if (self.type === accessPointType.FLOOR) {
-                        model_name = resourceKeys.ELEVATOR
-                    } else if ([accessPointType.TURNSTILE_ONE_SIDE, accessPointType.TURNSTILE_TWO_SIDE].includes(self.type)) {
-                        model_name = resourceKeys.TURNSTILE
-                    }
-                }
-
-                if (company_resources) {
-                    const used: any = JSON.parse(company_resources.used)
-                    if (used[model_name]) {
-                        used[model_name]++
-                    } else {
-                        used[model_name] = 1
+                    const company_resources = await CompanyResources.findOne({ company: company.id })
+                    // console.log('increaseCompanyUsedResource company_resources', company_resources)
+                    if (model_name === 'AccessPoint') {
+                        if (self.type === accessPointType.FLOOR) {
+                            model_name = resourceKeys.ELEVATOR
+                        } else if ([accessPointType.TURNSTILE_ONE_SIDE, accessPointType.TURNSTILE_TWO_SIDE].includes(self.type)) {
+                            model_name = resourceKeys.TURNSTILE
+                        }
                     }
 
-                    console.log('increaseCompanyUsedResource used', JSON.stringify(used))
-                    company_resources.used = JSON.stringify(used)
-                    await company_resources.save()
-                }
-            } else if (model_name === 'Credential' && self.type === credentialType.VIKEY) {
-                const resource_name = resourceKeys.VIRTUAL_KEYS
-                const company_resources = await CompanyResources.findOne({ company: self.company })
-                if (company_resources) {
-                    const used: any = JSON.parse(company_resources.used)
-                    if (used[resource_name]) {
-                        used[resource_name]++
-                    } else {
-                        used[resource_name] = 1
+                    if (company_resources) {
+                        const used: any = JSON.parse(company_resources.used)
+                        if (used[model_name]) {
+                            used[model_name]++
+                        } else {
+                            used[model_name] = 1
+                        }
+
+                        // console.log('increaseCompanyUsedResource used', JSON.stringify(used))
+                        company_resources.used = JSON.stringify(used)
+                        await company_resources.save()
                     }
-                    company_resources.used = JSON.stringify(used)
-                    await company_resources.save()
+                } else if (model_name === 'Credential' && self.type === credentialType.VIKEY) {
+                    const resource_name = resourceKeys.VIRTUAL_KEYS
+                    const company_resources = await CompanyResources.findOne({ company: self.company })
+                    if (company_resources) {
+                        const used: any = JSON.parse(company_resources.used)
+                        if (used[resource_name]) {
+                            used[resource_name]++
+                        } else {
+                            used[resource_name] = 1
+                        }
+                        company_resources.used = JSON.stringify(used)
+                        await company_resources.save()
+                    }
                 }
             }
         }
@@ -96,26 +98,28 @@ export abstract class MainEntity extends BaseEntity {
     async decreaseCompanyUsedResource () {
         const self: any = this
         if (self && self.company && self.constructor && self.constructor.name) {
-            console.log('decreaseCompanyUsedResource self', self.constructor.name, self)
+            // console.log('decreaseCompanyUsedResource self', self.constructor.name, self)
 
             const models: any = Models
             const model_name: any = self.constructor.name
             if (models[model_name] && models[model_name].resource) {
                 let company = await Company.findOne({ id: self.company }) as Company
-                if (company.partition_parent_id) {
+                if (company && company.partition_parent_id) {
                     company = await Company.findOne({ id: company.partition_parent_id }) as Company
                 }
 
-                const company_resources = await CompanyResources.findOne({ company: company.id })
-                if (company_resources) {
-                    const used: any = JSON.parse(company_resources.used)
-                    if (model_name in used) {
-                        used[model_name]--
-                    } else {
-                        used[model_name] = 0
+                if (company) {
+                    const company_resources = await CompanyResources.findOne({ company: company.id })
+                    if (company_resources) {
+                        const used: any = JSON.parse(company_resources.used)
+                        if (model_name in used) {
+                            used[model_name]--
+                        } else {
+                            used[model_name] = 0
+                        }
+                        company_resources.used = JSON.stringify(used)
+                        await company_resources.save()
                     }
-                    company_resources.used = JSON.stringify(used)
-                    await company_resources.save()
                 }
             }
         }
