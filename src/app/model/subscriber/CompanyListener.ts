@@ -178,20 +178,21 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
                                         actions: actions
                                     }
                                 }
-
-                                if (extra_settings.resources.Company) {
-                                    const reg_inv_permissions = RegistrationInvite.getActions()
-                                    Object.keys(reg_inv_permissions).forEach(action => {
-                                        reg_inv_permissions[action] = true
-                                    })
-                                    default_permissions.RegistrationInvite = {
-                                        actions: { ...reg_inv_permissions }
-                                    }
-                                } else {
-                                    delete default_permissions.RegistrationInvite
-                                }
                             }
                         })
+
+                        if (extra_settings.resources.Company) {
+                            const reg_inv_permissions = RegistrationInvite.getActions()
+                            Object.keys(reg_inv_permissions).forEach(action => {
+                                reg_inv_permissions[action] = true
+                            })
+                            default_permissions.RegistrationInvite = {
+                                actions: { ...reg_inv_permissions }
+                            }
+                        } else {
+                            delete permissions.RegistrationInvite
+                        }
+
                         if (permissions[Models.AccessPoint.name]) {
                             const models_from_access_point = [Models.AccessPointGroup.name, Models.AccessPointZone.name]
                             models_from_access_point.forEach(model => {
