@@ -76,6 +76,10 @@ export default class CronJob {
                     acu_status.acus.cloud_status = cloud_status
                     Acu.save(acu_status.acus)
                 }
+                if (acu_status.acus.fw_version !== acu_statuses.fw_version) {
+                    acu_status.acus.fw_version = acu_statuses.fw_version
+                    Acu.save(acu_status.acus)
+                }
             }
         }).start()
     }

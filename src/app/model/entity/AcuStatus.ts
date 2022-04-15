@@ -29,6 +29,9 @@ export class AcuStatus extends MainEntity {
     @Column('int', { name: 'company', nullable: false })
     company: number
 
+    @Column('varchar', { name: 'fw_version', nullable: true })
+    fw_version: string | null
+
     @OneToOne(type => Acu, acu => acu.acu_statuses)
     @JoinColumn({ name: 'acu' })
     acus: Acu;
@@ -44,6 +47,7 @@ export class AcuStatus extends MainEntity {
         acuStatus.serial_number = data.serial_number
         acuStatus.timestamp = data.timestamp ? data.timestamp : new Date().getTime()
         acuStatus.company = data.company
+        if ('fw_version' in data) acuStatus.fw_version = data.fw_version
 
         return new Promise((resolve, reject) => {
             this.save(acuStatus)
@@ -61,6 +65,7 @@ export class AcuStatus extends MainEntity {
         const oldData = Object.assign({}, acuStatus)
 
         acuStatus.timestamp = new Date().getTime()
+        if ('fw_version' in data) acuStatus.fw_version = data.fw_version
 
         if (!acuStatus) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {

@@ -314,6 +314,7 @@ export default class Parse {
             AcuStatus.findOneOrFail({ serial_number: message.device_id, company: message.company }).then(async (acuStatusData: AcuStatus) => {
                 const access_point_statuses: any = await AccessPointStatus.getAllItems({ where: { acu: { '=': acuStatusData.acu } } })
                 if (message.result.errorNo === 0) {
+                    if (message.info.firmware_ver) acuStatusData.fw_version = message.info.firmware_ver
                     AcuStatus.updateItem(acuStatusData)
                     if (message.info) {
                         for (const access_point_status of access_point_statuses) {
