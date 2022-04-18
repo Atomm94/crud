@@ -107,7 +107,7 @@ export default class LogController {
     public static createEventFromDevice (message: IMqttCrudMessaging) {
         const message_data = message.info
         const acu = Acu.findOneOrFail({ serial_number: message.device_id, company: message.company })
-        const access_point = AccessPoint.findOne({ where: { id: message_data.Ctp_idx, company: message.company } })
+        const access_point = AccessPoint.findOne({ where: { id: message_data.Ctp_idx, company: message.company }, relations: ['access_point_zones'] })
         const credential = Credential.findOne({
             where: { id: message_data.Key_id },
             relations: ['cardholders', 'cardholders.access_rights', 'cardholders.car_infos', 'cardholders.limitations', 'cardholders.cardholder_groups']
@@ -143,7 +143,10 @@ export default class LogController {
                     }
                     if (access_point) {
                         eventData.data.access_point = access_point.id
-                        eventData.data.access_points = _.pick(access_point, ['id', 'name'])
+                        eventData.data.access_points = _.pick(access_point, ['id', 'name', 'access_point_zone', 'access_point_zones'])
+                        if (eventData.data.access_points.access_point_zones) {
+                            eventData.data.access_points.access_point_zones = _.pick(eventData.data.access_points.access_point_zones, ['id', 'name'])
+                        }
                     }
                     const EventList: any = eventList
 
