@@ -134,7 +134,14 @@ export default class LogController {
                 }
 
                 for (const company_that_send_events of companies_that_send_events) {
-                    const eventData: any = { operator: OperatorType.EVENT_LOG, data: { company: company_that_send_events, date: message_data.time } }
+                    const eventData: any = {
+                        operator: OperatorType.EVENT_LOG,
+                        data: {
+                            company: company_that_send_events,
+                            date: message_data.time,
+                            direction: message_data.direction
+                        }
+                    }
                     if (credential) {
                         eventData.data.credential = _.pick(credential, ['id', 'type', 'code'])
                         eventData.data.cardholder_id = credential.cardholders ? credential.cardholders.id : null
