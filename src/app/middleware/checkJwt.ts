@@ -61,7 +61,7 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
                             if (company && company.packages) {
                                 ctx.query = {
                                     ...ctx.query,
-                                    packageExctraSettings: JSON.parse(company.packages.extra_settings)
+                                    packageExtraSettings: JSON.parse(company.packages.extra_settings)
                                   }
                             }
                         }

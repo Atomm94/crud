@@ -818,17 +818,17 @@ export default class CardholderController {
      */
     public static async getAll (ctx: DefaultContext) {
         try {
-            // const req_data = ctx.query
+            const req_data = ctx.query
             const user = ctx.user
-            let take_limit
-            let resurce_limited = false
+            let resource_limit
+            let resource_limited = false
             if (ctx.query.packageExtraSettings) {
                 if (ctx.query.packageExtraSettings.resources.Cardholder) {
-                    take_limit = ctx.query.packageExtraSettings.resources.Cardholder
+                    resource_limit = ctx.query.packageExtraSettings.resources.Cardholder
                 } else {
-                    take_limit = 0
+                    resource_limit = 0
                 }
-                resurce_limited = true
+                resource_limited = true
             }
 
             // req_data.relations = ['car_infos', 'limitations', 'antipass_backs', 'time_attendances', 'access_rights', 'cardholder_groups', 'credentials']
@@ -857,18 +857,35 @@ export default class CardholderController {
                     .where(`cardholder.company = '${user.company ? user.company : null}'`)
             }
 
-            if (!resurce_limited) {
-                cardholders = await cardholders
-                    .getMany()
-            } else {
-                cardholders = await cardholders
-                    .orderBy('cardholder.id', 'DESC')
-                    .take(take_limit)
-                    .getMany()
+            let take = req_data.page ? req_data.page_items_count ? (req_data.page_items_count > 10000) ? 10000 : req_data.page_items_count : 25 : 100
+            const skip = req_data.page_items_count && req_data.page ? (req_data.page - 1) * req_data.page_items_count : 0
+            if (resource_limited) {
+                if (req_data.page) {
+                    if (req_data.page * take > resource_limit) {
+                        take = resource_limit - (req_data.page - 1) * take
+                        if (take < 0) take = 0
+                    }
+                } else {
+                    if (take > resource_limit) take = resource_limit
+                }
             }
-            // req_data.where = where
-            // ctx.body = await Cardholder.getAllItems(req_data)
-            ctx.body = cardholders
+            let [result, total] = await cardholders
+                .take(take)
+                .skip(skip)
+                .orderBy('cardholder.id', 'DESC')
+                .getManyAndCount()
+
+            if (resource_limited && total > resource_limit) {
+                total = resource_limit
+            }
+            if (req_data.page) {
+                ctx.body = {
+                    data: result,
+                    count: total
+                }
+            } else {
+                ctx.body = result
+            }
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
