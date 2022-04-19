@@ -197,7 +197,7 @@ export default class AccessPointController {
                     .getMany()
             } else {
                 access_points = await access_points
-                    .orderBy('cardholder.id', 'DESC')
+                    .orderBy('access_point.id', 'DESC')
                     .take(take_limit)
                     .getMany()
             }
