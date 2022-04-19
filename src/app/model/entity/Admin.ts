@@ -309,6 +309,9 @@ export class Admin extends MainEntity {
   public static async destroyItem (data: any) {
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve, reject) => {
+      const reports = await StandardReport.find({ where: { author: data.id, company: data.company } })
+      reports.map(async (item) => await StandardReport.destroyItem(item))
+
       this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
         this.remove(data)
           .then(() => {
