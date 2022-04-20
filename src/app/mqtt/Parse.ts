@@ -615,7 +615,8 @@ export default class Parse {
     public static async deviceSetRdAck (message: IMqttCrudMessaging) {
         // console.log('deviceSetRd', message)
         let reader_data
-        if (message.send_data.data.elevator_mode) {
+        const elevator_mode = message.send_data.data.elevator_mode
+        if (elevator_mode) {
             reader_data = message.send_data.data.reader
         } else {
             const ind = message.send_data.data.answer_qty
@@ -626,11 +627,20 @@ export default class Parse {
             const company = message.company
             if (reader_data.update) {
                 const save = await Reader.updateItem(reader_data as Reader)
-                const access_point = await AccessPoint.findOneOrFail({ where: { id: save.old.access_point }, relations: ['acus'] })
-                new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.CHANGE, `${Reader.name}/${access_point.acus.name}/${access_point.name}/${readerTypes[save.old.type]}`, save)
-                new SendSocketMessage(socketChannels.READER_UPDATE, save.new, message.company, message.send_data.user)
-                if (save) {
-                    // console.log('Reader update completed')
+                if (!elevator_mode) {
+                    const access_point = await AccessPoint.findOneOrFail({ where: { id: save.old.access_point }, relations: ['acus'] })
+                    new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.CHANGE, `${Reader.name}/${access_point.acus.name}/${access_point.name}/${readerTypes[save.old.type]}`, save)
+                    new SendSocketMessage(socketChannels.READER_UPDATE, save.new, message.company, message.send_data.user)
+                    if (save) {
+                        // console.log('Reader update completed')
+                    }
+                } else {
+                    const acu = await Acu.findOneOrFail({ where: { id: save.old.acu } })
+                    new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.CHANGE, `${Reader.name}/${acu.name}/${readerTypes[save.old.type]}`, save)
+                    new SendSocketMessage(socketChannels.READER_UPDATE, save.new, message.company, message.send_data.user)
+                    if (save) {
+                        // console.log('Reader update completed')
+                    }
                 }
             } else {
                 const reader: any = await Reader.findOneOrFail({ where: { id: reader_data.id }, relations: ['access_points', 'access_points.acus'] })
