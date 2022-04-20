@@ -635,7 +635,7 @@ export default class Parse {
                         // console.log('Reader update completed')
                     }
                 } else {
-                    const acu = await Acu.findOneOrFail({ where: { id: save.old.acu } })
+                    const acu = await Acu.findOneOrFail({ where: { reader: save.old.id } })
                     new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.CHANGE, `${Reader.name}/${acu.name}/${readerTypes[save.old.type]}`, save)
                     new SendSocketMessage(socketChannels.READER_UPDATE, save.new, message.company, message.send_data.user)
                     if (save) {
