@@ -137,6 +137,18 @@ export class Role extends MainEntity {
         destroyItem: true
       }
     },
+    CardholderGroup: {
+      actions: {
+        getItem: true,
+        getAllItems: true
+      }
+    },
+    Schedule: {
+      actions: {
+        getItem: true,
+        getAllItems: true
+      }
+    },
     Ticket: {
       actions: {
         addItem: true,
@@ -158,15 +170,13 @@ export class Role extends MainEntity {
     AccessRight: {
       actions: {
         addItem: true,
-        getItem: true
+        getItem: true,
+        getAllItems: true
       }
     },
     AccessPointZone: {
       actions: {
-        addItem: true,
-        updateItem: true,
         getItem: true,
-        destroyItem: true,
         getAllItems: true
       }
     },
