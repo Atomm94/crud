@@ -10,4 +10,5 @@ export default router
     .put('Acu-updateItem', 'accessPoint/updateMode', checkRole(), AccessPointController.updateMode)
     .get('AccessPoint-getAllItems', 'accessPoint/resources/:type', checkRole(), AccessPointController.getAccessPointResources)
     .get('AccessPoint-getAllItems', 'accessPoint/types', checkRole(), AccessPointController.getAccessPointTypes)
+    .get('Cardholder-addItem', 'accessPoint/cardholders', checkRole(), AccessPointController.getAllForCardholder)
     .get('AccessPoint-getItem', 'accessPoint/:id', checkRole(), AccessPointController.get)
