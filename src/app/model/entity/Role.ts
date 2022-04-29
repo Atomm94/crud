@@ -170,6 +170,12 @@ export class Role extends MainEntity {
         getAllItems: true
       }
     },
+    AccessPoint: {
+      actions: {
+        getItem: true,
+        getAllItems: true
+      }
+    },
     Acu: {
       actions: {
         getItem: true,
