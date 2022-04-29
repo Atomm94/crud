@@ -155,18 +155,15 @@ export class Role extends MainEntity {
         deleteMessageImage: true
       }
     },
-    AccessRight: {
-      actions: {
-        addItem: true,
-        getItem: true
-      }
-    },
     AccessPointZone: {
       actions: {
-        addItem: true,
-        updateItem: true,
         getItem: true,
-        destroyItem: true,
+        getAllItems: true
+      }
+    },
+    AccessPoint: {
+      actions: {
+        getItem: true,
         getAllItems: true
       }
     },

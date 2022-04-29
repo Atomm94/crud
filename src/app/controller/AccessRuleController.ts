@@ -90,6 +90,7 @@ export default class AccessRuleController {
             }
             const access_points: AccessPoint[] = await AccessPoint.find({ ...where })
             const res_data: any = []
+            let send_set_card_key = false
             for (const access_point of access_points) {
                 const data = req_data
                 data.access_point = access_point.id
@@ -107,6 +108,7 @@ export default class AccessRuleController {
                     const acu: Acu = await Acu.getItem({ id: access_point.acu })
                     if (acu.status === acuStatus.ACTIVE) {
                         SdlController.setSdl(location, acu.serial_number, access_rule, user, acu.session_id)
+                        send_set_card_key = true
 
                         // const cardholders = await Cardholder.getAllItems({
                         //     relations: ['credentials'],
@@ -127,7 +129,7 @@ export default class AccessRuleController {
                         //     .getMany()
 
                         // CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, req_data.company, user, [access_point], cardholders)
-                        CardKeyController.setAddCardKey(OperatorType.SET_CARD_KEYS, location, req_data.company, user, null)
+                        // CardKeyController.setAddCardKey(OperatorType.SET_CARD_KEYS, location, req_data.company, user, null)
 
                         // const cardholders: any = await Cardholder.createQueryBuilder('cardholder')
                         //     .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null')
@@ -140,6 +142,9 @@ export default class AccessRuleController {
                 } catch (error) {
                     console.log('error', error.message ? error.message : error)
                 }
+            }
+            if (send_set_card_key) {
+                CardKeyController.setAddCardKey(OperatorType.SET_CARD_KEYS, location, req_data.company, user, null)
             }
             ctx.body = await Promise.all(res_data)
         } catch (error) {

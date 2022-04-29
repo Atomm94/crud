@@ -403,6 +403,7 @@ export default class StandardReportController {
             const logs = await EventLog.get(user, req_data)
             ctx.body = logs
         } catch (error) {
+            console.log('🚀 ~ file: StandardReportController.ts ~ line 406 ~ StandardReportController ~ execute ~ error', error)
             ctx.status = error.status || 400
             ctx.body = error
         }

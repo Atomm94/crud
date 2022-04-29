@@ -349,7 +349,7 @@ export default class Parse {
             const device_id = message.info.device_id
             const acu = await Acu.findOne({ where: { serial_number: device_id, status: In([acuStatus.PENDING, acuStatus.ACTIVE]), company: message.company } })
 
-            if (!(acu && acu.status === acuStatus.ACTIVE)) {
+            if (!acu || acu.status === acuStatus.PENDING) {
                 const acu_data: any = acu || {}
                 acu_data.name = message.info.name
                 acu_data.description = message.info.note

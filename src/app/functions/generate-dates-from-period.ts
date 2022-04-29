@@ -43,7 +43,6 @@ export function generateDatesFromPeriod (period: { key: standartReportPeriod, va
             end_date = new Date(period.value.end_date)
             break
     }
-    console.log('start_date', start_date)
 
     const start_month = ('0' + (start_date.getMonth() + 1)).slice(-2)
     const end_month = ('0' + (end_date.getMonth() + 1)).slice(-2)
