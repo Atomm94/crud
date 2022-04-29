@@ -1462,13 +1462,14 @@ export default class CardholderController {
 
                     for (const parent_access_rule of invite_user.access_rights.access_rules) {
                         if (parent_access_rule.access_point === access_point_id) {
+                            access_rule.access_points = parent_access_rule.access_points
+                            access_rule.schedules = schedule
+                            access_rule.schedules.timeframes = timeframes
                             if (parent_access_rule.access_points.acus.status === acuStatus.ACTIVE) {
-                                access_rule.schedules = schedule
-                                access_rule.schedules.timeframes = timeframes
                                 // we need send setSdl....
                                 SdlController.setSdl(location, parent_access_rule.access_points.acus.serial_number, access_rule, auth_user, parent_access_rule.access_points.acus.session_id)
-                                access_right.access_rules.push(access_rule)
                             }
+                            access_right.access_rules.push(access_rule)
                         }
                     }
                 }
