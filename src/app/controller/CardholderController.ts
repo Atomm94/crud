@@ -199,6 +199,12 @@ export default class CardholderController {
      *                                company:
      *                                     type:number
      *                                     example:1
+     *                                access_point:
+     *                                     type:number
+     *                                     example:1
+     *                                mode:
+     *                                    type: string
+     *                                    enum: [automatic,manual]
      *          responses:
      *              '201':
      *                  description: A cardholder object
@@ -304,7 +310,6 @@ export default class CardholderController {
                         value: { code: credential_data.code }
                     })
                     credentials.push(credential_data)
-
                     req_data.where = { status: { '=': acuStatus.ACTIVE } }
                 }
                 if (credentials.length) {
@@ -520,6 +525,9 @@ export default class CardholderController {
      *                                  enum: [serial_number, wiegand_26]
      *                                  example: serial_number
      *                              company:
+     *                                   type:number
+     *                                   example:1
+     *                              access_point:
      *                                   type:number
      *                                   example:1
      *          responses:

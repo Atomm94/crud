@@ -148,6 +148,12 @@ export default class AccessPointController {
      *                description: Authentication token
      *                schema:
      *                    type: string
+     *              - in: query
+     *                name: status
+     *                description: status of Acu
+     *                schema:
+     *                    type: string
+     *                    enum: [active, pending, no_hardware]
      *          responses:
      *              '200':
      *                  description: Array of accessPoint
@@ -193,6 +199,10 @@ export default class AccessPointController {
                     .andWhere(`access_point.company = '${user.companyData.partition_parent_id}'`)
                     .andWhere(`access_point.id in(${base_access_points}) `)
             }
+            if (ctx.query.status) {
+                access_points = access_points.andWhere(`acu.status = '${ctx.query.status}'`)
+            }
+
             if (!resurce_limited) {
                 access_points = await access_points
                     .getMany()

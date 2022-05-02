@@ -35,7 +35,7 @@ export default class CardKeyController {
             // })
 
             let parent_company_id = company
-            if (user.companyData.partition_parent_id) {
+            if (user && user.companyData.partition_parent_id) {
                 parent_company_id = user.companyData.partition_parent_id
             }
             const companies_that_need_send = [parent_company_id]
@@ -45,7 +45,7 @@ export default class CardKeyController {
             let all_cardholders: Cardholder[] = await Cardholder.createQueryBuilder('cardholder')
                 .leftJoinAndSelect('cardholder.access_rights', 'access_right')
                 .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
-                .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null')
+                .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null and credential.code is not null')
                 // .leftJoinAndSelect('cardholder.antipass_backs', 'antipass_back')
                 .leftJoinAndSelect('cardholder.limitations', 'limitation')
                 .where(`cardholder.company in (${companies_that_need_send})`)
@@ -119,7 +119,7 @@ export default class CardKeyController {
                 all_cardholders = await Cardholder.createQueryBuilder('cardholder')
                     .leftJoinAndSelect('cardholder.access_rights', 'access_right')
                     .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
-                    .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null')
+                    .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null and credential.code is not null')
                     .where(`cardholder.company = '${company}'`)
                     .getMany()
             }

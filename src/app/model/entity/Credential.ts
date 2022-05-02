@@ -12,6 +12,7 @@ import { MainEntity } from './index'
 import { credentialType } from '../../enums/credentialType.enum'
 import { credentialStatus } from '../../enums/credentialStatus.enum'
 import { credentialInputMode } from '../../enums/credentialInputMode.enum'
+import { credentialMode } from '../../enums/credentialMode.enum'
 import { Cardholder } from './Cardholder'
 
 import { minusResource } from '../../functions/minusResource'
@@ -27,8 +28,8 @@ export class Credential extends MainEntity {
     @Column('enum', { name: 'type', enum: credentialType })
     type: credentialType
 
-    @Column('varchar', { name: 'code', length: 512 })
-    code: string
+    @Column('varchar', { name: 'code', length: 512, nullable: true })
+    code: string | null
 
     @Column('enum', { name: 'status', enum: credentialStatus, default: credentialStatus.ACTIVE })
     status: credentialStatus
@@ -57,6 +58,12 @@ export class Credential extends MainEntity {
     @Column('int', { name: 'company', nullable: false })
     company: number
 
+    @Column('enum', { name: 'mode', enum: credentialMode })
+    mode: credentialMode
+
+    @Column('int', { name: 'access_point', nullable: true })
+    access_point: number | null
+
     @ManyToOne(type => Cardholder, cardholder => cardholder.credentials)
     @JoinColumn({ name: 'cardholder' })
     cardholders: Cardholder;
@@ -79,6 +86,9 @@ export class Credential extends MainEntity {
         credential.facility = data.facility
         credential.input_mode = data.input_mode
         credential.company = data.company
+        credential.mode = data.mode
+        credential.access_point = data.access_point
+
         if (data.type === credentialType.PINPASS) {
             if (data.token) {
                 credential.token = data.token
@@ -107,6 +117,7 @@ export class Credential extends MainEntity {
         if ('cardholder' in data) credential.cardholder = data.cardholder
         if ('facility' in data) credential.facility = data.facility
         if ('input_mode' in data) credential.input_mode = data.input_mode
+        if ('access_point' in data) credential.access_point = data.access_point
 
         if (!credential) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {

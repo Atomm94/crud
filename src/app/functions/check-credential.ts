@@ -6,12 +6,13 @@ import { credentialInputMode } from '../enums/credentialInputMode.enum'
 import { canCreate } from '../middleware/resource'
 import { resourceKeys } from '../enums/resourceKeys.enum'
 import { In } from 'typeorm'
+import { credentialMode } from '../enums/credentialMode.enum'
 
 export class CheckCredentialSettings {
     public static async checkSettings (credentials: Credential | Credential[] | null, company: number) {
         if (credentials) {
             if (!Array.isArray(credentials)) credentials = [credentials]
-            const credential_unique = await Credential.findOne({ where: { company: company, code: In(credentials.filter(credential => !credential.id).map(credential => credential.code)) } })
+            const credential_unique = await Credential.findOne({ where: { company: company, code: In(credentials.filter(credential => !credential.id && credential.code).map(credential => credential.code)) } })
             if (credential_unique) {
                 return (`Dublicate Credential ${credential_unique.code}`)
             } else {
@@ -26,6 +27,9 @@ export class CheckCredentialSettings {
                                 return ('Invalid Input Mode')
                             }
                         }
+                    }
+                    if (credential.mode === credentialMode.AUTOMATIC) {
+                        if (!credential.access_point) return (`Set AccessPoint when mode is ${credentialMode.AUTOMATIC}`)
                     }
                 }
             }

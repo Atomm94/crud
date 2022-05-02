@@ -13,9 +13,13 @@ import { cardholderPresense } from '../../enums/cardholderPresense.enum'
 import { Cardholder } from './Cardholder'
 import { Package } from './Package'
 import { AutoTaskSchedule } from '.'
-import { In } from 'typeorm'
+import { In, IsNull } from 'typeorm'
 import CtpController from '../../controller/Hardware/CtpController'
 import DeviceController from '../../controller/Hardware/DeviceController'
+import { Credential } from './Credential'
+import CardKeyController from '../../controller/Hardware/CardKeyController'
+import { OperatorType } from '../../mqtt/Operators'
+import { Company } from './Company'
 
 const clickhouse_server: string = process.env.CLICKHOUSE_SERVER ? process.env.CLICKHOUSE_SERVER : 'http://localhost:4143'
 const getEventLogsUrl = `${clickhouse_server}/eventLog`
@@ -135,6 +139,22 @@ export class EventLog extends BaseClass {
 
             const event_group_id = Number(event.data.event_group_id)
             const event_id = Number(event.data.event_id)
+            if (event_id === 16) {
+                const credential: any = await Credential.findOne({ where: { access_point: event.data.access_point, code: IsNull() }, relations: ['cardholders'] })
+                console.log('🚀 ~ file: EventLog.ts ~ line 142 ~ EventLog ~ create ~ cardholder', credential)
+                if (credential) {
+                    credential.code = event.data.Key_HEX
+                    await credential.save()
+                    new SendSocketMessage(socketChannels.CREDENTIAL_AUTOMAT_MODE, credential, credential.company)
+
+                    const parent_company = await Company.findOneOrFail({ where: { id: event.data.company } })
+                    const location = `${parent_company.account}/${parent_company.id}`
+                    const cardholder = credential.cardholders
+                    delete credential.cardholders
+                    cardholder.credentials = [credential]
+                    CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, credential.company, null, null, [cardholder], null)
+                }
+            }
 
             if (event_group_id && event_id) {
                 if (
@@ -144,7 +164,6 @@ export class EventLog extends BaseClass {
                     (event_group_id === 3 && [1, 2, 3, 5, 7, 9, 10, 11, 12, 13, 14, 15, 16, 17].includes(event_id))
                 ) {
                     const auto_task = await AutoTaskSchedule.findOne({ where: { access_point: event.data.access_point } })
-
                     if (auto_task && auto_task.reaction_access_points) {
                         console.log(auto_task)
                         const access_points = await AccessPoint.find({ where: { id: In(JSON.parse(auto_task.reaction_access_points)) }, relations: ['acus', 'companies'] })
