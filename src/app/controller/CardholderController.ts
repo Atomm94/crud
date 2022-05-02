@@ -732,6 +732,8 @@ export default class CardholderController {
                 // .leftJoinAndSelect('cardholder.antipass_backs', 'antipass_back')
                 .leftJoinAndSelect('cardholder.time_attendances', 'schedule')
                 .leftJoinAndSelect('cardholder.access_rights', 'access_right')
+                .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
+                .leftJoinAndSelect('access_rule.access_points', 'access_point', 'access_point.delete_date is null')
                 .leftJoinAndSelect('cardholder.cardholder_groups', 'cardholder_group')
                 .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null')
                 .where(`cardholder.id = '${+ctx.params.id}'`)
