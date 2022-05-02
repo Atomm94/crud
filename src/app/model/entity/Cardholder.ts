@@ -413,7 +413,7 @@ export class Cardholder extends MainEntity {
                         //     CarInfo.destroyItem(data.car_info)
                         // }
                         for (const credential of data.credentials) {
-                            if (!credential.delete_date) {
+                            if (!credential.deleteDate) {
                                 await Credential.destroyItem(credential)
                             }
                         }
