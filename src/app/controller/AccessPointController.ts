@@ -14,6 +14,7 @@ import { readerTypes } from '../enums/readerTypes'
 import { accessPointMode } from '../enums/accessPointMode.enum'
 import { accessPointDirection } from '../enums/accessPointDirection.enum'
 import { locationGenerator } from '../functions/locationGenerator'
+import { AccessRule, Cardholder } from '../model/entity'
 
 export default class AccessPointController {
     /**
@@ -163,7 +164,7 @@ export default class AccessPointController {
             let access_points: any
             let resurce_limited
             let take_limit
-              if (ctx.query.packageExtraSettings) {
+            if (ctx.query.packageExtraSettings) {
                 if (ctx.query.packageExtraSettings.resources.Cardholder) {
                     take_limit = ctx.query.packageExtraSettings.resources.Cardholder
                 } else {
@@ -488,5 +489,40 @@ export default class AccessPointController {
             ctx.status = error.status || 400
             ctx.body = error
         }
+    }
+
+    /**
+     *
+     * @swagger
+     * /accessPoint/cardholders:
+     *      get:
+     *          tags:
+     *              - AccessPoint
+     *          summary: Return accessPoint list
+     *          parameters:
+     *              - in: header
+     *                name: Authorization
+     *                required: true
+     *                description: Authentication token
+     *                schema:
+     *                    type: string
+     *          responses:
+     *              '200':
+     *                  description: Array of accessPoint
+     *              '401':
+     *                  description: Unauthorized
+     */
+    public static async getAllForCardholder (ctx: DefaultContext) {
+        const auth_user = ctx.user
+        if (!auth_user.cardholder) {
+            ctx.status = 400
+            return ctx.body = { message: 'Only invited Cardholder can create Guest' }
+        }
+        const cardholder = await Cardholder.findOne({ where: { id: auth_user.cardholder } })
+        if (!cardholder) {
+            ctx.status = 400
+            return ctx.body = { message: 'Cardholder not found' }
+        }
+        return ctx.body = await AccessRule.find({ where: { access_right: cardholder.access_right }, relations: ['access_points'] })
     }
 }

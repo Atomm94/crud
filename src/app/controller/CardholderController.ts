@@ -1166,20 +1166,21 @@ export default class CardholderController {
             reqData.verify_token = uid(32)
             reqData.cardholder = cardholder.id
 
-            const role_slug = 'default_cardholder'
-            let default_cardholder_role = await Role.findOne({ slug: role_slug, company: company })
-            console.log('default_cardholder_role', default_cardholder_role)
+            // const role_slug = 'default_cardholder'
+            // let default_cardholder_role = await Role.findOne({ slug: role_slug, company: company })
+            // console.log('default_cardholder_role', default_cardholder_role)
 
-            if (!default_cardholder_role) {
-                const permissions: string = JSON.stringify(Role.default_cardholder_role)
-                // permissions = default_cardholder_role.permissions
-                const role_save_data = {
-                    slug: role_slug,
-                    company: cardholder.company,
-                    permissions: permissions
-                }
-                default_cardholder_role = await Role.addItem(role_save_data as Role)
+            // if (!default_cardholder_role) {
+            const permissions: string = JSON.stringify(Role.default_cardholder_role)
+            // permissions = default_cardholder_role.permissions
+            const role_save_data = {
+                // slug: role_slug,
+                slug: 'default_cardholder',
+                company: cardholder.company,
+                permissions: permissions
             }
+            const default_cardholder_role = await Role.addItem(role_save_data as Role)
+            // }
 
             reqData.role = default_cardholder_role.id
             reqData.first_name = cardholder.first_name
@@ -1461,13 +1462,14 @@ export default class CardholderController {
 
                     for (const parent_access_rule of invite_user.access_rights.access_rules) {
                         if (parent_access_rule.access_point === access_point_id) {
+                            access_rule.access_points = parent_access_rule.access_points
+                            access_rule.schedules = schedule
+                            access_rule.schedules.timeframes = timeframes
                             if (parent_access_rule.access_points.acus.status === acuStatus.ACTIVE) {
-                                access_rule.schedules = schedule
-                                access_rule.schedules.timeframes = timeframes
                                 // we need send setSdl....
                                 SdlController.setSdl(location, parent_access_rule.access_points.acus.serial_number, access_rule, auth_user, parent_access_rule.access_points.acus.session_id)
-                                access_right.access_rules.push(access_rule)
                             }
+                            access_right.access_rules.push(access_rule)
                         }
                     }
                 }
