@@ -182,7 +182,7 @@ export class CheckGuest {
                     }
                 }
             }
-            if (!check_day_in_base_schedule || check_times_range) return 'wrong Schedule, out of range base Schedule'
+            if (!check_day_in_base_schedule || !check_times_range) return 'wrong Schedule, out of range base Schedule'
         }
         return true
     }
