@@ -1451,7 +1451,7 @@ export default class Parse {
                     const credential: any = await Credential.addItem({
                         company: guest.company,
                         cardholder: guest.id,
-                        code: parseInt(message.event_data.info.Key_HEX, 16).toString()
+                        code: parseInt(message.event_data.info.Key_HEX.replace(/ /g, ''), 16).toString()
                     } as Credential)
                     new SendSocketMessage(socketChannels.GUEST_SET_KEY, credential, guest.company, send_data.user)
 

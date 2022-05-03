@@ -314,7 +314,7 @@ export class Cardholder extends MainEntity {
             if (!data.car_infos.id) {
                 const car_info = await CarInfo.addItem(data.car_infos as CarInfo)
                 if (car_info) {
-                    data.car_info = car_info.id
+                    cardholder.car_info = car_info.id
                 }
             } else {
                 const car_info_data = await CarInfo.updateItem(data.car_infos)
