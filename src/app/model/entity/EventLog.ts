@@ -13,13 +13,13 @@ import { cardholderPresense } from '../../enums/cardholderPresense.enum'
 import { Cardholder } from './Cardholder'
 import { Package } from './Package'
 import { AutoTaskSchedule } from '.'
-import { In, IsNull } from 'typeorm'
+import { In } from 'typeorm'
 import CtpController from '../../controller/Hardware/CtpController'
 import DeviceController from '../../controller/Hardware/DeviceController'
-import { Credential } from './Credential'
 import CardKeyController from '../../controller/Hardware/CardKeyController'
 import { OperatorType } from '../../mqtt/Operators'
 import { Company } from './Company'
+import { Credential } from './Credential'
 
 const clickhouse_server: string = process.env.CLICKHOUSE_SERVER ? process.env.CLICKHOUSE_SERVER : 'http://localhost:4143'
 const getEventLogsUrl = `${clickhouse_server}/eventLog`
@@ -140,9 +140,18 @@ export class EventLog extends BaseClass {
             const event_group_id = Number(event.data.event_group_id)
             const event_id = Number(event.data.event_id)
             if (event_id === 16) {
-                const credential: any = await Credential.findOne({ where: { access_point: event.data.access_point, code: IsNull() }, relations: ['cardholders'] })
-                console.log('🚀 ~ file: EventLog.ts ~ line 142 ~ EventLog ~ create ~ cardholder', credential)
+                // const credential: any = await Credential.findOne({ where: { access_point: event.data.access_point, code: IsNull() }, relations: ['cardholders', 'cardholders.access_rights', 'cardholders.access_rights.access_rules'] })
+                const credential: any = await Credential.createQueryBuilder('credential')
+                    .leftJoinAndSelect('credential.cardholders', 'cardholder')
+                    .leftJoinAndSelect('cardholder.access_rights', 'access_right')
+                    .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
+                    .leftJoinAndSelect('cardholder.limitations', 'limitation')
+                    .where('credential.access_point', event.data.access_point)
+                    .andWhere('credential.code is null')
+                    .getOne()
+
                 if (credential) {
+                    console.log('🚀 ~ file: EventLog.ts ~ line 142 ~ EventLog ~ create ~ cardholder', credential)
                     credential.code = event.data.Key_HEX
                     await credential.save()
                     new SendSocketMessage(socketChannels.CREDENTIAL_AUTOMAT_MODE, credential, credential.company)
