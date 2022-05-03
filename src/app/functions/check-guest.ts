@@ -175,7 +175,7 @@ export class CheckGuest {
             let check_day_in_base_schedule = false
             let check_times_range = false
             for (const timeframe of company.base_schedules.timeframes) {
-                if (timeframe.name === day_of_week) {
+                if (Number(timeframe.name) === Number(day_of_week)) {
                     check_day_in_base_schedule = true
                     if (start_time >= timeframe.start && end_time <= timeframe.end) {
                         check_times_range = true
