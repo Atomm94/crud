@@ -13,8 +13,9 @@ import { acuCloudStatus } from '../enums/acuCloudStatus.enum'
 import { AccessPointStatus } from '../model/entity/AccessPointStatus'
 import { postBodyRequestForToken } from '../services/requestUtil'
 import fs from 'fs'
-const acu_cloud_status_change_time = process.env.ACU_CLOUD_STATUS_CHANGE_TIME ? Number(process.env.ACU_CLOUD_STATUS_CHANGE_TIME) : 1 // in minutes
+import { acuConnectionMode } from '../enums/acuConnectionMode.enum'
 
+const acu_cloud_status_change_time = process.env.ACU_CLOUD_STATUS_CHANGE_TIME ? Number(process.env.ACU_CLOUD_STATUS_CHANGE_TIME) : 1 // in minutes
 const delete_old_tokens_interval = process.env.DELETE_OLD_TOKENS_INTERVAL ? process.env.DELETE_OLD_TOKENS_INTERVAL : '0 0 0 * * *'
 // const device_ping_interval = process.env.DEVICE_PING_INTERVAL ? process.env.DEVICE_PING_INTERVAL : '*/15 * * * * *'
 const update_acucloud_status_interval = process.env.UPDATE_ACUCLOUD_STATUS_INTERVAL ? process.env.UPDATE_ACUCLOUD_STATUS_INTERVAL : '0 */10 * * * *'
@@ -68,18 +69,31 @@ export default class CronJob {
         new Cron.CronJob(interval, async () => {
             const acu_statuses: any = await AcuStatus.getAllItems({ relations: ['acus'] })
             for (const acu_status of acu_statuses) {
+                var acu = acu_status.acus
                 let cloud_status = acuCloudStatus.OFFLINE
                 if (acu_status.timestamp > (new Date().getTime() - acu_cloud_status_change_time * 60 * 1000)) {
                     cloud_status = acuCloudStatus.ONLINE
                 }
-                if (acu_status.acus.cloud_status !== cloud_status) {
-                    acu_status.acus.cloud_status = cloud_status
-                    Acu.save(acu_status.acus)
+                acu.cloud_status = cloud_status
+                acu.fw_version = acu_status.fw_version
+                acu.rev = acu_status.rev
+                acu.api_ver = acu_status.api_ver
+                acu.acu_comment = acu_status.acu_comment
+
+                let network: any = {}
+                if (acu.network) {
+                    network = JSON.parse(acu.network)
                 }
-                if (acu_status.acus.fw_version !== acu_statuses.fw_version) {
-                    acu_status.acus.fw_version = acu_statuses.fw_version
-                    Acu.save(acu_status.acus)
-                }
+                network.connection_type = acu_status.connection_type
+                network.ip_address = acu_status.ip_address
+                network.gateway = acu_status.gateway
+                network.subnet_mask = acu_status.subnet_mask
+                network.dns_server = acu_status.dns_server
+                network.fixed = acu_status.connection_mod === acuConnectionMode.FIXED
+                network.dhcp = !!network.fixed
+                acu.network = JSON.stringify(network)
+
+                Acu.save(acu)
             }
         }).start()
     }

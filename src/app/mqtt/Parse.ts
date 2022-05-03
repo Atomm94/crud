@@ -28,6 +28,7 @@ import { Credential } from '../model/entity/Credential'
 import CardKeyController from '../controller/Hardware/CardKeyController'
 import moment from 'moment'
 import { generateMessageForOperator } from '../functions/checkOperator'
+import { acuConnectionMode } from '../enums/acuConnectionMode.enum'
 
 export default class Parse {
     public static async deviceData (topic: string, data: string) {
@@ -314,7 +315,17 @@ export default class Parse {
             AcuStatus.findOneOrFail({ serial_number: message.device_id, company: message.company }).then(async (acuStatusData: AcuStatus) => {
                 const access_point_statuses: any = await AccessPointStatus.getAllItems({ where: { acu: { '=': acuStatusData.acu } } })
                 if (message.result.errorNo === 0) {
-                    if (message.info.firmware_ver) acuStatusData.fw_version = message.info.firmware_ver
+                    if ('firmware_ver' in message.info) acuStatusData.fw_version = message.info.firmware_ver
+                    if ('rev' in message.info) acuStatusData.rev = message.info.rev
+                    if ('api_ver' in message.info) acuStatusData.api_ver = message.info.api_ver
+                    if ('acu_comment' in message.info) acuStatusData.acu_comment = message.info.acu_comment
+                    if ('connection_type' in message.info) acuStatusData.connection_type = (message.info.connection_type === 0) ? acuConnectionType.WI_FI : acuConnectionType.ETHERNET
+                    if ('ip_address' in message.info) acuStatusData.ip_address = message.info.ip_address
+                    if ('gateway' in message.info) acuStatusData.gateway = message.info.gateway
+                    if ('subnet_mask' in message.info) acuStatusData.subnet_mask = message.info.subnet_mask
+                    if ('dns_server' in message.info) acuStatusData.dns_server = message.info.dns_server
+                    if ('connection_mod' in message.info) acuStatusData.connection_mod = (message.info.connection_mod === 0) ? acuConnectionMode.DHCP : acuConnectionMode.FIXED
+
                     AcuStatus.updateItem(acuStatusData)
                     if (message.info) {
                         for (const access_point_status of access_point_statuses) {
