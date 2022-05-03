@@ -5,7 +5,8 @@ import {
     // OneToMany,
     JoinColumn,
     OneToMany,
-    DeleteDateColumn
+    DeleteDateColumn,
+    Index
 } from 'typeorm'
 import { minusResource } from '../../functions/minusResource'
 
@@ -18,6 +19,7 @@ import {
 } from './index'
 // import { Cardholder } from './Cardholder'
 
+@Index('name|company', ['name', 'company'], { unique: true })
 @Entity('cardholder_group')
 export class CardholderGroup extends MainEntity {
     @Column('varchar', { name: 'name', nullable: false })
