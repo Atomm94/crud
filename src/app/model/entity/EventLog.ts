@@ -152,7 +152,7 @@ export class EventLog extends BaseClass {
 
                 if (credential) {
                     console.log('🚀 ~ file: EventLog.ts ~ line 142 ~ EventLog ~ create ~ cardholder', credential)
-                    credential.code = event.data.Key_HEX
+                    credential.code = parseInt(event.data.Key_HEX, 16).toString()
                     await credential.save()
                     new SendSocketMessage(socketChannels.CREDENTIAL_AUTOMAT_MODE, credential, credential.company)
 
