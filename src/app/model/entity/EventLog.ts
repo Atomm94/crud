@@ -20,6 +20,7 @@ import CardKeyController from '../../controller/Hardware/CardKeyController'
 import { OperatorType } from '../../mqtt/Operators'
 import { Company } from './Company'
 import { Credential } from './Credential'
+import { cloneDeep } from 'lodash'
 
 const clickhouse_server: string = process.env.CLICKHOUSE_SERVER ? process.env.CLICKHOUSE_SERVER : 'http://localhost:4143'
 const getEventLogsUrl = `${clickhouse_server}/eventLog`
@@ -151,17 +152,27 @@ export class EventLog extends BaseClass {
                     .getOne()
 
                 if (credential) {
-                    console.log('🚀 ~ file: EventLog.ts ~ line 142 ~ EventLog ~ create ~ cardholder', credential)
-                    credential.code = parseInt(event.data.Key_HEX, 16).toString()
-                    await credential.save()
-                    new SendSocketMessage(socketChannels.CREDENTIAL_AUTOMAT_MODE, credential, credential.company)
+                    const code = parseInt(event.data.Key_HEX.replace(/ /g, ''), 16).toString()
+                    const check_code_unique = await Credential.findOne({ where: { code: code, company: credential.company } })
+                    if (check_code_unique) {
+                        const notification_data = cloneDeep(event.data)
+                        notification_data.description = `Dublicate code ${code}`
+                        const notification: any = await Notification.addItem(event.data as Notification)
+                        notification.access_points = event.data.access_points
+                        new SendSocketMessage(socketChannels.NOTIFICATION, notification, credential.company)
+                    } else {
+                        console.log('🚀 ~ file: EventLog.ts ~ line 142 ~ EventLog ~ create ~ cardholder', credential)
+                        credential.code =
+                        await credential.save()
+                        new SendSocketMessage(socketChannels.CREDENTIAL_AUTOMAT_MODE, credential, credential.company)
 
-                    const parent_company = await Company.findOneOrFail({ where: { id: event.data.company } })
-                    const location = `${parent_company.account}/${parent_company.id}`
-                    const cardholder = credential.cardholders
-                    delete credential.cardholders
-                    cardholder.credentials = [credential]
-                    CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, credential.company, null, null, [cardholder], null)
+                        const parent_company = await Company.findOneOrFail({ where: { id: event.data.company } })
+                        const location = `${parent_company.account}/${parent_company.id}`
+                        const cardholder = credential.cardholders
+                        delete credential.cardholders
+                        cardholder.credentials = [credential]
+                        CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, credential.company, null, null, [cardholder], null)
+                    }
                 }
             }
 
