@@ -28,8 +28,8 @@ export class Credential extends MainEntity {
     @Column('enum', { name: 'type', enum: credentialType })
     type: credentialType
 
-    @Column('varchar', { name: 'code', length: 512, nullable: true })
-    code: string | null
+    @Column('varchar', { name: 'code', length: 512, nullable: false })
+    code: string
 
     @Column('enum', { name: 'status', enum: credentialStatus, default: credentialStatus.ACTIVE })
     status: credentialStatus

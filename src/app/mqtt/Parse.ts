@@ -490,26 +490,26 @@ export default class Parse {
     public static async deviceSetNetSettingsAck (message: IMqttCrudMessaging) {
         try {
             if (message.result.errorNo === 0) {
-                const company = message.company
-                const device_id = message.device_id
-                const acu: any = await Acu.findOneOrFail({ serial_number: device_id /*, company: company */ })
-                if (acu) {
-                    const info = message.send_data.data
-                    acu.network = {
-                        connection_type: (info.connection_type === 0) ? acuConnectionType.WI_FI : acuConnectionType.ETHERNET,
-                        dhcp: info.dhcp,
-                        fixed: !info.dhcp,
-                        ip_address: info.ip_address,
-                        subnet_mask: info.subnet_mask,
-                        gateway: info.gateway,
-                        dns_server: info.dns_server
-                    }
-                    const update_acu = await Acu.updateItem({ id: acu.id, network: acu.network } as Acu)
-                    new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.CHANGE, `${Acu.name}/${update_acu.old.name}`, update_acu)
-                    // console.log('deviceSetNetSettingsAck complete')
-                } else {
-                    // console.log('error deviceSetNetSettingsAck', message)
-                }
+                // const company = message.company
+                // const device_id = message.device_id
+                // const acu: any = await Acu.findOneOrFail({ serial_number: device_id /*, company: company */ })
+                // if (acu) {
+                //     const info = message.send_data.data
+                //     acu.network = {
+                //         connection_type: (info.connection_type === 0) ? acuConnectionType.WI_FI : acuConnectionType.ETHERNET,
+                //         dhcp: info.dhcp,
+                //         fixed: !info.dhcp,
+                //         ip_address: info.ip_address,
+                //         subnet_mask: info.subnet_mask,
+                //         gateway: info.gateway,
+                //         dns_server: info.dns_server
+                //     }
+                //     const update_acu = await Acu.updateItem({ id: acu.id, network: acu.network } as Acu)
+                //     new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.CHANGE, `${Acu.name}/${update_acu.old.name}`, update_acu)
+                //     // console.log('deviceSetNetSettingsAck complete')
+                // } else {
+                //     // console.log('error deviceSetNetSettingsAck', message)
+                // }
             }
         } catch (error) {
             // console.log('error deviceSetNetSettingsAck', error)
