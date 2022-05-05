@@ -1616,6 +1616,8 @@ export default class CardholderController {
                 .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
                 .leftJoinAndSelect('access_rule.access_points', 'access_point', 'access_point.delete_date is null')
                 .leftJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
+                .leftJoinAndSelect('cardholder.time_attendances', 'time_attendance', 'time_attendance.delete_date is null')
+                .leftJoinAndSelect('time_attendance.timeframes', 'timeframe', 'timeframe.delete_date is null')
                 .where(`cardholder.id = '${req_data.id}'`)
                 .andWhere(`cardholder.create_by = '${auth_user.id}'`)
                 .getOne()
