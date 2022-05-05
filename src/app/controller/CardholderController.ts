@@ -1637,7 +1637,7 @@ export default class CardholderController {
             const company: any = await Company.createQueryBuilder('company')
                 .leftJoinAndSelect('company.base_schedules', 'base_schedule')
                 .leftJoinAndSelect('base_schedule.timeframes', 'timeframe', 'timeframe.delete_date is null')
-                .where(`company.id = '${req_data.company}'`)
+                .where(`company.id = '${company_id}'`)
                 .getOne()
 
             const check_guest = await CheckGuest.checkSaveGuest(req_data, company, invite_user)
@@ -1651,7 +1651,7 @@ export default class CardholderController {
                 return ctx.body = { message: 'cant change key_type' }
             }
 
-            const selected_access_point: any = await AccessPoint.findOne({ where: { id: req_data.selected_access_point, company: req_data.company }, relations: ['acus'] })
+            const selected_access_point: any = await AccessPoint.findOne({ where: { id: req_data.selected_access_point, company: company_id }, relations: ['acus'] })
             if (req_data.set_key) {
                 if (!selected_access_point) {
                     ctx.status = 400
