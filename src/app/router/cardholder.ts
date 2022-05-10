@@ -37,6 +37,7 @@ export default router
     .put('Cardholder-updateItem', 'cardholder/guest', checkRole(), CardholderController.updateGuest)
     .delete('Cardholder-destroyItem', 'cardholder/guest', checkRole(), CardholderController.destroyGuest)
     .get('Cardholder-getAllItems', 'cardholder/guestsLimit', checkRole(), CardholderController.guestsLimit)
+    .get('Cardholder-getAllItems', 'cardholder/guestsTimeKeys', checkRole(), CardholderController.guestsTimeKeys)
 
     .post('Cardholder-addItem', 'cardholder/addFromCabinet', checkRole(), CardholderController.addFromCabinet)
     .put('Cardholder-updateItem', 'cardholder/updateFromCabinet', checkRole(), CardholderController.updateFromCabinet)

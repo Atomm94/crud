@@ -1616,6 +1616,8 @@ export default class CardholderController {
                 .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
                 .leftJoinAndSelect('access_rule.access_points', 'access_point', 'access_point.delete_date is null')
                 .leftJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
+                .leftJoinAndSelect('cardholder.time_attendances', 'time_attendance', 'time_attendance.delete_date is null')
+                .leftJoinAndSelect('time_attendance.timeframes', 'timeframe', 'timeframe.delete_date is null')
                 .where(`cardholder.id = '${req_data.id}'`)
                 .andWhere(`cardholder.create_by = '${auth_user.id}'`)
                 .getOne()
@@ -1637,7 +1639,7 @@ export default class CardholderController {
             const company: any = await Company.createQueryBuilder('company')
                 .leftJoinAndSelect('company.base_schedules', 'base_schedule')
                 .leftJoinAndSelect('base_schedule.timeframes', 'timeframe', 'timeframe.delete_date is null')
-                .where(`company.id = '${req_data.company}'`)
+                .where(`company.id = '${company_id}'`)
                 .getOne()
 
             const check_guest = await CheckGuest.checkSaveGuest(req_data, company, invite_user)
@@ -1651,7 +1653,7 @@ export default class CardholderController {
                 return ctx.body = { message: 'cant change key_type' }
             }
 
-            const selected_access_point: any = await AccessPoint.findOne({ where: { id: req_data.selected_access_point, company: req_data.company }, relations: ['acus'] })
+            const selected_access_point: any = await AccessPoint.findOne({ where: { id: req_data.selected_access_point, company: company_id }, relations: ['acus'] })
             if (req_data.set_key) {
                 if (!selected_access_point) {
                     ctx.status = 400
@@ -1912,6 +1914,45 @@ export default class CardholderController {
                 enable_create_guest: invite_user.enable_create_guest,
                 guest_count: invite_user.guest_count,
                 created_guests_count: created_guests.length
+            }
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     * /cardholder/guestsTimeKeys:
+     *      get:
+     *          tags:
+     *              - Cardholder
+     *          summary: Return time keys
+     *          parameters:
+     *              - in: header
+     *                name: Authorization
+     *                required: true
+     *                description: Authentication token
+     *                schema:
+     *                    type: string
+     *          responses:
+     *              '200':
+     *                  description: Time keys
+     *              '401':
+     *                  description: Unauthorized
+     */
+     public static async guestsTimeKeys (ctx: DefaultContext) {
+        try {
+            const auth_user = ctx.user
+            if (!auth_user.cardholder) {
+                ctx.status = 400
+                return ctx.body = { message: 'Only invited Cardholder can see Guests limit' }
+            }
+            const company = await Company.findOneOrFail({ where: { id: auth_user.company } })
+            ctx.body = {
+                time_keys: company.time_keys
             }
         } catch (error) {
             ctx.status = error.status || 400

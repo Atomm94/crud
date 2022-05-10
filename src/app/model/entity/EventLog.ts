@@ -16,10 +16,6 @@ import { AutoTaskSchedule } from '.'
 import { In } from 'typeorm'
 import CtpController from '../../controller/Hardware/CtpController'
 import DeviceController from '../../controller/Hardware/DeviceController'
-import CardKeyController from '../../controller/Hardware/CardKeyController'
-import { OperatorType } from '../../mqtt/Operators'
-import { Company } from './Company'
-import { Credential } from './Credential'
 
 const clickhouse_server: string = process.env.CLICKHOUSE_SERVER ? process.env.CLICKHOUSE_SERVER : 'http://localhost:4143'
 const getEventLogsUrl = `${clickhouse_server}/eventLog`
@@ -140,29 +136,47 @@ export class EventLog extends BaseClass {
             const event_group_id = Number(event.data.event_group_id)
             const event_id = Number(event.data.event_id)
             if (event_id === 16) {
-                // const credential: any = await Credential.findOne({ where: { access_point: event.data.access_point, code: IsNull() }, relations: ['cardholders', 'cardholders.access_rights', 'cardholders.access_rights.access_rules'] })
-                const credential: any = await Credential.createQueryBuilder('credential')
-                    .leftJoinAndSelect('credential.cardholders', 'cardholder')
-                    .leftJoinAndSelect('cardholder.access_rights', 'access_right')
-                    .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
-                    .leftJoinAndSelect('cardholder.limitations', 'limitation')
-                    .where('credential.access_point', event.data.access_point)
-                    .andWhere('credential.code is null')
-                    .getOne()
-
-                if (credential) {
-                    console.log('🚀 ~ file: EventLog.ts ~ line 142 ~ EventLog ~ create ~ cardholder', credential)
-                    credential.code = event.data.Key_HEX
-                    await credential.save()
-                    new SendSocketMessage(socketChannels.CREDENTIAL_AUTOMAT_MODE, credential, credential.company)
-
-                    const parent_company = await Company.findOneOrFail({ where: { id: event.data.company } })
-                    const location = `${parent_company.account}/${parent_company.id}`
-                    const cardholder = credential.cardholders
-                    delete credential.cardholders
-                    cardholder.credentials = [credential]
-                    CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, credential.company, null, null, [cardholder], null)
+                const code = parseInt(event.data.Key_HEX.replace(/ /g, ''), 16).toString()
+                if (code) {
+                    const send_automat_mode = {
+                        code: code,
+                        access_point: event.data.access_point
+                    }
+                    new SendSocketMessage(socketChannels.CREDENTIAL_AUTOMAT_MODE, send_automat_mode, event.data.company)
                 }
+                // const credential: any = await Credential.findOne({ where: { access_point: event.data.access_point, code: IsNull() }, relations: ['cardholders', 'cardholders.access_rights', 'cardholders.access_rights.access_rules'] })
+                // const credential: any = await Credential.createQueryBuilder('credential')
+                //     .leftJoinAndSelect('credential.cardholders', 'cardholder')
+                //     .leftJoinAndSelect('cardholder.access_rights', 'access_right')
+                //     .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
+                //     .leftJoinAndSelect('cardholder.limitations', 'limitation')
+                //     .where('credential.access_point', event.data.access_point)
+                //     .andWhere('credential.code is null')
+                //     .getOne()
+
+                // if (credential) {
+                //     const code = parseInt(event.data.Key_HEX.replace(/ /g, ''), 16).toString()
+                //     const check_code_unique = await Credential.findOne({ where: { code: code, company: credential.company } })
+                //     if (check_code_unique) {
+                //         const notification_data = cloneDeep(event.data)
+                //         notification_data.description = `Dublicate code ${code}`
+                //         const notification: any = await Notification.addItem(event.data as Notification)
+                //         notification.access_points = event.data.access_points
+                //         new SendSocketMessage(socketChannels.NOTIFICATION, notification, credential.company)
+                //     } else {
+                //         console.log('🚀 ~ file: EventLog.ts ~ line 142 ~ EventLog ~ create ~ cardholder', credential)
+                //         credential.code =
+                //         await credential.save()
+                //         new SendSocketMessage(socketChannels.CREDENTIAL_AUTOMAT_MODE, credential, credential.company)
+
+                //         const parent_company = await Company.findOneOrFail({ where: { id: event.data.company } })
+                //         const location = `${parent_company.account}/${parent_company.id}`
+                //         const cardholder = credential.cardholders
+                //         delete credential.cardholders
+                //         cardholder.credentials = [credential]
+                //         CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, credential.company, null, null, [cardholder], null)
+                //     }
+                // }
             }
 
             if (event_group_id && event_id) {

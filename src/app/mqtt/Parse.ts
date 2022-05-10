@@ -490,26 +490,26 @@ export default class Parse {
     public static async deviceSetNetSettingsAck (message: IMqttCrudMessaging) {
         try {
             if (message.result.errorNo === 0) {
-                const company = message.company
-                const device_id = message.device_id
-                const acu: any = await Acu.findOneOrFail({ serial_number: device_id /*, company: company */ })
-                if (acu) {
-                    const info = message.send_data.data
-                    acu.network = {
-                        connection_type: (info.connection_type === 0) ? acuConnectionType.WI_FI : acuConnectionType.ETHERNET,
-                        dhcp: info.dhcp,
-                        fixed: !info.dhcp,
-                        ip_address: info.ip_address,
-                        subnet_mask: info.subnet_mask,
-                        gateway: info.gateway,
-                        dns_server: info.dns_server
-                    }
-                    const update_acu = await Acu.updateItem({ id: acu.id, network: acu.network } as Acu)
-                    new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.CHANGE, `${Acu.name}/${update_acu.old.name}`, update_acu)
-                    // console.log('deviceSetNetSettingsAck complete')
-                } else {
-                    // console.log('error deviceSetNetSettingsAck', message)
-                }
+                // const company = message.company
+                // const device_id = message.device_id
+                // const acu: any = await Acu.findOneOrFail({ serial_number: device_id /*, company: company */ })
+                // if (acu) {
+                //     const info = message.send_data.data
+                //     acu.network = {
+                //         connection_type: (info.connection_type === 0) ? acuConnectionType.WI_FI : acuConnectionType.ETHERNET,
+                //         dhcp: info.dhcp,
+                //         fixed: !info.dhcp,
+                //         ip_address: info.ip_address,
+                //         subnet_mask: info.subnet_mask,
+                //         gateway: info.gateway,
+                //         dns_server: info.dns_server
+                //     }
+                //     const update_acu = await Acu.updateItem({ id: acu.id, network: acu.network } as Acu)
+                //     new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.CHANGE, `${Acu.name}/${update_acu.old.name}`, update_acu)
+                //     // console.log('deviceSetNetSettingsAck complete')
+                // } else {
+                //     // console.log('error deviceSetNetSettingsAck', message)
+                // }
             }
         } catch (error) {
             // console.log('error deviceSetNetSettingsAck', error)
@@ -1448,16 +1448,32 @@ export default class Parse {
                 if (message.event_data) {
                     const send_data = message.send_data
                     const guest = send_data.data.cardholder
-                    const credential: any = await Credential.addItem({
-                        company: guest.company,
-                        cardholder: guest.id,
-                        code: parseInt(message.event_data.info.Key_HEX, 16).toString()
-                    } as Credential)
-                    new SendSocketMessage(socketChannels.GUEST_SET_KEY, credential, guest.company, send_data.user)
-
-                    guest.credentials = [credential]
-                    const location = message.device_topic.split('/').slice(0, 2).join('/')
-                    CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, guest.company, send_data.user, null, [guest], null)
+                    const code = parseInt(message.event_data.info.Key_HEX.replace(/ /g, ''), 16).toString()
+                    const check_dublicate = await Credential.findOne({ where: { code, company: guest.company } })
+                    if (check_dublicate) {
+                        const send_guest_set_key = {
+                            dublicate: true,
+                            message: `code - ${code} already exists!`
+                        }
+                        new SendSocketMessage(socketChannels.GUEST_SET_KEY, send_guest_set_key, guest.company, send_data.user)
+                    } else {
+                        let credential = await Credential.findOne({ where: { cardholder: guest.id } })
+                        const location = message.device_topic.split('/').slice(0, 2).join('/')
+                        if (!credential) {
+                            credential = await Credential.addItem({
+                                company: guest.company,
+                                cardholder: guest.id,
+                                code: code
+                            } as Credential)
+                            guest.credentials = [credential]
+                            CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, guest.company, send_data.user, null, [guest], null)
+                        } else {
+                            credential.code = code
+                            await credential.save()
+                            CardKeyController.setAddCardKey(OperatorType.SET_CARD_KEYS, location, guest.company, send_data.user, null)
+                        }
+                        new SendSocketMessage(socketChannels.GUEST_SET_KEY, credential, guest.company, send_data.user)
+                    }
                 }
             } else {
                 //
