@@ -1448,16 +1448,25 @@ export default class Parse {
                 if (message.event_data) {
                     const send_data = message.send_data
                     const guest = send_data.data.cardholder
-                    const credential: any = await Credential.addItem({
-                        company: guest.company,
-                        cardholder: guest.id,
-                        code: parseInt(message.event_data.info.Key_HEX.replace(/ /g, ''), 16).toString()
-                    } as Credential)
-                    new SendSocketMessage(socketChannels.GUEST_SET_KEY, credential, guest.company, send_data.user)
-
-                    guest.credentials = [credential]
+                    const code = parseInt(message.event_data.info.Key_HEX.replace(/ /g, ''), 16).toString()
+                    let credential = await Credential.findOne({ where: { id: guest.id } })
                     const location = message.device_topic.split('/').slice(0, 2).join('/')
-                    CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, guest.company, send_data.user, null, [guest], null)
+                    if (!credential) {
+                        credential = await Credential.addItem({
+                            company: guest.company,
+                            cardholder: guest.id,
+                            code: code
+                        } as Credential)
+                        guest.credentials = [credential]
+                        CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, guest.company, send_data.user, null, [guest], null)
+                    } else {
+                        if (credential.code !== code) {
+                            credential.code = code
+                            await credential.save()
+                        }
+                        CardKeyController.setAddCardKey(OperatorType.SET_CARD_KEYS, location, guest.company, send_data.user, null)
+                    }
+                    new SendSocketMessage(socketChannels.GUEST_SET_KEY, credential, guest.company, send_data.user)
                 }
             } else {
                 //
