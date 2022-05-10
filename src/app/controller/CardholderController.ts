@@ -1925,6 +1925,45 @@ export default class CardholderController {
     /**
      *
      * @swagger
+     * /cardholder/guestsTimeKeys:
+     *      get:
+     *          tags:
+     *              - Cardholder
+     *          summary: Return time keys
+     *          parameters:
+     *              - in: header
+     *                name: Authorization
+     *                required: true
+     *                description: Authentication token
+     *                schema:
+     *                    type: string
+     *          responses:
+     *              '200':
+     *                  description: Time keys
+     *              '401':
+     *                  description: Unauthorized
+     */
+     public static async guestsTimeKeys (ctx: DefaultContext) {
+        try {
+            const auth_user = ctx.user
+            if (!auth_user.cardholder) {
+                ctx.status = 400
+                return ctx.body = { message: 'Only invited Cardholder can see Guests limit' }
+            }
+            const company = await Company.findOneOrFail({ where: { id: auth_user.company } })
+            ctx.body = {
+                time_keys: company.time_keys
+            }
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
      *  /cardholder/addFromCabinet:
      *      post:
      *          tags:
