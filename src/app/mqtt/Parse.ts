@@ -1457,7 +1457,7 @@ export default class Parse {
                         }
                         new SendSocketMessage(socketChannels.GUEST_SET_KEY, send_guest_set_key, guest.company, send_data.user)
                     } else {
-                        let credential = await Credential.findOne({ where: { id: guest.id } })
+                        let credential = await Credential.findOne({ where: { cardholder: guest.id } })
                         const location = message.device_topic.split('/').slice(0, 2).join('/')
                         if (!credential) {
                             credential = await Credential.addItem({
