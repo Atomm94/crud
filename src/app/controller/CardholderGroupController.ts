@@ -268,12 +268,18 @@ export default class CardholderGroupController {
         try {
             const req_data = ctx.request.body
             const user = ctx.user
-            const check_by_company = await CardholderGroup.getItem({ id: req_data.id, company: user.company ? user.company : null })
+            const check_by_company: any = await CardholderGroup.getItem({ id: req_data.id, company: user.company ? user.company : null })
 
             if (!check_by_company) {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
             } else {
+                if (check_by_company.name === 'All Cardholders') {
+                    if (req_data.name && check_by_company.name !== req_data.name) {
+                        ctx.status = 400
+                        ctx.body = { message: "Can't update Default Cardholder Group name" }
+                    }
+                }
                 const updated = await CardholderGroup.updateItem(req_data as CardholderGroup, user)
                 ctx.oldData = updated.old
                 ctx.body = updated.new
@@ -377,6 +383,10 @@ export default class CardholderGroupController {
                     ctx.body = { message: 'Can\'t remove group with cardholders' }
                 } else {
                     const cardholder_group = await CardholderGroup.findOneOrFail({ where: where })
+                    if (cardholder_group.name === 'All Cardholders') {
+                        ctx.status = 400
+                        ctx.body = { message: "Can't delete Default Cardholder Group" }
+                    }
                     ctx.body = await CardholderGroup.destroyItem(where)
                     ctx.logsData = [{
                         event: logUserEvents.DELETE,

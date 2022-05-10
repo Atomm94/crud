@@ -26,6 +26,8 @@ import { resourceKeys } from '../enums/resourceKeys.enum'
 import { credentialType } from '../enums/credentialType.enum'
 import { accessPointType } from '../enums/accessPointType.enum'
 import { AccessControl } from '../functions/access-control'
+import { addDefaultFeaturesofCompany } from '../functions/addDefaultFeaturesOfCompany'
+
 import { acuStatus } from '../enums/acuStatus.enum'
 
 export default class CompanyController {
@@ -622,6 +624,8 @@ export default class CompanyController {
 
                         company.account = admin.id
                         await Company.save(company)
+                        await addDefaultFeaturesofCompany(company.id)
+
                         await Sendgrid.sendNewPass(admin.email, admin.verify_token as string)
 
                         // set registration token to null

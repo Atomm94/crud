@@ -27,6 +27,9 @@ export class AccessRight extends MainEntity {
     @Column('boolean', { name: 'custom', default: false })
     custom: boolean
 
+    @Column('boolean', { name: 'default', default: false })
+    default: boolean
+
     @DeleteDateColumn({ type: 'timestamp', name: 'delete_date' })
     public delete_date: Date
 
@@ -58,6 +61,7 @@ export class AccessRight extends MainEntity {
         if ('description' in data) accessRight.description = data.description
         if ('custom' in data) accessRight.custom = data.custom
         accessRight.company = data.company
+        accessRight.default = data.default
 
         return new Promise((resolve, reject) => {
             this.save(accessRight)
@@ -75,6 +79,7 @@ export class AccessRight extends MainEntity {
         const oldData = Object.assign({}, accessRight)
         if ('name' in data) accessRight.name = data.name
         if ('description' in data) accessRight.description = data.description
+        if ('default' in data) accessRight.default = data.default
 
         if (!accessRight) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {

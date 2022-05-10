@@ -38,6 +38,9 @@ export default class AccessRightController {
      *                  description:
      *                      type: string
      *                      example: description
+     *                  default:
+     *                      type: boolean
+     *                      example: false
      *          responses:
      *              '201':
      *                  description: A accessRight object
@@ -52,6 +55,13 @@ export default class AccessRightController {
             const req_data = ctx.request.body
             const user = ctx.user
             req_data.company = user.company ? user.company : null
+            if (req_data.name) {
+                if (req_data.default) {
+                    const exist_default: any = await AccessRight.findOne({ where: { default: req_data.default, company: user.company } })
+                    exist_default.default = false
+                    await exist_default.save()
+                }
+            }
             ctx.body = await AccessRight.addItem(req_data as AccessRight)
         } catch (error) {
             ctx.status = error.status || 400
@@ -94,6 +104,9 @@ export default class AccessRightController {
      *                  description:
      *                      type: string
      *                      example: description
+     *                  default:
+     *                      type: boolean
+     *                      example: false
      *          responses:
      *              '201':
      *                  description: A accessRight updated object
@@ -113,6 +126,13 @@ export default class AccessRightController {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
             } else {
+                if (req_data.name) {
+                    if (req_data.default) {
+                        const exist_default: any = await AccessRight.findOne({ where: { default: req_data.default, company: user.company } })
+                        exist_default.default = false
+                        await exist_default.save()
+                    }
+                }
                 const updated = await AccessRight.updateItem(req_data as AccessRight)
                 ctx.oldData = updated.old
                 ctx.body = updated.new
