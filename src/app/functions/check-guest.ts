@@ -24,7 +24,7 @@ export class CheckGuest {
         }
 
         if (company.require_name_of_guest) {
-            if (guest_data.first_name) {
+            if (!guest_data.first_name) {
                 return 'First_name is required!'
             }
         }
