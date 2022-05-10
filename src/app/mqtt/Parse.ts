@@ -1449,24 +1449,31 @@ export default class Parse {
                     const send_data = message.send_data
                     const guest = send_data.data.cardholder
                     const code = parseInt(message.event_data.info.Key_HEX.replace(/ /g, ''), 16).toString()
-                    let credential = await Credential.findOne({ where: { id: guest.id } })
-                    const location = message.device_topic.split('/').slice(0, 2).join('/')
-                    if (!credential) {
-                        credential = await Credential.addItem({
-                            company: guest.company,
-                            cardholder: guest.id,
-                            code: code
-                        } as Credential)
-                        guest.credentials = [credential]
-                        CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, guest.company, send_data.user, null, [guest], null)
+                    const check_dublicate = await Credential.findOne({ where: { code, company: guest.company } })
+                    if (check_dublicate) {
+                        const send_guest_set_key = {
+                            dublicate: true,
+                            message: `code - ${code} already exists!`
+                        }
+                        new SendSocketMessage(socketChannels.GUEST_SET_KEY, send_guest_set_key, guest.company, send_data.user)
                     } else {
-                        if (credential.code !== code) {
+                        let credential = await Credential.findOne({ where: { id: guest.id } })
+                        const location = message.device_topic.split('/').slice(0, 2).join('/')
+                        if (!credential) {
+                            credential = await Credential.addItem({
+                                company: guest.company,
+                                cardholder: guest.id,
+                                code: code
+                            } as Credential)
+                            guest.credentials = [credential]
+                            CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, guest.company, send_data.user, null, [guest], null)
+                        } else {
                             credential.code = code
                             await credential.save()
+                            CardKeyController.setAddCardKey(OperatorType.SET_CARD_KEYS, location, guest.company, send_data.user, null)
                         }
-                        CardKeyController.setAddCardKey(OperatorType.SET_CARD_KEYS, location, guest.company, send_data.user, null)
+                        new SendSocketMessage(socketChannels.GUEST_SET_KEY, credential, guest.company, send_data.user)
                     }
-                    new SendSocketMessage(socketChannels.GUEST_SET_KEY, credential, guest.company, send_data.user)
                 }
             } else {
                 //
