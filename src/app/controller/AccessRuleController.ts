@@ -228,9 +228,13 @@ export default class AccessRuleController {
                         } else {
                             SdlController.setSdl(location, acu.serial_number, send_data, user, acu.session_id, true)
                         }
-                    }
-                    ctx.body = {
-                        message: 'Update Pending'
+                        ctx.body = {
+                            message: 'Update Pending'
+                        }
+                    } else if ('access_in_holidays' in req_data && req_data.access_in_holidays !== access_rule.access_in_holidays) {
+                        const updated = await AccessRule.updateItem(req_data as AccessRule)
+                        ctx.oldData = updated.old
+                        ctx.body = updated.new
                     }
                 } else {
                     const updated = await AccessRule.updateItem(req_data as AccessRule)
