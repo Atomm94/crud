@@ -218,8 +218,17 @@ export default class AccessRuleController {
             } else {
                 const access_point: AccessPoint = await AccessPoint.findOneOrFail({ id: access_rule.access_point })
                 const acu: Acu = await Acu.findOneOrFail({ id: access_point.acu })
+                var data
                 if (acu.status === acuStatus.ACTIVE) {
                     if (access_rule.schedule !== req_data.schedule) {
+                        if ('access_in_holidays' in req_data && req_data.access_in_holidays !== access_rule.access_in_holidays) {
+                            const save_data = Object.assign({}, req_data)
+                            delete save_data.schedule
+                            const updated = await AccessRule.updateItem(save_data as AccessRule)
+                            ctx.oldData = updated.old
+                            data = updated.new
+                        }
+                        delete req_data.access_in_holidays
                         const schedule: Schedule = await Schedule.findOneOrFail({ id: req_data.schedule })
                         const timeframes = await Timeframe.find({ schedule: schedule.id })
                         const send_data = { ...req_data, schedule_type: schedule.type, start_from: schedule.start_from, timeframes: timeframes, access_point: access_point.id }
@@ -229,6 +238,7 @@ export default class AccessRuleController {
                             SdlController.setSdl(location, acu.serial_number, send_data, user, acu.session_id, true)
                         }
                         ctx.body = {
+                            data: data,
                             message: 'Update Pending'
                         }
                     } else if ('access_in_holidays' in req_data && req_data.access_in_holidays !== access_rule.access_in_holidays) {
