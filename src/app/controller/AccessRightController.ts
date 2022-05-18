@@ -58,8 +58,10 @@ export default class AccessRightController {
             if (req_data.name) {
                 if (req_data.default) {
                     const exist_default: any = await AccessRight.findOne({ where: { default: req_data.default, company: user.company } })
-                    exist_default.default = false
-                    await exist_default.save()
+                    if (exist_default) {
+                        exist_default.default = false
+                        await exist_default.save()
+                    }
                 }
             }
             ctx.body = await AccessRight.addItem(req_data as AccessRight)
@@ -129,8 +131,10 @@ export default class AccessRightController {
                 if (req_data.name) {
                     if (req_data.default) {
                         const exist_default: any = await AccessRight.findOne({ where: { default: req_data.default, company: user.company } })
-                        exist_default.default = false
-                        await exist_default.save()
+                        if (exist_default) {
+                            exist_default.default = false
+                            await exist_default.save()
+                        }
                     }
                 }
                 const updated = await AccessRight.updateItem(req_data as AccessRight)
