@@ -19,7 +19,7 @@ import {
 } from './index'
 // import { Cardholder } from './Cardholder'
 
-@Index('name|company', ['name', 'company'], { unique: true })
+@Index('name|company|is_delete', ['name', 'company', 'is_delete'], { unique: true })
 @Entity('cardholder_group')
 export class CardholderGroup extends MainEntity {
     @Column('varchar', { name: 'name', nullable: false })
@@ -57,6 +57,9 @@ export class CardholderGroup extends MainEntity {
 
     @DeleteDateColumn({ type: 'timestamp', name: 'delete_date' })
     public deleteDate: Date
+
+    @Column('varchar', { name: 'is_delete', default: 0 })
+    is_delete: string
 
     @Column('int', { name: 'company', nullable: false })
     company: number
@@ -199,8 +202,16 @@ export class CardholderGroup extends MainEntity {
         return new Promise(async (resolve, reject) => {
             this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
                 this.softRemove(data)
-                    .then(() => {
+                    .then(async () => {
                         minusResource(this.name, data.company)
+
+                        const group_data: any = await this.createQueryBuilder('cardholder_group')
+                            .where('id = :id', { id: data.id })
+                            .withDeleted()
+                            .getOne()
+                        group_data.is_delete = (new Date()).getTime()
+                        await this.save(group_data)
+
                         resolve({ message: 'success' })
                     })
                     .catch((error: any) => {
