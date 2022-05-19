@@ -547,7 +547,7 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             const company = message.company
             const device_id = message.device_id
-            const acu: Acu = await Acu.findOneOrFail({ serial_number: device_id /*, company: company */ })
+            const acu: Acu = await Acu.findOneOrFail({ serial_number: device_id, company: company })
             if (acu) {
                 acu.time = JSON.stringify(message.send_data.data)
                 const update_acu = await Acu.updateItem({ id: acu.id, time: acu.time } as Acu)

@@ -487,7 +487,7 @@ export default class AcuController {
                 }
 
                 if (req_data.time) {
-                    const checkDateTimeSend = checkSendingDevice(acu.time, req_data.time)
+                    const checkDateTimeSend = checkSendingDevice(acu.time, req_data.time, null, Acu.time_fields_that_used_in_sending)
                     if (checkDateTimeSend) {
                         const check_time = timeValidation(req_data.time)
                         if (!check_time) {

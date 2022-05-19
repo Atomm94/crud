@@ -116,6 +116,13 @@ export class Acu extends MainEntity {
     @JoinColumn({ name: 'reader' })
     readers: Reader | null;
 
+    public static time_fields_that_used_in_sending: Array<string> = [
+        'daylight_saving_time_from_user_account',
+        'enable_daylight_saving_time',
+        'time_zone',
+        'timezone_from_facility'
+    ]
+
     public static async addItem (data: any) {
         const acu = new Acu()
 
@@ -186,7 +193,7 @@ export class Acu extends MainEntity {
                 if (!check_time) {
                     reject(check_time)
                 } else {
-                    acu.time = JSON.stringify(data.time)
+                    acu.time = (data.time && typeof data.time === 'object') ? JSON.stringify(data.time) : data.time
                 }
             }
             // if (data.maintain) {
