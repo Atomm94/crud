@@ -2143,6 +2143,7 @@ export default class CardholderController {
                 .where(`acu.status = '${acuStatus.ACTIVE}'`)
                 .andWhere(`acu.company = ${ctx.user.company}`)
                 .select('access_point.id')
+                .addSelect('access_point.acu')
                 .getMany()
 
             if (access_points.length) {
@@ -2436,6 +2437,7 @@ export default class CardholderController {
                 .where(`acu.status = '${acuStatus.ACTIVE}'`)
                 .andWhere(`acu.company = ${ctx.user.company}`)
                 .select('access_point.id')
+                .addSelect('access_point.acu')
                 .getMany()
 
             if (access_points.length) {

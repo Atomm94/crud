@@ -7,8 +7,8 @@ import { OperatorType } from '../../mqtt/Operators'
 import SendDeviceMessage from '../../mqtt/SendDeviceMessage'
 
 export default class CardKeyController {
-    public static async setAddCardKey (operator: OperatorType.SET_CARD_KEYS | OperatorType.ADD_CARD_KEY, location: string, company: number, user: any, access_points: Array<{ id: number } | AccessPoint> | null, cardholders: any = null, acus: Acu[] | null = null) {
-        let all_access_points: AccessPoint[] | Array<{ id: number }>
+    public static async setAddCardKey (operator: OperatorType.SET_CARD_KEYS | OperatorType.ADD_CARD_KEY, location: string, company: number, user: any, access_points: Array<{ id: number, acu: number } | AccessPoint> | null, cardholders: any = null, acus: Acu[] | null = null) {
+        let all_access_points: AccessPoint[] | Array<{ id: number, acu: number }>
         if (access_points) {
             all_access_points = access_points
         } else {
@@ -17,6 +17,7 @@ export default class CardKeyController {
                 .where(`acu.status = '${acuStatus.ACTIVE}'`)
                 .andWhere(`acu.company = ${company}`)
                 .select('access_point.id')
+                .addSelect('access_point.acu')
                 .getMany()
         }
 
@@ -76,6 +77,7 @@ export default class CardKeyController {
 
                 all_acus.forEach((acu: Acu) => {
                     const send_data = {
+                        acu_id: acu.id,
                         access_points: all_access_points,
                         cardholders: all_cardholders,
                         all_credentials_count: keys_count
@@ -131,6 +133,7 @@ export default class CardKeyController {
 
                 const acus: any = await Acu.getAllItems({ where: { status: { '=': acuStatus.ACTIVE }, company: { '=': company } } })
                 acus.forEach((acu: any) => {
+                    send_edit_data.acu_id = acu.id
                     new SendDeviceMessage(OperatorType.EDIT_KEY, location, acu.serial_number, send_edit_data, user, acu.session_id)
                 })
             }
