@@ -1410,7 +1410,7 @@ export default class AcuController {
                 message: 'Invalid status of Acu'
             }
         }
-        if (Object.values(acuMainTain).includes(req_data.name)) {
+        if (!Object.values(acuMainTain).includes(req_data.name)) {
             ctx.status = 400
             return ctx.body = {
                 message: 'Invalid name of mainTain'
