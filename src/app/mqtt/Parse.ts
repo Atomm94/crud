@@ -301,7 +301,9 @@ export default class Parse {
                 case OperatorType.ACTIVATE_CREDENTIAL_ACK:
                     this.activateCredentialAck(message)
                     break
-
+                case OperatorType.MAIN_TAIN_ACK:
+                    this.mainTainAck(message)
+                    break
                 default:
                     break
             }
@@ -1480,6 +1482,12 @@ export default class Parse {
             }
         } catch (error) {
             console.log('activateCredentialAck error', error)
+        }
+    }
+
+    public static async mainTainAck (message: IMqttCrudMessaging) {
+        // console.log('resetApbAck', message)
+        if (message.result.errorNo === 0) {
         }
     }
 }

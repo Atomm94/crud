@@ -16,6 +16,7 @@ import CtpController from './Hardware/CtpController'
 import { readerTypes } from '../enums/readerTypes'
 import { logUserEvents } from '../enums/logUserEvents.enum'
 import { accessPointMode } from '../enums/accessPointMode.enum'
+import { acuMainTain } from '../enums/acuMainTain.enum'
 import { checkSendingDevice } from '../functions/check-sending-device'
 import { AccessPointZone } from '../model/entity'
 import { locationGenerator } from '../functions/locationGenerator'
@@ -1348,5 +1349,77 @@ export default class AcuController {
             ctx.body = error
         }
         return ctx.body
+    }
+
+    /**
+ *
+ * @swagger
+ *  /acu/maintain:
+ *      post:
+ *          tags:
+ *              - Acu
+ *          summary: Maintain Settings.
+ *          consumes:
+ *              - application/json
+ *          parameters:
+ *            - in: header
+ *              name: Authorization
+ *              required: true
+ *              description: Authentication token
+ *              schema:
+ *                type: string
+ *            - in: body
+ *              name: acu
+ *              description: The acu to activate.
+ *              schema:
+ *                type: object
+ *                required:
+ *                 - acu
+ *                 - name
+ *                properties:
+ *                  acu:
+ *                      type: number
+ *                      example: 1
+ *                  name:
+ *                      type: string
+ *                      enum: [restart, deactivate, reset, reset_to_factory]
+ *                      example: restart
+ *          responses:
+ *              '201':
+ *                  description: A acu object
+ *              '409':
+ *                  description: Conflict
+ *              '422':
+ *                  description: Wrong data
+ */
+
+    public static async maintain (ctx: DefaultContext) {
+        const req_data = ctx.request.body
+        const user = ctx.user
+        const location = await locationGenerator(user)
+        const acu = await Acu.findOne({ where: { id: req_data.acu } })
+        if (!acu) {
+            ctx.status = 400
+            return ctx.body = {
+                message: 'Invalid id'
+            }
+        }
+        if (acu.status !== acuStatus.ACTIVE) {
+            ctx.status = 400
+            return ctx.body = {
+                message: 'Invalid status of Acu'
+            }
+        }
+        if (Object.values(acuMainTain).includes(req_data.name)) {
+            ctx.status = 400
+            return ctx.body = {
+                message: 'Invalid name of mainTain'
+            }
+        }
+
+        DeviceController.maintain(location, acu.serial_number, { main_tain: req_data.name }, user)
+        return ctx.body = {
+            message: 'success'
+        }
     }
 }

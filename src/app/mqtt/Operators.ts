@@ -178,4 +178,6 @@ export enum OperatorType {
     RESET_APB_ACK = 'Reset_apb-Ack',
     ACTIVATE_CREDENTIAL = 'activateCredential',
     ACTIVATE_CREDENTIAL_ACK = 'activateCredential-Ack',
+    MAIN_TAIN = 'MainTain',
+    MAIN_TAIN_ACK = 'MainTain-Ack'
 }
