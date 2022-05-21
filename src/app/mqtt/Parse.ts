@@ -638,7 +638,7 @@ export default class Parse {
 
         if (message.result.errorNo === 0) {
             const company = message.company
-            if (reader_data.update) {
+            if (message.send_data.update) {
                 const save = await Reader.updateItem(reader_data as Reader)
                 if (!elevator_mode) {
                     const access_point = await AccessPoint.findOneOrFail({ where: { id: save.old.access_point }, relations: ['acus'] })
