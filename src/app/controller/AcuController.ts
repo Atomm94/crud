@@ -491,10 +491,6 @@ export default class AcuController {
                 }
 
                 if (req_data.time) {
-                    const x = req_data.time.time_zone_unix.split(':')
-                    const unix_time = (req_data.time.time_zone_unix.split('-').length > 1) ? (Number(x[0]) * 60 * 60 - Number(x[1]) * 60) : (Number(x[0]) * 60 * 60 + Number(x[1]) * 60)
-                    req_data.time.time_zone_unix = unix_time
-
                     const checkDateTimeSend = checkSendingDevice(acu.time, req_data.time, null, Acu.time_fields_that_used_in_sending)
                     if (checkDateTimeSend) {
                         const check_time = timeValidation(req_data.time)
