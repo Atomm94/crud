@@ -25,6 +25,7 @@ import moment from 'moment'
 import CtpController from './Hardware/CtpController'
 import { credentialType } from '../enums/credentialType.enum'
 import { cloneDeep } from 'lodash'
+import { Brackets } from 'typeorm'
 
 export default class CardholderController {
     /**
@@ -820,6 +821,11 @@ export default class CardholderController {
      *                description: Authentication token
      *                schema:
      *                    type: string
+     *              - in: query
+     *                name: search
+     *                description: search term
+     *                schema:
+     *                    type: string
      *          responses:
      *              '200':
      *                  description: Array of cardholder
@@ -865,6 +871,13 @@ export default class CardholderController {
                     .leftJoinAndSelect('cardholder.cardholder_groups', 'cardholder_group')
                     .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null')
                     .where(`cardholder.company = '${user.company ? user.company : null}'`)
+            }
+            if (req_data.search) {
+                cardholders.andWhere(new Brackets(qb => {
+                    qb.where('cardholder.first_name LIKE :search', { search: `%${req_data.search}%` })
+                        .where('cardholder.last_name LIKE :search', { search: `%${req_data.search}%` })
+                        .orWhere("CONCAT(cardholder.first_name, ' ', cardholder.last_name) LIKE :search", { search: `%${req_data.search}%` })
+                }))
             }
 
             let take = req_data.page ? req_data.page_items_count ? (req_data.page_items_count > 10000) ? 10000 : req_data.page_items_count : 25 : 100
@@ -1943,7 +1956,7 @@ export default class CardholderController {
      *              '401':
      *                  description: Unauthorized
      */
-     public static async guestsTimeKeys (ctx: DefaultContext) {
+    public static async guestsTimeKeys (ctx: DefaultContext) {
         try {
             const auth_user = ctx.user
             if (!auth_user.cardholder) {
