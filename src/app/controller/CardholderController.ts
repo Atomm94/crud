@@ -875,7 +875,7 @@ export default class CardholderController {
             if (req_data.search) {
                 cardholders.andWhere(new Brackets(qb => {
                     qb.where('cardholder.first_name LIKE :search', { search: `%${req_data.search}%` })
-                        .where('cardholder.last_name LIKE :search', { search: `%${req_data.search}%` })
+                        .orWhere('cardholder.last_name LIKE :search', { search: `%${req_data.search}%` })
                         .orWhere("CONCAT(cardholder.first_name, ' ', cardholder.last_name) LIKE :search", { search: `%${req_data.search}%` })
                 }))
             }
