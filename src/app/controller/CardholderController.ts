@@ -2751,11 +2751,11 @@ export default class CardholderController {
     /**
      *
      * @swagger
-     *  /cardholder/exportCSV:
+     *  /cardholder/importXLSX:
      *      post:
      *          tags:
-     *              - Ticket
-     *          summary: Upload ticket image.
+     *              - Cardholder
+     *          summary: Upload cardholder data.
      *          consumes:
      *              - multipart/form-data
      *          parameters:
@@ -2768,16 +2768,16 @@ export default class CardholderController {
      *            - in: formData
      *              name: file
      *              type: file
-     *              description: The upload csv file.
+     *              description: The upload xlsx file.
      *          responses:
      *              '201':
-     *                  description: csv upload
+     *                  description: xlsx upload
      *              '409':
      *                  description: Conflict
      *              '422':
      *                  description: Wrong data
      */
-    public static async exprotCSV (ctx: DefaultContext) {
+    public static async importXLSX (ctx: DefaultContext) {
         const file = ctx.request.files.file
         const user = ctx.user
         const company = user.company
