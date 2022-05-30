@@ -26,6 +26,7 @@ import CtpController from './Hardware/CtpController'
 import { credentialType } from '../enums/credentialType.enum'
 import { cloneDeep } from 'lodash'
 import { Brackets } from 'typeorm'
+const xlsxj = require('xlsx-to-json')
 
 export default class CardholderController {
     /**
@@ -2744,6 +2745,89 @@ export default class CardholderController {
             ctx.status = error.status || 400
             ctx.body = error
         }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     *  /cardholder/exportCSV:
+     *      post:
+     *          tags:
+     *              - Ticket
+     *          summary: Upload ticket image.
+     *          consumes:
+     *              - multipart/form-data
+     *          parameters:
+     *            - in: header
+     *              name: Authorization
+     *              required: true
+     *              description: Authentication token
+     *              schema:
+     *                  type: string
+     *            - in: formData
+     *              name: file
+     *              type: file
+     *              description: The upload csv file.
+     *          responses:
+     *              '201':
+     *                  description: csv upload
+     *              '409':
+     *                  description: Conflict
+     *              '422':
+     *                  description: Wrong data
+     */
+    public static async exprotCSV (ctx: DefaultContext) {
+        const file = ctx.request.files.file
+        const user = ctx.user
+        const company = user.company
+
+        const all_cardholder_group = await CardholderGroup.findOneOrFail({
+            name: 'All Cardholders',
+            company: company
+        })
+
+        xlsxj({
+            input: file.path,
+            output: null
+        }, async function (err: any, result: any) {
+            if (err) {
+                console.error(err)
+            } else {
+                for (const item of result) {
+                    try {
+                        const cardholder = await Cardholder.addItem({
+                            first_name: item.Person_Name,
+                            company_name: item.Organization,
+                            cardholder_group: all_cardholder_group.id,
+                            access_right_inherited: true,
+                            limitation_inherited: true,
+                            access_right: all_cardholder_group.access_right,
+                            limitation: all_cardholder_group.limitation,
+                            company
+                        } as Cardholder)
+
+                        const codes = item.Card_No.split(';')
+                        for (const code of codes) {
+                            try {
+                                if (code) {
+                                    await Credential.addItem({
+                                        code,
+                                        cardholder: cardholder.id,
+                                        company
+                                    } as Credential)
+                                }
+                            } catch (error) {
+                                // console.log('Credential create error', error)
+                            }
+                        }
+                    } catch (error) {
+                        // console.log('Cardholder create error', error)
+                    }
+                }
+            }
+        })
+        ctx.body = { success: true }
         return ctx.body
     }
 }

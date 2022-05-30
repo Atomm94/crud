@@ -42,6 +42,8 @@ export default router
     .post('Cardholder-addItem', 'cardholder/addFromCabinet', checkRole(), CardholderController.addFromCabinet)
     .put('Cardholder-updateItem', 'cardholder/updateFromCabinet', checkRole(), CardholderController.updateFromCabinet)
 
+    .post('Cardholder-addItem', 'cardholder/exportCSV', checkRole(), CardholderController.exprotCSV)
+
     .put('cardholder/invite/:token', CardholderController.setCardholderPassword)
 
     .get('Cardholder-getItem', 'cardholder/:id', checkRole(), CardholderController.get)
