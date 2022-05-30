@@ -245,6 +245,8 @@ export default class AccessRuleController {
                         const updated = await AccessRule.updateItem(req_data as AccessRule)
                         ctx.oldData = updated.old
                         ctx.body = updated.new
+                    } else {
+                        ctx.body = access_rule
                     }
                 } else {
                     const updated = await AccessRule.updateItem(req_data as AccessRule)

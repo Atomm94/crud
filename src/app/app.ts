@@ -46,10 +46,7 @@ app.use(logging())
 
 // Validation middleware -> adds ctx.validate
 app.use(validator.koa())
-// app.use(()=>{
-//     console.log('SMBO');
 
-// }))
 app.use(overrideValidator())
 
 // Provides important security headers to make your app more secure
