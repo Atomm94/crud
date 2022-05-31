@@ -383,6 +383,12 @@ export default class ZohoController {
             const req_data = ctx.request.body
             console.log('req_data zohoCallback', JSON.stringify(req_data))
 
+            const zoho = await Zoho.findOneOrFail()
+            const product_id = ctx.query.product_id
+            if (product_id && zoho.product_id !== product_id) {
+                return ctx.body = { success: false }
+            }
+
             const customer_id = req_data.data.subscription.customer_id
             const package_id = req_data.data.subscription.plan.plan_code
             const coming_package = await Package.findOne({ id: package_id }) as Package
@@ -416,7 +422,7 @@ export default class ZohoController {
                             company.package = default_package.id
                         } else {
                             company.status = statusCompany.DISABLE
-                       }
+                        }
                     }
                     company.zoho_callback_status = status
                     await company.save()
