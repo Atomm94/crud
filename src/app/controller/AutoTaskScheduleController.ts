@@ -356,7 +356,7 @@ export default class AutoTaskScheduleController {
         try {
             const req_data = ctx.query
             const user = ctx.user
-            req_data.relations = ['access_points']
+            req_data.relations = ['access_points', 'acus']
             req_data.where = { company: { '=': user.company ? user.company : null } }
             ctx.body = await AutoTaskSchedule.getAllItems(req_data)
         } catch (error) {

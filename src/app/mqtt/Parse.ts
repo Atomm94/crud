@@ -1433,7 +1433,7 @@ export default class Parse {
             }
             // console.log('setTaskAck complete')
         } else {
-            await AutoTaskSchedule.destroyItem({ id: message.send_data.data.id /*, company: message.company */ })
+        //    await AutoTaskSchedule.destroyItem({ id: message.send_data.data.id /*, company: message.company */ })
         }
     }
 
