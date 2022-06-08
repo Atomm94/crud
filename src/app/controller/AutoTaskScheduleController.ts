@@ -266,8 +266,8 @@ export default class AutoTaskScheduleController {
             const data = await AutoTaskSchedule.createQueryBuilder('auto_task_schedule')
                 .leftJoinAndSelect('auto_task_schedule.acus', 'acu', 'acu.delete_date is null')
                 .leftJoinAndSelect('auto_task_schedule.access_points', 'access_point', 'access_point.delete_date is null')
-                .where(`schedule.id = ${+ctx.params.id}`)
-                .andWhere(`schedule.company = ${ctx.user.company}`)
+                .where(`auto_task_schedule.id = ${+ctx.params.id}`)
+                .andWhere(`auto_task_schedule.company = ${ctx.user.company}`)
                 .getOne()
             ctx.body = data
         } catch (error) {
