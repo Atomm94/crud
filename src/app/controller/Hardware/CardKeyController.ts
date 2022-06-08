@@ -151,10 +151,20 @@ export default class CardKeyController {
     public static async dellKeys (location: string, company: string, data: any, user: any) {
         if (!Array.isArray(data)) data = [data]
         if (data.length) {
-            const acus: any = await Acu.getAllItems({ where: { status: { '=': acuStatus.ACTIVE }, company: { '=': company } } })
-            acus.forEach((acu: any) => {
-                new SendDeviceMessage(OperatorType.DELL_KEYS, location, acu.serial_number, data, user, acu.session_id)
-            })
+            let exists_keys = false
+            for (const cardholder of data) {
+                if (cardholder.credentials.length) {
+                    exists_keys = true
+                    break
+                }
+            }
+
+            if (exists_keys) {
+                const acus: any = await Acu.getAllItems({ where: { status: { '=': acuStatus.ACTIVE }, company: { '=': company } } })
+                acus.forEach((acu: any) => {
+                    new SendDeviceMessage(OperatorType.DELL_KEYS, location, acu.serial_number, data, user, acu.session_id)
+                })
+            }
         }
     }
 }

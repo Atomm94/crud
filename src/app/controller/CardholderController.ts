@@ -789,7 +789,18 @@ export default class CardholderController {
             const user = ctx.user
             const location = await locationGenerator(user)
             const where = { id: req_data.id, company: user.company ? user.company : null }
-            const cardholder = await Cardholder.findOneOrFail({ where: where })
+            // const cardholder = await Cardholder.findOneOrFail({ where: where })
+
+            const cardholder = await Cardholder.createQueryBuilder('cardholder')
+                .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null and credential.code is not null')
+                .where(`cardholder.id = '${req_data.id}'`)
+                .andWhere(`cardholder.company = '${user.company}'`)
+                .getOne()
+            if (!cardholder) {
+                ctx.status = 400
+                return ctx.body = { message: 'Cardholder not found' }
+            }
+
             ctx.body = await Cardholder.destroyItem(where)
 
             ctx.logsData = [{
@@ -797,7 +808,7 @@ export default class CardholderController {
                 target: `${Cardholder.name}/${cardholder.first_name}`,
                 value: { name: cardholder.first_name }
             }]
-            CardKeyController.dellKeys(location, user.company, req_data, user)
+            CardKeyController.dellKeys(location, user.company, cardholder, user)
         } catch (error) {
             console.log(error)
 
@@ -1856,12 +1867,19 @@ export default class CardholderController {
             }
             const location = `${user.company_main}/${company}`
             const where = { id: req_data.id, company: company }
-            const cardholder = await Cardholder.findOne({
-                where: {
-                    id: req_data.id,
-                    create_by: user.id
-                }
-            })
+            // const cardholder = await Cardholder.findOne({
+            //     where: {
+            //         id: req_data.id,
+            //         create_by: user.id
+            //     }
+            // })
+
+            const cardholder = await Cardholder.createQueryBuilder('cardholder')
+                .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null and credential.code is not null')
+                .where(`cardholder.id = '${req_data.id}'`)
+                .andWhere(`cardholder.create_by = '${user.id}'`)
+                .getOne()
+
             if (!cardholder) {
                 ctx.status = 400
                 return ctx.body = { message: 'Invalid Guest id' }
@@ -1874,7 +1892,7 @@ export default class CardholderController {
                 target: `${Cardholder.name}/${cardholder.first_name}`,
                 value: { name: cardholder.first_name }
             }]
-            CardKeyController.dellKeys(location, user.company, req_data, user)
+            CardKeyController.dellKeys(location, user.company, cardholder, user)
         } catch (error) {
             console.log(error)
 
@@ -2728,7 +2746,14 @@ export default class CardholderController {
             const company = auth_user.company ? auth_user.company : null
             const location = await locationGenerator(auth_user)
 
-            const cardholders = await Cardholder.getAllItems({ where: { id: { in: req_data.ids }, company: { '=': company } } })
+            // const cardholders = await Cardholder.getAllItems({ where: { id: { in: req_data.ids }, company: { '=': company } } })
+
+            const cardholders = await Cardholder.createQueryBuilder('cardholder')
+                .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null and credential.code is not null')
+                .where('id in (:...ids)', { ids: req_data.ids })
+                .andWhere(`cardholder.create_by = '${company}'`)
+                .getMany()
+
             const save = []
             for (const cardholder of cardholders) {
                 if (cardholder.status !== req_data.status) {
