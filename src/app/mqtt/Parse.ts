@@ -380,6 +380,9 @@ export default class Parse {
                     daylight_saving_time_from_user_account: false
                 })
                 acu_data.company = message.company
+                if (acu) {
+                    acu_data.id = acu.id
+                }
                 await Acu.save(acu_data)
                 // const user = message.send_data
                 new SendDeviceMessage(OperatorType.ACCEPT, message.location, device_id, 'none')
