@@ -8,7 +8,7 @@ import MQTTBroker from '../mqtt/mqtt'
 // import { OperatorType } from '../mqtt/Operators'
 // import { SendTopics } from '../mqtt/Topics'
 // import { TopicCodes } from '../mqtt/Topics'
-const mqtt_host = process.env.MQTT_HOST
+const mqtt_host_for_device = process.env.MQTT_HOST_FOR_DEVICE
 const mqtt_port = process.env.MQTT_PORT
 const user_name = process.env.MQTT_USERNAME
 const user_pass = process.env.MQTT_PASSWORD
@@ -68,7 +68,7 @@ export default class MqttController {
 
                 const location = `${main_id}/${company.id}/registration`
                 ctx.body = {
-                    BrokerAdr: mqtt_host,
+                    BrokerAdr: mqtt_host_for_device,
                     BrokerPort: mqtt_port,
                     ClientID: false, // '101FRE1111325665454RETV123355'
                     Use_SSL: false,
