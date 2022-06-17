@@ -2750,8 +2750,8 @@ export default class CardholderController {
 
             const cardholders = await Cardholder.createQueryBuilder('cardholder')
                 .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null and credential.code is not null')
-                .where('id in (:...ids)', { ids: req_data.ids })
-                .andWhere(`cardholder.create_by = '${company}'`)
+                .where('cardholder.id in (:...ids)', { ids: req_data.ids })
+                .andWhere(`cardholder.company = '${company}'`)
                 .getMany()
 
             const save = []
