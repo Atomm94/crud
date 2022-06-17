@@ -89,6 +89,9 @@ export default class AutoTaskScheduleController {
      *                  enable:
      *                      type: boolean
      *                      example: true
+     *                  one_time:
+     *                      type: boolean
+     *                      example: false
      *          responses:
      *              '201':
      *                  description: A autoTaskSchedule object
