@@ -47,6 +47,9 @@ export class AutoTaskSchedule extends MainEntity {
     @Column('boolean', { name: 'enable', default: true })
     enable: boolean
 
+    @Column('boolean', { name: 'one_time', default: false })
+    one_time: boolean
+
     @Column('int', { name: 'company', nullable: false })
     company: number
 
@@ -71,6 +74,7 @@ export class AutoTaskSchedule extends MainEntity {
         if ('conditions' in data) autoTaskSchedule.conditions = JSON.stringify(data.conditions)
         autoTaskSchedule.condition = data.condition
         if ('enable' in data) autoTaskSchedule.enable = data.enable
+        if ('one_time' in data) autoTaskSchedule.one_time = data.one_time
         autoTaskSchedule.company = data.company
         if ('reaction_access_points' in data) autoTaskSchedule.reaction_access_points = (data.reaction_access_points && typeof data.reaction_access_points === 'object') ? JSON.stringify(data.reaction_access_points) : data.reaction_access_points
 
