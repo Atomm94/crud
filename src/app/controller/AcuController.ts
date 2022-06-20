@@ -926,6 +926,11 @@ export default class AcuController {
      *                description: Authentication token
      *                schema:
      *                    type: string
+     *              - in: query
+     *                name: status
+     *                description: status of Acu
+     *                schema:
+     *                    type: string
      *          responses:
      *              '200':
      *                  description: Array of acu
@@ -938,12 +943,15 @@ export default class AcuController {
             const user = ctx.user
             req_data.where = { company: { '=': user.company ? user.company : null } }
 
-            const data = await Acu.createQueryBuilder('acu')
+            let data: any = Acu.createQueryBuilder('acu')
                 .leftJoinAndSelect('acu.access_points', 'access_point', 'access_point.delete_date is null')
                 .leftJoinAndSelect('acu.acu_statuses', 'acu_status')
                 .leftJoinAndSelect('access_point.readers', 'reader', 'reader.delete_date is null')
                 .where(`acu.company = ${ctx.user.company}`)
-                .getMany()
+            if (req_data.status) {
+                data = data.andWhere(`acu.status = '${req_data.status}'`)
+            }
+            data = await data.getMany()
             ctx.body = data
         } catch (error) {
             ctx.status = error.status || 400
