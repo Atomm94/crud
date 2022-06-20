@@ -113,7 +113,13 @@ export default class AutoTaskScheduleController {
                 ctx.status = 400
                 return ctx.body = { message: check }
             }
-            const auto_task = await AutoTaskSchedule.addItem(req_data as AutoTaskSchedule)
+            let auto_task
+            if (req_data.one_time === false) {
+                auto_task = await AutoTaskSchedule.addItem(req_data as AutoTaskSchedule)
+            } else {
+                auto_task = req_data
+                auto_task.id = 0
+            }
             if (acu.status === acuStatus.ACTIVE) {
                 DeviceController.setTask(location, acu.serial_number, auto_task, user, acu.session_id)
             }

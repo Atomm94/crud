@@ -1430,13 +1430,15 @@ export default class Parse {
 
     public static async setTaskAck (message: IMqttCrudMessaging) {
         // console.log('setTaskAck', message)
-        if (message.result.errorNo === 0) {
-            if (message.send_data.update) {
-                await AutoTaskSchedule.updateItem(message.send_data.data)
+        if (message.send_data.data.id !== 0) { // id - 0 when that task for one time...
+            if (message.result.errorNo === 0) {
+                if (message.send_data.update) {
+                    await AutoTaskSchedule.updateItem(message.send_data.data)
+                }
+                // console.log('setTaskAck complete')
+            } else {
+                await AutoTaskSchedule.destroyItem({ id: message.send_data.data.id /*, company: message.company */ })
             }
-            // console.log('setTaskAck complete')
-        } else {
-        //    await AutoTaskSchedule.destroyItem({ id: message.send_data.data.id /*, company: message.company */ })
         }
     }
 
