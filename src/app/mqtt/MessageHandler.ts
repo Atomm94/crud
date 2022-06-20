@@ -7,7 +7,7 @@ export default class MessageHandler {
     constructor () {
         MQTTBroker.getMessage((topic: ReceiveTopics, message: string) => {
             try {
-                // console.log('getMessages topic', topic, message)
+                console.log('getMessages topic', topic, message)
                 switch (topic) {
                     case ReceiveTopics.MQTT_CRUD:
                         Parse.deviceData(topic, message)

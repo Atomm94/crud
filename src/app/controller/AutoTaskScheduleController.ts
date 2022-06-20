@@ -325,9 +325,14 @@ export default class AutoTaskScheduleController {
             const req_data = ctx.request.body
             const user = ctx.user
             const where = { id: req_data.id, company: user.company ? user.company : null }
-
+            const location = await locationGenerator(user)
             const auto_task = await AutoTaskSchedule.findOneOrFail({ where: where })
+            const acu: Acu = await Acu.findOne({ where: { id: auto_task.acu } }) as Acu
             ctx.body = await AutoTaskSchedule.destroyItem(where)
+            if (acu.status === acuStatus.ACTIVE) {
+                DeviceController.DeleteTask(location, acu.serial_number, req_data, user, acu.session_id, true)
+            }
+
             ctx.logsData = [{
                 event: logUserEvents.DELETE,
                 target: `${AutoTaskSchedule.name}/${auto_task.name}`,

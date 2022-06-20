@@ -25,6 +25,10 @@ export default class DeviceController {
         new SendDeviceMessage(OperatorType.SET_TASK, location, serial_number, data, user, session_id, update)
     }
 
+    public static async DeleteTask (location: string, serial_number: number, data: any, user:any, session_id: string | null = '0', update: boolean = false) {
+        new SendDeviceMessage(OperatorType.DEL_TASK, location, serial_number, data, user, session_id, update)
+    }
+
     public static async resetApb (location: string, serial_number: number, data: any, user:any, session_id: string | null = '0', update: boolean = false) {
         new SendDeviceMessage(OperatorType.RESET_APB, location, serial_number, data, user, session_id, update)
     }

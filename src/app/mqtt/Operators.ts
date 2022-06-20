@@ -174,6 +174,8 @@ export enum OperatorType {
     HEART_BIT = 'HeartBit',
     SET_TASK = 'SetTask',
     SET_TASK_ACK = 'SetTask-Ack',
+    DEL_TASK = 'DeleteTask',
+    DEL_TASK_ACK = 'DeleteTask-Ack',
     RESET_APB = 'Reset_apb',
     RESET_APB_ACK = 'Reset_apb-Ack',
     ACTIVATE_CREDENTIAL = 'activateCredential',
