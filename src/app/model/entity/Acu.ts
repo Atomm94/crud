@@ -276,6 +276,10 @@ export class Acu extends MainEntity {
                         for (const ext_device of ext_devices) {
                             ExtDevice.destroyItem({ id: ext_device.id, company: ext_device.company })
                         }
+                        const auto_task_schedules: any = await AutoTaskSchedule.getAllItems({ where: { acu: { '=': data.id } } })
+                        for (const auto_task_schedule of auto_task_schedules) {
+                            AutoTaskSchedule.destroyItem({ id: auto_task_schedule.id, company: auto_task_schedule.company })
+                        }
 
                         resolve({ message: 'success' })
                     })
