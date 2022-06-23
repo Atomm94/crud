@@ -664,7 +664,15 @@ export default class Parse {
                 // console.log('Reader insert completed')
             }
         } else {
-            if (!reader_data.update) {
+            if (!elevator_mode && message.result.errorNo === 777) {
+                for (const _reader of message.send_data.data.readers) {
+                    if (!_reader.update) {
+                        const reader: any = await Reader.findOneOrFail({ where: { id: _reader.id }, relations: ['access_points', 'access_points.acus'] })
+                        await Reader.destroyItem({ id: _reader.id /*, company: message.company */ })
+                        new SendSocketMessage(socketChannels.READER_DELETE, reader, message.company, message.send_data.user)
+                    }
+                }
+            } else if (!reader_data.update) {
                 const reader: any = await Reader.findOneOrFail({ where: { id: reader_data.id }, relations: ['access_points', 'access_points.acus'] })
                 await Reader.destroyItem({ id: reader_data.id /*, company: message.company */ })
                 new SendSocketMessage(socketChannels.READER_DELETE, reader, message.company, message.send_data.user)
