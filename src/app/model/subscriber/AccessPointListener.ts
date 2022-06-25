@@ -38,8 +38,8 @@ export class PostSubscriber implements EntitySubscriberInterface<AccessPoint> {
 
         new SendSocketMessage(socketChannels.DASHBOARD_ACCESS_POINT_MODES, modes, data.company)
 
-        const acu: any = await Acu.findOne({ where: { id: data.acu, status: acuStatus.ACTIVE } })
-        if (acu) {
+        const acu: any = await Acu.findOne({ where: { id: data.acu } })
+        if ([acuStatus.ACTIVE, acuStatus.PENDING].includes(acu.status)) {
             AccessPointStatus.addItem({ ...data, access_point: data.id })
             const cloud_status_data = {
                 id: data.id,
