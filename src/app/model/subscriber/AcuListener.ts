@@ -56,7 +56,7 @@ export class PostSubscriber implements EntitySubscriberInterface<Acu> {
         }
         new SendSocketMessage(socketChannels.DASHBOARD_ACU, send_data, data.company)
 
-        if (data.status === acuStatus.ACTIVE) {
+        if ([acuStatus.ACTIVE, acuStatus.PENDING].includes(data.status)) {
             const company = await Company.findOne({ where: { id: data.company } })
             const acu_data = { ...data, companies: company }
             CronJob.active_devices[data.id] = acu_data
@@ -79,17 +79,20 @@ export class PostSubscriber implements EntitySubscriberInterface<Acu> {
     async afterUpdate (event: UpdateEvent<Acu>) {
         const { entity: New, databaseEntity: Old }: any = event
         if (New.status !== Old.status) {
-            if (New.status === acuStatus.ACTIVE) {
-                const company = await Company.findOne({ where: { id: New.company } })
-                const acu_data = { ...New, companies: company }
-                CronJob.active_devices[New.id] = acu_data
+            // if (New.status === acuStatus.ACTIVE) {
+            //     const company = await Company.findOne({ where: { id: New.company } })
+            //     const acu_data = { ...New, companies: company }
+            //     CronJob.active_devices[New.id] = acu_data
 
-                AcuStatus.addItem({ ...New, acu: New.id })
-                const access_points: any = await AccessPoint.getAllItems({ where: { acu: New.id } })
-                for (const access_point of access_points) {
-                    AccessPointStatus.addItem({ ...access_point, access_point: access_point.id })
-                }
-            } else if (Old.status === acuStatus.ACTIVE) {
+            //     AcuStatus.addItem({ ...New, acu: New.id })
+            //     const access_points: any = await AccessPoint.getAllItems({ where: { acu: New.id } })
+            //     for (const access_point of access_points) {
+            //         AccessPointStatus.addItem({ ...access_point, access_point: access_point.id })
+            //     }
+            // } else if (Old.status === acuStatus.ACTIVE) {
+            //     AcuStatus.destroyItem({ acu: New.id })
+            // }
+            if (New.status === acuStatus.NO_HARDWARE) {
                 AcuStatus.destroyItem({ acu: New.id })
             }
 
