@@ -385,8 +385,10 @@ export default class Parse {
                 }
                 await Acu.save(acu_data)
                 // const user = message.send_data
-                new SendDeviceMessage(OperatorType.ACCEPT, message.location, device_id, 'none')
-                // console.log('success:true')
+
+                if (!acu) {
+                    new SendDeviceMessage(OperatorType.ACCEPT, message.location, device_id, 'none')
+                }
             }
         } catch (error) {
             console.log('error deviceRegistrion ', error)
