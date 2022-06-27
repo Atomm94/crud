@@ -423,7 +423,7 @@ export default class Parse {
     public static async deviceLoginAck (message: IMqttCrudMessaging) {
         // console.log('deviceLoginAck', message)
         // if (message.result.errorNo === 0) {
-        const acu: Acu = await Acu.findOneOrFail({ serial_number: message.device_id /*, company: message.company */ })
+        const acu: Acu = await Acu.findOneOrFail({ serial_number: message.device_id, company: message.company })
         if (acu) {
             if (acu.session_id == null) {
                 /* OPEN FOR GENERATE PASSWORD */
@@ -448,9 +448,9 @@ export default class Parse {
         // console.log('deviceLogOutAck', message)
         if (message.result.errorNo === 0) {
             // console.log('logout complete')
-            // const company = message.company
+            const company = message.company
             const device_id = message.device_id
-            const acu = await Acu.findOneOrFail({ serial_number: device_id /*, company: company */ })
+            const acu = await Acu.findOneOrFail({ serial_number: device_id, company: company })
             acu.session_id = '0'
             await acu.save()
             // this.login(message.topic)
@@ -460,9 +460,9 @@ export default class Parse {
     public static async deviceSetPassAck (message: IMqttCrudMessaging) {
         // console.log('deviceSetPassAck', message)
         if (message.result.errorNo === 0) {
-            // const company = message.company
+            const company = message.company
             const device_id = message.device_id
-            const acu = await Acu.findOne({ serial_number: device_id /*, company: company */ })
+            const acu = await Acu.findOne({ serial_number: device_id, company: company })
             if (acu) {
                 acu.password = message.send_data.data.password
                 await acu.save()
@@ -476,9 +476,9 @@ export default class Parse {
     public static async deviceLogOutEvent (message: IMqttCrudMessaging) {
         // console.log('deviceLogOutEvent', message)
         if (message.result.errorNo === 0) {
-            // const company = message.company
+            const company = message.company
             const device_id = message.device_id
-            const acu: Acu = await Acu.findOneOrFail({ serial_number: device_id /*, company: company */ })
+            const acu: Acu = await Acu.findOneOrFail({ serial_number: device_id, company: company })
             if (acu) {
                 acu.session_id = '0'
                 await acu.save()
@@ -529,7 +529,7 @@ export default class Parse {
             if (message.result.errorNo === 0) {
                 const company = message.company
                 const device_id = message.device_id
-                const acu: any = await Acu.findOne({ serial_number: device_id /*, company: company */ })
+                const acu: any = await Acu.findOne({ serial_number: device_id, company: company })
 
                 if (acu) {
                     acu.network = JSON.stringify({
@@ -1394,7 +1394,7 @@ export default class Parse {
 
     public static async dellSheduleAck (message: IMqttCrudMessaging) {
         // console.log('dellSheduleAck', message)
-        const acu = await Acu.findOneOrFail({ serial_number: message.device_id /*, company: message.company */ })
+        const acu = await Acu.findOneOrFail({ serial_number: message.device_id, company: message.company })
 
         if (message.result.errorNo === 0) {
             if (message.send_data.update) {
