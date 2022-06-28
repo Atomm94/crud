@@ -295,6 +295,9 @@ export default class Parse {
                 case OperatorType.SET_TASK_ACK:
                     this.setTaskAck(message)
                     break
+                case OperatorType.DEL_TASK_ACK:
+                    this.delTaskAck(message)
+                    break
                 case OperatorType.RESET_APB_ACK:
                     this.resetApbAck(message)
                     break
@@ -1445,6 +1448,15 @@ export default class Parse {
                 }
                 // console.log('setTaskAck complete')
             } else {
+                await AutoTaskSchedule.destroyItem({ id: message.send_data.data.id /*, company: message.company */ })
+            }
+        }
+    }
+
+    public static async delTaskAck (message: IMqttCrudMessaging) {
+        // console.log('setTaskAck', message)
+        if (message.send_data.data.id !== 0) { // id - 0 when that task for one time...
+            if (message.result.errorNo === 0) {
                 await AutoTaskSchedule.destroyItem({ id: message.send_data.data.id /*, company: message.company */ })
             }
         }
