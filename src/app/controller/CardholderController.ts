@@ -2585,10 +2585,10 @@ export default class CardholderController {
             const location = await locationGenerator(auth_user)
             if (req_data.status === cardholderStatus.INACTIVE || req_data.status === cardholderStatus.ACTIVE) {
                 const cardholders = await Cardholder.createQueryBuilder('cardholder')
-                    .innerJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null')
-                    .where(`cardholder.id in(${req_data.ids})`)
-                    .andWhere(`cardholder.company = ${ctx.user.company}`)
-                    .getMany()
+                .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null')
+                .where(`cardholder.id in(${req_data.ids})`)
+                .andWhere(`cardholder.company = ${company}`)
+                .getMany()
                 const save: any = []
 
                 let send_card_key = false
