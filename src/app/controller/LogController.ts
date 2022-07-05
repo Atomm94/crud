@@ -109,7 +109,7 @@ export default class LogController {
         const acu = Acu.findOneOrFail({ serial_number: message.device_id, company: message.company })
         const access_point = AccessPoint.findOne({ where: { id: message_data.Ctp_idx, company: message.company }, relations: ['access_point_zones'] })
         const credential = Credential.findOne({
-            where: { id: message_data.Key_id },
+            where: { id: message_data.Key_id, company: message.company },
             relations: ['cardholders', 'cardholders.access_rights', 'cardholders.car_infos', 'cardholders.limitations', 'cardholders.cardholder_groups']
         })
 
