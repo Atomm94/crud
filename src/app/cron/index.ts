@@ -91,6 +91,7 @@ export default class CronJob {
                 network.dns_server = acu_status.dns_server
                 network.fixed = acu_status.connection_mod === acuConnectionMode.FIXED
                 network.dhcp = !network.fixed
+                network.ssid = acu_status.ssid
                 acu.network = JSON.stringify(network)
 
                 Acu.save(acu)

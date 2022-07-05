@@ -330,6 +330,7 @@ export default class Parse {
                     if ('subnet_mask' in message.info) acuStatusData.subnet_mask = message.info.subnet_mask
                     if ('dns_server' in message.info) acuStatusData.dns_server = message.info.dns_server
                     if ('connection_mod' in message.info) acuStatusData.connection_mod = (message.info.connection_mod === 0) ? acuConnectionMode.DHCP : acuConnectionMode.FIXED
+                    if ('ssid' in message.info) acuStatusData.ssid = message.info.ssid
 
                     AcuStatus.updateItem(acuStatusData)
                     if (message.info) {

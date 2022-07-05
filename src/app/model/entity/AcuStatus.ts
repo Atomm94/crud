@@ -58,6 +58,9 @@ export class AcuStatus extends MainEntity {
     @Column('varchar', { name: 'dns_server', nullable: true })
     dns_server: string | null
 
+    @Column('varchar', { name: 'ssid', nullable: true })
+    ssid: string | null
+
     @Column('enum', { name: 'connection_mod', nullable: false, enum: acuConnectionMode, default: acuConnectionMode.FIXED })
     connection_mod: acuConnectionMode
 
@@ -86,6 +89,7 @@ export class AcuStatus extends MainEntity {
         if ('subnet_mask' in data) acuStatus.subnet_mask = data.subnet_mask
         if ('dns_server' in data) acuStatus.dns_server = data.dns_server
         if ('connection_mod' in data) acuStatus.connection_mod = data.connection_mod
+        if ('ssid' in data) acuStatus.ssid = data.ssid
 
         return new Promise((resolve, reject) => {
             this.save(acuStatus)
@@ -113,6 +117,7 @@ export class AcuStatus extends MainEntity {
         if ('subnet_mask' in data) acuStatus.subnet_mask = data.subnet_mask
         if ('dns_server' in data) acuStatus.dns_server = data.dns_server
         if ('connection_mod' in data) acuStatus.connection_mod = data.connection_mod
+        if ('ssid' in data) acuStatus.ssid = data.ssid
 
         if (!acuStatus) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
