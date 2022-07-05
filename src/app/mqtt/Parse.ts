@@ -375,7 +375,8 @@ export default class Parse {
                 acu_data.rev = message.info.rev
                 acu_data.api_ver = message.info.api_ver
                 acu_data.acu_comment = message.info.acu_comment
-                acu_data.registration_date = moment(Number(message.info.time) * 1000).format('YYYY-MM-DD HH:mm:ss')
+                // acu_data.registration_date = moment(Number(message.info.time) * 1000).format('YYYY-MM-DD HH:mm:ss')
+                acu_data.registration_date = moment(new Date().getTime()).format('YYYY-MM-DD HH:mm:ss')
                 acu_data.time = JSON.stringify({
                     time_zone: message.info.gmt,
                     timezone_from_facility: false,
