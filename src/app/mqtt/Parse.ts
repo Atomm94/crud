@@ -646,7 +646,7 @@ export default class Parse {
 
         if (message.result.errorNo === 0) {
             const company = message.company
-            if (message.send_data.update) {
+            if (reader_data.update) {
                 const save = await Reader.updateItem(reader_data as Reader)
                 if (!elevator_mode) {
                     const access_point = await AccessPoint.findOneOrFail({ where: { id: save.old.access_point }, relations: ['acus'] })
@@ -669,7 +669,7 @@ export default class Parse {
                 // console.log('Reader insert completed')
             }
         } else {
-            if (!elevator_mode && message.result.errorNo === 777) {
+            if (!elevator_mode /* && message.result.errorNo === 777 */) {
                 for (const _reader of message.send_data.data.readers) {
                     if (!_reader.update) {
                         const reader: any = await Reader.findOneOrFail({ where: { id: _reader.id }, relations: ['access_points', 'access_points.acus'] })
