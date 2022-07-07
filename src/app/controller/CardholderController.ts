@@ -2714,7 +2714,7 @@ export default class CardholderController {
                     }
                     save.push(Cardholder.updateItem(cardholder, auth_user))
                 }
-                Promise.all(save)
+                await Promise.all(save)
                 if (send_card_key) {
                     CardKeyController.setAddCardKey(OperatorType.SET_CARD_KEYS, location, company, auth_user, null)
                 }
