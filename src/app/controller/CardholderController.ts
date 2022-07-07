@@ -2585,10 +2585,10 @@ export default class CardholderController {
             const location = await locationGenerator(auth_user)
             if (req_data.status === cardholderStatus.INACTIVE || req_data.status === cardholderStatus.ACTIVE) {
                 const cardholders = await Cardholder.createQueryBuilder('cardholder')
-                .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null')
-                .where(`cardholder.id in(${req_data.ids})`)
-                .andWhere(`cardholder.company = ${company}`)
-                .getMany()
+                    .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null')
+                    .where(`cardholder.id in(${req_data.ids})`)
+                    .andWhere(`cardholder.company = ${company}`)
+                    .getMany()
                 const save: any = []
 
                 let send_card_key = false
@@ -2677,22 +2677,47 @@ export default class CardholderController {
             const auth_user = ctx.user
             const company = auth_user.company ? auth_user.company : null
             const where = { id: req_data.cardholder_group, company: company }
-            const check_by_company = await CardholderGroup.findOne(where)
+            const check_by_company = await CardholderGroup.findOne({ where, relations: ['limitations'] })
+            const location = await locationGenerator(auth_user)
 
             if (!check_by_company) {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
             } else {
-                const cardholders = await Cardholder.getAllItems({ where: { id: { in: req_data.ids }, company: { '=': company } } })
-
+                const cardholders = await Cardholder.getAllItems({ where: { id: { in: req_data.ids }, company: { '=': company } }, relations: ['limitations'] })
+                var send_card_key = false
                 const save = []
                 for (const cardholder of cardholders) {
                     if (cardholder.cardholder_group !== req_data.cardholder_group) {
                         cardholder.cardholder_group = req_data.cardholder_group
-                        save.push(Cardholder.updateItem(cardholder, auth_user))
                     }
+                    if (cardholder.access_right_inherited) {
+                        if (check_by_company.access_right !== cardholder.access_right) {
+                            send_card_key = true
+                            cardholder.access_right = check_by_company.access_right
+                        }
+                    }
+                    if (cardholder.limitation_inherited) {
+                        if (check_by_company.limitations && cardholder.limitations &&
+                            (JSON.stringify(check_by_company.limitations.valid_from) !== JSON.stringify(cardholder.limitations.valid_from) ||
+                                JSON.stringify(check_by_company.limitations.valid_due) !== JSON.stringify(cardholder.limitations.valid_due))
+                        ) {
+                            send_card_key = true
+                        }
+                        cardholder.limitation = check_by_company.limitation
+                    }
+
+                    if (check_by_company.time_attendance !== cardholder.time_attendance) {
+                        if (cardholder.time_attendance_inherited) {
+                            cardholder.time_attendance = check_by_company.time_attendance
+                        }
+                    }
+                    save.push(Cardholder.updateItem(cardholder, auth_user))
                 }
                 Promise.all(save)
+                if (send_card_key) {
+                    CardKeyController.setAddCardKey(OperatorType.SET_CARD_KEYS, location, company, auth_user, null)
+                }
                 ctx.body = { success: true }
             }
         } catch (error) {

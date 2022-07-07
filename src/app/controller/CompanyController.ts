@@ -949,7 +949,6 @@ export default class CompanyController {
         try {
             const req_data = ctx.query
             const where: any = {}
-            console.log(865656565)
 
             if (ctx.user.company) {
                 where.partition_parent_id = {
@@ -958,7 +957,6 @@ export default class CompanyController {
             }
             req_data.where = where
             req_data.relations = ['company_account']
-            console.log('req', req_data)
 
             ctx.body = await Company.getAllItems(req_data)
         } catch (error) {
