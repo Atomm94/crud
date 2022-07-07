@@ -1,7 +1,10 @@
 import { DefaultContext } from 'koa'
 import { logUserEvents } from '../enums/logUserEvents.enum'
+import { locationGenerator } from '../functions/locationGenerator'
 import { Cardholder, Limitation } from '../model/entity'
 import { CardholderGroup } from '../model/entity/CardholderGroup'
+import { OperatorType } from '../mqtt/Operators'
+import CardKeyController from './Hardware/CardKeyController'
 export default class CardholderGroupController {
     /**
      *
@@ -268,7 +271,9 @@ export default class CardholderGroupController {
         try {
             const req_data = ctx.request.body
             const user = ctx.user
-            const check_by_company: any = await CardholderGroup.getItem({ id: req_data.id, company: user.company ? user.company : null })
+            const where = { id: req_data.id, company: user.company ? user.company : null }
+            const check_by_company: any = await CardholderGroup.findOne({ where, relations: ['limitations'] })
+            const location = await locationGenerator(user)
 
             if (!check_by_company) {
                 ctx.status = 400
@@ -281,6 +286,23 @@ export default class CardholderGroupController {
                     }
                 }
                 const updated = await CardholderGroup.updateItem(req_data as CardholderGroup, user)
+                const new_limitations = await Limitation.findOne({ where: { id: updated.new.limitation } })
+                if (new_limitations) {
+                    if (updated.new.access_right !== updated.old.access_right ||
+                        JSON.stringify(check_by_company.limitations.valid_from) !== JSON.stringify(new_limitations.valid_from) ||
+                        JSON.stringify(check_by_company.limitations.valid_due) !== JSON.stringify(new_limitations.valid_due)
+                    ) {
+                        const cardholders = await Cardholder.find({
+                            where: [
+                                { cardholder_group: updated.new.id, access_right_inherited: true },
+                                { cardholder_group: updated.new.id, limitation_inherited: true }
+                            ]
+                        })
+                        if (cardholders.length) {
+                            CardKeyController.setAddCardKey(OperatorType.SET_CARD_KEYS, location, user.company, user, null)
+                        }
+                    }
+                }
                 ctx.oldData = updated.old
                 ctx.body = updated.new
             }
