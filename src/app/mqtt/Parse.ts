@@ -330,7 +330,7 @@ export default class Parse {
                     if ('subnet_mask' in message.info) acuStatusData.subnet_mask = message.info.subnet_mask
                     if ('dns_server' in message.info) acuStatusData.dns_server = message.info.dns_server
                     if ('connection_mod' in message.info) acuStatusData.connection_mod = (message.info.connection_mod === 0) ? acuConnectionMode.DHCP : acuConnectionMode.FIXED
-                    if ('SSID' in message.info) acuStatusData.ssid = message.info.SSID
+                    if ('ssid' in message.info) acuStatusData.ssid = message.info.ssid
 
                     AcuStatus.updateItem(acuStatusData)
                     if (message.info) {
@@ -391,9 +391,9 @@ export default class Parse {
                 await Acu.save(acu_data)
                 // const user = message.send_data
 
-                if (!acu) {
-                    new SendDeviceMessage(OperatorType.ACCEPT, message.location, device_id, 'none')
-                }
+                // if (!acu) { // case when need send ACCEPT only first time
+                new SendDeviceMessage(OperatorType.ACCEPT, message.location, device_id, 'none')
+                // }
             }
         } catch (error) {
             console.log('error deviceRegistrion ', error)
