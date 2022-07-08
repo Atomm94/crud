@@ -114,7 +114,14 @@ export class EventLog extends BaseClass {
     }
 
     public static async create (event: any) {
-        MQTTBroker.publishMessage(SendTopics.LOG, JSON.stringify(event))
+        const event_log = Object.assign({}, event)
+        if (event_log.data.direction === 'Exit') {
+            event_log.data.direction = 1
+        } else if (event_log.data.direction === 'Entry') {
+            event_log.data.direction = 0
+        }
+
+        MQTTBroker.publishMessage(SendTopics.LOG, JSON.stringify(event_log))
         new SendSocketMessage(socketChannels.DASHBOARD_ACTIVITY, event.data, event.data.company)
 
         if (event.data.event_type === eventTypes.SYSTEM) {
