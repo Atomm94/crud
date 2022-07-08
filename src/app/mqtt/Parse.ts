@@ -317,7 +317,12 @@ export default class Parse {
 
     public static async pingAck (message: IMqttCrudMessaging) {
         try {
-            AcuStatus.findOneOrFail({ serial_number: message.device_id, company: message.company }).then(async (acuStatusData: AcuStatus) => {
+            AcuStatus.findOneOrFail({
+                where: { serial_number: message.device_id, company: message.company },
+                order: { createDate: 'DESC' }
+            }).then(async (acuStatusData: AcuStatus) => {
+                console.log('acuStatusData', acuStatusData)
+
                 const access_point_statuses: any = await AccessPointStatus.getAllItems({ where: { acu: { '=': acuStatusData.acu } } })
                 if (message.result.errorNo === 0) {
                     if ('firmware_ver' in message.info) acuStatusData.fw_version = message.info.firmware_ver
@@ -330,7 +335,7 @@ export default class Parse {
                     if ('subnet_mask' in message.info) acuStatusData.subnet_mask = message.info.subnet_mask
                     if ('dns_server' in message.info) acuStatusData.dns_server = message.info.dns_server
                     if ('connection_mod' in message.info) acuStatusData.connection_mod = (message.info.connection_mod === 0) ? acuConnectionMode.DHCP : acuConnectionMode.FIXED
-                    if ('ssid' in message.info) acuStatusData.ssid = message.info.ssid
+                    if ('SSID' in message.info) acuStatusData.ssid = message.info.SSID
 
                     AcuStatus.updateItem(acuStatusData)
                     if (message.info) {
