@@ -16,6 +16,7 @@ import { AutoTaskSchedule } from '.'
 import { In } from 'typeorm'
 import CtpController from '../../controller/Hardware/CtpController'
 import DeviceController from '../../controller/Hardware/DeviceController'
+import { cloneDeep } from 'lodash'
 
 const clickhouse_server: string = process.env.CLICKHOUSE_SERVER ? process.env.CLICKHOUSE_SERVER : 'http://localhost:4143'
 const getEventLogsUrl = `${clickhouse_server}/eventLog`
@@ -114,7 +115,7 @@ export class EventLog extends BaseClass {
     }
 
     public static async create (event: any) {
-        const event_log = Object.assign({}, event)
+        var event_log = cloneDeep(event)
         if (event_log.data.direction === 'Exit') {
             event_log.data.direction = 1
         } else if (event_log.data.direction === 'Entry') {
