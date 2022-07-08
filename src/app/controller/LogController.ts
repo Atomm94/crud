@@ -166,7 +166,7 @@ export default class LogController {
                             eventData.data.event_source = EventList[message_data.Group].events[message_data.Event_id].source_entity
                             eventData.data.result = EventList[message_data.Group].events[message_data.Event_id].description
                             eventData.data.Key_HEX = message_data.Key_HEX
-                            eventData.data.direction = (message_data.direction && message_data.direction === 1) ? 'Exit' : 'Entry'
+                            eventData.data.direction = (message_data.direction === 1) ? 'Exit' : 'Entry'
                         }
                     }
                     EventLog.create(eventData)
