@@ -1,8 +1,11 @@
 import { DefaultContext } from 'koa'
 import * as Models from '../model/entity/index'
 import { Package } from '../model/entity/Package'
+import { PackageType } from '../model/entity/PackageType'
 import { Company } from '../model/entity/Company'
 import { Feature } from '../middleware/feature'
+import { resourceKeys } from '../enums/resourceKeys.enum'
+import { logUserEvents } from '../enums/logUserEvents.enum'
 
 export default class PackageController {
     /**
@@ -216,7 +219,13 @@ export default class PackageController {
         try {
             const req_data: any = ctx.request.body
             const where = { id: req_data.id }
+            const package_data = await Package.findOneOrFail({ where: where })
             ctx.body = await Package.destroyItem(where)
+            ctx.logsData = [{
+                event: logUserEvents.DELETE,
+                target: `${Package.name}/${package_data.name}`,
+                value: { name: package_data.name }
+            }]
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -251,19 +260,31 @@ export default class PackageController {
             req_data.relations = ['package_types']
             const user = ctx.user
             if (user.company) {
-                const company = await Company.getItem(user.company)
-                req_data.where = {
-                    package_type: {
-                        '=': company.package_type
-                    },
-                    status: {
-                        '=': true
-                    }
+                const company = await Company.findOneOrFail({ where: { id: user.company }, relations: ['packages'] })
+                const where: any = {
+                    package_type: { '=': company.package_type },
+                    status: { '=': true }
                 }
-                const data = await Package.getAllItems(req_data)
+                if (company.package) {
+                    where.id = { '!=': company.package }
+                }
+                req_data.where = where
+                const data: any = await Package.getAllItems(req_data)
+                if (company.package) {
+                    data.push(company.packages)
+                }
+
+                const package_types = await PackageType.getAllItems({
+                    where: {
+                        status: { '=': true },
+                        service: { '=': false }
+                    }
+                })
+
                 ctx.body = {
                     data: data,
-                    selected: company.package
+                    selected: company.package,
+                    package_types: package_types
                 }
             } else {
                 ctx.body = await Package.getAllItems(req_data)
@@ -290,6 +311,11 @@ export default class PackageController {
      *                description: Authentication token
      *                schema:
      *                    type: string
+     *              - in: query
+     *                name: service
+     *                description: service company
+     *                schema:
+     *                    type: boolean
      *          responses:
      *              '200':
      *                  description: Package settings
@@ -304,23 +330,43 @@ export default class PackageController {
                 resources: [],
                 features: null
             }
-            const features: any = {}
-            Object.keys(models).forEach((model: string) => {
-                if (models[model].resource) {
-                    data.resources.push(model)
-                }
-            })
-            const featuresList = Object.getOwnPropertyNames(feature)
-            if (featuresList.length) {
-                featuresList.forEach((key: any) => {
-                    if (feature[key] && typeof feature[key] === 'object' && key !== 'prototype') {
-                        if (Object.getOwnPropertyNames(feature[key]).length) {
-                            features[key] = Object.getOwnPropertyNames(feature[key])
-                        }
+            if (ctx.query.service && ctx.query.service === 'true') {
+                Object.keys(models).forEach((model: string) => {
+                    if (models[model].serviceResource) {
+                        data.resources.push(model)
                     }
                 })
+
+                const feature: any = Feature.ServiceFeatures
+                const features: any = {}
+                const featureList = Object.keys(feature)
+                features.Features = featureList
+                if (Object.keys(features).length) data.features = features
+            } else {
+                const features: any = {}
+                Object.keys(models).forEach((model: string) => {
+                    if (models[model].resource) {
+                        data.resources.push(model)
+                    }
+                })
+                data.resources.push(resourceKeys.VIRTUAL_KEYS,
+                    resourceKeys.KEY_PER_USER,
+                    resourceKeys.ELEVATOR,
+                    resourceKeys.TURNSTILE
+                )
+
+                const featuresList = Object.getOwnPropertyNames(feature)
+                if (featuresList.length) {
+                    featuresList.forEach((key: any) => {
+                        if (feature[key] && typeof feature[key] === 'object' && key !== 'prototype') {
+                            if (Object.getOwnPropertyNames(feature[key]).length) {
+                                features[key] = Object.getOwnPropertyNames(feature[key])
+                            }
+                        }
+                    })
+                }
+                if (Object.keys(features).length) data.features = features
             }
-            if (Object.keys(features).length) data.features = features
 
             ctx.body = data
         } catch (error) {

@@ -8,7 +8,7 @@
                 "turnstile_two_side": false,
                 "gate": true,
                 "gateway": true,
-                "floor": true
+                "floor": false
             },
             "readers": {
                 "RFID": true,
@@ -17,7 +17,8 @@
                 "FACE": false
             },
             "inputs": 3,
-            "outputs": 1
+            "outputs": 1,
+            "floor_count": 0
         },
         "LR3CBS": {
             "access_points_count": 1,
@@ -36,9 +37,122 @@
                 "FACE": false
             },
             "inputs": 3,
-            "outputs": 1
+            "outputs": 1,
+            "floor_count": 0
         },
         "LR3C2E": {
+            "access_points_count": 2,
+            "access_point_types": {
+                "door": true,
+                "turnstile_one_side": true,
+                "turnstile_two_side": true,
+                "gate": true,
+                "gateway": true,
+                "floor": false
+            },
+            "readers": {
+                "RFID": true,
+                "KEYPAD": true,
+                "FINGER": true,
+                "FACE": true
+            },
+            "inputs": 6,
+            "outputs": 5,
+            "floor_count": 0
+        },
+        "LR3C4E": {
+            "access_points_count": 4,
+            "access_point_types": {
+                "door": true,
+                "turnstile_one_side": true,
+                "turnstile_two_side": true,
+                "gate": true,
+                "gateway": true,
+                "floor": false
+            },
+            "readers": {
+                "RFID": true,
+                "KEYPAD": true,
+                "FINGER": true,
+                "FACE": true
+            },
+            "inputs": 12,
+            "outputs": 9,
+            "floor_count": 0
+        },
+        "AIR-CR": {
+            "access_points_count": 1,
+            "access_point_types": {
+                "door": true,
+                "turnstile_one_side": true,
+                "turnstile_two_side": false,
+                "gate": true,
+                "gateway": true,
+                "floor": false
+            },
+            "readers": {
+                "RFID": true,
+                "KEYPAD": true,
+                "FINGER": false,
+                "FACE": false
+            },
+            "inputs": 2,
+            "outputs": 2,
+            "inputs_info": {
+                "1": {
+                    "name": "Pink"
+                },
+                "2": {
+                    "name": "Orange"
+                }
+            },
+            "outputs_info": {
+                "1": {
+                    "name": "Blue"
+                },
+                "2": {
+                    "name": "Green"
+                }
+            },
+            "floor_count": 0
+        },
+        "AIR-CB": {
+            "access_points_count": 1,
+            "access_point_types": {
+                "door": true,
+                "turnstile_one_side": false,
+                "turnstile_two_side": false,
+                "gate": false,
+                "gateway": false,
+                "floor": false
+            },
+            "readers": {
+                "RFID": true,
+                "KEYPAD": true,
+                "FINGER": false,
+                "FACE": false
+            },
+            "inputs": 2,
+            "outputs": 2,
+            "inputs_info": {
+                "1": {
+                    "name": "Pink"
+                },
+                "2": {
+                    "name": "Orange"
+                }
+            },
+            "outputs_info": {
+                "1": {
+                    "name": "Blue"
+                },
+                "2": {
+                    "name": "Green"
+                }
+            },
+            "floor_count": 0
+        },
+        "ICON-2": {
             "access_points_count": 2,
             "access_point_types": {
                 "door": true,
@@ -54,10 +168,33 @@
                 "FINGER": true,
                 "FACE": true
             },
-            "inputs": 6,
-            "outputs": 5
+            "inputs": 4,
+            "outputs": 2,
+            "inputs_info": {
+                "1": {
+                    "name": "REX 1"
+                },
+                "2": {
+                    "name": "DOOR 1"
+                },
+                "3": {
+                    "name": "IN 1"
+                },
+                "4": {
+                    "name": "IN 2"
+                }
+            },
+            "outputs_info": {
+                "1": {
+                    "name": "RELAY 1"
+                },
+                "2": {
+                    "name": "AUX GND"
+                }
+            },
+            "floor_count": 16
         },
-        "LR3C4E": {
+        "ICON-2E": {
             "access_points_count": 4,
             "access_point_types": {
                 "door": true,
@@ -73,15 +210,38 @@
                 "FINGER": true,
                 "FACE": true
             },
-            "inputs": 12,
-            "outputs": 9
+            "inputs": 4,
+            "outputs": 2,
+            "inputs_info": {
+                "1": {
+                    "name": "REX 1"
+                },
+                "2": {
+                    "name": "DOOR 1"
+                },
+                "3": {
+                    "name": "IN 1"
+                },
+                "4": {
+                    "name": "IN 2"
+                }
+            },
+            "outputs_info": {
+                "1": {
+                    "name": "RELAY 1"
+                },
+                "2": {
+                    "name": "AUX GND"
+                }
+            },
+            "floor_count": 16
         }
     },
     "expansion_boards": {
         "relay_board": {
             "LR-RB16": {
                 "inputs": 0,
-                "outputs": 8
+                "outputs": 16
             }
         },
         "alarm_board": {

@@ -1,4 +1,5 @@
 import { DefaultContext } from 'koa'
+import { logUserEvents } from '../enums/logUserEvents.enum'
 import { PackageType } from '../model/entity/PackageType'
 export default class PackageTypeController {
     /**
@@ -177,7 +178,13 @@ export default class PackageTypeController {
         try {
             const req_data: any = ctx.request.body
             const where = { id: req_data.id }
+            const package_data = await PackageType.findOneOrFail({ where: where })
             ctx.body = await PackageType.destroyItem(where)
+            ctx.logsData = [{
+                event: logUserEvents.DELETE,
+                target: `${PackageType.name}/${package_data.name}`,
+                value: { name: package_data.name }
+            }]
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

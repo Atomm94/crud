@@ -456,6 +456,16 @@
                 "event": "Access granted",
                 "source_entity": "cardholder, door, or elevator",
                 "description": "Access has been granted through a door to a cardholder according to the access rules governing the door, elevator, or area. "
+            },
+            "25": {
+                "event": "Entry",
+                "source_entity": "",
+                "description": ""
+            },
+            "26": {
+                "event": "Exit",
+                "source_entity": "",
+                "description": ""
             }
         }
     },

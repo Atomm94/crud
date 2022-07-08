@@ -32,6 +32,7 @@ import { join } from 'path'
 import { IAdmins } from '../../Interfaces/Admins'
 import { logger } from '../../../../modules/winston/logger'
 import { StandardReport } from './StandardReport'
+import { Cardholder } from './Cardholder'
 import { adminStatus } from '../../enums/adminStatus.enum'
 
 const parentDir = join(__dirname, '../../..')
@@ -60,7 +61,7 @@ export class Admin extends MainEntity {
   @Column('int', { name: 'department', nullable: true })
   department: number | null;
 
-  @Column('enum', { name: 'status', enum: adminStatus, default: adminStatus.active })
+  @Column('enum', { name: 'status', enum: adminStatus, default: adminStatus.ACTIVE })
   status: adminStatus
 
   @Column('boolean', { name: 'super', default: false })
@@ -108,6 +109,9 @@ export class Admin extends MainEntity {
   @Column('boolean', { name: 'telegram', default: false })
   telegram: boolean;
 
+  @Column('int', { name: 'cardholder', nullable: true })
+  cardholder: number | null
+
   @Column('int', { name: 'company', nullable: true })
   company: number | null;
 
@@ -128,6 +132,9 @@ export class Admin extends MainEntity {
 
   @Column('varchar', { name: 'time_zone', nullable: true })
   time_zone: string | null;
+
+  @Column('longtext', { name: 'settings', nullable: true })
+  settings: string | null;
 
   @ManyToOne(type => Department, department => department.users, { nullable: true })
   @JoinColumn({ name: 'department' })
@@ -157,6 +164,10 @@ export class Admin extends MainEntity {
   @OneToMany(type => StandardReport, report => report.authors)
   reports: StandardReport[];
 
+  @OneToOne(type => Cardholder, cardholder => cardholder.admins, { nullable: true })
+  @JoinColumn({ name: 'cardholder' })
+  cardholders: Cardholder | null;
+
   @BeforeInsert()
   async generatePassword () {
     if (this.password) {
@@ -174,6 +185,7 @@ export class Admin extends MainEntity {
   }
 
   public static resource: boolean = true
+  public static serviceResource: boolean = true
 
   public static async addItem (data: any, user: any = null): Promise<Admin> {
     const admin = new Admin()
@@ -206,6 +218,7 @@ export class Admin extends MainEntity {
     if ('comment' in data) admin.comment = data.comment
     if ('account_group' in data) admin.account_group = data.account_group
     if ('role_inherited' in data) admin.role_inherited = data.role_inherited
+    if ('cardholder' in data) admin.cardholder = data.cardholder
     if ('date_format' in data) admin.date_format = data.date_format
     if ('time_format' in data) admin.time_format = data.time_format
     if ('time_zone' in data) admin.time_zone = data.time_zone
@@ -245,6 +258,7 @@ export class Admin extends MainEntity {
     if ('city' in data) admin.city = data.city
     if ('phone_1' in data) admin.phone_1 = data.phone_1
     if ('phone_2' in data) admin.phone_2 = data.phone_2
+    if ('post_code' in data) admin.post_code = data.post_code
     if ('viber' in data) admin.viber = data.viber
     if ('whatsapp' in data) admin.whatsapp = data.whatsapp
     if ('telegram' in data) admin.telegram = data.telegram
@@ -254,6 +268,7 @@ export class Admin extends MainEntity {
     if ('department' in data) admin.department = data.department
     if ('comment' in data) admin.comment = data.comment
     if ('avatar' in data) admin.avatar = data.avatar
+    if ('site' in data) admin.site = data.site
     if ('account_group' in data) admin.account_group = data.account_group
     if ('role_inherited' in data) admin.role_inherited = data.role_inherited
     if ('post_code' in data) admin.post_code = data.post_code
@@ -294,6 +309,9 @@ export class Admin extends MainEntity {
   public static async destroyItem (data: any) {
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve, reject) => {
+      const reports = await StandardReport.find({ where: { author: data.id, company: data.company } })
+      reports.map(async (item) => await StandardReport.destroyItem(item))
+
       this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
         this.remove(data)
           .then(() => {

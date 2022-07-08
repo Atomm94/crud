@@ -1,12 +1,12 @@
 import { DefaultContext } from 'koa'
 import { acuStatus } from '../enums/acuStatus.enum'
-import { scheduleType } from '../enums/scheduleType.enum'
 import { Schedule } from '../model/entity'
 import { AccessRule } from '../model/entity/AccessRule'
 import { Timeframe } from '../model/entity/Timeframe'
-import { OperatorType } from '../mqtt/Operators'
 import { CheckScheduleSettings } from '../functions/check-schedule-settings'
-import SendDeviceMessage from '../mqtt/SendDeviceMessage'
+import SdlController from './Hardware/SdlController'
+import { logUserEvents } from '../enums/logUserEvents.enum'
+import { locationGenerator } from '../functions/locationGenerator'
 
 export default class TimeframeController {
     /**
@@ -65,7 +65,14 @@ export default class TimeframeController {
             const user = ctx.user
             req_data.company = user.company ? user.company : null
             const save = await Timeframe.addItem(req_data as Timeframe)
+            console.log(',save', save)
+
             ctx.body = save
+            ctx.logsData = [{
+                event: logUserEvents.CREATE,
+                target: `${Timeframe.name}/${save.name}`,
+                value: { name: save.name }
+            }]
 
             const access_rules = await AccessRule.createQueryBuilder('access_rule')
                 .innerJoinAndSelect('access_rule.access_points', 'access_point')
@@ -73,7 +80,7 @@ export default class TimeframeController {
                 .where(`acu.status = '${acuStatus.ACTIVE}'`)
                 .andWhere(`access_rule.schedule = ${req_data.schedule}`)
                 .getMany()
-            const location = `${user.company_main}/${user.company}`
+            const location = await locationGenerator(user)
             const schedule = await Schedule.findOneOrFail({ id: save.schedule })
             const timeframes = await Timeframe.find({ schedule: schedule.id })
             const check_schedule = CheckScheduleSettings.checkSettings(schedule.type, schedule, save)
@@ -82,25 +89,20 @@ export default class TimeframeController {
                 return ctx.body = { message: check_schedule }
             }
             for (const access_rule of access_rules) {
-                const send_data: any = { id: access_rule.id, access_point: access_rule.access_point, timeframes: timeframes }
-                let operator: OperatorType = OperatorType.SET_SDL_DAILY
-                if (schedule.type === scheduleType.WEEKLY) {
-                    operator = OperatorType.SET_SDL_WEEKLY
-                } else if (schedule.type === scheduleType.FLEXITIME) {
-                    send_data.start_from = schedule.start_from
-                    send_data.schedule_type = schedule.type
-                    operator = OperatorType.DEL_SDL_FLEXI_TIME
-                } else if (schedule.type === scheduleType.SPECIFIC) {
-                    send_data.schedule_type = schedule.type
-                    operator = OperatorType.DEL_SDL_SPECIFIED
-                }
-                new SendDeviceMessage(operator, location, access_rule.access_points.acus.serial_number, send_data, user.id, access_rule.access_points.acus.session_id)
+                const send_data: any = { id: access_rule.id, access_point: access_rule.access_point, timeframes: timeframes, timeframe_flag: 1 }
+                SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, user, access_rule.access_points.acus.session_id, false, send_data)
             }
         } catch (error) {
-            console.log(error)
+            console.log('error', error)
 
             ctx.status = error.status || 400
-            ctx.body = error
+            if (error.message) {
+                ctx.body = {
+                    message: error.message
+                }
+            } else {
+                ctx.body = error
+            }
         }
         return ctx.body
     }
@@ -159,6 +161,12 @@ export default class TimeframeController {
             const req_data = ctx.request.body
             const user = ctx.user
             const updated = await Timeframe.updateItem(req_data as Timeframe)
+
+            ctx.logsData = [{
+                event: logUserEvents.CHANGE,
+                target: `${Timeframe.name}/${updated.old.name}`,
+                value: updated
+            }]
             ctx.oldData = updated.old
             ctx.body = updated.new
 
@@ -168,7 +176,7 @@ export default class TimeframeController {
                 .where(`acu.status = '${acuStatus.ACTIVE}'`)
                 .andWhere(`access_rule.schedule = ${req_data.schedule}`)
                 .getMany()
-            const location = `${user.company_main}/${user.company}`
+            const location = await locationGenerator(user)
 
             let schedule
             if (req_data.id) {
@@ -180,19 +188,8 @@ export default class TimeframeController {
             const timeframes = await Timeframe.find({ schedule: schedule.id })
 
             for (const access_rule of access_rules) {
-                const send_data: any = { id: access_rule.id, access_point: access_rule.access_point, timeframes: timeframes }
-                let operator: OperatorType = OperatorType.SET_SDL_DAILY
-                if (schedule.type === scheduleType.WEEKLY) {
-                    operator = OperatorType.SET_SDL_WEEKLY
-                } else if (schedule.type === scheduleType.FLEXITIME) {
-                    send_data.start_from = schedule.start_from
-                    send_data.type = schedule.type
-                    operator = OperatorType.DEL_SDL_FLEXI_TIME
-                } else if (schedule.type === scheduleType.SPECIFIC) {
-                    send_data.type = schedule.type
-                    operator = OperatorType.DEL_SDL_SPECIFIED
-                }
-                new SendDeviceMessage(operator, location, access_rule.access_points.acus.serial_number, send_data, user.id, access_rule.access_points.acus.session_id)
+                const send_data: any = { id: access_rule.id, access_point: access_rule.access_point, timeframes: timeframes, timeframe_flag: 1 }
+                SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, user, access_rule.access_points.acus.session_id, false, send_data)
             }
         } catch (error) {
             ctx.status = error.status || 400
@@ -280,10 +277,21 @@ export default class TimeframeController {
         try {
             const req_data = ctx.request.body
             const user = ctx.user
-            const timeframe: Timeframe = await Timeframe.findOneOrFail(req_data.id)
-            const where = { id: req_data.id, company: user.company ? user.company : null }
-
-            ctx.body = await Timeframe.destroyItem(where)
+            const where: any = { company: user.company }
+            if (req_data.id) {
+                where.id = req_data.id
+            } else {
+                where.schedule = req_data.schedule
+                where.name = req_data.name
+            }
+            const timeframe: Timeframe = await Timeframe.findOneOrFail({ where: where })
+            req_data.company = user.company
+            ctx.body = await Timeframe.destroyItem(req_data)
+            ctx.logsData = [{
+                event: logUserEvents.DELETE,
+                target: `${Timeframe.name}/${timeframe.name}`,
+                value: { name: timeframe.name }
+            }]
             const schedule = await Schedule.findOneOrFail({ id: timeframe.schedule })
 
             const access_rules = await AccessRule.createQueryBuilder('access_rule')
@@ -292,25 +300,16 @@ export default class TimeframeController {
                 .where(`acu.status = '${acuStatus.ACTIVE}'`)
                 .andWhere(`access_rule.schedule = ${schedule.id}`)
                 .getMany()
-            const location = `${user.company_main}/${user.company}`
+            const location = await locationGenerator(user)
             const timeframes = await Timeframe.find({ schedule: schedule.id })
 
             for (const access_rule of access_rules) {
-                const send_data: any = { id: access_rule.id, access_point: access_rule.access_point, timeframes: timeframes }
-                let operator: OperatorType = OperatorType.SET_SDL_DAILY
-                if (schedule.type === scheduleType.WEEKLY) {
-                    operator = OperatorType.SET_SDL_WEEKLY
-                } else if (schedule.type === scheduleType.FLEXITIME) {
-                    send_data.start_from = schedule.start_from
-                    send_data.type = schedule.type
-                    operator = OperatorType.DEL_SDL_FLEXI_TIME
-                } else if (schedule.type === scheduleType.SPECIFIC) {
-                    send_data.type = schedule.type
-                    operator = OperatorType.DEL_SDL_SPECIFIED
-                }
-                new SendDeviceMessage(operator, location, access_rule.access_points.acus.serial_number, send_data, user.id, access_rule.access_points.acus.session_id)
+                const send_data: any = { id: access_rule.id, access_point: access_rule.access_point, timeframes: timeframes, timeframe_flag: 1 }
+                SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, user, access_rule.access_points.acus.session_id, false, send_data)
             }
         } catch (error) {
+            console.log(error)
+
             ctx.status = error.status || 400
             ctx.body = error
         }
@@ -420,9 +419,13 @@ export default class TimeframeController {
         try {
             const req_data = ctx.request.body
             const user = ctx.user
+            console.log('reqdata', req_data)
+
             const where = { schedule: req_data.copy_id, name: req_data.copy_name, company: user.company }
             const timeFrames = await Timeframe.find(where)
             const deleteWhere = { schedule: req_data.paste_id, company: user.company, name: req_data.paste_name }
+            console.log('timeFrames', timeFrames)
+
             if (timeFrames.length) {
                 await Timeframe.delete(deleteWhere)
                 const newTimeFrames = []
@@ -437,9 +440,23 @@ export default class TimeframeController {
                     newTimeFrames.push(timeframe)
                 }
                 ctx.body = await Timeframe.save(newTimeFrames)
+
+                const access_rules = await AccessRule.createQueryBuilder('access_rule')
+                    .innerJoinAndSelect('access_rule.access_points', 'access_point')
+                    .innerJoinAndSelect('access_point.acus', 'acu')
+                    .where(`acu.status = '${acuStatus.ACTIVE}'`)
+                    .andWhere(`access_rule.schedule = ${req_data.paste_id}`)
+                    .getMany()
+                const location = await locationGenerator(user)
+                const timeframes = await Timeframe.find({ schedule: req_data.paste_id })
+
+                for (const access_rule of access_rules) {
+                    const send_data: any = { id: access_rule.id, access_point: access_rule.access_point, timeframes: timeframes, timeframe_flag: 1 }
+                    SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, user, access_rule.access_points.acus.session_id, false, send_data)
+                }
             } else {
                 ctx.status = 400
-                ctx.body = { message: 'something went wrong' }
+                ctx.body = { message: 'Can\'t clone a schedule without adding timeframes' }
             }
         } catch (error) {
             ctx.status = error.status || 400

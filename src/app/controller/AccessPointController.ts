@@ -4,11 +4,17 @@ import { acuStatus } from '../enums/acuStatus.enum'
 import { accessPointType } from '../enums/accessPointType.enum'
 
 // import SendDevice from '../mqtt/SendDevice'
-import SendDeviceMessage from '../mqtt/SendDeviceMessage'
-import { OperatorType } from '../mqtt/Operators'
 import { Reader } from '../model/entity/Reader'
 // import { Reader } from '../model/entity/Reader'
 import accessPointResources from '../model/entity/accessPointResources.json'
+import CtpController from './Hardware/CtpController'
+import RdController from './Hardware/RdController'
+import { logUserEvents } from '../enums/logUserEvents.enum'
+import { readerTypes } from '../enums/readerTypes'
+import { accessPointMode } from '../enums/accessPointMode.enum'
+import { accessPointDirection } from '../enums/accessPointDirection.enum'
+import { locationGenerator } from '../functions/locationGenerator'
+import { AccessRule, Cardholder } from '../model/entity'
 
 export default class AccessPointController {
     /**
@@ -43,7 +49,11 @@ export default class AccessPointController {
     public static async get (ctx: DefaultContext) {
         try {
             const user = ctx.user
-            const where = { id: +ctx.params.id, company: user.company ? user.company : user.company }
+            let company = user.company ? user.company : null
+            if (user.companyData.partition_parent_id) {
+                company = user.companyData.partition_parent_id
+            }
+            const where = { id: +ctx.params.id, company: company }
             ctx.body = await AccessPoint.getItem(where)
         } catch (error) {
             ctx.status = error.status || 400
@@ -92,28 +102,31 @@ export default class AccessPointController {
             const user = ctx.user
             const where = { id: req_data.id, company: user.company ? user.company : null }
             const access_point = await AccessPoint.findOne({ relations: ['acus'], where: where })
-            const location = `${user.company_main}/${user.company}`
+            const location = await locationGenerator(user)
+
+            const logs_data = []
             if (!access_point) {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
             } else {
-                ctx.body = await AccessPoint.destroyItem(where)
                 if (access_point.acus.status === acuStatus.ACTIVE) {
-                    if (access_point.type === accessPointType.DOOR) {
-                        new SendDeviceMessage(OperatorType.DEL_CTP_DOOR, location, access_point.acus.serial_number, access_point, user.id, access_point.acus.session_id)
-                        // SendDevice.delCtpDoor(location, access_point.acus.serial_number, access_point.acus.session_id, req_data)
-                    } else if (access_point.type === accessPointType.TURNSTILE_ONE_SIDE || access_point.type === accessPointType.TURNSTILE_TWO_SIDE) {
-                        new SendDeviceMessage(OperatorType.DEL_CTP_TURNSTILE, location, access_point.acus.serial_number, access_point, user.id, access_point.acus.session_id)
-                    } else if (access_point.type === accessPointType.GATE) {
-                        new SendDeviceMessage(OperatorType.DEL_CTP_GATE, location, access_point.acus.serial_number, access_point, user.id, access_point.acus.session_id)
-                    } else if (access_point.type === accessPointType.GATEWAY) {
-                        new SendDeviceMessage(OperatorType.DEL_CTP_GATEWAY, location, access_point.acus.serial_number, access_point, user.id, access_point.acus.session_id)
-                    } else if (access_point.type === accessPointType.FLOOR) {
-                        new SendDeviceMessage(OperatorType.DEL_CTP_FLOOR, location, access_point.acus.serial_number, access_point, user.id, access_point.acus.session_id)
+                    CtpController.delCtp(access_point.type, location, access_point.acus.serial_number, req_data, user, access_point.acus.session_id)
+                    ctx.body = {
+                        message: 'delete pending'
                     }
+                } else {
+                    ctx.body = await AccessPoint.destroyItem(where)
+                    logs_data.push({
+                        event: logUserEvents.DELETE,
+                        target: `${AccessPoint.name}/${access_point.acus.name}/${access_point.name}`,
+                        value: { name: access_point.name }
+                    })
+                    ctx.logsData = logs_data
                 }
             }
         } catch (error) {
+            console.log(error)
+
             ctx.status = error.status || 400
             ctx.body = error
         }
@@ -135,6 +148,12 @@ export default class AccessPointController {
      *                description: Authentication token
      *                schema:
      *                    type: string
+     *              - in: query
+     *                name: status
+     *                description: status of Acu
+     *                schema:
+     *                    type: string
+     *                    enum: [active, pending, no_hardware]
      *          responses:
      *              '200':
      *                  description: Array of accessPoint
@@ -143,11 +162,58 @@ export default class AccessPointController {
      */
     public static async getAll (ctx: DefaultContext) {
         try {
-            const req_data = ctx.query
+            // const req_data = ctx.query
             const user = ctx.user
-            req_data.where = { company: { '=': user.company ? user.company : null } }
-            req_data.relations = ['acus', 'access_point_groups', 'access_point_zones']
-            ctx.body = await AccessPoint.getAllItems(req_data)
+            // req_data.where = { company: { '=': user.company ? user.company : null } }
+            // req_data.relations = ['acus', 'access_point_groups', 'access_point_zones']
+            // ctx.body = await AccessPoint.getAllItems(req_data)
+            let access_points: any
+            let resurce_limited
+            let take_limit
+            if (ctx.query.packageExtraSettings) {
+                if (ctx.query.packageExtraSettings.resources.Cardholder) {
+                    take_limit = ctx.query.packageExtraSettings.resources.Cardholder
+                } else {
+                    take_limit = 0
+                }
+                resurce_limited = true
+            }
+            if (!user.companyData.partition_parent_id) {
+                access_points = AccessPoint.createQueryBuilder('access_point')
+                    .leftJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
+                    .leftJoinAndSelect('access_point.access_point_groups', 'access_point_group', 'access_point_group.delete_date is null')
+                    .leftJoinAndSelect('access_point.readers', 'reader', 'reader.delete_date is null')
+                    .leftJoinAndSelect('reader.leaving_zones', 'leaving_zone', 'leaving_zone.delete_date is null')
+                    .leftJoinAndSelect('reader.came_to_zones', 'came_to_zone', 'came_to_zone.delete_date is null')
+                    .leftJoinAndSelect('access_point.access_point_zones', 'access_point_zone', 'access_point_zone.delete_date is null')
+                    .andWhere(`access_point.company = '${user.company ? user.company : null}'`)
+            } else {
+                const base_access_points: any = JSON.parse(user.companyData.base_access_points)
+                access_points = AccessPoint.createQueryBuilder('access_point')
+                    .leftJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
+                    .leftJoinAndSelect('access_point.access_point_groups', 'access_point_group', 'access_point_group.delete_date is null')
+                    .leftJoinAndSelect('access_point.readers', 'reader', 'reader.delete_date is null')
+                    .leftJoinAndSelect('reader.leaving_zones', 'leaving_zone', 'leaving_zone.delete_date is null')
+                    .leftJoinAndSelect('reader.came_to_zones', 'came_to_zone', 'came_to_zone.delete_date is null')
+                    .leftJoinAndSelect('access_point.access_point_zones', 'access_point_zone', 'access_point_zone.delete_date is null')
+                    .andWhere(`access_point.company = '${user.companyData.partition_parent_id}'`)
+                    .andWhere(`access_point.id in(${base_access_points}) `)
+            }
+            if (ctx.query.status) {
+                access_points = access_points.andWhere(`acu.status = '${ctx.query.status}'`)
+            }
+
+            if (!resurce_limited) {
+                access_points = await access_points
+                    .getMany()
+            } else {
+                access_points = await access_points
+                    .orderBy('access_point.id', 'DESC')
+                    .take(take_limit)
+                    .getMany()
+            }
+
+            ctx.body = access_points
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -191,23 +257,38 @@ export default class AccessPointController {
      */
     public static async readerDestroy (ctx: DefaultContext) {
         try {
+            const logs_data = []
             const req_data: any = ctx.request.body
             const user = ctx.user
             const company = user.company ? user.company : null
             req_data.company = company
-            const location = `${user.company_main}/${user.company}`
+            const location = await locationGenerator(user)
             const where = { id: req_data.id, company: company }
-            const reader: Reader = await Reader.findOneOrFail({ relations: ['access_points', 'access_points.acus'], where: where })
+            // const reader: any = await Reader.findOneOrFail({ relations: ['access_points', 'access_points.acus'], where: where })
+
+            const reader: any = await Reader.createQueryBuilder('reader')
+                .leftJoinAndSelect('reader.access_points', 'access_point', 'access_point.delete_date is null')
+                .leftJoinAndSelect('access_point.acus', 'acus', 'acus.delete_date is null')
+                .where(`reader.id = '${req_data.id}'`)
+                .andWhere(`reader.company = '${user.company ? user.company : null}'`)
+                .getOne()
+
             req_data.direction = reader.direction
             req_data.port = reader.port
             req_data.access_point = reader.access_points.id
             req_data.access_point_type = reader.access_points.type
-            ctx.body = await Reader.destroyItem(where)
+
+            logs_data.push({
+                event: logUserEvents.DELETE,
+                target: `${Reader.name}/${reader.access_points.acus.name}/${reader.access_points.name}/${readerTypes[reader.type]}`,
+                value: { type: readerTypes[reader.type] }
+            })
+            ctx.logsData = logs_data
             if (reader.access_points.acus.status === acuStatus.ACTIVE) {
-                new SendDeviceMessage(OperatorType.DEL_RD, location, reader.access_points.acus.serial_number, req_data, user, reader.access_points.acus.session_id)
-                ctx.body = true
+                RdController.delRd(location, reader.access_points.acus.serial_number, req_data, user, reader.access_points.acus.session_id)
+                ctx.body = { message: 'Delete pending' }
             } else if (reader.access_points.acus.status === acuStatus.NO_HARDWARE) {
-                // ctx.body = await Reader.destroyItem(where)
+                ctx.body = await Reader.destroyItem(where)
             } else {
                 ctx.status = 400
                 ctx.body = { message: 'You need to activate hardware' }
@@ -306,5 +387,152 @@ export default class AccessPointController {
             ctx.body = error
         }
         return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     *  /accessPoint/updateMode:
+     *      put:
+     *          tags:
+     *              - AccessPoint
+     *          summary: Update AccessPoint Mode.
+     *          consumes:
+     *              - application/json
+     *          parameters:
+     *            - in: header
+     *              name: Authorization
+     *              required: true
+     *              description: Authentication token
+     *              schema:
+     *                type: string
+     *            - in: body
+     *              name: accessPoint
+     *              description: Change of accessPoint mode.
+     *              schema:
+     *                type: object
+     *                required:
+     *                  - id
+     *                  - mode
+     *                properties:
+     *                  id:
+     *                      type: number
+     *                      example: 1
+     *                  mode:
+     *                      type: string
+     *                      enum: [open_once, N/A, credential, locked, unlocked, free_entry_block_exit, block_entry_free_exit]
+     *                      example: credential
+     *                  exit_mode:
+     *                      type: string
+     *                      enum: [N/A, credential, locked, unlocked, free_entry_block_exit, block_entry_free_exit]
+     *                      example: credential
+     *                  direction:
+     *                      type: string
+     *                      enum: [entry, exit]
+     *                      example: entry
+     *          responses:
+     *              '201':
+     *                  description: AccessPoint mode update
+     *              '409':
+     *                  description: Conflict
+     *              '422':
+     *                  description: Wrong data
+     */
+    public static async updateMode (ctx: DefaultContext) {
+        try {
+            const req_data = ctx.request.body
+            const user = ctx.user
+            const company = user.company ? user.company : null
+            const where = { id: req_data.id, company: company }
+            const access_point: any = await AccessPoint.findOneOrFail({ where: where, relations: ['acus'] })
+            const location = await locationGenerator(user)
+
+            if (access_point.acus.status !== acuStatus.ACTIVE) {
+                ctx.status = 400
+                ctx.body = {
+                    message: `Cant update AccessPoint Mode when Acu status is not ${acuStatus.ACTIVE}`
+                }
+            } else {
+                if ((Object.values(accessPointMode).indexOf(req_data.mode) === -1) && Object.values(accessPointMode).indexOf(req_data.exit_mode) === -1) {
+                    if (req_data.mode !== 'open_once') {
+                        ctx.status = 400
+                        ctx.body = {
+                            message: `Invalid AccessPoint Mode ${req_data.mode} or Exit Mode`
+                        }
+                    } else {
+                        if ('direction' in req_data) {
+                            if (Object.values(accessPointDirection).indexOf(req_data.direction) === -1) {
+                                ctx.body = {
+                                    message: `Invalid AccessPoint Direction ${req_data.direction}`
+                                }
+                            } else {
+                                const single_pass_data: any = {
+                                    id: access_point.id,
+                                    direction: req_data.direction
+                                }
+                                CtpController.singlePass(location, access_point.acus.serial_number, single_pass_data, user, access_point.acus.session_id)
+                                ctx.body = {
+                                    message: 'Open Once sended'
+                                }
+                            }
+                        } else {
+                            ctx.status = 400
+                            ctx.body = {
+                                message: `direction is required when AccessPoint Mode is ${req_data.mode}`
+                            }
+                        }
+                    }
+                } else {
+                    const set_access_mode_data: any = {
+                        id: access_point.id,
+                        type: access_point.type
+                    }
+                    if (req_data.mode) set_access_mode_data.mode = req_data.mode
+                    if (req_data.exit_mode) set_access_mode_data.exit_mode = req_data.exit_mode
+                    CtpController.setAccessMode(location, access_point.acus.serial_number, set_access_mode_data, user, access_point.acus.session_id)
+                    ctx.body = {
+                        message: 'update Pending'
+                    }
+                }
+            }
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+    }
+
+    /**
+     *
+     * @swagger
+     * /accessPoint/cardholders:
+     *      get:
+     *          tags:
+     *              - AccessPoint
+     *          summary: Return accessPoint list
+     *          parameters:
+     *              - in: header
+     *                name: Authorization
+     *                required: true
+     *                description: Authentication token
+     *                schema:
+     *                    type: string
+     *          responses:
+     *              '200':
+     *                  description: Array of accessPoint
+     *              '401':
+     *                  description: Unauthorized
+     */
+    public static async getAllForCardholder (ctx: DefaultContext) {
+        const auth_user = ctx.user
+        if (!auth_user.cardholder) {
+            ctx.status = 400
+            return ctx.body = { message: 'Only invited Cardholder can create Guest' }
+        }
+        const cardholder = await Cardholder.findOne({ where: { id: auth_user.cardholder } })
+        if (!cardholder) {
+            ctx.status = 400
+            return ctx.body = { message: 'Cardholder not found' }
+        }
+        return ctx.body = await AccessRule.find({ where: { access_right: cardholder.access_right }, relations: ['access_points'] })
     }
 }

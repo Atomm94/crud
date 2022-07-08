@@ -8,8 +8,10 @@ import {
 // import SendDevice from '../../mqtt/SendDevice'
 // import { Company } from '../entity'
 import { socketChannels } from '../../enums/socketChannels.enum'
-import { AccessPoint } from '../entity'
+import { AccessPoint, Acu } from '../entity'
 import SendSocketMessage from '../../mqtt/SendSocketMessage'
+import { acuStatus } from '../../enums/acuStatus.enum'
+import { AccessPointStatus } from '../entity/AccessPointStatus'
 
 @EventSubscriber()
 export class PostSubscriber implements EntitySubscriberInterface<AccessPoint> {
@@ -35,6 +37,20 @@ export class PostSubscriber implements EntitySubscriberInterface<AccessPoint> {
             .getRawMany()
 
         new SendSocketMessage(socketChannels.DASHBOARD_ACCESS_POINT_MODES, modes, data.company)
+
+        const acu: any = await Acu.findOne({ where: { id: data.acu } })
+        if ([acuStatus.ACTIVE, acuStatus.PENDING].includes(acu.status)) {
+            AccessPointStatus.addItem({ ...data, access_point: data.id })
+            const cloud_status_data = {
+                id: data.id,
+                acus: {
+                    id: acu.id,
+                    cloud_status: acu.cloud_status
+                }
+
+            }
+            new SendSocketMessage(socketChannels.DASHBOARD_CLOUD_STATUS, cloud_status_data, data.company)
+        }
     }
 
     /**
@@ -57,21 +73,39 @@ export class PostSubscriber implements EntitySubscriberInterface<AccessPoint> {
 
             new SendSocketMessage(socketChannels.DASHBOARD_ACCESS_POINT_MODES, modes, New.company)
         }
+
+        if (New.door_state !== Old.door_state) {
+            const sended_door_state = {
+                id: New.id,
+                door_state: New.door_state
+            }
+            new SendSocketMessage(socketChannels.DASHBOARD_DOOR_STATE, sended_door_state, New.company)
+        }
+
+        if (New.resources !== Old.resources) {
+            const acu: any = await Acu.findOne({ where: { id: New.acu, status: acuStatus.ACTIVE } })
+            if (acu) {
+                AccessPointStatus.updateItem({
+                    access_point: New.id,
+                    resources: New.resources
+                } as AccessPointStatus)
+            }
+        }
     }
 
     /**
      * Called after entity removal.
      */
     async afterRemove (event: RemoveEvent<AccessPoint>) {
-        const data: any = event.entity
-        const modes: any = await AccessPoint.createQueryBuilder('access_point')
-            .select('access_point.name')
-            .addSelect('access_point.mode')
-            .addSelect('COUNT(access_point.id) as acp_qty')
-            .where('access_point.company', data.company)
-            .groupBy('access_point.mode')
-            .getRawMany()
+        // const data: any = event.entity
+        // const modes: any = await AccessPoint.createQueryBuilder('access_point')
+        //     .select('access_point.name')
+        //     .addSelect('access_point.mode')
+        //     .addSelect('COUNT(access_point.id) as acp_qty')
+        //     .where('access_point.company', data.company)
+        //     .groupBy('access_point.mode')
+        //     .getRawMany()
 
-        new SendSocketMessage(socketChannels.DASHBOARD_ACCESS_POINT_MODES, modes, data.company)
+        // new SendSocketMessage(socketChannels.DASHBOARD_ACCESS_POINT_MODES, modes, data.company)
     }
 }

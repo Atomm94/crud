@@ -1,14 +1,16 @@
 import { DefaultContext } from 'koa'
-import { Cardholder, Schedule } from '../model/entity'
+import { Schedule } from '../model/entity'
 import { Acu } from '../model/entity/Acu'
 import { acuStatus } from '../enums/acuStatus.enum'
-import { scheduleType } from '../enums/scheduleType.enum'
-import SendDeviceMessage from '../mqtt/SendDeviceMessage'
-import { OperatorType } from '../mqtt/Operators'
 import { Timeframe } from '../model/entity/Timeframe'
 import { In } from 'typeorm'
 import { AccessPoint } from '../model/entity/AccessPoint'
 import { AccessRule } from '../model/entity/AccessRule'
+import SdlController from './Hardware/SdlController'
+import CardKeyController from './Hardware/CardKeyController'
+import { logUserEvents } from '../enums/logUserEvents.enum'
+import { OperatorType } from '../mqtt/Operators'
+import { locationGenerator } from '../functions/locationGenerator'
 
 export default class AccessRuleController {
     /**
@@ -70,10 +72,15 @@ export default class AccessRuleController {
         try {
             const req_data = ctx.request.body
             const user = ctx.user
-            const location = `${user.company_main}/${user.company}`
+            const location = await locationGenerator(user)
             req_data.company = user.company ? user.company : null
 
-            const where: any = { company: req_data.company }
+            let where: any
+            where = { company: req_data.company }
+
+            if (user.companyData.partition_parent_id) {
+                where = { company: user.companyData.partition_parent_id }
+            }
             if (req_data.access_point) {
                 where.id = In(req_data.access_point)
             } else if (req_data.access_group) {
@@ -83,54 +90,65 @@ export default class AccessRuleController {
             }
             const access_points: AccessPoint[] = await AccessPoint.find({ ...where })
             const res_data: any = []
-
+            let send_set_card_key = false
             for (const access_point of access_points) {
                 const data = req_data
                 data.access_point = access_point.id
-                const access_rule: AccessRule = await AccessRule.addItem(data as AccessRule)
-                const relation = ['access_points']
-                const returnData = AccessRule.getItem({ id: access_rule.id }, relation)
-                res_data.push(returnData)
-                const acu: Acu = await Acu.getItem({ id: access_point.acu })
-                if (acu.status === acuStatus.ACTIVE) {
-                    const schedule: Schedule = await Schedule.findOneOrFail({ id: req_data.schedule })
-                    const timeframes = await Timeframe.find({ schedule: schedule.id })
-                    const send_sdl_data: any = { ...access_rule, timeframes: timeframes }
-                    let operator: OperatorType = OperatorType.SET_SDL_DAILY
-                    if (schedule.type === scheduleType.WEEKLY) {
-                        operator = OperatorType.SET_SDL_WEEKLY
-                    } else if (schedule.type === scheduleType.FLEXITIME) {
-                        send_sdl_data.start_from = schedule.start_from
-                        operator = OperatorType.SET_SDL_FLEXI_TIME
-                    } else if (schedule.type === scheduleType.SPECIFIC) {
-                        operator = OperatorType.SET_SDL_SPECIFIED
-                    }
-                    new SendDeviceMessage(operator, location, acu.serial_number, send_sdl_data, user.id, acu.session_id)
+                try {
+                    const access_rule: AccessRule = await AccessRule.addItem(data as AccessRule)
+                    // const relation = ['access_points']
+                    // const returnData = AccessRule.getItem({ id: access_rule.id }, relation)
 
-                    const cardholders = await Cardholder.getAllItems({
-                        relations: ['credentials'],
-                        where: {
-                            access_right: access_rule.access_right,
-                            company: req_data.company
-                        }
-                    })
-                    if (cardholders.length) {
-                        const send_edit_data = {
-                            access_rule: access_rule,
-                            cardholders: cardholders
-                        }
+                    const returnData: any = await AccessRule.createQueryBuilder('access_rule')
+                        .leftJoinAndSelect('access_rule.access_points', 'access_point', 'access_point.delete_date is null')
+                        .where(`access_rule.id = '${access_rule.id}'`)
+                        .getOne()
 
-                        const acus: any = await Acu.getAllItems({ where: { status: { '=': acuStatus.ACTIVE } } })
-                        acus.forEach((item_acu: any) => {
-                            new SendDeviceMessage(OperatorType.EDIT_KEY, location, item_acu.serial_number, send_edit_data, item_acu.session_id)
-                        })
+                    res_data.push(returnData)
+                    const acu: Acu = await Acu.getItem({ id: access_point.acu })
+                    if (acu.status === acuStatus.ACTIVE) {
+                        SdlController.setSdl(location, acu.serial_number, access_rule, user, acu.session_id)
+                        send_set_card_key = true
+
+                        // const cardholders = await Cardholder.getAllItems({
+                        //     relations: ['credentials'],
+                        //     where: {
+                        //         access_right: { '=': access_rule.access_right },
+                        //         company: { '=': req_data.company }
+                        //     }
+                        // })
+
+                        // const cardholders: Cardholder[] = await Cardholder.createQueryBuilder('cardholder')
+                        //     .leftJoinAndSelect('cardholder.access_rights', 'access_right')
+                        //     .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
+                        //     .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null')
+                        //     .leftJoinAndSelect('cardholder.antipass_backs', 'antipass_back')
+                        //     .leftJoinAndSelect('cardholder.limitations', 'limitation')
+                        //     .where(`cardholder.access_right = '${access_rule.access_right}'`)
+                        //     .andWhere(`cardholder.company = '${req_data.company}'`)
+                        //     .getMany()
+
+                        // CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, req_data.company, user, [access_point], cardholders)
+                        // CardKeyController.setAddCardKey(OperatorType.SET_CARD_KEYS, location, req_data.company, user, null)
+
+                        // const cardholders: any = await Cardholder.createQueryBuilder('cardholder')
+                        //     .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null')
+                        //     .where(`cardholder.access_right = '${access_rule.access_right}'`)
+                        //     .andWhere(`cardholder.company = '${req_data.company}'`)
+                        //     .getMany()
+                        // CardKeyController.editCardKey(location, req_data.company, user.id, access_rule, null, cardholders)
+                        ctx.body = true
                     }
-                    ctx.body = true
+                } catch (error) {
+                    console.log('error', error.message ? error.message : error)
                 }
+            }
+            if (send_set_card_key) {
+                CardKeyController.setAddCardKey(OperatorType.SET_CARD_KEYS, location, req_data.company, user, null)
             }
             ctx.body = await Promise.all(res_data)
         } catch (error) {
-            console.log('error', error)
+            console.log('error2', error)
 
             ctx.status = error.status || 400
             ctx.body = error
@@ -171,7 +189,8 @@ export default class AccessRuleController {
      *                      example: 1
      *                      minimum: 1
      *                  access_in_holidays:
-     *                      type: enable | disable
+     *                      type: string
+     *                      enum: [enable, disable]
      *                      example: disable
      *          responses:
      *              '201':
@@ -185,32 +204,50 @@ export default class AccessRuleController {
         try {
             const req_data = ctx.request.body
             const user = ctx.user
-            const where = { id: req_data.id, company: user.company ? user.company : null }
-            const access_rule: AccessRule = await AccessRule.findOneOrFail({ where: where, relations: ['schedules'] })
-            const location = `${user.company_main}/${user.company}`
+            // const where = { id: req_data.id, company: user.company ? user.company : null }
+            // const access_rule: AccessRule = await AccessRule.findOneOrFail({ where: where, relations: ['schedules'] })
+            const access_rule: any = await AccessRule.createQueryBuilder('access_rule')
+                .leftJoinAndSelect('access_rule.schedules', 'schedule', 'schedule.delete_date is null')
+                .where(`access_rule.id = '${req_data.id}'`)
+                .andWhere(`access_rule.company = '${user.company ? user.company : null}'`)
+                .getOne()
+            const location = await locationGenerator(user)
             if (!access_rule) {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
             } else {
                 const access_point: AccessPoint = await AccessPoint.findOneOrFail({ id: access_rule.access_point })
                 const acu: Acu = await Acu.findOneOrFail({ id: access_point.acu })
+                var data
                 if (acu.status === acuStatus.ACTIVE) {
-                    const schedule: Schedule = await Schedule.findOneOrFail({ id: req_data.schedule })
-                    const timeframes = await Timeframe.find({ schedule: schedule.id })
-                    const send_data = { ...req_data, schedule_type: schedule.type, start_from: schedule.start_from, timeframes: timeframes, access_point: access_point.id }
                     if (access_rule.schedule !== req_data.schedule) {
-                        let operator: OperatorType = OperatorType.DEL_SDL_DAILY
-                        if (access_rule.schedules.type === scheduleType.WEEKLY) {
-                            operator = OperatorType.DEL_SDL_WEEKLY
-                        } else if (access_rule.schedules.type === scheduleType.FLEXITIME) {
-                            send_data.start_from = schedule.start_from
-                            operator = OperatorType.DEL_SDL_FLEXI_TIME
-                        } else if (access_rule.schedules.type === scheduleType.SPECIFIC) {
-                            operator = OperatorType.DEL_SDL_SPECIFIED
+                        if ('access_in_holidays' in req_data && req_data.access_in_holidays !== access_rule.access_in_holidays) {
+                            const save_data = Object.assign({}, req_data)
+                            delete save_data.schedule
+                            const updated = await AccessRule.updateItem(save_data as AccessRule)
+                            ctx.oldData = updated.old
+                            data = updated.new
                         }
-                        new SendDeviceMessage(operator, location, acu.serial_number, send_data, user.id, acu.session_id, true)
+                        delete req_data.access_in_holidays
+                        const schedule: Schedule = await Schedule.findOneOrFail({ id: req_data.schedule })
+                        const timeframes = await Timeframe.find({ schedule: schedule.id })
+                        const send_data = { ...req_data, schedule_type: schedule.type, start_from: schedule.start_from, timeframes: timeframes, access_point: access_point.id }
+                        if (access_rule.schedules.type !== schedule.type) {
+                            SdlController.delSdl(location, acu.serial_number, send_data, user, access_rule.schedules.type, acu.session_id, true)
+                        } else {
+                            SdlController.setSdl(location, acu.serial_number, send_data, user, acu.session_id, true)
+                        }
+                        ctx.body = {
+                            data: data,
+                            message: 'Update Pending'
+                        }
+                    } else if ('access_in_holidays' in req_data && req_data.access_in_holidays !== access_rule.access_in_holidays) {
+                        const updated = await AccessRule.updateItem(req_data as AccessRule)
+                        ctx.oldData = updated.old
+                        ctx.body = updated.new
+                    } else {
+                        ctx.body = access_rule
                     }
-                    ctx.body = true
                 } else {
                     const updated = await AccessRule.updateItem(req_data as AccessRule)
                     ctx.oldData = updated.old
@@ -258,9 +295,31 @@ export default class AccessRuleController {
     public static async get (ctx: DefaultContext) {
         try {
             const user = ctx.user
-            const where = { id: +ctx.params.id, company: user.company ? user.company : user.company }
-            const relations = ['schedules']
-            ctx.body = await AccessRule.getItem(where, relations)
+            const company = ctx.user.company
+            const partition_parent_id = (user.companyData && user.companyData.partition_parent_id) ? user.companyData.partition_parent_id : null
+            const access_rule = await AccessRule.createQueryBuilder('access_rule')
+                .leftJoinAndSelect('access_rule.schedules', 'schedule', 'schedule.delete_date is null')
+                .where(`access_rule.id = '${+ctx.params.id}'`)
+                .getOne()
+
+            if (!access_rule) {
+                ctx.status = 400
+                return ctx.body = { message: 'Invalid id' }
+            }
+
+            if (partition_parent_id) {
+                if (![company, partition_parent_id].includes(access_rule.company)) {
+                    ctx.status = 400
+                    return ctx.body = { message: 'Invalid id' }
+                }
+            } else {
+                if (access_rule.company !== company) {
+                    ctx.status = 400
+                    return ctx.body = { message: 'Invalid id' }
+                }
+            }
+
+            ctx.body = access_rule
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -308,30 +367,31 @@ export default class AccessRuleController {
             const user = ctx.user
             const where = { id: req_data.id, company: user.company ? user.company : null }
             const access_rule = await AccessRule.findOne(where)
-            const location = `${user.company_main}/${user.company}`
+            const location = await locationGenerator(user)
+            const logs_data = []
             if (!access_rule) {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
             } else {
+                ctx.logsData = []
                 const access_point: AccessPoint = await AccessPoint.findOneOrFail({ id: access_rule.access_point })
                 const acu: Acu = await Acu.findOneOrFail({ id: access_point.acu })
                 if (acu.status === acuStatus.ACTIVE) {
                     const schedule: Schedule = await Schedule.findOneOrFail({ id: access_rule.schedule })
+
                     const send_data = { id: access_rule.id, access_point: access_point.id }
-                    let operator: OperatorType = OperatorType.DEL_SDL_DAILY
-                    if (schedule.type === scheduleType.WEEKLY) {
-                        operator = OperatorType.DEL_SDL_WEEKLY
-                    } else if (schedule.type === scheduleType.FLEXITIME) {
-                        operator = OperatorType.DEL_SDL_FLEXI_TIME
-                    } else if (schedule.type === scheduleType.SPECIFIC) {
-                        operator = OperatorType.DEL_SDL_SPECIFIED
-                    }
-                    new SendDeviceMessage(operator, location, acu.serial_number, send_data, user.id, acu.session_id)
+                    SdlController.delSdl(location, acu.serial_number, send_data, user, schedule.type, acu.session_id)
                     ctx.body = { message: 'Delete pending' }
                 } else {
                     ctx.body = await AccessRule.destroyItem(where)
+                    logs_data.push({
+                        event: logUserEvents.DELETE,
+                        target: `${AccessRule.name}/${access_point.name}`,
+                        value: { name: access_point.name }
+                    })
                 }
             }
+            ctx.logsData = logs_data
         } catch (error) {
             console.log(error)
 

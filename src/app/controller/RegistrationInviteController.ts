@@ -1,6 +1,7 @@
 import { DefaultContext } from 'koa'
 import { RegistrationInvite } from '../model/entity/RegistrationInvite'
 import { PackageType } from '../model/entity/PackageType'
+import { Company } from '../model/entity'
 
 export default class RegistrationInviteController {
     /**
@@ -40,7 +41,39 @@ export default class RegistrationInviteController {
 
     public static async add (ctx: DefaultContext) {
         try {
-            ctx.body = await RegistrationInvite.createLink(ctx.request.body as RegistrationInvite)
+            const req_data = ctx.request.body
+            const user = ctx.user
+            if (user.company) {
+                const company: any = await Company.findOneOrFail({ where: { id: user.company }, relations: ['packages', 'company_resources', 'package_types'] })
+                const extra_settings = JSON.parse(company.packages.extra_settings)
+                const used = JSON.parse(company.company_resources.used)
+                if (!company.package_types.service) {
+                    if (used.Company >= extra_settings.resources.Company) {
+                        ctx.status = 400
+                        return ctx.body = { message: 'Can\'t invite. PackageResource limit reached!' }
+                    }
+                    if (user.company) req_data.company = user.company
+                    return ctx.body = await RegistrationInvite.createPartitionLink(req_data as RegistrationInvite)
+                } else {
+                    let limit_complete = true
+                    for (const package_type in extra_settings.package_types) {
+                        if (extra_settings.package_types[package_type]) {
+                            if (!used[package_type] || (used[package_type] && used[package_type] < extra_settings.package_types[package_type])) {
+                                limit_complete = false
+                                break
+                            }
+                        }
+                    }
+                    if (limit_complete) {
+                        ctx.status = 400
+                        return ctx.body = { message: 'Can\'t invite. PackageResource limit reached!' }
+                    }
+                }
+
+                if (user.company) req_data.company = user.company
+            }
+            ctx.body = await RegistrationInvite.createLink(req_data as RegistrationInvite)
+            ctx.logsData = []
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -128,12 +161,80 @@ export default class RegistrationInviteController {
 
             const regToken = await RegistrationInvite.findOneOrFail({ token: token, used: false })
             if (regToken) {
-                const packageTypes = await PackageType.getAllItems({ where: { status: { '=': true } } })
+                let packageTypes: any = []
+                if (regToken.company) {
+                    const parent_company: any = await Company.findOneOrFail({ where: { id: regToken.company }, relations: ['packages', 'company_resources', 'package_types'] })
+                    const extra_settings = JSON.parse(parent_company.packages.extra_settings)
+                    const used = JSON.parse(parent_company.company_resources.used)
+                    const package_type_ids = []
+                    for (const package_type in extra_settings.package_types) {
+                        if (extra_settings.package_types[package_type]) {
+                            if (!used[package_type] || (used[package_type] && used[package_type] < extra_settings.package_types[package_type])) {
+                                package_type_ids.push(package_type)
+                            }
+                        }
+                    }
+
+                    if (package_type_ids.length) {
+                        packageTypes = await PackageType.getAllItems({ where: { status: { '=': true }, service: { '=': false }, id: { in: package_type_ids } } })
+                    }
+                } else {
+                    packageTypes = await PackageType.getAllItems({ where: { status: { '=': true } } })
+                }
                 ctx.body = packageTypes
             } else {
                 ctx.status = 400
                 ctx.body = {
                     message: 'Wrong token!!'
+                }
+            }
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     * /registration/registrationOfPartition/{token}:
+     *      get:
+     *          tags:
+     *              - RegistrationInvite
+     *          summary: Return registrationInvite by token
+     *          parameters:
+     *              - name: token
+     *                in: path
+     *                required: true
+     *                description: Parameter description
+     *                schema:
+     *                    type: string
+     *          responses:
+     *              '200':
+     *                  description: Data object
+     *              '404':
+     *                  description: Data not found
+     */
+    public static async getPartition (ctx: DefaultContext) {
+        try {
+            // ctx.body = await RegistrationInvite.getByLink(ctx.params.token)
+            const token = ctx.params.token
+
+            const regToken = await RegistrationInvite.findOneOrFail({ token: token })
+            if (regToken) {
+                if (regToken.company) {
+                    ctx.body = true
+                } else {
+                    ctx.status = 400
+                    ctx.body = {
+                        message: 'Wrong Company!!'
+                    }
+                }
+            } else {
+                ctx.status = 400
+                ctx.body = {
+                    message: 'Wrong Token!!'
                 }
             }
         } catch (error) {

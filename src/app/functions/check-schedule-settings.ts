@@ -4,20 +4,23 @@ import { Schedule } from '../model/entity'
 import { Timeframe } from '../model/entity/Timeframe'
 
 export class CheckScheduleSettings {
-    public static checkSettings (type: scheduleType, schedule: Schedule, timeframe:Timeframe) {
+    public static checkSettings (type: scheduleType, schedule: Schedule, timeframe: Timeframe) {
         let check: any = false
         switch (type) {
-            case 'daily':
+            case scheduleType.DAILY:
                 check = this.checkDailysettings(schedule, timeframe)
                 break
-            case 'weekly':
+            case scheduleType.WEEKLY:
                 check = this.checkWeeklysettings(schedule, timeframe)
                 break
-            case 'specific':
+            case scheduleType.SPECIFIC:
                 check = this.checkSpecificsettings(schedule, timeframe)
                 break
-            case 'flexitime':
+            case scheduleType.FLEXITIME:
                 check = this.checkFlexitimesettings(schedule, timeframe)
+                break
+            case scheduleType.ORDINAL:
+                check = this.checkOrdinalsettings(schedule, timeframe)
                 break
             default:
                 break
@@ -25,7 +28,7 @@ export class CheckScheduleSettings {
         return check
     }
 
-    public static checkDailysettings (schedule: any, timeframe:any) {
+    public static checkDailysettings (schedule: any, timeframe: any) {
         if (!('type' in schedule) ||
             !('name' in schedule) ||
             typeof schedule.type !== 'string' ||
@@ -51,7 +54,7 @@ export class CheckScheduleSettings {
         }
     }
 
-    public static checkWeeklysettings (schedule: any, timeframe:any) {
+    public static checkWeeklysettings (schedule: any, timeframe: any) {
         if (!('type' in schedule) ||
             !('name' in schedule) ||
             typeof schedule.type !== 'string' ||
@@ -74,7 +77,7 @@ export class CheckScheduleSettings {
         }
     }
 
-    public static checkSpecificsettings (schedule: any, timeframe:any) {
+    public static checkSpecificsettings (schedule: any, timeframe: any) {
         if (!('type' in schedule) ||
             !('name' in schedule) ||
             typeof schedule.type !== 'string' ||
@@ -98,7 +101,7 @@ export class CheckScheduleSettings {
         }
     }
 
-    public static checkFlexitimesettings (schedule: any, timeframe:any) {
+    public static checkFlexitimesettings (schedule: any, timeframe: any) {
         if (!('type' in schedule) ||
             !('name' in schedule) ||
             typeof schedule.type !== 'string' ||
@@ -120,6 +123,32 @@ export class CheckScheduleSettings {
                         } else {
                             return true
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    public static checkOrdinalsettings (schedule: any, timeframe: any) {
+        if (!('type' in schedule) ||
+            !('name' in schedule) ||
+            !('repeat_month' in schedule) ||
+            typeof schedule.type !== 'string' ||
+            typeof schedule.name !== 'string') {
+            return 'Invalid schedule data'
+        } else {
+            if (schedule.type !== scheduleType.ORDINAL) {
+                return 'Invalid schedule data'
+            } else if (schedule.repeat_month < 0 || schedule.repeat_month > 12) {
+                return 'repeat_month must be between 1-12'
+            } else {
+                if (!new Date(timeframe.name)) {
+                    return 'Invalid week days '
+                } else {
+                    if (timeframe.end < timeframe.start) {
+                        return 'End time cant be less than start'
+                    } else {
+                        return true
                     }
                 }
             }

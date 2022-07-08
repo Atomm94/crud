@@ -3,8 +3,10 @@ import {
     Column,
     ManyToOne,
     OneToMany,
-    JoinColumn
+    JoinColumn,
+    DeleteDateColumn
 } from 'typeorm'
+import { minusResource } from '../../functions/minusResource'
 
 import {
     MainEntity,
@@ -22,6 +24,15 @@ export class AccessRight extends MainEntity {
     @Column('varchar', { name: 'description', nullable: true })
     description: string | null
 
+    @Column('boolean', { name: 'custom', default: false })
+    custom: boolean
+
+    @Column('boolean', { name: 'default', default: false })
+    default: boolean
+
+    @DeleteDateColumn({ type: 'timestamp', name: 'delete_date' })
+    public delete_date: Date
+
     @Column('int', { name: 'company', nullable: false })
     company: number
 
@@ -38,14 +49,19 @@ export class AccessRight extends MainEntity {
     @OneToMany(type => Cardholder, cardholder => cardholder.access_rights)
     cardholders: Cardholder[];
 
+    @OneToMany(type => Company, company => company.base_access_rights)
+    base_companies: Company[];
+
     public static resource: boolean = true
 
     public static async addItem (data: AccessRight) {
         const accessRight = new AccessRight()
 
         accessRight.name = data.name
-        accessRight.description = data.description
+        if ('description' in data) accessRight.description = data.description
+        if ('custom' in data) accessRight.custom = data.custom
         accessRight.company = data.company
+        accessRight.default = data.default
 
         return new Promise((resolve, reject) => {
             this.save(accessRight)
@@ -63,6 +79,7 @@ export class AccessRight extends MainEntity {
         const oldData = Object.assign({}, accessRight)
         if ('name' in data) accessRight.name = data.name
         if ('description' in data) accessRight.description = data.description
+        if ('default' in data) accessRight.default = data.default
 
         if (!accessRight) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
@@ -98,8 +115,9 @@ export class AccessRight extends MainEntity {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
             this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
-                this.remove(data)
-                    .then(() => {
+                this.softRemove(data)
+                    .then(async () => {
+                        minusResource(this.name, data.company)
                         resolve({ message: 'success' })
                     })
                     .catch((error: any) => {

@@ -1,9 +1,11 @@
 import { DefaultContext } from 'koa'
 import { generateDatesFromPeriod } from '../functions/generate-dates-from-period'
 import { standartReportPeriodValidation } from '../functions/validator'
-import { EventLog } from '../model/entity'
+import { Admin, EventLog } from '../model/entity'
 import { StandardReport } from '../model/entity/StandardReport'
 import eventList from '../model/entity/eventList.json'
+import { logUserEvents } from '../enums/logUserEvents.enum'
+import _ from 'lodash'
 
 export default class StandardReportController {
     /**
@@ -53,10 +55,10 @@ export default class StandardReportController {
      *                                      example: 2020.02.22
      *                  start_time:
      *                      type: string
-     *                      example: 00:00:00
+     *                      example: '00:00:00'
      *                  end_time:
      *                      type: string
-     *                      example: 23:59:00
+     *                      example: '23:59:00'
      *                  events:
      *                      type: Array<number>
      *                      example: [1,2]
@@ -86,7 +88,10 @@ export default class StandardReportController {
                 ctx.status = 400
                 return ctx.body = { message: check }
             }
-            ctx.body = await StandardReport.addItem(ctx.request.body as StandardReport)
+            const standart_report = await StandardReport.addItem(ctx.request.body as StandardReport) as StandardReport
+            const admin = await Admin.getItem({ id: user.id }) as Admin
+            standart_report.authors = _.omit(admin, ['password', 'super', 'verify_token']) as Admin
+            ctx.body = standart_report
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -140,10 +145,10 @@ export default class StandardReportController {
      *                              example: 2020.02.22
      *                  start_time:
      *                      type: string
-     *                      example: 00:00:00
+     *                      example: '00:00:00'
      *                  end_time:
      *                      type: string
-     *                      example: 23:59:00
+     *                      example: '23:59:00'
      *                  events:
      *                      type: Array<number>
      *                      example: [1,2]
@@ -178,7 +183,10 @@ export default class StandardReportController {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
             } else {
-                ctx.body = await StandardReport.updateItem(req_data as StandardReport)
+                const standart_report = await StandardReport.updateItem(req_data as StandardReport) as StandardReport
+                const admin = await Admin.getItem({ id: user.id }) as Admin
+                standart_report.authors = _.omit(admin, ['password', 'super', 'verify_token']) as Admin
+                ctx.body = standart_report
             }
         } catch (error) {
             ctx.status = error.status || 400
@@ -267,7 +275,13 @@ export default class StandardReportController {
             const req_data = ctx.request.body
             const user = ctx.user
             const where = { id: req_data.id, company: user.company ? user.company : null }
+            const report = await StandardReport.findOneOrFail({ where: where })
             ctx.body = await StandardReport.destroyItem(where)
+            ctx.logsData = [{
+                event: logUserEvents.DELETE,
+                target: `${StandardReport.name}/${report.name}`,
+                value: { name: report.name }
+            }]
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -301,6 +315,7 @@ export default class StandardReportController {
             const req_data = ctx.query
             const user = ctx.user
             req_data.where = { company: { '=': user.company ? user.company : null } }
+            req_data.relations = ['authors']
             ctx.body = await StandardReport.getAllItems(req_data)
         } catch (error) {
             ctx.status = error.status || 400
@@ -388,6 +403,7 @@ export default class StandardReportController {
             const logs = await EventLog.get(user, req_data)
             ctx.body = logs
         } catch (error) {
+            console.log('🚀 ~ file: StandardReportController.ts ~ line 406 ~ StandardReportController ~ execute ~ error', error)
             ctx.status = error.status || 400
             ctx.body = error
         }

@@ -1,12 +1,18 @@
 import { acuConnectionType } from '../enums/acuConnectionType.enum'
 import { standartReportPeriod } from '../enums/standartReportPeriod.enum'
 
-import { autoTaskRepeatUnit } from '../enums/autoTaskRepeatUnit.enum'
-import { autoTaskScheduleType } from '../enums/autoTaskScheduleType.enum'
+// import { autoTaskRepeatUnit } from '../enums/autoTaskRepeatUnit.enum'
 import { readerTypes } from '../enums/readerTypes'
 // import { AccessPoint } from '../model/entity/AccessPoint'
 import acuModel from '../model/entity/acuModels.json'
+// import autoTaskcommands from '../model/entity/autoTaskcommands.json'
+import { wiegandTypes } from '../enums/wiegandTypes'
+import { extBrdInterface } from '../enums/extBrdInterface.enum'
+import { accessPointType } from '../enums/accessPointType.enum'
+
 import autoTaskcommands from '../model/entity/autoTaskcommands.json'
+import { reactionType } from '../enums/reactionType.enum'
+import { Reader } from '../model/entity'
 
 export function ipValidation (string: string) {
     const ipformat = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
@@ -69,6 +75,7 @@ export function interfaceValidation (data: any) {
 }
 
 export function timeValidation (data: any) {
+    if (typeof data === 'string') data = JSON.parse(data)
     if (!('timezone_from_facility' in data) ||
         !('enable_daylight_saving_time' in data) ||
         !('daylight_saving_time_from_user_account' in data) ||
@@ -102,10 +109,10 @@ export function maintainValidation (data: any) {
     }
 }
 
-export function checkAccessPointsValidation (data: any, acu_model: string, update: boolean) {
+export function checkAccessPointsValidation (data: any, acu_model: string, elevator_mode: boolean, acu_readers: Reader | null, update: boolean) {
     const acu_models: any = acuModel
 
-    const ports: any = {}
+    const int_ports_addrs: any = {} // interface, port, address - is unique
     const inputs: any = {}
     let inputs_count = 0
     const outputs: any = {}
@@ -114,6 +121,19 @@ export function checkAccessPointsValidation (data: any, acu_model: string, updat
 
     for (const access_point of data) {
         const type = access_point.type
+        if (elevator_mode) {
+            if (type !== accessPointType.FLOOR) {
+                return (`device ${acu_model} cant have accessPoint like ${type} when elevator_mode is enable!`)
+            } else {
+                if (access_point.readers && access_point.readers.length) {
+                    return (`accessPoint like ${type} can have only one reader!`)
+                }
+            }
+        } else {
+            if (type === accessPointType.FLOOR) {
+                return (`device ${acu_model} cant have accessPoint like ${type} when elevator_mode is disable!`)
+            }
+        }
         if (type && !acu_models.controllers[acu_model].access_point_types[type]) {
             return (`device ${acu_model} cant have accessPoint like ${type}!`)
         } else {
@@ -121,6 +141,9 @@ export function checkAccessPointsValidation (data: any, acu_model: string, updat
             if (typeof resources === 'string') resources = JSON.parse(resources)
             for (const resource in resources) {
                 const component_source = resources[resource].component_source
+                if (elevator_mode && component_source === 0) {
+                    return (`accessPoint ${access_point.name} cant have Resource with component source - ACU, when elevator_mode is enable!`)
+                }
                 if (!update && component_source !== 0) {
                     return ('in Component Source you cant set ext_device before add ACU!')
                 }
@@ -184,20 +207,52 @@ export function checkAccessPointsValidation (data: any, acu_model: string, updat
                     return (`device model ${acu_model} outputs_count ${outputs_count} more than limit!`)
                 }
             }
-
+            if (!access_point.readers) access_point.readers = []
+            if (access_point.readers.length > 4) {
+                return (`AccessPoint ${access_point.id} cant have more than 4 readers !`)
+            }
             for (const reader of access_point.readers) {
                 if (reader.type && !acu_models.controllers[acu_model].readers[readerTypes[reader.type]]) {
                     return (`device model ${acu_model} cant have reader ${readerTypes[reader.type]}!`)
                 } else {
-                    if ('port' in reader) {
-                        if (reader.port < 1 || reader.port > 4) {
-                            return (`reader port cant be ${reader.port}!`)
-                        } else {
-                            if (ports[reader.port]) {
-                                return ('readers ports must be different!')
+                    if (!('wg_type' in reader) || reader.wg_type === null) {
+                        return ('reader interface type is required!')
+                    } else {
+                        if ('port' in reader) {
+                            if (reader.port < 1 || reader.port > 4) {
+                                return (`wiegand reader port cant be ${reader.port}, it must be (1-4)!`)
                             } else {
-                                ports[reader.port] = true
+                                if (reader.wg_type === wiegandTypes.OSDP) {
+                                    if (!('osdp_data' in reader) || !('osdp_address' in reader)) {
+                                        return ('readers(OSDP) osdp_data and osdp_address is required!')
+                                    } else {
+                                        if (reader.osdp_address < 1 || reader.osdp_address > 128) {
+                                            return (`OSDP reader address cant be ${reader.osdp_address}, it must be (1-128)!`)
+                                        } else {
+                                            if (!int_ports_addrs.osdp) int_ports_addrs.osdp = {}
+                                            if (!int_ports_addrs.osdp[reader.port]) {
+                                                int_ports_addrs.osdp[reader.port] = { [reader.osdp_address]: true }
+                                            } else {
+                                                if (int_ports_addrs.osdp[reader.port][reader.osdp_address]) {
+                                                    return (`readers(OSDP) port - ${reader.port}, address - ${reader.osdp_address} must be different!`)
+                                                } else {
+                                                    int_ports_addrs.osdp[reader.port][reader.osdp_address] = true
+                                                }
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    if (!int_ports_addrs.wiegand) int_ports_addrs.wiegand = {}
+
+                                    if (int_ports_addrs.wiegand[reader.port]) {
+                                        return (`readers(Wiegand) ports must be different (${reader.port} repeated)!`)
+                                    } else {
+                                        int_ports_addrs.wiegand[reader.port] = true
+                                    }
+                                }
                             }
+                        } else {
+                            return ('reader port is required!')
                         }
                     }
                 }
@@ -205,6 +260,28 @@ export function checkAccessPointsValidation (data: any, acu_model: string, updat
             // Object.values(resources).forEach((resource: any) => {
             // })
         }
+    }
+    if (elevator_mode && !acu_readers /*  && data.length */) {
+        return ('Acu must have Reader when elevator_mode is enable!')
+    }
+    return true
+}
+
+export function checkExtDeviceValidation (data: any) {
+    if (data.interface === extBrdInterface.RS485) {
+        if (data.port < 1 || data.port > 4) {
+            return (`RS485 port cant be ${data.port}, it must be (1-4)!`)
+        } else {
+            if (data.address < 1 || data.address > 254) {
+                return (`RS485 address cant be ${data.address}, it must be (1-254)!`)
+            }
+        }
+    } else if (data.interface === extBrdInterface.ETHERNET) {
+        if (data.port < 1 || data.port > 65535) {
+            return (`Ethernet port cant be ${data.port}, it must be (1-65535)!`)
+        }
+    } else {
+        return (`Invalid interface ${data.interface}!`)
     }
     return true
 }
@@ -249,47 +326,22 @@ export function standartReportPeriodValidation (data: any) {
 }
 
 export function autoTaskScheduleValidation (data: any) {
-    if (data.schedule_type === autoTaskScheduleType.CUSTOM_SCHEDULE) {
-        if (!data.custom_schedule) {
-            return ('set Custom Schedule data')
+    const commands: any = autoTaskcommands
+    if (!('enable' in data)) {
+        return ('Invalid Autotask data')
+    } else {
+        if (!new Date(data.conditions.TmBeginCondition) || !new Date(data.conditions.TmEndCondition)) {
+            return ('Invalid start_time or end_time in Schedule')
         } else {
-            if (!('start_date' in data.custom_schedule) ||
-                !('start_date_enable' in data.custom_schedule) ||
-                !('end_date' in data.custom_schedule) ||
-                !('end_date_enable' in data.custom_schedule) ||
-                !('start_time' in data.custom_schedule) ||
-                !('start_time_enable' in data.custom_schedule) ||
-                !('end_time' in data.custom_schedule) ||
-                !('end_time_enable' in data.custom_schedule) ||
-                !('repeat' in data.custom_schedule) ||
-                !('repeat_interval' in data.custom_schedule) ||
-                !('repeat_unit' in data.custom_schedule) ||
-                !('duration_days' in data.custom_schedule) ||
-                !('unlimited' in data.custom_schedule)) {
-                return ('Invalid Custom Schedule data')
+            if (!commands[data.reaction]) {
+                return ('Invalid reaction ')
             } else {
-                if (!new Date(data.custom_schedule.start_date) || !new Date(data.custom_schedule.end_date)) {
-                    return ('Invalid start_date or end_date in Custom Schedule')
-                } else if (!Number(data.custom_schedule.repeat_interval) || !Number(data.custom_schedule.duration_days)) {
-                    return ('repeat_interval, duration_days must be number!')
-                } else if (Object.values(autoTaskRepeatUnit).indexOf(data.custom_schedule.repeat_unit) === -1) {
-                    return ('Invalid Repeat Unit in Custom Schedule data')
+                if (data.reaction_type && Object.values(reactionType).indexOf(data.reaction_type) === -1) {
+                    return ('Invalid reaction type')
+                } else {
+                    return true
                 }
             }
         }
     }
-
-    const auto_task_commands: any = autoTaskcommands
-    if (data.command) {
-        if (!Array.isArray(data.command)) {
-            return ('AutoTaskSchedule command must be Array')
-        } else {
-            for (const command_id of data.command) {
-                if (!auto_task_commands[command_id]) {
-                    return ('AutoTaskSchedule Invalid command id')
-                }
-            }
-        }
-    }
-    return true
 }

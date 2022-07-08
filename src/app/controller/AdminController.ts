@@ -1,7 +1,7 @@
 import * as _ from 'lodash'
 import { DefaultContext } from 'koa'
 import { getRepository } from 'typeorm'
-import { Admin, Package, Role } from '../model/entity/index'
+import { Admin, Company, Role } from '../model/entity/index'
 import * as jwt from 'jsonwebtoken'
 import * as bcrypt from 'bcrypt'
 import fs from 'fs'
@@ -13,13 +13,14 @@ import { uid } from 'uid'
 import { checkPermissionsAccess } from '../functions/check-permissions-access'
 import { AccountGroup } from '../model/entity/AccountGroup'
 import { adminStatus } from '../enums/adminStatus.enum'
+import { logUserEvents } from '../enums/logUserEvents.enum'
+import { Notification } from '../model/entity/Notification'
 
 const parentDir = join(__dirname, '../..')
 
-if (!fs.existsSync(`${parentDir}/public/`)) {
+if (!fs.existsSync(`${parentDir}/public/tmp`)) {
     logger.info('!!!exists')
-
-    fs.mkdirSync(`${parentDir}/public`)
+    fs.mkdirSync(`${parentDir}/public/tmp`, { recursive: true })
 }
 
 // import { NotFound } from '../../constant/errors';
@@ -202,6 +203,8 @@ export default class AdminController {
                     }
                 }
             } catch (error) {
+                console.log('error', error)
+
                 ctx.status = error.status || 400
                 ctx.body = error
                 if (error.detail && error.detail.includes('username')) {
@@ -287,9 +290,16 @@ export default class AdminController {
         reqData.verify_token = uid(32)
         let role
 
+        const logs_data = []
         try {
-            reqData.status = adminStatus.pending
+            reqData.status = adminStatus.PENDING
             const newAdmin: Admin = await Admin.addItem(reqData, user)
+            logs_data.push({
+                event: logUserEvents.CREATE,
+                target: `${Admin.name}/${newAdmin.first_name}`,
+                value: { name: newAdmin.first_name }
+            })
+            ctx.logsData = logs_data
             role = await Role.findOne({
                 id: reqData.role
             })
@@ -341,11 +351,15 @@ export default class AdminController {
                 admin = await Admin.findOneOrFail(ctx.user.id)
                 const adminFiltered = _.omit(admin, ['password', 'super', 'verify_token'])
                 ctx.body = adminFiltered
-                ctx.body.package = ctx.user.package ? ctx.user.package : null
-                if (ctx.user && ctx.user.company && ctx.user.package) {
-                    const packageData = await Package.findOne(ctx.user.package)
-                    if (packageData && packageData.extra_settings) {
-                        const extra_settings = JSON.parse(packageData.extra_settings)
+                if (ctx.user && ctx.user.company) {
+                    const company = await Company.findOneOrFail({ where: { id: ctx.user.company }, relations: ['packages'] })
+                    ctx.body.company_name = company.company_name
+                    ctx.body.package = company.package
+                    ctx.body.upgraded_package_id = company.upgraded_package_id
+                    const notifications = await Notification.find({ where: { company: ctx.user.company, confirmed: null } })
+                    ctx.body.notifications = notifications.length
+                    if (company.packages && company.packages.extra_settings) {
+                        const extra_settings = JSON.parse(company.packages.extra_settings)
                         if (extra_settings.features) {
                             ctx.body.features = extra_settings.features
                         }
@@ -800,7 +814,14 @@ export default class AdminController {
         const user = ctx.user
         try {
             const where = { id: reqData.id, company: user.company ? user.company : null }
+
+            const admin = await Admin.findOneOrFail({ where: where })
             ctx.body = await Admin.destroyItem(where)
+            ctx.logsData = [{
+                event: logUserEvents.DELETE,
+                target: `${Admin.name}/${admin.username}`,
+                value: { name: admin.username }
+            }]
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -1024,7 +1045,7 @@ export default class AdminController {
             if (validate(password).success) {
                 user.password = password
                 user.verify_token = null
-                user.status = adminStatus.active
+                user.status = adminStatus.ACTIVE
                 await user.save()
                 ctx.body = {
                     success: true
@@ -1095,6 +1116,59 @@ export default class AdminController {
             ctx.status = error.status || 400
             ctx.body = error
             return ctx.body
+        }
+        return ctx.body
+    }
+
+    /**
+       *
+       * @swagger
+       *  /account/changeSettings:
+       *      put:
+       *          tags:
+       *              - Admin
+       *          summary: Change settings.
+       *          consumes:
+       *              - application/json
+       *          parameters:
+       *            - in: header
+       *              name: Authorization
+       *              required: true
+       *              description: Authentication token
+       *              schema:
+       *                type: string
+       *            - in: body
+       *              name: admin
+       *              description: Change settings.
+       *              schema:
+       *                type: object
+       *                required:
+       *                  - settings
+       *                properties:
+       *                  settings:
+       *                      type: string
+       *                      example: {}
+       *          responses:
+       *              '201':
+       *                  description: A admin updated object
+       *              '409':
+       *                  description: Conflict
+       *              '422':
+       *                  description: Wrong data
+       */
+
+    public static async changeSettings (ctx: DefaultContext) {
+        try {
+            const req_data = ctx.request.body
+            const user = ctx.user
+            const admin = await Admin.findOneOrFail({ id: user.id })
+            delete admin.password
+            const settings = (req_data.settings && typeof req_data.settings === 'object') ? JSON.stringify(req_data.settings) : req_data.settings
+            admin.settings = settings
+            ctx.body = await admin.save()
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
         }
         return ctx.body
     }

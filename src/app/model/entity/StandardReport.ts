@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import {
     Entity,
     Column,
@@ -128,6 +129,12 @@ export class StandardReport extends MainEntity {
         return new Promise((resolve, reject) => {
             this.findByParams(params)
                 .then((items) => {
+                    const data = (Array.isArray(items)) ? items : items.data
+                    data.forEach((item: StandardReport) => {
+                        if (item.authors) {
+                            item.authors = _.omit(item.authors, ['password', 'super', 'verify_token']) as Admin
+                        }
+                    })
                     resolve(items)
                 })
                 .catch((error: any) => {

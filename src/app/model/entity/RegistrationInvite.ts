@@ -19,6 +19,9 @@ export class RegistrationInvite extends MainEntity {
     @Column('boolean', { name: 'used', default: false })
     used: boolean
 
+    @Column('int', { name: 'company', nullable: true })
+    company: number | null
+
     // public static async addItem (data: RegistrationInvite) {
     //     const registrationInvite = new RegistrationInvite()
 
@@ -100,11 +103,49 @@ export class RegistrationInvite extends MainEntity {
 
         registrationInvite.email = data.email
         registrationInvite.token = uid(32)
+        if ('company' in data) registrationInvite.company = data.company
 
         return new Promise((resolve, reject) => {
             this.save(registrationInvite)
                 .then(async (item: RegistrationInvite) => {
                     await Sendgrid.sendInvite(item.email, item.token)
+                    resolve(item)
+                })
+                .catch((error: any) => {
+                    reject(error)
+                })
+        })
+    }
+
+    public static async createPartitionLink (data: any) {
+        const registrationInvite = new RegistrationInvite()
+
+        registrationInvite.email = data.email
+        registrationInvite.token = uid(32)
+        if ('company' in data) registrationInvite.company = data.company
+
+        return new Promise((resolve, reject) => {
+            this.save(registrationInvite)
+                .then(async (item: RegistrationInvite) => {
+                    await Sendgrid.sendPartitionInvite(item.email, item.token)
+                    resolve(item)
+                })
+                .catch((error: any) => {
+                    reject(error)
+                })
+        })
+    }
+
+    public static async createCardholderLink (data: any) {
+        const registrationInvite = new RegistrationInvite()
+
+        registrationInvite.email = data.email
+        registrationInvite.token = uid(32)
+
+        return new Promise((resolve, reject) => {
+            this.save(registrationInvite)
+                .then(async (item: RegistrationInvite) => {
+                    await Sendgrid.sendCardholderInvite(item.email, item.token)
                     resolve(item)
                 })
                 .catch((error: any) => {

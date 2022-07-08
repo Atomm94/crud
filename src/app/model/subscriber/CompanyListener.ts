@@ -3,16 +3,17 @@ import {
     EventSubscriber,
     InsertEvent,
     UpdateEvent,
-    getManager,
-    Not
+    getManager
+    // Not
 } from 'typeorm'
 import * as Models from '../entity'
-import { Admin, CompanyResources, Role } from '../entity'
+import { Admin, CompanyResources, Role, PackageType, RegistrationInvite } from '../entity'
 import { Company } from '../entity/Company'
 import { Acu } from '../entity/Acu'
 import { statusCompany } from '../../enums/statusCompany.enum'
 import { Feature } from '../../middleware/feature'
 import { adminStatus } from '../../enums/adminStatus.enum'
+import { JwtToken } from '../entity/JwtToken'
 const featureList: any = Feature
 @EventSubscriber()
 export class PostSubscriber implements EntitySubscriberInterface<Company> {
@@ -33,6 +34,29 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
             used: '{}'
         }
         CompanyResources.addItem(newCompanyResource as CompanyResources)
+        if (data.parent_id) {
+            const parent_company_resources = await CompanyResources.findOneOrFail({ company: data.parent_id })
+            const parent_used = JSON.parse(parent_company_resources.used)
+            if (parent_used[data.package_type]) {
+                parent_used[data.package_type]++
+            } else {
+                parent_used[data.package_type] = 1
+            }
+            parent_company_resources.used = JSON.stringify(parent_used)
+            await parent_company_resources.save()
+        }
+
+        if (data.partition_parent_id) {
+            const partition_parent_company_resources = await CompanyResources.findOneOrFail({ company: data.partition_parent_id })
+            const parent_used = JSON.parse(partition_parent_company_resources.used)
+            if (parent_used.Company) {
+                parent_used.Company++
+            } else {
+                parent_used.Company = 1
+            }
+            partition_parent_company_resources.used = JSON.stringify(parent_used)
+            await partition_parent_company_resources.save()
+        }
     }
 
     /**
@@ -42,27 +66,27 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
         const { entity: New, databaseEntity: Old } = event
         if (Old.status !== New.status) {
             if (Old.status === statusCompany.DISABLE && New.status === statusCompany.ENABLE) {
-                const accounts = await Admin.find({ company: New.id, status: adminStatus.inactive })
+                const accounts = await Admin.find({ company: New.id, status: adminStatus.INACTIVE })
                 for (const account of accounts) {
-                    account.status = adminStatus.active
+                    account.status = adminStatus.ACTIVE
                     await account.save()
                 }
             } else if (New.status === statusCompany.DISABLE) {
-                const accounts = await Admin.find({ company: New.id, status: adminStatus.active })
+                const accounts = await Admin.find({ company: New.id, status: adminStatus.ACTIVE })
                 for (const account of accounts) {
-                    account.status = adminStatus.inactive
+                    account.status = adminStatus.INACTIVE
                     await account.save()
                 }
             } else if (Old.status === statusCompany.DISABLE && New.status === statusCompany.PENDING) {
                 const account = await Admin.findOneOrFail({ where: { id: New.account } })
-                account.status = adminStatus.active
+                account.status = adminStatus.ACTIVE
                 await account.save()
             } else if (Old.status === statusCompany.ENABLE && New.status === statusCompany.PENDING) {
-                const accounts = await Admin.find({ where: { company: New.id, id: Not(New.account), status: adminStatus.active } })
-                for (const account of accounts) {
-                    account.status = adminStatus.inactive
-                    await account.save()
-                }
+                // const accounts = await Admin.find({ where: { company: New.id, id: Not(New.account), status: adminStatus.ACTIVE } })
+                // for (const account of accounts) {
+                //     account.status = adminStatus.INACTIVE
+                //     await account.save()
+                // }
             }
         }
 
@@ -74,6 +98,7 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
                     const default_role: Role | undefined = await Role.findOne({ slug: 'default_partner', company: null })
                     // const package: Package | undefined = await Package.findOne(New.package) // get softDelete too
                     let package_data: any = await getManager().query(`SELECT * FROM package where id = ${New.package}`)
+                    const package_type: any = await PackageType.findOneOrFail({ id: New.package_type })
 
                     if (account_role && package_data.length) {
                         package_data = package_data[0]
@@ -85,6 +110,43 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
                         Object.keys(role_permissions).forEach(action => {
                             role_permissions[action] = true
                         })
+
+                        if (package_type.service) {
+                            const reg_inv_permissions = RegistrationInvite.getActions()
+                            Object.keys(reg_inv_permissions).forEach(action => {
+                                reg_inv_permissions[action] = true
+                            })
+                            default_permissions.RegistrationInvite = {
+                                actions: { ...reg_inv_permissions }
+                            }
+
+                            const companies = Company.getActions()
+                            Object.keys(companies).forEach(action => {
+                                companies[action] = true
+                            })
+                            default_permissions.Company = {
+                                actions: { ...companies }
+                            }
+                        }
+
+                        if (New.parent_id) {
+                            default_permissions.ServiceCompany = {
+                                actions: { getItem: true }
+                            }
+                        } else {
+                            if (package_type.service) {
+                                default_permissions.CompanyDocuments = {
+                                    actions: {
+                                        saveFile: true,
+                                        deleteFile: true,
+                                        addItem: true,
+                                        updateItem: true,
+                                        destroyItem: true
+                                    }
+                                }
+                            }
+                        }
+
                         if (default_permissions.Role) {
                             default_permissions.Role.actions = { ...role_permissions, ...default_permissions.Role.actions }
                         } else {
@@ -104,6 +166,7 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
                         const extra_settings = JSON.parse(package_data.extra_settings)
 
                         const models: any = Models
+
                         Object.keys(extra_settings.resources).forEach(resource => {
                             if (extra_settings.resources[resource]) {
                                 if (models[resource] && models[resource].gettingActions) {
@@ -117,6 +180,34 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
                                 }
                             }
                         })
+
+                        if (extra_settings.resources.Company) {
+                            const reg_inv_permissions = RegistrationInvite.getActions()
+                            Object.keys(reg_inv_permissions).forEach(action => {
+                                reg_inv_permissions[action] = true
+                            })
+                            default_permissions.RegistrationInvite = {
+                                actions: { ...reg_inv_permissions }
+                            }
+                        } else {
+                            delete permissions.RegistrationInvite
+                        }
+
+                        if (permissions[Models.AccessPoint.name]) {
+                            const models_from_access_point = [Models.AccessPointGroup.name, Models.AccessPointZone.name]
+                            models_from_access_point.forEach(model => {
+                                if (models[model].gettingActions) {
+                                    const actions = models[model].getActions()
+                                    Object.keys(actions).forEach(action => {
+                                        actions[action] = true
+                                    })
+                                    permissions[model] = {
+                                        actions: actions
+                                    }
+                                }
+                            })
+                        }
+
                         Object.keys(extra_settings.features).forEach(model => {
                             Object.keys(extra_settings.features[model]).forEach(feature => {
                                 if (extra_settings.features[model][feature]) {
@@ -163,11 +254,14 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
                         })
 
                         account_role.permissions = JSON.stringify(permissions)
+                        console.log(555, account_role)
 
                         await account_role.save()
                     }
                 }
             }
+
+            JwtToken.logoutAccounts(New.id)
         }
     }
 

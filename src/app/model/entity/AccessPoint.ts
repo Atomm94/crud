@@ -19,6 +19,12 @@ import { accessPointType } from '../../enums/accessPointType.enum'
 import { accessPointDoorState } from '../../enums/accessPointDoorState.enum'
 import { AutoTaskSchedule } from './AutoTaskSchedule'
 import { Notification } from './Notification'
+import { minusResource } from '../../functions/minusResource'
+import { socketChannels } from '../../enums/socketChannels.enum'
+import SendSocketMessage from '../../mqtt/SendSocketMessage'
+import { acuStatus } from '../../enums/acuStatus.enum'
+import { AccessPointStatus } from './AccessPointStatus'
+import { resourceKeys } from '../../enums/resourceKeys.enum'
 
 @Entity('access_point')
 export class AccessPoint extends MainEntity {
@@ -39,6 +45,9 @@ export class AccessPoint extends MainEntity {
 
     @Column('enum', { name: 'mode', nullable: false, enum: accessPointMode, default: accessPointMode.NOT_AVAILABLE })
     mode: accessPointMode
+
+    @Column('enum', { name: 'exit_mode', nullable: false, enum: accessPointMode, default: accessPointMode.NOT_AVAILABLE })
+    exit_mode: accessPointMode
 
     @Column('boolean', { name: 'apb_enable_local', default: false })
     apb_enable_local: boolean
@@ -98,7 +107,12 @@ export class AccessPoint extends MainEntity {
     @OneToMany(type => Notification, notification => notification.access_points)
     notifications: Notification[];
 
+    @OneToMany(type => AccessPointStatus, access_point_status => access_point_status.access_points)
+    access_point_statuses: AccessPointStatus[];
+
     public static resource: boolean = true
+    public static fields_that_used_in_sending: Array<string> = ['resources']
+    public static required_fields_for_sending: Array<string> = ['type']
 
     public static async addItem (data: AccessPoint): Promise<AccessPoint> {
         const accessPoint = new AccessPoint()
@@ -109,12 +123,13 @@ export class AccessPoint extends MainEntity {
         if ('status' in data) accessPoint.status = data.status
         if ('actual_passage' in data) accessPoint.actual_passage = data.actual_passage
         if ('mode' in data) accessPoint.mode = data.mode
+        if ('exit_mode' in data) accessPoint.exit_mode = data.exit_mode
         if ('apb_enable_local' in data) accessPoint.apb_enable_local = data.apb_enable_local
         if ('apb_enable_timer' in data) accessPoint.apb_enable_timer = data.apb_enable_timer
         if ('access_point_group' in data) accessPoint.access_point_group = data.access_point_group
         if ('access_point_zone' in data) accessPoint.access_point_zone = data.access_point_zone
         accessPoint.acu = data.acu
-        if ('resources' in data) accessPoint.resources = data.resources
+        if ('resources' in data) accessPoint.resources = (data.resources && typeof data.resources === 'object') ? JSON.stringify(data.resources) : data.resources
         accessPoint.company = data.company
 
         return new Promise((resolve, reject) => {
@@ -144,8 +159,18 @@ export class AccessPoint extends MainEntity {
         if ('access_point_zone' in data) accessPoint.access_point_zone = data.access_point_zone
         if ('door_state' in data) accessPoint.door_state = data.door_state
         if ('acu' in data) accessPoint.acu = data.acu
-        if ('resources' in data) accessPoint.resources = (typeof data.resources === 'string') ? data.resources : JSON.stringify(data.resources)
-        if ('last_activity' in data) accessPoint.last_activity = (data.last_activity) ? JSON.stringify(data.last_activity) : null
+        if ('resources' in data) {
+            let resources = (data.resources && typeof data.resources === 'object') ? JSON.stringify(data.resources) : data.resources
+            if (resources) {
+                const resourcesObj = JSON.parse(resources)
+                for (const resource in resourcesObj) {
+                    if (resourcesObj[resource] === -1) delete resourcesObj[resource]
+                }
+                resources = JSON.stringify(resourcesObj)
+            }
+            accessPoint.resources = resources
+        }
+        if ('last_activity' in data) accessPoint.last_activity = (data.last_activity && typeof data.last_activity === 'object') ? JSON.stringify(data.last_activity) : data.last_activity
 
         if (!accessPoint) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
@@ -180,9 +205,52 @@ export class AccessPoint extends MainEntity {
     public static async destroyItem (data: any) {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
-            this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
+            const where: any = { id: data.id }
+            if (data.company) where.company = data.company
+            this.findOneOrFail(where).then((data: any) => {
                 this.softRemove(data)
-                    .then(() => {
+                    .then(async () => {
+                        let resource_name = this.name
+                        if (data.type === accessPointType.FLOOR) {
+                            resource_name = resourceKeys.ELEVATOR
+                        } else if ([accessPointType.TURNSTILE_ONE_SIDE, accessPointType.TURNSTILE_TWO_SIDE].includes(data.type)) {
+                            resource_name = resourceKeys.TURNSTILE
+                        }
+                        minusResource(resource_name, data.company)
+
+                        const modes: any = await this.createQueryBuilder('access_point')
+                            .select('access_point.name')
+                            .addSelect('access_point.mode')
+                            .addSelect('COUNT(access_point.id) as acp_qty')
+                            .where('access_point.company', data.company)
+                            .groupBy('access_point.mode')
+                            .getRawMany()
+                        new SendSocketMessage(socketChannels.DASHBOARD_ACCESS_POINT_MODES, modes, data.company)
+
+                        const acu: any = await Acu.findOne({ where: { id: data.acu, status: acuStatus.ACTIVE } })
+                        if (acu) {
+                            const cloud_status_data = {
+                                id: data.id,
+                                acus: {
+                                    id: acu.id,
+                                    cloud_status: acu.cloud_status
+                                },
+                                delete: true
+                            }
+                            new SendSocketMessage(socketChannels.DASHBOARD_CLOUD_STATUS, cloud_status_data, data.company)
+                        }
+
+                        const readers: any = await Reader.getAllItems({ where: { access_point: { '=': data.id } } })
+                        for (const reader of readers) {
+                            if (!reader.delete_date) Reader.destroyItem({ id: reader.id, company: reader.company })
+                        }
+
+                        const access_rules: any = await AccessRule.getAllItems({ where: { access_point: { '=': data.id } } })
+                        for (const access_rule of access_rules) {
+                            if (!access_rule.delete_date) AccessRule.destroyItem({ id: access_rule.id, company: access_rule.company })
+                        }
+
+                        AccessPointStatus.destroyItem({ access_point: data.id })
                         resolve({ message: 'success' })
                     })
                     .catch((error: any) => {

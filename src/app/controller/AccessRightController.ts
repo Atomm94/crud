@@ -1,6 +1,12 @@
 import { DefaultContext } from 'koa'
+import { acuStatus } from '../enums/acuStatus.enum'
+import { logUserEvents } from '../enums/logUserEvents.enum'
+import { AccessRule, Cardholder } from '../model/entity'
 import { AccessRight } from '../model/entity/AccessRight'
 import { CardholderGroup } from '../model/entity/CardholderGroup'
+import SdlController from './Hardware/SdlController'
+import { locationGenerator } from '../functions/locationGenerator'
+
 export default class AccessRightController {
     /**
      *
@@ -32,6 +38,9 @@ export default class AccessRightController {
      *                  description:
      *                      type: string
      *                      example: description
+     *                  default:
+     *                      type: boolean
+     *                      example: false
      *          responses:
      *              '201':
      *                  description: A accessRight object
@@ -46,6 +55,15 @@ export default class AccessRightController {
             const req_data = ctx.request.body
             const user = ctx.user
             req_data.company = user.company ? user.company : null
+            if (req_data.name) {
+                if (req_data.default) {
+                    const exist_default: any = await AccessRight.findOne({ where: { default: req_data.default, company: user.company } })
+                    if (exist_default) {
+                        exist_default.default = false
+                        await exist_default.save()
+                    }
+                }
+            }
             ctx.body = await AccessRight.addItem(req_data as AccessRight)
         } catch (error) {
             ctx.status = error.status || 400
@@ -88,6 +106,9 @@ export default class AccessRightController {
      *                  description:
      *                      type: string
      *                      example: description
+     *                  default:
+     *                      type: boolean
+     *                      example: false
      *          responses:
      *              '201':
      *                  description: A accessRight updated object
@@ -107,6 +128,15 @@ export default class AccessRightController {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
             } else {
+                if (req_data.name) {
+                    if (req_data.default) {
+                        const exist_default: any = await AccessRight.findOne({ where: { default: req_data.default, company: user.company } })
+                        if (exist_default) {
+                            exist_default.default = false
+                            await exist_default.save()
+                        }
+                    }
+                }
                 const updated = await AccessRight.updateItem(req_data as AccessRight)
                 ctx.oldData = updated.old
                 ctx.body = updated.new
@@ -150,9 +180,37 @@ export default class AccessRightController {
     public static async get (ctx: DefaultContext) {
         try {
             const user = ctx.user
-            const where = { id: +ctx.params.id, company: user.company ? user.company : user.company }
-            const relations = ['access_rules', 'access_rules.access_points', 'access_rules.schedules']
-            ctx.body = await AccessRight.getItem(where, relations)
+            let access_right: any
+            access_right = await AccessRight.createQueryBuilder('access_right')
+                .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
+                .leftJoinAndSelect('access_rule.access_points', 'access_point')
+                .leftJoinAndSelect('access_rule.schedules', 'schedule')
+                .where(`access_right.id = '${+ctx.params.id}'`)
+                .andWhere(`access_right.company = '${user.company ? user.company : null}'`)
+                .getOne()
+            if (user.companyData.partition_parent_id) {
+                if (user.companyData.access_right) {
+                    if (+ctx.params.id === user.companyData.access_right) {
+                        access_right = await AccessRight.createQueryBuilder('access_right')
+                            .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
+                            .leftJoinAndSelect('access_rule.access_points', 'access_point')
+                            .leftJoinAndSelect('access_rule.schedules', 'schedule')
+                            .where(`access_right.id = '${+user.companyData.access_right}'`)
+                            .andWhere(`access_right.company = '${user.companyData.partition_parent_id ? user.companyData.partition_parent_id : null}'`)
+                            .getOne()
+                        access_right.edit = false
+                    }
+                } else {
+                    access_right = await AccessRight.createQueryBuilder('access_right')
+                        .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
+                        .leftJoinAndSelect('access_rule.access_points', 'access_point')
+                        .leftJoinAndSelect('access_rule.schedules', 'schedule')
+                        .where(`access_right.id = '${+ctx.params.id}'`)
+                        .andWhere(`access_right.company = '${user.company ? user.company : null}'`)
+                        .getOne()
+                }
+            }
+            ctx.body = access_right
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -198,10 +256,67 @@ export default class AccessRightController {
         try {
             const req_data = ctx.request.body
             const user = ctx.user
-            const where = { id: req_data.id, company: user.company ? user.company : null }
+            const company = user.company ? user.company : null
+            const where = { id: req_data.id, company: company }
+            const location = await locationGenerator(user)
+            const logs_data = []
 
+            const cardholders = await Cardholder.findOne({ where: { access_right: req_data.id, company: company } })
+            if (cardholders) {
+                ctx.status = 400
+                return ctx.body = { message: `You can't destroy this AccessRight ${req_data.id}, foreign key with Cardholder` }
+            } else {
+                const cardholder_groups = await CardholderGroup.findOne({ where: { access_right: req_data.id, company: company } })
+                if (cardholder_groups) {
+                    ctx.status = 400
+                    return ctx.body = { message: `You can't destroy this AccessRight ${req_data.id}, foreign key with CardholderGroup` }
+                }
+            }
+
+            // const access_rules: any = await AccessRule.getAllItems({ relations: ['schedules', 'access_points', 'access_points.acus'], where: { access_right: { '=': req_data.id } } })
+
+            const access_rules: any = await AccessRule.createQueryBuilder('access_rule')
+                .leftJoinAndSelect('access_rule.schedules', 'schedule', 'schedule.delete_date is null')
+                .leftJoinAndSelect('access_rule.access_points', 'access_point', 'access_point.delete_date is null')
+                .leftJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
+                .where(`access_rule.access_right = '${req_data.id}'`)
+                .getMany()
+
+            let active_rule = false
+            for (const access_rule of access_rules) {
+                if (access_rule.access_points && access_rule.access_points.acus && access_rule.access_points.acus.status === acuStatus.ACTIVE) {
+                    active_rule = true
+                    const send_data = {
+                        id: access_rule.id,
+                        access_point: access_rule.access_point,
+                        access_right: access_rule.access_right,
+                        access_right_delete: true
+                    }
+                    SdlController.delSdl(location, access_rule.access_points.acus.serial_number, send_data, user, access_rule.schedules.type, access_rule.access_points.acus.session_id)
+                } else {
+                    AccessRule.destroyItem({ id: access_rule.id, company: access_rule.company })
+                    logs_data.push({
+                        event: logUserEvents.DELETE,
+                        target: `${AccessRule.name}/${access_rule.access_points.name}`,
+                        value: { name: access_rule.access_points.name }
+                    })
+                }
+            }
+            if (active_rule) {
+                ctx.body = { message: 'Delete pending' }
+            } else {
+                const access_right = await AccessRight.findOneOrFail({ where: where })
                 ctx.body = await AccessRight.destroyItem(where)
+                logs_data.push({
+                    event: logUserEvents.DELETE,
+                    target: `${AccessRight.name}/${access_right.name}`,
+                    value: { name: access_right.name }
+                })
+            }
+            ctx.logsData = logs_data
         } catch (error) {
+            console.log('error', error)
+
             ctx.status = error.status || 400
             ctx.body = error
         }
@@ -233,8 +348,22 @@ export default class AccessRightController {
         try {
             const req_data = ctx.query
             const user = ctx.user
-            req_data.where = { company: { '=': user.company ? user.company : null } }
-            ctx.body = await AccessRight.getAllItems(req_data)
+            req_data.where = {
+                company: { '=': user.company ? user.company : null },
+                custom: false
+            }
+            const access_rights: any = await AccessRight.getAllItems(req_data)
+            let pasted_access_right: any = ''
+            if (user.companyData.partition_parent_id) {
+                if (user.companyData.access_right) {
+                    pasted_access_right = await AccessRight.findOne({ where: { id: user.companyData.access_right } })
+                    if (pasted_access_right) {
+                        pasted_access_right.edit = false
+                        access_rights.push(pasted_access_right)
+                    }
+                }
+            }
+            ctx.body = access_rights
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -276,7 +405,7 @@ export default class AccessRightController {
             const user = ctx.user
             const company = user.company ? user.company : null
             ctx.body = await CardholderGroup.createQueryBuilder('cardholder_group')
-                .innerJoin('cardholder_group.cardholders', 'cardholder')
+                .innerJoin('cardholder_group.cardholders', 'cardholder', 'cardholder.delete_date is null')
                 .select('cardholder_group.name')
                 .addSelect('COUNT(cardholder.id) as cardholders_qty')
                 .where(`cardholder_group.company = ${company}`)

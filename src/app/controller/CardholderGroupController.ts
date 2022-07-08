@@ -1,7 +1,10 @@
 import { DefaultContext } from 'koa'
+import { logUserEvents } from '../enums/logUserEvents.enum'
+import { locationGenerator } from '../functions/locationGenerator'
 import { Cardholder, Limitation } from '../model/entity'
-import { AntipassBack } from '../model/entity/AntipassBack'
 import { CardholderGroup } from '../model/entity/CardholderGroup'
+import { OperatorType } from '../mqtt/Operators'
+import CardKeyController from './Hardware/CardKeyController'
 export default class CardholderGroupController {
     /**
      *
@@ -84,21 +87,9 @@ export default class CardholderGroupController {
      *                  antipass_back_inherited:
      *                      type: boolean
      *                      example: false
-     *                  antipass_backs:
-     *                      type: object
-     *                      properties:
-     *                          type:
-     *                              type: disable | soft | semi_soft | hard | extra_hard
-     *                              example: disable
-     *                          enable_timer:
-     *                              type: boolean
-     *                              example: false
-     *                          time:
-     *                              type: number
-     *                              example: 60
-     *                          time_type:
-     *                              type: seconds | minutes | hours
-     *                              example: minutes
+     *                  enable_antipass_back:
+     *                      type: boolean
+     *                      example: false
      *                  time_attendance_inherited:
      *                      type: boolean
      *                      example: false
@@ -140,13 +131,17 @@ export default class CardholderGroupController {
                 }
             }
 
+            // if (req_data.antipass_back_inherited && parent_data) {
+            //     req_data.antipass_back = parent_data.antipass_back
+            // } else {
+            //     const antipass_back_data = await AntipassBack.addItem(req_data.antipass_backs as AntipassBack)
+            //     if (antipass_back_data) {
+            //         req_data.antipass_back = antipass_back_data.id
+            //     }
+            // }
+
             if (req_data.antipass_back_inherited && parent_data) {
-                req_data.antipass_back = parent_data.antipass_back
-            } else {
-                const antipass_back_data = await AntipassBack.addItem(req_data.antipass_backs as AntipassBack)
-                if (antipass_back_data) {
-                    req_data.antipass_back = antipass_back_data.id
-                }
+                req_data.enable_antipass_back = parent_data.enable_antipass_back
             }
 
             if (req_data.access_right_inherited && parent_data) {
@@ -159,6 +154,8 @@ export default class CardholderGroupController {
 
             ctx.body = await CardholderGroup.addItem(req_data as CardholderGroup)
         } catch (error) {
+            console.log('error', error)
+
             ctx.status = error.status || 400
             ctx.body = error
         }
@@ -247,21 +244,9 @@ export default class CardholderGroupController {
      *                  antipass_back_inherited:
      *                      type: boolean
      *                      example: false
-     *                  antipass_backs:
-     *                      type: object
-     *                      properties:
-     *                          type:
-     *                              type: disable | soft | semi_soft | hard | extra_hard
-     *                              example: disable
-     *                          enable_timer:
-     *                              type: boolean
-     *                              example: false
-     *                          time:
-     *                              type: number
-     *                              example: 60
-     *                          time_type:
-     *                              type: seconds | minutes | hours
-     *                              example: minutes
+     *                  enable_antipass_back:
+     *                      type: boolean
+     *                      example: false
      *                  time_attendance_inherited:
      *                      type: boolean
      *                      example: false
@@ -286,13 +271,38 @@ export default class CardholderGroupController {
         try {
             const req_data = ctx.request.body
             const user = ctx.user
-            const check_by_company = await CardholderGroup.getItem({ id: req_data.id, company: user.company ? user.company : null })
+            const where = { id: req_data.id, company: user.company ? user.company : null }
+            const check_by_company: any = await CardholderGroup.findOne({ where, relations: ['limitations'] })
+            const location = await locationGenerator(user)
 
             if (!check_by_company) {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
             } else {
+                if (check_by_company.name === 'All Cardholders') {
+                    if (req_data.name && check_by_company.name !== req_data.name) {
+                        ctx.status = 400
+                        ctx.body = { message: "Can't update Default Cardholder Group name" }
+                    }
+                }
                 const updated = await CardholderGroup.updateItem(req_data as CardholderGroup, user)
+                const new_limitations = await Limitation.findOne({ where: { id: updated.new.limitation } })
+                if (new_limitations) {
+                    if (updated.new.access_right !== updated.old.access_right ||
+                        JSON.stringify(check_by_company.limitations.valid_from) !== JSON.stringify(new_limitations.valid_from) ||
+                        JSON.stringify(check_by_company.limitations.valid_due) !== JSON.stringify(new_limitations.valid_due)
+                    ) {
+                        const cardholders = await Cardholder.find({
+                            where: [
+                                { cardholder_group: updated.new.id, access_right_inherited: true },
+                                { cardholder_group: updated.new.id, limitation_inherited: true }
+                            ]
+                        })
+                        if (cardholders.length) {
+                            CardKeyController.setAddCardKey(OperatorType.SET_CARD_KEYS, location, user.company, user, null)
+                        }
+                    }
+                }
                 ctx.oldData = updated.old
                 ctx.body = updated.new
             }
@@ -336,7 +346,7 @@ export default class CardholderGroupController {
         try {
             const user = ctx.user
             const where = { id: +ctx.params.id, company: user.company ? user.company : user.company }
-            const relations = ['limitations', 'antipass_backs', 'time_attendances', 'access_rights']
+            const relations = ['limitations', 'time_attendances', 'access_rights']
             ctx.body = await CardholderGroup.getItem(where, relations)
         } catch (error) {
             ctx.status = error.status || 400
@@ -394,7 +404,17 @@ export default class CardholderGroupController {
                     ctx.status = 400
                     ctx.body = { message: 'Can\'t remove group with cardholders' }
                 } else {
+                    const cardholder_group = await CardholderGroup.findOneOrFail({ where: where })
+                    if (cardholder_group.name === 'All Cardholders') {
+                        ctx.status = 400
+                        ctx.body = { message: "Can't delete Default Cardholder Group" }
+                    }
                     ctx.body = await CardholderGroup.destroyItem(where)
+                    ctx.logsData = [{
+                        event: logUserEvents.DELETE,
+                        target: `${CardholderGroup.name}/${cardholder_group.name}`,
+                        value: { name: cardholder_group.name }
+                    }]
                 }
             }
         } catch (error) {

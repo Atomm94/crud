@@ -1,0 +1,2282 @@
+{
+    "extension_device_type": {
+        "LR-RB16": {
+            "interface_types": {
+                "RS485": {
+                    "name": {
+                        "type": "textInput"
+                    },
+                    "protocol": {
+                        "type": "select",
+                        "list": [
+                            {
+                                "id": 0,
+                                "name": "OSDPe"
+                            },
+                            {
+                                "id": 1,
+                                "name": "OSDP"
+                            }
+                        ]
+                    },
+                    "interface": {
+                        "type": "select",
+                        "list": [
+                            {
+                                "id": 0,
+                                "name": "RS485"
+                            },
+                            {
+                                "id": 1,
+                                "name": "Ethernet"
+                            }
+                        ]
+                    },
+                    "port": {
+                        "type": "select",
+                        "list": [
+                            {
+                                "id": 1,
+                                "name": "1"
+                            },
+                            {
+                                "id": 2,
+                                "name": "2"
+                            },
+                            {
+                                "id": 3,
+                                "name": "3"
+                            },
+                            {
+                                "id": 4,
+                                "name": "4"
+                            }
+                        ]
+                    },
+                    "baud_rate": {
+                        "type": "select",
+                        "list": [
+                            {
+                                "id": null,
+                                "name": "Auto"
+                            },
+                            {
+                                "id": null,
+                                "name": 2400
+                            },
+                            {
+                                "id": null,
+                                "name": 4800
+                            },
+                            {
+                                "id": null,
+                                "name": 9600
+                            },
+                            {
+                                "id": null,
+                                "name": 14400
+                            },
+                            {
+                                "id": null,
+                                "name": 19200
+                            },
+                            {
+                                "id": null,
+                                "name": 28800
+                            },
+                            {
+                                "id": null,
+                                "name": 38400
+                            },
+                            {
+                                "id": null,
+                                "name": 56000
+                            }
+                        ]
+                    },
+                    "address": [
+                        {
+                            "id": null,
+                            "name": 1
+                        },
+                        {
+                            "id": null,
+                            "name": 2
+                        },
+                        {
+                            "id": null,
+                            "name": 3
+                        },
+                        {
+                            "id": null,
+                            "name": 4
+                        },
+                        {
+                            "id": null,
+                            "name": 5
+                        },
+                        {
+                            "id": null,
+                            "name": 6
+                        },
+                        {
+                            "id": null,
+                            "name": 7
+                        },
+                        {
+                            "id": null,
+                            "name": 8
+                        },
+                        {
+                            "id": null,
+                            "name": 9
+                        },
+                        {
+                            "id": null,
+                            "name": 10
+                        },
+                        {
+                            "id": null,
+                            "name": 11
+                        },
+                        {
+                            "id": null,
+                            "name": 12
+                        },
+                        {
+                            "id": null,
+                            "name": 13
+                        },
+                        {
+                            "id": null,
+                            "name": 14
+                        },
+                        {
+                            "id": null,
+                            "name": 15
+                        },
+                        {
+                            "id": null,
+                            "name": 16
+                        },
+                        {
+                            "id": null,
+                            "name": 17
+                        },
+                        {
+                            "id": null,
+                            "name": 18
+                        },
+                        {
+                            "id": null,
+                            "name": 19
+                        },
+                        {
+                            "id": null,
+                            "name": 20
+                        },
+                        {
+                            "id": null,
+                            "name": 21
+                        },
+                        {
+                            "id": null,
+                            "name": 22
+                        },
+                        {
+                            "id": null,
+                            "name": 23
+                        },
+                        {
+                            "id": null,
+                            "name": 24
+                        },
+                        {
+                            "id": null,
+                            "name": 25
+                        },
+                        {
+                            "id": null,
+                            "name": 26
+                        },
+                        {
+                            "id": null,
+                            "name": 27
+                        },
+                        {
+                            "id": null,
+                            "name": 28
+                        },
+                        {
+                            "id": null,
+                            "name": 29
+                        },
+                        {
+                            "id": null,
+                            "name": 30
+                        },
+                        {
+                            "id": null,
+                            "name": 31
+                        },
+                        {
+                            "id": null,
+                            "name": 32
+                        },
+                        {
+                            "id": null,
+                            "name": 33
+                        },
+                        {
+                            "id": null,
+                            "name": 34
+                        },
+                        {
+                            "id": null,
+                            "name": 35
+                        },
+                        {
+                            "id": null,
+                            "name": 36
+                        },
+                        {
+                            "id": null,
+                            "name": 37
+                        },
+                        {
+                            "id": null,
+                            "name": 38
+                        },
+                        {
+                            "id": null,
+                            "name": 39
+                        },
+                        {
+                            "id": null,
+                            "name": 40
+                        },
+                        {
+                            "id": null,
+                            "name": 41
+                        },
+                        {
+                            "id": null,
+                            "name": 42
+                        },
+                        {
+                            "id": null,
+                            "name": 43
+                        },
+                        {
+                            "id": null,
+                            "name": 44
+                        },
+                        {
+                            "id": null,
+                            "name": 45
+                        },
+                        {
+                            "id": null,
+                            "name": 46
+                        },
+                        {
+                            "id": null,
+                            "name": 47
+                        },
+                        {
+                            "id": null,
+                            "name": 48
+                        },
+                        {
+                            "id": null,
+                            "name": 49
+                        },
+                        {
+                            "id": null,
+                            "name": 50
+                        },
+                        {
+                            "id": null,
+                            "name": 51
+                        },
+                        {
+                            "id": null,
+                            "name": 52
+                        },
+                        {
+                            "id": null,
+                            "name": 53
+                        },
+                        {
+                            "id": null,
+                            "name": 54
+                        },
+                        {
+                            "id": null,
+                            "name": 55
+                        },
+                        {
+                            "id": null,
+                            "name": 56
+                        },
+                        {
+                            "id": null,
+                            "name": 57
+                        },
+                        {
+                            "id": null,
+                            "name": 58
+                        },
+                        {
+                            "id": null,
+                            "name": 59
+                        },
+                        {
+                            "id": null,
+                            "name": 60
+                        },
+                        {
+                            "id": null,
+                            "name": 61
+                        },
+                        {
+                            "id": null,
+                            "name": 62
+                        },
+                        {
+                            "id": null,
+                            "name": 63
+                        },
+                        {
+                            "id": null,
+                            "name": 64
+                        },
+                        {
+                            "id": null,
+                            "name": 65
+                        },
+                        {
+                            "id": null,
+                            "name": 66
+                        },
+                        {
+                            "id": null,
+                            "name": 67
+                        },
+                        {
+                            "id": null,
+                            "name": 68
+                        },
+                        {
+                            "id": null,
+                            "name": 69
+                        },
+                        {
+                            "id": null,
+                            "name": 70
+                        },
+                        {
+                            "id": null,
+                            "name": 71
+                        },
+                        {
+                            "id": null,
+                            "name": 72
+                        },
+                        {
+                            "id": null,
+                            "name": 73
+                        },
+                        {
+                            "id": null,
+                            "name": 74
+                        },
+                        {
+                            "id": null,
+                            "name": 75
+                        },
+                        {
+                            "id": null,
+                            "name": 76
+                        },
+                        {
+                            "id": null,
+                            "name": 77
+                        },
+                        {
+                            "id": null,
+                            "name": 78
+                        },
+                        {
+                            "id": null,
+                            "name": 79
+                        },
+                        {
+                            "id": null,
+                            "name": 80
+                        },
+                        {
+                            "id": null,
+                            "name": 81
+                        },
+                        {
+                            "id": null,
+                            "name": 82
+                        },
+                        {
+                            "id": null,
+                            "name": 83
+                        },
+                        {
+                            "id": null,
+                            "name": 84
+                        },
+                        {
+                            "id": null,
+                            "name": 85
+                        },
+                        {
+                            "id": null,
+                            "name": 86
+                        },
+                        {
+                            "id": null,
+                            "name": 87
+                        },
+                        {
+                            "id": null,
+                            "name": 88
+                        },
+                        {
+                            "id": null,
+                            "name": 89
+                        },
+                        {
+                            "id": null,
+                            "name": 90
+                        },
+                        {
+                            "id": null,
+                            "name": 91
+                        },
+                        {
+                            "id": null,
+                            "name": 92
+                        },
+                        {
+                            "id": null,
+                            "name": 93
+                        },
+                        {
+                            "id": null,
+                            "name": 94
+                        },
+                        {
+                            "id": null,
+                            "name": 95
+                        },
+                        {
+                            "id": null,
+                            "name": 96
+                        },
+                        {
+                            "id": null,
+                            "name": 97
+                        },
+                        {
+                            "id": null,
+                            "name": 98
+                        },
+                        {
+                            "id": null,
+                            "name": 99
+                        },
+                        {
+                            "id": null,
+                            "name": 100
+                        },
+                        {
+                            "id": null,
+                            "name": 101
+                        },
+                        {
+                            "id": null,
+                            "name": 102
+                        },
+                        {
+                            "id": null,
+                            "name": 103
+                        },
+                        {
+                            "id": null,
+                            "name": 104
+                        },
+                        {
+                            "id": null,
+                            "name": 105
+                        },
+                        {
+                            "id": null,
+                            "name": 106
+                        },
+                        {
+                            "id": null,
+                            "name": 107
+                        },
+                        {
+                            "id": null,
+                            "name": 108
+                        },
+                        {
+                            "id": null,
+                            "name": 109
+                        },
+                        {
+                            "id": null,
+                            "name": 110
+                        },
+                        {
+                            "id": null,
+                            "name": 111
+                        },
+                        {
+                            "id": null,
+                            "name": 112
+                        },
+                        {
+                            "id": null,
+                            "name": 113
+                        },
+                        {
+                            "id": null,
+                            "name": 114
+                        },
+                        {
+                            "id": null,
+                            "name": 115
+                        },
+                        {
+                            "id": null,
+                            "name": 116
+                        },
+                        {
+                            "id": null,
+                            "name": 117
+                        },
+                        {
+                            "id": null,
+                            "name": 118
+                        },
+                        {
+                            "id": null,
+                            "name": 119
+                        },
+                        {
+                            "id": null,
+                            "name": 120
+                        },
+                        {
+                            "id": null,
+                            "name": 121
+                        },
+                        {
+                            "id": null,
+                            "name": 122
+                        },
+                        {
+                            "id": null,
+                            "name": 123
+                        },
+                        {
+                            "id": null,
+                            "name": 124
+                        },
+                        {
+                            "id": null,
+                            "name": 125
+                        },
+                        {
+                            "id": null,
+                            "name": 126
+                        },
+                        {
+                            "id": null,
+                            "name": 127
+                        },
+                        {
+                            "id": null,
+                            "name": 128
+                        },
+                        {
+                            "id": null,
+                            "name": 129
+                        },
+                        {
+                            "id": null,
+                            "name": 130
+                        },
+                        {
+                            "id": null,
+                            "name": 131
+                        },
+                        {
+                            "id": null,
+                            "name": 132
+                        },
+                        {
+                            "id": null,
+                            "name": 133
+                        },
+                        {
+                            "id": null,
+                            "name": 134
+                        },
+                        {
+                            "id": null,
+                            "name": 135
+                        },
+                        {
+                            "id": null,
+                            "name": 136
+                        },
+                        {
+                            "id": null,
+                            "name": 137
+                        },
+                        {
+                            "id": null,
+                            "name": 138
+                        },
+                        {
+                            "id": null,
+                            "name": 139
+                        },
+                        {
+                            "id": null,
+                            "name": 140
+                        },
+                        {
+                            "id": null,
+                            "name": 141
+                        },
+                        {
+                            "id": null,
+                            "name": 142
+                        },
+                        {
+                            "id": null,
+                            "name": 143
+                        },
+                        {
+                            "id": null,
+                            "name": 144
+                        },
+                        {
+                            "id": null,
+                            "name": 145
+                        },
+                        {
+                            "id": null,
+                            "name": 146
+                        },
+                        {
+                            "id": null,
+                            "name": 147
+                        },
+                        {
+                            "id": null,
+                            "name": 148
+                        },
+                        {
+                            "id": null,
+                            "name": 149
+                        },
+                        {
+                            "id": null,
+                            "name": 150
+                        },
+                        {
+                            "id": null,
+                            "name": 151
+                        },
+                        {
+                            "id": null,
+                            "name": 152
+                        },
+                        {
+                            "id": null,
+                            "name": 153
+                        },
+                        {
+                            "id": null,
+                            "name": 154
+                        },
+                        {
+                            "id": null,
+                            "name": 155
+                        },
+                        {
+                            "id": null,
+                            "name": 156
+                        },
+                        {
+                            "id": null,
+                            "name": 157
+                        },
+                        {
+                            "id": null,
+                            "name": 158
+                        },
+                        {
+                            "id": null,
+                            "name": 159
+                        },
+                        {
+                            "id": null,
+                            "name": 160
+                        },
+                        {
+                            "id": null,
+                            "name": 161
+                        },
+                        {
+                            "id": null,
+                            "name": 162
+                        },
+                        {
+                            "id": null,
+                            "name": 163
+                        },
+                        {
+                            "id": null,
+                            "name": 164
+                        },
+                        {
+                            "id": null,
+                            "name": 165
+                        },
+                        {
+                            "id": null,
+                            "name": 166
+                        },
+                        {
+                            "id": null,
+                            "name": 167
+                        },
+                        {
+                            "id": null,
+                            "name": 168
+                        },
+                        {
+                            "id": null,
+                            "name": 169
+                        },
+                        {
+                            "id": null,
+                            "name": 170
+                        },
+                        {
+                            "id": null,
+                            "name": 171
+                        },
+                        {
+                            "id": null,
+                            "name": 172
+                        },
+                        {
+                            "id": null,
+                            "name": 173
+                        },
+                        {
+                            "id": null,
+                            "name": 174
+                        },
+                        {
+                            "id": null,
+                            "name": 175
+                        },
+                        {
+                            "id": null,
+                            "name": 176
+                        },
+                        {
+                            "id": null,
+                            "name": 177
+                        },
+                        {
+                            "id": null,
+                            "name": 178
+                        },
+                        {
+                            "id": null,
+                            "name": 179
+                        },
+                        {
+                            "id": null,
+                            "name": 180
+                        },
+                        {
+                            "id": null,
+                            "name": 181
+                        },
+                        {
+                            "id": null,
+                            "name": 182
+                        },
+                        {
+                            "id": null,
+                            "name": 183
+                        },
+                        {
+                            "id": null,
+                            "name": 184
+                        },
+                        {
+                            "id": null,
+                            "name": 185
+                        },
+                        {
+                            "id": null,
+                            "name": 186
+                        },
+                        {
+                            "id": null,
+                            "name": 187
+                        },
+                        {
+                            "id": null,
+                            "name": 188
+                        },
+                        {
+                            "id": null,
+                            "name": 189
+                        },
+                        {
+                            "id": null,
+                            "name": 190
+                        },
+                        {
+                            "id": null,
+                            "name": 191
+                        },
+                        {
+                            "id": null,
+                            "name": 192
+                        },
+                        {
+                            "id": null,
+                            "name": 193
+                        },
+                        {
+                            "id": null,
+                            "name": 194
+                        },
+                        {
+                            "id": null,
+                            "name": 195
+                        },
+                        {
+                            "id": null,
+                            "name": 196
+                        },
+                        {
+                            "id": null,
+                            "name": 197
+                        },
+                        {
+                            "id": null,
+                            "name": 198
+                        },
+                        {
+                            "id": null,
+                            "name": 199
+                        },
+                        {
+                            "id": null,
+                            "name": 200
+                        },
+                        {
+                            "id": null,
+                            "name": 201
+                        },
+                        {
+                            "id": null,
+                            "name": 202
+                        },
+                        {
+                            "id": null,
+                            "name": 203
+                        },
+                        {
+                            "id": null,
+                            "name": 204
+                        },
+                        {
+                            "id": null,
+                            "name": 205
+                        },
+                        {
+                            "id": null,
+                            "name": 206
+                        },
+                        {
+                            "id": null,
+                            "name": 207
+                        },
+                        {
+                            "id": null,
+                            "name": 208
+                        },
+                        {
+                            "id": null,
+                            "name": 209
+                        },
+                        {
+                            "id": null,
+                            "name": 210
+                        },
+                        {
+                            "id": null,
+                            "name": 211
+                        },
+                        {
+                            "id": null,
+                            "name": 212
+                        },
+                        {
+                            "id": null,
+                            "name": 213
+                        },
+                        {
+                            "id": null,
+                            "name": 214
+                        },
+                        {
+                            "id": null,
+                            "name": 215
+                        },
+                        {
+                            "id": null,
+                            "name": 216
+                        },
+                        {
+                            "id": null,
+                            "name": 217
+                        },
+                        {
+                            "id": null,
+                            "name": 218
+                        },
+                        {
+                            "id": null,
+                            "name": 219
+                        },
+                        {
+                            "id": null,
+                            "name": 220
+                        },
+                        {
+                            "id": null,
+                            "name": 221
+                        },
+                        {
+                            "id": null,
+                            "name": 222
+                        },
+                        {
+                            "id": null,
+                            "name": 223
+                        },
+                        {
+                            "id": null,
+                            "name": 224
+                        },
+                        {
+                            "id": null,
+                            "name": 225
+                        },
+                        {
+                            "id": null,
+                            "name": 226
+                        },
+                        {
+                            "id": null,
+                            "name": 227
+                        },
+                        {
+                            "id": null,
+                            "name": 228
+                        },
+                        {
+                            "id": null,
+                            "name": 229
+                        },
+                        {
+                            "id": null,
+                            "name": 230
+                        },
+                        {
+                            "id": null,
+                            "name": 231
+                        },
+                        {
+                            "id": null,
+                            "name": 232
+                        },
+                        {
+                            "id": null,
+                            "name": 233
+                        },
+                        {
+                            "id": null,
+                            "name": 234
+                        },
+                        {
+                            "id": null,
+                            "name": 235
+                        },
+                        {
+                            "id": null,
+                            "name": 236
+                        },
+                        {
+                            "id": null,
+                            "name": 237
+                        },
+                        {
+                            "id": null,
+                            "name": 238
+                        },
+                        {
+                            "id": null,
+                            "name": 239
+                        },
+                        {
+                            "id": null,
+                            "name": 240
+                        },
+                        {
+                            "id": null,
+                            "name": 241
+                        },
+                        {
+                            "id": null,
+                            "name": 242
+                        },
+                        {
+                            "id": null,
+                            "name": 243
+                        },
+                        {
+                            "id": null,
+                            "name": 244
+                        },
+                        {
+                            "id": null,
+                            "name": 245
+                        },
+                        {
+                            "id": null,
+                            "name": 246
+                        },
+                        {
+                            "id": null,
+                            "name": 247
+                        },
+                        {
+                            "id": null,
+                            "name": 248
+                        },
+                        {
+                            "id": null,
+                            "name": 249
+                        },
+                        {
+                            "id": null,
+                            "name": 250
+                        },
+                        {
+                            "id": null,
+                            "name": 251
+                        },
+                        {
+                            "id": null,
+                            "name": 252
+                        },
+                        {
+                            "id": null,
+                            "name": 253
+                        },
+                        {
+                            "id": null,
+                            "name": 254
+                        }
+                    ]
+                },
+                "Ethernet": {
+                    "name": {
+                        "type": "textInput"
+                    },
+                    "protocol": {
+                        "type": "select",
+                        "list": [
+                            {
+                                "id": 0,
+                                "name": "OSDPe"
+                            },
+                            {
+                                "id": 1,
+                                "name": "OSDP"
+                            }
+                        ]
+                    },
+                    "port": {
+                        "type": "numberInput"
+                    },
+                    "address": {
+                        "type": "textInput"
+                    }
+                }
+            }
+        },
+        "LR-IB16": {
+            "interface_types": {
+                "RS485": {
+                    "name": {
+                        "type": "textInput"
+                    },
+                    "protocol": {
+                        "type": "select",
+                        "list": [
+                            {
+                                "id": 0,
+                                "name": "OSDPe"
+                            },
+                            {
+                                "id": 1,
+                                "name": "OSDP"
+                            }
+                        ]
+                    },
+                    "interface": {
+                        "type": "select",
+                        "list": [
+                            {
+                                "id": 0,
+                                "name": "RS485"
+                            },
+                            {
+                                "id": 1,
+                                "name": "Ethernet"
+                            }
+                        ]
+                    },
+                    "port": {
+                        "type": "select",
+                        "list": [
+                            {
+                                "id": 1,
+                                "name": "1"
+                            },
+                            {
+                                "id": 2,
+                                "name": "2"
+                            },
+                            {
+                                "id": 3,
+                                "name": "3"
+                            },
+                            {
+                                "id": 4,
+                                "name": "4"
+                            }
+                        ]
+                    },
+                    "baud_rate": {
+                        "type": "select",
+                        "list": [
+                            {
+                                "id": null,
+                                "name": "Auto"
+                            },
+                            {
+                                "id": null,
+                                "name": 2400
+                            },
+                            {
+                                "id": null,
+                                "name": 4800
+                            },
+                            {
+                                "id": null,
+                                "name": 9600
+                            },
+                            {
+                                "id": null,
+                                "name": 14400
+                            },
+                            {
+                                "id": null,
+                                "name": 19200
+                            },
+                            {
+                                "id": null,
+                                "name": 28800
+                            },
+                            {
+                                "id": null,
+                                "name": 38400
+                            },
+                            {
+                                "id": null,
+                                "name": 56000
+                            }
+                        ]
+                    },
+                    "address": [
+                        {
+                            "id": null,
+                            "name": 1
+                        },
+                        {
+                            "id": null,
+                            "name": 2
+                        },
+                        {
+                            "id": null,
+                            "name": 3
+                        },
+                        {
+                            "id": null,
+                            "name": 4
+                        },
+                        {
+                            "id": null,
+                            "name": 5
+                        },
+                        {
+                            "id": null,
+                            "name": 6
+                        },
+                        {
+                            "id": null,
+                            "name": 7
+                        },
+                        {
+                            "id": null,
+                            "name": 8
+                        },
+                        {
+                            "id": null,
+                            "name": 9
+                        },
+                        {
+                            "id": null,
+                            "name": 10
+                        },
+                        {
+                            "id": null,
+                            "name": 11
+                        },
+                        {
+                            "id": null,
+                            "name": 12
+                        },
+                        {
+                            "id": null,
+                            "name": 13
+                        },
+                        {
+                            "id": null,
+                            "name": 14
+                        },
+                        {
+                            "id": null,
+                            "name": 15
+                        },
+                        {
+                            "id": null,
+                            "name": 16
+                        },
+                        {
+                            "id": null,
+                            "name": 17
+                        },
+                        {
+                            "id": null,
+                            "name": 18
+                        },
+                        {
+                            "id": null,
+                            "name": 19
+                        },
+                        {
+                            "id": null,
+                            "name": 20
+                        },
+                        {
+                            "id": null,
+                            "name": 21
+                        },
+                        {
+                            "id": null,
+                            "name": 22
+                        },
+                        {
+                            "id": null,
+                            "name": 23
+                        },
+                        {
+                            "id": null,
+                            "name": 24
+                        },
+                        {
+                            "id": null,
+                            "name": 25
+                        },
+                        {
+                            "id": null,
+                            "name": 26
+                        },
+                        {
+                            "id": null,
+                            "name": 27
+                        },
+                        {
+                            "id": null,
+                            "name": 28
+                        },
+                        {
+                            "id": null,
+                            "name": 29
+                        },
+                        {
+                            "id": null,
+                            "name": 30
+                        },
+                        {
+                            "id": null,
+                            "name": 31
+                        },
+                        {
+                            "id": null,
+                            "name": 32
+                        },
+                        {
+                            "id": null,
+                            "name": 33
+                        },
+                        {
+                            "id": null,
+                            "name": 34
+                        },
+                        {
+                            "id": null,
+                            "name": 35
+                        },
+                        {
+                            "id": null,
+                            "name": 36
+                        },
+                        {
+                            "id": null,
+                            "name": 37
+                        },
+                        {
+                            "id": null,
+                            "name": 38
+                        },
+                        {
+                            "id": null,
+                            "name": 39
+                        },
+                        {
+                            "id": null,
+                            "name": 40
+                        },
+                        {
+                            "id": null,
+                            "name": 41
+                        },
+                        {
+                            "id": null,
+                            "name": 42
+                        },
+                        {
+                            "id": null,
+                            "name": 43
+                        },
+                        {
+                            "id": null,
+                            "name": 44
+                        },
+                        {
+                            "id": null,
+                            "name": 45
+                        },
+                        {
+                            "id": null,
+                            "name": 46
+                        },
+                        {
+                            "id": null,
+                            "name": 47
+                        },
+                        {
+                            "id": null,
+                            "name": 48
+                        },
+                        {
+                            "id": null,
+                            "name": 49
+                        },
+                        {
+                            "id": null,
+                            "name": 50
+                        },
+                        {
+                            "id": null,
+                            "name": 51
+                        },
+                        {
+                            "id": null,
+                            "name": 52
+                        },
+                        {
+                            "id": null,
+                            "name": 53
+                        },
+                        {
+                            "id": null,
+                            "name": 54
+                        },
+                        {
+                            "id": null,
+                            "name": 55
+                        },
+                        {
+                            "id": null,
+                            "name": 56
+                        },
+                        {
+                            "id": null,
+                            "name": 57
+                        },
+                        {
+                            "id": null,
+                            "name": 58
+                        },
+                        {
+                            "id": null,
+                            "name": 59
+                        },
+                        {
+                            "id": null,
+                            "name": 60
+                        },
+                        {
+                            "id": null,
+                            "name": 61
+                        },
+                        {
+                            "id": null,
+                            "name": 62
+                        },
+                        {
+                            "id": null,
+                            "name": 63
+                        },
+                        {
+                            "id": null,
+                            "name": 64
+                        },
+                        {
+                            "id": null,
+                            "name": 65
+                        },
+                        {
+                            "id": null,
+                            "name": 66
+                        },
+                        {
+                            "id": null,
+                            "name": 67
+                        },
+                        {
+                            "id": null,
+                            "name": 68
+                        },
+                        {
+                            "id": null,
+                            "name": 69
+                        },
+                        {
+                            "id": null,
+                            "name": 70
+                        },
+                        {
+                            "id": null,
+                            "name": 71
+                        },
+                        {
+                            "id": null,
+                            "name": 72
+                        },
+                        {
+                            "id": null,
+                            "name": 73
+                        },
+                        {
+                            "id": null,
+                            "name": 74
+                        },
+                        {
+                            "id": null,
+                            "name": 75
+                        },
+                        {
+                            "id": null,
+                            "name": 76
+                        },
+                        {
+                            "id": null,
+                            "name": 77
+                        },
+                        {
+                            "id": null,
+                            "name": 78
+                        },
+                        {
+                            "id": null,
+                            "name": 79
+                        },
+                        {
+                            "id": null,
+                            "name": 80
+                        },
+                        {
+                            "id": null,
+                            "name": 81
+                        },
+                        {
+                            "id": null,
+                            "name": 82
+                        },
+                        {
+                            "id": null,
+                            "name": 83
+                        },
+                        {
+                            "id": null,
+                            "name": 84
+                        },
+                        {
+                            "id": null,
+                            "name": 85
+                        },
+                        {
+                            "id": null,
+                            "name": 86
+                        },
+                        {
+                            "id": null,
+                            "name": 87
+                        },
+                        {
+                            "id": null,
+                            "name": 88
+                        },
+                        {
+                            "id": null,
+                            "name": 89
+                        },
+                        {
+                            "id": null,
+                            "name": 90
+                        },
+                        {
+                            "id": null,
+                            "name": 91
+                        },
+                        {
+                            "id": null,
+                            "name": 92
+                        },
+                        {
+                            "id": null,
+                            "name": 93
+                        },
+                        {
+                            "id": null,
+                            "name": 94
+                        },
+                        {
+                            "id": null,
+                            "name": 95
+                        },
+                        {
+                            "id": null,
+                            "name": 96
+                        },
+                        {
+                            "id": null,
+                            "name": 97
+                        },
+                        {
+                            "id": null,
+                            "name": 98
+                        },
+                        {
+                            "id": null,
+                            "name": 99
+                        },
+                        {
+                            "id": null,
+                            "name": 100
+                        },
+                        {
+                            "id": null,
+                            "name": 101
+                        },
+                        {
+                            "id": null,
+                            "name": 102
+                        },
+                        {
+                            "id": null,
+                            "name": 103
+                        },
+                        {
+                            "id": null,
+                            "name": 104
+                        },
+                        {
+                            "id": null,
+                            "name": 105
+                        },
+                        {
+                            "id": null,
+                            "name": 106
+                        },
+                        {
+                            "id": null,
+                            "name": 107
+                        },
+                        {
+                            "id": null,
+                            "name": 108
+                        },
+                        {
+                            "id": null,
+                            "name": 109
+                        },
+                        {
+                            "id": null,
+                            "name": 110
+                        },
+                        {
+                            "id": null,
+                            "name": 111
+                        },
+                        {
+                            "id": null,
+                            "name": 112
+                        },
+                        {
+                            "id": null,
+                            "name": 113
+                        },
+                        {
+                            "id": null,
+                            "name": 114
+                        },
+                        {
+                            "id": null,
+                            "name": 115
+                        },
+                        {
+                            "id": null,
+                            "name": 116
+                        },
+                        {
+                            "id": null,
+                            "name": 117
+                        },
+                        {
+                            "id": null,
+                            "name": 118
+                        },
+                        {
+                            "id": null,
+                            "name": 119
+                        },
+                        {
+                            "id": null,
+                            "name": 120
+                        },
+                        {
+                            "id": null,
+                            "name": 121
+                        },
+                        {
+                            "id": null,
+                            "name": 122
+                        },
+                        {
+                            "id": null,
+                            "name": 123
+                        },
+                        {
+                            "id": null,
+                            "name": 124
+                        },
+                        {
+                            "id": null,
+                            "name": 125
+                        },
+                        {
+                            "id": null,
+                            "name": 126
+                        },
+                        {
+                            "id": null,
+                            "name": 127
+                        },
+                        {
+                            "id": null,
+                            "name": 128
+                        },
+                        {
+                            "id": null,
+                            "name": 129
+                        },
+                        {
+                            "id": null,
+                            "name": 130
+                        },
+                        {
+                            "id": null,
+                            "name": 131
+                        },
+                        {
+                            "id": null,
+                            "name": 132
+                        },
+                        {
+                            "id": null,
+                            "name": 133
+                        },
+                        {
+                            "id": null,
+                            "name": 134
+                        },
+                        {
+                            "id": null,
+                            "name": 135
+                        },
+                        {
+                            "id": null,
+                            "name": 136
+                        },
+                        {
+                            "id": null,
+                            "name": 137
+                        },
+                        {
+                            "id": null,
+                            "name": 138
+                        },
+                        {
+                            "id": null,
+                            "name": 139
+                        },
+                        {
+                            "id": null,
+                            "name": 140
+                        },
+                        {
+                            "id": null,
+                            "name": 141
+                        },
+                        {
+                            "id": null,
+                            "name": 142
+                        },
+                        {
+                            "id": null,
+                            "name": 143
+                        },
+                        {
+                            "id": null,
+                            "name": 144
+                        },
+                        {
+                            "id": null,
+                            "name": 145
+                        },
+                        {
+                            "id": null,
+                            "name": 146
+                        },
+                        {
+                            "id": null,
+                            "name": 147
+                        },
+                        {
+                            "id": null,
+                            "name": 148
+                        },
+                        {
+                            "id": null,
+                            "name": 149
+                        },
+                        {
+                            "id": null,
+                            "name": 150
+                        },
+                        {
+                            "id": null,
+                            "name": 151
+                        },
+                        {
+                            "id": null,
+                            "name": 152
+                        },
+                        {
+                            "id": null,
+                            "name": 153
+                        },
+                        {
+                            "id": null,
+                            "name": 154
+                        },
+                        {
+                            "id": null,
+                            "name": 155
+                        },
+                        {
+                            "id": null,
+                            "name": 156
+                        },
+                        {
+                            "id": null,
+                            "name": 157
+                        },
+                        {
+                            "id": null,
+                            "name": 158
+                        },
+                        {
+                            "id": null,
+                            "name": 159
+                        },
+                        {
+                            "id": null,
+                            "name": 160
+                        },
+                        {
+                            "id": null,
+                            "name": 161
+                        },
+                        {
+                            "id": null,
+                            "name": 162
+                        },
+                        {
+                            "id": null,
+                            "name": 163
+                        },
+                        {
+                            "id": null,
+                            "name": 164
+                        },
+                        {
+                            "id": null,
+                            "name": 165
+                        },
+                        {
+                            "id": null,
+                            "name": 166
+                        },
+                        {
+                            "id": null,
+                            "name": 167
+                        },
+                        {
+                            "id": null,
+                            "name": 168
+                        },
+                        {
+                            "id": null,
+                            "name": 169
+                        },
+                        {
+                            "id": null,
+                            "name": 170
+                        },
+                        {
+                            "id": null,
+                            "name": 171
+                        },
+                        {
+                            "id": null,
+                            "name": 172
+                        },
+                        {
+                            "id": null,
+                            "name": 173
+                        },
+                        {
+                            "id": null,
+                            "name": 174
+                        },
+                        {
+                            "id": null,
+                            "name": 175
+                        },
+                        {
+                            "id": null,
+                            "name": 176
+                        },
+                        {
+                            "id": null,
+                            "name": 177
+                        },
+                        {
+                            "id": null,
+                            "name": 178
+                        },
+                        {
+                            "id": null,
+                            "name": 179
+                        },
+                        {
+                            "id": null,
+                            "name": 180
+                        },
+                        {
+                            "id": null,
+                            "name": 181
+                        },
+                        {
+                            "id": null,
+                            "name": 182
+                        },
+                        {
+                            "id": null,
+                            "name": 183
+                        },
+                        {
+                            "id": null,
+                            "name": 184
+                        },
+                        {
+                            "id": null,
+                            "name": 185
+                        },
+                        {
+                            "id": null,
+                            "name": 186
+                        },
+                        {
+                            "id": null,
+                            "name": 187
+                        },
+                        {
+                            "id": null,
+                            "name": 188
+                        },
+                        {
+                            "id": null,
+                            "name": 189
+                        },
+                        {
+                            "id": null,
+                            "name": 190
+                        },
+                        {
+                            "id": null,
+                            "name": 191
+                        },
+                        {
+                            "id": null,
+                            "name": 192
+                        },
+                        {
+                            "id": null,
+                            "name": 193
+                        },
+                        {
+                            "id": null,
+                            "name": 194
+                        },
+                        {
+                            "id": null,
+                            "name": 195
+                        },
+                        {
+                            "id": null,
+                            "name": 196
+                        },
+                        {
+                            "id": null,
+                            "name": 197
+                        },
+                        {
+                            "id": null,
+                            "name": 198
+                        },
+                        {
+                            "id": null,
+                            "name": 199
+                        },
+                        {
+                            "id": null,
+                            "name": 200
+                        },
+                        {
+                            "id": null,
+                            "name": 201
+                        },
+                        {
+                            "id": null,
+                            "name": 202
+                        },
+                        {
+                            "id": null,
+                            "name": 203
+                        },
+                        {
+                            "id": null,
+                            "name": 204
+                        },
+                        {
+                            "id": null,
+                            "name": 205
+                        },
+                        {
+                            "id": null,
+                            "name": 206
+                        },
+                        {
+                            "id": null,
+                            "name": 207
+                        },
+                        {
+                            "id": null,
+                            "name": 208
+                        },
+                        {
+                            "id": null,
+                            "name": 209
+                        },
+                        {
+                            "id": null,
+                            "name": 210
+                        },
+                        {
+                            "id": null,
+                            "name": 211
+                        },
+                        {
+                            "id": null,
+                            "name": 212
+                        },
+                        {
+                            "id": null,
+                            "name": 213
+                        },
+                        {
+                            "id": null,
+                            "name": 214
+                        },
+                        {
+                            "id": null,
+                            "name": 215
+                        },
+                        {
+                            "id": null,
+                            "name": 216
+                        },
+                        {
+                            "id": null,
+                            "name": 217
+                        },
+                        {
+                            "id": null,
+                            "name": 218
+                        },
+                        {
+                            "id": null,
+                            "name": 219
+                        },
+                        {
+                            "id": null,
+                            "name": 220
+                        },
+                        {
+                            "id": null,
+                            "name": 221
+                        },
+                        {
+                            "id": null,
+                            "name": 222
+                        },
+                        {
+                            "id": null,
+                            "name": 223
+                        },
+                        {
+                            "id": null,
+                            "name": 224
+                        },
+                        {
+                            "id": null,
+                            "name": 225
+                        },
+                        {
+                            "id": null,
+                            "name": 226
+                        },
+                        {
+                            "id": null,
+                            "name": 227
+                        },
+                        {
+                            "id": null,
+                            "name": 228
+                        },
+                        {
+                            "id": null,
+                            "name": 229
+                        },
+                        {
+                            "id": null,
+                            "name": 230
+                        },
+                        {
+                            "id": null,
+                            "name": 231
+                        },
+                        {
+                            "id": null,
+                            "name": 232
+                        },
+                        {
+                            "id": null,
+                            "name": 233
+                        },
+                        {
+                            "id": null,
+                            "name": 234
+                        },
+                        {
+                            "id": null,
+                            "name": 235
+                        },
+                        {
+                            "id": null,
+                            "name": 236
+                        },
+                        {
+                            "id": null,
+                            "name": 237
+                        },
+                        {
+                            "id": null,
+                            "name": 238
+                        },
+                        {
+                            "id": null,
+                            "name": 239
+                        },
+                        {
+                            "id": null,
+                            "name": 240
+                        },
+                        {
+                            "id": null,
+                            "name": 241
+                        },
+                        {
+                            "id": null,
+                            "name": 242
+                        },
+                        {
+                            "id": null,
+                            "name": 243
+                        },
+                        {
+                            "id": null,
+                            "name": 244
+                        },
+                        {
+                            "id": null,
+                            "name": 245
+                        },
+                        {
+                            "id": null,
+                            "name": 246
+                        },
+                        {
+                            "id": null,
+                            "name": 247
+                        },
+                        {
+                            "id": null,
+                            "name": 248
+                        },
+                        {
+                            "id": null,
+                            "name": 249
+                        },
+                        {
+                            "id": null,
+                            "name": 250
+                        },
+                        {
+                            "id": null,
+                            "name": 251
+                        },
+                        {
+                            "id": null,
+                            "name": 252
+                        },
+                        {
+                            "id": null,
+                            "name": 253
+                        },
+                        {
+                            "id": null,
+                            "name": 254
+                        }
+                    ]
+                },
+                "Ethernet": {
+                    "name": {
+                        "type": "textInput"
+                    },
+                    "protocol": {
+                        "type": "select",
+                        "list": [
+                            {
+                                "id": 0,
+                                "name": "OSDPe"
+                            },
+                            {
+                                "id": 1,
+                                "name": "OSDP"
+                            }
+                        ]
+                    },
+                    "port": {
+                        "type": "numberInput"
+                    },
+                    "address": {
+                        "type": "textInput"
+                    }
+                }
+            }
+        }
+    }
+}

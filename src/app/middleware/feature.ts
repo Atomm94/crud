@@ -30,6 +30,14 @@ class Feature {
         }
     }
 
+    public static Dashboard: IFeatureModel = {
+        OnlineMonitorDashboard: {
+            check: OnlineMonitorDashboardCheck,
+            model: 'Dashboard',
+            module: true
+        }
+    }
+
     // public static Notification = {
     //     NotificationEmail: NotificationEmailCheck,
     //     NotificationIMBot: NotificationIMBotCheck,
@@ -65,9 +73,9 @@ class Feature {
         // ApartDirectionControl: {
         //     check: ApartDirectionControlCheck
         // },
-        OnlineMonitorDashboard: {
-            check: OnlineMonitorDashboardCheck
-        }
+        // OnlineMonitorDashboard: {
+        //     check: OnlineMonitorDashboardCheck
+        // }
         // AlarmAcknowledgment: {
         //     check: AlarmAcknowlegmentCheck
         // }
@@ -91,6 +99,12 @@ class Feature {
         },
         ApartAntiPassBack: {
             check: ApartAPB
+        }
+    }
+
+    public static ServiceFeatures: IFeatureModel = {
+        TicketSystem: {
+            check: TicketSystemCheck
         }
     }
 }
@@ -207,6 +221,7 @@ async function OnlineMonitorDashboardCheck (ctx: DefaultContext, next: () => Pro
     const actionName = 'OnlineMonitorDashboard'
     return await HaveAccess(ctx, actionName, next)
 }
+
 // async function AlarmAcknowlegmentCheck (ctx: DefaultContext, next: () => Promise<void>) {
 //     const actionName = 'ScheduleType'
 //     return await HaveAccess(ctx, actionName, next)
@@ -226,4 +241,9 @@ async function OnlineMonitorDashboardCheck (ctx: DefaultContext, next: () => Pro
 // }
 // async function NotificationGuestCabinetCheck (ctx: DefaultContext, next: () => Promise<void>) {
 //     await next()
+
+async function TicketSystemCheck (ctx: DefaultContext, next: () => Promise<void>) {
+    const actionName = 'Ticket'
+    return await HaveAccess(ctx, actionName, next)
+}
 export { Feature, ScheduleType }

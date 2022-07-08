@@ -18,7 +18,11 @@ import {
     AfterInsert,
     AfterRemove
 } from 'typeorm'
-import { CompanyResources } from '.'
+import { CompanyResources, Company } from '.'
+import { accessPointType } from '../../enums/accessPointType.enum'
+import { credentialType } from '../../enums/credentialType.enum'
+import { resourceKeys } from '../../enums/resourceKeys.enum'
+
 import * as Models from './index'
 
 export abstract class MainEntity extends BaseEntity {
@@ -35,21 +39,56 @@ export abstract class MainEntity extends BaseEntity {
     @AfterInsert()
     async increaseCompanyUsedResource () {
         const self: any = this
-        const models: any = Models
-        const model_name: any = self.constructor.name
 
-        if (self.company) {
-            if (models[model_name] && models[model_name].resource) {
-                const company_resources = await CompanyResources.findOne({ company: self.company })
-                if (company_resources) {
-                    const used: any = JSON.parse(company_resources.used)
-                    if (used[model_name]) {
-                        used[model_name]++
-                    } else {
-                        used[model_name] = 1
+        if (self && self.company && self.constructor && self.constructor.name) {
+            // console.log('increaseCompanyUsedResource self', self.constructor.name, self.id)
+
+            const models: any = Models
+            let model_name: any = self.constructor.name
+            let company = await Company.findOne({ id: self.company }) as Company
+
+            if (company && company.partition_parent_id) {
+                company = await Company.findOne({ id: company.partition_parent_id }) as Company
+            }
+            if (company) {
+                if (models[model_name] && models[model_name].resource) {
+                    // console.log('increaseCompanyUsedResource resource', true)
+
+                    const company_resources = await CompanyResources.findOne({ company: company.id })
+                    // console.log('increaseCompanyUsedResource company_resources', company_resources)
+                    if (model_name === 'AccessPoint') {
+                        if (self.type === accessPointType.FLOOR) {
+                            model_name = resourceKeys.ELEVATOR
+                        } else if ([accessPointType.TURNSTILE_ONE_SIDE, accessPointType.TURNSTILE_TWO_SIDE].includes(self.type)) {
+                            model_name = resourceKeys.TURNSTILE
+                        }
                     }
-                    company_resources.used = JSON.stringify(used)
-                    await company_resources.save()
+
+                    if (company_resources) {
+                        const used: any = JSON.parse(company_resources.used)
+                        if (used[model_name]) {
+                            used[model_name]++
+                        } else {
+                            used[model_name] = 1
+                        }
+
+                        // console.log('increaseCompanyUsedResource used', JSON.stringify(used))
+                        company_resources.used = JSON.stringify(used)
+                        await company_resources.save()
+                    }
+                } else if (model_name === 'Credential' && self.type === credentialType.VIKEY) {
+                    const resource_name = resourceKeys.VIRTUAL_KEYS
+                    const company_resources = await CompanyResources.findOne({ company: self.company })
+                    if (company_resources) {
+                        const used: any = JSON.parse(company_resources.used)
+                        if (used[resource_name]) {
+                            used[resource_name]++
+                        } else {
+                            used[resource_name] = 1
+                        }
+                        company_resources.used = JSON.stringify(used)
+                        await company_resources.save()
+                    }
                 }
             }
         }
@@ -58,15 +97,26 @@ export abstract class MainEntity extends BaseEntity {
     @AfterRemove()
     async decreaseCompanyUsedResource () {
         const self: any = this
-        const models: any = Models
-        const model_name: any = self.constructor.name
-        if (self.company) {
+        if (self && self.company && self.constructor && self.constructor.name) {
+            // console.log('decreaseCompanyUsedResource self', self.constructor.name, self)
+
+            const models: any = Models
+            const model_name: any = self.constructor.name
             if (models[model_name] && models[model_name].resource) {
-                const company_resources = await CompanyResources.findOne({ company: self.company })
-                if (company_resources) {
-                    const used: any = JSON.parse(company_resources.used)
-                    if (used[model_name]) {
-                        used[model_name]--
+                let company = await Company.findOne({ id: self.company }) as Company
+                if (company && company.partition_parent_id) {
+                    company = await Company.findOne({ id: company.partition_parent_id }) as Company
+                }
+
+                if (company) {
+                    const company_resources = await CompanyResources.findOne({ company: company.id })
+                    if (company_resources) {
+                        const used: any = JSON.parse(company_resources.used)
+                        if (model_name in used) {
+                            used[model_name]--
+                        } else {
+                            used[model_name] = 0
+                        }
                         company_resources.used = JSON.stringify(used)
                         await company_resources.save()
                     }
@@ -79,7 +129,9 @@ export abstract class MainEntity extends BaseEntity {
     public static gettingAttributes: boolean = true
 
     public static resource: boolean = false
+    public static serviceResource: boolean = false
     public static features: any = false
+    public static fields_that_used_in_sending: Array<string> | null = null
 
     public static async findByParams (data: any = {}) {
         let where: any = {}
@@ -96,9 +148,13 @@ export abstract class MainEntity extends BaseEntity {
         if (data.where) {
             if (typeof data.where === 'string') data.where = JSON.parse(data.where)
             Object.keys(data.where).forEach(column => {
-                Object.keys(data.where[column]).forEach((el: any) => {
-                    where[column] = this.changeAdvancedOptions(el, data.where[column][el])
-                })
+                if (typeof data.where[column] === 'object') {
+                    Object.keys(data.where[column]).forEach((el: any) => {
+                        where[column] = this.changeAdvancedOptions(el, data.where[column][el])
+                    })
+                } else {
+                    where[column] = this.changeAdvancedOptions('=', data.where[column])
+                }
             })
         }
 
@@ -106,9 +162,13 @@ export abstract class MainEntity extends BaseEntity {
             const orWhere: any = []
             data.orWhere.forEach((item: any) => {
                 Object.keys(item).forEach(column => {
-                    Object.keys(item[column]).forEach((el: any) => {
-                        item[column] = this.changeAdvancedOptions(el, item[column][el])
-                    })
+                    if (typeof item[column] === 'object') {
+                        Object.keys(item[column]).forEach((el: any) => {
+                            item[column] = this.changeAdvancedOptions(el, item[column][el])
+                        })
+                    } else {
+                        item[column] = this.changeAdvancedOptions('=', item[column])
+                    }
                 })
 
                 item = {
@@ -120,8 +180,19 @@ export abstract class MainEntity extends BaseEntity {
             where = orWhere
         }
 
-        const take = data.page ? data.page_items_count ? (data.page_items_count > 10000) ? 10000 : data.page_items_count : 25 : 100
+        let take = data.page ? data.page_items_count ? (data.page_items_count > 10000) ? 10000 : data.page_items_count : 25 : 100
         const skip = data.page_items_count && data.page ? (data.page - 1) * data.page_items_count : 0
+        let finally_total
+
+        if (this.resource && data.packageExtraSettings) {
+            const model_name = this.constructor.name
+            if (!data.packageExtraSettings.resources[model_name]) data.packageExtraSettings.resources[model_name] = 0
+            const resource_limit = Number(data.packageExtraSettings.resources[model_name])
+            if (take > resource_limit) {
+                take = resource_limit
+                finally_total = resource_limit
+            }
+        }
 
         const [result, total] = await this.findAndCount({
             where: where,
@@ -131,10 +202,11 @@ export abstract class MainEntity extends BaseEntity {
             relations: data.relations ? data.relations : []
         })
 
+        if (!finally_total) finally_total = total
         if (data.page) {
             return {
                 data: result,
-                count: total
+                count: finally_total
             }
         } else {
             return result
@@ -191,14 +263,14 @@ export abstract class MainEntity extends BaseEntity {
         return res
     }
 
-    public static getActions () {
+    public static getActions (action_value: boolean = false) {
         const self: any = this
         const model_actions = Object.getOwnPropertyNames(self)
             .filter((item: any) => typeof self[item] === 'function')
         // console.log('model_actions', model_actions)
         const model_actions_data: any = {}
         model_actions.forEach(action => {
-            model_actions_data[action] = false
+            model_actions_data[action] = action_value
         })
 
         // const MainEntityClass: any = MainEntity

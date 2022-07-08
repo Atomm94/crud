@@ -23,6 +23,7 @@ import cors from 'koa2-cors'
 
 import Koa from 'koa'
 import clickhouselog from './middleware/clickhouselog'
+// import bodyParser from 'koa-bodyparser'
 // console.log(checkRole)
 // import resource from './middleware/resource'
 
@@ -35,14 +36,17 @@ const validator = require('node-input-validator')
 const swaggerUi = require('swagger-ui-koa')
 
 const app: Koa = new Koa()
-
+require('koa-qs')(app)
 // centralized error handling
 // app.on('error', (err: Error, ctx: Koa.DefaultContext): void => {
 
 // })
+// Console debug logging
+app.use(logging())
 
 // Validation middleware -> adds ctx.validate
 app.use(validator.koa())
+
 app.use(overrideValidator())
 
 // Provides important security headers to make your app more secure
@@ -53,14 +57,15 @@ app.use(cors({ ...config.cors, origin: checkOriginWhiteList }))
 
 // Enable bodyParser with default options
 // app.use(bodyParser(config.bodyParser))
-
 // app.use(addNameToRoute(router))
 app.use(koaBody(
     {
         multipart: true,
         // json: true,
         // text: true,
-        formidable: { uploadDir: `${parentDir}/public` },
+        jsonLimit: '10mb',
+        formLimit: '10mb',
+        formidable: { uploadDir: `${parentDir}/public/tmp` },
         parsedMethods: ['POST', 'PUT', 'DELETE']
     }
 ))
@@ -74,9 +79,6 @@ app.use(requestId())
 
 // Adds an X-Response-Time header with a query execution time value
 app.use(responseTime())
-
-// Console debug logging
-app.use(logging())
 
 // Check Jwt Middleware
 

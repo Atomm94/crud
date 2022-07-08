@@ -2,7 +2,10 @@ import {
     Entity,
     Column,
     OneToMany,
-    DeleteDateColumn
+    DeleteDateColumn,
+    ManyToOne,
+    JoinColumn,
+    OneToOne
 } from 'typeorm'
 
 import { acuStatus } from '../../enums/acuStatus.enum'
@@ -11,13 +14,23 @@ import { MainEntity } from './MainEntity'
 import { AccessPoint } from './AccessPoint'
 import { ExtDevice } from './ExtDevice'
 import { acuModel } from '../../enums/acuModel.enum'
+import { acuCloudStatus } from '../../enums/acuCloudStatus.enum'
+
+import { minusResource } from '../../functions/minusResource'
+import SendSocketMessage from '../../mqtt/SendSocketMessage'
+import { socketChannels } from '../../enums/socketChannels.enum'
+import { Company } from './Company'
+import CronJob from './../../cron'
+import { AcuStatus } from './AcuStatus'
+import { AutoTaskSchedule } from './AutoTaskSchedule'
+import { Reader } from './Reader'
 
 @Entity('acu')
 export class Acu extends MainEntity {
     @Column('varchar', { name: 'name', nullable: true })
     name: string | null
 
-    @Column('int', { name: 'serial_number', nullable: true })
+    @Column('bigint', { name: 'serial_number', nullable: true })
     serial_number: number
 
     @Column('varchar', { name: 'description', nullable: true })
@@ -29,14 +42,17 @@ export class Acu extends MainEntity {
     @Column('enum', { name: 'status', nullable: false, enum: acuStatus, default: acuStatus.PENDING })
     status: acuStatus
 
+    @Column('enum', { name: 'cloud_status', nullable: false, enum: acuCloudStatus, default: acuCloudStatus.OFFLINE })
+    cloud_status: acuCloudStatus
+
     @Column('varchar', { name: 'fw_version', nullable: true })
     fw_version: string | null
 
     @Column('boolean', { name: 'maintain_update_manual', default: true })
     maintain_update_manual: boolean
 
-    @Column('boolean', { name: 'shared_resource_mode', default: false })
-    shared_resource_mode: boolean
+    @Column('boolean', { name: 'elevator_mode', default: false })
+    elevator_mode: boolean
 
     @Column('longtext', { name: 'network', nullable: true })
     network: string | null
@@ -56,6 +72,24 @@ export class Acu extends MainEntity {
     @Column('varchar', { name: 'password', nullable: true })
     password: string | null
 
+    @Column('boolean', { name: 'heart_bit', default: false })
+    heart_bit: boolean
+
+    @Column('int', { name: 'reader', nullable: true })
+    reader: number | null
+
+    @Column('varchar', { name: 'rev', nullable: true }) // HW Ver
+    rev: string | null
+
+    @Column('varchar', { name: 'api_ver', nullable: true }) // API Ver
+    api_ver: string | null
+
+    @Column('varchar', { name: 'acu_comment', nullable: true }) // ACU Comment
+    acu_comment: string | null
+
+    @Column('datetime', { name: 'registration_date', nullable: true }) // ACU Comment
+    registration_date: string | null
+
     @DeleteDateColumn({ type: 'timestamp', name: 'delete_date' })
     public deleteDate: Date
 
@@ -68,16 +102,38 @@ export class Acu extends MainEntity {
     @OneToMany(type => ExtDevice, ext_device => ext_device.acus)
     ext_devices: ExtDevice[];
 
+    @ManyToOne(type => Company, company => company.acus, { nullable: true })
+    @JoinColumn({ name: 'company' })
+    companies: Company | null;
+
+    @OneToOne(type => AcuStatus, acu_status => acu_status.acus)
+    acu_statuses: AcuStatus;
+
+    @OneToMany(type => AutoTaskSchedule, auto_task_schedule => auto_task_schedule.acus)
+    auto_task_schedules: AutoTaskSchedule[];
+
+    @OneToOne(type => Reader, Reader => Reader.acus, { nullable: true })
+    @JoinColumn({ name: 'reader' })
+    readers: Reader | null;
+
+    public static time_fields_that_used_in_sending: Array<string> = [
+        'daylight_saving_time_from_user_account',
+        'enable_daylight_saving_time',
+        'time_zone',
+        'timezone_from_facility'
+    ]
+
     public static async addItem (data: any) {
         const acu = new Acu()
 
         acu.name = data.name
         acu.description = data.note
-        acu.serial_number = data.serial_number
+        // acu.serial_number = data.serial_number
         acu.model = data.model // check or no ??
         acu.status = acuStatus.PENDING
         acu.fw_version = data.fw_version
         acu.company = data.company
+        if ('reader' in data) acu.reader = data.reader
 
         return new Promise((resolve, reject) => {
             if (data.time) {
@@ -104,14 +160,15 @@ export class Acu extends MainEntity {
 
         if ('name' in data) acu.name = data.name
         if ('description' in data) acu.description = data.description
-        if ('serial_number' in data) acu.serial_number = data.serial_number
+        // if ('serial_number' in data) acu.serial_number = data.serial_number
         if ('model' in data) acu.model = data.model
         if ('status' in data) acu.status = data.status
         if ('fw_version' in data) acu.fw_version = data.fw_version
         if ('maintain_update_manual' in data) acu.maintain_update_manual = data.maintain_update_manual
-        if ('shared_resource_mode' in data) acu.shared_resource_mode = data.shared_resource_mode
+        if ('elevator_mode' in data) acu.elevator_mode = data.elevator_mode
         if ('network' in data) acu.network = data.network
         if ('interface' in data) acu.interface = data.interface
+        if ('reader' in data) acu.reader = data.reader
 
         if (!acu) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
@@ -136,7 +193,7 @@ export class Acu extends MainEntity {
                 if (!check_time) {
                     reject(check_time)
                 } else {
-                    acu.time = JSON.stringify(data.time)
+                    acu.time = (data.time && typeof data.time === 'object') ? JSON.stringify(data.time) : data.time
                 }
             }
             // if (data.maintain) {
@@ -179,7 +236,51 @@ export class Acu extends MainEntity {
         return new Promise(async (resolve, reject) => {
             this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
                 this.softRemove(data)
-                    .then(() => {
+                    .then(async () => {
+                        minusResource(this.name, data.company)
+
+                        const promises = []
+                        promises.push(Acu.createQueryBuilder('acu')
+                            .select('acu.status')
+                            .addSelect('COUNT(acu.id) as acu_qty')
+                            .where('acu.company', data.company)
+                            .groupBy('acu.status')
+                            .getRawMany())
+
+                        promises.push(Acu.createQueryBuilder('acu')
+                            .innerJoin('acu.access_points', 'access_point')
+                            .select('acu.status')
+                            .addSelect('COUNT(access_point.id) as acp_qty')
+                            .where('access_point.company', data.company)
+                            .groupBy('acu.status')
+                            .getRawMany())
+
+                        const [d_acus, d_access_points]: any = await Promise.all(promises)
+                        const send_data = {
+                            acus: d_acus,
+                            access_points: d_access_points
+
+                        }
+                        new SendSocketMessage(socketChannels.DASHBOARD_ACU, send_data, data.company)
+
+                        if (data.status === acuStatus.ACTIVE) {
+                            delete CronJob.active_devices[data.id]
+                            AcuStatus.destroyItem({ acu: data.id })
+                        }
+
+                        const access_points: any = await AccessPoint.getAllItems({ where: { acu: { '=': data.id } }/* , relations: ['readers', 'access_rules'] */ })
+                        for (const access_point of access_points) {
+                            AccessPoint.destroyItem({ id: access_point.id, company: access_point.company })
+                        }
+                        const ext_devices: any = await ExtDevice.getAllItems({ where: { acu: { '=': data.id } } })
+                        for (const ext_device of ext_devices) {
+                            ExtDevice.destroyItem({ id: ext_device.id, company: ext_device.company })
+                        }
+                        const auto_task_schedules: any = await AutoTaskSchedule.getAllItems({ where: { acu: { '=': data.id } } })
+                        for (const auto_task_schedule of auto_task_schedules) {
+                            AutoTaskSchedule.destroyItem({ id: auto_task_schedule.id, company: auto_task_schedule.company })
+                        }
+
                         resolve({ message: 'success' })
                     })
                     .catch((error: any) => {

@@ -14,7 +14,7 @@ export default router
   .get('Admin-getAllItems', 'account', checkRole(), AdminController.getAll)
   .put('Admin-updateItem', 'account/changePass', checkRole(), AdminController.changePass) /// ???????????
   .put('Admin-updateItem', 'account/changeMyPass', checkRole(), AdminController.changeMyPass) /// ???????????
-  .get('Admin-getItem', 'account/getUserData', checkRole(), AdminController.getUserData) /// ???????????
+  .get('account/getUserData', AdminController.getUserData) /// ???????????
   .put('Admin-updateItem', 'account/myProfile', checkRole(), AdminController.update) /// ???????????
 
   .post('Admin-saveImage', 'account/image', checkRole(), AdminController.accountImageSave)
@@ -22,6 +22,8 @@ export default router
 
   .get('account/invite/:token', AdminController.getUserByToken)
   .put('account/invite/:token', AdminController.setPassword)
+
+  .put('account/changeSettings', AdminController.changeSettings)
 
   .get('Admin-getItem', 'account/:id', AdminController.get)
 

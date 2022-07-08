@@ -8,6 +8,7 @@ export interface ICrudMqttMessaging {
     update: boolean
     data: any
     user: number | null
+    user_data: any
 }
 
 export interface IDeviceMqttMessaging {

@@ -14,6 +14,7 @@ import swaggerSpec from '../../component/swagger'
 import LogController from '../controller/LogController'
 import MqttController from '../controller/MqttController'
 import checkRole from '../middleware/checkRole'
+import resource from '../middleware/resource'
 
 const swaggerUi = require('swagger-ui-koa')
 
@@ -61,7 +62,11 @@ export default router
   // -----------------------------------------------------
 
   .get('registration/:token', RegistrationInviteController.get)
-  .post('registration/:token', CompanyController.regValidation)
+  .post('Company-addItem', 'registration/:token', resource(), CompanyController.regValidation)
+  .put('registration/:token', CompanyController.resendNewPassEmail)
+
+  .get('registration/registrationOfPartition/:token', RegistrationInviteController.getPartition)
+  .post('Company-addItem', 'registration/regPartition/:token', CompanyController.regPartitionValidation)
   .put('registration/:token', CompanyController.resendNewPassEmail)
 
   // -----------------------------------------------------

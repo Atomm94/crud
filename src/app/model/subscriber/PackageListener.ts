@@ -6,7 +6,9 @@ import {
     // UpdateEvent
 } from 'typeorm'
 import { AccessControl } from '../../functions/access-control'
+
 import { Package } from '../entity/Package'
+import { createPlan } from '../../functions/zoho-utils'
 
 @EventSubscriber()
 export class PostSubscriber implements EntitySubscriberInterface<Package> {
@@ -39,5 +41,6 @@ export class PostSubscriber implements EntitySubscriberInterface<Package> {
         if (data.status && data.extra_settings) {
             AccessControl.addCompanyGrant(data)
         }
+        createPlan(data)
     }
 }

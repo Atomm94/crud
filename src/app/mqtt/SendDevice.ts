@@ -456,49 +456,49 @@ export default class SendDevice {
             message_id: message_id.toString(),
             info: info
             // {
-                // Control_point_idx: data.id,
-                // Control_point_gId: '12548789522',
-                // Leaving_Zone: data.leave_zone,
-                // Came_To_Zone: data.coming_zone
-                // Ctp_Apb_Group: 'Meeting room/ABP',
-                // Control_type: 1,
-                // APB_Wrk_type: 0,
-                // APB_Mode: -1,
-                // APB_Time: 0,
-                // Work_Mode: 0,
-                // Door_Allarm: 1,
-                // Door_Allarm_Tm: 1500,
-                // Door_Delay: 6,
-                // Door_Lock_mode: 0,
-                // Door_Lock_type: 1,
-                // Door_Lock_pulse: 500,
-                // Lock_Relay_opt: 0,
-                // Lock_Relay_idx: 0,
-                // Alarm_out_opt: 0,
-                // Alarm_out_idx: 2,
-                // Button_rex_opt: 0,
-                // Button_rex_idx: 0,
-                // Button_rex_sens: 20,
-                // Button_Input_Condition: 1,
-                // Door_sens_opt: 0,
-                // Door_sens_idx: 1,
-                // Rex_release_tm: 255,
-                // Alarm_In_opt: 0,
-                // Alarm_In_idx: 1,
-                // Allarm_Input_Condition: 1,
-                // Acc_mod: 0,
-                // Ctp_auto_mod: -1,
-                // Shedul_auto_mod: 'none',
-                // Owner_mod: -1,
-                // Owner_keys: 'none',
-                // Rd0_idx: 0,
-                // Rd0_dir: 1,
-                // Rd1_idx: 1,
-                // Rd1_dir: 0,
-                // Rd2_idx: -1,
-                // Rd2_dir: -1,
-                // Rd3_idx: -1,
-                // Rd3_dir: -1
+            // Control_point_idx: data.id,
+            // Control_point_gId: '12548789522',
+            // Leaving_Zone: data.leave_zone,
+            // Came_To_Zone: data.coming_zone
+            // Ctp_Apb_Group: 'Meeting room/ABP',
+            // Control_type: 1,
+            // APB_Wrk_type: 0,
+            // APB_Mode: -1,
+            // APB_Time: 0,
+            // Work_Mode: 0,
+            // Door_Allarm: 1,
+            // Door_Allarm_Tm: 1500,
+            // Door_Delay: 6,
+            // Door_Lock_mode: 0,
+            // Door_Lock_type: 1,
+            // Door_Lock_pulse: 500,
+            // Lock_Relay_opt: 0,
+            // Lock_Relay_idx: 0,
+            // Alarm_out_opt: 0,
+            // Alarm_out_idx: 2,
+            // Button_rex_opt: 0,
+            // Button_rex_idx: 0,
+            // Button_rex_sens: 20,
+            // Button_Input_Condition: 1,
+            // Door_sens_opt: 0,
+            // Door_sens_idx: 1,
+            // Rex_release_tm: 255,
+            // Alarm_In_opt: 0,
+            // Alarm_In_idx: 1,
+            // Allarm_Input_Condition: 1,
+            // Acc_mod: 0,
+            // Ctp_auto_mod: -1,
+            // Shedul_auto_mod: 'none',
+            // Owner_mod: -1,
+            // Owner_keys: 'none',
+            // Rd0_idx: 0,
+            // Rd0_dir: 1,
+            // Rd1_idx: 1,
+            // Rd1_dir: 0,
+            // Rd2_idx: -1,
+            // Rd2_dir: -1,
+            // Rd3_idx: -1,
+            // Rd3_dir: -1
             // }
         }
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
@@ -993,6 +993,86 @@ export default class SendDevice {
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }
 
+    public static async setSdlOrdinal (location: string, device_id: number, session_id: string, data: any, update: boolean) {
+        const timeframe: any = await Timeframe.find({ schedule: data.schedule })
+        const days: any = {}
+        timeframe.forEach((time: Timeframe) => {
+            days[time.name] = true
+        })
+        const message_id = new Date().getTime()
+        const send_data: any = {
+            operator: OperatorType.SET_SDL_ORDINAL_ACK,
+            location: '5/5',
+            device_id: '1073493824',
+            session_id: '45451202021',
+            message_id: message_id.toString(),
+            info: {
+                Shedule_id: 1254888,
+                Ctp_idx: 105,
+                MonthPeriod: 1
+            }
+        }
+        if (update) send_data.new_data = data
+        MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
+    }
+
+    public static delSdlOrdinal (location: string, device_id: number, session_id: string): void {
+        const message_id = new Date().getTime()
+        const send_data: any = {
+            operator: OperatorType.DEL_SDL_ORDINAL_ACK,
+            location: location,
+            device_id: device_id,
+            session_id: session_id,
+            message_id: message_id.toString(),
+            info: {
+                Shedule_id: 1254888
+            }
+        }
+        MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
+    }
+
+    public static setDayOrdinal (location: string, device_id: number, session_id: string): void {
+        const message_id = new Date().getTime()
+        const send_data: any = {
+            operator: OperatorType.SET_DAY_ORDINAL_ACK,
+            location: location,
+            device_id: device_id,
+            session_id: session_id,
+            message_id: message_id.toString(),
+            info: {
+                Shedule_id: 1254888,
+                DayId: 1,
+                Condition_DayWeek: false,
+                StartDay: 105,
+                Tm1_Start: '32400;50400',
+                Tm1_End: '46800;64800',
+                Tm2_Start: '32400;50400',
+                Tm2_End: '46800;64800',
+                Tm3_Start: '32400;50400',
+                Tm3_End: '46800;64800',
+                Tm4_Start: '32400;50400',
+                Tm4_End: '46800;64800'
+            }
+        }
+        MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
+    }
+
+    public static delDayOrdinal (location: string, device_id: number, session_id: string): void {
+        const message_id = new Date().getTime()
+        const send_data: any = {
+            operator: OperatorType.DEL_DAY_ORDINAL_ACK,
+            location: location,
+            device_id: device_id,
+            session_id: session_id,
+            message_id: message_id.toString(),
+            info: {
+                Shedule_id: 1254888,
+                DayId: 1
+            }
+        }
+        MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
+    }
+
     public static dellShedule (location: string, device_id: number, session_id: string, data: any, type: string, old_data: any) {
         const message_id = new Date().getTime()
         const send_data: any = {
@@ -1052,6 +1132,23 @@ export default class SendDevice {
             //     gpio_set: 1,
             //     gpio_idx_get: 7
             // }
+        }
+        MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
+    }
+
+    public static setHeartBit (location: string, device_id: number, session_id: string): void {
+        const message_id = new Date().getTime()
+        const send_data: any = {
+            operator: OperatorType.SET_HEART_BIT,
+            location: location,
+            device_id: device_id,
+            session_id: session_id,
+            message_id: message_id.toString(),
+            info:
+            {
+                On: true,
+                min: 1
+            }
         }
         MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
     }

@@ -56,6 +56,24 @@ export interface IConfig {
         fromEmail: string,
         apiKey: string
     };
+    zoho: {
+        client_id: string,
+        client_secret: string,
+        code: string,
+        scope: string,
+        redirect_uri: string,
+        product_id: string,
+        organization_id: string,
+        access_token: string,
+        refresh_token: string,
+        token_expire_time: string,
+        urls: {
+            tokenFromRefreshTokenUrl: string,
+            createPlanUrl: string,
+            createCustomerUrl: string,
+            createSubscriptionUrl: string
+        }
+    };
     nodeEnv: string;
     isTest: boolean;
     isProduction: boolean;
@@ -64,7 +82,7 @@ export interface IConfig {
 
 }
 
-const config: IConfig = {
+var config: IConfig = {
     server: {
         port: normalizePort(_.defaultTo(process.env.PORT, 3000)),
         root: ROOT
@@ -106,6 +124,25 @@ const config: IConfig = {
     sendgrid: {
         fromEmail: _.defaultTo(process.env.SENDGRID_FROM_EMAIL, 'g.israelyan@studio-one.am'),
         apiKey: _.defaultTo(process.env.SENDGRID_API_KEY, 'empty')
+    },
+    zoho: {
+        client_id: '',
+        client_secret: '',
+        code: '',
+        scope: '',
+        redirect_uri: '',
+        product_id: _.defaultTo(process.env.PRODUCT_ID, '2857260000000093003'),
+        organization_id: _.defaultTo(process.env.ORGANIZATION_ID, '762669996'),
+        access_token: '',
+        refresh_token: '',
+        token_expire_time: '',
+        urls: {
+            tokenFromRefreshTokenUrl: 'https://accounts.zoho.com/oauth/v2/token',
+            createPlanUrl: 'https://subscriptions.zoho.com/api/v1/plans',
+            createCustomerUrl: 'https://subscriptions.zoho.com/api/v1/customers',
+            createSubscriptionUrl: 'https://subscriptions.zoho.com/api/v1/subscriptions'
+        }
+
     },
     nodeEnv: process.env.NODE_ENV,
     isTest: !!(process.env.NODE_ENV === 'test' && process.env.NODE_TEST),

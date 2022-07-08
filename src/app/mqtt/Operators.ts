@@ -1,5 +1,8 @@
 export enum OperatorType {
+    PING = 'Ping',
+    PING_ACK = 'Ping-Ack',
     REGISTRATION = 'registration',
+    CANCEL_REGISTRATION = 'cancel_registration',
     ACCEPT = 'accept',
     ACCEPT_ACK = 'accept-Ack',
     LOGIN = 'login',
@@ -150,9 +153,33 @@ export enum OperatorType {
     DELL_DAY_SPECIFIED = 'DellDaySpecified',
     DELL_DAY_SPECIFIED_ACK = 'DellDaySpecified-Ack',
 
+    // Ordinal
+    SET_SDL_ORDINAL = 'SetSdlOrdinal',
+    SET_SDL_ORDINAL_ACK = 'SetSdlOrdinal-Ack',
+    DEL_SDL_ORDINAL = 'DelSdlOrdinal',
+    DEL_SDL_ORDINAL_ACK = 'DelSdlOrdinal-Ack',
+    SET_DAY_ORDINAL = 'SetDayOrdinal',
+    SET_DAY_ORDINAL_ACK = 'SetDayOrdinal-Ack',
+    DEL_DAY_ORDINAL = 'DelDayOrdinal',
+    DEL_DAY_ORDINAL_ACK = 'DelDayOrdinal-Ack',
+
     DELL_SHEDULE = 'DellShedule',
     DELL_SHEDULE_ACK = 'DellShedule-Ack',
 
     DEV_TEST = 'DevTest',
     DEV_TEST_ACK = 'DevTest-Ack',
+
+    SET_HEART_BIT = 'SetHeartBit',
+    SET_HEART_BIT_ACK = 'SetHeartBit-Ack',
+    HEART_BIT = 'HeartBit',
+    SET_TASK = 'SetTask',
+    SET_TASK_ACK = 'SetTask-Ack',
+    DEL_TASK = 'DeleteTask',
+    DEL_TASK_ACK = 'DeleteTask-Ack',
+    RESET_APB = 'Reset_apb',
+    RESET_APB_ACK = 'Reset_apb-Ack',
+    ACTIVATE_CREDENTIAL = 'activateCredential',
+    ACTIVATE_CREDENTIAL_ACK = 'activateCredential-Ack',
+    MAIN_TAIN = 'MainTain',
+    MAIN_TAIN_ACK = 'MainTain-Ack'
 }

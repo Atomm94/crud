@@ -4,6 +4,7 @@ import { Role, Admin } from '../model/entity/index'
 // import { getRepository } from 'typeorm'
 import { checkPermissionsAccess } from '../functions/check-permissions-access'
 import { adminStatus } from '../enums/adminStatus.enum'
+import { logUserEvents } from '../enums/logUserEvents.enum'
 
 class RoleController {
   /**
@@ -149,6 +150,7 @@ class RoleController {
       const user = ctx.user
       const where = { company: user.company ? user.company : null }
       const role = await Role.getItem(ctx.params.id, where)
+
       if (await checkPermissionsAccess(user, role.permissions)) {
         ctx.body = role
       } else {
@@ -224,7 +226,7 @@ class RoleController {
         ctx.body = { message: 'cant change your role!!' }
       } else {
         const where = {
-          id: user.role,
+          id: req_data.id,
           company: user.company ? user.company : null,
           main: false
         }
@@ -234,7 +236,7 @@ class RoleController {
           ctx.status = 400
           ctx.body = { message: 'something went wrong' }
         } else {
-          if (await checkPermissionsAccess(user, req_data.permissions)) {
+          if (!req_data.permissions || await checkPermissionsAccess(user, req_data.permissions)) {
             const updated = await Role.updateItem(req_data)
             ctx.oldData = updated.old
             ctx.body = updated.new
@@ -247,6 +249,8 @@ class RoleController {
         }
       }
     } catch (error) {
+      console.log(error)
+
       ctx.status = error.status || 400
       ctx.body = error
     }
@@ -300,7 +304,7 @@ class RoleController {
         ctx.body = { message: 'cant delete your role!!' }
       } else {
         const where = {
-          id: user.role,
+          id: id,
           company: user.company ? user.company : null,
           main: false
         }
@@ -315,18 +319,23 @@ class RoleController {
             if (admin.length) {
               for (let i = 0; i < admin.length; i++) {
                 admin[i].role = null
-                admin[i].status = adminStatus.inactive
+                admin[i].status = adminStatus.INACTIVE
                 delete admin[i].password
                 await Admin.updateItem(admin[i])
               }
-
-              role = await Role.destroyItem(id)
+              const role_data = await Role.findOneOrFail({ where: where })
+              role = await Role.destroyItem(check_role_by_company)
+              ctx.logsData = [{
+                  event: logUserEvents.DELETE,
+                  target: `${Role.name}/${role_data.slug}`,
+                  value: { slug: role_data.slug }
+              }]
 
               if (role) {
                 ctx.body = 'Deleted'
               }
             } else {
-              role = await Role.destroyItem(id)
+              role = await Role.destroyItem(check_role_by_company)
               ctx.body = 'Deleted'
             }
           } else {

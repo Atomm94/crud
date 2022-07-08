@@ -3,11 +3,16 @@ import { Company } from '../model/entity'
 // import { OperatorType } from '../mqtt/Operators'
 // import SendDeviceMessage from '../mqtt/SendDeviceMessage'
 import MQTTBroker from '../mqtt/mqtt'
+// import * as crypto from 'crypto'
+// import SendDeviceMessage from '../mqtt/SendDeviceMessage'
 // import { OperatorType } from '../mqtt/Operators'
-import SendDeviceMessage from '../mqtt/SendDeviceMessage'
 // import { SendTopics } from '../mqtt/Topics'
 // import { TopicCodes } from '../mqtt/Topics'
-
+const mqtt_host_for_device = process.env.MQTT_HOST_FOR_DEVICE
+const mqtt_port = process.env.MQTT_PORT
+const user_name = process.env.MQTT_USERNAME
+const user_pass = process.env.MQTT_PASSWORD
+const crypto = require('crypto')
 export default class MqttController {
     /**
      *
@@ -37,24 +42,42 @@ export default class MqttController {
             const main_id = +ctx.params.id
             // const user = ctx.user
             const where = { account: main_id }
-            const company = await Company.findOneOrFail({ where: where })
+            const company = await Company.findOne({ where: where })
             if (!company) {
-                ctx.status = 400
-                ctx.body = {
-                    message: 'Invalid id!!'
+                 ctx.body = {
+                    BrokerAdr: '',
+                    BrokerPort: '',
+                    ClientID: false, // '101FRE1111325665454RETV123355'
+                    Use_SSL: false,
+                    use_enryption: false,
+                    User_Name: '',
+                    User_Pass: '',
+                    Location: '',
+                    length: 0
                 }
             } else {
-                // const location = `${main_id}/${company.id}`
-                // ctx.body = {
-                //     BrokerAdr: 'lumiring.msg.th',
-                //     BrokerPort: 3285,
-                //     ClientID: '101FRE1111325665454RETV123355',
-                //     Use_SSL: false,
-                //     use_enryption: false,
-                //     User_Name: 'TR2584567452121TFD',
-                //     User_Pass: 'ASTR565VFDF8787fdtrtJ76p',
-                //     Location: location
-                // }
+                // example 96-bit nonce
+                var plaintext = user_pass as string
+                const cipher = crypto.createCipheriv('aes-128-ecb', 'lumiring2022icon', null)
+                const final_pass = Buffer.concat([cipher.update(plaintext), cipher.final()]).toString('hex')
+
+                // Using concatenation
+
+                // when need to encrypt pass with chacha20 just checkout comment
+                // var keyname = 'test'
+
+                const location = `${main_id}/${company.id}/registration`
+                ctx.body = {
+                    BrokerAdr: mqtt_host_for_device,
+                    BrokerPort: mqtt_port,
+                    ClientID: false, // '101FRE1111325665454RETV123355'
+                    Use_SSL: false,
+                    use_enryption: false,
+                    User_Name: user_name,
+                    User_Pass: final_pass,
+                    Location: location,
+                    length: plaintext.length
+                }
                 // const send_message = {
                 //     operator: 'registration',
                 //     info: {
@@ -154,20 +177,31 @@ export default class MqttController {
                 // }
                 // MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(get_mqtt))
 
-                const send_data: any = {
-                    operator: 'SetCtpTurnstile',
-                    location: '5/5',
-                    device_id: '1073493824',
-                    session_id: '0',
-                    message_id: (new Date().getTime()).toString(),
-                    info:
-                    {
-                        Control_point_idx: 3,
-                        Control_type: 0
-                    }
-                }
-                new SendDeviceMessage('SetCtpTurnstile', '5/5', 1073493824, send_data, 5, '52831102448461152410103211553534')
-                    // MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
+                // const send_data: any = {
+                //     operator: 'SetCtpTurnstile',
+                //     location: '5/5',
+                //     device_id: '1073493824',
+                //     session_id: '0',
+                //     message_id: (new Date().getTime()).toString(),
+                //     data:
+                //     {
+                //         id: 3
+                //     }
+                // }
+                // const send_data2: any = {
+                //     operator: 'GetStatusACU',
+                //     session_id: '222222222222',
+                //     location: '5/5',
+                //     device_id: '1073493824',
+                //     info: 'none'
+                //     }
+                // console.log('send_data', send_data)
+
+                // new SendDeviceMessage('SetCtpTurnstile', '5/5', 1073493824, {
+                //     id: 5
+                //     // send_data
+                // }, { id: 5 }, '52831102448461152410103211553534')
+                // MQTTBroker.publishMessage(SendTopics.CRUD_MQTT, JSON.stringify(send_data))
 
                 // const send_data: any = {
                 //     operator: 'SetSdlDaily',
@@ -215,10 +249,10 @@ export default class MqttController {
             //     info:
             //     {
             //         Group: 0,
-            //         Stp_idx: 9,
+            //         Ctp_idx: 9,
             //         Event_id: 10,
             //         Key_id: 1,
-            //         DateTm: 1599904641
+            //         time: 1599904641
             //     }
             // }
             // MQTTBroker.publishMessage('/1/5/1073493824/event', JSON.stringify(send_event))
@@ -227,7 +261,7 @@ export default class MqttController {
             //     password: 'admin'
             // }
             // const message = new SendDeviceMessage(OperatorType.LOGIN, `${main_id}/${company.id}`, 1073493824, loginData)
-            ctx.body = true
+            // ctx.body = true
         } catch (error) {
             console.log(error)
 
@@ -269,26 +303,26 @@ export default class MqttController {
  *                      example: 0
  *                  topic:
  *                      type: string
- *                      example: /5/5/1073493824/event
+ *                      example: 48/29/registration/1652472212/event
  *                  info:
  *                      type: object
  *                      required:
  *                      properties:
  *                          Group:
  *                              type: number
- *                              example: 10
+ *                              example: 2
  *                          Event_id:
  *                              type: number
- *                              example: 9
+ *                              example: 22
  *                          Key_id:
  *                              type: number
- *                              example: 10
- *                          DateTm:
- *                              type: number
- *                              example: 1
- *                          Stp_idx:
+ *                              example: 5
+ *                          time:
  *                              type: number
  *                              example: 1599904641
+ *                          Ctp_idx:
+ *                              type: number
+ *                              example: 51
  *          responses:
  *              '201':
  *                  description: A notification object
@@ -300,10 +334,11 @@ export default class MqttController {
 
     public static async post (ctx: DefaultContext) {
         try {
-                const data = ctx.request.body
-                MQTTBroker.publishMessage(data.topic, JSON.stringify(data))
-                ctx.body = { message: 'succsess' }
-            } catch (error) {
+            // "48/29/registration/1652472212/event",
+            const data = ctx.request.body
+            MQTTBroker.publishMessage(data.topic, JSON.stringify(data))
+            ctx.body = { message: 'success' }
+        } catch (error) {
             console.log(333, error)
 
             ctx.status = error.status || 400

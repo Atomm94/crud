@@ -9,10 +9,10 @@ export function fileSave (imageFile: any) {
 
     const dirtyImagePath = imageFile.name.split('.')
     const imageType = dirtyImagePath[dirtyImagePath.length - 1]
-    const newName = path.concat(`.${imageType}`)
+    const newName = path.concat(`.${imageType}`).split('upload_')[1]
 
     try {
-        fs.rename(`${parentDir}/public/${path}`, `${parentDir}/public/${newName}`, (err) => {
+        fs.rename(`${parentDir}/public/tmp/${path}`, `${parentDir}/public/tmp/${newName}`, (err) => {
             if (err) throw err
             logger.info('Rename complete!')
         })
@@ -21,7 +21,7 @@ export function fileSave (imageFile: any) {
         return false
     }
 
-    return { name: imageFile.name, path: newName }
+    return { name: imageFile.name, path: `tmp/${newName}` }
 }
 
 export function capitalizeFirst (string: string) {

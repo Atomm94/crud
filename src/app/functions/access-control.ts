@@ -71,7 +71,9 @@ export class AccessControl {
     }
 
     public static async GrantCompanyAccess () {
-        const packages: any = await Package.getAllItems()
+        const packages: any = await Package.createQueryBuilder('package')
+            .withDeleted()
+            .getMany()
         this.ac.registerConditionFunction('limit', this.limitCheck)
         if (packages) {
             packages.forEach((package_data: Package) => {
@@ -97,7 +99,11 @@ export class AccessControl {
     public static async addCompanyGrant (package_data: Package) {
         if (package_data.extra_settings) {
             const package_id = package_data.id
-            const extra_settings: { features: { [key: string]: boolean }, resources: { [key: string]: boolean } } = JSON.parse(package_data.extra_settings)
+            const extra_settings: {
+                features: { [key: string]: boolean },
+                resources: { [key: string]: number },
+                package_types: { [key: string]: number }
+            } = JSON.parse(package_data.extra_settings)
             if (extra_settings.resources) {
                 Object.keys(extra_settings.resources).forEach(resource => {
                     this.ac.grant(`package${package_id}`)
@@ -106,6 +112,16 @@ export class AccessControl {
                             args: { limit: +extra_settings.resources[resource] }
                         })
                         .execute('addItem').on(resource)
+                })
+            }
+            if (extra_settings.package_types) {
+                Object.keys(extra_settings.package_types).forEach(package_type => {
+                    this.ac.grant(`package${package_id}`)
+                        .condition({
+                            Fn: 'custom:limit',
+                            args: { limit: +extra_settings.package_types[package_type] }
+                        })
+                        .execute('addItem').on(`package_type${package_type}`)
                 })
             }
             if (extra_settings.features) {
@@ -126,6 +142,6 @@ export class AccessControl {
         if (!args || typeof args.limit !== 'number') {
             throw new Error('custom:limitCheck requires "limit" argument')
         }
-        return +context.used <= args.limit
+        return +context.used < args.limit
     }
 }

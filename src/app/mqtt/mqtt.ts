@@ -25,7 +25,7 @@ export default class MQTTBroker {
     }
 
     public static publishMessage (topic: string, msg: string): void {
-        console.log('publishMessage topic', topic, msg)
+        // console.log('publishMessage topic', topic, msg)
         this.client.publish(topic, msg, (error: any) => {
             if (error) logger.error('publish error', error)
         })

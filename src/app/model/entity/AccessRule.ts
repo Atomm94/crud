@@ -2,15 +2,21 @@ import {
     Entity,
     Column,
     ManyToOne,
-    JoinColumn
+    JoinColumn,
+    DeleteDateColumn,
+    Index
 } from 'typeorm'
 
 import {
-    MainEntity, Company,
+    MainEntity,
+    Company,
     AccessRight,
     AccessPoint,
     Schedule
 } from './index'
+import { minusResource } from '../../functions/minusResource'
+
+@Index('access_right|access_point|is_delete', ['access_right', 'access_point', 'is_delete'], { unique: true })
 
 @Entity('access_rule')
 export class AccessRule extends MainEntity {
@@ -25,6 +31,12 @@ export class AccessRule extends MainEntity {
 
     @Column('boolean', { name: 'access_in_holidays', default: false })
     access_in_holidays: boolean
+
+    @Column('varchar', { name: 'is_delete', default: 0 })
+    is_delete: string
+
+    @DeleteDateColumn({ type: 'timestamp', name: 'delete_date' })
+    public delete_date: Date
 
     @Column('int', { name: 'company', nullable: false })
     company: number
@@ -110,9 +122,20 @@ export class AccessRule extends MainEntity {
     public static async destroyItem (data: any) {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
-            this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
-                this.remove(data)
-                    .then(() => {
+            const where: any = { id: data.id }
+            if (data.company) where.company = data.company
+            this.findOneOrFail(where).then((data: any) => {
+                this.softRemove(data)
+                    .then(async () => {
+                        minusResource(this.name, data.company)
+
+                        const rule_data: any = await this.createQueryBuilder('access_rule')
+                            .where('id = :id', { id: data.id })
+                            .withDeleted()
+                            .getOne()
+                        rule_data.is_delete = (new Date()).getTime()
+                        await this.save(rule_data)
+
                         resolve({ message: 'success' })
                     })
                     .catch((error: any) => {

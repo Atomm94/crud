@@ -2,8 +2,10 @@ import {
     Entity,
     Column,
     ManyToOne,
-    JoinColumn
+    JoinColumn,
+    DeleteDateColumn
 } from 'typeorm'
+import { scheduleType } from '../../enums/scheduleType.enum'
 
 import { MainEntity } from './MainEntity'
 import { Schedule } from './Schedule'
@@ -22,6 +24,9 @@ export class Timeframe extends MainEntity {
     @Column('int', { name: 'schedule', nullable: false })
     schedule: number
 
+    @DeleteDateColumn({ type: 'timestamp', name: 'delete_date' })
+    public deleteDate: Date
+
     @Column('int', { name: 'company', nullable: false })
     company: number
 
@@ -33,15 +38,25 @@ export class Timeframe extends MainEntity {
     public static gettingAttributes: boolean = false
 
     public static async addItem (data: Timeframe): Promise<Timeframe> {
-        const timeframe = new Timeframe()
+        // eslint-disable-next-line no-async-promise-executor
+        return new Promise(async (resolve, reject) => {
+            const schedule = await Schedule.findOneOrFail({ id: data.schedule })
+            if (schedule.type === scheduleType.DAILY || schedule.type === scheduleType.WEEKLY) {
+                const timeframes: any = await Timeframe.getAllItems({ where: { schedule: { '=': data.schedule }, name: { '=': data.name } } })
+                if (schedule.type === scheduleType.DAILY && timeframes.length >= 6) {
+                    return reject(new Error(`timeframe limit for ${scheduleType.DAILY} reached!`))
+                } else if (schedule.type === scheduleType.WEEKLY && timeframes.length >= 4) {
+                    return reject(new Error(`timeframe limit for ${scheduleType.WEEKLY} reached!`))
+                }
+            }
+            const timeframe = new Timeframe()
 
-        timeframe.name = data.name
-        timeframe.start = data.start
-        timeframe.end = data.end
-        timeframe.schedule = data.schedule
-        timeframe.company = data.company
+            timeframe.name = data.name
+            timeframe.start = data.start
+            timeframe.end = data.end
+            timeframe.schedule = data.schedule
+            timeframe.company = data.company
 
-        return new Promise((resolve, reject) => {
             this.save(timeframe)
                 .then((item: Timeframe) => {
                     resolve(item)
@@ -113,7 +128,7 @@ export class Timeframe extends MainEntity {
         if (data.name && data.schedule) {
             // eslint-disable-next-line no-async-promise-executor
             return new Promise(async (resolve, reject) => {
-                this.remove(await this.findOneOrFail({ name: data.name, schedule: data.schedule }))
+                this.softRemove(await this.findOneOrFail({ name: data.name, schedule: data.schedule, company: data.company }))
                     .then(() => {
                         resolve({ message: 'success' })
                     })
@@ -124,8 +139,8 @@ export class Timeframe extends MainEntity {
         } else if (data.id) {
             // eslint-disable-next-line no-async-promise-executor
             return new Promise(async (resolve, reject) => {
-                this.remove(await this.findOneOrFail({ id: data.id }))
-                this.delete(data.id)
+                this.softRemove(await this.findOneOrFail({ id: data.id, company: data.company }))
+
                     .then(() => {
                         resolve({ message: 'success' })
                     })

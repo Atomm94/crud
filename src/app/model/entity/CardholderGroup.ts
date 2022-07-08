@@ -4,9 +4,11 @@ import {
     ManyToOne,
     // OneToMany,
     JoinColumn,
-    OneToMany
+    OneToMany,
+    DeleteDateColumn,
+    Index
 } from 'typeorm'
-import { AntipassBack } from './AntipassBack'
+import { minusResource } from '../../functions/minusResource'
 
 import {
     Cardholder,
@@ -17,6 +19,7 @@ import {
 } from './index'
 // import { Cardholder } from './Cardholder'
 
+@Index('name|company|is_delete', ['name', 'company', 'is_delete'], { unique: true })
 @Entity('cardholder_group')
 export class CardholderGroup extends MainEntity {
     @Column('varchar', { name: 'name', nullable: false })
@@ -34,13 +37,13 @@ export class CardholderGroup extends MainEntity {
     @Column('boolean', { name: 'limitation_inherited', default: false })
     limitation_inherited: boolean
 
-    @Column('int', { name: 'antipass_back', nullable: false })
-    antipass_back: number
+    @Column('boolean', { name: 'enable_antipass_back', default: false })
+    enable_antipass_back: boolean
 
     @Column('boolean', { name: 'antipass_back_inherited', default: false })
     antipass_back_inherited: boolean
 
-    @Column('int', { name: 'time_attendance', nullable: false })
+    @Column('int', { name: 'time_attendance', nullable: true })
     time_attendance: number
 
     @Column('boolean', { name: 'time_attendance_inherited', default: false })
@@ -52,6 +55,12 @@ export class CardholderGroup extends MainEntity {
     @Column('boolean', { name: 'access_right_inherited', default: false })
     access_right_inherited: boolean
 
+    @DeleteDateColumn({ type: 'timestamp', name: 'delete_date' })
+    public deleteDate: Date
+
+    @Column('varchar', { name: 'is_delete', default: 0 })
+    is_delete: string
+
     @Column('int', { name: 'company', nullable: false })
     company: number
 
@@ -62,9 +71,9 @@ export class CardholderGroup extends MainEntity {
     @JoinColumn({ name: 'limitation' })
     limitations: Limitation | null;
 
-    @ManyToOne(type => AntipassBack, antipass_back => antipass_back.cardholder_groups, { nullable: true })
-    @JoinColumn({ name: 'antipass_back' })
-    antipass_backs: AntipassBack | null;
+    // @ManyToOne(type => AntipassBack, antipass_back => antipass_back.cardholder_groups, { nullable: true })
+    // @JoinColumn({ name: 'antipass_back' })
+    // antipass_backs: AntipassBack | null;
 
     @ManyToOne(type => Schedule, schedule => schedule.cardholder_groups, { nullable: true })
     @JoinColumn({ name: 'time_attendance' })
@@ -84,9 +93,9 @@ export class CardholderGroup extends MainEntity {
         if ('parent_id' in data) cardholderGroup.parent_id = data.parent_id
         cardholderGroup.limitation = data.limitation
         if ('limitation_inherited' in data) cardholderGroup.limitation_inherited = data.limitation_inherited
-        cardholderGroup.antipass_back = data.antipass_back
+        cardholderGroup.enable_antipass_back = data.enable_antipass_back
         if ('antipass_back_inherited' in data) cardholderGroup.antipass_back_inherited = data.antipass_back_inherited
-        cardholderGroup.time_attendance = data.time_attendance
+        if ('time_attendance' in data) cardholderGroup.time_attendance = data.time_attendance
         if ('time_attendance_inherited' in data) cardholderGroup.time_attendance_inherited = data.time_attendance_inherited
         cardholderGroup.access_right = data.access_right
         if ('access_right_inherited' in data) cardholderGroup.access_right_inherited = data.access_right_inherited
@@ -123,15 +132,19 @@ export class CardholderGroup extends MainEntity {
             }
         }
 
+        // if (data.antipass_back_inherited && parent_data) {
+        //     data.antipass_back = parent_data.antipass_back
+        // } else {
+        //     if (data.antipass_back_inherited === oldData.antipass_back_inherited) {
+        //         await AntipassBack.updateItem(data.antipass_backs as AntipassBack)
+        //     } else {
+        //         const antipass_back_data: any = await AntipassBack.addItem(data.antipass_backs as AntipassBack)
+        //         data.antipass_back = antipass_back_data.id
+        //     }
+        // }
+
         if (data.antipass_back_inherited && parent_data) {
-            data.antipass_back = parent_data.antipass_back
-        } else {
-            if (data.antipass_back_inherited === oldData.antipass_back_inherited) {
-                await AntipassBack.updateItem(data.antipass_backs as AntipassBack)
-            } else {
-                const antipass_back_data: any = await AntipassBack.addItem(data.antipass_backs as AntipassBack)
-                data.antipass_back = antipass_back_data.id
-            }
+            data.enable_antipass_back = parent_data.enable_antipass_back
         }
 
         if (data.access_right_inherited && parent_data) {
@@ -147,7 +160,7 @@ export class CardholderGroup extends MainEntity {
         if ('parent_id' in data) cardholderGroup.parent_id = data.parent_id
         if ('limitation' in data) cardholderGroup.limitation = data.limitation
         if ('limitation_inherited' in data) cardholderGroup.limitation_inherited = data.limitation_inherited
-        if ('antipass_back' in data) cardholderGroup.antipass_back = data.antipass_back
+        if ('enable_antipass_back' in data) cardholderGroup.enable_antipass_back = data.enable_antipass_back
         if ('antipass_back_inherited' in data) cardholderGroup.antipass_back_inherited = data.antipass_back_inherited
         if ('time_attendance' in data) cardholderGroup.time_attendance = data.time_attendance
         if ('time_attendance_inherited' in data) cardholderGroup.time_attendance_inherited = data.time_attendance_inherited
@@ -188,8 +201,17 @@ export class CardholderGroup extends MainEntity {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
             this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
-                this.remove(data)
-                    .then(() => {
+                this.softRemove(data)
+                    .then(async () => {
+                        minusResource(this.name, data.company)
+
+                        const group_data: any = await this.createQueryBuilder('cardholder_group')
+                            .where('id = :id', { id: data.id })
+                            .withDeleted()
+                            .getOne()
+                        group_data.is_delete = (new Date()).getTime()
+                        await this.save(group_data)
+
                         resolve({ message: 'success' })
                     })
                     .catch((error: any) => {

@@ -1,4 +1,5 @@
 import { DefaultContext } from 'koa'
+import { logUserEvents } from '../enums/logUserEvents.enum'
 import {
     Ticket,
     TicketMessage,
@@ -195,7 +196,13 @@ export default class TicketController {
             const req_data = ctx.request.body
             const where = { id: req_data.id }
 
+            const ticket = await Ticket.findOneOrFail({ where: where })
             ctx.body = await Ticket.destroyItem(where)
+            ctx.logsData = [{
+                event: logUserEvents.DELETE,
+                target: `${Ticket.name}/${ticket.subject}`,
+                value: { name: ticket.subject }
+            }]
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

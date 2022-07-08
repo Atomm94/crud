@@ -5,6 +5,8 @@ export class BaseClass {
     public static gettingAttributes: boolean = false
 
     public static resource: boolean = false
+    public static serviceResource: boolean = false
+
     public static features: any = false
 
     public static getActions () {

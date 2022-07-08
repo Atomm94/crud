@@ -21,9 +21,15 @@ import {
     AccountGroup,
     Schedule,
     AccessPoint,
-    AccessRule
+    AccessRule,
+    CompanyResources
 } from './index'
 
+import { minusResource } from '../../functions/minusResource'
+import { Acu } from './Acu'
+import { AcuStatus } from './AcuStatus'
+import { companyDayKeys } from '../../enums/companyDayKeys.enum'
+import { zohoCallbackStatus } from '../../enums/zohoCallbackStatus.enum'
 @Entity('company')
 export class Company extends MainEntity {
     @Column('varchar', { name: 'company_name', nullable: false })
@@ -31,6 +37,9 @@ export class Company extends MainEntity {
 
     @Column('int', { name: 'package', nullable: true })
     package: number | null
+
+    @Column('int', { name: 'upgraded_package_id', nullable: true })
+    upgraded_package_id: number | null
 
     @Column('int', { name: 'package_type', nullable: false })
     package_type: number
@@ -41,11 +50,44 @@ export class Company extends MainEntity {
     @Column('int', { name: 'account', nullable: true })
     account: number | null
 
+    @Column('int', { name: 'access_right', nullable: true })
+    access_right: number | null
+
+    @Column('longtext', { name: 'base_access_points', nullable: true })
+    base_access_points: string | null
+
     @Column('int', { name: 'parent_id', nullable: true })
     parent_id: number | null
 
+    @Column('int', { name: 'partition_parent_id', nullable: true })
+    partition_parent_id: number | null
+
     @Column('enum', { name: 'status', enum: statusCompany, default: statusCompany.PENDING })
     status: statusCompany
+
+    @Column('int', { name: 'schedule_id', nullable: true })
+    schedule_id: number | null
+
+    @Column('longtext', { name: 'time_keys', nullable: true })
+    time_keys: string | null
+
+    @Column('enum', { name: 'day_keys', enum: companyDayKeys, default: companyDayKeys.UP_TO_5_DAYS })
+    day_keys: companyDayKeys
+
+    @Column('boolean', { name: 'require_name_of_guest', default: false })
+    require_name_of_guest: boolean
+
+    @Column('boolean', { name: 'create_customer_zoho_sync', default: false })
+    create_customer_zoho_sync: boolean
+
+    @Column('boolean', { name: 'create_subscription_zoho_sync', default: false })
+    create_subscription_zoho_sync: boolean
+
+    @Column('varchar', { name: 'zoho_customer_id', nullable: true })
+    zoho_customer_id: string | null
+
+    @Column('enum', { name: 'zoho_callback_status', enum: zohoCallbackStatus, default: zohoCallbackStatus.NONE })
+    zoho_callback_status: zohoCallbackStatus
 
     @DeleteDateColumn({ type: 'timestamp', name: 'delete_date' })
     public deleteDate: Date
@@ -60,6 +102,9 @@ export class Company extends MainEntity {
 
     @OneToMany(type => CompanyDocuments, company_documents => company_documents.companies)
     company_documents: CompanyDocuments[];
+
+    @OneToOne(type => CompanyResources, company_resource => company_resource.companies)
+    company_resources: CompanyResources;
 
     @OneToMany(type => Admin, users => users.companies)
     users: Admin[];
@@ -86,6 +131,21 @@ export class Company extends MainEntity {
     @OneToMany(type => AccessRight, access_right => access_right.companies)
     access_rights: AccessRight[];
 
+    @OneToMany(type => Acu, acu => acu.companies)
+    acus: Acu[];
+
+    @OneToMany(type => AcuStatus, acu_status => acu_status.companies)
+    acu_statuses: AcuStatus[];
+
+    @ManyToOne(type => AccessRight, base_access_right => base_access_right.companies, { nullable: true })
+    @JoinColumn({ name: 'access_right' })
+    base_access_rights: AccessRight | null;
+
+    public static resource: boolean = true
+    @ManyToOne(type => Schedule, schedule => schedule.base_companies, { nullable: true })
+    @JoinColumn({ name: 'schedule_id' })
+    base_schedules: Schedule | null;
+
     public static async addItem (data: Company): Promise<Company> {
         const company = new Company()
 
@@ -94,6 +154,9 @@ export class Company extends MainEntity {
         company.package_type = data.package_type
         if ('message' in data) company.message = data.message
         if ('parent_id' in data) company.parent_id = data.parent_id
+        if ('partition_parent_id' in data) company.partition_parent_id = data.partition_parent_id
+        if ('status' in data) company.status = data.status
+
         // company.status = data.status
 
         return new Promise((resolve, reject) => {
@@ -107,8 +170,10 @@ export class Company extends MainEntity {
         })
     }
 
-    public static async updateItem (data: Company): Promise<{ [key: string]: any }> {
-        const company = await this.findOneOrFail({ id: data.id })
+    public static async updateItem (data: Company, user?: any): Promise<{ [key: string]: any }> {
+        const where: any = { id: data.id }
+        if (user && user.company && data.id !== user.company) where.parent_id = user.company
+        const company = await this.findOneOrFail(where)
         const oldData = Object.assign({}, company)
 
         if ('company_name' in data) company.company_name = data.company_name
@@ -116,6 +181,16 @@ export class Company extends MainEntity {
         if ('package_type' in data) company.package_type = data.package_type
         if ('message' in data) company.message = data.message
         if ('status' in data) company.status = data.status
+        if ('access_right' in data) company.access_right = data.access_right
+        if ('base_access_points' in data) company.base_access_points = (data.base_access_points && typeof data.base_access_points === 'object') ? JSON.stringify(data.base_access_points) : data.base_access_points
+
+        if ('schedule_id' in data) company.schedule_id = data.schedule_id
+        if ('time_keys' in data) {
+            company.time_keys = (data.time_keys && typeof data.time_keys === 'object') ? JSON.stringify(data.time_keys) : data.time_keys
+        }
+        if ('day_keys' in data) company.day_keys = data.day_keys
+        if ('require_name_of_guest' in data) company.require_name_of_guest = data.require_name_of_guest
+        if ('upgraded_package_id' in data) company.upgraded_package_id = data.upgraded_package_id
 
         if (!company) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
@@ -156,12 +231,15 @@ export class Company extends MainEntity {
         })
     }
 
-    public static async destroyItem (data: any) {
+    public static async destroyItem (where: any) {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
-            this.findOneOrFail({ id: data.id }).then((data: any) => {
+            this.findOneOrFail(where).then((data: any) => {
                 this.softRemove(data)
                     .then(() => {
+                        if (data.parent_id) {
+                            minusResource(data.package_type, data.parent_id)
+                        }
                         resolve({ message: 'success' })
                     })
                     .catch((error: any) => {

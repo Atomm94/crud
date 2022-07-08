@@ -6,7 +6,6 @@ import {
     RemoveEvent
 } from 'typeorm'
 import { Limitation } from '../entity'
-import { AntipassBack } from '../entity/AntipassBack'
 // import * as Models from '../entity'
 import { CardholderGroup } from '../entity/CardholderGroup'
 import { Cardholder } from '../entity/Cardholder'
@@ -51,11 +50,15 @@ export class PostSubscriber implements EntitySubscriberInterface<CardholderGroup
         }
 
         // antipass_back
-        if ((New.antipass_back_inherited !== Old.antipass_back_inherited && New.antipass_back_inherited === true) || New.antipass_back !== Old.antipass_back) {
+        if ((New.antipass_back_inherited !== Old.antipass_back_inherited && New.antipass_back_inherited === true) ||
+            //  || New.antipass_back !== Old.antipass_back
+            New.enable_antipass_back !== Old.enable_antipass_back
+        ) {
             const childs = await CardholderGroup.find({ parent_id: New.id })
             for (const child of childs) {
                 if (child.antipass_back_inherited === true) {
-                    child.antipass_back = New.antipass_back
+                    // child.antipass_back = New.antipass_back
+                    child.enable_antipass_back = New.enable_antipass_back
                     await child.save()
                 }
             }
@@ -63,14 +66,15 @@ export class PostSubscriber implements EntitySubscriberInterface<CardholderGroup
             const cardholders = await Cardholder.find({ cardholder_group: New.id })
             for (const cardholder of cardholders) {
                 if (cardholder.antipass_back_inherited === true) {
-                    cardholder.antipass_back = New.antipass_back
+                    // cardholder.antipass_back = New.antipass_back
+                    cardholder.enable_antipass_back = New.enable_antipass_back
                     await cardholder.save()
                 }
             }
 
-            if (New.antipass_back_inherited !== Old.antipass_back_inherited && New.antipass_back_inherited === true) {
-                AntipassBack.destroyItem(Old.antipass_back)
-            }
+            // if (New.antipass_back_inherited !== Old.antipass_back_inherited && New.antipass_back_inherited === true) {
+            //     AntipassBack.destroyItem(Old.antipass_back)
+            // }
         }
 
         // access_right

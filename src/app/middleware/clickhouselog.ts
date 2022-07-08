@@ -1,10 +1,8 @@
 // import * as _ from 'lodash'
 import { DefaultContext } from 'koa'
-import { getObjectDiff } from '../functions/checkDifference'
-import MQTTBroker from '../mqtt/mqtt'
-import { SendTopics } from '../mqtt/Topics'
 import { logger } from '../../../modules/winston/logger'
-import { OperatorType } from '../mqtt/Operators'
+import { logUserEvents } from '../enums/logUserEvents.enum'
+import SendUserLogMessage from '../mqtt/SendUserLogMessage'
 
 export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
     const request = ctx.request
@@ -14,60 +12,44 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
             logger.error(`${JSON.stringify(ctx.body)}`)
             if (ctx.body.sqlMessage) ctx.body = { message: ctx.body.sqlMessage }
         } else {
-            switch (request.method) {
-                case 'PUT': // update
-                    if (ctx.oldData && ctx.user) {
-                        const diff = getObjectDiff(ctx.body, ctx.oldData)
-                        const dataLog = {
-                            operator: OperatorType.USER_LOG,
-                            data: {
-                                company: (ctx.user.company) ? ctx.user.company : 0,
-                                account: ctx.user,
-                                account_name: `${ctx.user.first_name} ${ctx.user.last_name}`,
-                                event: 'change',
-                                target: (ctx.user.company && ctx.actionFeature) ? ctx.actionFeature : ctx.actionModel,
-                                value: diff
-                            }
-                        }
-                        MQTTBroker.publishMessage(SendTopics.LOG, JSON.stringify(dataLog))
-                    }
-                    break
-                case 'POST': // create
-                    if (ctx.user) {
-                        const dataLog = {
-                            operator: OperatorType.USER_LOG,
-                            data: {
-                                company: (ctx.user.company) ? ctx.user.company : 0,
-                                account: ctx.user,
-                                account_name: `${ctx.user.first_name} ${ctx.user.last_name}`,
-                                event: 'create',
-                                target: (ctx.user.company && ctx.actionFeature) ? ctx.actionFeature : ctx.actionModel,
-                                value: null
-                            }
+            if (ctx.logsData) {
+                for (const logData of ctx.logsData) {
+                    new SendUserLogMessage((ctx.user.company) ? ctx.user.company : 0, ctx.user, logData.event, logData.target, logData.value)
+                }
+            } else {
+                let target = (ctx.user && ctx.user.company && ctx.actionFeature) ? ctx.actionFeature : ctx.actionModel
+                if (ctx.body.name) {
+                    target += `/${ctx.body.name}`
+                } else if (ctx.body.type) {
+                    target += `/${ctx.body.type}`
+                }
 
+                switch (request.method) {
+                    case 'PUT': // update
+                        if (ctx.oldData && ctx.user) {
+                            new SendUserLogMessage((ctx.user.company) ? ctx.user.company : 0, ctx.user, logUserEvents.CHANGE, target, { new: ctx.body, old: ctx.oldData })
                         }
-                        MQTTBroker.publishMessage(SendTopics.LOG, JSON.stringify(dataLog))
-                    }
-                    break
-                case 'DELETE': // delete
-                    if (ctx.user) {
-                        const dataLog = {
-                            operator: OperatorType.USER_LOG,
-                            data: {
-                                company: (ctx.user.company) ? ctx.user.company : 0,
-                                account: ctx.user,
-                                account_name: `${ctx.user.first_name} ${ctx.user.last_name}`,
-                                event: 'delete',
-                                target: (ctx.user.company && ctx.actionFeature) ? ctx.actionFeature : ctx.actionModel,
-                                value: ctx.request.body.id
+                        break
+                    case 'POST': // create
+                        if (ctx.user) {
+                            let value = null
+                            if (ctx.body.name) {
+                                value = { name: ctx.body.name }
+                            } else if (ctx.body.type) {
+                                value = { type: ctx.body.type }
                             }
+                            new SendUserLogMessage((ctx.user.company) ? ctx.user.company : 0, ctx.user, logUserEvents.CREATE, target, value)
                         }
-                        MQTTBroker.publishMessage(SendTopics.LOG, JSON.stringify(dataLog))
-                    }
-                    break
-                default:
+                        break
+                    case 'DELETE': // delete
+                        if (ctx.user) {
+                            new SendUserLogMessage((ctx.user.company) ? ctx.user.company : 0, ctx.user, logUserEvents.DELETE, target, null)
+                        }
+                        break
+                    default:
 
-                    break
+                        break
+                }
             }
         }
     } catch (error) {

@@ -1,4 +1,5 @@
 import { DefaultContext } from 'koa'
+import { logUserEvents } from '../enums/logUserEvents.enum'
 import { CompanyDocuments } from '../model/entity/CompanyDocuments'
 export default class CompanyDocumentsController {
     /**
@@ -186,7 +187,13 @@ export default class CompanyDocumentsController {
             const req_data = ctx.request.body
             const user = ctx.user
             const where = { id: req_data.id, company: user.company ? user.company : null }
+            const company_documents = await CompanyDocuments.findOneOrFail({ where: where })
             ctx.body = await CompanyDocuments.destroyItem(where)
+            ctx.logsData = [{
+                event: logUserEvents.DELETE,
+                target: `${CompanyDocuments.name}/${company_documents.name}`,
+                value: { name: company_documents.name }
+            }]
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -255,9 +262,15 @@ export default class CompanyDocumentsController {
      *                  description: Wrong data
      */
     public static async companyFileUpload (ctx: DefaultContext) {
-        const file = ctx.request.files.file
-        const savedFile = await CompanyDocuments.saveFile(file)
-        return ctx.body = savedFile
+        try {
+            const file = ctx.request.files.file
+            const savedFile = await CompanyDocuments.saveFile(file)
+            ctx.body = savedFile
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
     }
 
     /**
