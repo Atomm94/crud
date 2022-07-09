@@ -317,7 +317,10 @@ export default class Parse {
 
     public static async pingAck (message: IMqttCrudMessaging) {
         try {
-            AcuStatus.findOneOrFail({ serial_number: message.device_id, company: message.company }).then(async (acuStatusData: AcuStatus) => {
+            AcuStatus.findOneOrFail({
+                where: { serial_number: message.device_id, company: message.company },
+                order: { createDate: 'DESC' }
+            }).then(async (acuStatusData: AcuStatus) => {
                 const access_point_statuses: any = await AccessPointStatus.getAllItems({ where: { acu: { '=': acuStatusData.acu } } })
                 if (message.result.errorNo === 0) {
                     if ('firmware_ver' in message.info) acuStatusData.fw_version = message.info.firmware_ver
