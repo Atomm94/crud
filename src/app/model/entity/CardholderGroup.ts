@@ -55,6 +55,9 @@ export class CardholderGroup extends MainEntity {
     @Column('boolean', { name: 'access_right_inherited', default: false })
     access_right_inherited: boolean
 
+    @Column('boolean', { name: 'default', default: false })
+    default: boolean
+
     @DeleteDateColumn({ type: 'timestamp', name: 'delete_date' })
     public deleteDate: Date
 
@@ -100,6 +103,7 @@ export class CardholderGroup extends MainEntity {
         cardholderGroup.access_right = data.access_right
         if ('access_right_inherited' in data) cardholderGroup.access_right_inherited = data.access_right_inherited
         cardholderGroup.company = data.company
+        if ('default' in data) cardholderGroup.default = data.default
 
         return new Promise((resolve, reject) => {
             this.save(cardholderGroup)
@@ -166,6 +170,7 @@ export class CardholderGroup extends MainEntity {
         if ('time_attendance_inherited' in data) cardholderGroup.time_attendance_inherited = data.time_attendance_inherited
         if ('access_right' in data) cardholderGroup.access_right = data.access_right
         if ('access_right_inherited' in data) cardholderGroup.access_right_inherited = data.access_right_inherited
+        if ('default' in data) cardholderGroup.default = data.default
 
         if (!cardholderGroup) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
