@@ -296,15 +296,16 @@ export default class CardholderGroupController {
             } else {
                 const updated = await CardholderGroup.updateItem(req_data as CardholderGroup, user)
 
-                if (req_data.default) {
+                if (!check_by_company.default && req_data.default) {
                     const old_default_group: any = await CardholderGroup.createQueryBuilder('cardholder_group')
                         .where(`company = ${user.company}`)
                         .andWhere(`cardholder_group.default = ${true}`)
                         .andWhere(`id != ${check_by_company.id}`)
                         .getOne()
-                    console.log('🚀 ~ file: CardholderGroupController.ts ~ line 301 ~ CardholderGroupController ~ update ~ old_default_group', old_default_group)
-                    old_default_group.default = false
-                    old_default_group.save()
+                    if (old_default_group) {
+                        old_default_group.default = false
+                        old_default_group.save()
+                    }
                 }
 
                 const new_limitations = await Limitation.findOne({ where: { id: updated.new.limitation } })
@@ -328,8 +329,6 @@ export default class CardholderGroupController {
                 ctx.body = updated.new
             }
         } catch (error) {
-            console.log('🚀 ~ file: CardholderGroupController.ts ~ line 442 ~ CardholderGroupController ~ destroy ~ error', error)
-
             ctx.status = error.status || 400
             ctx.body = error
         }
