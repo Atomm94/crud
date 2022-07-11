@@ -102,6 +102,9 @@ export default class CardholderGroupController {
      *                  access_right:
      *                      type: number
      *                      example: 1
+     *                  default:
+     *                      type: boolean
+     *                      example: false
      *          responses:
      *              '201':
      *                  description: A cardholderGroup object
@@ -151,8 +154,17 @@ export default class CardholderGroupController {
             if (req_data.time_attendance_inherited && parent_data) {
                 req_data.time_attendance = parent_data.time_attendance
             }
-
-            ctx.body = await CardholderGroup.addItem(req_data as CardholderGroup)
+            const new_group: any = await CardholderGroup.addItem(req_data as CardholderGroup)
+            if (req_data.default) {
+                const old_default_group: any = await CardholderGroup.createQueryBuilder('cardholder_group')
+                    .where(`company = '${user.company}'`)
+                    .andWhere(`cardholder_group.default = ${true}`)
+                    .andWhere(`id != ${new_group.id}`)
+                    .getOne()
+                old_default_group.default = false
+                old_default_group.save()
+            }
+            ctx.body = new_group
         } catch (error) {
             console.log('error', error)
 
@@ -259,6 +271,9 @@ export default class CardholderGroupController {
      *                  access_right:
      *                      type: number
      *                      example: 1
+     *                  default:
+     *                      type: boolean
+     *                      example: false
      *          responses:
      *              '201':
      *                  description: A cardholderGroup updated object
@@ -279,13 +294,19 @@ export default class CardholderGroupController {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
             } else {
-                if (check_by_company.name === 'All Cardholders') {
-                    if (req_data.name && check_by_company.name !== req_data.name) {
-                        ctx.status = 400
-                        ctx.body = { message: "Can't update Default Cardholder Group name" }
-                    }
-                }
                 const updated = await CardholderGroup.updateItem(req_data as CardholderGroup, user)
+
+                if (req_data.default) {
+                    const old_default_group: any = await CardholderGroup.createQueryBuilder('cardholder_group')
+                        .where(`company = ${user.company}`)
+                        .andWhere(`cardholder_group.default = ${true}`)
+                        .andWhere(`id != ${check_by_company.id}`)
+                        .getOne()
+                    console.log('🚀 ~ file: CardholderGroupController.ts ~ line 301 ~ CardholderGroupController ~ update ~ old_default_group', old_default_group)
+                    old_default_group.default = false
+                    old_default_group.save()
+                }
+
                 const new_limitations = await Limitation.findOne({ where: { id: updated.new.limitation } })
                 if (new_limitations) {
                     if (updated.new.access_right !== updated.old.access_right ||
@@ -307,6 +328,8 @@ export default class CardholderGroupController {
                 ctx.body = updated.new
             }
         } catch (error) {
+            console.log('🚀 ~ file: CardholderGroupController.ts ~ line 442 ~ CardholderGroupController ~ destroy ~ error', error)
+
             ctx.status = error.status || 400
             ctx.body = error
         }
@@ -405,9 +428,12 @@ export default class CardholderGroupController {
                     ctx.body = { message: 'Can\'t remove group with cardholders' }
                 } else {
                     const cardholder_group = await CardholderGroup.findOneOrFail({ where: where })
-                    if (cardholder_group.name === 'All Cardholders') {
+                    console.log('🚀 ~ file: CardholderGroupController.ts ~ line 431 ~ CardholderGroupController ~ destroy ~ cardholder_group', cardholder_group)
+                    if (!cardholder_group.parent_id || cardholder_group.default) {
+                        console.log(5968969689)
+
                         ctx.status = 400
-                        ctx.body = { message: "Can't delete Default Cardholder Group" }
+                        return ctx.body = { message: "Can't delete Default Cardholder Group" }
                     }
                     ctx.body = await CardholderGroup.destroyItem(where)
                     ctx.logsData = [{
@@ -418,6 +444,7 @@ export default class CardholderGroupController {
                 }
             }
         } catch (error) {
+            console.log('🚀 ~ file: CardholderGroupController.ts ~ line 445 ~ CardholderGroupController ~ destroy ~ error', error)
             ctx.status = error.status || 400
             ctx.body = error
         }
