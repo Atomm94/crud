@@ -306,6 +306,15 @@ export default class CardholderGroupController {
                         old_default_group.default = false
                         old_default_group.save()
                     }
+                } else if (check_by_company.default && !req_data.default) {
+                    const new_default_group: any = await CardholderGroup.createQueryBuilder('cardholder_group')
+                        .where(`company = ${user.company}`)
+                        .andWhere(`parent_id = ${null}`)
+                        .getOne()
+                    if (new_default_group) {
+                        new_default_group.default = false
+                        new_default_group.save()
+                    }
                 }
 
                 const new_limitations = await Limitation.findOne({ where: { id: updated.new.limitation } })
