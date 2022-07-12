@@ -312,7 +312,7 @@ export default class CardholderGroupController {
                         .andWhere('parent_id is null')
                         .getOne()
                     if (new_default_group) {
-                        new_default_group.default = false
+                        new_default_group.default = true
                         new_default_group.save()
                     }
                 }
