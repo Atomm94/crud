@@ -907,7 +907,7 @@ export default class CardholderController {
             let [result, total] = await cardholders
                 .take(take)
                 .skip(skip)
-                .orderBy('cardholder.id', 'DESC')
+                .orderBy('cardholder.id', 'ASC')
                 .getManyAndCount()
 
             if (resource_limited && total > resource_limit) {
