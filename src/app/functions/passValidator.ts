@@ -5,8 +5,8 @@ export function validate (string: string) {
     if (
         /\d/.test(string) &&
         /[A-Z]/.test(string) &&
-        /[a-z]/.test(string) &&
-        /[ `!@#$%^&*()_+\-=\[\]\{\};':"\\|,.<>\/?~]/.test(string)
+        /[a-z]/.test(string)
+        // && /[ `!@#$%^&*()_+\-=\[\]\{\};':"\\|,.<>\/?~]/.test(string)
     ) {
         message = undefined
         return { success: true }
@@ -20,9 +20,10 @@ export function validate (string: string) {
         message = 'Password field must have upper case letter'
     } else if (!/[a-z]/.test(string)) {
         message = 'Password field must have lower case letter'
-    } else if (!/[ `!@#$%^&*()_+\-=\[\]\{\};':"\\|,.<>\/?~]/.test(string)) {
-        message = 'Password field must have special character'
     }
+    //  else if (!/[ `!@#$%^&*()_+\-=\[\]\{\};':"\\|,.<>\/?~]/.test(string)) {
+    //     message = 'Password field must have special character'
+    // }
 
     return { success: false, message: message }
 }
