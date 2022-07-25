@@ -148,26 +148,25 @@ export function checkAccessPointsValidation (data: any, acu_model: string, eleva
                     return ('in Component Source you cant set ext_device before add ACU!')
                 }
                 if ('input' in resources[resource]) {
-                    if (inputs[resources[resource].input]) {
-                        return ('inputs must be different!')
-                    } else {
+                    if (component_source === 0) {
+                        if (inputs[resources[resource].input]) {
+                            return ('inputs must be different!')
+                        }
                         inputs[resources[resource].input] = true
-                        if (component_source === 0) {
-                            inputs_count++
-                        } else {
-                            const ext_device_input = resources[resource].input
+                        inputs_count++
+                    } else {
+                        const ext_device_input = resources[resource].input
 
-                            if (ext_device_input > acu_models.expansion_boards.alarm_board['LR-IB16'].inputs) {
-                                return (`input cant be ${ext_device_input} of extention device ${component_source}!`)
+                        if (ext_device_input > acu_models.expansion_boards.alarm_board['LR-IB16'].inputs) {
+                            return (`input cant be ${ext_device_input} of extention device ${component_source}!`)
+                        } else {
+                            if (!ext_devices[component_source]) {
+                                ext_devices[component_source] = { [ext_device_input]: true }
                             } else {
-                                if (!ext_devices[component_source]) {
-                                    ext_devices[component_source] = { [ext_device_input]: true }
+                                if (ext_devices[component_source][ext_device_input]) {
+                                    return (`input ${ext_device_input} of extention device ${component_source} must be different!`)
                                 } else {
-                                    if (ext_devices[component_source][ext_device_input]) {
-                                        return (`input ${ext_device_input} of extention device ${component_source} must be different!`)
-                                    } else {
-                                        ext_devices[component_source][ext_device_input] = true
-                                    }
+                                    ext_devices[component_source][ext_device_input] = true
                                 }
                             }
                         }
@@ -178,26 +177,25 @@ export function checkAccessPointsValidation (data: any, acu_model: string, eleva
                 }
 
                 if ('output' in resources[resource]) {
-                    if (outputs[resources[resource].output]) {
-                        return ('outputs must be different!')
-                    } else {
+                    if (component_source === 0) {
+                        if (outputs[resources[resource].output]) {
+                            return ('outputs must be different!')
+                        }
                         outputs[resources[resource].output] = true
-                        if (component_source === 0) {
-                            outputs_count++
-                        } else {
-                            const ext_device_output = resources[resource].output
+                        outputs_count++
+                    } else {
+                        const ext_device_output = resources[resource].output
 
-                            if (ext_device_output > acu_models.expansion_boards.relay_board['LR-RB16'].outputs) {
-                                return (`output cant be ${ext_device_output} of extention device ${component_source}!`)
+                        if (ext_device_output > acu_models.expansion_boards.relay_board['LR-RB16'].outputs) {
+                            return (`output cant be ${ext_device_output} of extention device ${component_source}!`)
+                        } else {
+                            if (!ext_devices[component_source]) {
+                                ext_devices[component_source] = { [ext_device_output]: true }
                             } else {
-                                if (!ext_devices[component_source]) {
-                                    ext_devices[component_source] = { [ext_device_output]: true }
+                                if (ext_devices[component_source][ext_device_output]) {
+                                    return (`output ${ext_device_output} of extention device ${component_source} must be different!`)
                                 } else {
-                                    if (ext_devices[component_source][ext_device_output]) {
-                                        return (`output ${ext_device_output} of extention device ${component_source} must be different!`)
-                                    } else {
-                                        ext_devices[component_source][ext_device_output] = true
-                                    }
+                                    ext_devices[component_source][ext_device_output] = true
                                 }
                             }
                         }
