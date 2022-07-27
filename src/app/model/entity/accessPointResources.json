@@ -951,6 +951,35 @@
                 "type": "numberInput"
             }
         },
+        "Entry_button": {
+            "component_source": {
+                "type": "select",
+                "list": "extDevice"
+            },
+            "name": {
+                "type": "textInput"
+            },
+            "condition": {
+                "type": "select",
+                "list": [
+                    {
+                        "id": 0,
+                        "name": "close"
+                    },
+                    {
+                        "id": 1,
+                        "name": "open"
+                    },
+                    {
+                        "id": 2,
+                        "name": "change"
+                    }
+                ]
+            },
+            "input": {
+                "type": "numberInput"
+            }
+        },
         "Exit_button": {
             "component_source": {
                 "type": "select",
