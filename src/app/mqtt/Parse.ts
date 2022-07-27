@@ -319,7 +319,7 @@ export default class Parse {
         try {
             AcuStatus.findOneOrFail({
                 where: { serial_number: message.device_id, company: message.company },
-                order: { createDate: 'DESC' }
+                order: { acu: 'DESC' }
             }).then(async (acuStatusData: AcuStatus) => {
                 const access_point_statuses: any = await AccessPointStatus.getAllItems({ where: { acu: { '=': acuStatusData.acu } } })
                 if (message.result.errorNo === 0) {
