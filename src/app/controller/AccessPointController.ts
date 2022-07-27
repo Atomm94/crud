@@ -420,7 +420,7 @@ export default class AccessPointController {
      *                      example: 1
      *                  mode:
      *                      type: string
-     *                      enum: [open_once, N/A, credential, locked, unlocked, free_entry_block_exit, block_entry_free_exit. antipanic]
+     *                      enum: [open_once, N/A, credential, locked, unlocked, free_entry_block_exit, block_entry_free_exit, antipanic]
      *                      example: credential
      *                  exit_mode:
      *                      type: string
