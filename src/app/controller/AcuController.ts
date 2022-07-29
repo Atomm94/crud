@@ -21,6 +21,7 @@ import { checkSendingDevice } from '../functions/check-sending-device'
 import { AccessPointZone } from '../model/entity'
 import { locationGenerator } from '../functions/locationGenerator'
 import { CheckAccessPoint } from '../functions/check-accessPoint'
+import { AcuStatus } from '../model/entity/AcuStatus'
 
 export default class AcuController {
     /**
@@ -1160,6 +1161,12 @@ export default class AcuController {
 
             // device.time = hardware.time
             const updated = await device.save()
+            const acu_status = await AcuStatus.findOne({ where: { acu: device.id } })
+            if (acu_status) {
+                acu_status.serial_number = device.serial_number
+                await acu_status.save()
+            }
+
             await Acu.destroyItem(hardware)
             ctx.body = updated
 
