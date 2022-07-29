@@ -263,7 +263,7 @@ export class Acu extends MainEntity {
                         }
                         new SendSocketMessage(socketChannels.DASHBOARD_ACU, send_data, data.company)
 
-                        if (data.status === acuStatus.ACTIVE) {
+                        if (data.status === acuStatus.ACTIVE || data.status === acuStatus.PENDING) {
                             delete CronJob.active_devices[data.id]
                             AcuStatus.destroyItem({ acu: data.id })
                         }
