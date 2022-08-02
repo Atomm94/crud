@@ -22,6 +22,9 @@ import { AccessPointZone } from '../model/entity'
 import { locationGenerator } from '../functions/locationGenerator'
 import { CheckAccessPoint } from '../functions/check-accessPoint'
 import { AcuStatus } from '../model/entity/AcuStatus'
+import { acuCloudStatus } from '../enums/acuCloudStatus.enum'
+import { cloneDeep } from 'lodash'
+// import acu from '../router/acu'
 
 export default class AcuController {
     /**
@@ -1432,5 +1435,178 @@ export default class AcuController {
         return ctx.body = {
             message: 'success'
         }
+    }
+
+    /**
+ *
+ * @swagger
+ *  /acu/copy:
+ *      post:
+ *          tags:
+ *              - Acu
+ *          summary: Maintain Settings.
+ *          consumes:
+ *              - application/json
+ *          parameters:
+ *            - in: header
+ *              name: Authorization
+ *              required: true
+ *              description: Authentication token
+ *              schema:
+ *                type: string
+ *            - in: body
+ *              name: acu
+ *              description: The acu to activate.
+ *              schema:
+ *                type: object
+ *                required:
+ *                 - acu_copy
+ *                 - acu_paste
+ *                properties:
+ *                  acu_copy:
+ *                      type: number
+ *                      example: 1
+ *                  acu_paste:
+ *                      type: string
+ *                      example: 1
+ *          responses:
+ *              '201':
+ *                  description: A acu object
+ *              '409':
+ *                  description: Conflict
+ *              '422':
+ *                  description: Wrong data
+ */
+
+    public static async copy (ctx: DefaultContext) {
+        try {
+            const req_data = ctx.request.body
+            const user = ctx.user
+            const location = await locationGenerator(user)
+            const acu_copy: any = await Acu.createQueryBuilder('acu')
+                .leftJoinAndSelect('acu.ext_devices', 'ext_device', 'ext_device.delete_date is null')
+                .leftJoinAndSelect('acu.access_points', 'access_point', 'access_point.delete_date is null')
+                .leftJoinAndSelect('access_point.readers', 'reader', 'reader.delete_date is null')
+                .leftJoinAndSelect('access_point.access_point_zones', 'access_point_zone', 'access_point_zone.delete_date is null')
+                .leftJoinAndSelect('access_point_zone.antipass_backs', 'antipass_back')
+                .where(`acu.id = '${req_data.acu_copy}'`)
+                .andWhere(`acu.company = '${user.company}'`)
+                .getOne()
+
+            const acu_paste: any = await Acu.createQueryBuilder('acu')
+                .leftJoinAndSelect('acu.ext_devices', 'ext_device', 'ext_device.delete_date is null')
+                .leftJoinAndSelect('acu.access_points', 'access_point', 'access_point.delete_date is null')
+                .leftJoinAndSelect('access_point.readers', 'reader', 'reader.delete_date is null')
+                .where(`acu.id = '${req_data.acu_paste}'`)
+                .andWhere(`acu.company = '${user.company}'`)
+                .getOne()
+
+            // const acu_paste = await Acu.findOne({ where: { id: req_data.acu_paste } })
+            if (!acu_copy || !acu_paste) {
+                ctx.status = 400
+                return ctx.body = {
+                    message: 'Invalid id'
+                }
+            }
+            if (acu_paste.status !== acuStatus.ACTIVE || acu_copy.status !== acuStatus.ACTIVE) {
+                ctx.status = 400
+                return ctx.body = {
+                    message: 'Invalid status of Acu'
+                }
+            }
+            if (acu_copy.model !== acu_paste.model) {
+                ctx.status = 400
+                return ctx.body = {
+                    message: 'Acu\'s models must be same'
+                }
+            }
+            if (acu_paste.ext_devices.length || acu_paste.access_points.length) {
+                ctx.status = 400
+                return ctx.body = {
+                    message: 'Acu\'s paste must be empty'
+                }
+            }
+
+            if (acu_paste.cloud_status !== acuCloudStatus.ONLINE) {
+                ctx.status = 400
+                return ctx.body = {
+                    message: 'The operation could not be completed because the device is not online'
+                }
+            }
+            const ext_device_compare: any = {}
+            for (const acu_copy_ext_device of acu_copy.ext_devices) {
+                let acu_paste_ext_device = cloneDeep(acu_copy_ext_device)
+                acu_paste_ext_device.acu = acu_paste.id
+                acu_paste_ext_device = await ExtDevice.addItem(acu_paste_ext_device)
+                const acu_models: any = acuModels
+                let inputs: Number, outputs: Number
+                switch (req_data.ext_board) {
+                    case 'LR-RB16':
+                        inputs = acu_models.expansion_boards.relay_board[req_data.ext_board].inputs
+                        outputs = acu_models.expansion_boards.relay_board[req_data.ext_board].outputs
+                        break
+                    case 'LR-IB16':
+                        inputs = acu_models.expansion_boards.alarm_board[req_data.ext_board].inputs
+                        outputs = acu_models.expansion_boards.alarm_board[req_data.ext_board].outputs
+                        break
+                    default:
+                        inputs = 0
+                        outputs = 0
+                        break
+                }
+                acu_paste_ext_device.resources = {
+                    input: inputs,
+                    output: outputs
+
+                }
+                ExtensionDeviceController.setExtBrd(location, acu_paste.serial_number, acu_paste_ext_device, user, acu_paste.session_id)
+
+                ext_device_compare[acu_copy_ext_device.id] = acu_paste_ext_device.id
+            }
+            for (const acu_copy_access_point of acu_copy.access_points) {
+                let acu_paste_access_point = cloneDeep(acu_copy_access_point)
+                acu_paste_access_point.acu = acu_paste.id
+                if (acu_copy_access_point.resources) {
+                    const acu_copy_access_point_resources = JSON.parse(acu_copy_access_point.resources)
+                    for (const resource_key in acu_copy_access_point_resources) {
+                        acu_copy_access_point_resources[resource_key] = {
+                            ...acu_copy_access_point_resources[resource_key],
+                            component_source: ext_device_compare[acu_copy_access_point_resources[resource_key].component_source]
+                        }
+                    }
+                    // acu_copy_access_point_resources = acu_copy_access_point_resources.map((resource: any) => {
+                    //     return {
+                    //         ...resource,
+                    //         component_source: ext_device_compare[resource.component_source]
+                    //     }
+                    // })
+                    acu_paste_access_point.resources = JSON.stringify(acu_copy_access_point_resources)
+                }
+                acu_paste_access_point = await AccessPoint.addItem(acu_paste_access_point)
+                CtpController.setCtp(acu_paste_access_point.type, location, acu_paste.serial_number, acu_paste_access_point, user, acu_paste.session_id)
+                const set_rd_data: any = []
+                for (const acu_copy_reader of acu_copy_access_point.readers) {
+                    let acu_paste_reader = cloneDeep(acu_copy_reader)
+                    acu_paste_reader.access_point = acu_paste_access_point.id
+                    acu_paste_reader = await Reader.addItem(acu_paste_reader)
+                    acu_paste_reader.access_point_type = acu_copy_access_point.type
+                    set_rd_data.push(acu_paste_reader)
+                }
+                RdController.setRd(location, acu_paste.serial_number, set_rd_data, acu_copy_access_point.access_point_zones, user, acu_paste.session_id)
+            }
+
+            CardKeyController.setAddCardKey(OperatorType.SET_CARD_KEYS, location, user.company, user, null, null, [acu_paste])
+
+            // DeviceController.copy(location, acu_paste.serial_number, { main_tain: req_data.name }, user)
+            ctx.body = {
+                message: 'success'
+            }
+        } catch (error) {
+            console.log(4545, error)
+
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
     }
 }
