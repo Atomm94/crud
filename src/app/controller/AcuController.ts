@@ -1604,7 +1604,7 @@ export default class AcuController {
                 message: 'success'
             }
         } catch (error) {
-            console.log(4545, error)
+            console.log('error', error)
 
             ctx.status = error.status || 400
             ctx.body = error

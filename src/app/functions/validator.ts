@@ -4,7 +4,7 @@ import { standartReportPeriod } from '../enums/standartReportPeriod.enum'
 // import { autoTaskRepeatUnit } from '../enums/autoTaskRepeatUnit.enum'
 import { readerTypes } from '../enums/readerTypes'
 // import { AccessPoint } from '../model/entity/AccessPoint'
-import acuModel from '../model/entity/acuModels.json'
+import acuModels from '../model/entity/acuModels.json'
 // import autoTaskcommands from '../model/entity/autoTaskcommands.json'
 import { wiegandTypes } from '../enums/wiegandTypes'
 import { extBrdInterface } from '../enums/extBrdInterface.enum'
@@ -13,6 +13,7 @@ import { accessPointType } from '../enums/accessPointType.enum'
 import autoTaskcommands from '../model/entity/autoTaskcommands.json'
 import { reactionType } from '../enums/reactionType.enum'
 import { Reader } from '../model/entity'
+import { acuModel } from '../enums/acuModel.enum'
 
 export function ipValidation (string: string) {
     const ipformat = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
@@ -109,8 +110,8 @@ export function maintainValidation (data: any) {
     }
 }
 
-export function checkAccessPointsValidation (data: any, acu_model: string, elevator_mode: boolean, acu_readers: Reader | null, update: boolean) {
-    const acu_models: any = acuModel
+export function checkAccessPointsValidation (data: any, acu_model: any, elevator_mode: boolean, acu_readers: Reader | null, update: boolean) {
+    const acu_models: any = acuModels
 
     const int_ports_addrs: any = {} // interface, port, address - is unique
     const inputs: any = {}
@@ -118,9 +119,31 @@ export function checkAccessPointsValidation (data: any, acu_model: string, eleva
     const outputs: any = {}
     let outputs_count = 0
     const ext_devices: any = {}
+    const turnstile_two_sides: any = []
 
     for (const access_point of data) {
         const type = access_point.type
+        if (type === accessPointType.TURNSTILE_TWO_SIDE) {
+            turnstile_two_sides.push(access_point)
+            if ([acuModel.ICON_2, acuModel.ICON_2E].includes(acu_model)) {
+                if (turnstile_two_sides.length > 1) {
+                    return ('Acu model ICON_2 and ICON_2E cant have more than 1 turnstile!')
+                }
+            }
+
+            if (access_point.readers.length > 2) {
+                return ('Turnstile two side cant have more than 2 readers!')
+            }
+            if (access_point.readers.length === 2 && access_point.readers[0].direction === access_point.readers[1].direction) {
+                return ('Turnstile two side cant have same direction!')
+            }
+        }
+        if (type === accessPointType.TURNSTILE_ONE_SIDE) {
+            if (access_point.readers.length > 1) {
+                return ('Turnstile one side cant have more than 1 reader!')
+            }
+        }
+
         if (elevator_mode) {
             if (type !== accessPointType.FLOOR) {
                 return (`device ${acu_model} cant have accessPoint like ${type} when elevator_mode is enable!`)
