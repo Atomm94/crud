@@ -1569,9 +1569,11 @@ export default class AcuController {
                 if (acu_copy_access_point.resources) {
                     const acu_copy_access_point_resources = JSON.parse(acu_copy_access_point.resources)
                     for (const resource_key in acu_copy_access_point_resources) {
-                        acu_copy_access_point_resources[resource_key] = {
-                            ...acu_copy_access_point_resources[resource_key],
-                            component_source: ext_device_compare[acu_copy_access_point_resources[resource_key].component_source]
+                        if (acu_copy_access_point_resources[resource_key].component_source) {
+                            acu_copy_access_point_resources[resource_key] = {
+                                ...acu_copy_access_point_resources[resource_key],
+                                component_source: ext_device_compare[acu_copy_access_point_resources[resource_key].component_source]
+                            }
                         }
                     }
                     // acu_copy_access_point_resources = acu_copy_access_point_resources.map((resource: any) => {
