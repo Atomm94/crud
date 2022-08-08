@@ -39,7 +39,8 @@ export async function addDefaultFeaturesofCompany (company: number) {
             name: 'All Cardholders',
             access_right: access_right.id,
             enable_antipass_back: false,
-            time_attendance: schedule.id
+            time_attendance: schedule.id,
+            default: true
 
         }
         if (limitation_data) {

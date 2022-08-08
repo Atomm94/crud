@@ -83,6 +83,7 @@ export class Reader extends MainEntity {
     public static gettingAttributes: boolean = false
     public static fields_that_used_in_sending: Array<string> = [
         'wg_type',
+        'direction',
         'reverse_byte_order',
         'port',
         'enable_buzzer',
@@ -94,6 +95,7 @@ export class Reader extends MainEntity {
     ]
 
     public static OSDP_fields_that_used_in_sending: Array<string> = [
+        'direction',
         'baud_rate',
         'card_data_format_flags',
         'keypad_mode',
