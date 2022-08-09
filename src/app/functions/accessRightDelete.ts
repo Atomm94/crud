@@ -10,7 +10,7 @@ export async function checkAndDeleteAccessRight (data: any, company: number, use
 
         if (!access_rules) {
             const access_right = await AccessRight.findOneOrFail({ where: { id: data.access_right } })
-            await AccessRight.destroyItem({ id: data.access_right /*, company: company */ })
+            await AccessRight.destroyItem({ id: data.access_right, company: company })
             new SendUserLogMessage(company, user, logUserEvents.DELETE, `${AccessRight.name}/${access_right.name}`, { name: access_right.name })
         }
     }
