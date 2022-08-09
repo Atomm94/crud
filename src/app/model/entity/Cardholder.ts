@@ -5,7 +5,8 @@ import {
     JoinColumn,
     ManyToOne,
     OneToMany,
-    DeleteDateColumn
+    DeleteDateColumn,
+    Index
 } from 'typeorm'
 import { cardholderStatus } from '../../enums/cardholderStatus.enum'
 import { MainEntity } from './MainEntity'
@@ -31,10 +32,11 @@ import { cardholderGuestCount } from '../../enums/cardholderGuestCount.enum'
 import { guestPeriod } from '../../enums/guestPeriod.enum'
 
 const parentDir = join(__dirname, '../../..')
+@Index('email|company', ['email', 'company'], { unique: true })
 
 @Entity('cardholder')
 export class Cardholder extends MainEntity {
-    @Column('varchar', { name: 'email', length: '255', unique: true, nullable: true })
+    @Column('varchar', { name: 'email', length: '255', nullable: true })
     email: string
 
     @Column('longtext', { name: 'avatar', nullable: true })
