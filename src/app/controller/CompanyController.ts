@@ -161,12 +161,12 @@ export default class CompanyController {
                 const base_schedule = await Schedule.findOne({ where: { id: req_data.schedule_id, company: ctx.request.body.id, custom: false } })
                 if (!base_schedule) {
                     ctx.status = 400
-                    ctx.body = {
+                    return ctx.body = {
                         message: { message: 'Invalid schedule_id' }
                     }
                 } else if (base_schedule.type !== scheduleType.WEEKLY) {
                     ctx.status = 400
-                    ctx.body = {
+                    return ctx.body = {
                         message: { message: `base Schedule type must be ${scheduleType.WEEKLY}` }
                     }
                 }
