@@ -458,7 +458,7 @@ export default class CompanyController {
             const req_data = ctx.query
             const where: any = {}
             if (ctx.user.company) {
-                where.parent_id = {
+                where.partition_parent_id = {
                     '=': ctx.user.company
                 }
             }
