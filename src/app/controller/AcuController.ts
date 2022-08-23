@@ -955,6 +955,7 @@ export default class AcuController {
             if (req_data.status) {
                 data = data.andWhere(`acu.status = '${req_data.status}'`)
             }
+            data.orderBy('acu.id', 'DESC')
             data = await data.getMany()
             ctx.body = data
         } catch (error) {
