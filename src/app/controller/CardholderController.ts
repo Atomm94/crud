@@ -626,8 +626,16 @@ export default class CardholderController {
                     if (
                         check_by_company.access_right !== cardholder.access_right ||
                         (check_by_company.limitations && limitations &&
-                            (JSON.stringify(check_by_company.limitations.valid_from) !== JSON.stringify(limitations.valid_from) ||
-                                JSON.stringify(check_by_company.limitations.valid_due) !== JSON.stringify(limitations.valid_due))
+                            (
+                                JSON.stringify(check_by_company.limitations.valid_from) !== JSON.stringify(limitations.valid_from) ||
+                                JSON.stringify(check_by_company.limitations.valid_due) !== JSON.stringify(limitations.valid_due) ||
+                                check_by_company.limitations.pass_counter_enable !== limitations.pass_counter_enable ||
+                                check_by_company.limitations.pass_counter_passes !== limitations.pass_counter_passes ||
+                                check_by_company.limitations.first_use_counter_enable !== limitations.first_use_counter_enable ||
+                                check_by_company.limitations.first_use_counter_days !== limitations.first_use_counter_days ||
+                                check_by_company.limitations.last_use_counter_enable !== limitations.last_use_counter_enable ||
+                                check_by_company.limitations.last_use_counter_days !== limitations.last_use_counter_days
+                            )
                         )
                     ) {
                         CardKeyController.setAddCardKey(OperatorType.SET_CARD_KEYS, location, auth_user.company, auth_user, null)
