@@ -54,8 +54,8 @@ export default class AccessPointController {
                 company = user.companyData.partition_parent_id
             }
             const where: any = { id: +ctx.params.id, company: company }
-            where.relations = ['access_point_zones']
-                ctx.body = await AccessPoint.getItem(where)
+            const relations = ['access_point_zones']
+            ctx.body = await AccessPoint.getItem(where, relations)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
