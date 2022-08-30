@@ -1434,7 +1434,7 @@ export default class AcuController {
 
         DeviceController.maintain(location, acu.serial_number, { main_tain: req_data.name }, user)
         return ctx.body = {
-            message: 'success'
+            message: 'Reset Pending'
         }
     }
 

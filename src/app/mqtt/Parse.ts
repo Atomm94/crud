@@ -391,6 +391,7 @@ export default class Parse {
                 if (acu) {
                     acu_data.id = acu.id
                 }
+
                 await Acu.save(acu_data)
                 // const user = message.send_data
 
@@ -1520,6 +1521,10 @@ export default class Parse {
     public static async mainTainAck (message: IMqttCrudMessaging) {
         // console.log('resetApbAck', message)
         if (message.result.errorNo === 0) {
+            console.log(54545, message)
+            if (message.send_data.data.reset_cmd === 3 || message.send_data.data.reset_cmd === 4) {
+                await Acu.destroyItem({ id: message.send_data.data.id, company: message.company })
+            }
         }
     }
 }
