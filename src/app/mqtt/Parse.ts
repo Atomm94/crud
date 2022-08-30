@@ -1521,14 +1521,9 @@ export default class Parse {
     public static async mainTainAck (message: IMqttCrudMessaging) {
         // console.log('resetApbAck', message)
         if (message.result.errorNo === 0) {
-            console.log(54545, message)
             const topic = message.send_data.topic.split('/')
-            console.log(54545, topic)
-
             const serial_number = +topic[3]
-            const acu: any = Acu.findOne({ where: { serial_number: serial_number, company: message.send_data.user_data.company } })
-            console.log(3333, acu)
-
+            const acu: any = await Acu.findOne({ where: { serial_number: serial_number, company: message.send_data.user_data.company } })
             if (message.send_data.data.main_tain === 'reset' || message.send_data.data.main_tain === 'reset_to_factory') {
                 await Acu.destroyItem({ id: acu.id, company: acu.company })
             }
