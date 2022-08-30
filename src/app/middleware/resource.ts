@@ -47,7 +47,7 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
     }
 }
 
-export async function canCreate(company_id: number, resource: string, used_count: number | null = null): Promise<boolean> {
+export async function canCreate (company_id: number, resource: string, used_count: number | null = null): Promise<boolean> {
     try {
         const company = await Model.Company.findOneOrFail({ where: { id: company_id } })
         if (company && company.package) {
