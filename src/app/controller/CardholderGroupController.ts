@@ -321,7 +321,13 @@ export default class CardholderGroupController {
                 if (new_limitations) {
                     if (updated.new.access_right !== updated.old.access_right ||
                         JSON.stringify(check_by_company.limitations.valid_from) !== JSON.stringify(new_limitations.valid_from) ||
-                        JSON.stringify(check_by_company.limitations.valid_due) !== JSON.stringify(new_limitations.valid_due)
+                        JSON.stringify(check_by_company.limitations.valid_due) !== JSON.stringify(new_limitations.valid_due) ||
+                        check_by_company.limitations.pass_counter_enable !== new_limitations.pass_counter_enable ||
+                        check_by_company.limitations.pass_counter_passes !== new_limitations.pass_counter_passes ||
+                        check_by_company.limitations.first_use_counter_enable !== new_limitations.first_use_counter_enable ||
+                        check_by_company.limitations.first_use_counter_days !== new_limitations.first_use_counter_days ||
+                        check_by_company.limitations.last_use_counter_enable !== new_limitations.last_use_counter_enable ||
+                        check_by_company.limitations.last_use_counter_days !== new_limitations.last_use_counter_days
                     ) {
                         const cardholders = await Cardholder.find({
                             where: [
