@@ -1,4 +1,5 @@
 
+import { cloneDeep } from 'lodash'
 import moment from 'moment'
 import { companyDayKeys } from '../enums/companyDayKeys.enum'
 import { guestKeyType } from '../enums/guestKeyType.enum'
@@ -7,6 +8,7 @@ import { Company, Credential } from '../model/entity'
 
 export class CheckGuest {
     public static async checkSaveGuest (guest_data: any, company: Company, invite_user: any) {
+        guest_data = cloneDeep(guest_data)
         if (!company.base_schedules) {
             return 'Base Schedule not setted!'
         }
