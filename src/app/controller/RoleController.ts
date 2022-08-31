@@ -149,7 +149,7 @@ class RoleController {
   public static async getRoleById (ctx: DefaultContext) {
     try {
       const user = ctx.user
-      const where = { company: user.company ? user.company : null, cardholder: false }
+      const where = { company: user.company ? user.company : null }
       const role = await Role.getItem(ctx.params.id, where)
 
       if (await checkPermissionsAccess(user, role.permissions)) {
