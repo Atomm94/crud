@@ -1221,7 +1221,8 @@ export default class CardholderController {
                 // slug: role_slug,
                 slug: 'default_cardholder',
                 company: cardholder.company,
-                permissions: permissions
+                permissions: permissions,
+                cardholder: true
             }
             const default_cardholder_role = await Role.addItem(role_save_data as Role)
             // }

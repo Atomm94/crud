@@ -42,6 +42,9 @@ export class Role extends MainEntity {
   @Column('boolean', { name: 'status', default: true })
   status: boolean | true;
 
+  @Column('boolean', { name: 'cardholder', default: false })
+  cardholder: boolean | false;
+
   @ManyToOne(type => Company, company => company.roles, { nullable: true })
   @JoinColumn({ name: 'company' })
   companies: Company | null;
@@ -183,6 +186,7 @@ export class Role extends MainEntity {
     role.status = data.status
     if ('main' in data) role.main = data.main
     if ('company' in data) role.company = data.company
+    if ('cardholder' in data) role.cardholder = data.cardholder
 
     return new Promise((resolve, reject) => {
       this.save(role)
@@ -202,6 +206,8 @@ export class Role extends MainEntity {
     if ('slug' in data) role.slug = data.slug
     if ('permissions' in data) role.permissions = data.permissions
     if ('status' in data) role.status = data.status
+    if ('cardholder' in data) role.cardholder = data.cardholder
+
     // if ('main' in data) role.main = data.main
 
     if (!role) return { status: 400, message: 'Item not found' }
