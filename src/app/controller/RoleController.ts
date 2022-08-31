@@ -99,7 +99,8 @@ class RoleController {
       req_data.where = {
         company: { '=': user.company ? user.company : null },
         id: { '!=': user.role },
-        main: { '!=': true }
+        main: { '!=': true },
+        cardholder: { '=': false }
       }
 
       const roles = await Role.getAllItems(req_data)
