@@ -148,7 +148,7 @@ class RoleController {
   public static async getRoleById (ctx: DefaultContext) {
     try {
       const user = ctx.user
-      const where = { company: user.company ? user.company : null }
+      const where = { company: user.company ? user.company : null, cardholder: false }
       const role = await Role.getItem(ctx.params.id, where)
 
       if (await checkPermissionsAccess(user, role.permissions)) {
@@ -326,9 +326,9 @@ class RoleController {
               const role_data = await Role.findOneOrFail({ where: where })
               role = await Role.destroyItem(check_role_by_company)
               ctx.logsData = [{
-                  event: logUserEvents.DELETE,
-                  target: `${Role.name}/${role_data.slug}`,
-                  value: { slug: role_data.slug }
+                event: logUserEvents.DELETE,
+                target: `${Role.name}/${role_data.slug}`,
+                value: { slug: role_data.slug }
               }]
 
               if (role) {
