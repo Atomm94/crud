@@ -26,6 +26,7 @@ import CtpController from './Hardware/CtpController'
 import { credentialType } from '../enums/credentialType.enum'
 import { cloneDeep } from 'lodash'
 import { Brackets } from 'typeorm'
+import CronJob from '../cron'
 const xlsxj = require('xlsx-to-json')
 
 export default class CardholderController {
@@ -1542,6 +1543,7 @@ export default class CardholderController {
                 CtpController.activateCredential(location, selected_access_point.acus.serial_number, send_data, auth_user, selected_access_point.acus.session_id)
             }
 
+            CronJob.setGuestKeySchedule(guest)
             ctx.body = guest
         } catch (error) {
             ctx.status = error.status || 400
@@ -1821,6 +1823,7 @@ export default class CardholderController {
                 CtpController.activateCredential(location, selected_access_point.acus.serial_number, send_data, auth_user, selected_access_point.acus.session_id)
             }
 
+            CronJob.setGuestKeySchedule(guest_update)
             ctx.body = guest_update
         } catch (error) {
             console.log(error)
@@ -1895,6 +1898,7 @@ export default class CardholderController {
             }
 
             ctx.body = await Cardholder.destroyItem(where)
+            CronJob.unSetGuestKeySchedule(cardholder)
 
             ctx.logsData = [{
                 event: logUserEvents.DELETE,
