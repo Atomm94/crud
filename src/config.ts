@@ -122,7 +122,7 @@ var config: IConfig = {
         }
     },
     sendgrid: {
-        fromEmail: _.defaultTo(process.env.SENDGRID_FROM_EMAIL, 'g.israelyan@studio-one.am'),
+        fromEmail: _.defaultTo(process.env.SENDGRID_FROM_EMAIL, 'support@lumiring.com'), /* 'g.israelyan@studio-one.am') */
         apiKey: _.defaultTo(process.env.SENDGRID_API_KEY, 'empty')
     },
     zoho: {
