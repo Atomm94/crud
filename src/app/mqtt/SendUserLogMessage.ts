@@ -13,24 +13,26 @@ export default class SendUserLogMessage {
     readonly value: any
 
     constructor (company: number, account: any, event: logUserEvents, target: string, value: any) {
-        let diff
-        if (event === logUserEvents.CHANGE) {
-            diff = getObjectDiff(value.new, value.old)
-            value = diff
-        }
-        if (event !== logUserEvents.CHANGE || (event === logUserEvents.CHANGE && diff && Object.keys(diff).length)) {
-            const dataLog = {
-                operator: OperatorType.USER_LOG,
-                data: {
-                    company: company,
-                    account: account,
-                    account_name: `${account.first_name} ${account.last_name}`,
-                    event: event,
-                    target: target,
-                    value: value
-                }
+        (async () => {
+            let diff
+            if (event === logUserEvents.CHANGE) {
+                diff = await getObjectDiff(value.new, value.old)
+                value = diff
             }
-            MQTTBroker.publishMessage(SendTopics.LOG, JSON.stringify(dataLog))
-        }
+            if (event !== logUserEvents.CHANGE || (event === logUserEvents.CHANGE && diff && Object.keys(diff).length)) {
+                const dataLog = {
+                    operator: OperatorType.USER_LOG,
+                    data: {
+                        company: company,
+                        account: account,
+                        account_name: `${account.first_name} ${account.last_name}`,
+                        event: event,
+                        target: target,
+                        value: value
+                    }
+                }
+                MQTTBroker.publishMessage(SendTopics.LOG, JSON.stringify(dataLog))
+            }
+        })()
     }
 }
