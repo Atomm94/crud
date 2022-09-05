@@ -875,19 +875,19 @@
                         "type": "select",
                         "list": [
                             {
-                                "id": null,
+                                "id": 0,
                                 "name": "LedMode1"
                             },
                             {
-                                "id": null,
+                                "id": 1,
                                 "name": "LedMode2"
                             },
                             {
-                                "id": null,
+                                "id": 2,
                                 "name": "LedMode3"
                             },
                             {
-                                "id": null,
+                                "id": 3,
                                 "name": "LedMode4"
                             }
                         ]
