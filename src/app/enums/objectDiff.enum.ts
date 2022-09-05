@@ -61,5 +61,10 @@ export const objectValuesDiff = {
     offline_mode: {
         0: 'Locked',
         1: 'Unlocked'
+    },
+    condition: {
+        0: 'close',
+        1: 'open',
+        2: 'change'
     }
 }
