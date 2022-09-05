@@ -2841,7 +2841,7 @@ export default class CardholderController {
         const company = user.company
 
         const all_cardholder_group = await CardholderGroup.findOneOrFail({
-            name: 'All Cardholders',
+            default: true,
             company: company
         })
 
