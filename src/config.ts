@@ -53,7 +53,7 @@ export interface IConfig {
         }
     };
     sendgrid: {
-        fromEmail: string,
+        fromEmail: object,
         apiKey: string
     };
     zoho: {
@@ -122,7 +122,10 @@ var config: IConfig = {
         }
     },
     sendgrid: {
-        fromEmail: _.defaultTo(process.env.SENDGRID_FROM_EMAIL, 'g.israelyan@studio-one.am'),
+        fromEmail: {
+            email: _.defaultTo(process.env.SENDGRID_FROM_EMAIL, 'support@lumiring.com'),
+            name: _.defaultTo(process.env.SENDGRID_FROM_EMAIL_NAME, 'Lumiring Inc')
+        },
         apiKey: _.defaultTo(process.env.SENDGRID_API_KEY, 'empty')
     },
     zoho: {

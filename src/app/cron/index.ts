@@ -1,6 +1,6 @@
 
 import * as Cron from 'cron'
-import { AccessPoint, Acu } from '../model/entity'
+import { AccessPoint, Acu, Cardholder } from '../model/entity'
 import { JwtToken } from '../model/entity/JwtToken'
 
 import { acuStatus } from '../enums/acuStatus.enum'
@@ -14,6 +14,9 @@ import { AccessPointStatus } from '../model/entity/AccessPointStatus'
 import { postBodyRequestForToken } from '../services/requestUtil'
 import fs from 'fs'
 import { acuConnectionMode } from '../enums/acuConnectionMode.enum'
+import { guestKeyType } from '../enums/guestKeyType.enum'
+import { guestPeriod } from '../enums/guestPeriod.enum'
+import moment from 'moment'
 
 const acu_cloud_status_change_time = process.env.ACU_CLOUD_STATUS_CHANGE_TIME ? Number(process.env.ACU_CLOUD_STATUS_CHANGE_TIME) : 1 // in minutes
 const delete_old_tokens_interval = process.env.DELETE_OLD_TOKENS_INTERVAL ? process.env.DELETE_OLD_TOKENS_INTERVAL : '0 0 0 * * *'
@@ -25,6 +28,7 @@ const send_set_heart_bit_interval = process.env.SEND_SET_HEART_BIT_INTERVAL ? pr
 export default class CronJob {
     public static cronObj: any = {}
     public static active_devices: any = {}
+    public static guests: any = {}
 
     public static async startCrons () {
         this.deleteOldTokens(delete_old_tokens_interval)
@@ -33,6 +37,7 @@ export default class CronJob {
         this.updateAccessPointDoorState(update_accesspoint_door_state_interval)
         this.sendSetHeartBit(send_set_heart_bit_interval)
         // this.testZoho('0 0 * * * *')
+        this.initGuestKeys()
     }
 
     public static deleteOldTokens (interval: string): void {
@@ -143,5 +148,51 @@ export default class CronJob {
             old_reses = `${old_reses}\n${new Date()} - ${JSON.stringify(token)}`
             fs.writeFileSync(`${__dirname}/responses.txt`, old_reses)
         }).start()
+    }
+
+    public static async initGuestKeys () {
+        const guests = await Cardholder.find({ where: { guest: true, key_type: guestKeyType.TEMPORARY } })
+        for (const guest of guests) {
+            this.setGuestKeySchedule(guest)
+        }
+    }
+
+    public static async setGuestKeySchedule (guest: any) {
+        if (guest.key_type === guestKeyType.TEMPORARY) {
+            let remove_date
+            if (guest.period === guestPeriod.DAYS) {
+                const end_date = `${moment(guest.end_date).format('YYYY-MM-DD')} ${guest.end_time}`
+                remove_date = new Date(end_date)
+            } else if (guest.period === guestPeriod.HOURS) {
+                const start_date = `${moment(guest.start_date).format('YYYY-MM-DD')} ${guest.start_time}`
+                const duration_time = guest.duration * 60 * 1000
+                const end_date_timestamp = new Date(start_date).getTime() + duration_time
+                remove_date = new Date(end_date_timestamp)
+            }
+            if (remove_date) {
+                if (remove_date <= new Date()) {
+                    const where = { id: guest.id, company: guest.company }
+                    Cardholder.destroyItem(where)
+                } else {
+                    if (this.guests[guest.id]) {
+                        this.guests[guest.id].stop()
+                    }
+                    this.guests[guest.id] = new Cron.CronJob(remove_date, async () => {
+                        const where = { id: guest.id, company: guest.company }
+                        Cardholder.destroyItem(where)
+                    })
+                    this.guests[guest.id].start()
+                }
+            }
+        }
+    }
+
+    public static async unSetGuestKeySchedule (guest: any) {
+        if (guest.key_type === guestKeyType.TEMPORARY) {
+            if (this.guests[guest.id]) {
+                this.guests[guest.id].stop()
+                delete this.guests[guest.id]
+            }
+        }
     }
 }

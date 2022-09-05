@@ -12,6 +12,9 @@ import CtpController from './Hardware/CtpController'
 import { locationGenerator } from '../functions/locationGenerator'
 import { credentialStatus } from '../enums/credentialStatus.enum'
 import { cardholderStatus } from '../enums/cardholderStatus.enum'
+import { guestPeriod } from '../enums/guestPeriod.enum'
+import { guestKeyType } from '../enums/guestKeyType.enum'
+import moment from 'moment'
 
 export default class CredentialController {
     /**
@@ -708,13 +711,23 @@ export default class CredentialController {
                 return ctx.body = { message: 'Invalid token' }
             }
 
+            let start_date = credential.cardholders.start_date
+
+            let end_date = credential.cardholders.end_date
+            if (credential.cardholders.key_type === guestKeyType.TEMPORARY && credential.cardholders.period === guestPeriod.HOURS) {
+                start_date = `${moment(credential.cardholders.start_date).format('YYYY-MM-DD')} ${credential.cardholders.start_time}`
+                const duration_time = credential.cardholders.duration * 60 * 1000
+                const end_date_timestamp = new Date(start_date).getTime() + duration_time
+                end_date = moment(end_date_timestamp).format('YYYY-MM-DD HH:mm:ss')
+            }
+
             ctx.body = {
                 code: credential.code,
                 first_name: credential.cardholders.first_name,
                 last_name: credential.cardholders.last_name,
                 family_name: credential.cardholders.family_name,
-                start_date: credential.cardholders.start_date,
-                end_date: credential.cardholders.end_date
+                start_date: start_date,
+                end_date: end_date
             }
         } catch (error) {
             ctx.status = error.status || 400
