@@ -1,5 +1,6 @@
 import { logUserEvents } from '../enums/logUserEvents.enum'
 import { getObjectDiff } from '../functions/checkDifference'
+import { parseObjNestedJSONProps } from '../functions/objectPropParser'
 import MQTTBroker from './mqtt'
 import { OperatorType } from './Operators'
 import { SendTopics } from './Topics'
@@ -16,8 +17,13 @@ export default class SendUserLogMessage {
         (async () => {
             let diff
             if (event === logUserEvents.CHANGE) {
-                diff = await getObjectDiff(value.new, value.old)
+                const newValue = await parseObjNestedJSONProps({ ...value.new })
+                const oldValue = await parseObjNestedJSONProps({ ...value.old })
+                diff = await getObjectDiff(newValue, oldValue)
                 value = diff
+            }
+            if (event === logUserEvents.CREATE) {
+                value = await parseObjNestedJSONProps(value)
             }
             if (event !== logUserEvents.CHANGE || (event === logUserEvents.CHANGE && diff && Object.keys(diff).length)) {
                 const dataLog = {
