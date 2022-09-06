@@ -19,7 +19,7 @@ export async function formatKeyValue (key: string, value: any, obj: Record<strin
             value = null
         }
     }
-    if (key === 'Component Source') {
+    if (key === 'component_source') {
         if (value === 0) {
             value = 'Acu'
         } else {
