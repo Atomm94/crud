@@ -2,12 +2,12 @@ import { objectValuesDiff, ObjectKeyDiff } from '../enums/objectDiff.enum'
 import { AccessPoint, ExtDevice } from '../model/entity'
 import acuModels from '../model/entity/acuModels.json'
 
-export async function formatKeyValue (key: string, value: any, obj: Record<string, unknown>) {
+export async function formatKeyValue (key: string, value: any, obj: Record<string, unknown>, id?: number) {
     if (key in objectValuesDiff) value = objectValuesDiff[key as keyof typeof objectValuesDiff][value as keyof typeof Object.keys]
     if (key in ObjectKeyDiff) key = ObjectKeyDiff[key as keyof typeof ObjectKeyDiff]
-    if ((key === 'output' || key === 'input') && obj.component_source === 0) {
+    if ((key === 'output' || key === 'input') && (obj.component_source === 0 || obj['Component Source'] === 0)) {
         try {
-            const access_point = await AccessPoint.findOneOrFail({ relations: ['acus'], where: { id: obj.id } })
+            const access_point = await AccessPoint.findOneOrFail({ relations: ['acus'], where: { id } })
             if (!access_point) {
                 value = null
             } else {
@@ -19,7 +19,7 @@ export async function formatKeyValue (key: string, value: any, obj: Record<strin
             value = null
         }
     }
-    if (key === 'component_source') {
+    if (key === 'Component Source') {
         if (value === 0) {
             value = 'Acu'
         } else {

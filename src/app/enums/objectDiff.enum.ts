@@ -10,6 +10,14 @@ export enum ObjectKeyDiff {
     offline_mode = 'offline mode'
 }
 
+export enum UnusedObjectKeys {
+    pid,
+    title,
+    item_type,
+    hasAttribute,
+    ext_device_address
+}
+
 export const objectValuesDiff = {
     wg_type: {
         0: 'wiegand 4',
