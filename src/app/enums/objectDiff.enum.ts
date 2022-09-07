@@ -12,12 +12,10 @@ export enum ObjectKeyDiff {
 
 export enum UnusedObjectKeys {
     pid,
-    title,
     item_type,
     hasAttribute,
     ext_device_address,
     data,
-    name
 }
 
 export const objectValuesDiff = {

@@ -17,8 +17,8 @@ export default class SendUserLogMessage {
         (async () => {
             let diff
             if (event === logUserEvents.CHANGE) {
-                const newValue = await parseObjNestedJSONProps({ ...value.new })
-                const oldValue = await parseObjNestedJSONProps({ ...value.old })
+                const newValue = await parseObjNestedJSONProps(value.new)
+                const oldValue = await parseObjNestedJSONProps(value.old)
                 diff = await getObjectDiff(newValue, oldValue)
                 value = diff
             }
