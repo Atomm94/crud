@@ -15,7 +15,9 @@ export enum UnusedObjectKeys {
     title,
     item_type,
     hasAttribute,
-    ext_device_address
+    ext_device_address,
+    data,
+    name
 }
 
 export const objectValuesDiff = {
