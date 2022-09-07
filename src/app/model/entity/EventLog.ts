@@ -194,11 +194,9 @@ export class EventLog extends BaseClass {
                     (event_group_id === 2 && [24].includes(event_id)) ||
                     (event_group_id === 3 && [1, 2, 3, 5, 7, 9, 10, 11, 12, 13, 14, 15, 16, 17].includes(event_id))
                 ) {
-                    const auto_task = await AutoTaskSchedule.findOne({ where: { access_point: event.data.access_point } })
+                    const auto_task = await AutoTaskSchedule.findOne({ where: { access_point: event.data.access_point, status: false } })
                     if (auto_task && auto_task.reaction_access_points) {
-                        console.log(auto_task)
                         const access_points = await AccessPoint.find({ where: { id: In(JSON.parse(auto_task.reaction_access_points)) }, relations: ['acus', 'companies'] })
-
                         for (const access_point of access_points) {
                             const location = `${access_point.companies.account}/${access_point.company}`
                             if (auto_task.reaction !== 3) {
@@ -207,7 +205,7 @@ export class EventLog extends BaseClass {
                                     work_mode: auto_task.reaction,
                                     type: access_point.type
                                 }
-                                CtpController.setCtp(access_point.type, location, access_point.acus.serial_number, data, null, access_point.acus.session_id)
+                                CtpController.setCtp(access_point.type, location, access_point.acus.serial_number, data, null, access_point.acus.session_id, true)
                             } else {
                                 const data = {
                                     access_point: access_point.id
