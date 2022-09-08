@@ -193,7 +193,7 @@ export class CheckGuest {
         const rand = Math.floor(Math.random() * 9999)
         let code = rand.toString()
         const code_length = code.length
-        for (let i = 0; i < 6 - code_length; i++) {
+        for (let i = 0; i < 4 - code_length; i++) {
             code = `0${code}`
         }
         const credential = await Credential.findOne({ where: { company, code } })
