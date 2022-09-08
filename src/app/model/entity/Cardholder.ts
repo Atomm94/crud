@@ -266,7 +266,7 @@ export class Cardholder extends MainEntity {
             if (auth_user.cardholder || data.limitation_inherited === oldData.limitation_inherited) {
                 if (data.limitations) {
                     const limitation_data = await Limitation.updateItem(data.limitations as Limitation)
-                    const diff_limitation_data = await getObjectDiff(limitation_data.new, limitation_data.old)
+                    const diff_limitation_data = getObjectDiff(limitation_data.new, limitation_data.old)
                     if (Object.keys(diff_limitation_data).length) {
                         logs_data.push({
                             event: logUserEvents.CHANGE,
@@ -322,7 +322,7 @@ export class Cardholder extends MainEntity {
                 }
             } else {
                 const car_info_data = await CarInfo.updateItem(data.car_infos)
-                const diff_car_info_data = await getObjectDiff(car_info_data.new, car_info_data.old)
+                const diff_car_info_data = getObjectDiff(car_info_data.new, car_info_data.old)
                 if (Object.keys(diff_car_info_data).length) {
                     logs_data.push({
                         event: logUserEvents.CHANGE,
