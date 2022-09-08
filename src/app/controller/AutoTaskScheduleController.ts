@@ -114,7 +114,7 @@ export default class AutoTaskScheduleController {
                 return ctx.body = { message: check }
             }
             let auto_task
-            if (req_data.one_time === false) {
+            if (!req_data.one_time) {
                 auto_task = await AutoTaskSchedule.addItem(req_data as AutoTaskSchedule)
             } else {
                 auto_task = req_data

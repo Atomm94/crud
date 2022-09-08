@@ -1,4 +1,5 @@
 
+import { cloneDeep } from 'lodash'
 import moment from 'moment'
 import { companyDayKeys } from '../enums/companyDayKeys.enum'
 import { guestKeyType } from '../enums/guestKeyType.enum'
@@ -7,6 +8,7 @@ import { Company, Credential } from '../model/entity'
 
 export class CheckGuest {
     public static async checkSaveGuest (guest_data: any, company: Company, invite_user: any) {
+        guest_data = cloneDeep(guest_data)
         if (!company.base_schedules) {
             return 'Base Schedule not setted!'
         }
@@ -188,10 +190,10 @@ export class CheckGuest {
     }
 
     public static async tryGeneratePinpassCode (company: number, try_qty: number = 0): Promise<any> {
-        const rand = Math.floor(Math.random() * 999999)
+        const rand = Math.floor(Math.random() * 9999)
         let code = rand.toString()
         const code_length = code.length
-        for (let i = 0; i < 6 - code_length; i++) {
+        for (let i = 0; i < 4 - code_length; i++) {
             code = `0${code}`
         }
         const credential = await Credential.findOne({ where: { company, code } })

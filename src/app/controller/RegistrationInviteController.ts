@@ -224,7 +224,8 @@ export default class RegistrationInviteController {
             const regToken = await RegistrationInvite.findOneOrFail({ token: token })
             if (regToken) {
                 if (regToken.company) {
-                    ctx.body = true
+                    const parent_company: any = await Company.findOneOrFail({ where: { id: regToken.company }, relations: ['package_types'] })
+                    ctx.body = parent_company.package_types
                 } else {
                     ctx.status = 400
                     ctx.body = {

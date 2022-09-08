@@ -391,6 +391,7 @@ export default class Parse {
                 if (acu) {
                     acu_data.id = acu.id
                 }
+
                 await Acu.save(acu_data)
                 // const user = message.send_data
 
@@ -753,6 +754,13 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             const company = message.company
             if (message.send_data.update) {
+                if ('work_mode' in message.send_data.data) {
+                    const auto_task = await AutoTaskSchedule.findOne({ where: { access_point: message.send_data.data.id, status: false } })
+                    if (auto_task) {
+                        auto_task.status = true
+                        await auto_task.save()
+                    }
+                }
                 const save = await AccessPoint.updateItem(message.send_data.data as AccessPoint)
                 const acu = await Acu.findOneOrFail({ where: { id: save.old.acu } })
                 const access_point: any = await AccessPoint.findOneOrFail({ where: { id: save.new.id }, relations: ['acus'] })
@@ -799,6 +807,13 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             const company = message.company
             if (message.send_data.update) {
+                if ('work_mode' in message.send_data.data) {
+                    const auto_task = await AutoTaskSchedule.findOne({ where: { access_point: message.send_data.data.id, status: false } })
+                    if (auto_task) {
+                        auto_task.status = true
+                        await auto_task.save()
+                    }
+                }
                 const save: any = await AccessPoint.updateItem(message.send_data.data as AccessPoint)
                 const acu = await Acu.findOneOrFail({ where: { id: save.old.acu } })
 
@@ -848,6 +863,13 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             const company = message.company
             if (message.send_data.update) {
+                if ('work_mode' in message.send_data.data) {
+                    const auto_task = await AutoTaskSchedule.findOne({ where: { access_point: message.send_data.data.id, status: false } })
+                    if (auto_task) {
+                        auto_task.status = true
+                        await auto_task.save()
+                    }
+                }
                 const save: any = await AccessPoint.updateItem(message.send_data.data as AccessPoint)
                 const acu = await Acu.findOneOrFail({ where: { id: save.old.acu } })
 
@@ -897,6 +919,13 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             const company = message.company
             if (message.send_data.update) {
+                if ('work_mode' in message.send_data.data) {
+                    const auto_task = await AutoTaskSchedule.findOne({ where: { access_point: message.send_data.data.id, status: false } })
+                    if (auto_task) {
+                        auto_task.status = true
+                        await auto_task.save()
+                    }
+                }
                 const save: any = await AccessPoint.updateItem(message.send_data.data as AccessPoint)
                 const acu = await Acu.findOneOrFail({ where: { id: save.old.acu } })
 
@@ -946,6 +975,13 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             const company = message.company
             if (message.send_data.update) {
+                if ('work_mode' in message.send_data.data) {
+                    const auto_task = await AutoTaskSchedule.findOne({ where: { access_point: message.send_data.data.id, status: false } })
+                    if (auto_task) {
+                        auto_task.status = true
+                        await auto_task.save()
+                    }
+                }
                 const save: any = await AccessPoint.updateItem(message.send_data.data as AccessPoint)
                 const acu = await Acu.findOneOrFail({ where: { id: save.old.acu } })
                 const access_point: any = await AccessPoint.findOneOrFail({ where: { id: save.new.id }, relations: ['acus'] })
@@ -1520,6 +1556,12 @@ export default class Parse {
     public static async mainTainAck (message: IMqttCrudMessaging) {
         // console.log('resetApbAck', message)
         if (message.result.errorNo === 0) {
+            const topic = message.send_data.topic.split('/')
+            const serial_number = +topic[3]
+            const acu: any = await Acu.findOne({ where: { serial_number: serial_number, company: message.send_data.user_data.company } })
+            if (message.send_data.data.main_tain === 'reset' || message.send_data.data.main_tain === 'reset_to_factory') {
+                await Acu.destroyItem({ id: acu.id, company: acu.company })
+            }
         }
     }
 }

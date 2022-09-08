@@ -26,6 +26,7 @@ import CtpController from './Hardware/CtpController'
 import { credentialType } from '../enums/credentialType.enum'
 import { cloneDeep } from 'lodash'
 import { Brackets } from 'typeorm'
+import CronJob from '../cron'
 const xlsxj = require('xlsx-to-json')
 
 export default class CardholderController {
@@ -626,8 +627,16 @@ export default class CardholderController {
                     if (
                         check_by_company.access_right !== cardholder.access_right ||
                         (check_by_company.limitations && limitations &&
-                            (JSON.stringify(check_by_company.limitations.valid_from) !== JSON.stringify(limitations.valid_from) ||
-                                JSON.stringify(check_by_company.limitations.valid_due) !== JSON.stringify(limitations.valid_due))
+                            (
+                                JSON.stringify(check_by_company.limitations.valid_from) !== JSON.stringify(limitations.valid_from) ||
+                                JSON.stringify(check_by_company.limitations.valid_due) !== JSON.stringify(limitations.valid_due) ||
+                                check_by_company.limitations.pass_counter_enable !== limitations.pass_counter_enable ||
+                                check_by_company.limitations.pass_counter_passes !== limitations.pass_counter_passes ||
+                                check_by_company.limitations.first_use_counter_enable !== limitations.first_use_counter_enable ||
+                                check_by_company.limitations.first_use_counter_days !== limitations.first_use_counter_days ||
+                                check_by_company.limitations.last_use_counter_enable !== limitations.last_use_counter_enable ||
+                                check_by_company.limitations.last_use_counter_days !== limitations.last_use_counter_days
+                            )
                         )
                     ) {
                         CardKeyController.setAddCardKey(OperatorType.SET_CARD_KEYS, location, auth_user.company, auth_user, null)
@@ -1212,7 +1221,8 @@ export default class CardholderController {
                 // slug: role_slug,
                 slug: 'default_cardholder',
                 company: cardholder.company,
-                permissions: permissions
+                permissions: permissions,
+                cardholder: true
             }
             const default_cardholder_role = await Role.addItem(role_save_data as Role)
             // }
@@ -1533,6 +1543,7 @@ export default class CardholderController {
                 CtpController.activateCredential(location, selected_access_point.acus.serial_number, send_data, auth_user, selected_access_point.acus.session_id)
             }
 
+            CronJob.setGuestKeySchedule(guest)
             ctx.body = guest
         } catch (error) {
             ctx.status = error.status || 400
@@ -1812,6 +1823,7 @@ export default class CardholderController {
                 CtpController.activateCredential(location, selected_access_point.acus.serial_number, send_data, auth_user, selected_access_point.acus.session_id)
             }
 
+            CronJob.setGuestKeySchedule(guest_update)
             ctx.body = guest_update
         } catch (error) {
             console.log(error)
@@ -1886,6 +1898,7 @@ export default class CardholderController {
             }
 
             ctx.body = await Cardholder.destroyItem(where)
+            CronJob.unSetGuestKeySchedule(cardholder)
 
             ctx.logsData = [{
                 event: logUserEvents.DELETE,
@@ -2833,7 +2846,7 @@ export default class CardholderController {
         const company = user.company
 
         const all_cardholder_group = await CardholderGroup.findOneOrFail({
-            name: 'All Cardholders',
+            default: true,
             company: company
         })
 

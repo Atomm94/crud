@@ -8,7 +8,7 @@ const parentDir = join(__dirname, '.')
 const sgMail = require('@sendgrid/mail')
 export class Sendgrid {
     // private static sendgrid:any = MailService
-    static from: string = config.sendgrid.fromEmail
+    static from = config.sendgrid.fromEmail
     static mainDomain: string = JSON.parse(config.cors.origin)[0]
 
     public static async init (sendgridKey: string) {
@@ -38,6 +38,7 @@ export class Sendgrid {
         const msg = {
             to: `${toEmail}`,
             from: this.from,
+
             subject: 'Welcome to Unimacs.',
             text: 'has invited you',
             html: this.newMail({

@@ -99,7 +99,8 @@ class RoleController {
       req_data.where = {
         company: { '=': user.company ? user.company : null },
         id: { '!=': user.role },
-        main: { '!=': true }
+        main: { '!=': true },
+        cardholder: { '=': false }
       }
 
       const roles = await Role.getAllItems(req_data)
@@ -326,9 +327,9 @@ class RoleController {
               const role_data = await Role.findOneOrFail({ where: where })
               role = await Role.destroyItem(check_role_by_company)
               ctx.logsData = [{
-                  event: logUserEvents.DELETE,
-                  target: `${Role.name}/${role_data.slug}`,
-                  value: { slug: role_data.slug }
+                event: logUserEvents.DELETE,
+                target: `${Role.name}/${role_data.slug}`,
+                value: { slug: role_data.slug }
               }]
 
               if (role) {

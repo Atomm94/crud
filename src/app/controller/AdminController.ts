@@ -354,6 +354,7 @@ export default class AdminController {
                 if (ctx.user && ctx.user.company) {
                     const company = await Company.findOneOrFail({ where: { id: ctx.user.company }, relations: ['packages'] })
                     ctx.body.company_name = company.company_name
+                    ctx.body.partition_parent_id = company.partition_parent_id
                     ctx.body.package = company.package
                     ctx.body.upgraded_package_id = company.upgraded_package_id
                     const notifications = await Notification.find({ where: { company: ctx.user.company, confirmed: null } })

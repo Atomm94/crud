@@ -955,6 +955,7 @@ export default class AcuController {
             if (req_data.status) {
                 data = data.andWhere(`acu.status = '${req_data.status}'`)
             }
+            data.orderBy('acu.id', 'DESC')
             data = await data.getMany()
             ctx.body = data
         } catch (error) {
@@ -1433,7 +1434,7 @@ export default class AcuController {
 
         DeviceController.maintain(location, acu.serial_number, { main_tain: req_data.name }, user)
         return ctx.body = {
-            message: 'success'
+            message: 'Reset Pending'
         }
     }
 

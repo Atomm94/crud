@@ -20,17 +20,17 @@
             "122": {
                 "event": "Door manually locked",
                 "source_entity": "door",
-                "description": "In Security Desk, a user has manually locked a door."
+                "description": "Operator has manually locked a door."
             },
             "123": {
                 "event": "Door manually Scheduled mode",
                 "source_entity": "door",
-                "description": "In Security Desk, a user has manually reset to normal work mode a door."
+                "description": "Operator has manually reset to normal work mode a door."
             },
             "124": {
                 "event": "Door locked",
                 "source_entity": "door",
-                "description": "The door is considered locked in Security Center."
+                "description": "The door has been locked."
             },
             "126": {
                 "event": "Door maintenance completed",
@@ -125,22 +125,22 @@
             "183": {
                 "event": "Unit synchronization failed",
                 "source_entity": "access control unit",
-                "description": "The synchronization of the unit with the Access Manager has failed."
+                "description": "The synchronization of the unit has failed."
             },
             "184": {
                 "event": "Unit synchronization started",
                 "source_entity": "access control unit",
-                "description": "The synchronization of the unit with the Access Manager has started."
+                "description": "The synchronization of the unit has started."
             },
             "185": {
                 "event": "Unit synchronization succeeded",
                 "source_entity": "access control unit",
-                "description": "The synchronization of the unit with the Access Manager has completed successfully."
+                "description": "The synchronization of the unit has completed successfully."
             },
             "271": {
                 "event": "Paid time started",
                 "source_entity": "parking rule",
-                "description": "Parking time has been purchased through connected pay stations or mobile apps."
+                "description": "Parking time has been purchased through remote system."
             },
             "272": {
                 "event": "Convenience time started",
@@ -170,12 +170,12 @@
             "301": {
                 "event": "Macro started",
                 "source_entity": "macro",
-                "description": "Execution of a macro has begun."
+                "description": "Execution of a automation task has begun."
             },
             "302": {
                 "event": "Macro completed",
                 "source_entity": "macro",
-                "description": "Execution of a macro has been completed normally."
+                "description": "Execution of a automation task has been completed normally."
             },
             "303": {
                 "event": "Custom event",
@@ -205,7 +205,7 @@
             "19": {
                 "event": "Antipassback violation forgiven",
                 "source_entity": "cardholder",
-                "description": "A security operator has granted access to a cardholder responsible for a passback violation."
+                "description": " A Operator has granted access to a cardholder responsible for a passback violation."
             },
             "20": {
                 "event": "Access denied: Double credential requred ",
@@ -325,7 +325,7 @@
             "121": {
                 "event": "Door manually unlocked",
                 "source_entity": "door",
-                "description": "In Security Desk, a user has manually unlocked a door."
+                "description": "Operator has manually unlocked a door."
             },
             "125": {
                 "event": "Door unlocked",
@@ -425,7 +425,7 @@
             "300": {
                 "event": "Macro aborted",
                 "source_entity": "macro",
-                "description": "Execution of a macro has failed."
+                "description": "Execution of a automation task has failed."
             },
             "304": {
                 "event": "Threat level cleared",
@@ -480,7 +480,7 @@
             "2": {
                 "event": "Access denied: A second cardholder is required",
                 "source_entity": "door",
-                "description": "Two cardholders must present their credentials within a certain delay of each other and the delay has expired. This event only applies to doors controlled by Synergis™ units."
+                "description": "Two cardholders must present their credentials within a certain delay of each other."
             },
             "3": {
                 "event": "Access denied: Denied by access rule",
@@ -535,7 +535,7 @@
             "16": {
                 "event": "Access denied: Unknown credential",
                 "source_entity": "door or elevator",
-                "description": "A credential that is unknown in the Security Center system has been used."
+                "description": "A credential that is unknown in System has been used."
             },
             "17": {
                 "event": "Access denied: Out of schedule",

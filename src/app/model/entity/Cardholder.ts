@@ -5,7 +5,8 @@ import {
     JoinColumn,
     ManyToOne,
     OneToMany,
-    DeleteDateColumn
+    DeleteDateColumn,
+    Index
 } from 'typeorm'
 import { cardholderStatus } from '../../enums/cardholderStatus.enum'
 import { MainEntity } from './MainEntity'
@@ -31,10 +32,10 @@ import { cardholderGuestCount } from '../../enums/cardholderGuestCount.enum'
 import { guestPeriod } from '../../enums/guestPeriod.enum'
 
 const parentDir = join(__dirname, '../../..')
-
+@Index('email|company|is_delete', ['email', 'company', 'is_delete'], { unique: true })
 @Entity('cardholder')
 export class Cardholder extends MainEntity {
-    @Column('varchar', { name: 'email', length: '255', unique: true, nullable: true })
+    @Column('varchar', { name: 'email', length: '255', nullable: true })
     email: string
 
     @Column('longtext', { name: 'avatar', nullable: true })
@@ -153,6 +154,9 @@ export class Cardholder extends MainEntity {
 
     @Column('int', { name: 'create_by', nullable: true })
     create_by: number
+
+    @Column('varchar', { name: 'is_delete', default: 0 })
+    is_delete: string
 
     @OneToOne(() => CarInfo, car_info => car_info.cardholders, { nullable: true })
     @JoinColumn({ name: 'car_info' })
@@ -412,6 +416,15 @@ export class Cardholder extends MainEntity {
                         // if (data.car_info) {
                         //     CarInfo.destroyItem(data.car_info)
                         // }
+
+                        const cardholder_data: any = await this.createQueryBuilder('cardholder')
+                            .where('id = :id', { id: data.id })
+                            .withDeleted()
+                            .getOne()
+
+                        cardholder_data.is_delete = (new Date()).getTime()
+                        await this.save(cardholder_data)
+
                         for (const credential of data.credentials) {
                             if (!credential.deleteDate) {
                                 await Credential.destroyItem(credential)

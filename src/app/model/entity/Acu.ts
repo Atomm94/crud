@@ -308,3 +308,85 @@ export class Acu extends MainEntity {
         })
     }
 }
+
+// removed models
+// "LRM3CRS": {
+//     "access_points_count": 1,
+//     "access_point_types": {
+//         "door": true,
+//         "turnstile_one_side": true,
+//         "turnstile_two_side": false,
+//         "gate": true,
+//         "gateway": true,
+//         "floor": false
+//     },
+//     "readers": {
+//         "RFID": true,
+//         "KEYPAD": true,
+//         "FINGER": false,
+//         "FACE": false
+//     },
+//     "inputs": 3,
+//     "outputs": 1,
+//     "floor_count": 0
+// },
+// "LR3CBS": {
+//     "access_points_count": 1,
+//     "access_point_types": {
+//         "door": true,
+//         "turnstile_one_side": false,
+//         "turnstile_two_side": false,
+//         "gate": false,
+//         "gateway": false,
+//         "floor": false
+//     },
+//     "readers": {
+//         "RFID": true,
+//         "KEYPAD": true,
+//         "FINGER": false,
+//         "FACE": false
+//     },
+//     "inputs": 3,
+//     "outputs": 1,
+//     "floor_count": 0
+// },
+// "LR3C2E": {
+//     "access_points_count": 2,
+//     "access_point_types": {
+//         "door": true,
+//         "turnstile_one_side": true,
+//         "turnstile_two_side": true,
+//         "gate": true,
+//         "gateway": true,
+//         "floor": false
+//     },
+//     "readers": {
+//         "RFID": true,
+//         "KEYPAD": true,
+//         "FINGER": true,
+//         "FACE": true
+//     },
+//     "inputs": 6,
+//     "outputs": 5,
+//     "floor_count": 0
+// },
+// "LR3C4E": {
+//     "access_points_count": 4,
+//     "access_point_types": {
+//         "door": true,
+//         "turnstile_one_side": true,
+//         "turnstile_two_side": true,
+//         "gate": true,
+//         "gateway": true,
+//         "floor": false
+//     },
+//     "readers": {
+//         "RFID": true,
+//         "KEYPAD": true,
+//         "FINGER": true,
+//         "FACE": true
+//     },
+//     "inputs": 12,
+//     "outputs": 9,
+//     "floor_count": 0
+// }

@@ -50,6 +50,9 @@ export class AutoTaskSchedule extends MainEntity {
     @Column('boolean', { name: 'one_time', default: false })
     one_time: boolean
 
+    @Column('boolean', { name: 'status', default: false })
+    status: boolean
+
     @Column('int', { name: 'company', nullable: false })
     company: number
 

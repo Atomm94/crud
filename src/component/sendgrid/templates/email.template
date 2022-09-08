@@ -9,8 +9,7 @@
 						<tr>
 							<td style="width: 10%; padding: 0;"></td>
 							<td style="width: 80%; padding: 0; font-size: 30px; font-weight: 900; line-height: 25px;">
-								<img style="display: block; margin: 0 auto; width: 172px" src="https://api.unimacs.studio-one.am/upload_908e1d15dcc94f3e4b082b0da8bb332d.jpg" alt="UNIMACS" title="UNIMACS"/>
-								<span style="color: #7367f0;padding-left: 3px">UNIMACS</span>
+								<img style="display: block; margin: 0 auto; width: 202px" src="https://devapi.unimacs.studio-one.am/8f163f8085e64b00766afe6458e92532.jpg" alt="UNIMACS" title="UNIMACS"/>
 							</td>
 							<td style="width: 10%; padding: 0;"></td>
 						</tr>
@@ -30,7 +29,7 @@
 						<tr>
 							<td style="width: 10%; padding: 0;"></td>
 							<td style="width: 80%; padding: 0;">
-									<a href="<%= link %>" style="display: inline-block; vertical-align: top; color: #ffffff !important; width: 275px; max-width: 100%; background: #7367f0; border-radius: 24px; font-size: 14px; line-height: 18px; padding: 13px 16px; font-weight: bold; text-decoration: none !important"><%= button_text %></a>
+									<a href="<%= link %>" style="display: inline-block; vertical-align: top; color: #ffffff !important; width: 275px; max-width: 100%; background: #00cfe8; border-radius: 24px; font-size: 14px; line-height: 18px; padding: 13px 16px; font-weight: bold; text-decoration: none !important"><%= button_text %></a>
 							</td>
 							<td style="width: 10%; padding: 0;"></td>
 						</tr>

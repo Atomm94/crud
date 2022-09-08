@@ -23,7 +23,7 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
                 message: 'Wrong token!!'
             }
         } else {
-            if (reg_token.company) {
+            if (reg_token.company && !ctx.request.body.partition) {
                 const resource = ctx.request.body.company.package_type
                 const canCreateResource: boolean = await canCreate(reg_token.company, resource)
                 if (canCreateResource) {
@@ -33,7 +33,13 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
                     ctx.body = { message: `${!Number(resource) ? resource : ''} resource limit has been reached` }
                 }
             } else {
-                await next()
+                const canCreateResource: boolean = await canCreate(ctx.user.company, ctx.actionModel)
+                if (canCreateResource) {
+                    await next()
+                } else {
+                    ctx.status = 403
+                    ctx.body = { message: `${ctx.actionModel} resource limit has been reached` }
+                }
             }
         }
     } else {
