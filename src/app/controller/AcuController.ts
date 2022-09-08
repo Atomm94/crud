@@ -636,11 +636,22 @@ export default class AcuController {
                         } else {
                             if (access_point_update) {
                                 const access_point_update = await AccessPoint.updateItem(access_point)
-                                logs_data.push({
-                                    event: logUserEvents.CHANGE,
-                                    target: `${AccessPoint.name}/${acu_updated.old.name}/${access_point_update.old.name}`,
-                                    value: access_point_update
-                                })
+                                const oldResources = JSON.parse(access_point_update.old.resources)
+                                const newResources = JSON.parse(access_point_update.new.resources)
+                                if (Object.keys(oldResources).length > Object.keys(newResources).length) {
+                                    const resourceNames = Object.keys(oldResources).filter(elem => newResources[elem] === undefined)
+                                    logs_data.push({
+                                        event: logUserEvents.DELETE,
+                                        target: `${AccessPoint.name}/${acu_updated.old.name}/${access_point_update.old.name}`,
+                                        value: { name: resourceNames.length === 1 ? resourceNames[0] : resourceNames }
+                                    })
+                                } else {
+                                    logs_data.push({
+                                        event: logUserEvents.CHANGE,
+                                        target: `${AccessPoint.name}/${acu_updated.old.name}/${access_point_update.old.name}`,
+                                        value: access_point_update
+                                    })
+                                }
                                 access_point = access_point_update.new
                             } else {
                                 logs_data.push({
