@@ -16,6 +16,12 @@ export enum UnusedObjectKeys {
     hasAttribute,
     ext_device_address,
     data,
+    hasId,
+    save,
+    remove,
+    softRemove,
+    recover,
+    reload,
 }
 
 export const objectValuesDiff = {
