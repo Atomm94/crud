@@ -1710,29 +1710,29 @@ export default class CardholderController {
                 const start_date = `${moment(req_data.start_date).format('YYYY-MM-DD')} ${req_data.start_time}`
                 let end_date = `${moment(req_data.end_date).format('YYYY-MM-DD')} ${req_data.end_time}`
                 if (req_data.period === guestPeriod.HOURS) {
-                    const end_date_timestamp = new Date(req_data.start_date).getTime() + req_data.duration * 60 * 1000
+                    const end_date_timestamp = new Date(start_date).getTime() + req_data.duration * 60 * 1000
                     end_date = moment(end_date_timestamp).format('YYYY-MM-DD HH:mm:ss')
                 }
 
-                if (req_data.start_date !== guest.start_date || end_date !== guest.end_date) {
-                    time_changed = true
-                    const save_schedule = await Schedule.updateItem({
-                        ...schedule,
-                        start_date: start_date,
-                        end_date: end_date
-                    } as Schedule)
-                    schedule = save_schedule.new
+                // if (req_data.start_date !== guest.start_date || end_date !== guest.end_date) {
+                time_changed = true
+                const save_schedule = await Schedule.updateItem({
+                    ...schedule,
+                    start_date: start_date,
+                    end_date: end_date
+                } as Schedule)
+                schedule = save_schedule.new
 
-                    for (const timeframe of timeframes) {
-                        await Timeframe.destroyItem({ id: timeframe.id, company: timeframe.company })
-                    }
-                    timeframes = []
-                    for (const timeframe of company.base_schedules.timeframes) {
-                        timeframe.schedule = schedule.id
-                        timeframe.company = invite_user.company
-                        timeframes.push(await Timeframe.addItem(timeframe))
-                    }
+                for (const timeframe of timeframes) {
+                    await Timeframe.destroyItem({ id: timeframe.id, company: timeframe.company })
                 }
+                timeframes = []
+                for (const timeframe of company.base_schedules.timeframes) {
+                    timeframe.schedule = schedule.id
+                    timeframe.company = invite_user.company
+                    timeframes.push(await Timeframe.addItem(timeframe))
+                }
+                // }
             } else if (req_data.key_type === guestKeyType.PERMANENT) {
                 if (JSON.stringify(req_data.days_of_week) !== guest.days_of_week ||
                     req_data.start_time !== guest.start_time ||
