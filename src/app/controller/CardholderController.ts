@@ -1457,7 +1457,8 @@ export default class CardholderController {
             const timeframes = []
 
             if (req_data.key_type === guestKeyType.TEMPORARY) {
-                let end_date = req_data.end_date
+                const start_date = `${moment(req_data.start_date).format('YYYY-MM-DD')} ${req_data.start_time}`
+                let end_date = `${moment(req_data.end_date).format('YYYY-MM-DD')} ${req_data.end_time}`
                 if (req_data.period === guestPeriod.HOURS) {
                     const end_date_timestamp = new Date(req_data.start_date).getTime() + req_data.duration * 60 * 1000
                     end_date = moment(end_date_timestamp).format('YYYY-MM-DD HH:mm:ss')
@@ -1467,7 +1468,7 @@ export default class CardholderController {
                     name: req_data.first_name,
                     custom: true,
                     company: invite_user.company,
-                    start_date: req_data.start_date,
+                    start_date: start_date,
                     end_date: end_date
                 } as Schedule)
                 for (const timeframe of company.base_schedules.timeframes) {
@@ -1714,9 +1715,11 @@ export default class CardholderController {
 
                 if (req_data.start_date !== guest.start_date || end_date !== guest.end_date) {
                     time_changed = true
+                    const start_date = `${moment(req_data.start_date).format('YYYY-MM-DD')} ${req_data.start_time}`
+                    const end_date = `${moment(req_data.end_date).format('YYYY-MM-DD')} ${req_data.end_time}`
                     const save_schedule = await Schedule.updateItem({
                         ...schedule,
-                        start_date: req_data.start_date,
+                        start_date: start_date,
                         end_date: end_date
                     } as Schedule)
                     schedule = save_schedule.new
