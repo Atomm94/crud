@@ -3,7 +3,7 @@ import { AccPointResourceTypes } from '../enums/resourceTypes.enum'
 import { formatKeyValue } from './formatObjectKeys'
 
 export const parseObjNestedJSONProps = async (obj: { [key: string]: any }, id?:number) => {
-    if (!id) id = obj.id
+    if (!id && obj) id = obj.id
     const parsedObjClone: { [key: string]: any } = {}
     for (const key in obj) {
         if (key in UnusedObjectKeys || (key === 'name' && obj[key] in AccPointResourceTypes)) continue
