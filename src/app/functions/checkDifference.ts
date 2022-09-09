@@ -14,6 +14,7 @@ export async function getObjectDiff (obj1: { [key: string]: any }, obj2: { [key:
             if (!obj2.hasOwnProperty(key)) diff[key] = value
         }
     }
+
     if (diff.hasOwnProperty('password')) {
         if (_.isNull(diff.password)) {
             delete diff.password
