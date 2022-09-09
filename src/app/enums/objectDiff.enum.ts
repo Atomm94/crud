@@ -22,6 +22,7 @@ export enum UnusedObjectKeys {
     softRemove,
     recover,
     reload,
+    updateDate
 }
 
 export const objectValuesDiff = {
