@@ -1,15 +1,20 @@
-import _ from 'lodash'
+import _, { isNull } from 'lodash'
 
-export function getObjectDiff (obj1: { [key: string]: any }, obj2: { [key: string]: any }) { // new, old
+export async function getObjectDiff (obj1: { [key: string]: any }, obj2: { [key: string]: any }) { // new, old
     const diff: { [key: string]: any } = {}
     for (const key in obj1) {
         if (obj1.hasOwnProperty(key)) {
             const value = obj1[key]
             if (obj2.hasOwnProperty(key) && obj2[key] !== value) {
-                diff[key] = value
+                if (typeof obj1[key] === 'object' && typeof obj2[key] === 'object' && !isNull(obj2[key]) && !isNull(obj1[key])) {
+                    const diff1 = await getObjectDiff(obj1[key], obj2[key])
+                    if (Object.keys(diff1).length) diff[key] = diff1
+                } else diff[key] = value
             }
+            if (!obj2.hasOwnProperty(key)) diff[key] = value
         }
     }
+
     if (diff.hasOwnProperty('password')) {
         if (_.isNull(diff.password)) {
             delete diff.password

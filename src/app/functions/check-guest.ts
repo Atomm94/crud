@@ -190,10 +190,10 @@ export class CheckGuest {
     }
 
     public static async tryGeneratePinpassCode (company: number, try_qty: number = 0): Promise<any> {
-        const rand = Math.floor(Math.random() * 9999)
+        const rand = Math.floor(Math.random() * 999999)
         let code = rand.toString()
         const code_length = code.length
-        for (let i = 0; i < 4 - code_length; i++) {
+        for (let i = 0; i < 6 - code_length; i++) {
             code = `0${code}`
         }
         const credential = await Credential.findOne({ where: { company, code } })
