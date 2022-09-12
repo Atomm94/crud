@@ -27,6 +27,7 @@ import { credentialType } from '../enums/credentialType.enum'
 import { cloneDeep } from 'lodash'
 import { Brackets } from 'typeorm'
 import CronJob from '../cron'
+import { guestGetDatesFromTimestamps } from '../functions/guest_get_dates_from_timestamps'
 const xlsxj = require('xlsx-to-json')
 
 export default class CardholderController {
@@ -1456,6 +1457,7 @@ export default class CardholderController {
             let schedule: any
             const timeframes = []
 
+            guestGetDatesFromTimestamps(req_data)
             if (req_data.key_type === guestKeyType.TEMPORARY) {
                 const start_date = `${moment(req_data.start_date).format('YYYY-MM-DD')} ${req_data.start_time}`
                 let end_date = `${moment(req_data.end_date).format('YYYY-MM-DD')} ${req_data.end_time}`
@@ -1706,6 +1708,8 @@ export default class CardholderController {
             let schedule = cloneDeep(guest.time_attendances)
             let timeframes = cloneDeep(guest.time_attendances.timeframes)
             let time_changed = false
+
+            guestGetDatesFromTimestamps(req_data)
             if (req_data.key_type === guestKeyType.TEMPORARY) {
                 const start_date = `${moment(req_data.start_date).format('YYYY-MM-DD')} ${req_data.start_time}`
                 let end_date = `${moment(req_data.end_date).format('YYYY-MM-DD')} ${req_data.end_time}`
