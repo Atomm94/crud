@@ -1396,7 +1396,6 @@ export default class CardholderController {
             req_data.create_by = auth_user.id
             req_data.guest = true
 
-            console.log('auth_user.id', auth_user)
             if (!auth_user.cardholder) {
                 ctx.status = 400
                 return ctx.body = { message: 'Only invited Cardholder can create Guest' }
@@ -1727,7 +1726,6 @@ export default class CardholderController {
                     end_date: end_date
                 } as Schedule)
                 schedule = save_schedule.new
-                console.log('schedule', schedule)
 
                 for (const timeframe of timeframes) {
                     await Timeframe.destroyItem({ id: timeframe.id, company: timeframe.company })
