@@ -37,24 +37,32 @@ export class CheckGuest {
             if (guest_data.period === guestPeriod.HOURS) {
                 if (!guest_data.duration) {
                     return 'You must set duration!'
-                } else if (!guest_data.start_date) {
+                } else if (!guest_data.start_timestamp) {
                     return 'You must set start_date!'
-                } else if (!(new Date(guest_data.start_date))) {
-                    return 'Invalid start_date!'
                 }
+                //  else if (!guest_data.start_date) {
+                //     return 'You must set start_date!'
+                // } else if (!(new Date(guest_data.start_date))) {
+                //     return 'Invalid start_date!'
+                // }
 
                 const end_date_timestamp = new Date(guest_data.start_date).getTime() + guest_data.duration * 60 * 1000
                 guest_data.end_date = moment(end_date_timestamp).format('YYYY-MM-DD HH:mm:ss')
             } else if (guest_data.period === guestPeriod.DAYS) {
-                if (!guest_data.start_date) {
+                if (!guest_data.start_timestamp) {
                     return 'You must set start_date!'
-                } else if (!(new Date(guest_data.start_date))) {
-                    return 'Invalid start_date!'
-                } else if (!guest_data.end_date) {
+                } else if (!guest_data.end_timestamp) {
                     return 'You must set end_date!'
-                } else if (!(new Date(guest_data.end_date))) {
-                    return 'Invalid end_date!'
                 }
+                // if (!guest_data.start_date) {
+                //     return 'You must set start_date!'
+                // } else if (!(new Date(guest_data.start_date))) {
+                //     return 'Invalid start_date!'
+                // } else if (!guest_data.end_date) {
+                //     return 'You must set end_date!'
+                // } else if (!(new Date(guest_data.end_date))) {
+                //     return 'Invalid end_date!'
+                // }
 
                 const start_date_timestamp = new Date(guest_data.start_date).getTime()
                 const end_date_timestamp = new Date(guest_data.end_date).getTime()
@@ -190,10 +198,10 @@ export class CheckGuest {
     }
 
     public static async tryGeneratePinpassCode (company: number, try_qty: number = 0): Promise<any> {
-        const rand = Math.floor(Math.random() * 999999)
+        const rand = Math.floor(Math.random() * 9999)
         let code = rand.toString()
         const code_length = code.length
-        for (let i = 0; i < 6 - code_length; i++) {
+        for (let i = 0; i < 4 - code_length; i++) {
             code = `0${code}`
         }
         const credential = await Credential.findOne({ where: { company, code } })
