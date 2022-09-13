@@ -1396,6 +1396,7 @@ export default class CardholderController {
             req_data.create_by = auth_user.id
             req_data.guest = true
 
+            console.log('auth_user.id', auth_user)
             if (!auth_user.cardholder) {
                 ctx.status = 400
                 return ctx.body = { message: 'Only invited Cardholder can create Guest' }
@@ -1703,13 +1704,13 @@ export default class CardholderController {
                 }
             }
 
+            guestGetDatesFromTimestamps(req_data)
             const guest_update = (await Cardholder.updateItem(req_data as Cardholder, auth_user)).new
 
             let schedule = cloneDeep(guest.time_attendances)
             let timeframes = cloneDeep(guest.time_attendances.timeframes)
             let time_changed = false
 
-            guestGetDatesFromTimestamps(req_data)
             if (req_data.key_type === guestKeyType.TEMPORARY) {
                 const start_date = `${moment(req_data.start_date).format('YYYY-MM-DD')} ${req_data.start_time}`
                 let end_date = `${moment(req_data.end_date).format('YYYY-MM-DD')} ${req_data.end_time}`
@@ -1726,6 +1727,7 @@ export default class CardholderController {
                     end_date: end_date
                 } as Schedule)
                 schedule = save_schedule.new
+                console.log('schedule', schedule)
 
                 for (const timeframe of timeframes) {
                     await Timeframe.destroyItem({ id: timeframe.id, company: timeframe.company })
