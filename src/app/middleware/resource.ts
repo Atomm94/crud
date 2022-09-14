@@ -23,7 +23,9 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
                 message: 'Wrong token!!'
             }
         } else {
-            if (reg_token.company && !ctx.request.body.partition) {
+            if (!reg_token.company) {
+                await next()
+            } else if (!ctx.request.body.partition) {
                 const resource = ctx.request.body.company.package_type
                 const canCreateResource: boolean = await canCreate(reg_token.company, resource)
                 if (canCreateResource) {
