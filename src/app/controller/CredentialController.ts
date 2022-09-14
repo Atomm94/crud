@@ -711,7 +711,7 @@ export default class CredentialController {
             }
 
             const start_date = `${moment(credential.cardholders.start_date).format('YYYY-MM-DD')} ${credential.cardholders.start_time}`
-            let end_date = `${moment(credential.cardholders.end_date).format('YYYY-MM-DD')} ${credential.cardholders.start_time}`
+            let end_date = `${moment(credential.cardholders.end_date).format('YYYY-MM-DD')} ${credential.cardholders.end_time}`
             if (credential.cardholders.period === guestPeriod.HOURS) {
                 const duration_time = credential.cardholders.duration * 60 * 1000
                 const end_date_timestamp = new Date(start_date).getTime() + duration_time
