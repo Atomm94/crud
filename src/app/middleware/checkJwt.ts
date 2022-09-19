@@ -19,7 +19,8 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
         // 'credential/accessPoint/open'
         // 'guest/credential'
         'zoho/code',
-        'zoho/callback'
+        'zoho/callback',
+        'sign-up'
     ]
 
     const path = ctx.request.url.split('?')[0].split('/').slice(1).join('/')
@@ -62,7 +63,7 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
                                 ctx.query = {
                                     ...ctx.query,
                                     packageExtraSettings: JSON.parse(company.packages.extra_settings)
-                                  }
+                                }
                             }
                         }
                     }

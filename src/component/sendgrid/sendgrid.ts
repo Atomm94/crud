@@ -59,6 +59,28 @@ export class Sendgrid {
         }
     }
 
+    public static async sendSignUp (toEmail: string) {
+        const msg = {
+            to: `${toEmail}`,
+            from: this.from,
+            subject: 'Welcome to Unimacs',
+            text: 'Hello!',
+            html: this.newTextMail({
+                headingText: 'Thank you for registering with Unimacs.',
+                mainText: 'We are glad to start cooperation with you and we would like to get to know you better in order to make you a better offer. Please tell us a little about yourself and your interests by writing to support@lumiring.com and we will offer you the best possible solution and activate your account ;)'
+            })
+        }
+        try {
+            await sgMail.send(msg)
+        } catch (error) {
+            console.error(error)
+
+            if (error.response) {
+                console.error(error.response.body)
+            }
+        }
+    }
+
     public static async sendPartitionInvite (toEmail: string, token: string) {
         const msg = {
             to: `${toEmail}`,
@@ -161,9 +183,9 @@ export class Sendgrid {
             from: this.from,
             subject: 'Welcome to Unimacs',
             text: 'Congratulations, your account has been activated.',
-            html: this.newMail2({
-                text: 'Congratulations, your account has been activated.',
-                end_text: 'Now You have access to all sections and tools.'
+            html: this.newTextMail({
+                headingText: 'Thank you for choosing Unimacs!',
+                mainText: 'We have activated your account and you can start using it right now. Just follow this link https://unimacs.lumiring.com/login and enter your username and password.'
             })
         }
         try {
@@ -215,13 +237,12 @@ export class Sendgrid {
         }
     }
 
-    private static newMail2 (mail: any) {
-        const emailTemplate: any = fs.readFileSync(`${parentDir}/templates/updatestatus.template`)
+    private static newTextMail (mail: { headingText: string, mainText: string}) {
+        const emailTemplate: any = fs.readFileSync(`${parentDir}/templates/text.email.template`)
         const template = _.template(emailTemplate)
         const html = template({
-            title: mail.title,
-            text: mail.text,
-            end_text: mail.end_text
+            headingText: mail.headingText,
+            mainText: mail.mainText
         })
         return html
     }
