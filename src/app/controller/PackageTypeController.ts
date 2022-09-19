@@ -109,11 +109,14 @@ export default class PackageTypeController {
         try {
             const req_data = ctx.request.body
 
-            const old_default_package: any = await PackageType.createQueryBuilder('package_type')
+            const old_default_package_type: any = await PackageType.createQueryBuilder('package_type')
                 .andWhere(`package_type.default = ${true}`)
                 .getOne()
-
-            if (old_default_package.id === req_data.id && req_data.default === false) {
+            if (old_default_package_type && old_default_package_type.id !== req_data.id && req_data.default === true) {
+                ctx.status = 400
+                return ctx.body = { message: 'Default Package Type can be only one' }
+            }
+            if (old_default_package_type.id === req_data.id && req_data.default === false) {
                 ctx.status = 400
                 return ctx.body = { message: "Can't checkout Default Package Type" }
             }
