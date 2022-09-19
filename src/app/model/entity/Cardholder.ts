@@ -13,7 +13,7 @@ import { MainEntity } from './MainEntity'
 import { CarInfo } from './CarInfo'
 import { Limitation } from './Limitation'
 import { AccessRight } from './AccessRight'
-
+import { AccessRule } from './AccessRule'
 import { fileSave } from '../../functions/file'
 import { logger } from '../../../../modules/winston/logger'
 import fs from 'fs'
@@ -428,6 +428,16 @@ export class Cardholder extends MainEntity {
                         for (const credential of data.credentials) {
                             if (!credential.deleteDate) {
                                 await Credential.destroyItem(credential)
+                            }
+                        }
+
+                        if (cardholder_data.guest) {
+                            AccessRight.destroyItem({ id: cardholder_data.access_right, company: cardholder_data.company })
+                            const access_rules = await AccessRule.find({ where: { access_right: cardholder_data.access_right } })
+                            for (const access_rule of access_rules) {
+                                AccessRule.destroyItem({ id: access_rule.id, company: cardholder_data.company })
+                                const schedule = await Schedule.findOne({ where: { id: access_rule.schedule } })
+                                if (schedule) Schedule.destroyItem({ id: access_rule.schedule, company: cardholder_data.company })
                             }
                         }
                         resolve({ message: 'success' })
