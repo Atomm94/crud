@@ -40,6 +40,9 @@ export class Package extends MainEntity {
     @Column('boolean', { name: 'status', default: true })
     status: boolean
 
+    @Column('boolean', { name: 'default', default: false })
+    default: boolean
+
     @Column('boolean', { name: 'create_package_zoho_sync', default: false })
     create_package_zoho_sync: boolean
 
@@ -64,6 +67,7 @@ export class Package extends MainEntity {
         package_data.pay_terms = data.pay_terms
         package_data.status = data.status
         package_data.extra_settings = data.extra_settings
+        if ('default' in data) package_data.default = data.default
 
         return new Promise((resolve, reject) => {
             this.save(package_data)
@@ -88,6 +92,7 @@ export class Package extends MainEntity {
         if ('pay_terms' in data) package_data.pay_terms = data.pay_terms
         if ('status' in data) package_data.status = data.status
         if ('extra_settings' in data) package_data.extra_settings = data.extra_settings
+        if ('default' in data) package_data.default = data.default
 
         if (!package_data) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {

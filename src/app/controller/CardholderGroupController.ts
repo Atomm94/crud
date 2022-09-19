@@ -442,10 +442,7 @@ export default class CardholderGroupController {
                     ctx.body = { message: 'Can\'t remove group with cardholders' }
                 } else {
                     const cardholder_group = await CardholderGroup.findOneOrFail({ where: where })
-                    console.log('🚀 ~ file: CardholderGroupController.ts ~ line 431 ~ CardholderGroupController ~ destroy ~ cardholder_group', cardholder_group)
                     if (!cardholder_group.parent_id || cardholder_group.default) {
-                        console.log(5968969689)
-
                         ctx.status = 400
                         return ctx.body = { message: "Can't delete Default Cardholder Group" }
                     }
