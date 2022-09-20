@@ -63,11 +63,11 @@ export default class PackageController {
         try {
             const req_data = ctx.request.body
             const old_default_package: any = await Package.createQueryBuilder('package')
-                .andWhere(`package.default = ${true}`)
+                .where(`package.default = ${true}`)
                 .getOne()
 
             const default_package_type: any = await PackageType.createQueryBuilder('package_type')
-                .andWhere(`package_type.default = ${true}`)
+                .where(`package_type.default = ${true}`)
                 .getOne()
             if (!default_package_type && req_data.default) {
                 ctx.status = 400
@@ -75,7 +75,7 @@ export default class PackageController {
                     message: 'There must be default package type'
                 }
             }
-            if (req_data.package_type !== default_package_type.id && req_data.default) {
+            if (default_package_type && req_data.package_type !== default_package_type.id && req_data.default) {
                 ctx.status = 400
                 return ctx.body = {
                     message: 'Default package must be in Default Package type'
@@ -153,11 +153,11 @@ export default class PackageController {
         try {
             const req_data = ctx.request.body
             const old_default_package: any = await Package.createQueryBuilder('package')
-                .andWhere(`package.default = ${true}`)
+                .where(`package.default = ${true}`)
                 .getOne()
 
             const default_package_type: any = await PackageType.createQueryBuilder('package_type')
-                .andWhere(`package_type.default = ${true}`)
+                .where(`package_type.default = ${true}`)
                 .getOne()
 
             if (!default_package_type && req_data.default) {
@@ -166,13 +166,13 @@ export default class PackageController {
                     message: 'There must be default package type'
                 }
             }
-            if (req_data.package_type !== default_package_type.id && req_data.default) {
+            if (default_package_type && req_data.package_type !== default_package_type.id && req_data.default) {
                 ctx.status = 400
                 return ctx.body = {
                     message: 'Default package must be in Default Package type'
                 }
             }
-            if (old_default_package.id === req_data.id && req_data.default === false) {
+            if (old_default_package && old_default_package.id === req_data.id && req_data.default === false) {
                 ctx.status = 400
                 return ctx.body = { message: "Can't checkout Default Package" }
             }

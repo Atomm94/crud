@@ -123,7 +123,7 @@ export default class AuthController {
             if (!success) {
                 ctx.status = 400
                 return ctx.body = {
-                    message
+                    message: message
                 }
             }
             if (await Admin.findOne({ email: account.email })) {
@@ -133,10 +133,11 @@ export default class AuthController {
                 }
             }
 
-            const defaultPackageType = await PackageType.findOne({ default: true })
-            const defaultPackage = await Package.findOne({ default: true })
+            const defaultPackageType = await PackageType.findOneOrFail({ default: true })
+            const defaultPackage = await Package.findOneOrFail({ default: true })
 
-            company.package = defaultPackage?.id
+            company.upgraded_package_id = defaultPackage?.id
+            company.company_sign_up = true
             company.package_type = defaultPackageType?.id
             company.status = statusCompany.PENDING
             const newCompany = await Company.addItem(company as Company)
@@ -156,7 +157,6 @@ export default class AuthController {
 
             account.company = newCompany.id
             account.role = new_company_role.id
-            account.status = adminStatus.PENDING
             const admin = await Admin.addItem(account as Admin)
 
             newCompany.account = admin.id
@@ -222,7 +222,7 @@ export default class AuthController {
         }
 
         try {
-            user = await Admin.findOneOrFail({ where: [{ username }, { email: username }], relations: ['roles'] })
+            user = await Admin.findOneOrFail({ where: [{ username }, { email: username }], relations: ['roles', 'companies'] })
         } catch (error) {
             ctx.status = error.status || 401
             ctx.body = { message: 'Wrong username or e-mail' }
@@ -237,36 +237,35 @@ export default class AuthController {
                     return (ctx.body = {
                         message: 'Wrong password'
                     })
-                } else {
-                    if (user.status === adminStatus.PENDING) {
-                        ctx.status = 400
-                        return ctx.body = {
-                            message: 'The account has not been activated yet. Please contact support.'
-                        }
+                }
+                if (user.companies && user.companies.company_sign_up && user.companies.status === statusCompany.PENDING) {
+                    ctx.status = 400
+                    return ctx.body = {
+                        message: 'The account has not been activated yet. Please contact support.'
                     }
-                    if (user.status !== adminStatus.ACTIVE) {
-                        ctx.status = 400
-                        return ctx.body = {
-                            message: 'User status is not valid'
-                        }
-                    } else
-                        if (user.company) {
-                            const company = await Company.findOneOrFail({ id: user.company })
-                            company_main_data.company_main = company.account
-                            company_main_data.package = company.package
-                            company_main_data.partition_parent_id = company.partition_parent_id
-                            if (company.status === statusCompany.DISABLE || (company.status === statusCompany.PENDING && company.account !== user.id)) {
-                                ctx.status = 400
-                                return ctx.body = {
-                                    message: 'Company status is not valid'
-                                }
+                }
+                if (user.status !== adminStatus.ACTIVE) {
+                    ctx.status = 400
+                    return ctx.body = {
+                        message: 'User status is not valid'
+                    }
+                } else
+                    if (user.company) {
+                        const company = await Company.findOneOrFail({ id: user.company })
+                        company_main_data.company_main = company.account
+                        company_main_data.package = company.package
+                        company_main_data.partition_parent_id = company.partition_parent_id
+                        if (company.status === statusCompany.DISABLE || (company.status === statusCompany.PENDING && company.account !== user.id)) {
+                            ctx.status = 400
+                            return ctx.body = {
+                                message: 'Company status is not valid'
                             }
                         }
+                    }
 
-                    user.last_login_date = new Date().toISOString().slice(0, 19).replace('T', ' ')
-                    delete user.password
-                    Admin.save(user)
-                }
+                user.last_login_date = new Date().toISOString().slice(0, 19).replace('T', ' ')
+                delete user.password
+                Admin.save(user)
             } catch (error) {
                 ctx.status = error.status || 400
                 return ctx.body = error

@@ -402,7 +402,7 @@ export default class ZohoController {
                     company.package = Number(package_id)
                     company.upgraded_package_id = null
                     await company.save()
-                    if (company.status === statusCompany.PENDING) {
+                    if (company.status === statusCompany.PENDING && !company.company_sign_up) {
                         company.status = statusCompany.ENABLE
                         await company.save()
                     }

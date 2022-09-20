@@ -89,6 +89,9 @@ export class Company extends MainEntity {
     @Column('enum', { name: 'zoho_callback_status', enum: zohoCallbackStatus, default: zohoCallbackStatus.NONE })
     zoho_callback_status: zohoCallbackStatus
 
+    @Column('boolean', { name: 'company_sign_up', default: false })
+    company_sign_up: boolean
+
     @DeleteDateColumn({ type: 'timestamp', name: 'delete_date' })
     public deleteDate: Date
 
@@ -156,6 +159,8 @@ export class Company extends MainEntity {
         if ('parent_id' in data) company.parent_id = data.parent_id
         if ('partition_parent_id' in data) company.partition_parent_id = data.partition_parent_id
         if ('status' in data) company.status = data.status
+        if ('company_sign_up' in data) company.company_sign_up = data.company_sign_up
+        if ('upgraded_package_id' in data) company.upgraded_package_id = data.upgraded_package_id
 
         // company.status = data.status
 
