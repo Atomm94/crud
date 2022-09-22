@@ -152,15 +152,20 @@ export class AcuStatus extends MainEntity {
     public static async destroyItem (data: any) {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
-            this.remove(await this.findOneOrFail({ acu: data.acu }))
-                .then(async () => {
-                    AccessPointStatus.destroyItem({ acu: data.acu })
-                    resolve({ message: 'success' })
-                })
-                .catch((error: any) => {
-                    console.log('AcuStatus delete failed', error)
-                    resolve({ message: 'AcuStatus delete failed' })
-                })
+            const entity = await this.findOne({ acu: data.acu })
+            if (entity) {
+                this.remove(entity)
+                    .then(async () => {
+                        AccessPointStatus.destroyItem({ acu: data.acu })
+                        resolve({ message: 'success' })
+                    })
+                    .catch((error: any) => {
+                        console.log('AcuStatus delete failed', error)
+                        resolve({ message: 'AcuStatus delete failed' })
+                    })
+            } else {
+                resolve({ message: 'success' })
+            }
         })
     }
 
