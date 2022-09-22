@@ -382,7 +382,9 @@ export default class Parse {
                 // acu_data.registration_date = moment(Number(message.info.time) * 1000).format('YYYY-MM-DD HH:mm:ss')
                 acu_data.registration_date = moment(new Date().getTime()).format('YYYY-MM-DD HH:mm:ss')
                 acu_data.time = JSON.stringify({
-                    time_zone: message.info.gmt,
+                    // time_zone: message.info.gmt,
+                    time_zone: 'Africa/Casablanca',
+                    time_zone_unix: '+00:00',
                     timezone_from_facility: false,
                     enable_daylight_saving_time: false,
                     daylight_saving_time_from_user_account: false

@@ -48,6 +48,8 @@ export default class PackageController {
      *                      type: string
      *                  status:
      *                      type: boolean
+     *                  default:
+     *                      type: boolean
      *          responses:
      *              '201':
      *                  description: A package object
@@ -59,6 +61,32 @@ export default class PackageController {
 
     public static async add (ctx: DefaultContext) {
         try {
+            const req_data = ctx.request.body
+            const old_default_package: any = await Package.createQueryBuilder('package')
+                .where(`package.default = ${true}`)
+                .getOne()
+
+            const default_package_type: any = await PackageType.createQueryBuilder('package_type')
+                .where(`package_type.default = ${true}`)
+                .getOne()
+            if (!default_package_type && req_data.default) {
+                ctx.status = 400
+                return ctx.body = {
+                    message: 'There must be default package type'
+                }
+            }
+            if (default_package_type && req_data.package_type !== default_package_type.id && req_data.default) {
+                ctx.status = 400
+                return ctx.body = {
+                    message: 'Default package must be in Default Package type'
+                }
+            }
+            if (old_default_package && req_data.default) {
+                ctx.status = 400
+                return ctx.body = {
+                    message: 'Default Package can be only one'
+                }
+            }
             ctx.body = await Package.addItem(ctx.request.body as Package)
         } catch (error) {
             ctx.status = error.status || 400
@@ -111,6 +139,8 @@ export default class PackageController {
      *                      type: string
      *                  status:
      *                      type: boolean
+     *                  default:
+     *                      type: boolean
      *          responses:
      *              '201':
      *                  description: A package updated object
@@ -121,6 +151,38 @@ export default class PackageController {
      */
     public static async update (ctx: DefaultContext) {
         try {
+            const req_data = ctx.request.body
+            const old_default_package: any = await Package.createQueryBuilder('package')
+                .where(`package.default = ${true}`)
+                .getOne()
+
+            const default_package_type: any = await PackageType.createQueryBuilder('package_type')
+                .where(`package_type.default = ${true}`)
+                .getOne()
+
+            if (!default_package_type && req_data.default) {
+                ctx.status = 400
+                return ctx.body = {
+                    message: 'There must be default package type'
+                }
+            }
+            if (default_package_type && req_data.package_type !== default_package_type.id && req_data.default) {
+                ctx.status = 400
+                return ctx.body = {
+                    message: 'Default package must be in Default Package type'
+                }
+            }
+            if (old_default_package && old_default_package.id === req_data.id && req_data.default === false) {
+                ctx.status = 400
+                return ctx.body = { message: "Can't checkout Default Package" }
+            }
+            if (old_default_package && req_data.default) {
+                ctx.status = 400
+                return ctx.body = {
+                    message: 'Default Package can be only one'
+                }
+            }
+
             const updated = await Package.updateItem(ctx.request.body as Package)
             ctx.oldData = updated.old
             ctx.body = updated.new
@@ -220,6 +282,12 @@ export default class PackageController {
             const req_data: any = ctx.request.body
             const where = { id: req_data.id }
             const package_data = await Package.findOneOrFail({ where: where })
+
+            if (package_data.default) {
+                ctx.status = 400
+                return ctx.body = { message: "Can't delete Default Package" }
+            }
+
             ctx.body = await Package.destroyItem(where)
             ctx.logsData = [{
                 event: logUserEvents.DELETE,

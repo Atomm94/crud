@@ -30,6 +30,8 @@ export default class PackageTypeController {
      *                      type: string
      *                  status:
      *                      type: boolean
+     *                  default:
+     *                      type: boolean
      *          responses:
      *              '201':
      *                  description: A packageType object
@@ -41,6 +43,18 @@ export default class PackageTypeController {
 
     public static async add (ctx: DefaultContext) {
         try {
+            const req_data = ctx.request.body
+            const old_default_package: any = await PackageType.createQueryBuilder('package_type')
+                .where(`package_type.default = ${true}`)
+                .getOne()
+            if (old_default_package) {
+                if (req_data.default) {
+                    ctx.status = 400
+                    return ctx.body = {
+                        message: 'There are Default Package type'
+                    }
+                }
+            }
             ctx.body = await PackageType.addItem(ctx.request.body as PackageType)
         } catch (error) {
             ctx.status = error.status || 400
@@ -81,6 +95,8 @@ export default class PackageTypeController {
      *                      type: string
      *                  status:
      *                      type: boolean
+     *                  default:
+     *                      type: boolean
      *          responses:
      *              '201':
      *                  description: A packageType updated object
@@ -91,7 +107,21 @@ export default class PackageTypeController {
      */
     public static async update (ctx: DefaultContext) {
         try {
-            const updated = await PackageType.updateItem(ctx.request.body as PackageType)
+            const req_data = ctx.request.body
+
+            const old_default_package_type: any = await PackageType.createQueryBuilder('package_type')
+                .where(`package_type.default = ${true}`)
+                .getOne()
+            if (old_default_package_type && old_default_package_type.id !== req_data.id && req_data.default === true) {
+                ctx.status = 400
+                return ctx.body = { message: 'Default Package Type can be only one' }
+            }
+            if (old_default_package_type && old_default_package_type.id === req_data.id && req_data.default === false) {
+                ctx.status = 400
+                return ctx.body = { message: "Can't checkout Default Package Type" }
+            }
+
+            const updated = await PackageType.updateItem(req_data as PackageType)
             ctx.oldData = updated.old
             ctx.body = updated.new
         } catch (error) {
@@ -179,6 +209,12 @@ export default class PackageTypeController {
             const req_data: any = ctx.request.body
             const where = { id: req_data.id }
             const package_data = await PackageType.findOneOrFail({ where: where })
+
+            if (package_data.default) {
+                ctx.status = 400
+                return ctx.body = { message: "Can't delete Default Package Type" }
+            }
+
             ctx.body = await PackageType.destroyItem(where)
             ctx.logsData = [{
                 event: logUserEvents.DELETE,

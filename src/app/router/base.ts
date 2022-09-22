@@ -27,6 +27,7 @@ export default router
   // Auth
   .get('auth', AuthController.checkAuth)
   .post('login', AuthController.login)
+  .post('sign-up', AuthController.sign_up)
 
   // Translation
   .post('Translation-addItem', 'translations', checkRole(), TranslationController.createTrans)
