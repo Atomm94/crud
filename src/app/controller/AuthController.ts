@@ -80,28 +80,6 @@ export default class AuthController {
      *                              password:
      *                                  type: string
      *                                  example: 123456
-     *
-     *                              avatar:
-     *                                  type: string
-     *                                  example: avatar
-     *                              phone_2:
-     *                                  type: string
-     *                                  example: +374XXXXXXXX
-     *                              country:
-     *                                  type: string
-     *                                  example: Armenia
-     *                              site:
-     *                                  type: string
-     *                                  example: https://unimax.com
-     *                              address:
-     *                                  type: string
-     *                                  example: some_address
-     *                              viber:
-     *                                  type: string
-     *                                  example: +374XXXXXXXX
-     *                              whatsapp:
-     *                                  type: string
-     *                                  example: +374XXXXXXXX
      *          responses:
      *              '200':
      *                  description: Data object
