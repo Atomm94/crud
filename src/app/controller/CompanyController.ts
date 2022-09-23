@@ -28,8 +28,6 @@ import { accessPointType } from '../enums/accessPointType.enum'
 import { AccessControl } from '../functions/access-control'
 import { addDefaultFeaturesofCompany } from '../functions/addDefaultFeaturesOfCompany'
 
-import { acuStatus } from '../enums/acuStatus.enum'
-
 export default class CompanyController {
     /**
      *
@@ -174,7 +172,7 @@ export default class CompanyController {
 
             const save_data = Object.assign({}, req_data)
             if (save_data.package) {
-                save_data.status = acuStatus.PENDING
+                save_data.status = statusCompany.PENDING
                 save_data.upgraded_package_id = save_data.package
                 delete save_data.package
             }
@@ -182,9 +180,11 @@ export default class CompanyController {
             if (!ctx.user.company) {
                 if (req_data.status && req_data.status === statusCompany.ENABLE) {
                     const company = await Company.findOneOrFail({ where: { id: req_id } })
-                    company.package = company.upgraded_package_id
-                    company.upgraded_package_id = null
-                    await company.save()
+                    if (company.upgraded_package_id) {
+                        company.package = company.upgraded_package_id
+                        company.upgraded_package_id = null
+                        await company.save()
+                    }
                 }
             }
             const updated = await Company.updateItem(save_data as Company, req_id ? ctx.user : null)
