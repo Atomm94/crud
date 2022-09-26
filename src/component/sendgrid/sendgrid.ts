@@ -10,6 +10,7 @@ export class Sendgrid {
     // private static sendgrid:any = MailService
     static from = config.sendgrid.fromEmail
     static mainDomain: string = JSON.parse(config.cors.origin)[0]
+    static template_logo = `${process.env.BASE_API}/Logo/template_logo.jpg`
 
     public static async init (sendgridKey: string) {
         await sgMail.setApiKey(sendgridKey)
@@ -203,6 +204,7 @@ export class Sendgrid {
         const emailTemplate: any = fs.readFileSync(`${parentDir}/templates/email.template`)
         const template = _.template(emailTemplate)
         const html = template({
+            template_logo: this.template_logo,
             title: mail.title,
             text: mail.text,
             link: mail.link,
@@ -241,6 +243,7 @@ export class Sendgrid {
         const emailTemplate: any = fs.readFileSync(`${parentDir}/templates/text.email.template`)
         const template = _.template(emailTemplate)
         const html = template({
+            template_logo: this.template_logo,
             headingText: mail.headingText,
             mainText: mail.mainText
         })

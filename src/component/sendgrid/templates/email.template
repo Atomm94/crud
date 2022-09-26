@@ -9,7 +9,7 @@
 						<tr>
 							<td style="width: 10%; padding: 0;"></td>
 							<td style="width: 80%; padding: 0; font-size: 30px; font-weight: 900; line-height: 25px;">
-								<img style="display: block; margin: 0 auto; width: 202px" src="https://devapi.unimacs.studio-one.am/8f163f8085e64b00766afe6458e92532.jpg" alt="UNIMACS" title="UNIMACS"/>
+								<img style="display: block; margin: 0 auto; width: 202px" src="<%= template_logo %>" alt="UNIMACS" title="UNIMACS"/>
 							</td>
 							<td style="width: 10%; padding: 0;"></td>
 						</tr>
