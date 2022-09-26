@@ -185,7 +185,7 @@ export class Sendgrid {
             text: 'Congratulations, your account has been activated.',
             html: this.newTextMail({
                 headingText: 'Thank you for choosing Unimacs!',
-                mainText: 'We have activated your account and you can start using it right now. Just follow this link https://unimacs.lumiring.com/login and enter your username and password.'
+                mainText: `We have activated your account and you can start using it right now. Just follow this link ${this.mainDomain}/login and enter your username and password.`
             })
         }
         try {
