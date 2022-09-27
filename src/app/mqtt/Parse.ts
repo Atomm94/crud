@@ -72,246 +72,245 @@ export default class Parse {
             switch (message.operator) {
                 case OperatorType.PING_ACK:
                 case OperatorType.HEART_BIT:
-                    this.pingAck(message)
+                    await this.pingAck(message)
                     break
                 case OperatorType.REGISTRATION:
-                    this.deviceRegistration(message)
+                    await this.deviceRegistration(message)
                     break
                 case OperatorType.CANCEL_REGISTRATION:
-                    this.deviceCancelRegistration(message)
+                    await this.deviceCancelRegistration(message)
                     break
                 case OperatorType.ACCEPT_ACK:
-                    this.deviceAcceptAck(message)
+                    await this.deviceAcceptAck(message)
                     break
                 case OperatorType.LOGIN_ACK:
-                    this.deviceLoginAck(message)
+                    await this.deviceLoginAck(message)
                     break
                 case OperatorType.LOGOUT_ACK:
-                    this.deviceLogOutAck(message)
+                    await this.deviceLogOutAck(message)
                     break
                 case OperatorType.LOGOUT_EVENT:
-                    this.deviceLogOutEvent(message)
+                    await this.deviceLogOutEvent(message)
                     break
                 case OperatorType.SET_PASS_ACK:
-
-                    this.deviceSetPassAck(message)
+                    await this.deviceSetPassAck(message)
                     break
                 case OperatorType.SET_NET_SETTINGS_ACK:
-                    this.deviceSetNetSettingsAck(message)
+                    await this.deviceSetNetSettingsAck(message)
                     break
                 case OperatorType.GET_NET_SETTINGS_ACK:
-                    this.deviceGetNetSettingsAck(message)
+                    await this.deviceGetNetSettingsAck(message)
                     break
                 case OperatorType.SET_DATE_TIME_ACK:
-                    this.deviceSetDateTimeAck(message)
+                    await this.deviceSetDateTimeAck(message)
                     break
                 case OperatorType.SET_MQTT_SETTINGS_ACK:
-                    this.deviceSetMqttSettingsAck(message)
+                    await this.deviceSetMqttSettingsAck(message)
                     break
                 case OperatorType.GET_MQTT_SETTINGS_ACK:
-                    this.deviceGetMqttSettingsAck(message)
+                    await this.deviceGetMqttSettingsAck(message)
                     break
                 case OperatorType.GET_STATUS_ACU_ACK:
-                    this.deviceGetStatusAcuAck(message)
+                    await this.deviceGetStatusAcuAck(message)
                     break
                 case OperatorType.SET_EXT_BRD_ACK:
-                    this.deviceSetExtBrdAck(message)
+                    await this.deviceSetExtBrdAck(message)
                     break
                 case OperatorType.GET_EXT_BRD_ACK:
-                    this.deviceGetExtBrdAck(message)
+                    await this.deviceGetExtBrdAck(message)
                     break
                 case OperatorType.DEL_EXT_BRD_ACK:
-                    this.deviceDelExtBrdAck(message)
+                    await this.deviceDelExtBrdAck(message)
                     break
 
                 case OperatorType.SET_RD_ACK:
-                    this.deviceSetRdAck(message)
+                    await this.deviceSetRdAck(message)
                     break
                 case OperatorType.GET_RD_ACK:
-                    this.deviceGetRdAck(message)
+                    await this.deviceGetRdAck(message)
                     break
                 case OperatorType.DEL_RD_ACK:
-                    this.deviceDelRdAck(message)
+                    await this.deviceDelRdAck(message)
                     break
 
                 case OperatorType.SET_OUTPUT_ACK:
-                    this.deviceSetOutputAck(message)
+                    await this.deviceSetOutputAck(message)
                     break
                 case OperatorType.GET_OUTPUT_ACK:
-                    this.deviceGetOutputAck(message)
+                    await this.deviceGetOutputAck(message)
                     break
                 case OperatorType.GET_INPUT_ACK:
-                    this.deviceGetInputAck(message)
+                    await this.deviceGetInputAck(message)
                     break
                 case OperatorType.SET_CTP_DOOR_ACK:
-                    this.deviceSetCtpDoorAck(message)
+                    await this.deviceSetCtpDoorAck(message)
                     break
                 case OperatorType.DEL_CTP_DOOR_ACK:
-                    this.deviceDelCtpDoorAck(message)
+                    await this.deviceDelCtpDoorAck(message)
                     break
                 case OperatorType.GET_CTP_DOOR_ACK:
-                    this.deviceGetCtpDoorAck(message)
+                    await this.deviceGetCtpDoorAck(message)
                     break
 
                 case OperatorType.SET_CTP_TURNSTILE_ACK:
-                    this.deviceSetCtpTurnstileAck(message)
+                    await this.deviceSetCtpTurnstileAck(message)
                     break
                 case OperatorType.DEL_CTP_TURNSTILE_ACK:
-                    this.deviceDelCtpTurnstileAck(message)
+                    await this.deviceDelCtpTurnstileAck(message)
                     break
                 case OperatorType.GET_CTP_TURNSTILE_ACK:
-                    this.deviceGetCtpTurnstileAck(message)
+                    await this.deviceGetCtpTurnstileAck(message)
                     break
                 case OperatorType.SET_CTP_GATE_ACK:
-                    this.deviceSetCtpGateAck(message)
+                    await this.deviceSetCtpGateAck(message)
                     break
                 case OperatorType.DEL_CTP_GATE_ACK:
-                    this.deviceDelCtpGateAck(message)
+                    await this.deviceDelCtpGateAck(message)
                     break
                 case OperatorType.GET_CTP_GATE_ACK:
-                    this.deviceGetCtpGateAck(message)
+                    await this.deviceGetCtpGateAck(message)
                     break
                 case OperatorType.SET_CTP_GATEWAY_ACK:
-                    this.deviceSetCtpGatewayAck(message)
+                    await this.deviceSetCtpGatewayAck(message)
                     break
                 case OperatorType.DEL_CTP_GATEWAY_ACK:
-                    this.deviceDelCtpGatewayAck(message)
+                    await this.deviceDelCtpGatewayAck(message)
                     break
                 case OperatorType.GET_CTP_GATEWAY_ACK:
-                    this.deviceGetCtpGatewayAck(message)
+                    await this.deviceGetCtpGatewayAck(message)
                     break
                 case OperatorType.SET_CTP_FLOOR_ACK:
-                    this.deviceSetCtpFloorAck(message)
+                    await this.deviceSetCtpFloorAck(message)
                     break
                 case OperatorType.DEL_CTP_FLOOR_ACK:
-                    this.deviceDelCtpFloorAck(message)
+                    await this.deviceDelCtpFloorAck(message)
                     break
                 case OperatorType.GET_CTP_FLOOR_ACK:
-                    this.deviceGetCtpFloorAck(message)
+                    await this.deviceGetCtpFloorAck(message)
                     break
 
                 case OperatorType.EVENT:
-                    this.deviceEvent(message)
+                    await this.deviceEvent(message)
                     break
                 case OperatorType.SET_EVENTS_MOD_ACK:
-                    this.deviceSetEventsModAck(message)
+                    await this.deviceSetEventsModAck(message)
                     break
                 case OperatorType.GET_EVENTS_MOD_ACK:
-                    this.deviceGetEventsModAck(message)
+                    await this.deviceGetEventsModAck(message)
                     break
                 case OperatorType.GET_EVENTS_ACK:
-                    this.deviceGetEventsAck(message)
+                    await this.deviceGetEventsAck(message)
                     break
                 case OperatorType.SET_ACCESS_MODE_ACK:
-                    this.deviceSetAccessModeAck(message)
+                    await this.deviceSetAccessModeAck(message)
                     break
                 case OperatorType.GET_ACCESS_MODE_ACK:
-                    this.deviceGetAccessModeAck(message)
+                    await this.deviceGetAccessModeAck(message)
                     break
                 case OperatorType.SINGLE_PASS_ACK:
-                    this.deviceSinglePassAck(message)
+                    await this.deviceSinglePassAck(message)
                     break
                 case OperatorType.SET_CARD_KEYS_ACK:
-                    this.setCardKeysAck(message)
+                    await this.setCardKeysAck(message)
                     break
                 case OperatorType.ADD_CARD_KEY_ACK:
-                    this.addCardKeyAck(message)
+                    await this.addCardKeyAck(message)
                     break
                 case OperatorType.END_CARD_KEY_ACK:
-                    this.endCardKeyAck(message)
+                    await this.endCardKeyAck(message)
                     break
                 case OperatorType.EDIT_KEY_ACK:
-                    this.editKeyAck(message)
+                    await this.editKeyAck(message)
                     break
                 case OperatorType.DELL_KEYS_ACK:
-                    this.dellKeysAck(message)
+                    await this.dellKeysAck(message)
                     break
                 case OperatorType.DELL_ALL_KEYS_ACK:
-                    this.dellAllKeysAck(message)
+                    await this.dellAllKeysAck(message)
                     break
                 case OperatorType.SET_SDL_DAILY_ACK:
-                    this.setSdlDailyAck(message)
+                    await this.setSdlDailyAck(message)
                     break
                 case OperatorType.DEL_SDL_DAILY_ACK:
-                    this.delSdlDailyAck(message)
+                    await this.delSdlDailyAck(message)
                     break
                 case OperatorType.SET_SDL_WEEKLY_ACK:
-                    this.setSdlWeeklyAck(message)
+                    await this.setSdlWeeklyAck(message)
                     break
                 case OperatorType.DEL_SDL_WEEKLY_ACK:
-                    this.delSdlWeeklyAck(message)
+                    await this.delSdlWeeklyAck(message)
                     break
                 case OperatorType.SET_SDL_FLEXI_TIME_ACK:
-                    this.setSdlFlexiTimeAck(message)
+                    await this.setSdlFlexiTimeAck(message)
                     break
                 case OperatorType.ADD_DAY_FLEXI_TIME_ACK:
-                    this.addDayFlexiTimeAck(message)
+                    await this.addDayFlexiTimeAck(message)
                     break
                 case OperatorType.END_SDL_FLEXI_TIME_ACK:
-                    this.endSdlFlexiTimeAck(message)
+                    await this.endSdlFlexiTimeAck(message)
                     break
                 case OperatorType.DEL_SDL_FLEXI_TIME_ACK:
-                    this.delSdlFlexiTimeAck(message)
+                    await this.delSdlFlexiTimeAck(message)
                     break
                 case OperatorType.DEL_DAY_FLEXI_TIME_ACK:
-                    this.delDayFlexiTimeAck(message)
+                    await this.delDayFlexiTimeAck(message)
                     break
                 case OperatorType.SET_SDL_SPECIFIED_ACK:
-                    this.setSdlSpecifiedAck(message)
+                    await this.setSdlSpecifiedAck(message)
                     break
                 case OperatorType.ADD_DAY_SPECIFIED_ACK:
-                    this.addDaySpecifiedAck(message)
+                    await this.addDaySpecifiedAck(message)
                     break
                 case OperatorType.END_SDL_SPECIFIED_ACK:
-                    this.endSdlSpecifiedAck(message)
+                    await this.endSdlSpecifiedAck(message)
                     break
                 case OperatorType.DEL_SDL_SPECIFIED_ACK:
-                    this.delSdlSpecifiedAck(message)
+                    await this.delSdlSpecifiedAck(message)
                     break
                 case OperatorType.DELL_DAY_SPECIFIED_ACK:
-                    this.dellDaySpecifiedAck(message)
+                    await this.dellDaySpecifiedAck(message)
                     break
                 case OperatorType.SET_SDL_ORDINAL_ACK:
-                    this.setSdlOrdinalAck(message)
+                    await this.setSdlOrdinalAck(message)
                     break
                 case OperatorType.DEL_SDL_ORDINAL_ACK:
-                    this.delSdlOrdinalAck(message)
+                    await this.delSdlOrdinalAck(message)
                     break
                 case OperatorType.SET_DAY_ORDINAL_ACK:
-                    this.setDayOrdinalAck(message)
+                    await this.setDayOrdinalAck(message)
                     break
                 case OperatorType.DEL_DAY_ORDINAL_ACK:
-                    this.delDayOrdinalAck(message)
+                    await this.delDayOrdinalAck(message)
                     break
                 case OperatorType.DELL_SHEDULE_ACK:
-                    this.dellSheduleAck(message)
+                    await this.dellSheduleAck(message)
                     break
                 case OperatorType.DEV_TEST_ACK:
-                    this.deviceDevTestAck(message)
+                    await this.deviceDevTestAck(message)
                     break
                 case OperatorType.SET_HEART_BIT_ACK:
-                    this.setHeartBitAck(message)
+                    await this.setHeartBitAck(message)
                     break
                 case OperatorType.SET_TASK_ACK:
-                    this.setTaskAck(message)
+                    await this.setTaskAck(message)
                     break
                 case OperatorType.DEL_TASK_ACK:
-                    this.delTaskAck(message)
+                    await this.delTaskAck(message)
                     break
                 case OperatorType.RESET_APB_ACK:
-                    this.resetApbAck(message)
+                    await this.resetApbAck(message)
                     break
                 case OperatorType.ACTIVATE_CREDENTIAL_ACK:
-                    this.activateCredentialAck(message)
+                    await this.activateCredentialAck(message)
                     break
                 case OperatorType.MAIN_TAIN_ACK:
-                    this.mainTainAck(message)
+                    await this.mainTainAck(message)
                     break
                 default:
                     break
             }
         } catch (error) {
-            console.log('error deviceData', topic, data)
+            console.log('error deviceData', topic, data, error)
         }
     }
 
@@ -680,15 +679,19 @@ export default class Parse {
             if (!elevator_mode /* && message.result.errorNo === 777 */) {
                 for (const _reader of message.send_data.data.readers) {
                     if (!_reader.update) {
-                        const reader: any = await Reader.findOneOrFail({ where: { id: _reader.id }, relations: ['access_points', 'access_points.acus'] })
-                        await Reader.destroyItem({ id: _reader.id /*, company: message.company */ })
-                        new SendSocketMessage(socketChannels.READER_DELETE, reader, message.company, message.send_data.user)
+                        const reader: any = await Reader.findOne({ where: { id: _reader.id }, relations: ['access_points', 'access_points.acus'] })
+                        if (reader) {
+                            await Reader.destroyItem({ id: _reader.id /*, company: message.company */ })
+                            new SendSocketMessage(socketChannels.READER_DELETE, reader, message.company, message.send_data.user)
+                        }
                     }
                 }
             } else if (!reader_data.update) {
-                const reader: any = await Reader.findOneOrFail({ where: { id: reader_data.id }, relations: ['access_points', 'access_points.acus'] })
-                await Reader.destroyItem({ id: reader_data.id /*, company: message.company */ })
-                new SendSocketMessage(socketChannels.READER_DELETE, reader, message.company, message.send_data.user)
+                const reader: any = await Reader.findOne({ where: { id: reader_data.id }, relations: ['access_points', 'access_points.acus'] })
+                if (reader) {
+                    await Reader.destroyItem({ id: reader_data.id /*, company: message.company */ })
+                    new SendSocketMessage(socketChannels.READER_DELETE, reader, message.company, message.send_data.user)
+                }
             }
         }
     }
