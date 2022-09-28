@@ -176,7 +176,7 @@ export default class PackageController {
                 ctx.status = 400
                 return ctx.body = { message: "Can't checkout Default Package" }
             }
-            if (old_default_package && req_data.default) {
+            if (old_default_package && old_default_package.id !== req_data.id && req_data.default) {
                 ctx.status = 400
                 return ctx.body = {
                     message: 'Default Package can be only one'
