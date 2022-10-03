@@ -405,11 +405,12 @@ export default class ZohoController {
                     if (company.status === statusCompany.PENDING && !company.company_sign_up) {
                         company.status = statusCompany.ENABLE
                         await company.save()
+
+                        if (main) {
+                            await Sendgrid.updateStatus(main.email)
+                        }
                     }
 
-                    if (main) {
-                        await Sendgrid.updateStatus(main.email)
-                    }
                     break
                 case zohoCallbackStatus.UNPAID:
                 case zohoCallbackStatus.CANCELLED:
