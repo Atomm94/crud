@@ -246,4 +246,4 @@ async function TicketSystemCheck (ctx: DefaultContext, next: () => Promise<void>
     const actionName = 'Ticket'
     return await HaveAccess(ctx, actionName, next)
 }
-export { Feature, ScheduleType }
+export { Feature, ScheduleType, StandardReportSystemCheck, OnlineMonitorDashboardCheck }

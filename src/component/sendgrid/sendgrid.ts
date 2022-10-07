@@ -161,7 +161,7 @@ export class Sendgrid {
             subject: 'Set a New Password',
             text: 'There was recently a request to change the password for your account.If you requested this change, set a new password here:',
             html: this.newMail({
-                text: 'There was recently a request to change the password for your account.If you requested this change, set a new password here:',
+                text: 'There was recently a request to change the password for your account. If you requested this change, set a new password here:',
                 link: `${this.mainDomain}/recoveryPassword/${token}`,
                 button_text: 'Set a New Password',
                 end_text: 'If you did not make this request, you can ignore this email and your password will remain the same.'
