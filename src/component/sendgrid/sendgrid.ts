@@ -161,7 +161,7 @@ export class Sendgrid {
             subject: 'Set a New Password',
             text: 'There was recently a request to change the password for your account.If you requested this change, set a new password here:',
             html: this.newMail({
-                text: 'There was recently a request to change the password for your account.If you requested this change, set a new password here:',
+                text: 'There was recently a request to change the password for your account. If you requested this change, set a new password here:',
                 link: `${this.mainDomain}/recoveryPassword/${token}`,
                 button_text: 'Set a New Password',
                 end_text: 'If you did not make this request, you can ignore this email and your password will remain the same.'
@@ -222,10 +222,9 @@ export class Sendgrid {
             text: 'has invited you',
             html: this.newMail({
                 title: 'You have been invited to Unimacs',
-                text: 'Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.',
+                text: 'You are invited to register an account. Please follow the link and fill in the company details. Thank you.',
                 link: `${this.mainDomain}/cardholder/invite/${token}`,
-                button_text: 'Choose new Password',
-                end_text: 'Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.'
+                button_text: 'Choose new Password'
             })// `<h2>Unimacs company has invited you to make a registration. Please click link bellow ${this.mainDomain}/registration/${item.token}</h2>`
         }
         try {
