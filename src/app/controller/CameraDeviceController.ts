@@ -289,6 +289,34 @@ export default class CameraDeviceController {
         return ctx.body
     }
 
+        /**
+     *
+     * @swagger
+     *  /camera-device/{id}:
+     *      get:
+     *          tags:
+     *              - Camera-device
+     *          summary: Returns a camera device by id.
+     *          consumes:
+     *              - application/json
+     *          parameters:
+     *            - in: header
+     *              name: Authorization
+     *              required: true
+     *              description: Authentication token
+     *              schema:
+     *                type: string
+     *            - in: path
+     *              name: device id
+     *              required: true
+     *              type: string
+     *          responses:
+     *              '200':
+     *                  description: Camera device object
+     *              '500':
+     *                  description: Some server error with description message
+     */
+
     public static async get (ctx: DefaultContext) {
         const { id } = ctx.params
         try {
