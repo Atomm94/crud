@@ -1,3 +1,4 @@
+import { CameraDevice } from './CameraDevice'
 import {
     Entity,
     Column,
@@ -143,6 +144,10 @@ export class Company extends MainEntity {
     @ManyToOne(type => AccessRight, base_access_right => base_access_right.companies, { nullable: true })
     @JoinColumn({ name: 'access_right' })
     base_access_rights: AccessRight | null;
+
+    @OneToMany(() => CameraDevice, camera_devices => camera_devices.company)
+    @JoinColumn({ name: 'camera_devices' })
+    camera_devices: CameraDevice[]
 
     public static resource: boolean = true
     @ManyToOne(type => Schedule, schedule => schedule.base_companies, { nullable: true })

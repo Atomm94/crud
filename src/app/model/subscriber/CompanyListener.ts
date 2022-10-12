@@ -1,3 +1,4 @@
+import { CameraDevice } from './../entity/CameraDevice'
 import {
     EntitySubscriberInterface,
     EventSubscriber,
@@ -161,6 +162,14 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
                         })
                         default_permissions.Acu = {
                             actions: { ...acu_permissions }
+                        }
+
+                        const cameraDevice_permissions = CameraDevice.getActions()
+                        Object.keys(cameraDevice_permissions).forEach(action => {
+                            cameraDevice_permissions[action] = true
+                        })
+                        default_permissions.CameraDevice = {
+                            actions: { ...cameraDevice_permissions }
                         }
 
                         const extra_settings = JSON.parse(package_data.extra_settings)
