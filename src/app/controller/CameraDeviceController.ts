@@ -239,7 +239,8 @@ export default class CameraDeviceController {
     public static async delete (ctx: DefaultContext) {
         const { id } = ctx.params
         try {
-            await CameraDevice.delete({ id })
+            const cameraDevice = await CameraDevice.findOneOrFail({ id })
+            await CameraDevice.softRemove([cameraDevice])
             ctx.body = {
                 message: 'Device was successfully deleted'
             }

@@ -1,5 +1,5 @@
 import { Company } from './Company'
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm'
+import { Column, DeleteDateColumn, Entity, JoinColumn, ManyToOne } from 'typeorm'
 import { cameraDeviceConnType } from '../../enums/camerDevice.enum'
 import { MainEntity } from './MainEntity'
 
@@ -28,6 +28,9 @@ export class CameraDevice extends MainEntity {
 
     @Column('int', { name: 'company', nullable: false })
     company: number
+
+    @DeleteDateColumn({ type: 'timestamp', name: 'delete_date' })
+    public deleteDate: Date
 
     @Column('longtext', { name: 'cameras', nullable: true })
     cameras: string
