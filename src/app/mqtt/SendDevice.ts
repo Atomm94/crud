@@ -143,7 +143,7 @@ export default class SendDevice {
                 GMT: date_data.time_zone,
                 NTP1: 'pool.ntp.org',
                 NTP2: 'pool2.ntp.org:123',
-                DST_GMT: false,
+                DST_GMT: date_data.enable_daylight_saving_time,
                 DST_Start: 1583636400,
                 DST_End: 1604196000,
                 DST_Shift: 3600
