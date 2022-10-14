@@ -64,8 +64,8 @@ export async function createPlan (package_data: Package) {
                 name: package_data.name,
                 recurring_price: package_data.price,
                 interval: 1,
-                product_id: config.zoho.product_id,
-                description: JSON.stringify(package_data.extra_settings)
+                product_id: config.zoho.product_id
+                // description: JSON.stringify(package_data.extra_settings)
             }
 
             const headers = {
