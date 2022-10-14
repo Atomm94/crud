@@ -72,7 +72,7 @@
             },
             "floor_count": 0
         },
-        "ICON-2": {
+        "ICON-Lite": {
             "access_points_count": 2,
             "access_point_types": {
                 "door": true,
@@ -114,7 +114,7 @@
             },
             "floor_count": 16
         },
-        "ICON-2E": {
+        "ICON-Pro": {
             "access_points_count": 4,
             "access_point_types": {
                 "door": true,
