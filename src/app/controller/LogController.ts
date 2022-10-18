@@ -139,6 +139,7 @@ export default class LogController {
                         data: {
                             company: company_that_send_events,
                             date: message_data.time,
+                            gmt: message_data.gmt,
                             direction: message_data.direction
                         }
                     }
