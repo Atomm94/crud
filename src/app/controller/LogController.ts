@@ -156,6 +156,13 @@ export default class LogController {
                             eventData.data.access_points.access_point_zones = _.pick(eventData.data.access_points.access_point_zones, ['id', 'name'])
                         }
                     }
+                    if ('gmt' in eventData.data) {
+                        if (eventData.data.access_points) {
+                            eventData.data.access_points.gmt = eventData.data.gmt
+                        } else {
+                            eventData.data.access_points = { gmt: eventData.data.gmt }
+                        }
+                    }
                     const EventList: any = eventList
 
                     if (EventList[message_data.Group]) {
