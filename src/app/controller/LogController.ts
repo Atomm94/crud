@@ -107,7 +107,6 @@ export default class LogController {
     public static createEventFromDevice (message: IMqttCrudMessaging) {
         const message_data = message.info
         const acu: any = Acu.findOneOrFail({ serial_number: message.device_id, company: message.company })
-        const time_zone = acu.time.time_zone
         const access_point = AccessPoint.findOne({ where: { id: message_data.Ctp_idx, company: message.company }, relations: ['access_point_zones'] })
         const credential = Credential.findOne({
             where: { id: message_data.Key_id, company: message.company },
@@ -115,7 +114,8 @@ export default class LogController {
         })
 
         Promise.all([acu, access_point, credential]).then(async (data: any) => {
-            const acu: Acu = data[0]
+            const acu: any = data[0]
+            const time_zone = acu.time ? acu.time.time_zone : null
             if (acu) {
                 const access_point: AccessPoint = data[1]
                 const credential: Credential = data[2]
