@@ -106,7 +106,8 @@ export default class LogController {
 
     public static createEventFromDevice (message: IMqttCrudMessaging) {
         const message_data = message.info
-        const acu = Acu.findOneOrFail({ serial_number: message.device_id, company: message.company })
+        const acu: any = Acu.findOneOrFail({ serial_number: message.device_id, company: message.company })
+        const time_zone = acu.time.time_zone
         const access_point = AccessPoint.findOne({ where: { id: message_data.Ctp_idx, company: message.company }, relations: ['access_point_zones'] })
         const credential = Credential.findOne({
             where: { id: message_data.Key_id, company: message.company },
@@ -140,6 +141,7 @@ export default class LogController {
                             company: company_that_send_events,
                             date: message_data.time,
                             gmt: message_data.gmt,
+                            time_zone: time_zone,
                             direction: message_data.direction
                         }
                     }
@@ -159,8 +161,12 @@ export default class LogController {
                     if ('gmt' in eventData.data) {
                         if (eventData.data.access_points) {
                             eventData.data.access_points.gmt = eventData.data.gmt
+                            eventData.data.access_points.time_zone = time_zone
                         } else {
-                            eventData.data.access_points = { gmt: eventData.data.gmt }
+                            eventData.data.access_points = {
+                                gmt: eventData.data.gmt,
+                                time_zone: time_zone
+                            }
                         }
                     }
                     const EventList: any = eventList
