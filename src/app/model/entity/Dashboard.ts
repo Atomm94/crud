@@ -57,6 +57,9 @@ export class Dashboard extends BaseClass {
             .leftJoinAndSelect('access_point.access_point_groups', 'access_point_group', 'access_point_group.delete_date is null')
             .leftJoinAndSelect('access_point.access_point_zones', 'access_point_zone', 'access_point_zone.delete_date is null')
             .where(`access_point.company = '${user.company ? user.company : null}'`)
+            if (data.not_visible_ids) {
+                access_points.andWhere(`access_point.id not in (${data.not_visible_ids})`)
+            }
 
         if (data.page) {
             const take = data.page_items_count ? (data.page_items_count > 10000) ? 10000 : data.page_items_count : 25
