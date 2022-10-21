@@ -7,5 +7,5 @@ export enum acuModel {
   AIR_CR = 'AIR-CR',
   AIR_CB = 'AIR-CB',
   ICON = 'Icon',
-  ICON_PRO = 'ICON-PRO'
+  ICON_PRO = 'Icon-PRO'
 }
