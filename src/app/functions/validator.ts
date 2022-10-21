@@ -125,9 +125,9 @@ export function checkAccessPointsValidation (data: any, acu_model: any, elevator
         const type = access_point.type
         if (type === accessPointType.TURNSTILE_TWO_SIDE) {
             turnstile_two_sides.push(access_point)
-            if ([acuModel.ICON_LITE, acuModel.ICON_PRO].includes(acu_model)) {
+            if ([acuModel.ICON, acuModel.ICON_PRO].includes(acu_model)) {
                 if (turnstile_two_sides.length > 1) {
-                    return ('Acu model ICON_LITE and ICON_PRO cant have more than 1 turnstile!')
+                    return ('Acu model Icon and Icon_PRO cant have more than 1 turnstile!')
                 }
             }
 

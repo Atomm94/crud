@@ -6,6 +6,6 @@ export enum acuModel {
   LR3C4E = 'LR3C4E',
   AIR_CR = 'AIR-CR',
   AIR_CB = 'AIR-CB',
-  ICON_LITE = 'ICON-Lite',
-  ICON_PRO = 'ICON-Pro'
+  ICON = 'Icon',
+  ICON_PRO = 'ICON-PRO'
 }
