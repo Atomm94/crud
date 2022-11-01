@@ -144,7 +144,7 @@ export class Admin extends MainEntity {
   @JoinColumn({ name: 'role' })
   roles: Role | null;
 
-  @OneToMany(type => Ticket, ticket => ticket.user)
+  @OneToMany(type => Ticket, ticket => ticket.user, { cascade: true })
   tickets: Admin[];
 
   @OneToMany(type => TicketMessage, ticket_message => ticket_message.users)
@@ -232,15 +232,15 @@ export class Admin extends MainEntity {
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve, reject) => {
       // if (!user || !user.company) {
-        this.save(admin)
-          .then((item: Admin) => {
-            resolve(item)
-          })
-          .catch((error: any) => {
-            reject(error)
-          })
+      this.save(admin)
+        .then((item: Admin) => {
+          resolve(item)
+        })
+        .catch((error: any) => {
+          reject(error)
+        })
       // } else {
-        // reject(Error(`Resource ${this.name} is limited for company ${user.company}!!`))
+      // reject(Error(`Resource ${this.name} is limited for company ${user.company}!!`))
       // }
     })
   }

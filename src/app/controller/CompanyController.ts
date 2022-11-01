@@ -387,7 +387,7 @@ export default class CompanyController {
             const req_data: any = ctx.request.body
             const user: any = ctx.user
             const where: any = { id: req_data.id }
-            if (user.company) where.parent_id = user.company
+            if (user.company) where.partition_parent_id = user.company
             const company = await Company.findOneOrFail({ where: where })
             company.message = `${company.message}... MainAccount - ${company.account}`
             company.account = null

@@ -46,7 +46,7 @@ export class Ticket extends MainEntity {
     @Column('boolean', { name: 'read', default: false })
     read: boolean
 
-    @ManyToOne(type => Admin, admin => admin.tickets)
+    @ManyToOne(type => Admin, admin => admin.tickets, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'user_id' })
     user: Admin | null;
 
