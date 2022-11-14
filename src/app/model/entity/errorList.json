@@ -45,6 +45,6 @@
         "description": "Превышен размер приемного буфера"
     },
     "777": {
-        "description": "Дивайс не отвечает"
+        "description": "The device does not respond to the request."
     }
 }
