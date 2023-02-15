@@ -1035,7 +1035,7 @@ export default class AcuController {
             req_data.where = {
                 company: { '=': user.company ? user.company : null },
                 status: { '=': acuStatus.PENDING },
-                cloud_status: { '=': acuCloudStatus.OFFLINE }
+                cloud_status: { '=': acuCloudStatus.ONLINE }
             }
             ctx.body = await Acu.getAllItems(req_data)
         } catch (error) {
