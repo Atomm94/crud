@@ -120,7 +120,12 @@ export class Acu extends MainEntity {
         'daylight_saving_time_from_user_account',
         'enable_daylight_saving_time',
         'time_zone',
+        'time_zone_unix',
         'timezone_from_facility'
+    ]
+
+    public static time_required_fields_for_sending: Array<string> = [
+        'time_zone_unix'
     ]
 
     public static async addItem (data: any) {

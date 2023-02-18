@@ -63,8 +63,8 @@ export default class Parse {
                             description: JSON.stringify(description),
                             company: message.company
                         }
-                        Notification.addItem(notification as Notification)
-                        new SendSocketMessage(socketChannels.NOTIFICATION, notification, message.company)
+                        const notification_save = await Notification.addItem(notification as Notification)
+                        new SendSocketMessage(socketChannels.NOTIFICATION, notification_save, message.company)
                     }
                 }
             }

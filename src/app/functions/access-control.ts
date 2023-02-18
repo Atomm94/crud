@@ -6,8 +6,7 @@ export class AccessControl {
     public static ac = new RA()
 
     public static async GrantAccess () {
-        const roles_data: any = await Role.getAllItems({ where: { status: { '=': true } } })
-
+        const roles_data: any = await Role.find({ where: { status: true } })
         roles_data.forEach(async (role_data: any) => {
             const grant_name = role_data.id.toString()
             if (role_data.permissions) {

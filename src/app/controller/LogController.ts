@@ -106,7 +106,7 @@ export default class LogController {
 
     public static createEventFromDevice (message: IMqttCrudMessaging) {
         const message_data = message.info
-        const acu = Acu.findOneOrFail({ serial_number: message.device_id, company: message.company })
+        const acu: any = Acu.findOneOrFail({ serial_number: message.device_id, company: message.company })
         const access_point = AccessPoint.findOne({ where: { id: message_data.Ctp_idx, company: message.company }, relations: ['access_point_zones'] })
         const credential = Credential.findOne({
             where: { id: message_data.Key_id, company: message.company },
@@ -114,7 +114,8 @@ export default class LogController {
         })
 
         Promise.all([acu, access_point, credential]).then(async (data: any) => {
-            const acu: Acu = data[0]
+            const acu: any = data[0]
+            const time_zone = acu.time ? JSON.parse(acu.time).time_zone : null
             if (acu) {
                 const access_point: AccessPoint = data[1]
                 const credential: Credential = data[2]
@@ -139,6 +140,8 @@ export default class LogController {
                         data: {
                             company: company_that_send_events,
                             date: message_data.time,
+                            gmt: message_data.gmt,
+                            time_zone: time_zone,
                             direction: message_data.direction
                         }
                     }
@@ -153,6 +156,17 @@ export default class LogController {
                         eventData.data.access_points = _.pick(access_point, ['id', 'name', 'access_point_zone', 'access_point_zones'])
                         if (eventData.data.access_points.access_point_zones) {
                             eventData.data.access_points.access_point_zones = _.pick(eventData.data.access_points.access_point_zones, ['id', 'name'])
+                        }
+                    }
+                    if ('gmt' in eventData.data) {
+                        if (eventData.data.access_points) {
+                            eventData.data.access_points.gmt = eventData.data.gmt
+                            eventData.data.access_points.time_zone = time_zone
+                        } else {
+                            eventData.data.access_points = {
+                                gmt: eventData.data.gmt,
+                                time_zone: time_zone
+                            }
                         }
                     }
                     const EventList: any = eventList
