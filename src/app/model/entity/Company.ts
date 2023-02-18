@@ -1,4 +1,5 @@
 import { CameraDevice } from './CameraDevice'
+import { CameraSet } from './CameraSet'
 import {
     Entity,
     Column,
@@ -128,6 +129,9 @@ export class Company extends MainEntity {
 
     @OneToMany(type => AccessPoint, access_point => access_point.companies)
     access_points: AccessPoint[];
+
+    @OneToMany(() => CameraSet, cameraSet => cameraSet.access_points)
+    cameraSets: CameraSet[]
 
     @OneToMany(type => AccessRule, access_rule => access_rule.companies)
     access_rules: AccessRule[];

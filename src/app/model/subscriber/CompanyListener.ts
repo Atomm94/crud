@@ -15,6 +15,7 @@ import { statusCompany } from '../../enums/statusCompany.enum'
 import { Feature } from '../../middleware/feature'
 import { adminStatus } from '../../enums/adminStatus.enum'
 import { JwtToken } from '../entity/JwtToken'
+import { CameraSet } from '../entity/CameraSet'
 const featureList: any = Feature
 @EventSubscriber()
 export class PostSubscriber implements EntitySubscriberInterface<Company> {
@@ -170,6 +171,13 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
                         })
                         default_permissions.CameraDevice = {
                             actions: { ...cameraDevice_permissions }
+                        }
+                        const cameraSet_permissions = CameraSet.getActions()
+                        Object.keys(cameraSet_permissions).forEach(action => {
+                            cameraSet_permissions[action] = true
+                        })
+                        default_permissions.CameraDevice = {
+                            actions: { ...cameraSet_permissions }
                         }
 
                         const extra_settings = JSON.parse(package_data.extra_settings)
