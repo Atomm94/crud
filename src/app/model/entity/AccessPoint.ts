@@ -25,6 +25,7 @@ import SendSocketMessage from '../../mqtt/SendSocketMessage'
 import { acuStatus } from '../../enums/acuStatus.enum'
 import { AccessPointStatus } from './AccessPointStatus'
 import { resourceKeys } from '../../enums/resourceKeys.enum'
+import { CameraSet } from './CameraSet'
 
 @Entity('access_point')
 export class AccessPoint extends MainEntity {
@@ -109,6 +110,9 @@ export class AccessPoint extends MainEntity {
 
     @OneToMany(type => AccessPointStatus, access_point_status => access_point_status.access_points)
     access_point_statuses: AccessPointStatus[];
+
+    @OneToMany(() => CameraSet, cameraSet => cameraSet.access_points)
+    cameraSets: CameraSet[]
 
     public static resource: boolean = true
     public static fields_that_used_in_sending: Array<string> = ['resources']

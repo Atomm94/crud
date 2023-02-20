@@ -1,3 +1,5 @@
+import { CameraDevice } from './CameraDevice'
+import { CameraSet } from './CameraSet'
 import {
     Entity,
     Column,
@@ -128,6 +130,9 @@ export class Company extends MainEntity {
     @OneToMany(type => AccessPoint, access_point => access_point.companies)
     access_points: AccessPoint[];
 
+    @OneToMany(() => CameraSet, cameraSet => cameraSet.access_points)
+    cameraSets: CameraSet[]
+
     @OneToMany(type => AccessRule, access_rule => access_rule.companies)
     access_rules: AccessRule[];
 
@@ -143,6 +148,10 @@ export class Company extends MainEntity {
     @ManyToOne(type => AccessRight, base_access_right => base_access_right.companies, { nullable: true })
     @JoinColumn({ name: 'access_right' })
     base_access_rights: AccessRight | null;
+
+    @OneToMany(() => CameraDevice, camera_devices => camera_devices.company)
+    @JoinColumn({ name: 'camera_devices' })
+    camera_devices: CameraDevice[]
 
     public static resource: boolean = true
     @ManyToOne(type => Schedule, schedule => schedule.base_companies, { nullable: true })

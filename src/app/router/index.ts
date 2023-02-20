@@ -17,6 +17,8 @@ import acu from './acu'
 import ticket from './ticket'
 import credential from './credential'
 import standardReport from './standardReport'
+import cameraDevice from './cameraDevice'
+import cameraSet from './cameraSet'
 
 import Router from 'koa-router'
 import extDevice from './extDevice'
@@ -51,6 +53,8 @@ router.use('/', standardReport.routes(), standardReport.allowedMethods())
 router.use('/', dashboard.routes(), dashboard.allowedMethods())
 router.use('/', notification.routes(), notification.allowedMethods())
 router.use('/', zoho.routes(), zoho.allowedMethods())
+router.use('/', cameraDevice.routes(), cameraDevice.allowedMethods())
+router.use('/', cameraSet.routes(), cameraSet.allowedMethods())
 
 export {
     router
