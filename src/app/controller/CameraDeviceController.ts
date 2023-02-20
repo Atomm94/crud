@@ -55,7 +55,7 @@ export default class CameraDeviceController {
      *          responses:
      *              '201':
      *                  description: A camera device object
-     *              '500':
+     *              '400':
      *                  description: Some server error with description message
      */
     public static async add (ctx: DefaultContext) {
@@ -99,7 +99,7 @@ export default class CameraDeviceController {
                 data: newDevice
             }
         } catch (err) {
-            ctx.status = err.status || 500
+            ctx.status = err.status || 400
             ctx.body = err
         }
         return ctx.body
@@ -160,8 +160,6 @@ export default class CameraDeviceController {
      *                  description: A camera device object
      *              '400':
      *                  description: Validation errors
-     *              '500':
-     *                  description: Some server error with description message
      */
 
     public static async update (ctx: DefaultContext) {
@@ -203,7 +201,7 @@ export default class CameraDeviceController {
                 data: data.new
             }
         } catch (err) {
-            ctx.status = err.status || 500
+            ctx.status = err.status || 400
             ctx.body = err
         }
         return ctx.body
@@ -232,7 +230,7 @@ export default class CameraDeviceController {
      *          responses:
      *              '200':
      *                  description: Device was successfully deleted
-     *              '500':
+     *              '400':
      *                  description: Some server error with description message
      */
 
@@ -245,7 +243,7 @@ export default class CameraDeviceController {
                 message: 'Device was successfully deleted'
             }
         } catch (err) {
-            ctx.status = err.status || 500
+            ctx.status = err.status || 400
             ctx.body = err
         }
         return ctx.body
@@ -271,26 +269,23 @@ export default class CameraDeviceController {
      *          responses:
      *              '200':
      *                  description: Array of device objects
-     *              '500':
+     *              '400':
      *                  description: Some server error with description message
      */
 
     public static async getAll (ctx: DefaultContext) {
-        const { id: companyId } = ctx.user.companyData
-        console.log(companyId)
         try {
-            const devices = await CameraDevice.find({ company: companyId })
-            ctx.body = {
-                data: devices
-            }
+            const company = ctx.user.company
+            const devices = await CameraDevice.find({ company: company })
+            ctx.body = devices
         } catch (err) {
-            ctx.status = err.status || 500
+            ctx.status = err.status || 400
             ctx.body = err
         }
         return ctx.body
     }
 
-        /**
+    /**
      *
      * @swagger
      *  /camera-device/{id}:
@@ -307,14 +302,10 @@ export default class CameraDeviceController {
      *              description: Authentication token
      *              schema:
      *                type: string
-     *            - in: path
-     *              name: device id
-     *              required: true
-     *              type: string
      *          responses:
      *              '200':
      *                  description: Camera device object
-     *              '500':
+     *              '400':
      *                  description: Some server error with description message
      */
 
@@ -322,11 +313,9 @@ export default class CameraDeviceController {
         const { id } = ctx.params
         try {
             const device = await CameraDevice.findOne({ id })
-            ctx.body = {
-                data: device
-            }
+            ctx.body = device
         } catch (err) {
-            ctx.status = err.status || 500
+            ctx.status = err.status || 400
             ctx.body = err
         }
         return ctx.body

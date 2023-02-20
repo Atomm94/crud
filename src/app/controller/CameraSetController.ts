@@ -45,7 +45,7 @@ export default class CameraSetController {
      *          responses:
      *              '201':
      *                  description: The new camera set object
-     *              '500':
+     *              '400':
      *                  description: Unhandled server error
      */
     public static async add (ctx: DefaultContext) {
@@ -62,7 +62,7 @@ export default class CameraSetController {
                 data: newCameraSet
             }
         } catch (err) {
-            ctx.status = err.status || 500
+            ctx.status = err.status || 400
             ctx.body = err
         }
         return ctx.body
@@ -108,7 +108,7 @@ export default class CameraSetController {
      *          responses:
      *              '200':
      *                  description: The updated camera set object
-     *              '500':
+     *              '400':
      *                  description: Unhandled server error
      */
 
@@ -121,7 +121,7 @@ export default class CameraSetController {
                 data: cameraSetUpdated.new
             }
         } catch (err) {
-            ctx.status = err.status || 500
+            ctx.status = err.status || 400
             ctx.body = err
         }
         return ctx.body
@@ -145,7 +145,7 @@ export default class CameraSetController {
      *          responses:
      *              '200':
      *                  description: The company camera set list
-     *              '500':
+     *              '400':
      *                  description: Unhandled server error
      */
 
@@ -154,11 +154,9 @@ export default class CameraSetController {
         console.log(company)
         try {
             const cameraSets = await CameraSet.find({ company })
-            ctx.body = {
-                data: cameraSets
-            }
+            ctx.body = cameraSets
         } catch (err) {
-            ctx.status = err.status || 500
+            ctx.status = err.status || 400
             ctx.body = err
         }
         return ctx.body
@@ -186,7 +184,7 @@ export default class CameraSetController {
      *          responses:
      *              '200':
      *                  description: Deletion message
-     *              '500':
+     *              '400':
      *                  description: Unhandled server error
      */
 
@@ -200,7 +198,7 @@ export default class CameraSetController {
                 message: 'camera set was deleted successfully'
             }
         } catch (err) {
-            ctx.status = err.status || 500
+            ctx.status = err.status || 400
             ctx.body = err
         }
         return ctx.body
@@ -228,22 +226,21 @@ export default class CameraSetController {
      *          responses:
      *              '200':
      *                  description: The camera set object
-     *              '500':
+     *              '400':
      *                  description: Unhandled server error
      */
 
-        public static async get (ctx: DefaultContext) {
-            const { id } = ctx.params
+    public static async get (ctx: DefaultContext) {
+        const { id } = ctx.params
+        const { company } = ctx.user
 
-            try {
-                const cameraSet = await CameraSet.findOneOrFail({ id })
-                ctx.body = {
-                    data: cameraSet
-                }
-            } catch (err) {
-                ctx.status = err.status || 500
-                ctx.body = err
-            }
-            return ctx.body
+        try {
+            const cameraSet = await CameraSet.findOneOrFail({ id, company })
+            ctx.body = cameraSet
+        } catch (err) {
+            ctx.status = err.status || 400
+            ctx.body = err
         }
+        return ctx.body
+    }
 }
