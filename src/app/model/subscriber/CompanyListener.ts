@@ -176,7 +176,7 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
                         Object.keys(cameraSet_permissions).forEach(action => {
                             cameraSet_permissions[action] = true
                         })
-                        default_permissions.CameraDevice = {
+                        default_permissions.CameraSet = {
                             actions: { ...cameraSet_permissions }
                         }
 
