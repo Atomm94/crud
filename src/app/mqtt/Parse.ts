@@ -58,12 +58,23 @@ export default class Parse {
                     if (error === 777) {
                         const description = { ...message }
                         delete description.send_data
-                        const notification = {
-                            event: `Timeout ${message.device_topic} - ${generateMessageForOperator(message.operator)}`,
-                            description: JSON.stringify(description),
-                            company: message.company
-                        }
-                        const notification_save = await Notification.addItem(notification as Notification)
+                        // const notification = {
+                        //     event: `Timeout ${message.device_topic} - ${generateMessageForOperator(message.operator)}`,
+                        //     description: JSON.stringify(description),
+                        //     company: message.company
+                        // }
+                        const notification_save = await Notification
+                            .createQueryBuilder()
+                            .insert()
+                            .into(Notification)
+                            .values({
+                                event: `Timeout ${message.device_topic} - ${generateMessageForOperator(message.operator)}`,
+                                description: JSON.stringify(description),
+                                company: message.company
+                            })
+                            .execute()
+
+                        // const notification_save = await Notification.addItem(notification as Notification)
                         new SendSocketMessage(socketChannels.NOTIFICATION, notification_save, message.company)
                     }
                 }
