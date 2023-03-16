@@ -58,24 +58,21 @@ export default class Parse {
                     if (error === 777) {
                         const description = { ...message }
                         delete description.send_data
-                        // const notification = {
-                        //     event: `Timeout ${message.device_topic} - ${generateMessageForOperator(message.operator)}`,
-                        //     description: JSON.stringify(description),
-                        //     company: message.company
-                        // }
+                        const notification = {
+                            event: `Timeout ${message.device_topic} - ${generateMessageForOperator(message.operator)}`,
+                            description: JSON.stringify(description),
+                            company: message.company,
+                            confirmed: null,
+                            access_point: null
+                        }
                         const notification_save = await Notification
                             .createQueryBuilder()
                             .insert()
-                            .into(Notification)
-                            .values({
-                                event: `Timeout ${message.device_topic} - ${generateMessageForOperator(message.operator)}`,
-                                description: JSON.stringify(description),
-                                company: message.company
-                            })
+                            .values(notification)
                             .execute()
+                        const newObj = Object.assign(notification, notification_save.generatedMaps[0])
 
-                        // const notification_save = await Notification.addItem(notification as Notification)
-                        new SendSocketMessage(socketChannels.NOTIFICATION, notification_save, message.company)
+                        new SendSocketMessage(socketChannels.NOTIFICATION, newObj, message.company)
                     }
                 }
             }
