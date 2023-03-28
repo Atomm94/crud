@@ -1174,6 +1174,7 @@ export default class AcuController {
             device.api_ver = hardware_data.api_ver
             device.acu_comment = hardware_data.acu_comment
             device.registration_date = hardware_data.registration_date
+            device.cloud_status = hardware_data.cloud_status
 
             // device.time = hardware.time
             const updated = await device.save()
