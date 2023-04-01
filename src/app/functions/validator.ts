@@ -16,12 +16,15 @@ import { Reader } from '../model/entity'
 import { acuModel } from '../enums/acuModel.enum'
 
 export function ipValidation (string: string) {
-    const ipformat = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
-    if (string.match(ipformat)) {
-        return true
-    } else {
-        return ('Invalid Ip address')
+    if (string) {
+        const ipformat = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
+        if (string.match(ipformat)) {
+            return true
+        } else {
+            return ('Invalid Ip address')
+        }
     }
+    return true
 }
 
 export function networkValidation (data: any) {

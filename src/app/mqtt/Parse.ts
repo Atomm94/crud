@@ -61,10 +61,18 @@ export default class Parse {
                         const notification = {
                             event: `Timeout ${message.device_topic} - ${generateMessageForOperator(message.operator)}`,
                             description: JSON.stringify(description),
-                            company: message.company
+                            company: message.company,
+                            confirmed: null,
+                            access_point: null
                         }
-                        const notification_save = await Notification.addItem(notification as Notification)
-                        new SendSocketMessage(socketChannels.NOTIFICATION, notification_save, message.company)
+                        const notification_save = await Notification
+                            .createQueryBuilder()
+                            .insert()
+                            .values(notification)
+                            .execute()
+                        const newObj = Object.assign(notification, notification_save.generatedMaps[0])
+
+                        new SendSocketMessage(socketChannels.NOTIFICATION, newObj, message.company)
                     }
                 }
             }
