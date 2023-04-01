@@ -9,4 +9,5 @@ export default router
     .put('CameraDevice-updateItem', 'camera-device', checkRole(), CameraDeviceController.update)
     .delete('CameraDevice-destroyItem', 'camera-device/:id', checkRole(), CameraDeviceController.delete)
     .get('CameraDevice-getAllItems', 'camera-device', checkRole(), CameraDeviceController.getAll)
+    .post('CameraDevice-getItem', 'camera-device/test', checkRole(), CameraDeviceController.testDevice)
     .get('CameraDevice-getItem', 'camera-device/:id', checkRole(), CameraDeviceController.get)

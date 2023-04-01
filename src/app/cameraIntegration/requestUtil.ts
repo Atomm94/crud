@@ -124,3 +124,27 @@ export function putBodyRequest<T> (link: string, body: object) {
         )
     })
 }
+export async function getRequestWIthDigestAuth<T> (url: string, device: any) {
+    const username = device.username
+    const password = device.password
+
+    const options = {
+        url: `http://${url}`,
+        auth: {
+            user: username,
+            pass: password,
+            sendImmediately: false,
+            digestAuth: true
+        }
+    }
+    return new Promise<T>((resolve, reject) => {
+        request.get(options, function (error, response, body) {
+            if (!error && response.statusCode === 200) {
+                resolve(body)
+            } else {
+                console.log('TestCAmera error', error)
+                reject(error)
+            }
+        })
+    })
+}

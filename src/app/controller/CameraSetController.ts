@@ -56,11 +56,8 @@ export default class CameraSetController {
                 company: ctx.user.company
             })
 
-            ctx.status = 201
-            ctx.body = {
-                message: 'Set added successfully',
-                data: newCameraSet
-            }
+            ctx.status = 200
+            ctx.body = newCameraSet
         } catch (err) {
             ctx.status = err.status || 400
             ctx.body = err

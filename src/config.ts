@@ -52,6 +52,10 @@ export interface IConfig {
             dns: string
         }
     };
+    cctv: {
+        transType: number,
+        transProtocol: number
+    }
     sendgrid: {
         fromEmail: object,
         apiKey: string
@@ -120,6 +124,10 @@ var config: IConfig = {
         sentry: {
             dns: process.env.SENTRY_DNS as string
         }
+    },
+    cctv: {
+        transType: 0,
+        transProtocol: 1
     },
     sendgrid: {
         fromEmail: {

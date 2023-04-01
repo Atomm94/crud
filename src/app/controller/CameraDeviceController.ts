@@ -1,6 +1,9 @@
 import { DefaultContext } from 'koa'
 import { CameraIntegration } from '../cameraIntegration/deviceFactory'
 import { CameraDevice } from '../model/entity/CameraDevice'
+import { cameraType } from '../cameraIntegration/enums/deviceType.enum'
+import { UniviewDeviceType } from '../cameraIntegration/enums/univiewDeviceType'
+import { cameraDeviceConnType } from '../cameraIntegration/enums/camerDevice.enum'
 
 export default class CameraDeviceController {
     /**
@@ -38,6 +41,10 @@ export default class CameraDeviceController {
      *                      type: string
      *                      enum: [IP/Domain, Cloud]
      *                      example: Cloud
+     *                  device_type:
+     *                      type: string
+     *                      enum: [nvr, ipc]
+     *                      example: nvr
      *                  serial_number:
      *                      type: string
      *                      example: 35453sdaf35
@@ -62,7 +69,11 @@ export default class CameraDeviceController {
     public static async add (ctx: DefaultContext) {
         const device = ctx.request.body
         try {
-            if (device.connection_type === 'IP/Domain') {
+            const user = ctx.user
+            const company = user.company ? user.company : null
+
+            device.company = company
+            if (device.connection_type === cameraDeviceConnType.IP_DOMAIN) {
                 if (device.serial_number) {
                     ctx.status = 400
                     return ctx.body = {
@@ -76,7 +87,13 @@ export default class CameraDeviceController {
                     }
                 }
             }
-            if (device.connection_type === 'Cloud') {
+            if (Object.values(UniviewDeviceType).indexOf(device.device_type) === -1) {
+                ctx.status = 400
+                return ctx.body = {
+                    message: 'Invalid device type'
+                }
+            }
+            if (device.connection_type === cameraDeviceConnType.CLOUD) {
                 if (device.domain || device.port) {
                     ctx.status = 400
                     return ctx.body = {
@@ -90,15 +107,9 @@ export default class CameraDeviceController {
                     }
                 }
             }
-            const newDevice = await CameraDevice.addItem({
-                company: ctx.user.company,
-                ...ctx.request.body
-            })
-            ctx.status = 201
-            ctx.body = {
-                message: 'Device was successfully added',
-                data: newDevice
-            }
+            const newDevice = await CameraDevice.addItem(device as CameraDevice)
+            ctx.status = 200
+            ctx.body = newDevice
         } catch (err) {
             ctx.status = err.status || 400
             ctx.body = err
@@ -137,10 +148,10 @@ export default class CameraDeviceController {
      *                  name:
      *                      type: string
      *                      example: NVC
-     *                  connection_type:
+     *                  device_type:
      *                      type: string
-     *                      enum: [IP/Domain, Cloud]
-     *                      example: Cloud
+     *                      enum: [nvr, ipc]
+     *                      example: nvr
      *                  serial_number:
      *                      type: string
      *                      example: 35453sdaf35
@@ -164,43 +175,40 @@ export default class CameraDeviceController {
      */
 
     public static async update (ctx: DefaultContext) {
-        const device = ctx.request.body
         try {
-            if (device.connection_type === 'IP/Domain') {
-                device.serial_number = null
-                if (device.serial_number) {
-                    ctx.status = 400
-                    return ctx.body = {
-                        message: 'Parameters doesn\'t match'
-                    }
+            const req_data = ctx.request.body
+            const device = await CameraDevice.findOneOrFail({ where: { id: req_data.id, company: ctx.user.company } })
+            if (device.connection_type !== req_data.connection_type) {
+                ctx.status = 400
+                return ctx.body = {
+                    message: 'Can\'t update device connection type'
                 }
-                if (!device.port || !device.domain) {
+            }
+            if (req_data.connection_type === cameraDeviceConnType.IP_DOMAIN) {
+                if (!req_data.port || !req_data.domain) {
                     ctx.status = 400
                     return ctx.body = {
                         message: 'Not enough information'
                     }
                 }
             }
-            if (device.connection_type === 'Cloud') {
-                device.port = null
-                device.domain = null
-                if (device.domain || device.port) {
-                    ctx.status = 400
-                    return ctx.body = {
-                        message: 'Parameters doesn\'t match'
-                    }
+            if (Object.values(UniviewDeviceType).indexOf(req_data.device_type) === -1) {
+                ctx.status = 400
+                return ctx.body = {
+                    message: 'Invalid device type'
                 }
-                if (!device.serial_number) {
+            }
+            if (req_data.connection_type === cameraDeviceConnType.CLOUD) {
+                if (!req_data.serial_number) {
                     ctx.status = 400
                     return ctx.body = {
                         message: 'Not enough information'
                     }
                 }
             }
-            const data = await CameraDevice.updateItem(ctx.request.body)
-            ctx.body = {
-                data: data.new
-            }
+            const data = await CameraDevice.updateItem(req_data)
+            ctx.oldData = data.old
+            ctx.body = data.new
         } catch (err) {
             ctx.status = err.status || 400
             ctx.body = err
@@ -238,7 +246,7 @@ export default class CameraDeviceController {
     public static async delete (ctx: DefaultContext) {
         const { id } = ctx.params
         try {
-            const cameraDevice = await CameraDevice.findOneOrFail({ id })
+            const cameraDevice = await CameraDevice.findOneOrFail({ where: { id: id, company: ctx.user.company } })
             await CameraDevice.softRemove([cameraDevice])
             ctx.body = {
                 message: 'Device was successfully deleted'
@@ -313,7 +321,7 @@ export default class CameraDeviceController {
     public static async get (ctx: DefaultContext) {
         const { id } = ctx.params
         try {
-            const device = await CameraDevice.findOne({ id })
+            const device = await CameraDevice.findOneOrFail({ where: { id, company: ctx.user.company } })
             ctx.body = device
         } catch (err) {
             ctx.status = err.status || 400
@@ -357,6 +365,10 @@ export default class CameraDeviceController {
  *                      type: string
  *                      enum: [IP/Domain, Cloud]
  *                      example: Cloud
+ *                  device_type:
+ *                      type: string
+ *                      enum: [nvr, ipc]
+ *                      example: nvr
  *                  serial_number:
  *                      type: string
  *                      example: 35453sdaf35
@@ -380,45 +392,54 @@ export default class CameraDeviceController {
  */
     public static async testDevice (ctx: DefaultContext) {
         const device = ctx.request.body
-        try {
-            if (device.connection_type === 'IP/Domain') {
-                if (device.serial_number) {
-                    ctx.status = 400
-                    return ctx.body = {
-                        message: 'Parameters doesn\'t match'
-                    }
-                }
-                if (!device.port || !device.domain) {
-                    ctx.status = 400
-                    return ctx.body = {
-                        message: 'Not enough information'
-                    }
+        if (device.connection_type === cameraDeviceConnType.IP_DOMAIN) {
+            if (device.serial_number) {
+                ctx.status = 400
+                return ctx.body = {
+                    message: 'Parameters doesn\'t match'
                 }
             }
-            if (device.connection_type === 'Cloud') {
-                if (device.domain || device.port) {
-                    ctx.status = 400
-                    return ctx.body = {
-                        message: 'Parameters doesn\'t match'
-                    }
-                }
-                if (!device.serial_number) {
-                    ctx.status = 400
-                    return ctx.body = {
-                        message: 'Not enough information'
-                    }
+            if (!device.port || !device.domain) {
+                ctx.status = 400
+                return ctx.body = {
+                    message: 'Not enough information'
                 }
             }
-            const deviceConnect = new CameraIntegration().deviceFactory(device)
+        }
 
-            ctx.status = 201
+        if (Object.values(UniviewDeviceType).indexOf(device.device_type) === -1) {
+            ctx.status = 400
+            return ctx.body = {
+                message: 'Invalid device type'
+            }
+        }
+        if (device.connection_type === cameraDeviceConnType.CLOUD) {
+            if (device.domain || device.port) {
+                ctx.status = 400
+                return ctx.body = {
+                    message: 'Parameters doesn\'t match'
+                }
+            }
+            if (!device.serial_number) {
+                ctx.status = 400
+                return ctx.body = {
+                    message: 'Not enough information'
+                }
+            }
+        }
+        try {
+            device.type = cameraType.UNIVIEW
+            await new CameraIntegration().deviceFactory(device)
+            ctx.status = 200
             ctx.body = {
-                message: 'Device was successfully added',
-                data: deviceConnect
+                message: 'Test OK'
             }
         } catch (err) {
             ctx.status = err.status || 400
-            ctx.body = err
+            ctx.body = {
+                message: 'Test failed',
+                data: err.message
+            }
         }
         return ctx.body
     }

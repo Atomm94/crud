@@ -1,7 +1,8 @@
 import { Company } from './Company'
 import { Column, DeleteDateColumn, Entity, JoinColumn, ManyToOne } from 'typeorm'
-import { cameraDeviceConnType } from '../../enums/camerDevice.enum'
+import { cameraDeviceConnType } from '../../cameraIntegration/enums/camerDevice.enum'
 import { MainEntity } from './MainEntity'
+import { UniviewDeviceType } from '../../cameraIntegration/enums/univiewDeviceType'
 
 @Entity('camera_device')
 export class CameraDevice extends MainEntity {
@@ -10,6 +11,9 @@ export class CameraDevice extends MainEntity {
 
     @Column('enum', { name: 'connection_type', nullable: false, enum: cameraDeviceConnType })
     connection_type: string
+
+    @Column('enum', { name: 'device_type', nullable: false, enum: UniviewDeviceType })
+    device_type: string
 
     @Column('varchar', { name: 'serial_number', nullable: true })
     serial_number: string | null
@@ -35,18 +39,22 @@ export class CameraDevice extends MainEntity {
     @Column('longtext', { name: 'cameras', nullable: true })
     cameras: string
 
+    @Column('varchar', { name: 'type', default: 'uniview' })
+    type: string
+
     @ManyToOne(() => Company, company => company.camera_devices)
     @JoinColumn({ name: 'company' })
     companies: Company
 
     public static async addItem (data: CameraDevice): Promise<CameraDevice> {
         const cameraDevice = new CameraDevice()
-
         cameraDevice.name = data.name
         cameraDevice.company = data.company
         cameraDevice.username = data.username
         cameraDevice.password = data.password
         cameraDevice.connection_type = data.connection_type
+        cameraDevice.type = data.type
+        cameraDevice.device_type = data.device_type
 
         if ('serial_number' in data) cameraDevice.serial_number = data.serial_number
         if ('domain' in data) cameraDevice.domain = data.domain
@@ -80,6 +88,7 @@ export class CameraDevice extends MainEntity {
         if ('serial_number' in data) cameraDevice.serial_number = data.serial_number
         if ('domain' in data) cameraDevice.domain = data.domain
         if ('port' in data) cameraDevice.port = data.port
+        if ('device_type' in data) cameraDevice.device_type = data.device_type
         if ('cameras' in data) {
             const cameras = JSON.stringify(data.cameras)
             cameraDevice.cameras = cameras
