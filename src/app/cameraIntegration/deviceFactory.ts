@@ -1,10 +1,11 @@
+import { CameraDevice } from '../model/entity/CameraDevice'
 import { cameraApiCodes } from './enums/cameraApiCodes.enum'
 import { cameraType } from './enums/deviceType.enum'
 import { UniviewDeviceType } from './enums/univiewDeviceType'
 import { UniView } from './uniView/uniView.service'
 
 export class CameraIntegration {
-    public async deviceFactory (device: any, api_code: cameraApiCodes, access_point?: number) {
+    public async deviceFactory (device: CameraDevice, api_code: cameraApiCodes, access_point?: number) {
         switch (device.type) {
             case cameraType.UNIVIEW:
                 switch (api_code) {

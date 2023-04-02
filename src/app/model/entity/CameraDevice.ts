@@ -1,10 +1,12 @@
 import { Company } from './Company'
-import { Column, DeleteDateColumn, Entity, JoinColumn, ManyToOne } from 'typeorm'
+import { Column, DeleteDateColumn, Entity, Index, JoinColumn, ManyToOne } from 'typeorm'
 import { cameraDeviceConnType } from '../../cameraIntegration/enums/camerDevice.enum'
 import { MainEntity } from './MainEntity'
 import { UniviewDeviceType } from '../../cameraIntegration/enums/univiewDeviceType'
 
 @Entity('camera_device')
+@Index('serial_number|company', ['serial_number', 'company'], { unique: true })
+@Index('domain|port|company', ['domain', 'port', 'company'], { unique: true })
 export class CameraDevice extends MainEntity {
     @Column('varchar', { name: 'name', nullable: false })
     name: string

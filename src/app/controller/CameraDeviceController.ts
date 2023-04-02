@@ -5,6 +5,7 @@ import { cameraType } from '../cameraIntegration/enums/deviceType.enum'
 import { UniviewDeviceType } from '../cameraIntegration/enums/univiewDeviceType'
 import { cameraDeviceConnType } from '../cameraIntegration/enums/camerDevice.enum'
 import { cameraApiCodes } from '../cameraIntegration/enums/cameraApiCodes.enum'
+import { Camera } from '../model/entity/Camera'
 
 export default class CameraDeviceController {
     /**
@@ -74,6 +75,13 @@ export default class CameraDeviceController {
             const company = user.company ? user.company : null
 
             device.company = company
+
+            if (Object.values(cameraDeviceConnType).indexOf(device.connection_type) === -1) {
+                ctx.status = 400
+                return ctx.body = {
+                    message: 'Invalid connection type'
+                }
+            }
             if (device.connection_type === cameraDeviceConnType.IP_DOMAIN) {
                 if (device.serial_number) {
                     ctx.status = 400
@@ -109,6 +117,7 @@ export default class CameraDeviceController {
                 }
             }
             const newDevice = await CameraDevice.addItem(device as CameraDevice)
+            CameraDeviceController.getCameraList(newDevice)
             ctx.status = 200
             ctx.body = newDevice
         } catch (err) {
@@ -208,6 +217,9 @@ export default class CameraDeviceController {
                 }
             }
             const data = await CameraDevice.updateItem(req_data)
+            if (req_data.port !== device.port || req_data.domain !== device.domain || req_data.username !== device.username || req_data.password !== device.password) {
+                CameraDeviceController.getCameraList(data.new)
+            }
             ctx.oldData = data.old
             ctx.body = data.new
         } catch (err) {
@@ -375,13 +387,52 @@ export default class CameraDeviceController {
         const { id } = ctx.params
         try {
             const device = await CameraDevice.findOneOrFail({ where: { id, company: ctx.user.company } })
-            const livestream_url = await new CameraIntegration().deviceFactory(device, cameraApiCodes.LIVESTREAM)
+            const livestream_url = await new CameraIntegration().deviceFactory(device, cameraApiCodes.CAMERASLIST)
             ctx.body = { url: livestream_url }
         } catch (err) {
             ctx.status = err.status || 400
             ctx.body = err
         }
         return ctx.body
+    }
+
+    public static async getCameraList (device: CameraDevice, update: boolean = false) {
+        try {
+            if (update) {
+                const cameras = await Camera.find({ where: { camera_device: device.id } })
+                for (const camera of cameras) {
+                    await Camera.destroyItem(camera)
+                }
+            }
+            const cameraList = await new CameraIntegration().deviceFactory(device, cameraApiCodes.CAMERASLIST)
+            const data = cameraList.Response.Data.DetailInfos
+            for (const camera of data) {
+                const save_data = {
+                    service_id: camera.ID as number,
+                    service_name: camera.Name,
+                    channel_type: camera.ChannelType,
+                    status: camera.Status,
+                    stream_nums: camera.StreamNums,
+                    device_type: camera.DeviceType,
+                    allow_distribution: camera.AllowDistribution,
+                    add_type: camera.AddType,
+                    access_protocol: camera.AccessProtocol,
+                    off_reason: camera.OffReason,
+                    remote_index: camera.RemoteIndex,
+                    manufacturer: camera.Manufacturer,
+                    device_model: camera.DeviceModel,
+                    gbid: camera.GBID,
+                    address_info: camera.AddressInfo,
+                    is_poe_port: camera.IsPoEPort,
+                    poe_status: camera.PoEStatus,
+                    camera_device: device.id,
+                    company: device.company
+                }
+                await Camera.addItem(save_data as Camera)
+            }
+        } catch (err) {
+            console.log('cameras insert error', err)
+        }
     }
 
     /**

@@ -88,7 +88,7 @@ export class Camera extends MainEntity {
         camera.manufacturer = data.manufacturer
         camera.device_model = data.device_model
         camera.gbid = data.gbid
-        camera.address_info = data.address_info
+        camera.address_info = data.address_info ? JSON.stringify(data.address_info) : null
         camera.is_poe_port = data.is_poe_port
         camera.poe_status = data.poe_status
         camera.camera_device = data.camera_device

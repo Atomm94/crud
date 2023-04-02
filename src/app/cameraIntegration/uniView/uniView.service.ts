@@ -22,7 +22,7 @@ export class UniView {
             base_url = device.serial_number
         }
         const url = `${base_url}/LAPI/V1.0/Channels/System/ChannelDetailInfos`
-        return await getRequestWIthDigestAuth(url, device)
+        return JSON.parse(await getRequestWIthDigestAuth(url, device))
     }
 
     public async getLiveStreamUrl (device_id: any) {
