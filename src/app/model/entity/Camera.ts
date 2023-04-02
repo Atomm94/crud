@@ -1,9 +1,16 @@
 import {
     Entity,
-    Column
+    Column,
+    ManyToOne,
+    JoinColumn,
+    DeleteDateColumn,
+    Index
 } from 'typeorm'
 
 import { MainEntity } from './MainEntity'
+import { CameraDevice } from './CameraDevice'
+
+@Index('camera_device|service_id|is_delete', ['camera_device', 'service_id', 'is_delete'], { unique: true })
 
 @Entity('camera')
 export class Camera extends MainEntity {
@@ -70,12 +77,22 @@ export class Camera extends MainEntity {
     @Column('int', { name: 'company', nullable: false })
     company: number
 
+    @Column('varchar', { name: 'is_delete', default: 0 })
+    is_delete: string
+
+    @DeleteDateColumn({ type: 'timestamp', name: 'delete_date' })
+    public deleteDate: Date
+
+    @ManyToOne(type => CameraDevice, cameraDevice => cameraDevice.cameras)
+    @JoinColumn({ name: 'camera_device' })
+    camera_devices: CameraDevice;
+
     public static async addItem (data: Camera) {
         const camera = new Camera()
 
         camera.service_id = data.service_id
         camera.service_name = data.service_name
-        camera.name = data.name
+        camera.name = data.service_name
         camera.channel_type = data.channel_type
         camera.status = data.status
         camera.stream_nums = data.stream_nums
@@ -136,17 +153,28 @@ export class Camera extends MainEntity {
         })
     }
 
-    public static async destroyItem (data: { id: number }) {
-        const itemId: number = +data.id
+    public static async destroyItem (data: any) {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
-            this.delete(await this.findOneOrFail({ where: { id: itemId } }))
-                .then(() => {
-                    resolve({ message: 'success' })
-                })
-                .catch((error: any) => {
-                    reject(error)
-                })
+            const where: any = { id: data.id, company: data.company }
+            this.findOneOrFail(where).then((data: any) => {
+                this.softRemove(data)
+                    .then(async () => {
+                        const camera_data: any = await this.createQueryBuilder('camera')
+                            .where('id = :id', { id: data.id })
+                            .withDeleted()
+                            .getOne()
+                        camera_data.is_delete = (new Date()).getTime()
+                        await this.save(camera_data)
+
+                        resolve({ message: 'success' })
+                    })
+                    .catch((error: any) => {
+                        reject(error)
+                    })
+            }).catch((error: any) => {
+                reject(error)
+            })
         })
     }
 

@@ -1,5 +1,7 @@
 import { DefaultContext } from 'koa'
 import { Camera } from '../model/entity/Camera'
+import { AccessPoint } from '../model/entity'
+import { CameraSet } from '../model/entity/CameraSet'
 export default class CameraController {
     /**
      *
@@ -218,7 +220,10 @@ export default class CameraController {
      */
     public static async destroy (ctx: DefaultContext) {
         try {
-            ctx.body = await Camera.destroyItem(ctx.request.body as { id: number })
+            const req_data = ctx.request.body
+            const user = ctx.user
+            req_data.company = user.company ? user.company : null
+            ctx.body = await Camera.destroyItem(req_data)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -268,6 +273,70 @@ export default class CameraController {
             if ('hidden' in req_data) where.hidden = req_data.hidden
             req_data.where = where
             ctx.body = await Camera.getAllItems(req_data)
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     * /camera/accessPoint/{id}:
+     *      get:
+     *          tags:
+     *              - Camera
+     *          summary: Return AccessPoint cameras list
+     *          parameters:
+     *              - name: id
+     *                in: path
+     *                required: true
+     *                description: Parameter description
+     *                schema:
+     *                    type: integer
+     *                    format: int64
+     *                    minimum: 1
+     *              - in: header
+     *                name: Authorization
+     *                required: true
+     *                description: Authentication token
+     *                schema:
+     *                    type: string
+     *          responses:
+     *              '200':
+     *                  description: Array of camera
+     *              '401':
+     *                  description: Unauthorized
+     */
+
+    public static async getAccessPointCameras (ctx: DefaultContext) {
+        try {
+            const id = +ctx.params.id
+            const user = ctx.user
+            const where = {
+                id,
+                company: { '=': user.company ? user.company : null }
+            }
+            const access_point = await AccessPoint.findOne({ where, relations: ['acus'] })
+            if (!access_point) {
+                ctx.status = 400
+                return ctx.body = { message: 'something went wrong' }
+            }
+            // if (access_point.acus.status !== acuStatus.ACTIVE) {
+            //     ctx.status = 400
+            //     return ctx.body = { message: `status Acu of AccessPoint must be ${acuStatus.ACTIVE}` }
+            // }
+            const camera_set = await CameraSet.findOne({ where: { access_point: access_point.id } })
+            if (!camera_set || !camera_set.camera_ids) return ctx.body = []
+            const camera_ids = JSON.parse(camera_set.camera_ids)
+            if (!camera_ids.length) return ctx.body = []
+            const cameras = await Camera.createQueryBuilder('camera')
+                .select('camera.id')
+                .addSelect('camera.name')
+                .where(`camera.id in(${camera_ids})`)
+                .getMany()
+            ctx.body = cameras
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

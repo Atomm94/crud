@@ -243,14 +243,12 @@ export default class CameraDeviceController {
      *                  description: Some server error with description message
      */
 
-    public static async delete (ctx: DefaultContext) {
-        const { id } = ctx.params
+    public static async destroy (ctx: DefaultContext) {
         try {
-            const cameraDevice = await CameraDevice.findOneOrFail({ where: { id: id, company: ctx.user.company } })
-            await CameraDevice.softRemove([cameraDevice])
-            ctx.body = {
-                message: 'Device was successfully deleted'
-            }
+            const { id } = ctx.params
+            const user = ctx.user
+            const where = { id: id, company: user.company ? user.company : null }
+            ctx.body = await CameraDevice.destroyItem(where)
         } catch (err) {
             ctx.status = err.status || 400
             ctx.body = err

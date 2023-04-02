@@ -7,7 +7,7 @@ const router = new Router()
 export default router
     .post('CameraDevice-addItem', 'camera-device', checkRole(), CameraDeviceController.add)
     .put('CameraDevice-updateItem', 'camera-device', checkRole(), CameraDeviceController.update)
-    .delete('CameraDevice-destroyItem', 'camera-device/:id', checkRole(), CameraDeviceController.delete)
+    .delete('CameraDevice-destroyItem', 'camera-device/:id', checkRole(), CameraDeviceController.destroy)
     .get('CameraDevice-getAllItems', 'camera-device', checkRole(), CameraDeviceController.getAll)
     .post('CameraDevice-getItem', 'camera-device/test', checkRole(), CameraDeviceController.testDevice)
     .get('CameraDevice-getItem', 'camera-device/:id', checkRole(), CameraDeviceController.get)

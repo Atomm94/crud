@@ -185,15 +185,12 @@ export default class CameraSetController {
      *                  description: Unhandled server error
      */
 
-    public static async delete (ctx: DefaultContext) {
-        const { id } = ctx.params
-
+    public static async destroy (ctx: DefaultContext) {
         try {
-            const cameraSet = await CameraSet.findOneOrFail({ id })
-            await CameraSet.softRemove([cameraSet])
-            ctx.body = {
-                message: 'camera set was deleted successfully'
-            }
+            const { id } = ctx.params
+            const user = ctx.user
+            const where = { id: id, company: user.company ? user.company : null }
+            ctx.body = await CameraSet.destroyItem(where)
         } catch (err) {
             ctx.status = err.status || 400
             ctx.body = err
