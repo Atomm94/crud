@@ -61,6 +61,12 @@ export class Camera extends MainEntity {
     @Column('int', { name: 'poe_status', nullable: true })
     poe_status: number | null
 
+    @Column('int', { name: 'camera_device', nullable: false })
+    camera_device: number
+
+    @Column('boolean', { name: 'hidden', default: false })
+    hidden: boolean
+
     @Column('int', { name: 'company', nullable: false })
     company: number
 
@@ -85,6 +91,7 @@ export class Camera extends MainEntity {
         camera.address_info = data.address_info
         camera.is_poe_port = data.is_poe_port
         camera.poe_status = data.poe_status
+        camera.camera_device = data.camera_device
         camera.company = data.company
 
         return new Promise((resolve, reject) => {
@@ -99,27 +106,10 @@ export class Camera extends MainEntity {
     }
 
     public static async updateItem (data: Camera) {
-        const camera = await this.findOneOrFail(data.id)
+        const camera = await this.findOneOrFail({ where: { id: data.id } })
 
-        if ('service_id' in data) camera.service_id = data.service_id
-        if ('service_name' in data) camera.service_name = data.service_name
         if ('name' in data) camera.name = data.name
-        if ('channel_type' in data) camera.channel_type = data.channel_type
-        if ('status' in data) camera.status = data.status
-        if ('stream_nums' in data) camera.stream_nums = data.stream_nums
-        if ('device_type' in data) camera.device_type = data.device_type
-        if ('allow_distribution' in data) camera.allow_distribution = data.allow_distribution
-        if ('add_type' in data) camera.add_type = data.add_type
-        if ('access_protocol' in data) camera.access_protocol = data.access_protocol
-        if ('off_reason' in data) camera.off_reason = data.off_reason
-        if ('remote_index' in data) camera.remote_index = data.remote_index
-        if ('manufacturer' in data) camera.manufacturer = data.manufacturer
-        if ('device_model' in data) camera.device_model = data.device_model
-        if ('gbid' in data) camera.gbid = data.gbid
-        if ('address_info' in data) camera.address_info = data.address_info
-        if ('is_poe_port' in data) camera.is_poe_port = data.is_poe_port
-        if ('poe_status' in data) camera.poe_status = data.poe_status
-        if ('company' in data) camera.company = data.company
+        if ('hidden' in data) camera.hidden = data.hidden
 
         if (!camera) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
@@ -148,8 +138,9 @@ export class Camera extends MainEntity {
 
     public static async destroyItem (data: { id: number }) {
         const itemId: number = +data.id
-        return new Promise((resolve, reject) => {
-            this.delete(itemId)
+        // eslint-disable-next-line no-async-promise-executor
+        return new Promise(async (resolve, reject) => {
+            this.delete(await this.findOneOrFail({ where: { id: itemId } }))
                 .then(() => {
                     resolve({ message: 'success' })
                 })

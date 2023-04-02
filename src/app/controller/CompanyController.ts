@@ -874,7 +874,7 @@ export default class CompanyController {
      *      get:
      *          tags:
      *              - Company
-     *          summary: Return boolaen
+     *          summary: Return boolean
      *          parameters:
      *              - in: header
      *                name: Authorization
