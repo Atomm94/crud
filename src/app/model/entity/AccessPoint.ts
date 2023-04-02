@@ -255,6 +255,12 @@ export class AccessPoint extends MainEntity {
                         }
 
                         AccessPointStatus.destroyItem({ access_point: data.id })
+
+                        const camera_sets: any = await CameraSet.getAllItems({ where: { access_point: { '=': data.id } } })
+                        for (const camera_set of camera_sets) {
+                            CameraSet.destroyItem({ id: camera_set.id, company: camera_set.company })
+                        }
+
                         resolve({ message: 'success' })
                     })
                     .catch((error: any) => {

@@ -9,6 +9,7 @@ import {
 
 import { MainEntity } from './MainEntity'
 import { CameraDevice } from './CameraDevice'
+import { CameraSet } from './CameraSet'
 
 @Index('camera_device|service_id|is_delete', ['camera_device', 'service_id', 'is_delete'], { unique: true })
 
@@ -86,6 +87,9 @@ export class Camera extends MainEntity {
     @ManyToOne(type => CameraDevice, cameraDevice => cameraDevice.cameras)
     @JoinColumn({ name: 'camera_device' })
     camera_devices: CameraDevice;
+
+    public static gettingActions: boolean = false
+    public static gettingAttributes: boolean = false
 
     public static async addItem (data: Camera) {
         const camera = new Camera()
@@ -166,6 +170,19 @@ export class Camera extends MainEntity {
                             .getOne()
                         camera_data.is_delete = (new Date()).getTime()
                         await this.save(camera_data)
+
+                        const camera_sets: any = await CameraSet.getAllItems({ where: { company: { '=': data.company } } })
+                        for (const camera_set of camera_sets) {
+                            if (!camera_set || !camera_set.camera_ids) continue
+                            let camera_ids = JSON.parse(camera_set.camera_ids)
+                            const ind = camera_ids.indexOf(data.id)
+                            if (ind !== -1) {
+                                camera_ids.splice(ind, 1)
+                                camera_ids = JSON.stringify(camera_ids)
+                                camera_set.camera_ids = camera_ids
+                                this.save(camera_set)
+                            }
+                        }
 
                         resolve({ message: 'success' })
                     })
