@@ -4,6 +4,7 @@ import { CameraDevice } from '../model/entity/CameraDevice'
 import { cameraType } from '../cameraIntegration/enums/deviceType.enum'
 import { UniviewDeviceType } from '../cameraIntegration/enums/univiewDeviceType'
 import { cameraDeviceConnType } from '../cameraIntegration/enums/camerDevice.enum'
+import { cameraApiCodes } from '../cameraIntegration/enums/cameraApiCodes.enum'
 
 export default class CameraDeviceController {
     /**
@@ -305,6 +306,14 @@ export default class CameraDeviceController {
      *          consumes:
      *              - application/json
      *          parameters:
+     *            - name: id
+     *              in: path
+     *              required: true
+     *              description: Parameter description
+     *              schema:
+     *                  type: integer
+     *                  format: int64
+     *                  minimum: 1
      *            - in: header
      *              name: Authorization
      *              required: true
@@ -323,6 +332,51 @@ export default class CameraDeviceController {
         try {
             const device = await CameraDevice.findOneOrFail({ where: { id, company: ctx.user.company } })
             ctx.body = device
+        } catch (err) {
+            ctx.status = err.status || 400
+            ctx.body = err
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     *  /camera-device/livestream/{id}:
+     *      get:
+     *          tags:
+     *              - Camera-device
+     *          summary: Returns a camera device by id.
+     *          consumes:
+     *              - application/json
+     *          parameters:
+     *            - name: id
+     *              in: path
+     *              required: true
+     *              description: Parameter description
+     *              schema:
+     *                  type: integer
+     *                  format: int64
+     *                  minimum: 1
+     *            - in: header
+     *              name: Authorization
+     *              required: true
+     *              description: Authentication token
+     *              schema:
+     *                type: string
+     *          responses:
+     *              '200':
+     *                  description: Camera device object
+     *              '400':
+     *                  description: Some server error with description message
+     */
+
+    public static async getLivestream (ctx: DefaultContext) {
+        const { id } = ctx.params
+        try {
+            const device = await CameraDevice.findOneOrFail({ where: { id, company: ctx.user.company } })
+            const livestream_url = await new CameraIntegration().deviceFactory(device, cameraApiCodes.LIVESTREAM)
+            ctx.body = { url: livestream_url }
         } catch (err) {
             ctx.status = err.status || 400
             ctx.body = err
@@ -429,7 +483,7 @@ export default class CameraDeviceController {
         }
         try {
             device.type = cameraType.UNIVIEW
-            await new CameraIntegration().deviceFactory(device)
+            await new CameraIntegration().deviceFactory(device, cameraApiCodes.TEST)
             ctx.status = 200
             ctx.body = {
                 message: 'Test OK'

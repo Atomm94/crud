@@ -1,3 +1,7 @@
+import { CameraIntegration } from '../cameraIntegration/deviceFactory'
+import { cameraApiCodes } from '../cameraIntegration/enums/cameraApiCodes.enum'
+import { Camera } from '../model/entity/Camera'
+import { CameraDevice } from '../model/entity/CameraDevice'
 import { CameraSet } from './../model/entity/CameraSet'
 import { DefaultContext } from 'koa'
 
@@ -50,11 +54,10 @@ export default class CameraSetController {
      */
     public static async add (ctx: DefaultContext) {
         const cameraSet = ctx.request.body
+        const company = ctx.user.company
+        cameraSet.company = company
         try {
-            const newCameraSet = await CameraSet.addItem({
-                ...cameraSet,
-                company: ctx.user.company
-            })
+            const newCameraSet = await CameraSet.addItem({ ...cameraSet })
 
             ctx.status = 200
             ctx.body = newCameraSet
@@ -234,6 +237,52 @@ export default class CameraSetController {
         try {
             const cameraSet = await CameraSet.findOneOrFail({ id, company })
             ctx.body = cameraSet
+        } catch (err) {
+            ctx.status = err.status || 400
+            ctx.body = err
+        }
+        return ctx.body
+    }
+
+    /**
+   *
+   * @swagger
+   *  /camera-set/livestream/{id}:
+   *      get:
+   *          tags:
+   *              - Camera-device
+   *          summary: Returns a camera device by id.
+   *          consumes:
+   *              - application/json
+   *          parameters:
+   *            - name: id
+   *              in: path
+   *              required: true
+   *              description: Parameter description
+   *              schema:
+   *                  type: integer
+   *                  format: int64
+   *                  minimum: 1
+   *            - in: header
+   *              name: Authorization
+   *              required: true
+   *              description: Authentication token
+   *              schema:
+   *                type: string
+   *          responses:
+   *              '200':
+   *                  description: Camera device object
+   *              '400':
+   *                  description: Some server error with description message
+   */
+
+    public static async getLivestream (ctx: DefaultContext) {
+        const { id } = ctx.params
+        try {
+            const camera = await Camera.findOneOrFail({ where: { id, company: ctx.user.company } })
+            const device = await CameraDevice.findOneOrFail({ where: { id: camera.camera_device } })
+            const livestream_url = await new CameraIntegration().deviceFactory(device, cameraApiCodes.LIVESTREAM)
+            ctx.body = { url: livestream_url }
         } catch (err) {
             ctx.status = err.status || 400
             ctx.body = err

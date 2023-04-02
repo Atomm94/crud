@@ -140,6 +140,8 @@ export async function getRequestWIthDigestAuth<T> (url: string, device: any) {
     return new Promise<T>((resolve, reject) => {
         request.get(options, function (error, response, body) {
             if (!error && response.statusCode === 200) {
+                console.log(23223, body)
+
                 resolve(body)
             } else {
                 reject(error)
