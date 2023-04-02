@@ -11,4 +11,5 @@ export default router
     .get('AccessPoint-getAllItems', 'accessPoint/resources/:type', checkRole(), AccessPointController.getAccessPointResources)
     .get('AccessPoint-getAllItems', 'accessPoint/types', checkRole(), AccessPointController.getAccessPointTypes)
     .get('Cardholder-addItem', 'accessPoint/cardholders', checkRole(), AccessPointController.getAllForCardholder)
+    .get('Cardholder-getAllItems', 'accessPoint/cameraSets', checkRole(), AccessPointController.getAccessPointsForCameraSet)
     .get('AccessPoint-getItem', 'accessPoint/:id', checkRole(), AccessPointController.get)

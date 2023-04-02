@@ -112,7 +112,7 @@ export class AccessPoint extends MainEntity {
     access_point_statuses: AccessPointStatus[];
 
     @OneToMany(() => CameraSet, cameraSet => cameraSet.access_points)
-    cameraSets: CameraSet[]
+    camera_sets: CameraSet[]
 
     public static resource: boolean = true
     public static fields_that_used_in_sending: Array<string> = ['resources']
