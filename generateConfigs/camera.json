@@ -1,17 +1,17 @@
 {
     "model": {
         "columns": {
-            "service_id": {
+            "serviceId": {
                 "type": "int",
                 "params": {
-                    "name": "service_id",
+                    "name": "serviceId",
                     "nullable": false
                 }
             },
-            "service_name": {
+            "serviceName": {
                 "type": "varchar",
                 "params": {
-                    "name": "service_name",
+                    "name": "serviceName",
                     "nullable": true
                 }
             },

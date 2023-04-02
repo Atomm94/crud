@@ -1,3 +1,4 @@
+import CameraController from '../controller/CameraController'
 import CompanyController from '../controller/CompanyController'
 import RegistrationInviteController from '../controller/RegistrationInviteController'
 
@@ -77,3 +78,10 @@ export default router
   // Mqtt controller endpoints
   .get('mqttGetRequest/:id', MqttController.get)
   .post('mqttPostRequest', MqttController.post)
+
+  // Camera controller CRUD endpoints
+  .post('camera', CameraController.add)
+  .put('camera', CameraController.update)
+  .get('camera/:id', CameraController.get)
+  .delete('camera', CameraController.destroy)
+  .get('camera', CameraController.getAll)
