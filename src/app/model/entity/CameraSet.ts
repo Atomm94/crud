@@ -10,10 +10,10 @@ export class CameraSet extends MainEntity {
     @Column('varchar', { name: 'name', nullable: false })
     name: string
 
-    @Column('int', { name: 'before_event', nullable: false })
+    @Column('int', { name: 'before_event', nullable: false, default: 5 })
     before_event: number
 
-    @Column('int', { name: 'after_event', nullable: false })
+    @Column('int', { name: 'after_event', nullable: false, default: 15 })
     after_event: number
 
     @Column('int', { name: 'company', nullable: false })

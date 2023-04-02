@@ -1,9 +1,12 @@
 import { Company } from './Company'
-import { Column, DeleteDateColumn, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm'
+import { Column, DeleteDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, Index } from 'typeorm'
 import { cameraDeviceConnType } from '../../cameraIntegration/enums/camerDevice.enum'
 import { MainEntity } from './MainEntity'
 import { UniviewDeviceType } from '../../cameraIntegration/enums/univiewDeviceType'
 import { Camera } from './Camera'
+
+@Index('serial_number|company', ['serial_number', 'company'], { unique: true })
+@Index('domain|port|company', ['domain', 'port', 'company'], { unique: true })
 
 @Entity('camera_device')
 export class CameraDevice extends MainEntity {
