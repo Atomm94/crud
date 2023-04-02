@@ -35,7 +35,7 @@ export class CameraSet extends MainEntity {
     @JoinColumn({ name: 'company' })
     companies: Company;
 
-    @ManyToOne(() => AccessPoint, access_point => access_point.cameraSets)
+    @ManyToOne(() => AccessPoint, access_point => access_point.camera_sets)
     @JoinColumn({ name: 'access_point' })
     access_points: AccessPoint
 

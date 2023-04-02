@@ -536,4 +536,46 @@ export default class AccessPointController {
         }
         return ctx.body = await AccessRule.find({ where: { access_right: cardholder.access_right }, relations: ['access_points'] })
     }
+
+    /**
+     *
+     * @swagger
+     * /accessPoint/cameraSets:
+     *      get:
+     *          tags:
+     *              - AccessPoint
+     *          summary: Return accessPoint list
+     *          parameters:
+     *              - in: header
+     *                name: Authorization
+     *                required: true
+     *                description: Authentication token
+     *                schema:
+     *                    type: string
+     *          responses:
+     *              '200':
+     *                  description: Array of accessPoint
+     *              '401':
+     *                  description: Unauthorized
+     */
+    public static async getAccessPointsForCameraSet (ctx: DefaultContext) {
+        try {
+            const user = ctx.user
+            const access_points = await AccessPoint.createQueryBuilder('access_point')
+                .innerJoin('access_point.acus', 'acu', 'acu.delete_date is null')
+                .leftJoin('access_point.camera_sets', 'camera_set', 'camera_set.delete_date is null')
+                .where('camera_set.id is null')
+                .andWhere(`access_point.company = '${user.company ? user.company : null}'`)
+                .andWhere(`acu.status = '${acuStatus.ACTIVE}'`)
+                .getMany()
+
+            ctx.body = access_points
+        } catch (error) {
+            console.log(222, error)
+
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
 }
