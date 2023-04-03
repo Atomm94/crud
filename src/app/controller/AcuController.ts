@@ -24,6 +24,7 @@ import { CheckAccessPoint } from '../functions/check-accessPoint'
 import { AcuStatus } from '../model/entity/AcuStatus'
 import { acuCloudStatus } from '../enums/acuCloudStatus.enum'
 import { cloneDeep } from 'lodash'
+import { CameraSet } from '../model/entity/CameraSet'
 // import acu from '../router/acu'
 
 export default class AcuController {
@@ -1186,6 +1187,14 @@ export default class AcuController {
 
             await Acu.destroyItem(hardware)
             ctx.body = updated
+
+            if (detach) {
+                for (const access_point of device.access_points) {
+                    const camera_set = await CameraSet.findOne({ where: { access_point: access_point.id } })
+                    if (camera_set) CameraSet.destroyItem(camera_set)
+                }
+                return ctx.body
+            }
 
             // send extention Devices
             const ext_devices = device.ext_devices
