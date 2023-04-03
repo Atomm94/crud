@@ -1034,7 +1034,8 @@ export default class AcuController {
             const user = ctx.user
             req_data.where = {
                 company: { '=': user.company ? user.company : null },
-                status: { '=': acuStatus.PENDING }
+                status: { '=': acuStatus.PENDING },
+                cloud_status: { '=': acuCloudStatus.ONLINE }
             }
             ctx.body = await Acu.getAllItems(req_data)
         } catch (error) {
@@ -1173,6 +1174,7 @@ export default class AcuController {
             device.api_ver = hardware_data.api_ver
             device.acu_comment = hardware_data.acu_comment
             device.registration_date = hardware_data.registration_date
+            device.cloud_status = hardware_data.cloud_status
 
             // device.time = hardware.time
             const updated = await device.save()
