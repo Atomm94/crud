@@ -129,6 +129,24 @@ export class Camera extends MainEntity {
     public static async updateItem (data: Camera) {
         const camera = await this.findOneOrFail({ where: { id: data.id } })
 
+        if ('service_id' in data) camera.service_id = data.service_id
+        if ('service_name' in data) camera.service_name = data.service_name
+        if ('name' in data) camera.name = data.service_name
+        if ('channel_type' in data) camera.channel_type = data.channel_type
+        if ('status' in data) camera.status = data.status
+        if ('stream_nums' in data) camera.stream_nums = data.stream_nums
+        if ('device_type' in data) camera.device_type = data.device_type
+        if ('allow_distribution' in data) camera.allow_distribution = data.allow_distribution
+        if ('add_type' in data) camera.add_type = data.add_type
+        if ('access_protocol' in data) camera.access_protocol = data.access_protocol
+        if ('off_reason' in data) camera.off_reason = data.off_reason
+        if ('remote_index' in data) camera.remote_index = data.remote_index
+        if ('manufacturer' in data) camera.manufacturer = data.manufacturer
+        if ('device_model' in data) camera.device_model = data.device_model
+        if ('gbid' in data) camera.gbid = data.gbid
+        if ('address_info' in data) camera.address_info = data.address_info ? JSON.stringify(data.address_info) : null
+        if ('is_poe_port' in data) camera.is_poe_port = data.is_poe_port
+        if ('poe_status' in data) camera.poe_status = data.poe_status
         if ('name' in data) camera.name = data.name
         if ('hidden' in data) camera.hidden = data.hidden
 

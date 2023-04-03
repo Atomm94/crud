@@ -137,7 +137,10 @@ export default class CameraController {
                 ctx.status = 400
                 return ctx.body = { message: 'something went wrong' }
             }
-            ctx.body = await Camera.updateItem(ctx.request.body as Camera)
+            const data: any = { id: req_data.id }
+            if ('name' in req_data) data.name = req_data.name
+            if ('hidden' in req_data) data.hidden = req_data.hidden
+            ctx.body = await Camera.updateItem(data as Camera)
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
