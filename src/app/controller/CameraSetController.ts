@@ -105,6 +105,9 @@ export default class CameraSetController {
      *                  access_point:
      *                      type: number
      *                      example: 23
+     *                  camera_ids:
+     *                      type: Array<number>
+     *                      example: [1, 2]
      *          responses:
      *              '200':
      *                  description: The updated camera set object
@@ -115,6 +118,12 @@ export default class CameraSetController {
     public static async update (ctx: DefaultContext) {
         const cameraSet = ctx.request.body
         try {
+            if (cameraSet.camera_ids.length > 4) {
+                 ctx.status = 400
+                 return ctx.body = {
+                    message: 'Max count of cameras is 4 in Set'
+                }
+            }
             const cameraSetUpdated = await CameraSet.updateItem(cameraSet)
             ctx.body = {
                 message: 'Set updated successfully',

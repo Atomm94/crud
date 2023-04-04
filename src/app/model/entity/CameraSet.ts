@@ -68,7 +68,7 @@ export class CameraSet extends MainEntity {
         if ('after_event' in data) cameraSet.after_event = data.after_event
         if ('access_point' in data) cameraSet.access_point = data.access_point
         if ('camera_ids' in data) {
-            if (typeof data.camera_ids === 'object') data.camera_ids = JSON.stringify(data.camera_ids)
+            if (data.camera_ids && typeof data.camera_ids === 'object') data.camera_ids = JSON.stringify(data.camera_ids)
             cameraSet.camera_ids = data.camera_ids
         }
 
