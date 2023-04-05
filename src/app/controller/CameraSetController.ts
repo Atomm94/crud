@@ -119,8 +119,8 @@ export default class CameraSetController {
         const cameraSet = ctx.request.body
         try {
             if (cameraSet.camera_ids.length > 4) {
-                 ctx.status = 400
-                 return ctx.body = {
+                ctx.status = 400
+                return ctx.body = {
                     message: 'Max count of cameras is 4 in Set'
                 }
             }
@@ -237,11 +237,18 @@ export default class CameraSetController {
      */
 
     public static async get (ctx: DefaultContext) {
-        const { id } = ctx.params
-        const { company } = ctx.user
-
         try {
-            const cameraSet = await CameraSet.findOneOrFail({ id, company })
+            const { id } = ctx.params
+            const user = ctx.user
+            const cameraSet = await CameraSet.createQueryBuilder('camera_set')
+                .leftJoinAndSelect('camera_set.access_points', 'access_point', 'access_point.delete_date is null')
+                .where(`camera_set.id = ${id}`)
+                .andWhere(`camera_set.company = '${user.company ? user.company : null}'`)
+                .getOne()
+            if (!cameraSet) {
+                ctx.status = 400
+                return ctx.body = { message: 'something went wrong' }
+            }
             ctx.body = cameraSet
         } catch (err) {
             ctx.status = err.status || 400
