@@ -93,6 +93,9 @@ export default class CameraSetController {
      *                required:
      *                  - id
      *                properties:
+     *                  id:
+     *                      type: number
+     *                      example: 1
      *                  name:
      *                      type: string
      *                      example: mySet
@@ -118,18 +121,17 @@ export default class CameraSetController {
     public static async update (ctx: DefaultContext) {
         const cameraSet = ctx.request.body
         try {
-            if (cameraSet.camera_ids.length > 4) {
+            if (cameraSet.camera_ids?.length > 4) {
                 ctx.status = 400
                 return ctx.body = {
                     message: 'Max count of cameras is 4 in Set'
                 }
             }
             const cameraSetUpdated = await CameraSet.updateItem(cameraSet)
-            ctx.body = {
-                message: 'Set updated successfully',
-                data: cameraSetUpdated.new
-            }
+            ctx.body = cameraSetUpdated.new
         } catch (err) {
+            console.log(65635, err)
+
             ctx.status = err.status || 400
             ctx.body = err
         }
@@ -226,9 +228,13 @@ export default class CameraSetController {
      *              schema:
      *                type: string
      *            - in: path
-     *              name: The camera set id
+     *              name: id
      *              required: true
-     *              type: string
+     *              description: Parameter description
+     *              schema:
+     *                  type: integer
+     *                  format: int64
+     *                  minimum: 1
      *          responses:
      *              '200':
      *                  description: The camera set object
@@ -239,15 +245,24 @@ export default class CameraSetController {
     public static async get (ctx: DefaultContext) {
         try {
             const { id } = ctx.params
+            console.log('🚀 ~ file: CameraSetController.ts:244 ~ CameraSetController ~ get ~ id:', id)
             const user = ctx.user
-            const cameraSet = await CameraSet.createQueryBuilder('camera_set')
+            const cameraSet: any = await CameraSet.createQueryBuilder('camera_set')
                 .leftJoinAndSelect('camera_set.access_points', 'access_point', 'access_point.delete_date is null')
-                .where(`camera_set.id = ${id}`)
+                .where(`camera_set.id = '${id}'`)
                 .andWhere(`camera_set.company = '${user.company ? user.company : null}'`)
                 .getOne()
+
             if (!cameraSet) {
                 ctx.status = 400
                 return ctx.body = { message: 'something went wrong' }
+            }
+            if (cameraSet.camera_ids) {
+                var camera_ids = JSON.parse(cameraSet.camera_ids)
+                const cameras = await Camera.getAllItems({ where: { id: { in: camera_ids } } })
+                cameraSet.cameras = cameras
+            } else {
+                cameraSet.cameras = []
             }
             ctx.body = cameraSet
         } catch (err) {
