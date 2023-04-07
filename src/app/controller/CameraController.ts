@@ -272,8 +272,11 @@ export default class CameraController {
             const req_data = ctx.query
             const user = ctx.user
             const where: any = { company: { '=': user.company ? user.company : null } }
-            if ('camera_device' in req_data) where.camera_device = req_data.camera_device
-            if ('hidden' in req_data) where.hidden = req_data.hidden
+            if ('camera_device' in req_data) where.camera_device = { '=': req_data.camera_device }
+            if ('hidden' in req_data) {
+                const myBool = (req_data.hidden.toLowerCase() === 'true')
+                where.hidden = { '=': myBool }
+            }
             req_data.where = where
             ctx.body = await Camera.getAllItems(req_data)
         } catch (error) {
@@ -339,6 +342,72 @@ export default class CameraController {
                 .addSelect('camera.name')
                 .where(`camera.id in(${camera_ids})`)
                 .getMany()
+            ctx.body = cameras
+        } catch (error) {
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     *  /camera/hidden:
+     *      put:
+     *          tags:
+     *              - Camera
+     *          summary: Update a camera.
+     *          consumes:
+     *              - application/json
+     *          parameters:
+     *            - in: header
+     *              name: Authorization
+     *              required: true
+     *              description: Authentication token
+     *              schema:
+     *                type: string
+     *            - in: body
+     *              name: camera
+     *              description: The camera to create.
+     *              schema:
+     *                type: object
+     *                required:
+     *                  - camera_ids
+     *                  - device_id
+     *                properties:
+     *                  camera_ids:
+     *                      type: Array<number>
+     *                      example: [1, 2]
+     *                  camera_device:
+     *                      type: number
+     *                      example: 1
+     *                  hidden:
+     *                      type: boolean
+     *                      example: false
+     *          responses:
+     *              '201':
+     *                  description: A camera updated object
+     *              '409':
+     *                  description: Conflict
+     *              '422':
+     *                  description: Wrong data
+     */
+    public static async hideCameras (ctx: DefaultContext) {
+        try {
+            const req_data = ctx.request.body
+            const user = ctx.user
+            const where = {
+                id: { in: req_data.camera_ids },
+                company: { '=': user.company ? user.company : null },
+                camera_device: { '=': req_data.camera_device }
+            }
+            const cameras: any = await Camera.getAllItems({ where })
+            for (const camera of cameras) {
+                camera.hidden = req_data.hidden
+                await camera.save()
+            }
+
             ctx.body = cameras
         } catch (error) {
             ctx.status = error.status || 400

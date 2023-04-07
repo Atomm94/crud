@@ -245,7 +245,6 @@ export default class CameraSetController {
     public static async get (ctx: DefaultContext) {
         try {
             const { id } = ctx.params
-            console.log('🚀 ~ file: CameraSetController.ts:244 ~ CameraSetController ~ get ~ id:', id)
             const user = ctx.user
             const cameraSet: any = await CameraSet.createQueryBuilder('camera_set')
                 .leftJoinAndSelect('camera_set.access_points', 'access_point', 'access_point.delete_date is null')
