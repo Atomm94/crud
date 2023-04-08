@@ -6,7 +6,7 @@ import { UniView } from './uniView/uniView.service'
 
 export class CameraIntegration {
     public async deviceFactory (device: CameraDevice, api_code: cameraApiCodes, access_point?: number) {
-        switch (device.type) {
+        switch (device.camera_type) {
             case cameraType.UNIVIEW:
                 switch (api_code) {
                     case cameraApiCodes.TEST:

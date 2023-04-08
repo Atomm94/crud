@@ -28,7 +28,7 @@ const delete_old_tokens_interval = process.env.DELETE_OLD_TOKENS_INTERVAL ? proc
 const update_acucloud_status_interval = process.env.UPDATE_ACUCLOUD_STATUS_INTERVAL ? process.env.UPDATE_ACUCLOUD_STATUS_INTERVAL : '0 */10 * * * *'
 const update_accesspoint_door_state_interval = process.env.UPDATE_ACCESSPOINT_DOOR_STATE_INTERVAL ? process.env.UPDATE_ACCESSPOINT_DOOR_STATE_INTERVAL : '0 */10 * * * *'
 const send_set_heart_bit_interval = process.env.SEND_SET_HEART_BIT_INTERVAL ? process.env.SEND_SET_HEART_BIT_INTERVAL : '0 0 0 * * *'
-const update_camera_device_cameras_interval = process.env.UPDATE_CAMERA_DEVICE_CAMERAS_INTERVAL ? process.env.UPDATE_CAMERA_DEVICE_CAMERAS_INTERVAL : '*/15 * * * * *' // '0 */10 * * * *'
+const update_camera_device_cameras_interval = process.env.UPDATE_CAMERA_DEVICE_CAMERAS_INTERVAL ? process.env.UPDATE_CAMERA_DEVICE_CAMERAS_INTERVAL : '0 */10 * * * *'
 
 export default class CronJob {
     public static cronObj: any = {}
@@ -209,7 +209,7 @@ export default class CronJob {
                 .getMany()
             for (const camera_device of camera_devices) {
                 const obj_cameras: any = {}
-                camera_device.cameras.map(camera => { obj_cameras[camera.service_id] = camera })
+                camera_device.cameras.map((camera) => { obj_cameras[camera.service_id] = camera })
                 try {
                     const cameraList = await new CameraIntegration().deviceFactory(camera_device, cameraApiCodes.CAMERASLIST)
                     const data = cameraList.Response.Data.DetailInfos

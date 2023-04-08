@@ -4,7 +4,8 @@ import {
     ManyToOne,
     JoinColumn,
     DeleteDateColumn,
-    Index
+    Index,
+    ManyToMany
 } from 'typeorm'
 
 import { MainEntity } from './MainEntity'
@@ -88,6 +89,9 @@ export class Camera extends MainEntity {
     @JoinColumn({ name: 'camera_device' })
     camera_devices: CameraDevice;
 
+    @ManyToMany(() => CameraSet, cameraSet => cameraSet.cameras)
+    camera_sets: CameraSet[];
+
     public static gettingActions: boolean = false
     public static gettingAttributes: boolean = false
 
@@ -128,6 +132,7 @@ export class Camera extends MainEntity {
 
     public static async updateItem (data: Camera) {
         const camera = await this.findOneOrFail({ where: { id: data.id } })
+        const oldData = Object.assign({}, camera)
 
         if ('service_id' in data) camera.service_id = data.service_id
         if ('service_name' in data) camera.service_name = data.service_name
@@ -154,7 +159,10 @@ export class Camera extends MainEntity {
         return new Promise((resolve, reject) => {
             this.save(camera)
                 .then((item: Camera) => {
-                    resolve(item)
+                    resolve({
+                        old: oldData,
+                        new: item
+                    })
                 })
                 .catch((error: any) => {
                     reject(error)
@@ -189,17 +197,19 @@ export class Camera extends MainEntity {
                         camera_data.is_delete = (new Date()).getTime()
                         await this.save(camera_data)
 
-                        const camera_sets: any = await CameraSet.getAllItems({ where: { company: { '=': data.company } } })
+                        // const camera_sets: any = await CameraSet.getAllItems({ where: { company: { '=': data.company } } })
+
+                        const camera_sets: CameraSet[] = await CameraSet.createQueryBuilder('camera_set')
+                            .leftJoinAndSelect('camera_set.cameras', 'camera')
+                            .where(`camera_set.company = '${data.company}'`)
+                            .getMany()
                         for (const camera_set of camera_sets) {
-                            if (!camera_set || !camera_set.camera_ids) continue
-                            let camera_ids = JSON.parse(camera_set.camera_ids)
-                            const ind = camera_ids.indexOf(data.id)
-                            if (ind !== -1) {
-                                camera_ids.splice(ind, 1)
-                                camera_ids = JSON.stringify(camera_ids)
-                                camera_set.camera_ids = camera_ids
-                                this.save(camera_set)
+                            const _cameras = []
+                            for (const _camera of camera_set.cameras) {
+                                if (_camera.id !== data.id) _cameras.push({ id: _camera.id } as Camera)
                             }
+                            camera_set.cameras = _cameras
+                            camera_set.save()
                         }
 
                         resolve({ message: 'success' })

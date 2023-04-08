@@ -43,8 +43,8 @@ export class CameraDevice extends MainEntity {
     @DeleteDateColumn({ type: 'timestamp', name: 'delete_date' })
     public deleteDate: Date
 
-    @Column('varchar', { name: 'type', default: 'uniview' })
-    type: string
+    @Column('varchar', { name: 'camera_type', default: 'uniview' })
+    camera_type: string
 
     @ManyToOne(() => Company, company => company.camera_devices)
     @JoinColumn({ name: 'company' })
@@ -60,7 +60,7 @@ export class CameraDevice extends MainEntity {
         cameraDevice.username = data.username
         cameraDevice.password = data.password
         cameraDevice.connection_type = data.connection_type
-        cameraDevice.type = data.type
+        cameraDevice.camera_type = data.camera_type
         cameraDevice.device_type = data.device_type
 
         if ('serial_number' in data) cameraDevice.serial_number = data.serial_number
@@ -82,11 +82,9 @@ export class CameraDevice extends MainEntity {
         const cameraDevice = await this.findOneOrFail({ id: data.id })
         const oldData = Object.assign({}, cameraDevice)
 
-        cameraDevice.name = data.name
-        cameraDevice.company = data.company
-        cameraDevice.username = data.username
-        cameraDevice.password = data.password
-        cameraDevice.connection_type = data.connection_type
+        if ('name' in data) cameraDevice.name = data.name
+        if ('username' in data) cameraDevice.username = data.username
+        if ('password' in data) cameraDevice.password = data.password
 
         if ('serial_number' in data) cameraDevice.serial_number = data.serial_number
         if ('domain' in data) cameraDevice.domain = data.domain
@@ -98,7 +96,7 @@ export class CameraDevice extends MainEntity {
                 .then((item: CameraDevice) => {
                     resolve({
                         old: oldData,
-                        new: cameraDevice
+                        new: item
                     })
                 })
                 .catch((error: any) => {

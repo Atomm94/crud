@@ -1,7 +1,6 @@
 import { DefaultContext } from 'koa'
 import { Camera } from '../model/entity/Camera'
 import { AccessPoint } from '../model/entity'
-import { CameraSet } from '../model/entity/CameraSet'
 export default class CameraController {
     /**
      *
@@ -295,8 +294,8 @@ export default class CameraController {
      *              - Camera
      *          summary: Return AccessPoint cameras list
      *          parameters:
-     *              - name: id
-     *                in: path
+     *              - in: path
+     *                name: id
      *                required: true
      *                description: Parameter description
      *                schema:
@@ -322,25 +321,19 @@ export default class CameraController {
             const user = ctx.user
             const where = {
                 id,
-                company: { '=': user.company ? user.company : null }
+                company: user.company ? user.company : null
             }
-            const access_point = await AccessPoint.findOne({ where, relations: ['acus'] })
+            const access_point = await AccessPoint.findOne({ where/* , relations: ['acus'] */ })
             if (!access_point) {
                 ctx.status = 400
                 return ctx.body = { message: 'something went wrong' }
             }
-            // if (access_point.acus.status !== acuStatus.ACTIVE) {
-            //     ctx.status = 400
-            //     return ctx.body = { message: `status Acu of AccessPoint must be ${acuStatus.ACTIVE}` }
-            // }
-            const camera_set = await CameraSet.findOne({ where: { access_point: access_point.id } })
-            if (!camera_set || !camera_set.camera_ids) return ctx.body = []
-            const camera_ids = JSON.parse(camera_set.camera_ids)
-            if (!camera_ids.length) return ctx.body = []
+
             const cameras = await Camera.createQueryBuilder('camera')
                 .select('camera.id')
                 .addSelect('camera.name')
-                .where(`camera.id in(${camera_ids})`)
+                .leftJoin('camera.camera_sets', 'camera_set', 'camera_set.delete_date is null')
+                .where(`camera_set.access_point = '${id}'`)
                 .getMany()
             ctx.body = cameras
         } catch (error) {

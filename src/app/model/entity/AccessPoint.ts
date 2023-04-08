@@ -4,7 +4,8 @@ import {
     ManyToOne,
     OneToMany,
     JoinColumn,
-    DeleteDateColumn
+    DeleteDateColumn,
+    Index
 } from 'typeorm'
 
 import { MainEntity } from './MainEntity'
@@ -28,6 +29,7 @@ import { resourceKeys } from '../../enums/resourceKeys.enum'
 import { CameraSet } from './CameraSet'
 
 @Entity('access_point')
+@Index(['id', 'company'])
 export class AccessPoint extends MainEntity {
     @Column('varchar', { name: 'name', nullable: false })
     name: string

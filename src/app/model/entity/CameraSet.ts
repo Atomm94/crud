@@ -1,7 +1,8 @@
-import { Column, DeleteDateColumn, Entity, Index, JoinColumn, ManyToOne } from 'typeorm'
+import { Column, DeleteDateColumn, Entity, Index, JoinColumn, JoinTable, ManyToMany, ManyToOne } from 'typeorm'
 import { AccessPoint } from './AccessPoint'
 import { Company } from './Company'
 import { MainEntity } from './MainEntity'
+import { Camera } from './Camera'
 
 @Index('access_point|company|is_delete', ['access_point', 'company', 'is_delete'], { unique: true })
 
@@ -22,9 +23,6 @@ export class CameraSet extends MainEntity {
     @Column('int', { name: 'access_point', nullable: false })
     access_point: number
 
-    @Column('longtext', { name: 'camera_ids', nullable: true })
-    camera_ids: string
-
     @Column('varchar', { name: 'is_delete', default: 0 })
     is_delete: string
 
@@ -36,8 +34,12 @@ export class CameraSet extends MainEntity {
     companies: Company;
 
     @ManyToOne(() => AccessPoint, access_point => access_point.camera_sets)
-    @JoinColumn({ name: 'access_point' })
+    @JoinColumn([{ name: 'access_point', referencedColumnName: 'id' }, { name: 'company', referencedColumnName: 'company' }])
     access_points: AccessPoint
+
+    @ManyToMany(() => Camera, camera => camera.camera_sets)
+    @JoinTable()
+    cameras: Camera[];
 
     public static async addItem (data: CameraSet): Promise<CameraSet> {
         const cameraSet = new CameraSet()
@@ -67,10 +69,7 @@ export class CameraSet extends MainEntity {
         if ('before_event' in data) cameraSet.before_event = data.before_event
         if ('after_event' in data) cameraSet.after_event = data.after_event
         if ('access_point' in data) cameraSet.access_point = data.access_point
-        if ('camera_ids' in data) {
-            if (data.camera_ids && typeof data.camera_ids === 'object') data.camera_ids = JSON.stringify(data.camera_ids)
-            cameraSet.camera_ids = data.camera_ids
-        }
+        if ('cameras' in data) cameraSet.cameras = data.cameras
 
         if (!cameraSet) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {

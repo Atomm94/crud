@@ -119,15 +119,18 @@ export default class CameraSetController {
      */
 
     public static async update (ctx: DefaultContext) {
-        const cameraSet = ctx.request.body
         try {
-            if (cameraSet.camera_ids?.length > 4) {
-                ctx.status = 400
-                return ctx.body = {
-                    message: 'Max count of cameras is 4 in Set'
+            const req_data = ctx.request.body
+            if (req_data.camera_ids) {
+                if (req_data.camera_ids.length > 4) {
+                    ctx.status = 400
+                    return ctx.body = {
+                        message: 'Max count of cameras is 4 in Set'
+                    }
                 }
+                req_data.cameras = req_data.camera_ids.map((camera_id: number) => { return { id: camera_id } })
             }
-            const cameraSetUpdated = await CameraSet.updateItem(cameraSet)
+            const cameraSetUpdated = await CameraSet.updateItem(req_data)
             ctx.body = cameraSetUpdated.new
         } catch (err) {
             console.log(65635, err)
@@ -248,6 +251,7 @@ export default class CameraSetController {
             const user = ctx.user
             const cameraSet: any = await CameraSet.createQueryBuilder('camera_set')
                 .leftJoinAndSelect('camera_set.access_points', 'access_point', 'access_point.delete_date is null')
+                .leftJoinAndSelect('camera_set.cameras', 'camera', 'camera.delete_date is null')
                 .where(`camera_set.id = '${id}'`)
                 .andWhere(`camera_set.company = '${user.company ? user.company : null}'`)
                 .getOne()
@@ -255,13 +259,6 @@ export default class CameraSetController {
             if (!cameraSet) {
                 ctx.status = 400
                 return ctx.body = { message: 'something went wrong' }
-            }
-            if (cameraSet.camera_ids) {
-                var camera_ids = JSON.parse(cameraSet.camera_ids)
-                const cameras = await Camera.getAllItems({ where: { id: { in: camera_ids } } })
-                cameraSet.cameras = cameras
-            } else {
-                cameraSet.cameras = []
             }
             ctx.body = cameraSet
         } catch (err) {
@@ -277,7 +274,7 @@ export default class CameraSetController {
    *  /camera-set/livestream/{id}:
    *      get:
    *          tags:
-   *              - Camera-device
+   *              - Camera-set
    *          summary: Returns a camera device by id.
    *          consumes:
    *              - application/json

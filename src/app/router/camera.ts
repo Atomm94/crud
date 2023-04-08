@@ -9,7 +9,7 @@ export default router
     .put('CameraDevice-updateItem', 'camera', checkRole(), CameraController.update)
     .put('CameraDevice-updateItem', 'camera/hidden', checkRole(), CameraController.hideCameras)
     .get('CameraDevice-getAllItems', 'camera', checkRole(), CameraController.getAll)
-    .get('CameraDevice-getAllItems', '/camera/accessPoint/:id', checkRole(), CameraController.getAccessPointCameras)
+    .get('CameraDevice-getAllItems', 'camera/accessPoint/:id', checkRole(), CameraController.getAccessPointCameras)
 
     // .get('CameraDevice-getItem', 'camera/:id', checkRole(), CameraController.get)
     // .delete('CameraDevice-destroyItem', 'camera/:id', checkRole(), CameraController.destroy)
