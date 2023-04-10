@@ -338,8 +338,8 @@ export default class CameraDeviceController {
      */
 
     public static async get (ctx: DefaultContext) {
-        const { id } = ctx.params
         try {
+            const { id } = ctx.params
             const device = await CameraDevice.findOneOrFail({ where: { id, company: ctx.user.company } })
             ctx.body = device
         } catch (err) {
