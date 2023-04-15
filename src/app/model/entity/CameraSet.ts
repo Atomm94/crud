@@ -1,8 +1,8 @@
-import { Column, DeleteDateColumn, Entity, Index, JoinColumn, JoinTable, ManyToMany, ManyToOne } from 'typeorm'
+import { Column, DeleteDateColumn, Entity, Index, JoinColumn, ManyToOne, OneToMany } from 'typeorm'
 import { AccessPoint } from './AccessPoint'
 import { Company } from './Company'
 import { MainEntity } from './MainEntity'
-import { Camera } from './Camera'
+import { CameraSetToCamera } from './CameraSetToCamera'
 
 @Index('access_point|company|is_delete', ['access_point', 'company', 'is_delete'], { unique: true })
 
@@ -37,9 +37,12 @@ export class CameraSet extends MainEntity {
     @JoinColumn([{ name: 'access_point', referencedColumnName: 'id' }, { name: 'company', referencedColumnName: 'company' }])
     access_points: AccessPoint
 
-    @ManyToMany(() => Camera, camera => camera.camera_sets)
-    @JoinTable()
-    cameras: Camera[];
+    // @ManyToMany(() => Camera, camera => camera.camera_sets)
+    // @JoinTable()
+    // cameras: Camera[];
+
+    @OneToMany(type => CameraSetToCamera, cameraSetToCamera => cameraSetToCamera.camera_sets)
+    camera_set_cameras: CameraSetToCamera[];
 
     public static async addItem (data: CameraSet): Promise<CameraSet> {
         const cameraSet = new CameraSet()
@@ -62,14 +65,14 @@ export class CameraSet extends MainEntity {
     }
 
     public static async updateItem (data: CameraSet): Promise<{ [key: string]: any }> {
-        const cameraSet = await this.findOneOrFail({ id: data.id })
+        const cameraSet = await this.findOneOrFail({ id: data.id, company: data.company })
         const oldData = Object.assign({}, cameraSet)
 
         if ('name' in data) cameraSet.name = data.name
         if ('before_event' in data) cameraSet.before_event = data.before_event
         if ('after_event' in data) cameraSet.after_event = data.after_event
         if ('access_point' in data) cameraSet.access_point = data.access_point
-        if ('cameras' in data) cameraSet.cameras = data.cameras
+        // if ('cameras' in data) cameraSet.cameras = data.cameras
 
         if (!cameraSet) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {

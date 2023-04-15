@@ -1,7 +1,9 @@
+import { In, Not } from 'typeorm'
 import { CameraIntegration } from '../cameraIntegration/deviceFactory'
 import { cameraApiCodes } from '../cameraIntegration/enums/cameraApiCodes.enum'
 import { Camera } from '../model/entity/Camera'
 import { CameraDevice } from '../model/entity/CameraDevice'
+import { CameraSetToCamera } from '../model/entity/CameraSetToCamera'
 import { CameraSet } from './../model/entity/CameraSet'
 import { DefaultContext } from 'koa'
 
@@ -108,9 +110,17 @@ export default class CameraSetController {
      *                  access_point:
      *                      type: number
      *                      example: 23
-     *                  camera_ids:
-     *                      type: Array<number>
-     *                      example: [1, 2]
+     *                  cameras:
+     *                      type: array
+     *                      items:
+     *                          type: object
+     *                          properties:
+     *                              id:
+     *                                  type: number
+     *                                  example: 1
+     *                              main:
+     *                                  type: boolean
+     *                                  example: true
      *          responses:
      *              '200':
      *                  description: The updated camera set object
@@ -121,16 +131,43 @@ export default class CameraSetController {
     public static async update (ctx: DefaultContext) {
         try {
             const req_data = ctx.request.body
-            if (req_data.camera_ids) {
-                if (req_data.camera_ids.length > 4) {
+            const user = ctx.user
+            req_data.company = user.company ? user.company : null
+            const cameras = req_data.cameras
+            if (cameras) {
+                if (cameras.length > 4) {
                     ctx.status = 400
                     return ctx.body = {
                         message: 'Max count of cameras is 4 in Set'
                     }
                 }
-                req_data.cameras = req_data.camera_ids.map((camera_id: number) => { return { id: camera_id } })
+                let main_qty = 0
+                for (const camera of cameras) {
+                    if (camera.main) main_qty++
+                    if (main_qty > 1) {
+                        ctx.status = 400
+                        return ctx.body = {
+                            message: 'Main Camera must be one'
+                        }
+                    }
+                }
+                if (!main_qty && cameras.length) cameras[0].main = true
+                // cameras = req_data.camera_ids.map((camera_id: number) => { return { id: camera_id } })
             }
             const cameraSetUpdated = await CameraSet.updateItem(req_data)
+            if (cameras) {
+                const camera_ids = []
+                for (const camera of cameras) {
+                    const camera_set_to_camera = await CameraSetToCamera.findOne({ where: { camera_set_id: req_data.id, camera_id: camera.id } })
+                    if (!camera_set_to_camera) {
+                        await CameraSetToCamera.addItem({ camera_set_id: req_data.id, camera_id: camera.id, main: camera.main } as CameraSetToCamera)
+                    } else {
+                        await CameraSetToCamera.updateItem({ id: camera_set_to_camera.id, main: camera.main } as CameraSetToCamera)
+                    }
+                    camera_ids.push(camera.id)
+                }
+                CameraSetToCamera.remove(await CameraSetToCamera.find({ where: { camera_set_id: req_data.id, camera_id: Not(In(camera_ids)) } }))
+            }
             ctx.body = cameraSetUpdated.new
         } catch (err) {
             console.log(65635, err)
@@ -164,9 +201,9 @@ export default class CameraSetController {
      */
 
     public static async getAll (ctx: DefaultContext) {
-        const { company } = ctx.user
-        console.log(company)
         try {
+            const user = ctx.user
+            const company = user.company ? user.company : null
             const cameraSets = await CameraSet.find({ company })
             ctx.body = cameraSets
         } catch (err) {
@@ -250,8 +287,11 @@ export default class CameraSetController {
             const { id } = ctx.params
             const user = ctx.user
             const cameraSet: any = await CameraSet.createQueryBuilder('camera_set')
+                .addSelect(['camera_set_camera.main'])
                 .leftJoinAndSelect('camera_set.access_points', 'access_point', 'access_point.delete_date is null')
-                .leftJoinAndSelect('camera_set.cameras', 'camera', 'camera.delete_date is null')
+                .leftJoin('camera_set.camera_set_cameras', 'camera_set_camera')
+                .leftJoinAndSelect('camera_set_camera.cameras', 'camera', 'camera.delete_date is null')
+                .leftJoinAndSelect('camera.camera_devices', 'camera_device', 'camera_device.delete_date is null')
                 .where(`camera_set.id = '${id}'`)
                 .andWhere(`camera_set.company = '${user.company ? user.company : null}'`)
                 .getOne()

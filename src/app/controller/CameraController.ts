@@ -178,7 +178,17 @@ export default class CameraController {
      */
     public static async get (ctx: DefaultContext) {
         try {
-            ctx.body = await Camera.getItem(+ctx.params.id)
+            const user = ctx.user
+            const camera: any = await Camera.createQueryBuilder('camera')
+                // .innerJoinAndSelect('camera.camera_devices', 'camera_device', 'camera_device.delete_date is null')
+                .where(`camera.id = '${+ctx.params.id}'`)
+                .andWhere(`camera.company = '${user.company ? user.company : null}'`)
+                .getOne()
+            if (!camera) {
+                ctx.status = 400
+                return ctx.body = { message: 'something went wrong' }
+            }
+            ctx.body = camera
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
@@ -332,7 +342,8 @@ export default class CameraController {
             const cameras = await Camera.createQueryBuilder('camera')
                 .select('camera.id')
                 .addSelect('camera.name')
-                .leftJoin('camera.camera_sets', 'camera_set', 'camera_set.delete_date is null')
+                .leftJoin('camera.camera_camera_sets', 'camera_camera_set')
+                .leftJoin('camera_camera_set.camera_sets', 'camera_set', 'camera_set.delete_date is null')
                 .where(`camera_set.access_point = '${id}'`)
                 .getMany()
             ctx.body = cameras

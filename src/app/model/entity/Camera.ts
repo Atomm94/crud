@@ -5,12 +5,13 @@ import {
     JoinColumn,
     DeleteDateColumn,
     Index,
-    ManyToMany
+    OneToMany
 } from 'typeorm'
 
 import { MainEntity } from './MainEntity'
 import { CameraDevice } from './CameraDevice'
 import { CameraSet } from './CameraSet'
+import { CameraSetToCamera } from './CameraSetToCamera'
 
 @Index('camera_device|service_id|is_delete', ['camera_device', 'service_id', 'is_delete'], { unique: true })
 
@@ -89,8 +90,11 @@ export class Camera extends MainEntity {
     @JoinColumn({ name: 'camera_device' })
     camera_devices: CameraDevice;
 
-    @ManyToMany(() => CameraSet, cameraSet => cameraSet.cameras)
-    camera_sets: CameraSet[];
+    // @ManyToMany(() => CameraSet, cameraSet => cameraSet.cameras)
+    // camera_sets: CameraSet[];
+
+    @OneToMany(type => CameraSetToCamera, cameraSetToCamera => cameraSetToCamera.cameras)
+    camera_camera_sets: CameraSetToCamera[];
 
     public static gettingActions: boolean = false
     public static gettingAttributes: boolean = false
@@ -200,16 +204,28 @@ export class Camera extends MainEntity {
                         // const camera_sets: any = await CameraSet.getAllItems({ where: { company: { '=': data.company } } })
 
                         const camera_sets: CameraSet[] = await CameraSet.createQueryBuilder('camera_set')
-                            .leftJoinAndSelect('camera_set.cameras', 'camera')
+                            .leftJoinAndSelect('camera_set.camera_set_cameras', 'camera_set_camera')
                             .where(`camera_set.company = '${data.company}'`)
                             .getMany()
                         for (const camera_set of camera_sets) {
-                            const _cameras = []
-                            for (const _camera of camera_set.cameras) {
-                                if (_camera.id !== data.id) _cameras.push({ id: _camera.id } as Camera)
+                            const camera_set_cameras = camera_set.camera_set_cameras
+                            for (let i = 0; i < camera_set_cameras.length; i++) {
+                                const camera_set_camera = camera_set_cameras[i]
+                                if (camera_set_camera.camera_id === data.id) {
+                                    CameraSetToCamera.remove(await CameraSetToCamera.find({ where: { camera_set_id: camera_set.id, camera_id: data.id } }))
+                                    camera_set_cameras.splice(i, 1)
+                                    if (camera_set_camera.main && camera_set_cameras.length) {
+                                        camera_set_cameras[0].main = true
+                                        camera_set_cameras[0].save()
+                                    }
+                                }
                             }
-                            camera_set.cameras = _cameras
-                            camera_set.save()
+                            // const _cameras = []
+                            // for (const _camera of camera_set.cameras) {
+                            //     if (_camera.id !== data.id) _cameras.push({ id: _camera.id } as Camera)
+                            // }
+                            // camera_set.cameras = _cameras
+                            // camera_set.save()
                         }
 
                         resolve({ message: 'success' })
