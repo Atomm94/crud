@@ -5,8 +5,8 @@ import { MainEntity } from './MainEntity'
 import { UniviewDeviceType } from '../../cameraIntegration/enums/univiewDeviceType'
 import { Camera } from './Camera'
 
-@Index('serial_number|company', ['serial_number', 'company'], { unique: true })
-@Index('domain|port|company', ['domain', 'port', 'company'], { unique: true })
+@Index('serial_number|company|is_delete', ['serial_number', 'company', 'is_delete'], { unique: true })
+@Index('domain|port|company|is_delete', ['domain', 'port', 'company', 'is_delete'], { unique: true })
 
 @Entity('camera_device')
 export class CameraDevice extends MainEntity {

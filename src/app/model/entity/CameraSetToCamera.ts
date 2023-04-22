@@ -1,14 +1,10 @@
-import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm'
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm'
 import { CameraSet } from './CameraSet'
 import { Camera } from './Camera'
 import { MainEntity } from './MainEntity'
 
 @Entity('camera_set_to_camera')
 export class CameraSetToCamera extends MainEntity {
-    @Index()
-    @PrimaryGeneratedColumn({ type: 'int', name: 'id' })
-    id: number;
-
     @Column('int', { name: 'camera_set_id', nullable: false })
     camera_set_id: number
 
