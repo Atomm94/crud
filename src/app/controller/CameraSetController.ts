@@ -346,7 +346,8 @@ export default class CameraSetController {
             const camera = await Camera.findOneOrFail({ where: { id, company: ctx.user.company } })
             const device = await CameraDevice.findOneOrFail({ where: { id: camera.camera_device } })
             const livestream_url = await new CameraIntegration().deviceFactory(device, cameraApiCodes.LIVESTREAM)
-            ctx.body = { url: livestream_url }
+            const rtsp_url = livestream_url.split('//')[0].concat(`//${device.username}:${device.password}@`).concat(livestream_url.split('//')[1])
+            ctx.body = { url: rtsp_url }
         } catch (err) {
             ctx.status = err.status || 400
             ctx.body = err

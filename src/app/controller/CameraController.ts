@@ -287,6 +287,7 @@ export default class CameraController {
                 where.hidden = { '=': myBool }
             }
             req_data.where = where
+            req_data.relations = ['camera_devices']
             ctx.body = await Camera.getAllItems(req_data)
         } catch (error) {
             ctx.status = error.status || 400

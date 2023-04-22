@@ -385,7 +385,7 @@ export default class CameraDeviceController {
         const { id } = ctx.params
         try {
             const device = await CameraDevice.findOneOrFail({ where: { id, company: ctx.user.company } })
-            const livestream_url = await new CameraIntegration().deviceFactory(device, cameraApiCodes.CAMERASLIST)
+            const livestream_url = await new CameraIntegration().deviceFactory(device, cameraApiCodes.LIVESTREAM)
             ctx.body = { url: livestream_url }
         } catch (err) {
             ctx.status = err.status || 400
