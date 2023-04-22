@@ -384,8 +384,15 @@ export default class CameraDeviceController {
     public static async getLivestream (ctx: DefaultContext) {
         const { id } = ctx.params
         try {
-            const device = await CameraDevice.findOneOrFail({ where: { id, company: ctx.user.company } })
-            const livestream_url = await new CameraIntegration().deviceFactory(device, cameraApiCodes.LIVESTREAM)
+            const camera = await Camera.findOneOrFail({ where: { id, company: ctx.user.company } })
+            if (camera.status !== 1) {
+                ctx.status = 400
+                return ctx.body = {
+                    message: 'Camera is Inactive'
+                }
+            }
+            const device = await CameraDevice.findOneOrFail({ where: { id: camera.camera_device } })
+            const livestream_url = await new CameraIntegration().deviceFactory(device, cameraApiCodes.LIVESTREAM, camera.service_id)
             ctx.body = { url: livestream_url }
         } catch (err) {
             ctx.status = err.status || 400
@@ -543,6 +550,70 @@ export default class CameraDeviceController {
                 message: 'Test failed',
                 data: err.message
             }
+        }
+        return ctx.body
+    }
+
+    /**
+     *
+     * @swagger
+     *  /camera-device/playbackstream/{id}:
+     *      get:
+     *          tags:
+     *              - Camera-device
+     *          summary: Returns a camera device by id.
+     *          consumes:
+     *              - application/json
+     *          parameters:
+     *            - name: id
+     *              in: path
+     *              required: true
+     *              description: Parameter description
+     *              schema:
+     *                  type: integer
+     *                  format: int64
+     *                  minimum: 1
+     *            - in: header
+     *              name: Authorization
+     *              required: true
+     *              description: Authentication token
+     *              schema:
+     *                type: string
+     *          responses:
+     *              '200':
+     *                  description: Camera device object
+     *              '400':
+     *                  description: Some server error with description message
+     */
+
+    public static async getPlaybackStream (ctx: DefaultContext) {
+        try {
+            const { id } = ctx.params
+            const time_begin = ctx.query.begin
+            const time_end = ctx.query.end
+            let playbackstream_url
+            const camera = await Camera.findOneOrFail({ where: { id, company: ctx.user.company } })
+            if (camera.status !== 1) {
+                ctx.status = 400
+                return ctx.body = {
+                    message: 'Camera is Inactive'
+                }
+            }
+            const device = await CameraDevice.findOneOrFail({ where: { id: camera.camera_device } })
+            const playbackstream_count = await new CameraIntegration().deviceFactory(device, cameraApiCodes.PLAYBACKSTREAMCOUNT, camera.service_id, time_begin, time_end)
+            if (playbackstream_count) {
+                const rtsp_url = await new CameraIntegration().deviceFactory(device, cameraApiCodes.PLAYBACKSTREAM, camera.service_id, time_begin, time_end)
+                playbackstream_url = rtsp_url.split('://')[0].concat(`://${device.username}:${device.password}@`).concat(rtsp_url.split('://')[1])
+            } else {
+                ctx.status = 400
+                return ctx.body = {
+                    message: 'There are no streams'
+                }
+            }
+            ctx.body = { url: playbackstream_url }
+        } catch (err) {
+            ctx.status = err.status || 400
+            ctx.body = err
         }
         return ctx.body
     }

@@ -5,7 +5,7 @@ import { UniviewDeviceType } from './enums/univiewDeviceType'
 import { UniView } from './uniView/uniView.service'
 
 export class CameraIntegration {
-    public async deviceFactory (device: CameraDevice, api_code: cameraApiCodes, access_point?: number) {
+    public async deviceFactory (device: CameraDevice, api_code: cameraApiCodes, camera_id?: number, begin?: number, end?: number) {
         switch (device.camera_type) {
             case cameraType.UNIVIEW:
                 switch (api_code) {
@@ -14,9 +14,11 @@ export class CameraIntegration {
                     case cameraApiCodes.CAMERASLIST:
                         return await new UniView().getCameras(device)
                     case cameraApiCodes.LIVESTREAM:
-                        return await new UniView().getLiveStreamUrl(device.id)
+                        return await new UniView().getLiveStreamUrl(device.id, camera_id as number)
                     case cameraApiCodes.PLAYBACKSTREAM:
-                        return await new UniView().getPlaybackStreamUrl(access_point, device)
+                        return await new UniView().getPlaybackStreamUrl(camera_id, device.id, begin as number, end as number)
+                    case cameraApiCodes.PLAYBACKSTREAMCOUNT:
+                        return await new UniView().getPlaybackStreamCount(camera_id, device.id, begin as number, end as number)
                     default:
                         break
                 }

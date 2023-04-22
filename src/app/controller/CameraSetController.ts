@@ -344,9 +344,15 @@ export default class CameraSetController {
         const { id } = ctx.params
         try {
             const camera = await Camera.findOneOrFail({ where: { id, company: ctx.user.company } })
+            if (camera.status !== 1) {
+                ctx.status = 400
+                return ctx.body = {
+                    message: 'Camera is Inactive'
+                }
+            }
             const device = await CameraDevice.findOneOrFail({ where: { id: camera.camera_device } })
-            const livestream_url = await new CameraIntegration().deviceFactory(device, cameraApiCodes.LIVESTREAM)
-            const rtsp_url = livestream_url.split('//')[0].concat(`//${device.username}:${device.password}@`).concat(livestream_url.split('//')[1])
+            const livestream_url = await new CameraIntegration().deviceFactory(device, cameraApiCodes.LIVESTREAM, camera.service_id)
+            const rtsp_url = livestream_url.split('://')[0].concat(`://${device.username}:${device.password}@`).concat(livestream_url.split('://')[1])
             ctx.body = { url: rtsp_url }
         } catch (err) {
             ctx.status = err.status || 400

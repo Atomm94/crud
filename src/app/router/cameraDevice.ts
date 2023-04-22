@@ -10,5 +10,6 @@ export default router
     .delete('CameraDevice-destroyItem', 'camera-device/:id', checkRole(), CameraDeviceController.destroy)
     .get('CameraDevice-getAllItems', 'camera-device', checkRole(), CameraDeviceController.getAll)
     .get('CameraDevice-getItem', 'camera-device/livestream/:id', checkRole(), CameraDeviceController.getLivestream)
+    .get('CameraDevice-getItem', 'camera-device/playbackstream/:id', checkRole(), CameraDeviceController.getPlaybackStream)
     .post('CameraDevice-getItem', 'camera-device/test', checkRole(), CameraDeviceController.testDevice)
     .get('CameraDevice-getItem', 'camera-device/:id', checkRole(), CameraDeviceController.get)

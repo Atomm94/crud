@@ -3,4 +3,5 @@ export enum cameraApiCodes {
     LIVESTREAM = 'livestream',
     CAMERASLIST = 'cameraslist',
     PLAYBACKSTREAM = 'playbackstream',
+    PLAYBACKSTREAMCOUNT = 'playbackstreamcount'
 }
