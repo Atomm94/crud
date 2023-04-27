@@ -52,7 +52,6 @@ export class UniView {
         const url = `${base_url}/LAPI/V1.0/Channels/${camera_id}/Media/Video/Streams/${1}/Records?Begin=${begin}&End=${end}`
 
         const playback_stream: any = await getRequestWIthDigestAuth(url, device)
-        console.log('🚀 ~ file: uniView.service.ts:56 ~ UniView ~ getPlaybackStreamCount ~ playback_stream:', playback_stream)
         return JSON.parse(playback_stream).Response.Data.Nums
     }
 
