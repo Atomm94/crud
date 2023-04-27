@@ -35,10 +35,9 @@ export class UniView {
         } else if (device.connection_type === cameraDeviceConnType.CLOUD) {
             base_url = device.serial_number as string
         }
-        const url = `${base_url}/LAPI/V1.0/Channels/${camera_id}/Media/Video/Streams/${0}/LiveStreamURL?TransType=${transType}&TransProtocol=${transProtocol}`
+        const url = `${base_url}/LAPI/V1.0/Channels/${camera_id}/Media/Video/Streams/${1}/LiveStreamURL?TransType=${transType}&TransProtocol=${transProtocol}`
 
         const data: any = JSON.parse(await getRequestWIthDigestAuth(url, device))
-
         return data.Response.Data.URL
     }
 
@@ -50,7 +49,7 @@ export class UniView {
         } else if (device.connection_type === cameraDeviceConnType.CLOUD) {
             base_url = device.serial_number as string
         }
-        const url = `${base_url}/LAPI/V1.0/Channels/${camera_id}/Media/Video/Streams/${0}/Records?Begin=${begin}&End=${end}`
+        const url = `${base_url}/LAPI/V1.0/Channels/${camera_id}/Media/Video/Streams/${1}/Records?Begin=${begin}&End=${end}`
 
         const playback_stream: any = await getRequestWIthDigestAuth(url, device)
         console.log('🚀 ~ file: uniView.service.ts:56 ~ UniView ~ getPlaybackStreamCount ~ playback_stream:', playback_stream)
@@ -65,7 +64,7 @@ export class UniView {
         } else if (device.connection_type === cameraDeviceConnType.CLOUD) {
             base_url = device.serial_number as string
         }
-        const url = `${base_url}/LAPI/V1.0/Channels/${camera_id}/Media/Video/Streams/RecordURL?Begin=${begin}&End=${end}`
+        const url = `${base_url}/LAPI/V1.0/Channels/${camera_id}/Media/Video/Streams/${1}/RecordURL?Begin=${begin}&End=${end}`
         const data: any = JSON.parse(await getRequestWIthDigestAuth(url, device))
 
         return data.Response.Data.URL
