@@ -211,41 +211,46 @@ export default class CronJob {
                 const obj_cameras: any = {}
                 camera_device.cameras.map((camera) => { obj_cameras[camera.service_id] = camera })
                 try {
-                    const cameraList = await new CameraIntegration().deviceFactory(camera_device, cameraApiCodes.CAMERASLIST)
-                    const data = cameraList.Response.Data.DetailInfos
-                    for (const _camera of data) {
-                        const save_data: any = {
-                            service_id: _camera.ID as number,
-                            service_name: _camera.Name,
-                            channel_type: _camera.ChannelType,
-                            status: _camera.Status,
-                            stream_nums: _camera.StreamNums,
-                            device_type: _camera.DeviceType,
-                            allow_distribution: _camera.AllowDistribution,
-                            add_type: _camera.AddType,
-                            access_protocol: _camera.AccessProtocol,
-                            off_reason: _camera.OffReason,
-                            remote_index: _camera.RemoteIndex,
-                            manufacturer: _camera.Manufacturer,
-                            device_model: _camera.DeviceModel,
-                            gbid: _camera.GBID,
-                            address_info: _camera.AddressInfo,
-                            is_poe_port: _camera.IsPoEPort,
-                            poe_status: _camera.PoEStatus,
-                            camera_device: camera_device.id,
-                            company: camera_device.company
-                        }
-                        if (!obj_cameras[_camera.ID]) {
-                            await Camera.addItem(save_data as Camera)
-                        } else {
-                            save_data.id = obj_cameras[_camera.ID].id
-                            await Camera.updateItem(save_data as Camera)
-                            delete obj_cameras[_camera.ID]
-                        }
-                    }
-                    for (const camera_service_id in obj_cameras) {
-                        await Camera.destroyItem(obj_cameras[camera_service_id])
-                    }
+                    new CameraIntegration().deviceFactory(camera_device, cameraApiCodes.CAMERASLIST)
+                        .then((cameraList: any) => {
+                            const data = cameraList.Response.Data.DetailInfos
+                            for (const _camera of data) {
+                                const save_data: any = {
+                                    service_id: _camera.ID as number,
+                                    service_name: _camera.Name,
+                                    channel_type: _camera.ChannelType,
+                                    status: _camera.Status,
+                                    stream_nums: _camera.StreamNums,
+                                    device_type: _camera.DeviceType,
+                                    allow_distribution: _camera.AllowDistribution,
+                                    add_type: _camera.AddType,
+                                    access_protocol: _camera.AccessProtocol,
+                                    off_reason: _camera.OffReason,
+                                    remote_index: _camera.RemoteIndex,
+                                    manufacturer: _camera.Manufacturer,
+                                    device_model: _camera.DeviceModel,
+                                    gbid: _camera.GBID,
+                                    address_info: _camera.AddressInfo,
+                                    is_poe_port: _camera.IsPoEPort,
+                                    poe_status: _camera.PoEStatus,
+                                    camera_device: camera_device.id,
+                                    company: camera_device.company
+                                }
+                                if (!obj_cameras[_camera.ID]) {
+                                    Camera.addItem(save_data as Camera)
+                                } else {
+                                    save_data.id = obj_cameras[_camera.ID].id
+                                    Camera.updateItem(save_data as Camera)
+                                    delete obj_cameras[_camera.ID]
+                                }
+                            }
+                            for (const camera_service_id in obj_cameras) {
+                                Camera.destroyItem(obj_cameras[camera_service_id])
+                            }
+                        })
+                        .catch((error: any) => {
+                            console.log('error updateCameraDeviceCameras device', JSON.stringify(camera_device), error)
+                        })
                 } catch (error) {
                     console.log('error updateCameraDeviceCameras device', JSON.stringify(camera_device), error)
                 }
