@@ -79,27 +79,46 @@ export default class CronJob {
                 if (acu_status.timestamp > (new Date().getTime() - acu_cloud_status_change_time * 60 * 1000)) {
                     cloud_status = acuCloudStatus.ONLINE
                 }
-                acu.cloud_status = cloud_status
-                acu.fw_version = acu_status.fw_version
-                acu.rev = acu_status.rev
-                acu.api_ver = acu_status.api_ver
-                acu.acu_comment = acu_status.acu_comment
 
                 let network: any = {}
                 if (acu.network) {
                     network = JSON.parse(acu.network)
                 }
-                network.connection_type = acu_status.connection_type
-                network.ip_address = acu_status.ip_address
-                network.gateway = acu_status.gateway
-                network.subnet_mask = acu_status.subnet_mask
-                network.dns_server = acu_status.dns_server
-                network.fixed = acu_status.connection_mod === acuConnectionMode.FIXED
-                network.dhcp = !network.fixed
-                network.ssid = acu_status.ssid
-                acu.network = JSON.stringify(network)
 
-                Acu.save(acu)
+                if (acu.cloud_status !== cloud_status ||
+                    acu.fw_version !== acu_status.fw_version ||
+                    acu.rev !== acu_status.rev ||
+                    acu.api_ver !== acu_status.api_ver ||
+                    acu.acu_comment !== acu_status.acu_comment ||
+                    acu.fw_version !== acu_status.fw_version ||
+                    acu.fw_version !== acu_status.fw_version ||
+                    network.connection_type !== acu_status.connection_type ||
+                    network.ip_address !== acu_status.ip_address ||
+                    network.gateway !== acu_status.gateway ||
+                    network.subnet_mask !== acu_status.subnet_mask ||
+                    network.dns_server !== acu_status.dns_server ||
+                    network.fixed !== (acu_status.connection_mod === acuConnectionMode.FIXED) ||
+                    network.dhcp !== !network.fixed ||
+                    network.ssid !== acu_status.ssid
+                ) {
+                    acu.cloud_status = cloud_status
+                    acu.fw_version = acu_status.fw_version
+                    acu.rev = acu_status.rev
+                    acu.api_ver = acu_status.api_ver
+                    acu.acu_comment = acu_status.acu_comment
+
+                    network.connection_type = acu_status.connection_type
+                    network.ip_address = acu_status.ip_address
+                    network.gateway = acu_status.gateway
+                    network.subnet_mask = acu_status.subnet_mask
+                    network.dns_server = acu_status.dns_server
+                    network.fixed = acu_status.connection_mod === acuConnectionMode.FIXED
+                    network.dhcp = !network.fixed
+                    network.ssid = acu_status.ssid
+                    acu.network = JSON.stringify(network)
+
+                    Acu.save(acu)
+                }
             }
         }).start()
     }
