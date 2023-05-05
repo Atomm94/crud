@@ -455,7 +455,6 @@ export default class CardholderGroupController {
                 }
             }
         } catch (error) {
-            console.log('🚀 ~ file: CardholderGroupController.ts ~ line 445 ~ CardholderGroupController ~ destroy ~ error', error)
             ctx.status = error.status || 400
             ctx.body = error
         }

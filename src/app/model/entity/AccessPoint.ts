@@ -4,7 +4,8 @@ import {
     ManyToOne,
     OneToMany,
     JoinColumn,
-    DeleteDateColumn
+    DeleteDateColumn,
+    Index
 } from 'typeorm'
 
 import { MainEntity } from './MainEntity'
@@ -28,6 +29,7 @@ import { resourceKeys } from '../../enums/resourceKeys.enum'
 import { CameraSet } from './CameraSet'
 
 @Entity('access_point')
+@Index(['id', 'company'])
 export class AccessPoint extends MainEntity {
     @Column('varchar', { name: 'name', nullable: false })
     name: string
@@ -112,7 +114,7 @@ export class AccessPoint extends MainEntity {
     access_point_statuses: AccessPointStatus[];
 
     @OneToMany(() => CameraSet, cameraSet => cameraSet.access_points)
-    cameraSets: CameraSet[]
+    camera_sets: CameraSet[]
 
     public static resource: boolean = true
     public static fields_that_used_in_sending: Array<string> = ['resources']
@@ -255,6 +257,12 @@ export class AccessPoint extends MainEntity {
                         }
 
                         AccessPointStatus.destroyItem({ access_point: data.id })
+
+                        const camera_sets: any = await CameraSet.getAllItems({ where: { access_point: { '=': data.id } } })
+                        for (const camera_set of camera_sets) {
+                            CameraSet.destroyItem({ id: camera_set.id, company: camera_set.company })
+                        }
+
                         resolve({ message: 'success' })
                     })
                     .catch((error: any) => {

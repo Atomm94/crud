@@ -17,6 +17,10 @@ import { acuConnectionMode } from '../enums/acuConnectionMode.enum'
 import { guestKeyType } from '../enums/guestKeyType.enum'
 import { guestPeriod } from '../enums/guestPeriod.enum'
 import moment from 'moment'
+import { CameraDevice } from '../model/entity/CameraDevice'
+import { CameraIntegration } from '../cameraIntegration/deviceFactory'
+import { cameraApiCodes } from '../cameraIntegration/enums/cameraApiCodes.enum'
+import { Camera } from '../model/entity/Camera'
 
 const acu_cloud_status_change_time = process.env.ACU_CLOUD_STATUS_CHANGE_TIME ? Number(process.env.ACU_CLOUD_STATUS_CHANGE_TIME) : 1 // in minutes
 const delete_old_tokens_interval = process.env.DELETE_OLD_TOKENS_INTERVAL ? process.env.DELETE_OLD_TOKENS_INTERVAL : '0 0 0 * * *'
@@ -24,6 +28,7 @@ const delete_old_tokens_interval = process.env.DELETE_OLD_TOKENS_INTERVAL ? proc
 const update_acucloud_status_interval = process.env.UPDATE_ACUCLOUD_STATUS_INTERVAL ? process.env.UPDATE_ACUCLOUD_STATUS_INTERVAL : '0 */10 * * * *'
 const update_accesspoint_door_state_interval = process.env.UPDATE_ACCESSPOINT_DOOR_STATE_INTERVAL ? process.env.UPDATE_ACCESSPOINT_DOOR_STATE_INTERVAL : '0 */10 * * * *'
 const send_set_heart_bit_interval = process.env.SEND_SET_HEART_BIT_INTERVAL ? process.env.SEND_SET_HEART_BIT_INTERVAL : '0 0 0 * * *'
+const update_camera_device_cameras_interval = process.env.UPDATE_CAMERA_DEVICE_CAMERAS_INTERVAL ? process.env.UPDATE_CAMERA_DEVICE_CAMERAS_INTERVAL : '0 */10 * * * *'
 
 export default class CronJob {
     public static cronObj: any = {}
@@ -38,6 +43,7 @@ export default class CronJob {
         this.sendSetHeartBit(send_set_heart_bit_interval)
         // this.testZoho('0 0 * * * *')
         this.initGuestKeys()
+        this.updateCameraDeviceCameras(update_camera_device_cameras_interval)
     }
 
     public static deleteOldTokens (interval: string): void {
@@ -213,5 +219,61 @@ export default class CronJob {
                 delete this.guests[guest.id]
             }
         }
+    }
+
+    public static async updateCameraDeviceCameras (interval: any) {
+        new Cron.CronJob(interval, async () => {
+            const camera_devices = await CameraDevice.createQueryBuilder('camera_device')
+                .leftJoinAndSelect('camera_device.cameras', 'camera', 'camera.delete_date is null')
+                .getMany()
+            for (const camera_device of camera_devices) {
+                const obj_cameras: any = {}
+                camera_device.cameras.map((camera) => { obj_cameras[camera.service_id] = camera })
+                try {
+                    new CameraIntegration().deviceFactory(camera_device, cameraApiCodes.CAMERASLIST)
+                        .then((cameraList: any) => {
+                            const data = cameraList.Response.Data.DetailInfos
+                            for (const _camera of data) {
+                                const save_data: any = {
+                                    service_id: _camera.ID as number,
+                                    service_name: _camera.Name,
+                                    channel_type: _camera.ChannelType,
+                                    status: _camera.Status,
+                                    stream_nums: _camera.StreamNums,
+                                    device_type: _camera.DeviceType,
+                                    allow_distribution: _camera.AllowDistribution,
+                                    add_type: _camera.AddType,
+                                    access_protocol: _camera.AccessProtocol,
+                                    off_reason: _camera.OffReason,
+                                    remote_index: _camera.RemoteIndex,
+                                    manufacturer: _camera.Manufacturer,
+                                    device_model: _camera.DeviceModel,
+                                    gbid: _camera.GBID,
+                                    address_info: _camera.AddressInfo,
+                                    is_poe_port: _camera.IsPoEPort,
+                                    poe_status: _camera.PoEStatus,
+                                    camera_device: camera_device.id,
+                                    company: camera_device.company
+                                }
+                                if (!obj_cameras[_camera.ID]) {
+                                    Camera.addItem(save_data as Camera)
+                                } else {
+                                    save_data.id = obj_cameras[_camera.ID].id
+                                    Camera.updateItem(save_data as Camera)
+                                    delete obj_cameras[_camera.ID]
+                                }
+                            }
+                            for (const camera_service_id in obj_cameras) {
+                                Camera.destroyItem(obj_cameras[camera_service_id])
+                            }
+                        })
+                        .catch((error: any) => {
+                            console.log('error updateCameraDeviceCameras device', JSON.stringify(camera_device), error)
+                        })
+                } catch (error) {
+                    console.log('error updateCameraDeviceCameras device', JSON.stringify(camera_device), error)
+                }
+            }
+        }).start()
     }
 }

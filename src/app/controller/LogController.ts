@@ -107,7 +107,15 @@ export default class LogController {
     public static createEventFromDevice (message: IMqttCrudMessaging) {
         const message_data = message.info
         const acu: any = Acu.findOneOrFail({ serial_number: message.device_id, company: message.company })
-        const access_point = AccessPoint.findOne({ where: { id: message_data.Ctp_idx, company: message.company }, relations: ['access_point_zones'] })
+        // const access_point = AccessPoint.findOne({ where: { id: message_data.Ctp_idx, company: message.company }, relations: ['access_point_zones'] })
+        const access_point = AccessPoint.createQueryBuilder('access_point')
+            .leftJoinAndSelect('access_point.access_point_zones', 'access_point_zone', 'access_point_zone.delete_date is null')
+            .leftJoinAndSelect('access_point.camera_sets', 'camera_set', 'camera_set.delete_date is null')
+            .leftJoinAndSelect('camera_set.camera_set_cameras', 'camera_set_camera')
+            .leftJoinAndSelect('camera_set_camera.cameras', 'camera', 'camera.delete_date is null')
+            .where(`access_point.id = '${message_data.Ctp_idx}'`)
+            .andWhere(`access_point.company = '${message.company}'`)
+            .getOne()
         const credential = Credential.findOne({
             where: { id: message_data.Key_id, company: message.company },
             relations: ['cardholders', 'cardholders.access_rights', 'cardholders.car_infos', 'cardholders.limitations', 'cardholders.cardholder_groups']
@@ -153,10 +161,27 @@ export default class LogController {
                     }
                     if (access_point) {
                         eventData.data.access_point = access_point.id
-                        eventData.data.access_points = _.pick(access_point, ['id', 'name', 'access_point_zone', 'access_point_zones'])
-                        if (eventData.data.access_points.access_point_zones) {
-                            eventData.data.access_points.access_point_zones = _.pick(eventData.data.access_points.access_point_zones, ['id', 'name'])
+                        const access_point_data: any = _.pick(access_point, ['id', 'name', 'access_point_zone', 'access_point_zones'])
+                        if (access_point_data.access_point_zones) {
+                            access_point_data.access_point_zones = _.pick(access_point_data.access_point_zones, ['id', 'name'])
                         }
+                        if (access_point.camera_sets && access_point.camera_sets.length && message_data.time) {
+                            const camera_set = access_point.camera_sets[0]
+                            const cameras = []
+                            for (const camera_set_camera of camera_set.camera_set_cameras) {
+                                if (camera_set_camera.cameras) {
+                                    cameras.push({ id: camera_set_camera.cameras.id, main: camera_set_camera.main })
+                                }
+                            }
+                            access_point_data.camera_set = {
+                                before_event_tms: message_data.time - camera_set.before_event,
+                                after_event_tms: message_data.time + camera_set.after_event,
+                                cameras
+                            }
+                        } else {
+                            access_point_data.camera_set = null
+                        }
+                        eventData.data.access_points = access_point_data
                     }
                     if ('gmt' in eventData.data) {
                         if (eventData.data.access_points) {

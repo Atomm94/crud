@@ -26,6 +26,7 @@ import autoTaskSchedule from './autoTaskSchedule'
 import dashboard from './dashboard'
 import notification from './notification'
 import zoho from './zoho'
+import camera from './camera'
 
 const router = new Router()
 
@@ -55,6 +56,7 @@ router.use('/', notification.routes(), notification.allowedMethods())
 router.use('/', zoho.routes(), zoho.allowedMethods())
 router.use('/', cameraDevice.routes(), cameraDevice.allowedMethods())
 router.use('/', cameraSet.routes(), cameraSet.allowedMethods())
+router.use('/', camera.routes(), camera.allowedMethods())
 
 export {
     router

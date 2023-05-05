@@ -1,7 +1,12 @@
 import { Company } from './Company'
-import { Column, DeleteDateColumn, Entity, JoinColumn, ManyToOne } from 'typeorm'
-import { cameraDeviceConnType } from '../../enums/camerDevice.enum'
+import { Column, DeleteDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, Index } from 'typeorm'
+import { cameraDeviceConnType } from '../../cameraIntegration/enums/camerDevice.enum'
 import { MainEntity } from './MainEntity'
+import { UniviewDeviceType } from '../../cameraIntegration/enums/univiewDeviceType'
+import { Camera } from './Camera'
+
+@Index('serial_number|company|is_delete', ['serial_number', 'company', 'is_delete'], { unique: true })
+@Index('domain|port|company|is_delete', ['domain', 'port', 'company', 'is_delete'], { unique: true })
 
 @Entity('camera_device')
 export class CameraDevice extends MainEntity {
@@ -10,6 +15,9 @@ export class CameraDevice extends MainEntity {
 
     @Column('enum', { name: 'connection_type', nullable: false, enum: cameraDeviceConnType })
     connection_type: string
+
+    @Column('enum', { name: 'device_type', nullable: false, enum: UniviewDeviceType })
+    device_type: string
 
     @Column('varchar', { name: 'serial_number', nullable: true })
     serial_number: string | null
@@ -29,32 +37,35 @@ export class CameraDevice extends MainEntity {
     @Column('int', { name: 'company', nullable: false })
     company: number
 
+    @Column('varchar', { name: 'is_delete', default: 0 })
+    is_delete: string
+
     @DeleteDateColumn({ type: 'timestamp', name: 'delete_date' })
     public deleteDate: Date
 
-    @Column('longtext', { name: 'cameras', nullable: true })
-    cameras: string
+    @Column('varchar', { name: 'camera_type', default: 'uniview' })
+    camera_type: string
 
     @ManyToOne(() => Company, company => company.camera_devices)
     @JoinColumn({ name: 'company' })
     companies: Company
 
+    @OneToMany(type => Camera, camera => camera.camera_devices)
+    cameras: Camera[];
+
     public static async addItem (data: CameraDevice): Promise<CameraDevice> {
         const cameraDevice = new CameraDevice()
-
         cameraDevice.name = data.name
         cameraDevice.company = data.company
         cameraDevice.username = data.username
         cameraDevice.password = data.password
         cameraDevice.connection_type = data.connection_type
+        cameraDevice.camera_type = data.camera_type
+        cameraDevice.device_type = data.device_type
 
         if ('serial_number' in data) cameraDevice.serial_number = data.serial_number
         if ('domain' in data) cameraDevice.domain = data.domain
         if ('port' in data) cameraDevice.port = data.port
-        if ('cameras' in data) {
-            const cameras = JSON.stringify(data.cameras)
-            cameraDevice.cameras = cameras
-        }
 
         return new Promise((resolve, reject) => {
             this.save(cameraDevice)
@@ -67,30 +78,25 @@ export class CameraDevice extends MainEntity {
         })
     }
 
-    public static async updateItem (data: CameraDevice): Promise<{ new: CameraDevice, old: CameraDevice}> {
+    public static async updateItem (data: CameraDevice): Promise<{ new: CameraDevice, old: CameraDevice }> {
         const cameraDevice = await this.findOneOrFail({ id: data.id })
         const oldData = Object.assign({}, cameraDevice)
 
-        cameraDevice.name = data.name
-        cameraDevice.company = data.company
-        cameraDevice.username = data.username
-        cameraDevice.password = data.password
-        cameraDevice.connection_type = data.connection_type
+        if ('name' in data) cameraDevice.name = data.name
+        if ('username' in data) cameraDevice.username = data.username
+        if ('password' in data) cameraDevice.password = data.password
 
         if ('serial_number' in data) cameraDevice.serial_number = data.serial_number
         if ('domain' in data) cameraDevice.domain = data.domain
         if ('port' in data) cameraDevice.port = data.port
-        if ('cameras' in data) {
-            const cameras = JSON.stringify(data.cameras)
-            cameraDevice.cameras = cameras
-        }
+        if ('device_type' in data) cameraDevice.device_type = data.device_type
 
         return new Promise((resolve, reject) => {
             this.save(cameraDevice)
                 .then((item: CameraDevice) => {
                     resolve({
                         old: oldData,
-                        new: cameraDevice
+                        new: item
                     })
                 })
                 .catch((error: any) => {
@@ -112,17 +118,32 @@ export class CameraDevice extends MainEntity {
         })
     }
 
-    public static async destroyItem (id: number) {
-        const itemId: number = id
+    public static async destroyItem (data: any) {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
-            this.remove(await this.findOneOrFail(itemId))
-                .then(() => {
-                    resolve({ message: 'success' })
-                })
-                .catch((error: any) => {
-                    reject(error)
-                })
+            const where: any = { id: data.id, company: data.company }
+            this.findOneOrFail(where).then((data: any) => {
+                this.softRemove(data)
+                    .then(async () => {
+                        const camera_device_data: any = await this.createQueryBuilder('camera')
+                            .where('id = :id', { id: data.id })
+                            .withDeleted()
+                            .getOne()
+                        camera_device_data.is_delete = (new Date()).getTime()
+                        await this.save(camera_device_data)
+
+                        const cameras: any = await Camera.getAllItems({ where: { camera_device: { '=': data.id } } })
+                        for (const camera of cameras) {
+                            Camera.destroyItem({ id: camera.id, company: camera.company })
+                        }
+                        resolve({ message: 'success' })
+                    })
+                    .catch((error: any) => {
+                        reject(error)
+                    })
+            }).catch((error: any) => {
+                reject(error)
+            })
         })
     }
 
