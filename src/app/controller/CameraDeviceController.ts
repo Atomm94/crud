@@ -538,7 +538,7 @@ export default class CameraDeviceController {
             }
         }
         try {
-            device.type = cameraType.UNIVIEW
+            device.camera_type = cameraType.UNIVIEW
             await new CameraIntegration().deviceFactory(device, cameraApiCodes.TEST)
             ctx.status = 200
             ctx.body = {
