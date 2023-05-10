@@ -134,7 +134,7 @@ export class CameraDevice extends MainEntity {
 
                         const cameras: any = await Camera.getAllItems({ where: { camera_device: { '=': data.id } } })
                         for (const camera of cameras) {
-                            Camera.destroyItem({ id: camera.id, company: camera.company })
+                            await Camera.destroyItem({ id: camera.id, company: camera.company })
                         }
                         resolve({ message: 'success' })
                     })
