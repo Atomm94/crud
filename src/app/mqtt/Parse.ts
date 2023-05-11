@@ -365,7 +365,7 @@ export default class Parse {
                         }
                     }
                 }
-            })
+            }).catch(err => console.log('pingAck exception', err))
         } catch (error) {
             console.log('error pingack ', error)
         }
