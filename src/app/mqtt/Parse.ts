@@ -422,6 +422,7 @@ export default class Parse {
                 // when admin deleted this acu what we do ???
                 Acu.destroyItem(acuData)
                 new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.DELETE, `${Acu.name}/${acuData.name}`, { name: acuData.name })
+                new SendSocketMessage(socketChannels.ACU_DELETE, acuData, message.company, message.send_data.user)
             })
         }
     }
