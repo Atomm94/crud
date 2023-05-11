@@ -85,8 +85,8 @@ export default class Parse {
                 case OperatorType.REGISTRATION:
                     await this.deviceRegistration(message)
                     break
-                case OperatorType.CANCEL_REGISTRATION:
-                    await this.deviceCancelRegistration(message)
+                case OperatorType.CANCEL_REGISTRATION_ACK:
+                    await this.deviceCancelRegistrationAck(message)
                     break
                 case OperatorType.ACCEPT_ACK:
                     await this.deviceAcceptAck(message)
@@ -413,11 +413,16 @@ export default class Parse {
         }
     }
 
-    public static async deviceCancelRegistration (message: IMqttCrudMessaging) {
+    public static async deviceCancelRegistrationAck (message: IMqttCrudMessaging) {
         // console.log('deviceCancelRegistration', message)
         if (message.result.errorNo === 0) {
-            console.log('deviceCancelRegistration complete')
-        } else {
+            const device_id = message.device_id
+            const company = message.company
+            Acu.findOne({ serial_number: device_id, company: company }).then((acuData: Acu) => {
+                // when admin deleted this acu what we do ???
+                Acu.destroyItem(acuData)
+                new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.DELETE, `${Acu.name}/${acuData.name}`, { name: acuData.name })
+            })
         }
     }
 

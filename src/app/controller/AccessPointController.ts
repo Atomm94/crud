@@ -279,17 +279,17 @@ export default class AccessPointController {
             req_data.access_point = reader.access_points.id
             req_data.access_point_type = reader.access_points.type
 
-            logs_data.push({
-                event: logUserEvents.DELETE,
-                target: `${Reader.name}/${reader.access_points.acus.name}/${reader.access_points.name}/${readerTypes[reader.type]}`,
-                value: { type: readerTypes[reader.type] }
-            })
-            ctx.logsData = logs_data
             if (reader.access_points.acus.status === acuStatus.ACTIVE) {
                 RdController.delRd(location, reader.access_points.acus.serial_number, req_data, user, reader.access_points.acus.session_id)
                 ctx.body = { message: 'Delete pending' }
             } else if (reader.access_points.acus.status === acuStatus.NO_HARDWARE) {
                 ctx.body = await Reader.destroyItem(where)
+                logs_data.push({
+                    event: logUserEvents.DELETE,
+                    target: `${Reader.name}/${reader.access_points.acus.name}/${reader.access_points.name}/${readerTypes[reader.type]}`,
+                    value: { type: readerTypes[reader.type] }
+                })
+                ctx.logsData = logs_data
             } else {
                 ctx.status = 400
                 ctx.body = { message: 'You need to activate hardware' }

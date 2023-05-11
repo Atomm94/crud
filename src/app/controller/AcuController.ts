@@ -907,18 +907,20 @@ export default class AcuController {
             const req_data = ctx.request.body
             const user = ctx.user
             const where = { id: req_data.id, company: user.company ? user.company : null }
-            const logs_data = []
             const acu: Acu = await Acu.findOneOrFail(where)
-            const location = `${user.company_main}/${user.company}`
-            ctx.body = await Acu.destroyItem(where)
-            logs_data.push({
-                event: logUserEvents.DELETE,
-                target: `${Acu.name}/${acu.name}`,
-                value: { name: acu.name }
-            })
-            ctx.logsData = logs_data
             if (acu.status === acuStatus.ACTIVE || acu.status === acuStatus.PENDING) {
+                ctx.body = { message: 'Delete pending' }
+                const location = `${user.company_main}/${user.company}`
                 DeviceController.delDevice(OperatorType.CANCEL_REGISTRATION, location, acu.serial_number, acu, user, acu.session_id)
+            } else {
+                ctx.body = await Acu.destroyItem(where)
+                const logs_data = []
+                logs_data.push({
+                    event: logUserEvents.DELETE,
+                    target: `${Acu.name}/${acu.name}`,
+                    value: { name: acu.name }
+                })
+                ctx.logsData = logs_data
             }
         } catch (error) {
             ctx.status = error.status || 400
