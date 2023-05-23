@@ -106,7 +106,7 @@ export default class LogController {
 
     public static createEventFromDevice (message: IMqttCrudMessaging) {
         const message_data = message.info
-        const acu: any = Acu.findOneOrFail({ serial_number: message.device_id, company: message.company })
+        const acu: any = Acu.findOne({ serial_number: message.device_id, company: message.company })
         // const access_point = AccessPoint.findOne({ where: { id: message_data.Ctp_idx, company: message.company }, relations: ['access_point_zones'] })
         const access_point = AccessPoint.createQueryBuilder('access_point')
             .leftJoinAndSelect('access_point.access_point_zones', 'access_point_zone', 'access_point_zone.delete_date is null')

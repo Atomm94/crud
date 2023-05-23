@@ -166,7 +166,9 @@ export default class CameraSetController {
                     }
                     camera_ids.push(camera.id)
                 }
-                CameraSetToCamera.remove(await CameraSetToCamera.find({ where: { camera_set_id: req_data.id, camera_id: Not(In(camera_ids)) } }))
+                const remove_where: { [key: string]: any } = { camera_set_id: req_data.id }
+                if (camera_ids.length) remove_where.camera_id = Not(In(camera_ids))
+                await CameraSetToCamera.remove(await CameraSetToCamera.find({ where: remove_where }))
             }
             ctx.body = cameraSetUpdated.new
         } catch (err) {
