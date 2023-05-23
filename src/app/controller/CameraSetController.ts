@@ -39,6 +39,9 @@ export default class CameraSetController {
      *                  name:
      *                      type: string
      *                      example: mySet
+     *                  description:
+     *                      type: string
+     *                      example: mySet
      *                  before_event:
      *                      type: number
      *                      example: 5
@@ -99,6 +102,9 @@ export default class CameraSetController {
      *                      type: number
      *                      example: 1
      *                  name:
+     *                      type: string
+     *                      example: mySet
+     *                  description:
      *                      type: string
      *                      example: mySet
      *                  before_event:

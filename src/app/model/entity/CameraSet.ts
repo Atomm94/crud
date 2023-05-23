@@ -11,6 +11,9 @@ export class CameraSet extends MainEntity {
     @Column('varchar', { name: 'name', nullable: false })
     name: string
 
+    @Column('varchar', { name: 'description', nullable: true })
+    description: string
+
     @Column('int', { name: 'before_event', nullable: false, default: 5 })
     before_event: number
 
@@ -52,6 +55,7 @@ export class CameraSet extends MainEntity {
         cameraSet.after_event = data.after_event
         cameraSet.company = data.company
         cameraSet.access_point = data.access_point
+        if ('description' in data) cameraSet.description = data.description
 
         return new Promise((resolve, reject) => {
             this.save(cameraSet)
@@ -72,6 +76,8 @@ export class CameraSet extends MainEntity {
         if ('before_event' in data) cameraSet.before_event = data.before_event
         if ('after_event' in data) cameraSet.after_event = data.after_event
         if ('access_point' in data) cameraSet.access_point = data.access_point
+        if ('description' in data) cameraSet.description = data.description
+
         // if ('cameras' in data) cameraSet.cameras = data.cameras
 
         if (!cameraSet) return { status: 400, messsage: 'Item not found' }
