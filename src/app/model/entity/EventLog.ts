@@ -223,6 +223,9 @@ export class EventLog extends BaseClass {
             notification.access_points = event.data.access_points
             new SendSocketMessage(socketChannels.NOTIFICATION, notification, event.data.company)
         }
+        if (event.data.event_type === eventTypes.CARDHOLDER_ALARM) {
+            new SendSocketMessage(socketChannels.DASHBOARD_MONITOR, event.data, event.data.company)
+        }
 
         if (event.data.event_type === eventTypes.CARDHOLDER) {
             new SendSocketMessage(socketChannels.DASHBOARD_MONITOR, event.data, event.data.company)
