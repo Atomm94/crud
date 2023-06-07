@@ -28,6 +28,7 @@ import { cloneDeep } from 'lodash'
 import { Brackets } from 'typeorm'
 import CronJob from '../cron'
 import { guestGetDatesFromTimestamps } from '../functions/guest_get_dates_from_timestamps'
+import { minusResource } from '../functions/minusResource'
 const xlsxj = require('xlsx-to-json')
 
 export default class CardholderController {
@@ -2799,14 +2800,16 @@ export default class CardholderController {
                 .andWhere(`cardholder.company = '${company}'`)
                 .getMany()
 
-            const save = []
-            for (const cardholder of cardholders) {
-                if (cardholder.status !== req_data.status) {
-                    cardholder.status = req_data.status
-                    save.push(Cardholder.destroyItem(cardholder))
-                }
-            }
-            await Promise.all(save)
+            // const save = []
+            // for (const cardholder of cardholders) {
+            //     if (cardholder.status !== req_data.status) {
+            //         cardholder.status = req_data.status
+            //         save.push(Cardholder.destroyItem(cardholder))
+            //     }
+            // }
+
+            // await Promise.all(save)
+            this.destroyItemsBulk(cardholders)
             if (cardholders.length) {
                 CardKeyController.dellKeys(location, company, cardholders, auth_user)
             }
@@ -2899,5 +2902,41 @@ export default class CardholderController {
         })
         ctx.body = { success: true }
         return ctx.body
+    }
+
+    public static async destroyItemsBulk (data: any) {
+        // eslint-disable-next-line no-async-promise-executor
+        return new Promise(async (resolve, reject) => {
+            Cardholder.softRemove(data)
+                .then(async () => {
+                    for (const cardholder of data) {
+                        minusResource(cardholder.name, cardholder.company)
+
+                        const cardholder_data: any = await Cardholder.createQueryBuilder('cardholder')
+                            .where('id = :id', { id: data.id })
+                            .withDeleted()
+                            .getOne()
+
+                        cardholder_data.is_delete = (new Date()).getTime()
+                        await Cardholder.save(cardholder_data)
+
+                        await Credential.softRemove(data.credentials)
+
+                        if (cardholder_data.guest) {
+                            AccessRight.destroyItem({ id: cardholder_data.access_right, company: cardholder_data.company })
+                            const access_rules = await AccessRule.find({ where: { access_right: cardholder_data.access_right } })
+                            for (const access_rule of access_rules) {
+                                AccessRule.destroyItem({ id: access_rule.id, company: cardholder_data.company })
+                                const schedule = await Schedule.findOne({ where: { id: access_rule.schedule } })
+                                if (schedule) Schedule.destroyItem({ id: access_rule.schedule, company: cardholder_data.company })
+                            }
+                        }
+                    }
+                    resolve({ message: 'success' })
+                })
+                .catch((error: any) => {
+                    reject(error)
+                })
+        })
     }
 }
