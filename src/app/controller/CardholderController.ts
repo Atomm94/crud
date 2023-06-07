@@ -30,6 +30,7 @@ import CronJob from '../cron'
 import { guestGetDatesFromTimestamps } from '../functions/guest_get_dates_from_timestamps'
 import { minusResource } from '../functions/minusResource'
 const xlsxj = require('xlsx-to-json')
+var chunk = require('chunk')
 
 export default class CardholderController {
     /**
@@ -2795,6 +2796,8 @@ export default class CardholderController {
             // const cardholders = await Cardholder.getAllItems({ where: { id: { in: req_data.ids }, company: { '=': company } } })
 
             const cardholders = await Cardholder.createQueryBuilder('cardholder')
+                .select('cardholder.id')
+                .addSelect('cardholder.company')
                 .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null and credential.code is not null')
                 .where('cardholder.id in (:...ids)', { ids: req_data.ids })
                 .andWhere(`cardholder.company = '${company}'`)
@@ -2809,7 +2812,12 @@ export default class CardholderController {
             // }
 
             // await Promise.all(save)
-            this.destroyItemsBulk(cardholders)
+            const save = []
+            const chs = chunk(cardholders, 500)
+            for (const ch of chs) {
+                save.push(CardholderController.destroyItemsBulk(ch))
+            }
+            await Promise.all(save)
             if (cardholders.length) {
                 CardKeyController.dellKeys(location, company, cardholders, auth_user)
             }
@@ -2910,17 +2918,17 @@ export default class CardholderController {
             Cardholder.softRemove(data)
                 .then(async () => {
                     for (const cardholder of data) {
-                        minusResource(cardholder.name, cardholder.company)
+                        minusResource(Cardholder.name, cardholder.company)
 
                         const cardholder_data: any = await Cardholder.createQueryBuilder('cardholder')
-                            .where('id = :id', { id: data.id })
+                            .where('id = :id', { id: cardholder.id })
                             .withDeleted()
                             .getOne()
 
                         cardholder_data.is_delete = (new Date()).getTime()
                         await Cardholder.save(cardholder_data)
 
-                        await Credential.softRemove(data.credentials)
+                        await Credential.softRemove(cardholder.credentials)
 
                         if (cardholder_data.guest) {
                             AccessRight.destroyItem({ id: cardholder_data.access_right, company: cardholder_data.company })
