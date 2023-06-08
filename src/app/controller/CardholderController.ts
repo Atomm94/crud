@@ -2812,12 +2812,10 @@ export default class CardholderController {
             // }
 
             // await Promise.all(save)
-            const save = []
             const chs = chunk(cardholders, 500)
             for (const ch of chs) {
-                save.push(CardholderController.destroyItemsBulk(ch))
+                await CardholderController.destroyItemsBulk(ch)
             }
-            await Promise.all(save)
             if (cardholders.length) {
                 CardKeyController.dellKeys(location, company, cardholders, auth_user)
             }
