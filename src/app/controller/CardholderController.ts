@@ -2926,7 +2926,7 @@ export default class CardholderController {
                         cardholder_data.is_delete = (new Date()).getTime()
                         await Cardholder.save(cardholder_data)
 
-                        await Credential.softRemove(cardholder.credentials)
+                        await Credential.destroyItem({ id: cardholder.credentials.id, company: cardholder.credentials.company })
 
                         if (cardholder_data.guest) {
                             AccessRight.destroyItem({ id: cardholder_data.access_right, company: cardholder_data.company })
