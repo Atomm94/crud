@@ -2926,7 +2926,7 @@ export default class CardholderController {
                         cardholder_data.is_delete = (new Date()).getTime()
                         await Cardholder.save(cardholder_data)
 
-                        for (const credential of data.credentials) {
+                        for (const credential of cardholder.credentials) {
                             if (!credential.deleteDate) {
                                 await Credential.destroyItem(credential)
                             }
