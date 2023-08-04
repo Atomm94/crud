@@ -78,7 +78,7 @@ export default class CronJob {
 
     public static async updateAcuCloudStatus (interval: string) {
         new Cron.CronJob(interval, async () => {
-            const acu_statuses: any = await AcuStatus.getAllItems({ relations: ['acus'] })
+            const acu_statuses: any = await AcuStatus.find({ relations: ['acus'] })
             for (const acu_status of acu_statuses) {
                 var acu = acu_status.acus
                 let cloud_status = acuCloudStatus.OFFLINE
