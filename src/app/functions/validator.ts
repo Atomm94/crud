@@ -230,9 +230,13 @@ export function checkAccessPointsValidation (data: any, acu_model: any, elevator
                 if (outputs_count > acu_models.controllers[acu_model].outputs) {
                     return (`device model ${acu_model} outputs_count ${outputs_count} more than limit!`)
                 }
-                if (['Lock', 'Alarm_out', 'Entry_relay', 'Exit_relay', 'Block_Turnstile', 'Emergency_open', 'Open_relay'].includes(resource) &&
-                    'impulse_time' in resources[resource] && !resources[resource].impulse_time) {
-                    return ('impulse_time cant be 0!')
+                if (['Lock', 'Alarm_out', 'Entry_relay', 'Exit_relay', 'Block_Turnstile', 'Emergency_open', 'Open_relay'].includes(resource)) {
+                    if ('impulse_time' in resources[resource] && !resources[resource].impulse_time) {
+                        return ('impulse_time cant be 0!')
+                    }
+                    if ('entry_exit_open_durations' in resources[resource] && !resources[resource].entry_exit_open_durations) {
+                        return ('entry_exit_open_durations cant be 0!')
+                    }
                 }
             }
             if (!access_point.readers) access_point.readers = []

@@ -591,9 +591,10 @@ export default class CardholderController {
                 const cardholder = res_data.new
 
                 const cardholder_account = await Admin.findOne({ cardholder: cardholder.id })
+                let send_card_key_for_change_guest_status = false
                 if (cardholder_account) {
-                    if (check_by_company.status !== cardholder.status_id) {
-                        if (cardholder.status_id === cardholderStatus.INACTIVE) {
+                    if (check_by_company.status !== cardholder.status) {
+                        if (cardholder.status === cardholderStatus.INACTIVE) {
                             if (cardholder_account.status !== adminStatus.INACTIVE) {
                                 await Admin.updateItem({ id: cardholder_account.id, status: adminStatus.INACTIVE })
                                 const tokens = await JwtToken.find({ account: cardholder_account.id })
@@ -608,19 +609,25 @@ export default class CardholderController {
                                 await guest.save()
                                 const guest_keys = await Credential.find({ cardholder: guest.id })
                                 for (const guest_key of guest_keys) {
-                                    guest_key.status = credentialStatus.INACTIVE
-                                    await guest_key.save()
+                                    if (guest_key.status !== credentialStatus.INACTIVE) {
+                                        send_card_key_for_change_guest_status = true
+                                        guest_key.status = credentialStatus.INACTIVE
+                                        await guest_key.save()
+                                    }
                                 }
                             }
-                        } else if (cardholder.status_id === cardholderStatus.ACTIVE) {
+                        } else if (cardholder.status === cardholderStatus.ACTIVE) {
                             const guests = await Cardholder.find({ create_by: cardholder_account.id })
                             for (const guest of guests) {
                                 guest.status = cardholderStatus.ACTIVE
                                 await guest.save()
                                 const guest_keys = await Credential.find({ cardholder: guest.id })
                                 for (const guest_key of guest_keys) {
-                                    guest_key.status = credentialStatus.ACTIVE
-                                    await guest_key.save()
+                                    if (guest_key.status !== credentialStatus.ACTIVE) {
+                                        send_card_key_for_change_guest_status = true
+                                        guest_key.status = credentialStatus.ACTIVE
+                                        await guest_key.save()
+                                    }
                                 }
                             }
                         }
@@ -668,6 +675,7 @@ export default class CardholderController {
 
                     if (
                         check_by_company.access_right !== cardholder.access_right ||
+                        send_card_key_for_change_guest_status ||
                         (check_by_company.limitations && limitations &&
                             (
                                 JSON.stringify(check_by_company.limitations.valid_from) !== JSON.stringify(limitations.valid_from) ||
