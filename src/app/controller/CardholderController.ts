@@ -29,6 +29,8 @@ import { Brackets } from 'typeorm'
 import CronJob from '../cron'
 import { guestGetDatesFromTimestamps } from '../functions/guest_get_dates_from_timestamps'
 import { minusResource } from '../functions/minusResource'
+import { adminStatus } from '../enums/adminStatus.enum'
+import { JwtToken } from '../model/entity/JwtToken'
 const xlsxj = require('xlsx-to-json')
 var chunk = require('chunk')
 
@@ -587,6 +589,43 @@ export default class CardholderController {
                     value: res_data
                 })
                 const cardholder = res_data.new
+
+                const cardholder_account = await Admin.findOne({ cardholder: cardholder.id })
+                if (cardholder_account) {
+                    if (check_by_company.status !== cardholder.status_id) {
+                        if (cardholder.status_id === cardholderStatus.INACTIVE) {
+                            if (cardholder_account.status !== adminStatus.INACTIVE) {
+                                await Admin.updateItem({ id: cardholder_account.id, status: adminStatus.INACTIVE })
+                                const tokens = await JwtToken.find({ account: cardholder_account.id })
+                                for (const token of tokens) {
+                                    token.expired = true
+                                    await token.save()
+                                }
+                            }
+                            const guests = await Cardholder.find({ create_by: cardholder_account.id })
+                            for (const guest of guests) {
+                                guest.status = cardholderStatus.INACTIVE
+                                await guest.save()
+                                const guest_keys = await Credential.find({ cardholder: guest.id })
+                                for (const guest_key of guest_keys) {
+                                    guest_key.status = credentialStatus.INACTIVE
+                                    await guest_key.save()
+                                }
+                            }
+                        } else if (cardholder.status_id === cardholderStatus.ACTIVE) {
+                            const guests = await Cardholder.find({ create_by: cardholder_account.id })
+                            for (const guest of guests) {
+                                guest.status = cardholderStatus.ACTIVE
+                                await guest.save()
+                                const guest_keys = await Credential.find({ cardholder: guest.id })
+                                for (const guest_key of guest_keys) {
+                                    guest_key.status = credentialStatus.ACTIVE
+                                    await guest_key.save()
+                                }
+                            }
+                        }
+                    }
+                }
 
                 const credentials: any = []
                 const old_credentials: any = []
@@ -1412,10 +1451,16 @@ export default class CardholderController {
                 .where(`cardholder.id = '${auth_user.cardholder}'`)
                 .getOne()
 
+            if (invite_user.status === cardholderStatus.INACTIVE) {
+                ctx.status = 400
+                return ctx.body = { message: `Your status is ${cardholderStatus.INACTIVE}` }
+            }
+
             const created_guests = await Cardholder.find({ create_by: auth_user.id, guest: true })
 
             if (!invite_user.enable_create_guest) {
-                ctx.stx.body = { message: 'You have not permission to create Guest' }
+                ctx.status = 400
+                return ctx.body = { message: 'You have not permission to create Guest' }
             }
             if (created_guests.length >= invite_user.guest_count) {
                 ctx.status = 400
@@ -1677,6 +1722,11 @@ export default class CardholderController {
                 .leftJoinAndSelect('time_attendance.timeframes', 'timeframe', 'timeframe.delete_date is null')
                 .where(`cardholder.id = '${auth_user.cardholder}'`)
                 .getOne()
+
+            if (invite_user.status === cardholderStatus.INACTIVE) {
+                ctx.status = 400
+                return ctx.body = { message: `Your status is ${cardholderStatus.INACTIVE}` }
+            }
 
             const company: any = await Company.createQueryBuilder('company')
                 .leftJoinAndSelect('company.base_schedules', 'base_schedule')
