@@ -7,7 +7,7 @@
                 "turnstile_one_side": true,
                 "turnstile_two_side": false,
                 "gate": true,
-                "gateway": false,
+                "gateway": true,
                 "floor": false
             },
             "readers": {
@@ -17,18 +17,21 @@
                 "FACE": false
             },
             "inputs": 2,
-            "outputs": 1,
+            "outputs": 2,
             "inputs_info": {
                 "1": {
                     "name": "Pink"
                 },
                 "2": {
-                    "name": "Blue"
+                    "name": "Orange"
                 }
             },
             "outputs_info": {
                 "1": {
-                    "name": "Gray"
+                    "name": "Blue"
+                },
+                "2": {
+                    "name": "Green"
                 }
             },
             "floor_count": 0
@@ -82,28 +85,28 @@
             "readers": {
                 "RFID": true,
                 "KEYPAD": true,
-                "FINGER": false,
-                "FACE": false
+                "FINGER": true,
+                "FACE": true
             },
             "inputs": 4,
             "outputs": 2,
             "inputs_info": {
                 "1": {
-                    "name": "REX 2"
-                },
-                "2": {
-                    "name": "CONTACT 2"
-                },
-                "3": {
                     "name": "REX 1"
                 },
+                "2": {
+                    "name": "DOOR 1"
+                },
+                "3": {
+                    "name": "IN 1"
+                },
                 "4": {
-                    "name": "CONTACT 1"
+                    "name": "IN 2"
                 }
             },
             "outputs_info": {
                 "1": {
-                    "name": "RELAY"
+                    "name": "RELAY 1"
                 },
                 "2": {
                     "name": "AUX GND"
@@ -124,38 +127,23 @@
             "readers": {
                 "RFID": true,
                 "KEYPAD": true,
-                "FINGER": false,
-                "FACE": false
+                "FINGER": true,
+                "FACE": true
             },
-            "inputs": 9,
-            "outputs": 4,
+            "inputs": 4,
+            "outputs": 2,
             "inputs_info": {
                 "1": {
                     "name": "REX 1"
                 },
                 "2": {
-                    "name": "REX 2"
+                    "name": "DOOR 1"
                 },
                 "3": {
-                    "name": "REX 3"
+                    "name": "IN 1"
                 },
                 "4": {
-                    "name": "REX 4"
-                },
-                "5": {
-                    "name": "CONTACT 1"
-                },
-                "6": {
-                    "name": "CONTACT 2"
-                },
-                "7": {
-                    "name": "CONTACT 3"
-                },
-                "8": {
-                    "name": "CONTACT 4"
-                },
-                "9": {
-                    "name": "EMERGENCY IN"
+                    "name": "IN 2"
                 }
             },
             "outputs_info": {
@@ -163,16 +151,10 @@
                     "name": "RELAY 1"
                 },
                 "2": {
-                    "name": "RELAY 2"
-                },
-                "3": {
-                    "name": "RELAY 3"
-                },
-                "4": {
-                    "name": "RELAY 4"
+                    "name": "AUX GND"
                 }
             },
-            "floor_count": 32
+            "floor_count": 16
         }
     },
     "expansion_boards": {
