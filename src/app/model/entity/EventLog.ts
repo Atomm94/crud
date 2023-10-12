@@ -238,7 +238,7 @@ export class EventLog extends BaseClass {
                     cardholder.presense = cardholderPresense.ABSENT_BY_REASON
                 }
                 if (event.data.cardholder !== cardholder.presense) {
-                    await Cardholder.save(cardholder)
+                    await Cardholder.save(cardholder, { transaction: false })
                 }
             }
         }

@@ -26,7 +26,7 @@ export class Language extends MainEntity {
         language.status = data.status
 
         return new Promise((resolve, reject) => {
-            this.save(language)
+            this.save(language, { transaction: false })
                 .then((item: Language) => {
                     resolve(item)
                 })
@@ -46,7 +46,7 @@ export class Language extends MainEntity {
 
         if (!language) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(language)
+            this.save(language, { transaction: false })
                 .then((item: Language) => {
                     resolve({
                         old: oldData,

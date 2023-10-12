@@ -438,7 +438,7 @@ export default class AdminController {
             } else {
                 if (validate(reqData.password).success) {
                     user.password = reqData.password
-                    updatedUser = await userRepository.save(user)
+                    updatedUser = await userRepository.save(user, { transaction: false })
                     ctx.body = updatedUser
                 } else {
                     ctx.status = 400
@@ -525,7 +525,7 @@ export default class AdminController {
 
                     if (checkPass) {
                         if (reqData.password) user.password = password
-                        updatedUser = await userRepository.save(user)
+                        updatedUser = await userRepository.save(user, { transaction: false })
                         ctx.body = updatedUser
                     } else {
                         ctx.status = 400

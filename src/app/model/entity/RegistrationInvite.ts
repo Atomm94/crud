@@ -30,7 +30,7 @@ export class RegistrationInvite extends MainEntity {
     //     registrationInvite.used = data.used
 
     //     return new Promise((resolve, reject) => {
-    //         this.save(registrationInvite)
+    //         this.save(registrationInvite, { transaction: false })
     //             .then((item: RegistrationInvite) => {
     //                 resolve(item)
     //             })
@@ -49,7 +49,7 @@ export class RegistrationInvite extends MainEntity {
 
     //     if (!registrationInvite) return { status: 400, message: 'Item not found' }
     //     return new Promise((resolve, reject) => {
-    //         this.save(registrationInvite)
+    //         this.save(registrationInvite, { transaction: false })
     //             .then((item: RegistrationInvite) => {
     //                 resolve(item)
     //             })
@@ -106,7 +106,7 @@ export class RegistrationInvite extends MainEntity {
         if ('company' in data) registrationInvite.company = data.company
 
         return new Promise((resolve, reject) => {
-            this.save(registrationInvite)
+            this.save(registrationInvite, { transaction: false })
                 .then(async (item: RegistrationInvite) => {
                     await Sendgrid.sendInvite(item.email, item.token)
                     resolve(item)
@@ -125,7 +125,7 @@ export class RegistrationInvite extends MainEntity {
         if ('company' in data) registrationInvite.company = data.company
 
         return new Promise((resolve, reject) => {
-            this.save(registrationInvite)
+            this.save(registrationInvite, { transaction: false })
                 .then(async (item: RegistrationInvite) => {
                     await Sendgrid.sendPartitionInvite(item.email, item.token)
                     resolve(item)
@@ -143,7 +143,7 @@ export class RegistrationInvite extends MainEntity {
         registrationInvite.token = uid(32)
 
         return new Promise((resolve, reject) => {
-            this.save(registrationInvite)
+            this.save(registrationInvite, { transaction: false })
                 .then(async (item: RegistrationInvite) => {
                     await Sendgrid.sendCardholderInvite(item.email, item.token)
                     resolve(item)

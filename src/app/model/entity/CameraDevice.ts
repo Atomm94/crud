@@ -68,7 +68,7 @@ export class CameraDevice extends MainEntity {
         if ('port' in data) cameraDevice.port = data.port
 
         return new Promise((resolve, reject) => {
-            this.save(cameraDevice)
+            this.save(cameraDevice, { transaction: false })
                 .then((item: CameraDevice) => {
                     resolve(item)
                 })
@@ -92,7 +92,7 @@ export class CameraDevice extends MainEntity {
         if ('device_type' in data) cameraDevice.device_type = data.device_type
 
         return new Promise((resolve, reject) => {
-            this.save(cameraDevice)
+            this.save(cameraDevice, { transaction: false })
                 .then((item: CameraDevice) => {
                     resolve({
                         old: oldData,
@@ -130,7 +130,7 @@ export class CameraDevice extends MainEntity {
                             .withDeleted()
                             .getOne()
                         camera_device_data.is_delete = (new Date()).getTime()
-                        await this.save(camera_device_data)
+                        await this.save(camera_device_data, { transaction: false })
 
                         const cameras: any = await Camera.getAllItems({ where: { camera_device: { '=': data.id } } })
                         for (const camera of cameras) {

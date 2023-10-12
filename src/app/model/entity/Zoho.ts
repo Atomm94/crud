@@ -52,7 +52,7 @@ export class Zoho extends MainEntity {
         zoho.refresh_token = data.refresh_token
 
         return new Promise((resolve, reject) => {
-            this.save(zoho)
+            this.save(zoho, { transaction: false })
                 .then((item: Zoho) => {
                     resolve(item)
                 })
@@ -78,7 +78,7 @@ export class Zoho extends MainEntity {
 
         if (!zoho) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(zoho)
+            this.save(zoho, { transaction: false })
                 .then((item: Zoho) => {
                     resolve({
                         old: oldData,

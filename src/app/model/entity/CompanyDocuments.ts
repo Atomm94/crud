@@ -40,7 +40,7 @@ export class CompanyDocuments extends MainEntity {
         companyDocuments.file = data.file
 
         return new Promise((resolve, reject) => {
-            this.save(companyDocuments)
+            this.save(companyDocuments, { transaction: false })
                 .then((item: CompanyDocuments) => {
                     resolve(item)
                 })
@@ -61,7 +61,7 @@ export class CompanyDocuments extends MainEntity {
 
         if (!companyDocuments) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(companyDocuments)
+            this.save(companyDocuments, { transaction: false })
                 .then((item: CompanyDocuments) => {
                     resolve({
                         old: oldData,

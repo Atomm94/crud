@@ -33,7 +33,7 @@ export class CameraSetToCamera extends MainEntity {
         cameraSet.main = data.main
 
         return new Promise((resolve, reject) => {
-            this.save(cameraSet)
+            this.save(cameraSet, { transaction: false })
                 .then((item: CameraSetToCamera) => {
                     resolve(item)
                 })
@@ -51,7 +51,7 @@ export class CameraSetToCamera extends MainEntity {
 
         if (!cameraSetToCamera) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(cameraSetToCamera)
+            this.save(cameraSetToCamera, { transaction: false })
                 .then((item: CameraSetToCamera) => {
                     resolve({
                         old: oldData,

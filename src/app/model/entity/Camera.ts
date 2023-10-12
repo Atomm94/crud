@@ -124,7 +124,7 @@ export class Camera extends MainEntity {
         camera.company = data.company
 
         return new Promise((resolve, reject) => {
-            this.save(camera)
+            this.save(camera, { transaction: false })
                 .then((item: Camera) => {
                     resolve(item)
                 })
@@ -161,7 +161,7 @@ export class Camera extends MainEntity {
 
         if (!camera) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(camera)
+            this.save(camera, { transaction: false })
                 .then((item: Camera) => {
                     resolve({
                         old: oldData,
@@ -199,7 +199,7 @@ export class Camera extends MainEntity {
                             .withDeleted()
                             .getOne()
                         camera_data.is_delete = (new Date()).getTime()
-                        await this.save(camera_data)
+                        await this.save(camera_data, { transaction: false })
 
                         // const camera_sets: any = await CameraSet.getAllItems({ where: { company: { '=': data.company } } })
 

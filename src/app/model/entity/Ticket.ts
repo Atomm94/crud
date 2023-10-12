@@ -69,7 +69,7 @@ export class Ticket extends MainEntity {
         return new Promise((resolve, reject) => {
             if (check) {
                 if (check.status) {
-                    this.save(ticket)
+                    this.save(ticket, { transaction: false })
                         .then((item: Ticket) => {
                             resolve(item)
                         })
@@ -98,7 +98,7 @@ export class Ticket extends MainEntity {
 
         if (!ticket) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(ticket)
+            this.save(ticket, { transaction: false })
                 .then((item: Ticket) => {
                     resolve({
                         old: oldData,

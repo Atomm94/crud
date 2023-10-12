@@ -174,7 +174,7 @@ export class Company extends MainEntity {
         // company.status = data.status
 
         return new Promise((resolve, reject) => {
-            this.save(company)
+            this.save(company, { transaction: false })
                 .then((item: Company) => {
                     resolve(item)
                 })
@@ -211,7 +211,7 @@ export class Company extends MainEntity {
             if ('status' in data && data.status === statusCompany.ENABLE && !company.package) {
                 reject(new Error(`Cant change status of Company to ${statusCompany.ENABLE} without select Package`))
             } else {
-                this.save(company)
+                this.save(company, { transaction: false })
                     .then((item: Company) => {
                         resolve({
                             old: oldData,

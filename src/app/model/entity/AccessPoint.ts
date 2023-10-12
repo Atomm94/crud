@@ -139,7 +139,7 @@ export class AccessPoint extends MainEntity {
         accessPoint.company = data.company
 
         return new Promise((resolve, reject) => {
-            this.save(accessPoint)
+            this.save(accessPoint, { transaction: false })
                 .then((item: AccessPoint) => {
                     resolve(item)
                 })
@@ -180,7 +180,7 @@ export class AccessPoint extends MainEntity {
 
         if (!accessPoint) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(accessPoint)
+            this.save(accessPoint, { transaction: false })
                 .then((item: AccessPoint) => {
                     resolve({
                         old: oldData,

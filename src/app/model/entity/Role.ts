@@ -189,7 +189,7 @@ export class Role extends MainEntity {
     if ('cardholder' in data) role.cardholder = data.cardholder
 
     return new Promise((resolve, reject) => {
-      this.save(role)
+      this.save(role, { transaction: false })
         .then((item: Role) => {
           resolve(item)
         })
@@ -212,7 +212,7 @@ export class Role extends MainEntity {
 
     if (!role) return { status: 400, message: 'Item not found' }
     return new Promise((resolve, reject) => {
-      this.save(role)
+      this.save(role, { transaction: false })
         .then((item: Role) => {
           resolve({
             old: oldData,

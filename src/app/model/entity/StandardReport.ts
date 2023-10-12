@@ -60,7 +60,7 @@ export class StandardReport extends MainEntity {
         standardReport.end_time = data.end_time
 
         return new Promise((resolve, reject) => {
-            this.save(standardReport)
+            this.save(standardReport, { transaction: false })
                 .then((item: StandardReport) => {
                     resolve(item)
                 })
@@ -84,7 +84,7 @@ export class StandardReport extends MainEntity {
 
         if (!standardReport) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(standardReport)
+            this.save(standardReport, { transaction: false })
                 .then((item: StandardReport) => {
                     resolve(item)
                 })

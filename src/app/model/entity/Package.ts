@@ -70,7 +70,7 @@ export class Package extends MainEntity {
         if ('default' in data) package_data.default = data.default
 
         return new Promise((resolve, reject) => {
-            this.save(package_data)
+            this.save(package_data, { transaction: false })
                 .then((item: Package) => {
                     resolve(item)
                 })
@@ -96,7 +96,7 @@ export class Package extends MainEntity {
 
         if (!package_data) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(package_data)
+            this.save(package_data, { transaction: false })
                 .then((item: Package) => {
                     resolve({
                         old: oldData,

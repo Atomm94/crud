@@ -138,7 +138,7 @@ export default class AuthController {
             const admin = await Admin.addItem(account as Admin)
 
             newCompany.account = admin.id
-            await Company.save(newCompany)
+            await Company.save(newCompany, { transaction: false })
 
             await addDefaultFeaturesofCompany(newCompany.id)
 
@@ -243,7 +243,7 @@ export default class AuthController {
 
                 user.last_login_date = new Date().toISOString().slice(0, 19).replace('T', ' ')
                 delete user.password
-                Admin.save(user)
+                Admin.save(user, { transaction: false })
             } catch (error) {
                 ctx.status = error.status || 400
                 return ctx.body = error

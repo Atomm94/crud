@@ -136,7 +136,7 @@ export class Reader extends MainEntity {
         reader.company = data.company
 
         return new Promise((resolve, reject) => {
-            this.save(reader)
+            this.save(reader, { transaction: false })
                 .then((item: Reader) => {
                     resolve(item)
                 })
@@ -165,7 +165,7 @@ export class Reader extends MainEntity {
 
         if (!reader) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(reader)
+            this.save(reader, { transaction: false })
                 .then((item: Reader) => {
                     resolve({
                         old: oldData,

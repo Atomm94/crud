@@ -92,7 +92,7 @@ export class AcuStatus extends MainEntity {
         if ('ssid' in data) acuStatus.ssid = data.ssid
 
         return new Promise((resolve, reject) => {
-            this.save(acuStatus)
+            this.save(acuStatus, { transaction: false })
                 .then((item: AcuStatus) => {
                     resolve(item)
                 })
@@ -121,7 +121,7 @@ export class AcuStatus extends MainEntity {
 
         if (!acuStatus) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(acuStatus)
+            this.save(acuStatus, { transaction: false })
                 .then((item: AcuStatus) => {
                     resolve({
                         old: oldData,

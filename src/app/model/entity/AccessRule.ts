@@ -70,7 +70,7 @@ export class AccessRule extends MainEntity {
         accessRule.company = data.company
 
         return new Promise((resolve, reject) => {
-            this.save(accessRule)
+            this.save(accessRule, { transaction: false })
                 .then((item: AccessRule) => {
                     resolve(item)
                 })
@@ -91,7 +91,7 @@ export class AccessRule extends MainEntity {
 
         if (!accessRule) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(accessRule)
+            this.save(accessRule, { transaction: false })
                 .then((item: AccessRule) => {
                     resolve({
                         old: oldData,
@@ -134,7 +134,7 @@ export class AccessRule extends MainEntity {
                             .withDeleted()
                             .getOne()
                         rule_data.is_delete = (new Date()).getTime()
-                        await this.save(rule_data)
+                        await this.save(rule_data, { transaction: false })
 
                         resolve({ message: 'success' })
                     })

@@ -64,7 +64,7 @@ export class AccessRight extends MainEntity {
         accessRight.default = data.default
 
         return new Promise((resolve, reject) => {
-            this.save(accessRight)
+            this.save(accessRight, { transaction: false })
                 .then((item: AccessRight) => {
                     resolve(item)
                 })
@@ -83,7 +83,7 @@ export class AccessRight extends MainEntity {
 
         if (!accessRight) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(accessRight)
+            this.save(accessRight, { transaction: false })
                 .then((item: AccessRight) => {
                     resolve({
                         old: oldData,

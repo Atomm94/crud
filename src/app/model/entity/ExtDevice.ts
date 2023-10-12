@@ -81,7 +81,7 @@ export class ExtDevice extends MainEntity {
         extDevice.company = data.company
 
         return new Promise((resolve, reject) => {
-            this.save(extDevice)
+            this.save(extDevice, { transaction: false })
                 .then((item: ExtDevice) => {
                     resolve(item)
                 })
@@ -106,7 +106,7 @@ export class ExtDevice extends MainEntity {
 
         if (!extDevice) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(extDevice)
+            this.save(extDevice, { transaction: false })
                 .then((item: ExtDevice) => {
                     resolve({
                         old: oldData,
@@ -147,7 +147,7 @@ export class ExtDevice extends MainEntity {
                             .withDeleted()
                             .getOne()
                         ext_device_data.is_delete = (new Date()).getTime()
-                        await this.save(ext_device_data)
+                        await this.save(ext_device_data, { transaction: false })
 
                         resolve({ message: 'success' })
                     })

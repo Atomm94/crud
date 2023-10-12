@@ -401,7 +401,7 @@ export default class Parse {
                     acu_data.id = acu.id
                 }
 
-                await Acu.save(acu_data)
+                await Acu.save(acu_data, { transaction: false })
                 // const user = message.send_data
 
                 // if (!acu) { // case when need send ACCEPT only first time
@@ -1084,7 +1084,7 @@ export default class Parse {
             const access_point = await AccessPoint.findOneOrFail({ where: { id: message.send_data.data.id /*, company: company */ } })
             if (message.send_data.data.mode) access_point.mode = message.send_data.data.mode
             if (message.send_data.data.exit_mode) access_point.exit_mode = message.send_data.data.exit_mode
-            AccessPoint.save(access_point)
+            AccessPoint.save(access_point, { transaction: false })
         } else {
         }
     }

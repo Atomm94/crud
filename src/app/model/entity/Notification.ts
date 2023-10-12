@@ -38,7 +38,7 @@ export class Notification extends MainEntity {
         notification.company = data.company
 
         return new Promise((resolve, reject) => {
-            this.save(notification)
+            this.save(notification, { transaction: false })
                 .then((item: Notification) => {
                     resolve(item)
                 })
@@ -58,7 +58,7 @@ export class Notification extends MainEntity {
 
         if (!notification) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(notification)
+            this.save(notification, { transaction: false })
                 .then((item: Notification) => {
                     resolve(item)
                 })

@@ -20,7 +20,7 @@ export class Translation extends MainEntity {
         translations.translations = data.translations
 
         return new Promise((resolve, reject) => {
-            this.save(translations)
+            this.save(translations, { transaction: false })
                 .then((item: Translation) => {
                     resolve(item)
                 })
@@ -39,7 +39,7 @@ export class Translation extends MainEntity {
 
         if (!translations) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(translations)
+            this.save(translations, { transaction: false })
                 .then((item: Translation) => {
                     resolve({
                         old: oldData,

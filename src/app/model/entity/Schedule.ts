@@ -83,7 +83,7 @@ export class Schedule extends MainEntity {
         schedule.company = data.company
 
         return new Promise((resolve, reject) => {
-            this.save(schedule)
+            this.save(schedule, { transaction: false })
                 .then((item: Schedule) => {
                     resolve(item)
                 })
@@ -106,7 +106,7 @@ export class Schedule extends MainEntity {
 
         if (!schedule) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(schedule)
+            this.save(schedule, { transaction: false })
                 .then((item: Schedule) => {
                     resolve({
                         old: oldData,

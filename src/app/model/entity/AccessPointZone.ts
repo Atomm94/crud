@@ -66,7 +66,7 @@ export class AccessPointZone extends MainEntity {
         accessPointZone.antipass_back = data.antipass_back
 
         return new Promise((resolve, reject) => {
-            this.save(accessPointZone)
+            this.save(accessPointZone, { transaction: false })
                 .then((item: AccessPointZone) => {
                     resolve(item)
                 })
@@ -90,7 +90,7 @@ export class AccessPointZone extends MainEntity {
 
         if (!accessPointZone) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(accessPointZone)
+            this.save(accessPointZone, { transaction: false })
                 .then((item: AccessPointZone) => {
                     resolve({
                         old: oldData,

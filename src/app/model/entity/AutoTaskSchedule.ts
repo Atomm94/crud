@@ -82,7 +82,7 @@ export class AutoTaskSchedule extends MainEntity {
         if ('reaction_access_points' in data) autoTaskSchedule.reaction_access_points = (data.reaction_access_points && typeof data.reaction_access_points === 'object') ? JSON.stringify(data.reaction_access_points) : data.reaction_access_points
 
         return new Promise((resolve, reject) => {
-            this.save(autoTaskSchedule)
+            this.save(autoTaskSchedule, { transaction: false })
                 .then((item: AutoTaskSchedule) => {
                     resolve(item)
                 })
@@ -111,7 +111,7 @@ export class AutoTaskSchedule extends MainEntity {
 
         if (!autoTaskSchedule) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(autoTaskSchedule)
+            this.save(autoTaskSchedule, { transaction: false })
                 .then((item: AutoTaskSchedule) => {
                     resolve(item)
                 })

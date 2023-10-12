@@ -64,7 +64,7 @@ export class TicketMessage extends MainEntity {
         if ('parent_id' in data) ticketMessage.parent_id = data.parent_id
         if ('image' in data) ticketMessage.image = data.image
         return new Promise((resolve, reject) => {
-            this.save(ticketMessage)
+            this.save(ticketMessage, { transaction: false })
                 .then((item: TicketMessage) => {
                     resolve(item)
                 })
@@ -85,7 +85,7 @@ export class TicketMessage extends MainEntity {
         if (!ticketMessage) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
             if (ticketMessage.user_id === user.id) {
-                this.save(ticketMessage)
+                this.save(ticketMessage, { transaction: false })
                     .then((item: TicketMessage) => {
                         resolve({
                             old: oldData,

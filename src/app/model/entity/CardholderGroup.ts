@@ -106,7 +106,7 @@ export class CardholderGroup extends MainEntity {
         if ('default' in data) cardholderGroup.default = data.default
 
         return new Promise((resolve, reject) => {
-            this.save(cardholderGroup)
+            this.save(cardholderGroup, { transaction: false })
                 .then((item: CardholderGroup) => {
                     resolve(item)
                 })
@@ -174,7 +174,7 @@ export class CardholderGroup extends MainEntity {
 
         if (!cardholderGroup) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(cardholderGroup)
+            this.save(cardholderGroup, { transaction: false })
                 .then((item: CardholderGroup) => {
                     resolve({
                         old: oldData,
@@ -215,7 +215,7 @@ export class CardholderGroup extends MainEntity {
                             .withDeleted()
                             .getOne()
                         group_data.is_delete = (new Date()).getTime()
-                        await this.save(group_data)
+                        await this.save(group_data, { transaction: false })
 
                         resolve({ message: 'success' })
                     })

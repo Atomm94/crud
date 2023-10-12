@@ -32,7 +32,7 @@ export class AccessPointGroup extends MainEntity {
         accessPointGroup.company = data.company
 
         return new Promise((resolve, reject) => {
-            this.save(accessPointGroup)
+            this.save(accessPointGroup, { transaction: false })
                 .then((item: AccessPointGroup) => {
                     resolve(item)
                 })
@@ -51,7 +51,7 @@ export class AccessPointGroup extends MainEntity {
 
         if (!accessPointGroup) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(accessPointGroup)
+            this.save(accessPointGroup, { transaction: false })
                 .then((item: AccessPointGroup) => {
                     resolve({
                         old: oldData,

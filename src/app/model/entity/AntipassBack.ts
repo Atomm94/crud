@@ -43,7 +43,7 @@ export class AntipassBack extends MainEntity {
         antipassBack.time_type = data.time_type
 
         return new Promise((resolve, reject) => {
-            this.save(antipassBack)
+            this.save(antipassBack, { transaction: false })
                 .then((item: AntipassBack) => {
                     resolve(item)
                 })
@@ -64,7 +64,7 @@ export class AntipassBack extends MainEntity {
 
         if (!antipassBack) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(antipassBack)
+            this.save(antipassBack, { transaction: false })
                 .then((item: AntipassBack) => {
                     resolve({
                         old: oldData,

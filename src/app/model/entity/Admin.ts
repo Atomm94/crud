@@ -232,7 +232,7 @@ export class Admin extends MainEntity {
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve, reject) => {
       // if (!user || !user.company) {
-      this.save(admin)
+      this.save(admin, { transaction: false })
         .then((item: Admin) => {
           resolve(item)
         })
@@ -278,7 +278,7 @@ export class Admin extends MainEntity {
 
     if (!admin) return { status: 400, message: 'Item not found' }
     return new Promise((resolve, reject) => {
-      this.save(admin)
+      this.save(admin, { transaction: false })
         .then((item: Admin) => {
           resolve({
             old: oldData,

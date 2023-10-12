@@ -57,7 +57,7 @@ export class Timeframe extends MainEntity {
             timeframe.schedule = data.schedule
             timeframe.company = data.company
 
-            this.save(timeframe)
+            this.save(timeframe, { transaction: false })
                 .then((item: Timeframe) => {
                     resolve(item)
                 })
@@ -93,7 +93,7 @@ export class Timeframe extends MainEntity {
 
         if (updateTimeframe.length) {
             return new Promise((resolve, reject) => {
-                this.save(updateTimeframe as Timeframe[])
+                this.save(updateTimeframe as Timeframe[], { transaction: false })
                     .then((item: Timeframe | Timeframe[]) => {
                         resolve({
                             old: oldData,

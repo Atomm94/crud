@@ -62,7 +62,7 @@ export class Department extends MainEntity {
         department.status = data.status
 
         return new Promise((resolve, reject) => {
-            this.save(department)
+            this.save(department, { transaction: false })
                 .then((item: Department) => {
                     resolve(item)
                 })
@@ -81,7 +81,7 @@ export class Department extends MainEntity {
 
         if (!department) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(department)
+            this.save(department, { transaction: false })
                 .then((item: Department) => {
                     resolve({
                         old: oldData,

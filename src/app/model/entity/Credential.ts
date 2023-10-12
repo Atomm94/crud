@@ -98,7 +98,7 @@ export class Credential extends MainEntity {
         }
 
         return new Promise((resolve, reject) => {
-            this.save(credential)
+            this.save(credential, { transaction: false })
                 .then((item: Credential) => {
                     resolve(item)
                 })
@@ -121,7 +121,7 @@ export class Credential extends MainEntity {
 
         if (!credential) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(credential)
+            this.save(credential, { transaction: false })
                 .then((item: Credential) => {
                     resolve(item)
                 })
@@ -157,7 +157,7 @@ export class Credential extends MainEntity {
                             .withDeleted()
                             .getOne()
                         credential_data.is_delete = (new Date()).getTime()
-                        await this.save(credential_data)
+                        await this.save(credential_data, { transaction: false })
                         resolve({ message: 'success' })
                     })
                     .catch((error: any) => {

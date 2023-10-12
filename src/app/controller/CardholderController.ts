@@ -2675,18 +2675,18 @@ export default class CardholderController {
                 for (const cardholder of cardholders) {
                     if (cardholder.status !== req_data.status) {
                         cardholder.status = req_data.status
-                        save.push(Cardholder.save(cardholder))
+                        save.push(Cardholder.save(cardholder, { transaction: false }))
                     }
 
                     for (const credential of cardholder.credentials) {
                         if (req_data.status === cardholderStatus.ACTIVE && credential.status === credentialStatus.INACTIVE) {
                             send_card_key = true
                             credential.status = credentialStatus.ACTIVE
-                            save.push(Credential.save(credential))
+                            save.push(Credential.save(credential, { transaction: false }))
                         } else if (req_data.status === cardholderStatus.INACTIVE && credential.status === credentialStatus.ACTIVE) {
                             send_card_key = true
                             credential.status = credentialStatus.INACTIVE
-                            save.push(Credential.save(credential))
+                            save.push(Credential.save(credential, { transaction: false }))
                         }
                     }
 
@@ -2982,7 +2982,7 @@ export default class CardholderController {
                             .getOne()
 
                         cardholder_data.is_delete = (new Date()).getTime()
-                        await Cardholder.save(cardholder_data)
+                        await Cardholder.save(cardholder_data, { transaction: false })
 
                         for (const credential of cardholder.credentials) {
                             if (!credential.deleteDate) {

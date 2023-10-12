@@ -29,7 +29,7 @@ export class CompanyResources extends MainEntity {
         companyResources.used = data.used
 
         return new Promise((resolve, reject) => {
-            this.save(companyResources)
+            this.save(companyResources, { transaction: false })
                 .then((item: CompanyResources) => {
                     resolve(item)
                 })
@@ -47,7 +47,7 @@ export class CompanyResources extends MainEntity {
 
         if (!companyResources) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(companyResources)
+            this.save(companyResources, { transaction: false })
                 .then((item: CompanyResources) => {
                     resolve(item)
                 })

@@ -439,7 +439,7 @@ export default class TimeframeController {
                     timeframe.company = user.company
                     newTimeFrames.push(timeframe)
                 }
-                ctx.body = await Timeframe.save(newTimeFrames)
+                ctx.body = await Timeframe.save(newTimeFrames, { transaction: false })
 
                 const access_rules = await AccessRule.createQueryBuilder('access_rule')
                     .innerJoinAndSelect('access_rule.access_points', 'access_point')

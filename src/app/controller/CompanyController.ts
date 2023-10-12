@@ -623,7 +623,7 @@ export default class CompanyController {
                         const admin = await Admin.addItem(account_data as Admin)
 
                         company.account = admin.id
-                        await Company.save(company)
+                        await Company.save(company, { transaction: false })
                         await addDefaultFeaturesofCompany(company.id)
 
                         await Sendgrid.sendNewPass(admin.email, admin.verify_token as string)
@@ -785,7 +785,7 @@ export default class CompanyController {
                         const admin = await Admin.addItem(account_data as Admin)
 
                         company.account = admin.id
-                        await Company.save(company)
+                        await Company.save(company, { transaction: false })
                         await Sendgrid.sendNewPass(admin.email, admin.verify_token as string)
 
                         // set registration token to null

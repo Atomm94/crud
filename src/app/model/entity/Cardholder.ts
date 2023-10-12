@@ -236,7 +236,7 @@ export class Cardholder extends MainEntity {
         cardholder.company = data.company
 
         return new Promise((resolve, reject) => {
-            this.save(cardholder)
+            this.save(cardholder, { transaction: false })
                 .then((item: Cardholder) => {
                     resolve(item)
                 })
@@ -371,7 +371,7 @@ export class Cardholder extends MainEntity {
 
         if (!cardholder) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(cardholder)
+            this.save(cardholder, { transaction: false })
                 .then((item: Cardholder) => {
                     resolve({
                         old: oldData,
@@ -423,7 +423,7 @@ export class Cardholder extends MainEntity {
                             .getOne()
 
                         cardholder_data.is_delete = (new Date()).getTime()
-                        await this.save(cardholder_data)
+                        await this.save(cardholder_data, { transaction: false })
 
                         for (const credential of data.credentials) {
                             if (!credential.deleteDate) {

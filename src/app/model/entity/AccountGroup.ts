@@ -52,7 +52,7 @@ export class AccountGroup extends MainEntity {
         if ('parent_id' in data) accountGroup.parent_id = data.parent_id
         if ('role' in data) accountGroup.role = data.role
         return new Promise((resolve, reject) => {
-            this.save(accountGroup)
+            this.save(accountGroup, { transaction: false })
                 .then((item: AccountGroup) => {
                     resolve(item)
                 })
@@ -73,7 +73,7 @@ export class AccountGroup extends MainEntity {
 
         if (!accountGroup) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(accountGroup)
+            this.save(accountGroup, { transaction: false })
                 .then((item: AccountGroup) => {
                     resolve({
                         old: oldData,

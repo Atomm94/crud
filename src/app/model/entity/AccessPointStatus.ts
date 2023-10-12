@@ -44,7 +44,7 @@ export class AccessPointStatus extends MainEntity {
         accessPointStatus.company = data.company
 
         return new Promise((resolve, reject) => {
-            this.save(accessPointStatus)
+            this.save(accessPointStatus, { transaction: false })
                 .then((item: AccessPointStatus) => {
                     resolve(item)
                 })
@@ -63,7 +63,7 @@ export class AccessPointStatus extends MainEntity {
 
         if (!accessPointStatus) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(accessPointStatus)
+            this.save(accessPointStatus, { transaction: false })
                 .then((item: AccessPointStatus) => {
                     resolve({
                         old: oldData,

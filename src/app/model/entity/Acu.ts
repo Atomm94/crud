@@ -149,7 +149,7 @@ export class Acu extends MainEntity {
                     acu.time = JSON.stringify(data.time)
                 }
             }
-            this.save(acu)
+            this.save(acu, { transaction: false })
                 .then((item: Acu) => {
                     resolve(item)
                 })
@@ -208,7 +208,7 @@ export class Acu extends MainEntity {
             //     }
             // }
 
-            this.save(acu)
+            this.save(acu, { transaction: false })
                 .then((item: Acu) => {
                     resolve({
                         old: oldData,

@@ -45,7 +45,7 @@ export class CarInfo extends MainEntity {
         }
 
         return new Promise((resolve, reject) => {
-            this.save(carInfo)
+            this.save(carInfo, { transaction: false })
                 .then((item: CarInfo) => {
                     resolve(item)
                 })
@@ -69,7 +69,7 @@ export class CarInfo extends MainEntity {
 
         if (!carInfo) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(carInfo)
+            this.save(carInfo, { transaction: false })
                 .then((item: CarInfo) => {
                     resolve({
                         old: carInfo,
