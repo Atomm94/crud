@@ -14,6 +14,7 @@ export class Dashboard extends BaseClass {
             .select('acu.status')
             .addSelect('COUNT(access_point.id) as acp_qty')
             .where(`acu.company = ${user.company}`)
+            .andWhere('acu.delete_date is null')
             .groupBy('acu.status')
             .getRawMany())
 
@@ -21,6 +22,7 @@ export class Dashboard extends BaseClass {
             .select('acu.status')
             .addSelect('COUNT(acu.id) as acu_qty')
             .where(`acu.company = ${user.company}`)
+            .andWhere('acu.delete_date is null')
             .groupBy('acu.status')
             .getRawMany())
 
@@ -28,6 +30,7 @@ export class Dashboard extends BaseClass {
             .select('access_point.mode')
             .addSelect('COUNT(access_point.id) as acp_qty')
             .where(`access_point.company = ${user.company}`)
+            .andWhere('access_point.delete_date is null')
             .groupBy('access_point.mode')
             .getRawMany())
 
@@ -35,6 +38,7 @@ export class Dashboard extends BaseClass {
             .leftJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
             .where(`access_point.company = ${user.company}`)
             .andWhere(`acu.status = '${acuStatus.ACTIVE}'`)
+            .andWhere('access_point.delete_date is null')
             .getMany())
 
         promises.push(EventLog.getEventStatistic(user))
