@@ -199,17 +199,17 @@ export default class LogController {
                     if (EventList[message_data.Group]) {
                         eventData.data.event_type = EventList[message_data.Group].name
                         if (EventList[message_data.Group].events[message_data.Event_id]) {
-                            eventData.data.event_group_id = message_data.Group
-                            eventData.data.event_id = message_data.Event_id
                             eventData.data.event = EventList[message_data.Group].events[message_data.Event_id].event
                             eventData.data.event_source = EventList[message_data.Group].events[message_data.Event_id].source_entity
                             eventData.data.result = EventList[message_data.Group].events[message_data.Event_id].description
-                            eventData.data.Key_HEX = message_data.Key_HEX
-                            eventData.data.credential = { type: message_data.Kind_key, code: message_data.Key_HEX }
-                            // eventData.data.cardholder_id = message_data.key_id
-                            eventData.data.direction = (message_data.Direction === 1) ? 'Exit' : 'Entry'
                         }
                     }
+                    eventData.data.event_group_id = message_data.Group
+                    eventData.data.event_id = message_data.Event_id
+                    eventData.data.Key_HEX = message_data.Key_HEX
+                    eventData.data.credential = { type: message_data.Kind_key, code: message_data.Key_HEX }
+                    // eventData.data.cardholder_id = message_data.key_id
+                    eventData.data.direction = (message_data.Direction === 1) ? 'Exit' : 'Entry'
                     EventLog.create(eventData)
                 }
             }
