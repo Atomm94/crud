@@ -248,15 +248,15 @@ export class Acu extends MainEntity {
                         promises.push(Acu.createQueryBuilder('acu')
                             .select('acu.status')
                             .addSelect('COUNT(acu.id) as acu_qty')
-                            .where('acu.company', data.company)
+                            .where(`acu.company = ${data.company}`)
                             .groupBy('acu.status')
                             .getRawMany())
 
                         promises.push(Acu.createQueryBuilder('acu')
-                            .innerJoin('acu.access_points', 'access_point')
+                            .innerJoin('acu.access_points', 'access_point', 'access_point.delete_date is null')
                             .select('acu.status')
                             .addSelect('COUNT(access_point.id) as acp_qty')
-                            .where('access_point.company', data.company)
+                            .where(`access_point.company = ${data.company}`)
                             .groupBy('acu.status')
                             .getRawMany())
 

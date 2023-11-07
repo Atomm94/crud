@@ -32,7 +32,7 @@ export class PostSubscriber implements EntitySubscriberInterface<AccessPoint> {
             .select('access_point.name')
             .addSelect('access_point.mode')
             .addSelect('COUNT(access_point.id) as acp_qty')
-            .where('access_point.company', data.company)
+            .where(`access_point.company = ${data.company}`)
             .groupBy('access_point.mode')
             .getRawMany()
 
@@ -67,7 +67,7 @@ export class PostSubscriber implements EntitySubscriberInterface<AccessPoint> {
                 .select('access_point.name')
                 .addSelect('access_point.mode')
                 .addSelect('COUNT(access_point.id) as acp_qty')
-                .where('access_point.company', New.company)
+                .where(`access_point.company = ${New.company}`)
                 .groupBy('access_point.mode')
                 .getRawMany()
 
@@ -102,7 +102,7 @@ export class PostSubscriber implements EntitySubscriberInterface<AccessPoint> {
         //     .select('access_point.name')
         //     .addSelect('access_point.mode')
         //     .addSelect('COUNT(access_point.id) as acp_qty')
-        //     .where('access_point.company', data.company)
+        //     .where(`access_point.company = ${data.company}`)
         //     .groupBy('access_point.mode')
         //     .getRawMany()
 
