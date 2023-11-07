@@ -343,7 +343,7 @@ export default class CameraController {
             const cameras = await Camera.createQueryBuilder('camera')
                 .select('camera.id')
                 .addSelect('camera.name')
-                .leftJoin('camera.camera_camera_sets', 'camera_camera_set')
+                .leftJoinAndSelect('camera.camera_camera_sets', 'camera_camera_set')
                 .leftJoin('camera_camera_set.camera_sets', 'camera_set', 'camera_set.delete_date is null')
                 .where(`camera_set.access_point = '${id}'`)
                 .getMany()
