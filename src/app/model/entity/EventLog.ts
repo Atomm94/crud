@@ -159,7 +159,7 @@ export class EventLog extends BaseClass {
                 //     .leftJoinAndSelect('cardholder.access_rights', 'access_right')
                 //     .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
                 //     .leftJoinAndSelect('cardholder.limitations', 'limitation')
-                //     .where('credential.access_point', event.data.access_point)
+                //     .where(`credential.access_point = ${event.data.access_point}`)
                 //     .andWhere('credential.code is null')
                 //     .getOne()
 

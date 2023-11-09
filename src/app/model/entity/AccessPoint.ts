@@ -228,7 +228,7 @@ export class AccessPoint extends MainEntity {
                             .select('access_point.name')
                             .addSelect('access_point.mode')
                             .addSelect('COUNT(access_point.id) as acp_qty')
-                            .where('access_point.company', data.company)
+                            .where(`access_point.company = ${data.company}`)
                             .groupBy('access_point.mode')
                             .getRawMany()
                         new SendSocketMessage(socketChannels.DASHBOARD_ACCESS_POINT_MODES, modes, data.company)
