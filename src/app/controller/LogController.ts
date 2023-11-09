@@ -202,7 +202,16 @@ export default class LogController {
                             eventData.data.event = EventList[message_data.Group].events[message_data.Event_id].event
                             eventData.data.event_source = EventList[message_data.Group].events[message_data.Event_id].source_entity
                             eventData.data.result = EventList[message_data.Group].events[message_data.Event_id].description
+                        } else {
+                            eventData.data.event = 'Unknown Event_id'
+                            eventData.data.event_source = 'Unknown SourceEntity'
+                            eventData.data.result = 'Unknown Description'
                         }
+                    } else {
+                        eventData.data.event_type = 'Unknown Group'
+                        eventData.data.event = 'Unknown Event_id'
+                        eventData.data.event_source = 'Unknown SourceEntity'
+                        eventData.data.result = 'Unknown Description'
                     }
                     eventData.data.event_group_id = message_data.Group
                     eventData.data.event_id = message_data.Event_id
