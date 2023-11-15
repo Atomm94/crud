@@ -7,7 +7,7 @@ import { acuStatus } from '../enums/acuStatus.enum'
 import CardKeyController from './Hardware/CardKeyController'
 import { logUserEvents } from '../enums/logUserEvents.enum'
 import * as jwt from 'jsonwebtoken'
-import { accessPointDirection } from '../enums/accessPointDirection.enum'
+// import { accessPointDirection } from '../enums/accessPointDirection.enum'
 import CtpController from './Hardware/CtpController'
 import { locationGenerator } from '../functions/locationGenerator'
 import { credentialStatus } from '../enums/credentialStatus.enum'
@@ -529,7 +529,7 @@ export default class CredentialController {
                         credential_from_param.isLogin = true
                         await credential_from_param.save()
                     }
-                    const token = jwt.sign({ code: param_code, cardholder: credential_from_param.cardholder, company: credential_from_param.company }, 'jwtSecret')
+                    const token = jwt.sign({ code: param_code, cardholder: credential_from_param.cardholder, company: credential_from_param.company, credential_id: credential_from_param.id }, 'jwtSecret')
                     ctx.body = {
                         token: token
                     }
@@ -655,12 +655,19 @@ export default class CredentialController {
                     const company = await Company.findOneOrFail({ id: vikey_data.company })
                     const location = `${company.account}/${vikey_data.company}`
 
-                    const single_pass_data: any = {
-                        id: access_point_id,
-                        direction: accessPointDirection.ENTRY
+                    // const single_pass_data: any = {
+                    //     id: access_point_id,
+                    //     direction: accessPointDirection.ENTRY
+                    // }
+
+                    const web_pass_data: any = {
+                        Control_point_idx: access_point_id,
+                        userKeyId: vikey_data.credential_id
                     }
 
-                    CtpController.singlePass(location, access_rule.access_points.acus.serial_number, single_pass_data, {}, access_rule.access_points.acus.session_id)
+                    CtpController.webPass(location, access_rule.access_points.acus.serial_number, web_pass_data, {}, access_rule.access_points.acus.session_id)
+
+                    // CtpController.singlePass(location, access_rule.access_points.acus.serial_number, single_pass_data, {}, access_rule.access_points.acus.session_id)
                     ctx.body = {
                         message: 'Open Once sended'
                     }

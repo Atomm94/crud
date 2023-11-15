@@ -314,6 +314,9 @@ export default class Parse {
                 case OperatorType.MAIN_TAIN_ACK:
                     await this.mainTainAck(message)
                     break
+                case OperatorType.WEB_PASS_ACK:
+                    await this.webPassAck(message)
+                    break
                 default:
                     break
             }
@@ -1581,6 +1584,13 @@ export default class Parse {
             if (message.send_data.data.main_tain === 'reset' || message.send_data.data.main_tain === 'reset_to_factory') {
                 await Acu.destroyItem({ id: acu.id, company: acu.company })
             }
+        }
+    }
+
+    public static async webPassAck (message: IMqttCrudMessaging) {
+        // console.log('webPassAck', message)
+        if (message.result.errorNo === 0) {
+
         }
     }
 }
