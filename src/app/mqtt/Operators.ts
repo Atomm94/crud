@@ -183,6 +183,6 @@ export enum OperatorType {
     ACTIVATE_CREDENTIAL_ACK = 'activateCredential-Ack',
     MAIN_TAIN = 'MainTain',
     MAIN_TAIN_ACK = 'MainTain-Ack',
-    WEB_PASS = 'WebPass',
+    WEB_PASS = 'Web_pass',
     WEB_PASS_ACK = 'Web_pass-Ack',
 }
