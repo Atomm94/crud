@@ -170,7 +170,7 @@ export default class LogController {
                             const cameras = []
                             for (const camera_set_camera of camera_set.camera_set_cameras) {
                                 if (camera_set_camera.cameras) {
-                                    cameras.push({ id: camera_set_camera.cameras.id, main: camera_set_camera.main })
+                                    cameras.push({ id: camera_set_camera.cameras.id, main: camera_set_camera.main, name: camera_set_camera.cameras.name })
                                 }
                             }
                             access_point_data.camera_set = {
