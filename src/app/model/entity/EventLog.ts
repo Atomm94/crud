@@ -143,7 +143,7 @@ export class EventLog extends BaseClass {
 
             const event_group_id = Number(event.data.event_group_id)
             const event_id = Number(event.data.event_id)
-            if (event_id === 16) {
+            if (event_id === 16 && event.data.Key_HEX) {
                 const hex_code = event.data.Key_HEX.replace(/ /g, '')
                 const code = BigInt('0x' + hex_code).toString()
                 if (code) {
