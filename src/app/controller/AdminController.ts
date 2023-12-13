@@ -357,8 +357,12 @@ export default class AdminController {
                     ctx.body.partition_parent_id = company.partition_parent_id
                     ctx.body.package = company.package
                     ctx.body.upgraded_package_id = company.upgraded_package_id
-                    const notifications = await Notification.find({ where: { company: ctx.user.company, confirmed: null } })
-                    ctx.body.notifications = notifications.length
+                    const notifs = await Notification.createQueryBuilder('notification')
+                        .select('COUNT(notification.confirmed) as count')
+                        .where(`notification.company = ${ctx.user.company}`)
+                        .andWhere('notification.confirmed is null')
+                        .getRawOne()
+                    ctx.body.notifications = notifs?.count || 0
                     if (company.packages && company.packages.extra_settings) {
                         const extra_settings = JSON.parse(company.packages.extra_settings)
                         if (extra_settings.features) {
