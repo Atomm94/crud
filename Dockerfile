@@ -1,4 +1,4 @@
-FROM node:20.10.0 AS builder
+FROM node:20.10.0-alpine3.18 AS builder
 RUN npm install eslint tslint -g
 COPY . /opt/builder/
 
