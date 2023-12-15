@@ -4,7 +4,7 @@ import { Zoho } from '../model/entity/Zoho'
 import { postBodyRequest, postBodyRequestForToken } from '../services/requestUtil'
 
 export async function updateZohoConfig (zoho?: Zoho | null) {
-    if (!zoho) zoho = await Zoho.findOne({})
+    if (!zoho) zoho = await Zoho.findOne({ where: {} })
     if (zoho) {
         if (zoho.client_id) config.zoho.client_id = zoho.client_id
         if (zoho.client_secret) config.zoho.client_secret = zoho.client_secret
@@ -22,7 +22,7 @@ export async function updateZohoConfig (zoho?: Zoho | null) {
 
 export async function updateTokenFromRefreshToken () {
     try {
-        const zoho = await Zoho.findOne({})
+        const zoho = await Zoho.findOne({ where: {} })
         if (zoho) {
             if (!config.zoho.token_expire_time || new Date().getTime() - 2 * 60 * 1000 > Number(config.zoho.token_expire_time)) {
                 const tokenBody = {

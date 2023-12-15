@@ -1,4 +1,4 @@
-FROM node:12.18 AS builder
+FROM node:20.10.0 AS builder
 RUN npm config set unsafe-perm true && npm install eslint tslint -g
 COPY . /opt/builder/
 

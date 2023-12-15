@@ -308,7 +308,7 @@ export default class ZohoController {
             const code = ctx.query.code
             if (code) {
                 console.log(code)
-                const zoho: any = await Zoho.findOne({})
+                const zoho: any = await Zoho.findOne({ where: {} })
                 if (zoho) {
                     zoho.code = code
                     await zoho.save()
@@ -383,7 +383,7 @@ export default class ZohoController {
             const req_data = ctx.request.body
             console.log('req_data zohoCallback', JSON.stringify(req_data))
 
-            const zoho = await Zoho.findOneOrFail({})
+            const zoho = await Zoho.findOneOrFail({ where: {} })
             const product_id = ctx.query.product_id
             if (product_id && zoho.product_id !== product_id) {
                 return ctx.body = { success: false }

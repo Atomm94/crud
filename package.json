@@ -69,11 +69,12 @@
 		"request": "^2.88.2",
 		"request-promise-native": "^1.0.5",
 		"role-acl": "^4.5.4",
+		"sqlite3": "^5.1.6",
 		"swagger-jsdoc": "^3.5.0",
 		"swagger-ui-koa": "latest",
 		"tsconfig-paths": "^3.9.0",
 		"typeorm": "^0.3.17",
-		"typeorm-model-generator": "^0.2.1",
+		"typeorm-model-generator": "^0.4.6",
 		"uid": "^2.0.0",
 		"uuid": "^3.3.3",
 		"winston": "^3.3.3",
@@ -109,9 +110,9 @@
 		"prettier": "^1.19.1",
 		"supertest": "^3.4.2",
 		"ts-jest": "^29.1.1",
-		"ts-node": "^7.0.1",
+		"ts-node": "^10.9.2",
 		"tslint": "^5.20.1",
-		"typescript": "^3.8.3"
+		"typescript": "^4.7.3"
 	},
 	"jest": {
 		"testEnvironment": "node",
