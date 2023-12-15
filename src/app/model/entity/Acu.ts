@@ -160,7 +160,7 @@ export class Acu extends MainEntity {
     }
 
     public static async updateItem (data: Acu): Promise<{ [key: string]: any }> {
-        const acu = await this.findOneOrFail({ id: data.id })
+        const acu = await this.findOneOrFail({ where: { id: data.id } })
         const oldData = Object.assign({}, acu)
 
         if ('name' in data) acu.name = data.name
@@ -239,7 +239,7 @@ export class Acu extends MainEntity {
     public static async destroyItem (data: any) {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
-            this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
+            this.findOneOrFail({ where: { id: data.id, company: data.company } }).then((data: any) => {
                 this.softRemove(data)
                     .then(async () => {
                         minusResource(this.name, data.company)

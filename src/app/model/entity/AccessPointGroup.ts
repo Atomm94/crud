@@ -43,7 +43,7 @@ export class AccessPointGroup extends MainEntity {
     }
 
     public static async updateItem (data: AccessPointGroup): Promise<{ [key: string]: any }> {
-        const accessPointGroup = await this.findOneOrFail({ id: data.id })
+        const accessPointGroup = await this.findOneOrFail({ where: { id: data.id } })
         const oldData = Object.assign({}, accessPointGroup)
 
         if ('name' in data) accessPointGroup.name = data.name
@@ -82,7 +82,7 @@ export class AccessPointGroup extends MainEntity {
     public static async destroyItem (data: any) {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
-            this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
+            this.findOneOrFail({ where: { id: data.id, company: data.company } }).then((data: any) => {
                 this.softRemove(data)
                     .then(() => {
                         resolve({ message: 'success' })

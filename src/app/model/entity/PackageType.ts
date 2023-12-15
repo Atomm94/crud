@@ -52,7 +52,7 @@ export class PackageType extends MainEntity {
     }
 
     public static async updateItem (data: PackageType): Promise<{ [key: string]: any }> {
-        const packageType = await this.findOneOrFail({ id: data.id })
+        const packageType = await this.findOneOrFail({ where: { id: data.id } })
         const oldData = Object.assign({}, packageType)
 
         if ('name' in data) packageType.name = data.name
@@ -79,7 +79,7 @@ export class PackageType extends MainEntity {
     public static async getItem (id: number) {
         const itemId: number = id
         return new Promise((resolve, reject) => {
-            this.findOneOrFail(itemId)
+            this.findOneOrFail({ where: { id: itemId } })
                 .then((item: PackageType) => {
                     resolve(item)
                 })
@@ -92,7 +92,7 @@ export class PackageType extends MainEntity {
     public static async destroyItem (data: any) {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
-            this.findOneOrFail({ id: data.id }).then((data: any) => {
+            this.findOneOrFail({ where: { id: data.id } }).then((data: any) => {
                 this.remove(data)
                     .then(() => {
                         resolve({ message: 'success' })

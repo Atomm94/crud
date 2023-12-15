@@ -216,8 +216,8 @@ export default class AccessRuleController {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
             } else {
-                const access_point: AccessPoint = await AccessPoint.findOneOrFail({ id: access_rule.access_point })
-                const acu: Acu = await Acu.findOneOrFail({ id: access_point.acu })
+                const access_point: AccessPoint = await AccessPoint.findOneOrFail({ where: { id: access_rule.access_point } })
+                const acu: Acu = await Acu.findOneOrFail({ where: { id: access_point.acu } })
                 var data
                 if (acu.status === acuStatus.ACTIVE) {
                     if (access_rule.schedule !== req_data.schedule) {
@@ -229,8 +229,8 @@ export default class AccessRuleController {
                             data = updated.new
                         }
                         delete req_data.access_in_holidays
-                        const schedule: Schedule = await Schedule.findOneOrFail({ id: req_data.schedule })
-                        const timeframes = await Timeframe.find({ schedule: schedule.id })
+                        const schedule: Schedule = await Schedule.findOneOrFail({ where: { id: req_data.schedule } })
+                        const timeframes = await Timeframe.find({ where: { schedule: schedule.id } })
                         const send_data = { ...req_data, schedule_type: schedule.type, start_from: schedule.start_from, timeframes: timeframes, access_point: access_point.id }
                         if (access_rule.schedules.type !== schedule.type) {
                             SdlController.delSdl(location, acu.serial_number, send_data, user, access_rule.schedules.type, acu.session_id, true)
@@ -366,7 +366,7 @@ export default class AccessRuleController {
             const req_data = ctx.request.body
             const user = ctx.user
             const where = { id: req_data.id, company: user.company ? user.company : null }
-            const access_rule = await AccessRule.findOne(where)
+            const access_rule = await AccessRule.findOne({ where })
             const location = await locationGenerator(user)
             const logs_data = []
             if (!access_rule) {
@@ -374,10 +374,10 @@ export default class AccessRuleController {
                 ctx.body = { message: 'something went wrong' }
             } else {
                 ctx.logsData = []
-                const access_point: AccessPoint = await AccessPoint.findOneOrFail({ id: access_rule.access_point })
-                const acu: Acu = await Acu.findOneOrFail({ id: access_point.acu })
+                const access_point: AccessPoint = await AccessPoint.findOneOrFail({ where: { id: access_rule.access_point } })
+                const acu: Acu = await Acu.findOneOrFail({ where: { id: access_point.acu } })
                 if (acu.status === acuStatus.ACTIVE) {
-                    const schedule: Schedule = await Schedule.findOneOrFail({ id: access_rule.schedule })
+                    const schedule: Schedule = await Schedule.findOneOrFail({ where: { id: access_rule.schedule } })
 
                     const send_data = { id: access_rule.id, access_point: access_point.id }
                     SdlController.delSdl(location, acu.serial_number, send_data, user, schedule.type, acu.session_id)

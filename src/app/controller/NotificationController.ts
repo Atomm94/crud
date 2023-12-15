@@ -98,7 +98,7 @@ export default class NotificationController {
             const user = ctx.user
             const company = user.company ? user.company : null
             if (req_data.id) {
-                const notification: Notification = await Notification.findOneOrFail({ id: req_data.id, company: company })
+                const notification: Notification = await Notification.findOneOrFail({ where: { id: req_data.id, company: company } })
                 if (notification.confirmed) {
                     ctx.status = 400
                     ctx.body = { message: 'confirmed seted!' }

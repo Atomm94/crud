@@ -21,7 +21,7 @@ export default class SdlController {
         if (send_data) {
             send_sdl_data = send_data
         } else {
-            const timeframes = (schedule.timeframes) ? schedule.timeframes : await Timeframe.find({ schedule: schedule.id })
+            const timeframes = (schedule.timeframes) ? schedule.timeframes : await Timeframe.find({ where: { schedule: schedule.id } })
             send_sdl_data = { ...access_rule, timeframes: timeframes }
         }
 

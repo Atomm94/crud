@@ -146,7 +146,7 @@ export class PostSubscriber implements EntitySubscriberInterface<Acu> {
         // const { entity: New, databaseEntity: Old } = event
 
         // if (Old.session_id == null && New.session_id !== Old.session_id) {
-        //     const company: any = await Company.findOne({ id: New.company })
+        //     const company: any = await Company.findOne({ where: {d: New.company })
         //     const location = `${company.account}`
         //     SendDevice.setPass(location, New.serial_number, New.session_id)
         // }

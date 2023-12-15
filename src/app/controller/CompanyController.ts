@@ -197,7 +197,7 @@ export default class CompanyController {
             }
             if (!ctx.user.company) {
                 if (updated.old.status !== updated.new.status && updated.new.status === statusCompany.ENABLE) {
-                    const main = await Admin.findOne({ id: updated.new.account })
+                    const main = await Admin.findOne({ where: { id: updated.new.account } })
                     if (main) {
                         await Sendgrid.updateStatus(main.email)
                     }
@@ -580,7 +580,7 @@ export default class CompanyController {
     public static async regValidation (ctx: DefaultContext) {
         try {
             const token = ctx.params.token
-            const regToken = await RegistrationInvite.findOne({ token: token, used: false })
+            const regToken = await RegistrationInvite.findOne({ where: { token: token, used: false } })
             if (regToken) {
                 const req_data = ctx.request.body
                 const company_data = req_data.company
@@ -592,7 +592,7 @@ export default class CompanyController {
                         message: 'Fill in required inputs!!'
                     }
                 } else {
-                    if (await Admin.findOne({ email: account_data.email })) {
+                    if (await Admin.findOne({ where: { email: account_data.email } })) {
                         ctx.status = 400
                         ctx.body = {
                             message: 'Duplicate email!!'
@@ -605,7 +605,7 @@ export default class CompanyController {
                         const company = await Company.addItem(company_data as Company)
 
                         let permissions: string = JSON.stringify(Role.default_partner_role)
-                        const default_role = await Role.findOne({ slug: 'default_partner' })
+                        const default_role = await Role.findOne({ where: { slug: 'default_partner' } })
                         if (default_role) {
                             permissions = default_role.permissions
                         }
@@ -737,9 +737,8 @@ export default class CompanyController {
     public static async regPartitionValidation (ctx: DefaultContext) {
         try {
             const token = ctx.params.token
-            const regToken = await RegistrationInvite.findOne({ token: token, used: false })
-            const company_invite = await Company.findOne({ where: { id: regToken?.company } })
-            if (regToken) {
+            const regToken = await RegistrationInvite.findOne({ where: { token: token, used: false } })
+            if (regToken && regToken.company) {
                 const req_data = ctx.request.body
                 const company_data = req_data.company
                 const account_data = req_data.account
@@ -750,12 +749,13 @@ export default class CompanyController {
                         message: 'Fill in required inputs!!'
                     }
                 } else {
-                    if (await Admin.findOne({ email: account_data.email })) {
+                    if (await Admin.findOne({ where: { email: account_data.email } })) {
                         ctx.status = 400
                         ctx.body = {
                             message: 'Duplicate email!!'
                         }
                     } else {
+                        const company_invite = await Company.findOne({ where: { id: regToken.company } })
                         if (company_invite) {
                             company_data.partition_parent_id = company_invite.id
                             company_data.package = company_invite.package
@@ -848,7 +848,7 @@ export default class CompanyController {
     public static async resendNewPassEmail (ctx: DefaultContext) {
         const reqData = ctx.request.body
         try {
-            const admin = await Admin.findOneOrFail({ email: reqData.email })
+            const admin = await Admin.findOneOrFail({ where: { email: reqData.email } })
             if (admin.verify_token) {
                 await Sendgrid.sendNewPass(admin.email, admin.verify_token)
                 ctx.body = {

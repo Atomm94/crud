@@ -73,7 +73,7 @@ export class Department extends MainEntity {
     }
 
     public static async updateItem (data: Department): Promise<{ [key: string]: any }> {
-        const department = await this.findOneOrFail({ id: data.id })
+        const department = await this.findOneOrFail({ where: { id: data.id } })
         const oldData = Object.assign({}, department)
 
         if ('name' in data) department.name = data.name
@@ -112,7 +112,7 @@ export class Department extends MainEntity {
     public static async destroyItem (data: any) {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
-            this.findOneOrFail({ id: data.id }).then((data: any) => {
+            this.findOneOrFail({ where: { id: data.id } }).then((data: any) => {
                 this.remove(data)
                     .then(() => {
                         resolve({ message: 'success' })

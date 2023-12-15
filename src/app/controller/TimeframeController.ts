@@ -81,8 +81,8 @@ export default class TimeframeController {
                 .andWhere(`access_rule.schedule = ${req_data.schedule}`)
                 .getMany()
             const location = await locationGenerator(user)
-            const schedule = await Schedule.findOneOrFail({ id: save.schedule })
-            const timeframes = await Timeframe.find({ schedule: schedule.id })
+            const schedule = await Schedule.findOneOrFail({ where: { id: save.schedule } })
+            const timeframes = await Timeframe.find({ where: { schedule: schedule.id } })
             const check_schedule = CheckScheduleSettings.checkSettings(schedule.type, schedule, save)
             if (check_schedule !== true) {
                 ctx.status = 400
@@ -180,12 +180,12 @@ export default class TimeframeController {
 
             let schedule
             if (req_data.id) {
-                const timeframe = await Timeframe.findOneOrFail({ id: req_data.id })
-                schedule = await Schedule.findOneOrFail({ id: timeframe.schedule })
+                const timeframe = await Timeframe.findOneOrFail({ where: { id: req_data.id } })
+                schedule = await Schedule.findOneOrFail({ where: { id: timeframe.schedule } })
             } else {
-                schedule = await Schedule.findOneOrFail({ id: req_data.schedule })
+                schedule = await Schedule.findOneOrFail({ where: { id: req_data.schedule } })
             }
-            const timeframes = await Timeframe.find({ schedule: schedule.id })
+            const timeframes = await Timeframe.find({ where: { schedule: schedule.id } })
 
             for (const access_rule of access_rules) {
                 const send_data: any = { id: access_rule.id, access_point: access_rule.access_point, timeframes: timeframes, timeframe_flag: 1 }
@@ -292,7 +292,7 @@ export default class TimeframeController {
                 target: `${Timeframe.name}/${timeframe.name}`,
                 value: { name: timeframe.name }
             }]
-            const schedule = await Schedule.findOneOrFail({ id: timeframe.schedule })
+            const schedule = await Schedule.findOneOrFail({ where: { id: timeframe.schedule } })
 
             const access_rules = await AccessRule.createQueryBuilder('access_rule')
                 .innerJoinAndSelect('access_rule.access_points', 'access_point')
@@ -301,7 +301,7 @@ export default class TimeframeController {
                 .andWhere(`access_rule.schedule = ${schedule.id}`)
                 .getMany()
             const location = await locationGenerator(user)
-            const timeframes = await Timeframe.find({ schedule: schedule.id })
+            const timeframes = await Timeframe.find({ where: { schedule: schedule.id } })
 
             for (const access_rule of access_rules) {
                 const send_data: any = { id: access_rule.id, access_point: access_rule.access_point, timeframes: timeframes, timeframe_flag: 1 }
@@ -422,7 +422,7 @@ export default class TimeframeController {
             console.log('reqdata', req_data)
 
             const where = { schedule: req_data.copy_id, name: req_data.copy_name, company: user.company }
-            const timeFrames = await Timeframe.find(where)
+            const timeFrames = await Timeframe.find({ where })
             const deleteWhere = { schedule: req_data.paste_id, company: user.company, name: req_data.paste_name }
             console.log('timeFrames', timeFrames)
 
@@ -448,7 +448,7 @@ export default class TimeframeController {
                     .andWhere(`access_rule.schedule = ${req_data.paste_id}`)
                     .getMany()
                 const location = await locationGenerator(user)
-                const timeframes = await Timeframe.find({ schedule: req_data.paste_id })
+                const timeframes = await Timeframe.find({ where: { schedule: req_data.paste_id } })
 
                 for (const access_rule of access_rules) {
                     const send_data: any = { id: access_rule.id, access_point: access_rule.access_point, timeframes: timeframes, timeframe_flag: 1 }

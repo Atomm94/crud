@@ -20,7 +20,7 @@ export default (token_required: boolean) => async (ctx: DefaultContext, next: ()
                         return await next()
                     }
                 } else {
-                    const credential = await Credential.findOne({ code: verify.code, type: credentialType.VIKEY, company: verify.company })
+                    const credential = await Credential.findOne({ where: { code: verify.code, type: credentialType.VIKEY, company: verify.company } })
                     if (!credential) {
                         ctx.status = 400
                         ctx.body = { message: `Invalid code ${verify.code}!` }

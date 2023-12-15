@@ -117,7 +117,7 @@ export class CardholderGroup extends MainEntity {
     }
 
     public static async updateItem (data: any, user: any): Promise<{ [key: string]: any }> {
-        const cardholderGroup = await this.findOneOrFail({ id: data.id })
+        const cardholderGroup = await this.findOneOrFail({ where: { id: data.id } })
         const oldData = Object.assign({}, cardholderGroup)
 
         let parent_data: any
@@ -205,7 +205,7 @@ export class CardholderGroup extends MainEntity {
     public static async destroyItem (data: any) {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
-            this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
+            this.findOneOrFail({ where: { id: data.id, company: data.company } }).then((data: any) => {
                 this.softRemove(data)
                     .then(async () => {
                         minusResource(this.name, data.company)

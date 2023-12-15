@@ -178,7 +178,7 @@ export default class StandardReportController {
                     return ctx.body = { message: check }
                 }
             }
-            const check_by_company = await StandardReport.findOne(where)
+            const check_by_company = await StandardReport.findOne({ where })
             if (!check_by_company) {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }

@@ -83,7 +83,7 @@ export class Limitation extends MainEntity {
     }
 
     public static async updateItem (data: Limitation): Promise<{ [key: string]: any }> {
-        const limitation = await this.findOneOrFail({ id: data.id })
+        const limitation = await this.findOneOrFail({ where: { id: data.id } })
         const oldData = Object.assign({}, limitation)
 
         if ('enable_date' in data) limitation.enable_date = data.enable_date
@@ -117,7 +117,7 @@ export class Limitation extends MainEntity {
     public static async getItem (id: number) {
         const itemId: number = id
         return new Promise((resolve, reject) => {
-            this.findOneOrFail(itemId)
+            this.findOneOrFail({ where: { id: itemId } })
                 .then((item: Limitation) => {
                     resolve(item)
                 })
@@ -131,7 +131,7 @@ export class Limitation extends MainEntity {
         const itemId: number = id
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
-            this.remove(await this.findOneOrFail(itemId))
+            this.remove(await this.findOneOrFail({ where: { id: itemId } }))
                 .then(() => {
                     resolve({ message: 'success' })
                 })

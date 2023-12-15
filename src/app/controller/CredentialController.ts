@@ -374,7 +374,7 @@ export default class CredentialController {
             const req_data = ctx.request.body
             const user = ctx.user
             const where = { id: req_data.id, company: user.company ? user.company : null }
-            const check_by_company = await Credential.findOne(where)
+            const check_by_company = await Credential.findOne({ where })
             if (!check_by_company) {
                 ctx.status = 400
                 return ctx.body = { message: 'something went wrong' }
@@ -505,11 +505,11 @@ export default class CredentialController {
                 vikey_data = ctx.vikey_data
             }
 
-            const credential_from_param: Credential | undefined = await Credential.findOne({ code: param_code, type: credentialType.VIKEY })
+            const credential_from_param: Credential | null = await Credential.findOne({ where: { code: param_code, type: credentialType.VIKEY } })
 
             if (vikey_data) {
                 if (vikey_data.code !== param_code) {
-                    const credential_from_token: Credential | undefined = await Credential.findOne({ code: vikey_data.code, type: credentialType.VIKEY })
+                    const credential_from_token: Credential | null = await Credential.findOne({ where: { code: vikey_data.code, type: credentialType.VIKEY } })
                     if (!(credential_from_param && !credential_from_token)) {
                         ctx.status = 400
                         return ctx.body = { message: 'Wrong token and code!' }
@@ -638,7 +638,7 @@ export default class CredentialController {
             const vikey_data = ctx.vikey_data
             const access_point_id = ctx.request.body.access_point
 
-            const cardholder = await Cardholder.findOneOrFail({ id: vikey_data.cardholder, company: vikey_data.company })
+            const cardholder = await Cardholder.findOneOrFail({ where: { id: vikey_data.cardholder, company: vikey_data.company } })
 
             const access_rule = await AccessRule.findOne({
                 where: { access_right: cardholder.access_right, access_point: access_point_id },
@@ -652,7 +652,7 @@ export default class CredentialController {
                     ctx.status = 400
                     ctx.body = { message: `status of Acu must be ${acuStatus.ACTIVE}!` }
                 } else {
-                    const company = await Company.findOneOrFail({ id: vikey_data.company })
+                    const company = await Company.findOneOrFail({ where: { id: vikey_data.company } })
                     const location = `${company.account}/${vikey_data.company}`
 
                     // const single_pass_data: any = {

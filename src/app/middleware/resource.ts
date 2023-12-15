@@ -16,7 +16,7 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
             ctx.body = { message: `${ctx.actionModel} resource limit has been reached` }
         }
     } else if (ctx.routerName === 'Company-addItem') {
-        const reg_token = await Model.RegistrationInvite.findOne({ token: ctx.params.token, used: false })
+        const reg_token = await Model.RegistrationInvite.findOne({ where: { token: ctx.params.token, used: false } })
         if (!reg_token) {
             ctx.status = 400
             ctx.body = {
@@ -53,7 +53,7 @@ export async function canCreate (company_id: number, resource: string, used_coun
     try {
         const company = await Model.Company.findOneOrFail({ where: { id: company_id } })
         if (company && company.package) {
-            const companyResources = await Model.CompanyResources.findOneOrFail({ company: company_id })
+            const companyResources = await Model.CompanyResources.findOneOrFail({ where: { company: company_id } })
             if (companyResources && companyResources.used) {
                 const usedRes = JSON.parse(companyResources.used)
                 let usedResCount = (resource in usedRes) ? +usedRes[resource] : 0

@@ -247,7 +247,7 @@ export class Cardholder extends MainEntity {
     }
 
     public static async updateItem (data: any, auth_user: any): Promise<{ [key: string]: any }> {
-        const cardholder = await this.findOneOrFail({ id: data.id })
+        const cardholder = await this.findOneOrFail({ where: { id: data.id } })
         const oldData = Object.assign({}, cardholder)
         const logs_data: any = []
 

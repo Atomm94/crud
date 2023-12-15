@@ -64,7 +64,7 @@ class ModuleController {
 
         try {
             if (ctx.user && ctx.user.role) {
-                const role = await Role.findOne({ id: ctx.user.role })
+                const role = await Role.findOne({ where: { id: ctx.user.role } })
                 const permissions: any = role?.permissions
                 if (role && permissions) { // if (role && !permissions.super) {
                     Object.keys(parsedModule).forEach((m) => {

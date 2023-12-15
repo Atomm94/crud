@@ -231,7 +231,7 @@ class RoleController {
           company: user.company ? user.company : null,
           main: false
         }
-        const role = await Role.findOne(where)
+        const role = await Role.findOne({ where })
 
         if (!role) {
           ctx.status = 400
@@ -309,14 +309,14 @@ class RoleController {
           company: user.company ? user.company : null,
           main: false
         }
-        const check_role_by_company = await Role.findOne(where)
+        const check_role_by_company = await Role.findOne({ where })
 
         if (!check_role_by_company) {
           ctx.status = 400
           ctx.body = { message: 'something went wrong' }
         } else {
           if (await checkPermissionsAccess(user, check_role_by_company.permissions)) {
-            const admin = await Admin.find({ role: id })
+            const admin:any = await Admin.find({ where: { role: id } })
             if (admin.length) {
               for (let i = 0; i < admin.length; i++) {
                 admin[i].role = null

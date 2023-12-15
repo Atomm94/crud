@@ -212,7 +212,7 @@ export default class CameraSetController {
         try {
             const user = ctx.user
             const company = user.company ? user.company : null
-            const cameraSets = await CameraSet.find({ company })
+            const cameraSets = await CameraSet.find({ where: { company } })
             ctx.body = cameraSets
         } catch (err) {
             ctx.status = err.status || 400

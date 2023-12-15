@@ -96,8 +96,8 @@ export default class AccessPointGroupController {
         try {
             const req_data = ctx.request.body
             const user = ctx.user
-            const where = { id: req_data.id, company: user.company ? user.company : null }
-            const check_by_company = await AccessPointGroup.findOne(where)
+            const where: { id: number, company: number } = { id: req_data.id, company: user.company ? user.company : null }
+            const check_by_company = await AccessPointGroup.findOne({ where })
 
             if (!check_by_company) {
                 ctx.status = 400

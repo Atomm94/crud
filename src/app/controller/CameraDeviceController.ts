@@ -296,7 +296,7 @@ export default class CameraDeviceController {
     public static async getAll (ctx: DefaultContext) {
         try {
             const company = ctx.user.company
-            const devices = await CameraDevice.find({ company: company })
+            const devices = await CameraDevice.find({ where: { company: company } })
             ctx.body = devices
         } catch (err) {
             ctx.status = err.status || 400

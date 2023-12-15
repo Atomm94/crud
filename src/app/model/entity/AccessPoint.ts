@@ -150,7 +150,7 @@ export class AccessPoint extends MainEntity {
     }
 
     public static async updateItem (data: AccessPoint): Promise<{ [key: string]: any }> {
-        const accessPoint = await this.findOneOrFail({ id: data.id })
+        const accessPoint = await this.findOneOrFail({ where: { id: data.id } })
         const oldData = Object.assign({}, accessPoint)
 
         if ('name' in data) accessPoint.name = data.name

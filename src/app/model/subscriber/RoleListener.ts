@@ -33,17 +33,18 @@ export class PostSubscriber implements EntitySubscriberInterface<Role> {
      */
     afterUpdate (event: UpdateEvent<Role>) {
         const { entity: New, databaseEntity: Old } = event
-
-        if (New.status === Old.status) {
-            if (New.status === true) {
-                if (JSON.stringify(New.permissions) !== JSON.stringify(Old.permissions)) {
-                    AccessControl.updateGrant(New.id, New.permissions)
+        if (New) {
+            if (New.status === Old.status) {
+                if (New.status === true) {
+                    if (JSON.stringify(New.permissions) !== JSON.stringify(Old.permissions)) {
+                        AccessControl.updateGrant(New.id, New.permissions)
+                    }
                 }
+            } else if (New.status === true) {
+                AccessControl.addGrant(New.id, New.permissions)
+            } else if (New.status === false) {
+                AccessControl.deleteGrant(New.id)
             }
-        } else if (New.status === true) {
-            AccessControl.addGrant(New.id, New.permissions)
-        } else if (New.status === false) {
-            AccessControl.deleteGrant(New.id)
         }
     }
 

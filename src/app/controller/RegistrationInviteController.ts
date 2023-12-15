@@ -159,7 +159,7 @@ export default class RegistrationInviteController {
             // ctx.body = await RegistrationInvite.getByLink(ctx.params.token)
             const token = ctx.params.token
 
-            const regToken = await RegistrationInvite.findOneOrFail({ token: token, used: false })
+            const regToken = await RegistrationInvite.findOneOrFail({ where: { token: token, used: false } })
             if (regToken) {
                 let packageTypes: any = []
                 if (regToken.company) {
@@ -221,7 +221,7 @@ export default class RegistrationInviteController {
             // ctx.body = await RegistrationInvite.getByLink(ctx.params.token)
             const token = ctx.params.token
 
-            const regToken = await RegistrationInvite.findOneOrFail({ token: token })
+            const regToken = await RegistrationInvite.findOneOrFail({ where: { token: token } })
             if (regToken) {
                 if (regToken.company) {
                     const parent_company: any = await Company.findOneOrFail({ where: { id: regToken.company }, relations: ['package_types'] })

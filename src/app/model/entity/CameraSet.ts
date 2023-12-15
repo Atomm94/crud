@@ -69,7 +69,7 @@ export class CameraSet extends MainEntity {
     }
 
     public static async updateItem (data: CameraSet): Promise<{ [key: string]: any }> {
-        const cameraSet = await this.findOneOrFail({ id: data.id, company: data.company })
+        const cameraSet = await this.findOneOrFail({ where: { id: data.id, company: data.company } })
         const oldData = Object.assign({}, cameraSet)
 
         if ('name' in data) cameraSet.name = data.name
@@ -98,7 +98,7 @@ export class CameraSet extends MainEntity {
     public static async getItem (id: number) {
         const itemId: number = id
         return new Promise((resolve, reject) => {
-            this.findOneOrFail(itemId)
+            this.findOneOrFail({ where: { id: itemId } })
                 .then((item: CameraSet) => {
                     resolve(item)
                 })

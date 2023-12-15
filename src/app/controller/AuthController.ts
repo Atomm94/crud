@@ -104,15 +104,15 @@ export default class AuthController {
                     message: message
                 }
             }
-            if (await Admin.findOne({ email: account.email })) {
+            if (await Admin.findOne({ where: { email: account.email } })) {
                 ctx.status = 400
                 return ctx.body = {
                     message: 'Duplicate email!!'
                 }
             }
 
-            const defaultPackageType = await PackageType.findOneOrFail({ default: true })
-            const defaultPackage = await Package.findOneOrFail({ default: true })
+            const defaultPackageType = await PackageType.findOneOrFail({ where: { default: true } })
+            const defaultPackage = await Package.findOneOrFail({ where: { default: true } })
 
             company.upgraded_package_id = defaultPackage?.id
             company.company_sign_up = true
@@ -121,7 +121,7 @@ export default class AuthController {
             const newCompany = await Company.addItem(company as Company)
 
             let permissions: string = JSON.stringify(Role.default_partner_role)
-            const default_role = await Role.findOne({ slug: 'default_partner' })
+            const default_role = await Role.findOne({ where: { slug: 'default_partner' } })
             if (default_role) {
                 permissions = default_role.permissions
             }
@@ -193,7 +193,7 @@ export default class AuthController {
     public static async login (ctx: DefaultContext) {
         const { username, password } = ctx.request.body
         let checkPass
-        let user: Admin
+        let user: any
         let company_main_data: any = {
             company_main: null,
             package: null
@@ -229,7 +229,7 @@ export default class AuthController {
                     }
                 } else
                     if (user.company) {
-                        const company = await Company.findOneOrFail({ id: user.company })
+                        const company = await Company.findOneOrFail({ where: { id: user.company } })
                         company_main_data.company_main = company.account
                         company_main_data.package = company.package
                         company_main_data.partition_parent_id = company.partition_parent_id
@@ -258,7 +258,7 @@ export default class AuthController {
         const adminFiltered = _.pick(company_main_data, ['id', 'username', 'last_name', 'first_name', 'email', 'avatar', 'role', 'super', 'department', 'company', 'company_main', 'cardholder', 'package'])
 
         if (user.company) {
-            const company = await Company.findOne(user.company)
+            const company = await Company.findOne({ where: { id: user.company } })
             ctx.companyData = (company) || null
         }
 

@@ -431,12 +431,12 @@ export default class CardholderGroupController {
             const id = ctx.request.body.id
             const user = ctx.user
             const where = { id: id, company: user.company ? user.company : null }
-            const childs = await CardholderGroup.find({ parent_id: id })
+            const childs = await CardholderGroup.find({ where: { parent_id: id } })
             if (childs.length) {
                 ctx.status = 400
                 ctx.body = { message: 'Can\'t remove group with childs' }
             } else {
-                const cardholders = await Cardholder.find({ cardholder_group: id })
+                const cardholders = await Cardholder.find({ where: { cardholder_group: id } })
                 if (cardholders.length) {
                     ctx.status = 400
                     ctx.body = { message: 'Can\'t remove group with cardholders' }

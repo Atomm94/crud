@@ -42,7 +42,7 @@ export default class MqttController {
             const main_id = +ctx.params.id
             // const user = ctx.user
             const where = { account: main_id }
-            const company = await Company.findOne({ where: where })
+            const company = await Company.findOne({ where })
             if (!company) {
                  ctx.body = {
                     BrokerAdr: '',

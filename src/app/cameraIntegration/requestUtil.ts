@@ -97,7 +97,7 @@ export function putBodyRequest<T> (link: string, body: object) {
         'Content-Type': 'application/json'
     }
 
-    return new Promise<T>((resolve, reject) => {
+    return new Promise<T | void>((resolve, reject) => {
         request.put(
             {
                 headers,

@@ -114,7 +114,7 @@ export default class AccountGroupController {
             const req_data = ctx.request.body
             const user = ctx.user
             const where = { id: req_data.id, company: user.company ? user.company : null }
-            const check_by_company = await AccountGroup.findOne(where)
+            const check_by_company = await AccountGroup.findOne({ where })
 
             if (!check_by_company) {
                 ctx.status = 400
@@ -215,12 +215,12 @@ export default class AccountGroupController {
             const user = ctx.user
             const where = { id: req_data.id, company: user.company ? user.company : null }
 
-            const childs = await AccountGroup.find({ parent_id: req_data.id })
+            const childs = await AccountGroup.find({ where: { parent_id: req_data.id } })
             if (childs.length) {
                 ctx.status = 400
                 ctx.body = { message: 'Can\'t remove group with childs' }
             } else {
-                const admins = await Admin.find({ account_group: req_data.id })
+                const admins = await Admin.find({ where: { account_group: req_data.id } })
                 if (admins.length) {
                     for (const admin of admins) {
                         admin.account_group = null

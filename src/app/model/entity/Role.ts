@@ -200,7 +200,7 @@ export class Role extends MainEntity {
   }
 
   public static async updateItem (data: Role): Promise<{ [key: string]: any }> {
-    const role = await this.findOneOrFail({ id: data.id })
+    const role = await this.findOneOrFail({ where: { id: data.id } })
     const oldData = Object.assign({}, role)
 
     if ('slug' in data) role.slug = data.slug
@@ -246,7 +246,7 @@ export class Role extends MainEntity {
   public static async destroyItem (data: any) {
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve, reject) => {
-      this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
+      this.findOneOrFail({ where: { id: data.id, company: data.company } }).then((data: any) => {
         this.remove(data)
           .then(() => {
             resolve({ message: 'success' })
@@ -285,7 +285,7 @@ export class Role extends MainEntity {
     if (!user.super) {
       const where: { id: number, company?: number } = { id: user.role }
       if (user.company) where.company = user.company
-      const role = await Role.findOne(where)
+      const role = await Role.findOne({ where })
       if (role) {
         const permissions = JSON.parse(role.permissions)
         Object.keys(permissions).forEach((model: string) => {

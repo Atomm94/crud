@@ -44,7 +44,7 @@ export class CameraSetToCamera extends MainEntity {
     }
 
     public static async updateItem (data: CameraSetToCamera): Promise<{ [key: string]: any }> {
-        const cameraSetToCamera = await this.findOneOrFail({ id: data.id })
+        const cameraSetToCamera = await this.findOneOrFail({ where: { id: data.id } })
         const oldData = Object.assign({}, cameraSetToCamera)
 
         if ('main' in data) cameraSetToCamera.main = data.main

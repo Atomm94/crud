@@ -55,7 +55,7 @@ export class AccessPointStatus extends MainEntity {
     }
 
     public static async updateItem (data: AccessPointStatus): Promise<{ [key: string]: any }> {
-        const accessPointStatus = await this.findOneOrFail({ access_point: data.access_point })
+        const accessPointStatus = await this.findOneOrFail({ where: { access_point: data.access_point } })
         const oldData = Object.assign({}, accessPointStatus)
 
         if ('resources' in data) accessPointStatus.resources = (data.resources && typeof data.resources === 'object') ? JSON.stringify(data.resources) : data.resources

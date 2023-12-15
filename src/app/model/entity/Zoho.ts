@@ -63,7 +63,7 @@ export class Zoho extends MainEntity {
     }
 
     public static async updateItem (data: Zoho): Promise<{ [key: string]: any }> {
-        const zoho = await this.findOneOrFail({ id: data.id })
+        const zoho = await this.findOneOrFail({ where: { id: data.id } })
         const oldData = Object.assign({}, zoho)
 
         if ('client_id' in data) zoho.client_id = data.client_id
@@ -109,7 +109,7 @@ export class Zoho extends MainEntity {
     public static async destroyItem (data: any) {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
-            this.remove(await this.findOneOrFail({ id: data.id }))
+            this.remove(await this.findOneOrFail({ where: { id: data.id } }))
                 .then(async () => {
                     resolve({ message: 'success' })
                 })

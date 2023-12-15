@@ -44,7 +44,7 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
 
             if (verify) {
                 ctx.user = verify
-                const check_jwt_black_list = await JwtToken.findOne({ account: ctx.user.id, token: token, expired: false })
+                const check_jwt_black_list = await JwtToken.findOne({ where: { account: ctx.user.id, token: token, expired: false } })
                 if (!check_jwt_black_list) {
                     ctx.status = 401
                     ctx.body = { message: 'User Blocked or TokenExpiredError' }

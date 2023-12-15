@@ -63,7 +63,7 @@ export class AccountGroup extends MainEntity {
     }
 
     public static async updateItem (data: AccountGroup): Promise<{ [key: string]: any }> {
-        const accountGroup = await this.findOneOrFail({ id: data.id })
+        const accountGroup = await this.findOneOrFail({ where: { id: data.id } })
         const oldData = Object.assign({}, accountGroup)
 
         if ('name' in data) accountGroup.name = data.name
@@ -110,7 +110,7 @@ export class AccountGroup extends MainEntity {
     public static async destroyItem (data: any) {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
-            this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
+            this.findOneOrFail({ where: { id: data.id, company: data.company } }).then((data: any) => {
                 this.remove(data)
                     .then(() => {
                         resolve({ message: 'success' })

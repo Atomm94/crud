@@ -109,7 +109,7 @@ export class Credential extends MainEntity {
     }
 
     public static async updateItem (data: Credential) {
-        const credential = await this.findOneOrFail({ id: data.id })
+        const credential = await this.findOneOrFail({ where: { id: data.id } })
 
         if ('type' in data) credential.type = data.type
         if ('code' in data) credential.code = data.code
@@ -148,7 +148,7 @@ export class Credential extends MainEntity {
     public static async destroyItem (data: any) {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
-            this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
+            this.findOneOrFail({ where: { id: data.id, company: data.company } }).then((data: any) => {
                 this.softRemove(data)
                     .then(async () => {
                         if (data.type === credentialType.VIKEY) minusResource(resourceKeys.VIRTUAL_KEYS, data.company)

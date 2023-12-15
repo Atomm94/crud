@@ -246,7 +246,7 @@ export class Admin extends MainEntity {
   }
 
   public static async updateItem (data: any): Promise<{ [key: string]: any }> {
-    const admin = await this.findOneOrFail({ id: data.id })
+    const admin: any = await this.findOneOrFail({ where: { id: data.id } })
     const oldData = Object.assign({}, admin)
     delete admin.password
 
@@ -312,7 +312,7 @@ export class Admin extends MainEntity {
       const reports = await StandardReport.find({ where: { author: data.id, company: data.company } })
       reports.map(async (item) => await StandardReport.destroyItem(item))
 
-      this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
+      this.findOneOrFail({ where: { id: data.id, company: data.company } }).then((data: any) => {
         this.remove(data)
           .then(() => {
             resolve({ message: 'success' })

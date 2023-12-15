@@ -92,7 +92,7 @@ export class ExtDevice extends MainEntity {
     }
 
     public static async updateItem (data: ExtDevice): Promise<{ [key: string]: any }> {
-        const extDevice = await this.findOneOrFail({ id: data.id })
+        const extDevice = await this.findOneOrFail({ where: { id: data.id } })
         const oldData = Object.assign({}, extDevice)
 
         if ('name' in data) extDevice.name = data.name

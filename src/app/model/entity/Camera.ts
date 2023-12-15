@@ -177,7 +177,7 @@ export class Camera extends MainEntity {
     public static async getItem (id: number) {
         const itemId: number = id
         return new Promise((resolve, reject) => {
-            this.findOneOrFail(itemId)
+            this.findOneOrFail({ where: { id: itemId } })
                 .then((item: Camera) => {
                     resolve(item)
                 })
