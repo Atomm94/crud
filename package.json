@@ -132,5 +132,10 @@
 			"/dist/",
 			"/coverage/"
 		]
-	}
+	},
+	"pre-commit": [
+		"build"
+	]
+
+
 }
