@@ -200,7 +200,7 @@ export class Reader extends MainEntity {
                 id: data.id
             }
             if (data.company) where.company = data.company
-            this.findOneOrFail(where).then((data: any) => {
+            this.findOneOrFail({ where }).then((data: any) => {
                 this.softRemove(data)
                     .then(() => {
                         minusResource(this.name, data.company)

@@ -139,7 +139,7 @@ export class AutoTaskSchedule extends MainEntity {
         return new Promise(async (resolve, reject) => {
             const where: any = { id: data.id }
             if (data.company) where.company = data.company
-            this.findOneOrFail(where).then((data: any) => {
+            this.findOneOrFail({ where }).then((data: any) => {
                 this.remove(data)
                     .then(() => {
                         resolve({ message: 'success' })

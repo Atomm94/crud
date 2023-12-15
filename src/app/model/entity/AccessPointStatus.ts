@@ -94,7 +94,7 @@ export class AccessPointStatus extends MainEntity {
     public static async destroyItem (where: any) {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
-            this.remove(await this.find(where))
+            this.remove(await this.find({ where }))
                 .then(() => {
                     resolve({ message: 'success' })
                 })

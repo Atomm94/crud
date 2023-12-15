@@ -12,7 +12,7 @@ export async function formatKeyValue (key: string, value: any, obj: Record<strin
                 value = null
             } else {
                 const model = access_point?.acus.model
-                const io = acuModels.controllers[model as keyof typeof Object.keys][`${key}s_info`][value] as {name: string}
+                const io = acuModels.controllers[model as keyof typeof Object.keys][`${key}s_info`][value] as { name: string }
                 value = io.name
             }
         } catch (err) {
@@ -24,7 +24,7 @@ export async function formatKeyValue (key: string, value: any, obj: Record<strin
             value = 'Acu'
         } else {
             try {
-                const ext_device = await ExtDevice.findOneOrFail(value)
+                const ext_device = await ExtDevice.findOneOrFail({ where: { id: value } })
                 value = ext_device.name
             } catch (err) {
                 value = null

@@ -139,7 +139,7 @@ export class ExtDevice extends MainEntity {
         return new Promise(async (resolve, reject) => {
             const where: any = { id: data.id }
             if (data.company) where.company = data.company
-            this.findOneOrFail(where).then((data: any) => {
+            this.findOneOrFail({ where }).then((data: any) => {
                 this.softRemove(data)
                     .then(async () => {
                         const ext_device_data: any = await this.createQueryBuilder('ext_device')

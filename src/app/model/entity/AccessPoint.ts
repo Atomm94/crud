@@ -213,7 +213,7 @@ export class AccessPoint extends MainEntity {
         return new Promise(async (resolve, reject) => {
             const where: any = { id: data.id }
             if (data.company) where.company = data.company
-            this.findOneOrFail(where).then((data: any) => {
+            this.findOneOrFail({ where }).then((data: any) => {
                 this.softRemove(data)
                     .then(async () => {
                         let resource_name = this.name

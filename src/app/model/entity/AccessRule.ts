@@ -124,7 +124,7 @@ export class AccessRule extends MainEntity {
         return new Promise(async (resolve, reject) => {
             const where: any = { id: data.id }
             if (data.company) where.company = data.company
-            this.findOneOrFail(where).then((data: any) => {
+            this.findOneOrFail({ where }).then((data: any) => {
                 this.softRemove(data)
                     .then(async () => {
                         minusResource(this.name, data.company)

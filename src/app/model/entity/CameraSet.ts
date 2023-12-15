@@ -112,7 +112,7 @@ export class CameraSet extends MainEntity {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
             const where: any = { id: data.id, company: data.company }
-            this.findOneOrFail(where).then((data: any) => {
+            this.findOneOrFail({ where }).then((data: any) => {
                 this.softRemove(data)
                     .then(async () => {
                         const camera_set_data: any = await this.createQueryBuilder('camera')
