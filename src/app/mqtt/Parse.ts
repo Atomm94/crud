@@ -1088,6 +1088,8 @@ export default class Parse {
             if (message.send_data.data.mode) access_point.mode = message.send_data.data.mode
             if (message.send_data.data.exit_mode) access_point.exit_mode = message.send_data.data.exit_mode
             AccessPoint.save(access_point, { transaction: false })
+                .then(() => { })
+                .catch((err: any) => { console.log('deviceSetAccessModeAck AccessPoint save error', err) })
         } else {
         }
     }
@@ -1499,6 +1501,8 @@ export default class Parse {
             if (!acu.heart_bit) {
                 acu.heart_bit = true
                 acu.save()
+                    .then(() => { })
+                    .catch((err: any) => { console.log('setHeartBitAck acu save error', err) })
             }
         } else {
         }

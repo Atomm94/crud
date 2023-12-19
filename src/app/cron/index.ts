@@ -124,6 +124,8 @@ export default class CronJob {
                     acu.network = JSON.stringify(network)
 
                     Acu.save(acu, { transaction: false })
+                        .then(() => { })
+                        .catch((err) => { console.log('updateAcuCloudStatus acu save error', err) })
                 }
             }
         }).start()
@@ -136,6 +138,8 @@ export default class CronJob {
                 if (access_point_status.access_points.door_state !== access_point_status.door_state) {
                     access_point_status.access_points.door_state = access_point_status.door_state
                     AccessPoint.save(access_point_status.access_points, { transaction: false })
+                        .then(() => { })
+                        .catch((err: any) => { console.log('updateAccessPointDoorState AccessPoint save error', err) })
                 }
             }
         }).start()

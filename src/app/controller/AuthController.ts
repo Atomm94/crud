@@ -244,6 +244,8 @@ export default class AuthController {
                 user.last_login_date = new Date().toISOString().slice(0, 19).replace('T', ' ')
                 delete user.password
                 Admin.save(user, { transaction: false })
+                    .then(() => { })
+                    .catch((err) => { console.log('login Admin.save error', err) })
             } catch (error) {
                 ctx.status = error.status || 400
                 return ctx.body = error

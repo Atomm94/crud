@@ -217,6 +217,8 @@ export class Camera extends MainEntity {
                                     if (camera_set_camera.main && camera_set_cameras.length) {
                                         camera_set_cameras[0].main = true
                                         camera_set_cameras[0].save()
+                                            .then(() => { })
+                                            .catch((err: any) => { console.log('Camera destroyItem save error', err) })
                                     }
                                 }
                             }
