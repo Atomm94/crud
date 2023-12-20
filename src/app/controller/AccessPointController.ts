@@ -474,7 +474,7 @@ export default class AccessPointController {
                     }
                     CtpController.singlePass(location, access_point.acus.serial_number, single_pass_data, user, access_point.acus.session_id)
                     ctx.body = {
-                        message: 'Open Once sended'
+                        message: 'Open Once sent'
                     }
                 } else {
                     ctx.status = 400

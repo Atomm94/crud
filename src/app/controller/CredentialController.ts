@@ -669,7 +669,7 @@ export default class CredentialController {
 
                     // CtpController.singlePass(location, access_rule.access_points.acus.serial_number, single_pass_data, {}, access_rule.access_points.acus.session_id)
                     ctx.body = {
-                        message: 'Open Once sended'
+                        message: 'Open Once sent'
                     }
                 }
             }
