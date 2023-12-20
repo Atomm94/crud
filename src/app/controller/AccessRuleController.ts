@@ -88,7 +88,7 @@ export default class AccessRuleController {
             } else if (req_data.access_zone) {
                 where.access_point_zone = In(req_data.access_zone)
             }
-            const access_points: AccessPoint[] = await AccessPoint.find({ ...where })
+            const access_points: AccessPoint[] = await AccessPoint.find({ where })
             const res_data: any = []
             let send_set_card_key = false
             for (const access_point of access_points) {
