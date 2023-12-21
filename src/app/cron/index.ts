@@ -123,9 +123,7 @@ export default class CronJob {
                     network.ssid = acu_status.ssid
                     acu.network = JSON.stringify(network)
 
-                    Acu.save(acu, { transaction: false })
-                        .then(() => { })
-                        .catch((err) => { console.log('updateAcuCloudStatus acu save error', err) })
+                    await Acu.save(acu, { transaction: false })
                 }
             }
         }).start()
@@ -137,9 +135,7 @@ export default class CronJob {
             for (const access_point_status of access_point_statuses) {
                 if (access_point_status.access_points.door_state !== access_point_status.door_state) {
                     access_point_status.access_points.door_state = access_point_status.door_state
-                    AccessPoint.save(access_point_status.access_points, { transaction: false })
-                        .then(() => { })
-                        .catch((err: any) => { console.log('updateAccessPointDoorState AccessPoint save error', err) })
+                    await AccessPoint.save(access_point_status.access_points, { transaction: false })
                 }
             }
         }).start()
