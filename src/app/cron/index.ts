@@ -81,6 +81,7 @@ export default class CronJob {
             const acu_statuses: any = await AcuStatus.find({ relations: ['acus'] })
             for (const acu_status of acu_statuses) {
                 var acu = acu_status.acus
+                if (!acu) continue
                 let cloud_status = acuCloudStatus.OFFLINE
                 if (acu_status.timestamp > (new Date().getTime() - acu_cloud_status_change_time * 60 * 1000)) {
                     cloud_status = acuCloudStatus.ONLINE
