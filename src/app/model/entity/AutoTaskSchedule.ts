@@ -101,7 +101,7 @@ export class AutoTaskSchedule extends MainEntity {
         if ('acu' in data) autoTaskSchedule.acu = data.acu
         if ('reaction_type' in data) autoTaskSchedule.reaction_type = data.reaction_type
         if ('reaction' in data) autoTaskSchedule.reaction = data.reaction
-        if ('conditions' in data) autoTaskSchedule.conditions = JSON.stringify(data.conditions)
+        if ('conditions' in data) autoTaskSchedule.conditions = typeof data.conditions === 'string' ? data.conditions : JSON.stringify(data.conditions)
         if ('condition' in data) autoTaskSchedule.condition = data.condition
         if ('enable' in data) autoTaskSchedule.enable = data.enable
         if ('enable' in data) autoTaskSchedule.enable = data.enable
