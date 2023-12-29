@@ -95,7 +95,7 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
 
         if (New?.package && New?.package === Old.package && Old.status === statusCompany.PENDING && New?.status === statusCompany.ENABLE) {
             if (New?.account) {
-                const account = await Admin.findOne(New?.account)
+                const account = await Admin.findOne({ where: { id: New?.account } })
                 if (account && account.role) {
                     const account_role: Role | undefined = await Role.findOne({ where: { id: account.role } }) as Role
                     const default_role: Role | undefined = await Role.findOne({ where: { slug: 'default_partner', company: IsNull() } }) as Role
