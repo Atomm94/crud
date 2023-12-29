@@ -201,7 +201,7 @@ export default class ExtDeviceController {
                 return ctx.body = { message: check_ext_device }
             }
 
-            const extDevice: ExtDevice = await ExtDevice.findOneOrFail(req_data.id)
+            const extDevice: ExtDevice = await ExtDevice.findOneOrFail({ where: { id: req_data.id } })
             const acu: Acu = await Acu.findOneOrFail({ where: { id: extDevice.acu } })
 
             if (acu.status === acuStatus.ACTIVE) {
