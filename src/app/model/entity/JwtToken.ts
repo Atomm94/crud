@@ -31,7 +31,7 @@ export class JwtToken extends MainEntity {
         jwtToken.expire_time = data.expire_time
 
         return new Promise((resolve, reject) => {
-            this.save(jwtToken)
+            this.save(jwtToken, { transaction: false })
                 .then((item: JwtToken) => {
                     resolve(item)
                 })

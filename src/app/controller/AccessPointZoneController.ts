@@ -159,7 +159,7 @@ export default class AccessPointZoneController {
             const req_data = ctx.request.body
             const user = ctx.user
             const where = { id: req_data.id, company: user.company ? user.company : null }
-            const check_by_company = await AccessPointZone.findOne(where)
+            const check_by_company = await AccessPointZone.findOne({ where })
 
             if (!check_by_company) {
                 ctx.status = 400
@@ -272,12 +272,12 @@ export default class AccessPointZoneController {
             const user = ctx.user
             const where = { id: req_data.id, company: user.company ? user.company : null }
 
-            const childs = await AccessPointZone.findOne({ parent_id: req_data.id })
+            const childs = await AccessPointZone.findOne({ where: { parent_id: req_data.id } })
             if (childs) {
                 ctx.status = 400
                 ctx.body = { message: 'Can\'t remove group with subzones' }
             } else {
-                const access_points = await AccessPoint.findOne({ access_point_zone: req_data.id })
+                const access_points = await AccessPoint.findOne({ where: { access_point_zone: req_data.id } })
                 if (access_points) {
                     ctx.status = 400
                     ctx.body = { message: 'Can\'t remove group with access points' }

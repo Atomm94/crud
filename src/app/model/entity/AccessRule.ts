@@ -70,7 +70,7 @@ export class AccessRule extends MainEntity {
         accessRule.company = data.company
 
         return new Promise((resolve, reject) => {
-            this.save(accessRule)
+            this.save(accessRule, { transaction: false })
                 .then((item: AccessRule) => {
                     resolve(item)
                 })
@@ -81,7 +81,7 @@ export class AccessRule extends MainEntity {
     }
 
     public static async updateItem (data: AccessRule): Promise<{ [key: string]: any }> {
-        const accessRule = await this.findOneOrFail({ id: data.id })
+        const accessRule = await this.findOneOrFail({ where: { id: data.id } })
         const oldData = Object.assign({}, accessRule)
 
         // if ('access_right' in data) accessRule.access_right = data.access_right
@@ -91,7 +91,7 @@ export class AccessRule extends MainEntity {
 
         if (!accessRule) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(accessRule)
+            this.save(accessRule, { transaction: false })
                 .then((item: AccessRule) => {
                     resolve({
                         old: oldData,
@@ -124,7 +124,7 @@ export class AccessRule extends MainEntity {
         return new Promise(async (resolve, reject) => {
             const where: any = { id: data.id }
             if (data.company) where.company = data.company
-            this.findOneOrFail(where).then((data: any) => {
+            this.findOneOrFail({ where }).then((data: any) => {
                 this.softRemove(data)
                     .then(async () => {
                         minusResource(this.name, data.company)
@@ -134,7 +134,7 @@ export class AccessRule extends MainEntity {
                             .withDeleted()
                             .getOne()
                         rule_data.is_delete = (new Date()).getTime()
-                        await this.save(rule_data)
+                        await this.save(rule_data, { transaction: false })
 
                         resolve({ message: 'success' })
                     })

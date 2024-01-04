@@ -81,7 +81,7 @@ export class ExtDevice extends MainEntity {
         extDevice.company = data.company
 
         return new Promise((resolve, reject) => {
-            this.save(extDevice)
+            this.save(extDevice, { transaction: false })
                 .then((item: ExtDevice) => {
                     resolve(item)
                 })
@@ -92,7 +92,7 @@ export class ExtDevice extends MainEntity {
     }
 
     public static async updateItem (data: ExtDevice): Promise<{ [key: string]: any }> {
-        const extDevice = await this.findOneOrFail({ id: data.id })
+        const extDevice = await this.findOneOrFail({ where: { id: data.id } })
         const oldData = Object.assign({}, extDevice)
 
         if ('name' in data) extDevice.name = data.name
@@ -106,7 +106,7 @@ export class ExtDevice extends MainEntity {
 
         if (!extDevice) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(extDevice)
+            this.save(extDevice, { transaction: false })
                 .then((item: ExtDevice) => {
                     resolve({
                         old: oldData,
@@ -139,7 +139,7 @@ export class ExtDevice extends MainEntity {
         return new Promise(async (resolve, reject) => {
             const where: any = { id: data.id }
             if (data.company) where.company = data.company
-            this.findOneOrFail(where).then((data: any) => {
+            this.findOneOrFail({ where }).then((data: any) => {
                 this.softRemove(data)
                     .then(async () => {
                         const ext_device_data: any = await this.createQueryBuilder('ext_device')
@@ -147,7 +147,7 @@ export class ExtDevice extends MainEntity {
                             .withDeleted()
                             .getOne()
                         ext_device_data.is_delete = (new Date()).getTime()
-                        await this.save(ext_device_data)
+                        await this.save(ext_device_data, { transaction: false })
 
                         resolve({ message: 'success' })
                     })

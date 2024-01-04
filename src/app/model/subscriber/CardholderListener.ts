@@ -22,9 +22,11 @@ export class PostSubscriber implements EntitySubscriberInterface<Cardholder> {
 
     async afterUpdate (event: UpdateEvent<Cardholder>) {
         const { entity: New, databaseEntity: Old } = event
-        if (New.limitation_inherited !== Old.limitation_inherited) {
-            if (New.limitation_inherited === true) {
-                if (Old.limitation) Limitation.destroyItem(Old.limitation)
+        if (New) {
+            if (New.limitation_inherited !== Old.limitation_inherited) {
+                if (New.limitation_inherited === true) {
+                    if (Old.limitation) Limitation.destroyItem(Old.limitation)
+                }
             }
         }
 

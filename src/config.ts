@@ -2,6 +2,7 @@ import * as dotenv from 'dotenv'
 import * as path from 'path'
 import * as _ from 'lodash'
 import { DefaultContext } from 'koa'
+import { IClientOptions } from 'mqtt'
 
 // Load environment variables from .env file, where API keys and passwords are configured
 dotenv.config({ path: '.env' })
@@ -18,13 +19,7 @@ export interface IConfig {
         port: number | boolean,
         root: string
     };
-    mqtt: {
-        protocol: string,
-        host: string,
-        port: number | boolean
-        username: string,
-        password: string,
-    };
+    mqtt: IClientOptions;
     db: {
         type: string,
         user: string,
@@ -52,6 +47,10 @@ export interface IConfig {
             dns: string
         }
     };
+    cctv: {
+        transType: number,
+        transProtocol: number
+    }
     sendgrid: {
         fromEmail: object,
         apiKey: string
@@ -88,9 +87,9 @@ var config: IConfig = {
         root: ROOT
     },
     mqtt: {
-        protocol: _.defaultTo(process.env.MQTT_PROTOCOL, 'wxs'),
+        protocol: _.defaultTo(process.env.MQTT_PROTOCOL, 'wxs') as 'wss' | 'ws' | 'mqtt' | 'mqtts' | 'tcp' | 'ssl' | 'wx' | 'wxs',
         host: _.defaultTo(process.env.MQTT_HOST, 'localhost'),
-        port: normalizePort(_.defaultTo(process.env.MQTT_PORT, 5432)),
+        port: normalizePort(_.defaultTo(process.env.MQTT_PORT, 5432)) as number,
         username: _.defaultTo(process.env.MQTT_USERNAME, 'unimacs'),
         password: _.defaultTo(process.env.MQTT_PASSWORD, '123456')
     },
@@ -120,6 +119,10 @@ var config: IConfig = {
         sentry: {
             dns: process.env.SENTRY_DNS as string
         }
+    },
+    cctv: {
+        transType: 0,
+        transProtocol: 1
     },
     sendgrid: {
         fromEmail: {

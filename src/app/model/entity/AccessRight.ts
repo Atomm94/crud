@@ -64,7 +64,7 @@ export class AccessRight extends MainEntity {
         accessRight.default = data.default
 
         return new Promise((resolve, reject) => {
-            this.save(accessRight)
+            this.save(accessRight, { transaction: false })
                 .then((item: AccessRight) => {
                     resolve(item)
                 })
@@ -75,7 +75,7 @@ export class AccessRight extends MainEntity {
     }
 
     public static async updateItem (data: AccessRight): Promise<{ [key: string]: any }> {
-        const accessRight = await this.findOneOrFail({ id: data.id })
+        const accessRight = await this.findOneOrFail({ where: { id: data.id } })
         const oldData = Object.assign({}, accessRight)
         if ('name' in data) accessRight.name = data.name
         if ('description' in data) accessRight.description = data.description
@@ -83,7 +83,7 @@ export class AccessRight extends MainEntity {
 
         if (!accessRight) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(accessRight)
+            this.save(accessRight, { transaction: false })
                 .then((item: AccessRight) => {
                     resolve({
                         old: oldData,
@@ -114,7 +114,7 @@ export class AccessRight extends MainEntity {
     public static async destroyItem (data: any) {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
-            this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
+            this.findOneOrFail({ where: { id: data.id, company: data.company } }).then((data: any) => {
                 this.softRemove(data)
                     .then(async () => {
                         minusResource(this.name, data.company)

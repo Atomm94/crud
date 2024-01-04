@@ -15,7 +15,7 @@ export async function minusResource (resource_name: string, company_id: number) 
             company = await Company.findOneOrFail({ where: { id: company.partition_parent_id } })
         }
 
-        const company_resources: any = await CompanyResources.findOne({ company: company.id })
+        const company_resources: any = await CompanyResources.findOne({ where: { company: company.id } })
         if (company_resources) {
             // console.log('minusResource company_resources', company_resources)
             const used = JSON.parse(company_resources.used)

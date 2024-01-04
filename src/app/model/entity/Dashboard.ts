@@ -14,6 +14,7 @@ export class Dashboard extends BaseClass {
             .select('acu.status')
             .addSelect('COUNT(access_point.id) as acp_qty')
             .where(`acu.company = ${user.company}`)
+            .andWhere('acu.delete_date is null')
             .groupBy('acu.status')
             .getRawMany())
 
@@ -21,6 +22,7 @@ export class Dashboard extends BaseClass {
             .select('acu.status')
             .addSelect('COUNT(acu.id) as acu_qty')
             .where(`acu.company = ${user.company}`)
+            .andWhere('acu.delete_date is null')
             .groupBy('acu.status')
             .getRawMany())
 
@@ -28,6 +30,7 @@ export class Dashboard extends BaseClass {
             .select('access_point.mode')
             .addSelect('COUNT(access_point.id) as acp_qty')
             .where(`access_point.company = ${user.company}`)
+            .andWhere('access_point.delete_date is null')
             .groupBy('access_point.mode')
             .getRawMany())
 
@@ -35,6 +38,7 @@ export class Dashboard extends BaseClass {
             .leftJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
             .where(`access_point.company = ${user.company}`)
             .andWhere(`acu.status = '${acuStatus.ACTIVE}'`)
+            .andWhere('access_point.delete_date is null')
             .getMany())
 
         promises.push(EventLog.getEventStatistic(user))
@@ -57,9 +61,10 @@ export class Dashboard extends BaseClass {
             .leftJoinAndSelect('access_point.access_point_groups', 'access_point_group', 'access_point_group.delete_date is null')
             .leftJoinAndSelect('access_point.access_point_zones', 'access_point_zone', 'access_point_zone.delete_date is null')
             .where(`access_point.company = '${user.company ? user.company : null}'`)
-            if (data.not_visible_ids) {
-                access_points.andWhere(`access_point.id not in (${data.not_visible_ids})`)
-            }
+        if (data.not_visible_ids) {
+            access_points.andWhere(`access_point.id not in (${data.not_visible_ids})`)
+        }
+        access_points.orderBy('access_point.id', 'DESC')
 
         if (data.page) {
             const take = data.page_items_count ? (data.page_items_count > 10000) ? 10000 : data.page_items_count : 25

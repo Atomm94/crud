@@ -232,7 +232,7 @@ export class Admin extends MainEntity {
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve, reject) => {
       // if (!user || !user.company) {
-      this.save(admin)
+      this.save(admin, { transaction: false })
         .then((item: Admin) => {
           resolve(item)
         })
@@ -246,7 +246,7 @@ export class Admin extends MainEntity {
   }
 
   public static async updateItem (data: any): Promise<{ [key: string]: any }> {
-    const admin = await this.findOneOrFail({ id: data.id })
+    const admin: any = await this.findOneOrFail({ where: { id: data.id } })
     const oldData = Object.assign({}, admin)
     delete admin.password
 
@@ -278,7 +278,7 @@ export class Admin extends MainEntity {
 
     if (!admin) return { status: 400, message: 'Item not found' }
     return new Promise((resolve, reject) => {
-      this.save(admin)
+      this.save(admin, { transaction: false })
         .then((item: Admin) => {
           resolve({
             old: oldData,
@@ -312,7 +312,7 @@ export class Admin extends MainEntity {
       const reports = await StandardReport.find({ where: { author: data.id, company: data.company } })
       reports.map(async (item) => await StandardReport.destroyItem(item))
 
-      this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
+      this.findOneOrFail({ where: { id: data.id, company: data.company } }).then((data: any) => {
         this.remove(data)
           .then(() => {
             resolve({ message: 'success' })

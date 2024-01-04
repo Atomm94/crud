@@ -62,7 +62,7 @@ export class Department extends MainEntity {
         department.status = data.status
 
         return new Promise((resolve, reject) => {
-            this.save(department)
+            this.save(department, { transaction: false })
                 .then((item: Department) => {
                     resolve(item)
                 })
@@ -73,7 +73,7 @@ export class Department extends MainEntity {
     }
 
     public static async updateItem (data: Department): Promise<{ [key: string]: any }> {
-        const department = await this.findOneOrFail({ id: data.id })
+        const department = await this.findOneOrFail({ where: { id: data.id } })
         const oldData = Object.assign({}, department)
 
         if ('name' in data) department.name = data.name
@@ -81,7 +81,7 @@ export class Department extends MainEntity {
 
         if (!department) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(department)
+            this.save(department, { transaction: false })
                 .then((item: Department) => {
                     resolve({
                         old: oldData,
@@ -112,7 +112,7 @@ export class Department extends MainEntity {
     public static async destroyItem (data: any) {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
-            this.findOneOrFail({ id: data.id }).then((data: any) => {
+            this.findOneOrFail({ where: { id: data.id } }).then((data: any) => {
                 this.remove(data)
                     .then(() => {
                         resolve({ message: 'success' })

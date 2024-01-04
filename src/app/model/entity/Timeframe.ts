@@ -40,7 +40,7 @@ export class Timeframe extends MainEntity {
     public static async addItem (data: Timeframe): Promise<Timeframe> {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
-            const schedule = await Schedule.findOneOrFail({ id: data.schedule })
+            const schedule = await Schedule.findOneOrFail({ where: { id: data.schedule } })
             if (schedule.type === scheduleType.DAILY || schedule.type === scheduleType.WEEKLY) {
                 const timeframes: any = await Timeframe.getAllItems({ where: { schedule: { '=': data.schedule }, name: { '=': data.name } } })
                 if (schedule.type === scheduleType.DAILY && timeframes.length >= 6) {
@@ -57,7 +57,7 @@ export class Timeframe extends MainEntity {
             timeframe.schedule = data.schedule
             timeframe.company = data.company
 
-            this.save(timeframe)
+            this.save(timeframe, { transaction: false })
                 .then((item: Timeframe) => {
                     resolve(item)
                 })
@@ -71,7 +71,7 @@ export class Timeframe extends MainEntity {
         const updateTimeframe: Timeframe[] = []
         let oldData: Timeframe[] | Timeframe
         if (data.old_name && data.new_name && data.schedule) {
-            const timeframes = await this.find({ name: data.old_name, schedule: data.schedule })
+            const timeframes = await this.find({ where: { name: data.old_name, schedule: data.schedule } })
             oldData = timeframes
 
             if (timeframes.length) {
@@ -82,7 +82,7 @@ export class Timeframe extends MainEntity {
                 }
             }
         } else if (data.id) {
-            const timeframes = await this.findOneOrFail({ id: data.id })
+            const timeframes = await this.findOneOrFail({ where: { id: data.id } })
             oldData = timeframes
             if ('start' in data) timeframes.start = data.start
             if ('end' in data) timeframes.end = data.end
@@ -93,7 +93,7 @@ export class Timeframe extends MainEntity {
 
         if (updateTimeframe.length) {
             return new Promise((resolve, reject) => {
-                this.save(updateTimeframe as Timeframe[])
+                this.save(updateTimeframe as Timeframe[], { transaction: false })
                     .then((item: Timeframe | Timeframe[]) => {
                         resolve({
                             old: oldData,
@@ -128,7 +128,7 @@ export class Timeframe extends MainEntity {
         if (data.name && data.schedule) {
             // eslint-disable-next-line no-async-promise-executor
             return new Promise(async (resolve, reject) => {
-                this.softRemove(await this.findOneOrFail({ name: data.name, schedule: data.schedule, company: data.company }))
+                this.softRemove(await this.findOneOrFail({ where: { name: data.name, schedule: data.schedule, company: data.company } }))
                     .then(() => {
                         resolve({ message: 'success' })
                     })
@@ -139,7 +139,7 @@ export class Timeframe extends MainEntity {
         } else if (data.id) {
             // eslint-disable-next-line no-async-promise-executor
             return new Promise(async (resolve, reject) => {
-                this.softRemove(await this.findOneOrFail({ id: data.id, company: data.company }))
+                this.softRemove(await this.findOneOrFail({ where: { id: data.id, company: data.company } }))
 
                     .then(() => {
                         resolve({ message: 'success' })

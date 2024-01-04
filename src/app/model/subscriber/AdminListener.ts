@@ -26,7 +26,7 @@ export class PostSubscriber implements EntitySubscriberInterface<Admin> {
     async afterInsert (event: InsertEvent<Admin>) {
         const data = event.entity
         if (data.company) {
-            const company_resources = await CompanyResources.findOne({ company: data.company })
+            const company_resources = await CompanyResources.findOne({ where: { company: data.company } })
             if (company_resources) {
                 const used: any = JSON.parse(company_resources.used)
                 if (used.Admin) {
@@ -43,9 +43,9 @@ export class PostSubscriber implements EntitySubscriberInterface<Admin> {
      */
     async afterUpdate (event: UpdateEvent<Admin>) {
         const { entity: New, databaseEntity: Old } = event
-        if (New.status !== Old.status) {
+        if (New && New.status !== Old.status) {
             if (New.status === adminStatus.INACTIVE) {
-                const tokens = await JwtToken.find({ account: New.id })
+                const tokens = await JwtToken.find({ where: { account: New.id } })
                 for (const token of tokens) {
                     token.expired = true
                     await token.save()
@@ -59,7 +59,7 @@ export class PostSubscriber implements EntitySubscriberInterface<Admin> {
      */
     async afterRemove (event: RemoveEvent<Admin>) {
         if (event.databaseEntity.company) {
-            const company_resources = await CompanyResources.findOne({ company: event.databaseEntity.company })
+            const company_resources = await CompanyResources.findOne({ where: { company: event.databaseEntity.company } })
             if (company_resources) {
                 const used: any = JSON.parse(company_resources.used)
                 if (used.Admin) {

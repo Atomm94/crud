@@ -40,7 +40,7 @@ export class CompanyDocuments extends MainEntity {
         companyDocuments.file = data.file
 
         return new Promise((resolve, reject) => {
-            this.save(companyDocuments)
+            this.save(companyDocuments, { transaction: false })
                 .then((item: CompanyDocuments) => {
                     resolve(item)
                 })
@@ -51,7 +51,7 @@ export class CompanyDocuments extends MainEntity {
     }
 
     public static async updateItem (data: CompanyDocuments): Promise<{ [key: string]: any }> {
-        const companyDocuments = await this.findOneOrFail({ id: data.id })
+        const companyDocuments = await this.findOneOrFail({ where: { id: data.id } })
         const oldData = Object.assign({}, companyDocuments)
 
         if ('name' in data) companyDocuments.name = data.name
@@ -61,7 +61,7 @@ export class CompanyDocuments extends MainEntity {
 
         if (!companyDocuments) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(companyDocuments)
+            this.save(companyDocuments, { transaction: false })
                 .then((item: CompanyDocuments) => {
                     resolve({
                         old: oldData,
@@ -77,7 +77,7 @@ export class CompanyDocuments extends MainEntity {
     public static async getItem (id: number) {
         const itemId: number = id
         return new Promise((resolve, reject) => {
-            this.findOneOrFail(itemId)
+            this.findOneOrFail({ where: { id: itemId } })
                 .then((item: CompanyDocuments) => {
                     resolve(item)
                 })
@@ -90,7 +90,7 @@ export class CompanyDocuments extends MainEntity {
     public static async destroyItem (data: any) {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
-            this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
+            this.findOneOrFail({ where: { id: data.id, company: data.company } }).then((data: any) => {
                 this.remove(data)
                     .then(() => {
                         resolve({ message: 'success' })

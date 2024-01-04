@@ -36,15 +36,15 @@ export class PostSubscriber implements EntitySubscriberInterface<Acu> {
         promises.push(Acu.createQueryBuilder('acu')
             .select('acu.status')
             .addSelect('COUNT(acu.id) as acu_qty')
-            .where('acu.company', data.company)
+            .where(`acu.company = ${data.company}`)
             .groupBy('acu.status')
             .getRawMany())
 
         promises.push(Acu.createQueryBuilder('acu')
-            .innerJoin('acu.access_points', 'access_point')
+            .innerJoin('acu.access_points', 'access_point', 'access_point.delete_date is null')
             .select('acu.status')
             .addSelect('COUNT(access_point.id) as acp_qty')
-            .where('access_point.company', data.company)
+            .where(`access_point.company = ${data.company}`)
             .groupBy('acu.status')
             .getRawMany())
 
@@ -102,15 +102,15 @@ export class PostSubscriber implements EntitySubscriberInterface<Acu> {
             promises.push(Acu.createQueryBuilder('acu')
                 .select('acu.status')
                 .addSelect('COUNT(acu.id) as acu_qty')
-                .where('acu.company', New.company)
+                .where(`acu.company = ${New.company}`)
                 .groupBy('acu.status')
                 .getRawMany())
 
             promises.push(Acu.createQueryBuilder('acu')
-                .innerJoin('acu.access_points', 'access_point')
+                .innerJoin('acu.access_points', 'access_point', 'access_point.delete_date is null')
                 .select('acu.status')
                 .addSelect('COUNT(access_point.id) as acp_qty')
-                .where('acu.company', New.company)
+                .where(`acu.company = ${New.company}`)
                 .groupBy('acu.status')
                 .getRawMany())
 
@@ -146,7 +146,7 @@ export class PostSubscriber implements EntitySubscriberInterface<Acu> {
         // const { entity: New, databaseEntity: Old } = event
 
         // if (Old.session_id == null && New.session_id !== Old.session_id) {
-        //     const company: any = await Company.findOne({ id: New.company })
+        //     const company: any = await Company.findOne({ where: {d: New.company })
         //     const location = `${company.account}`
         //     SendDevice.setPass(location, New.serial_number, New.session_id)
         // }
@@ -163,7 +163,7 @@ export class PostSubscriber implements EntitySubscriberInterface<Acu> {
         //     .select('acu.name')
         //     .addSelect('acu.status')
         //     .addSelect('COUNT(acu.id) as acu_qty')
-        //     .where('acu.company', data.company)
+        //     .where(`acu.company = ${data.company}`)
         //     .groupBy('acu.status')
         //     .getRawMany())
 
@@ -172,7 +172,7 @@ export class PostSubscriber implements EntitySubscriberInterface<Acu> {
         //     .select('access_point.name')
         //     .addSelect('acu.status')
         //     .addSelect('COUNT(access_point.id) as acp_qty')
-        //     .where('access_point.company', data.company)
+        //     .where(`access_point.company = ${data.company}`)
         //     .groupBy('acu.status')
         //     .getRawMany())
 

@@ -30,7 +30,7 @@ export default class SendDevice {
         const location = topic.split('/').slice(0, 2).join('/')
         const company = Number(topic.split('/')[1])
         const device_id = topic.split('/')[3]
-        const acu: any = await Acu.findOne({ serial_number: device_id, company: company })
+        const acu: any = await Acu.findOne({ where: { serial_number: device_id, company: company } })
 
         // when admin deleted this acu what we do ???
         const message_id = new Date().getTime()
@@ -718,7 +718,7 @@ export default class SendDevice {
 
     public static async setSdlDaily (location: string, device_id: number, session_id: string, data: any, update: boolean) {
         const message_id = new Date().getTime()
-        const timeframe: any = await Timeframe.find({ schedule: data.schedule })
+        const timeframe: any = await Timeframe.find({ where: { schedule: data.schedule } })
         const tms: any = {
             TmStart: 'none',
             TmEnd: 'none'
@@ -751,7 +751,7 @@ export default class SendDevice {
 
     public static async setSdlWeekly (location: string, device_id: number, session_id: string, data: any, update: boolean) {
         const message_id = new Date().getTime()
-        const timeframe: any = await Timeframe.find({ schedule: data.schedule })
+        const timeframe: any = await Timeframe.find({ where: { schedule: data.schedule } })
 
         const week_tms: any = {
             Tm0_Start: 'none',
@@ -819,7 +819,7 @@ export default class SendDevice {
     }
 
     public static async setSdlFlexiTime (location: string, device_id: number, session_id: string, data: any, schedule: Schedule, update: boolean) {
-        const timeframe: any = await Timeframe.find({ schedule: data.schedule })
+        const timeframe: any = await Timeframe.find({ where: { schedule: data.schedule } })
         const days: any = {}
         timeframe.forEach((time: Timeframe) => {
             days[time.name] = true
@@ -849,7 +849,7 @@ export default class SendDevice {
         const access_point = set_params.info.Ctp_idx
         const dayx = Object.keys(set_params.days)[0]
 
-        const timeframe: any = await Timeframe.find({ schedule: schedule, name: dayx })
+        const timeframe: any = await Timeframe.find({ where: { schedule: schedule, name: dayx } })
         const tms: any = {
             TmStart: 'none',
             TmEnd: 'none'
@@ -918,7 +918,7 @@ export default class SendDevice {
     }
 
     public static async setSdlSpecified (location: string, device_id: number, session_id: string, data: any, update: boolean) {
-        const timeframe: any = await Timeframe.find({ schedule: data.schedule })
+        const timeframe: any = await Timeframe.find({ where: { schedule: data.schedule } })
         const days: any = {}
         timeframe.forEach((time: Timeframe) => {
             days[time.name] = true
@@ -994,7 +994,7 @@ export default class SendDevice {
     }
 
     public static async setSdlOrdinal (location: string, device_id: number, session_id: string, data: any, update: boolean) {
-        const timeframe: any = await Timeframe.find({ schedule: data.schedule })
+        const timeframe: any = await Timeframe.find({ where: { schedule: data.schedule } })
         const days: any = {}
         timeframe.forEach((time: Timeframe) => {
             days[time.name] = true

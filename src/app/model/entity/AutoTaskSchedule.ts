@@ -82,7 +82,7 @@ export class AutoTaskSchedule extends MainEntity {
         if ('reaction_access_points' in data) autoTaskSchedule.reaction_access_points = (data.reaction_access_points && typeof data.reaction_access_points === 'object') ? JSON.stringify(data.reaction_access_points) : data.reaction_access_points
 
         return new Promise((resolve, reject) => {
-            this.save(autoTaskSchedule)
+            this.save(autoTaskSchedule, { transaction: false })
                 .then((item: AutoTaskSchedule) => {
                     resolve(item)
                 })
@@ -93,7 +93,7 @@ export class AutoTaskSchedule extends MainEntity {
     }
 
     public static async updateItem (data: AutoTaskSchedule) {
-        const autoTaskSchedule = await this.findOneOrFail({ id: data.id })
+        const autoTaskSchedule = await this.findOneOrFail({ where: { id: data.id } })
 
         if ('name' in data) autoTaskSchedule.name = data.name
         if ('description' in data) autoTaskSchedule.description = data.description
@@ -101,7 +101,7 @@ export class AutoTaskSchedule extends MainEntity {
         if ('acu' in data) autoTaskSchedule.acu = data.acu
         if ('reaction_type' in data) autoTaskSchedule.reaction_type = data.reaction_type
         if ('reaction' in data) autoTaskSchedule.reaction = data.reaction
-        if ('conditions' in data) autoTaskSchedule.conditions = JSON.stringify(data.conditions)
+        if ('conditions' in data) autoTaskSchedule.conditions = typeof data.conditions === 'string' ? data.conditions : JSON.stringify(data.conditions)
         if ('condition' in data) autoTaskSchedule.condition = data.condition
         if ('enable' in data) autoTaskSchedule.enable = data.enable
         if ('enable' in data) autoTaskSchedule.enable = data.enable
@@ -111,7 +111,7 @@ export class AutoTaskSchedule extends MainEntity {
 
         if (!autoTaskSchedule) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(autoTaskSchedule)
+            this.save(autoTaskSchedule, { transaction: false })
                 .then((item: AutoTaskSchedule) => {
                     resolve(item)
                 })
@@ -124,7 +124,7 @@ export class AutoTaskSchedule extends MainEntity {
     public static async getItem (id: number) {
         const itemId: number = id
         return new Promise((resolve, reject) => {
-            this.findOneOrFail(itemId)
+            this.findOneOrFail({ where: { id: itemId } })
                 .then((item: AutoTaskSchedule) => {
                     resolve(item)
                 })
@@ -139,7 +139,7 @@ export class AutoTaskSchedule extends MainEntity {
         return new Promise(async (resolve, reject) => {
             const where: any = { id: data.id }
             if (data.company) where.company = data.company
-            this.findOneOrFail(where).then((data: any) => {
+            this.findOneOrFail({ where }).then((data: any) => {
                 this.remove(data)
                     .then(() => {
                         resolve({ message: 'success' })

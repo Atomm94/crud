@@ -83,7 +83,7 @@ export class Schedule extends MainEntity {
         schedule.company = data.company
 
         return new Promise((resolve, reject) => {
-            this.save(schedule)
+            this.save(schedule, { transaction: false })
                 .then((item: Schedule) => {
                     resolve(item)
                 })
@@ -94,7 +94,7 @@ export class Schedule extends MainEntity {
     }
 
     public static async updateItem (data: Schedule): Promise<{ old: Schedule, new: Schedule } | { [key: string]: any }> {
-        const schedule = await this.findOneOrFail({ id: data.id })
+        const schedule = await this.findOneOrFail({ where: { id: data.id } })
         const oldData = Object.assign({}, schedule)
 
         if ('name' in data) schedule.name = data.name
@@ -106,7 +106,7 @@ export class Schedule extends MainEntity {
 
         if (!schedule) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(schedule)
+            this.save(schedule, { transaction: false })
                 .then((item: Schedule) => {
                     resolve({
                         old: oldData,
@@ -137,7 +137,7 @@ export class Schedule extends MainEntity {
     public static async destroyItem (data: any) {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
-            this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
+            this.findOneOrFail({ where: { id: data.id, company: data.company } }).then((data: any) => {
                 this.softRemove(data)
                     .then(async () => {
                         minusResource(this.name, data.company)

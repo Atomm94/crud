@@ -28,7 +28,7 @@
                     "FACE": {}
                 },
                 "inputs": {
-                    "Turnstile_ready": "Door_sensor",
+                    "Block": "Door_sensor",
                     "Pass_control": "Door_sensor",
                     "Entry_button": "Entry_button",
                     "Exit_button": "Exit_button",

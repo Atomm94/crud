@@ -122,7 +122,7 @@ export default class AccessRightController {
             const req_data = ctx.request.body
             const user = ctx.user
             const where = { id: req_data.id, company: user.company ? user.company : null }
-            const check_by_company = await AccessRight.findOne(where)
+            const check_by_company = await AccessRight.findOne({ where })
 
             if (!check_by_company) {
                 ctx.status = 400

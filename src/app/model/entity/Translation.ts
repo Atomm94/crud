@@ -20,7 +20,7 @@ export class Translation extends MainEntity {
         translations.translations = data.translations
 
         return new Promise((resolve, reject) => {
-            this.save(translations)
+            this.save(translations, { transaction: false })
                 .then((item: Translation) => {
                     resolve(item)
                 })
@@ -31,7 +31,7 @@ export class Translation extends MainEntity {
     }
 
     public static async updateItem (data: Translation): Promise<{ [key: string]: any }> {
-        const translations = await this.findOneOrFail({ id: data.id })
+        const translations = await this.findOneOrFail({ where: { id: data.id } })
         const oldData = Object.assign({}, translations)
 
         if ('term' in data) translations.term = data.term
@@ -39,7 +39,7 @@ export class Translation extends MainEntity {
 
         if (!translations) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(translations)
+            this.save(translations, { transaction: false })
                 .then((item: Translation) => {
                     resolve({
                         old: oldData,
@@ -55,7 +55,7 @@ export class Translation extends MainEntity {
     public static async getItem (id: number) {
         const itemId: number = id
         return new Promise((resolve, reject) => {
-            this.findOneOrFail(itemId)
+            this.findOneOrFail({ where: { id: itemId } })
                 .then((item: Translation) => {
                     resolve(item)
                 })
@@ -68,7 +68,7 @@ export class Translation extends MainEntity {
     public static async destroyItem (data: any) {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
-            this.findOneOrFail({ id: data.id }).then((data: any) => {
+            this.findOneOrFail({ where: { id: data.id } }).then((data: any) => {
                 this.remove(data)
                     .then(() => {
                         resolve({ message: 'success' })

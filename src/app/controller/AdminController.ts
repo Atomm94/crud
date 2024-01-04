@@ -156,8 +156,10 @@ export default class AdminController {
             try {
                 if (reqData.role_inherited && reqData.account_group) {
                     const account_group = await AccountGroup.findOne({
-                        id: reqData.account_group,
-                        company: user.company ? user.company : null
+                        where: {
+                            id: reqData.account_group,
+                            company: user.company ? user.company : null
+                        }
                     })
                     if (account_group && account_group.role) {
                         reqData.role = account_group.role
@@ -174,8 +176,10 @@ export default class AdminController {
                 } else {
                     if (reqData.role) {
                         role = await Role.findOne({
-                            id: reqData.role,
-                            company: user.company ? user.company : null
+                            where: {
+                                id: reqData.role,
+                                company: user.company ? user.company : null
+                            }
                         })
                         if (role) {
                             if (await checkPermissionsAccess(user, role.permissions)) {
@@ -301,7 +305,9 @@ export default class AdminController {
             })
             ctx.logsData = logs_data
             role = await Role.findOne({
-                id: reqData.role
+                where: {
+                    id: reqData.role
+                }
             })
             if (newAdmin && role) {
                 ctx.body = newAdmin
@@ -348,7 +354,7 @@ export default class AdminController {
         let admin
         try {
             if (ctx.user) {
-                admin = await Admin.findOneOrFail(ctx.user.id)
+                admin = await Admin.findOneOrFail({ where: { id: ctx.user.id } })
                 const adminFiltered = _.omit(admin, ['password', 'super', 'verify_token'])
                 ctx.body = adminFiltered
                 if (ctx.user && ctx.user.company) {
@@ -357,8 +363,12 @@ export default class AdminController {
                     ctx.body.partition_parent_id = company.partition_parent_id
                     ctx.body.package = company.package
                     ctx.body.upgraded_package_id = company.upgraded_package_id
-                    const notifications = await Notification.find({ where: { company: ctx.user.company, confirmed: null } })
-                    ctx.body.notifications = notifications.length
+                    const notifs = await Notification.createQueryBuilder('notification')
+                        .select('COUNT(notification.confirmed) as count')
+                        .where(`notification.company = ${ctx.user.company}`)
+                        .andWhere('notification.confirmed is null')
+                        .getRawOne()
+                    ctx.body.notifications = notifs?.count || 0
                     if (company.packages && company.packages.extra_settings) {
                         const extra_settings = JSON.parse(company.packages.extra_settings)
                         if (extra_settings.features) {
@@ -426,7 +436,7 @@ export default class AdminController {
         let user
         let checkPass
         try {
-            user = await userRepository.findOneOrFail({ id: reqData.id })
+            user = await userRepository.findOneOrFail({ where: { id: reqData.id } })
             ctx.oldData = Object.assign({}, user)
             checkPass = bcrypt.compareSync(reqData.password, user.password)
 
@@ -438,7 +448,7 @@ export default class AdminController {
             } else {
                 if (validate(reqData.password).success) {
                     user.password = reqData.password
-                    updatedUser = await userRepository.save(user)
+                    updatedUser = await userRepository.save(user, { transaction: false })
                     ctx.body = updatedUser
                 } else {
                     ctx.status = 400
@@ -517,7 +527,7 @@ export default class AdminController {
                     message: validate(password).message
                 }
             } else {
-                user = await userRepository.findOneOrFail({ id: id })
+                user = await userRepository.findOneOrFail({ where: { id: id } })
 
                 if (user && user.password) {
                     ctx.oldData = Object.assign({}, user)
@@ -525,7 +535,7 @@ export default class AdminController {
 
                     if (checkPass) {
                         if (reqData.password) user.password = password
-                        updatedUser = await userRepository.save(user)
+                        updatedUser = await userRepository.save(user, { transaction: false })
                         ctx.body = updatedUser
                     } else {
                         ctx.status = 400
@@ -658,14 +668,18 @@ export default class AdminController {
 
         try {
             const admin = await Admin.findOne({
-                id: reqData.id,
-                company: user.company ? user.company : null
+                where: {
+                    id: reqData.id,
+                    company: user.company ? user.company : null
+                }
             })
             if (admin) {
                 if (reqData.role_inherited && reqData.account_group) {
                     const account_group = await AccountGroup.findOne({
-                        id: reqData.account_group,
-                        company: user.company ? user.company : null
+                        where: {
+                            id: reqData.account_group,
+                            company: user.company ? user.company : null
+                        }
                     })
                     if (account_group && account_group.role) {
                         reqData.role = account_group.role
@@ -681,8 +695,10 @@ export default class AdminController {
                 } else {
                     if (reqData.role) {
                         const role = await Role.findOne({
-                            id: reqData.role,
-                            company: user.company ? user.company : null
+                            where: {
+                                id: reqData.role,
+                                company: user.company ? user.company : null
+                            }
                         })
                         if (role) {
                             if (await checkPermissionsAccess(user, role.permissions)) {
@@ -989,7 +1005,7 @@ export default class AdminController {
      */
     public static async getUserByToken (ctx: DefaultContext) {
         const verify_token: string = ctx.params.token
-        const user = await Admin.findOne({ verify_token: verify_token })
+        const user = await Admin.findOne({ where: { verify_token: verify_token } })
         if (user) {
             ctx.body = {
                 email: user.email,
@@ -1040,7 +1056,7 @@ export default class AdminController {
      */
     public static async setPassword (ctx: DefaultContext) {
         const verify_token: string = ctx.params.token
-        const user = await Admin.findOne({ verify_token: verify_token })
+        const user = await Admin.findOne({ where: { verify_token: verify_token } })
         if (user) {
             const password = ctx.request.body.password
             if (validate(password).success) {
@@ -1101,7 +1117,9 @@ export default class AdminController {
         const reqData = ctx.request.body
         try {
             const admin = await Admin.findOneOrFail({
-                email: reqData.email
+                where: {
+                    email: reqData.email
+                }
             })
             if (admin) {
                 admin.verify_token = uid(32)
@@ -1162,7 +1180,7 @@ export default class AdminController {
         try {
             const req_data = ctx.request.body
             const user = ctx.user
-            const admin = await Admin.findOneOrFail({ id: user.id })
+            const admin: any = await Admin.findOneOrFail({ where: { id: user.id } })
             delete admin.password
             const settings = (req_data.settings && typeof req_data.settings === 'object') ? JSON.stringify(req_data.settings) : req_data.settings
             admin.settings = settings

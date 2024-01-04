@@ -98,7 +98,7 @@ export class Credential extends MainEntity {
         }
 
         return new Promise((resolve, reject) => {
-            this.save(credential)
+            this.save(credential, { transaction: false })
                 .then((item: Credential) => {
                     resolve(item)
                 })
@@ -109,7 +109,7 @@ export class Credential extends MainEntity {
     }
 
     public static async updateItem (data: Credential) {
-        const credential = await this.findOneOrFail({ id: data.id })
+        const credential = await this.findOneOrFail({ where: { id: data.id } })
 
         if ('type' in data) credential.type = data.type
         if ('code' in data) credential.code = data.code
@@ -121,7 +121,7 @@ export class Credential extends MainEntity {
 
         if (!credential) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(credential)
+            this.save(credential, { transaction: false })
                 .then((item: Credential) => {
                     resolve(item)
                 })
@@ -148,7 +148,7 @@ export class Credential extends MainEntity {
     public static async destroyItem (data: any) {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
-            this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
+            this.findOneOrFail({ where: { id: data.id, company: data.company } }).then((data: any) => {
                 this.softRemove(data)
                     .then(async () => {
                         if (data.type === credentialType.VIKEY) minusResource(resourceKeys.VIRTUAL_KEYS, data.company)
@@ -157,7 +157,7 @@ export class Credential extends MainEntity {
                             .withDeleted()
                             .getOne()
                         credential_data.is_delete = (new Date()).getTime()
-                        await this.save(credential_data)
+                        await this.save(credential_data, { transaction: false })
                         resolve({ message: 'success' })
                     })
                     .catch((error: any) => {

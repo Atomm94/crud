@@ -143,8 +143,9 @@ export class EventLog extends BaseClass {
 
             const event_group_id = Number(event.data.event_group_id)
             const event_id = Number(event.data.event_id)
-            if (event_id === 16) {
-                const code = parseInt(event.data.Key_HEX.replace(/ /g, ''), 16).toString()
+            if (event_id === 16 && event.data.Key_HEX) {
+                const hex_code = event.data.Key_HEX.replace(/ /g, '')
+                const code = BigInt('0x' + hex_code).toString()
                 if (code) {
                     const send_automat_mode = {
                         code: code,
@@ -158,7 +159,7 @@ export class EventLog extends BaseClass {
                 //     .leftJoinAndSelect('cardholder.access_rights', 'access_right')
                 //     .leftJoinAndSelect('access_right.access_rules', 'access_rule', 'access_rule.delete_date is null')
                 //     .leftJoinAndSelect('cardholder.limitations', 'limitation')
-                //     .where('credential.access_point', event.data.access_point)
+                //     .where(`credential.access_point = ${event.data.access_point}`)
                 //     .andWhere('credential.code is null')
                 //     .getOne()
 
@@ -223,6 +224,9 @@ export class EventLog extends BaseClass {
             notification.access_points = event.data.access_points
             new SendSocketMessage(socketChannels.NOTIFICATION, notification, event.data.company)
         }
+        if (event.data.event_type === eventTypes.CARDHOLDER_ALARM) {
+            new SendSocketMessage(socketChannels.DASHBOARD_MONITOR, event.data, event.data.company)
+        }
 
         if (event.data.event_type === eventTypes.CARDHOLDER) {
             new SendSocketMessage(socketChannels.DASHBOARD_MONITOR, event.data, event.data.company)
@@ -234,7 +238,7 @@ export class EventLog extends BaseClass {
                     cardholder.presense = cardholderPresense.ABSENT_BY_REASON
                 }
                 if (event.data.cardholder !== cardholder.presense) {
-                    await Cardholder.save(cardholder)
+                    await Cardholder.save(cardholder, { transaction: false })
                 }
             }
         }

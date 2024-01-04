@@ -136,7 +136,7 @@ export class Reader extends MainEntity {
         reader.company = data.company
 
         return new Promise((resolve, reject) => {
-            this.save(reader)
+            this.save(reader, { transaction: false })
                 .then((item: Reader) => {
                     resolve(item)
                 })
@@ -147,7 +147,7 @@ export class Reader extends MainEntity {
     }
 
     public static async updateItem (data: Reader): Promise<{ [key: string]: any }> {
-        const reader = await this.findOneOrFail({ id: data.id })
+        const reader = await this.findOneOrFail({ where: { id: data.id } })
         const oldData = Object.assign({}, reader)
 
         if ('type' in data) reader.type = data.type
@@ -165,7 +165,7 @@ export class Reader extends MainEntity {
 
         if (!reader) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(reader)
+            this.save(reader, { transaction: false })
                 .then((item: Reader) => {
                     resolve({
                         old: oldData,
@@ -200,7 +200,7 @@ export class Reader extends MainEntity {
                 id: data.id
             }
             if (data.company) where.company = data.company
-            this.findOneOrFail(where).then((data: any) => {
+            this.findOneOrFail({ where }).then((data: any) => {
                 this.softRemove(data)
                     .then(() => {
                         minusResource(this.name, data.company)

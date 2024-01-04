@@ -59,7 +59,7 @@ export class Ticket extends MainEntity {
 
     public static async addItem (data: Ticket) {
         const ticket = new Ticket()
-        const check = await Department.findOne({ id: data.department })
+        const check = await Department.findOne({ where: { id: data.department } })
         ticket.department = data.department
         ticket.subject = data.subject
         ticket.message = data.message
@@ -69,7 +69,7 @@ export class Ticket extends MainEntity {
         return new Promise((resolve, reject) => {
             if (check) {
                 if (check.status) {
-                    this.save(ticket)
+                    this.save(ticket, { transaction: false })
                         .then((item: Ticket) => {
                             resolve(item)
                         })
@@ -86,7 +86,7 @@ export class Ticket extends MainEntity {
     }
 
     public static async updateItem (data: Ticket): Promise<{ [key: string]: any }> {
-        const ticket = await this.findOneOrFail({ id: data.id })
+        const ticket = await this.findOneOrFail({ where: { id: data.id } })
         const oldData = Object.assign({}, ticket)
 
         if ('department' in data) ticket.department = data.department
@@ -98,7 +98,7 @@ export class Ticket extends MainEntity {
 
         if (!ticket) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(ticket)
+            this.save(ticket, { transaction: false })
                 .then((item: Ticket) => {
                     resolve({
                         old: oldData,
@@ -159,7 +159,7 @@ export class Ticket extends MainEntity {
     public static async destroyItem (data: any) {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
-            this.findOneOrFail({ id: data.id }).then((data: any) => {
+            this.findOneOrFail({ where: { id: data.id } }).then((data: any) => {
                 this.remove(data)
                     .then(() => {
                         resolve({ message: 'success' })
@@ -234,7 +234,7 @@ export class Ticket extends MainEntity {
     }
 
     public static async addMessage (data: TicketMessage) {
-        const check = await Ticket.findOne({ id: data.ticket_id, active: true })
+        const check = await Ticket.findOne({ where: { id: data.ticket_id, active: true } })
         if (check) {
             return TicketMessage.addItem(data)
         } else {

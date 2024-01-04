@@ -1,0 +1,139 @@
+{
+    "model": {
+        "columns": {
+            "serviceId": {
+                "type": "int",
+                "params": {
+                    "name": "serviceId",
+                    "nullable": false
+                }
+            },
+            "serviceName": {
+                "type": "varchar",
+                "params": {
+                    "name": "serviceName",
+                    "nullable": true
+                }
+            },
+            "name": {
+                "type": "varchar",
+                "params": {
+                    "name": "name",
+                    "nullable": true
+                }
+            },
+            "channelType": {
+                "type": "int",
+                "params": {
+                    "name": "channelType",
+                    "nullable": true
+                }
+            },
+            "status": {
+                "type": "int",
+                "params": {
+                    "name": "status",
+                    "nullable": true
+                }
+            },
+            "streamNums": {
+                "type": "int",
+                "params": {
+                    "name": "streamNums",
+                    "nullable": true
+                }
+            },
+            "deviceType": {
+                "type": "int",
+                "params": {
+                    "name": "deviceType",
+                    "nullable": true
+                }
+            },
+            "allowDistribution": {
+                "type": "int",
+                "params": {
+                    "name": "allowDistribution",
+                    "nullable": true
+                }
+            },
+            "addType": {
+                "type": "int",
+                "params": {
+                    "name": "addType",
+                    "nullable": true
+                }
+            },
+            "accessProtocol": {
+                "type": "int",
+                "params": {
+                    "name": "accessProtocol",
+                    "nullable": true
+                }
+            },
+            "offReason": {
+                "type": "int",
+                "params": {
+                    "name": "offReason",
+                    "nullable": true
+                }
+            },
+            "remoteIndex": {
+                "type": "int",
+                "params": {
+                    "name": "remoteIndex",
+                    "nullable": true
+                }
+            },
+            "manufacturer": {
+                "type": "varchar",
+                "params": {
+                    "name": "manufacturer",
+                    "nullable": true
+                }
+            },
+            "deviceModel": {
+                "type": "varchar",
+                "params": {
+                    "name": "deviceModel",
+                    "nullable": true
+                }
+            },
+            "gbid": {
+                "type": "varchar",
+                "params": {
+                    "name": "gbid",
+                    "nullable": true
+                }
+            },
+            "addressInfo": {
+                "type": "longtext",
+                "params": {
+                    "name": "addressInfo",
+                    "nullable": true
+                }
+            },
+            "isPoePort": {
+                "type": "int",
+                "params": {
+                    "name": "isPoePort",
+                    "nullable": true
+                }
+            },
+            "poeStatus": {
+                "type": "int",
+                "params": {
+                    "name": "poeStatus",
+                    "nullable": true
+                }
+            },
+            "company": {
+                "type": "int",
+                "params": {
+                    "name": "company",
+                    "nullable": false
+                }
+            }
+        }
+    }
+}

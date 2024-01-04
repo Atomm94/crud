@@ -3,6 +3,7 @@ import {
     EntitySubscriberInterface,
     EventSubscriber,
     InsertEvent,
+    IsNull,
     UpdateEvent,
     getManager
     // Not
@@ -37,7 +38,7 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
         }
         CompanyResources.addItem(newCompanyResource as CompanyResources)
         if (data.parent_id) {
-            const parent_company_resources = await CompanyResources.findOneOrFail({ company: data.parent_id })
+            const parent_company_resources = await CompanyResources.findOneOrFail({ where: { company: data.parent_id } })
             const parent_used = JSON.parse(parent_company_resources.used)
             if (parent_used[data.package_type]) {
                 parent_used[data.package_type]++
@@ -49,7 +50,7 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
         }
 
         if (data.partition_parent_id) {
-            const partition_parent_company_resources = await CompanyResources.findOneOrFail({ company: data.partition_parent_id })
+            const partition_parent_company_resources = await CompanyResources.findOneOrFail({ where: { company: data.partition_parent_id } })
             const parent_used = JSON.parse(partition_parent_company_resources.used)
             if (parent_used.Company) {
                 parent_used.Company++
@@ -66,25 +67,25 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
      */
     async afterUpdate (event: UpdateEvent<Company>) {
         const { entity: New, databaseEntity: Old } = event
-        if (Old.status !== New.status) {
-            if (Old.status === statusCompany.DISABLE && New.status === statusCompany.ENABLE) {
-                const accounts = await Admin.find({ company: New.id, status: adminStatus.INACTIVE })
+        if (Old.status !== New?.status) {
+            if (Old.status === statusCompany.DISABLE && New?.status === statusCompany.ENABLE) {
+                const accounts = await Admin.find({ where: { company: New?.id, status: adminStatus.INACTIVE } })
                 for (const account of accounts) {
                     account.status = adminStatus.ACTIVE
                     await account.save()
                 }
-            } else if (New.status === statusCompany.DISABLE) {
-                const accounts = await Admin.find({ company: New.id, status: adminStatus.ACTIVE })
+            } else if (New?.status === statusCompany.DISABLE) {
+                const accounts = await Admin.find({ where: { company: New?.id, status: adminStatus.ACTIVE } })
                 for (const account of accounts) {
                     account.status = adminStatus.INACTIVE
                     await account.save()
                 }
-            } else if (Old.status === statusCompany.DISABLE && New.status === statusCompany.PENDING) {
-                const account = await Admin.findOneOrFail({ where: { id: New.account } })
+            } else if (Old.status === statusCompany.DISABLE && New?.status === statusCompany.PENDING) {
+                const account = await Admin.findOneOrFail({ where: { id: New?.account } })
                 account.status = adminStatus.ACTIVE
                 await account.save()
-            } else if (Old.status === statusCompany.ENABLE && New.status === statusCompany.PENDING) {
-                // const accounts = await Admin.find({ where: { company: New.id, id: Not(New.account), status: adminStatus.ACTIVE } })
+            } else if (Old.status === statusCompany.ENABLE && New?.status === statusCompany.PENDING) {
+                // const accounts = await Admin.find({ where: { company: New?.id, id: Not(New?.account), status: adminStatus.ACTIVE } })
                 // for (const account of accounts) {
                 //     account.status = adminStatus.INACTIVE
                 //     await account.save()
@@ -92,15 +93,15 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
             }
         }
 
-        if (New.package && New.package === Old.package && Old.status === statusCompany.PENDING && New.status === statusCompany.ENABLE) {
-            if (New.account) {
-                const account = await Admin.findOne(New.account)
+        if (New?.package && New?.package === Old.package && Old.status === statusCompany.PENDING && New?.status === statusCompany.ENABLE) {
+            if (New?.account) {
+                const account = await Admin.findOne({ where: { id: New?.account } })
                 if (account && account.role) {
-                    const account_role: Role | undefined = await Role.findOne(account.role)
-                    const default_role: Role | undefined = await Role.findOne({ slug: 'default_partner', company: null })
-                    // const package: Package | undefined = await Package.findOne(New.package) // get softDelete too
-                    let package_data: any = await getManager().query(`SELECT * FROM package where id = ${New.package}`)
-                    const package_type: any = await PackageType.findOneOrFail({ id: New.package_type })
+                    const account_role: Role | undefined = await Role.findOne({ where: { id: account.role } }) as Role
+                    const default_role: Role | undefined = await Role.findOne({ where: { slug: 'default_partner', company: IsNull() } }) as Role
+                    // const package: Package | undefined = await Package.findOne(New?.package) // get softDelete too
+                    let package_data: any = await getManager().query(`SELECT * FROM package where id = ${New?.package}`)
+                    const package_type: any = await PackageType.findOneOrFail({ where: { id: New?.package_type } })
 
                     if (account_role && package_data.length) {
                         package_data = package_data[0]
@@ -131,7 +132,7 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
                             }
                         }
 
-                        if (New.parent_id) {
+                        if (New?.parent_id) {
                             default_permissions.ServiceCompany = {
                                 actions: { getItem: true }
                             }
@@ -172,6 +173,7 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
                         default_permissions.CameraDevice = {
                             actions: { ...cameraDevice_permissions }
                         }
+
                         const cameraSet_permissions = CameraSet.getActions()
                         Object.keys(cameraSet_permissions).forEach(action => {
                             cameraSet_permissions[action] = true
@@ -278,7 +280,7 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
                 }
             }
 
-            JwtToken.logoutAccounts(New.id)
+            JwtToken.logoutAccounts(New?.id)
         }
     }
 
@@ -287,7 +289,7 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
      */
     async beforeUpdate (event: UpdateEvent<Company>) {
         const { entity: New, databaseEntity: Old } = event
-        if (New.package !== Old.package && Old.status === 'enabled') {
+        if (New && New?.package !== Old.package && Old.status === 'enabled') {
             New.status = statusCompany.PENDING
         }
     }

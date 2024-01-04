@@ -14,11 +14,11 @@ const connectionOpts: ConnectionOptions = {
   entities: [`${parentDir}/app/model/entity/*{.ts,.js}`],
   migrations: [`${parentDir}/app/model/migration/*{.ts,.js}`],
   subscribers: [`${parentDir}/app/model/subscriber/*{.ts,.js}`],
-  cli: {
-    entitiesDir: `${parentDir}/app/model/entity`,
-    migrationsDir: `${parentDir}/app/model/migration`,
-    subscribersDir: `${parentDir}/app/model/subscriber`
-  },
+  // cli: {
+  //   entitiesDir: `${parentDir}/app/model/entity`,
+  //   migrationsDir: `${parentDir}/app/model/migration`,
+  //   subscribersDir: `${parentDir}/app/model/subscriber`
+  // },
   synchronize: config.db.synchronize,
   logging: false,
   extra: {

@@ -56,7 +56,7 @@ export default class Parse {
                     sended_data.device_id = message.device_id
                     new SendSocketMessage(socketChannels.ERROR_CHANNEL, sended_data, message.company, user)
                     if (error === 777) {
-                        const description = { ...message }
+                        const description: any = { ...message }
                         delete description.send_data
                         const notification = {
                             event: `Timeout ${message.device_topic} - ${generateMessageForOperator(message.operator)}`,
@@ -85,8 +85,8 @@ export default class Parse {
                 case OperatorType.REGISTRATION:
                     await this.deviceRegistration(message)
                     break
-                case OperatorType.CANCEL_REGISTRATION:
-                    await this.deviceCancelRegistration(message)
+                case OperatorType.CANCEL_REGISTRATION_ACK:
+                    await this.deviceCancelRegistrationAck(message)
                     break
                 case OperatorType.ACCEPT_ACK:
                     await this.deviceAcceptAck(message)
@@ -314,6 +314,9 @@ export default class Parse {
                 case OperatorType.MAIN_TAIN_ACK:
                     await this.mainTainAck(message)
                     break
+                case OperatorType.WEB_PASS_ACK:
+                    await this.webPassAck(message)
+                    break
                 default:
                     break
             }
@@ -365,7 +368,7 @@ export default class Parse {
                         }
                     }
                 }
-            })
+            }).catch(err => console.log('pingAck exception', err))
         } catch (error) {
             console.log('error pingack ', error)
         }
@@ -401,7 +404,7 @@ export default class Parse {
                     acu_data.id = acu.id
                 }
 
-                await Acu.save(acu_data)
+                await Acu.save(acu_data, { transaction: false })
                 // const user = message.send_data
 
                 // if (!acu) { // case when need send ACCEPT only first time
@@ -413,11 +416,17 @@ export default class Parse {
         }
     }
 
-    public static async deviceCancelRegistration (message: IMqttCrudMessaging) {
+    public static async deviceCancelRegistrationAck (message: IMqttCrudMessaging) {
         // console.log('deviceCancelRegistration', message)
         if (message.result.errorNo === 0) {
-            console.log('deviceCancelRegistration complete')
-        } else {
+            const device_id = message.device_id
+            const company = message.company
+            Acu.findOne({ where: { serial_number: device_id, company: company } }).then((acuData: Acu) => {
+                // when admin deleted this acu what we do ???
+                Acu.destroyItem(acuData)
+                new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.DELETE, `${Acu.name}/${acuData.name}`, { name: acuData.name })
+                new SendSocketMessage(socketChannels.ACU_DELETE, acuData, message.company, message.send_data.user)
+            })
         }
     }
 
@@ -426,7 +435,7 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             // const company = message.company
             const device_id = message.device_id
-            Acu.findOne({ serial_number: device_id /*, company: company */ }).then((acuData: Acu) => {
+            Acu.findOne({ where: { serial_number: device_id /*, company: company */ } }).then((acuData: Acu) => {
                 // when admin deleted this acu what we do ???
                 const send_data: any = {
                     username: acuData.username ? acuData.username : 'admin',
@@ -441,7 +450,7 @@ export default class Parse {
     public static async deviceLoginAck (message: IMqttCrudMessaging) {
         // console.log('deviceLoginAck', message)
         // if (message.result.errorNo === 0) {
-        const acu: Acu = await Acu.findOneOrFail({ serial_number: message.device_id, company: message.company })
+        const acu: Acu = await Acu.findOneOrFail({ where: { serial_number: message.device_id, company: message.company } })
         if (acu) {
             if (acu.session_id == null) {
                 /* OPEN FOR GENERATE PASSWORD */
@@ -468,7 +477,7 @@ export default class Parse {
             // console.log('logout complete')
             const company = message.company
             const device_id = message.device_id
-            const acu = await Acu.findOneOrFail({ serial_number: device_id, company: company })
+            const acu = await Acu.findOneOrFail({ where: { serial_number: device_id, company: company } })
             acu.session_id = '0'
             await acu.save()
             // this.login(message.topic)
@@ -480,7 +489,7 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             const company = message.company
             const device_id = message.device_id
-            const acu = await Acu.findOne({ serial_number: device_id, company: company })
+            const acu = await Acu.findOne({ where: { serial_number: device_id, company: company } })
             if (acu) {
                 acu.password = message.send_data.data.password
                 await acu.save()
@@ -496,7 +505,7 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             const company = message.company
             const device_id = message.device_id
-            const acu: Acu = await Acu.findOneOrFail({ serial_number: device_id, company: company })
+            const acu: Acu = await Acu.findOneOrFail({ where: { serial_number: device_id, company: company } })
             if (acu) {
                 acu.session_id = '0'
                 await acu.save()
@@ -517,7 +526,7 @@ export default class Parse {
             if (message.result.errorNo === 0) {
                 // const company = message.company
                 // const device_id = message.device_id
-                // const acu: any = await Acu.findOneOrFail({ serial_number: device_id /*, company: company */ })
+                // const acu: any = await Acu.findOneOrFail({ where: {serial_number: device_id /*, company: company */ })
                 // if (acu) {
                 //     const info = message.send_data.data
                 //     acu.network = {
@@ -547,7 +556,7 @@ export default class Parse {
             if (message.result.errorNo === 0) {
                 const company = message.company
                 const device_id = message.device_id
-                const acu: any = await Acu.findOne({ serial_number: device_id, company: company })
+                const acu: any = await Acu.findOne({ where: { serial_number: device_id, company: company } })
 
                 if (acu) {
                     acu.network = JSON.stringify({
@@ -572,7 +581,7 @@ export default class Parse {
         if (message.result.errorNo === 0) {
             const company = message.company
             const device_id = message.device_id
-            const acu: Acu = await Acu.findOneOrFail({ serial_number: device_id, company: company })
+            const acu: Acu = await Acu.findOneOrFail({ where: { serial_number: device_id, company: company } })
             if (acu) {
                 acu.time = JSON.stringify(message.send_data.data)
                 const update_acu = await Acu.updateItem({ id: acu.id, time: acu.time } as Acu)
@@ -1078,7 +1087,9 @@ export default class Parse {
             const access_point = await AccessPoint.findOneOrFail({ where: { id: message.send_data.data.id /*, company: company */ } })
             if (message.send_data.data.mode) access_point.mode = message.send_data.data.mode
             if (message.send_data.data.exit_mode) access_point.exit_mode = message.send_data.data.exit_mode
-            AccessPoint.save(access_point)
+            AccessPoint.save(access_point, { transaction: false })
+                .then(() => { })
+                .catch((err: any) => { console.log('deviceSetAccessModeAck AccessPoint save error', err) })
         } else {
         }
     }
@@ -1178,7 +1189,7 @@ export default class Parse {
     public static async delSdlDailyAck (message: IMqttCrudMessaging) {
         try {
             // console.log('delSdlDailyAck', message)
-            // const acu: any = await Acu.findOne({ serial_number: message.device_id, company: message.company })
+            // const acu: any = await Acu.findOne({ where: {erial_number: message.device_id, company: message.company })
 
             if (message.result.errorNo === 0 || message.result.errorNo === 11) {
                 const company = message.company
@@ -1451,7 +1462,7 @@ export default class Parse {
 
     public static async dellSheduleAck (message: IMqttCrudMessaging) {
         // console.log('dellSheduleAck', message)
-        const acu = await Acu.findOneOrFail({ serial_number: message.device_id, company: message.company })
+        const acu = await Acu.findOneOrFail({ where: { serial_number: message.device_id, company: message.company } })
 
         if (message.result.errorNo === 0) {
             if (message.send_data.update) {
@@ -1486,10 +1497,12 @@ export default class Parse {
         // console.log('setHeartBitAck', message)
         if (message.result.errorNo === 0) {
             // console.log('setHeartBitAck complete')
-            const acu = await Acu.findOneOrFail({ serial_number: message.device_id, company: message.company })
+            const acu = await Acu.findOneOrFail({ where: { serial_number: message.device_id, company: message.company } })
             if (!acu.heart_bit) {
                 acu.heart_bit = true
                 acu.save()
+                    .then(() => { })
+                    .catch((err: any) => { console.log('setHeartBitAck acu save error', err) })
             }
         } else {
         }
@@ -1575,6 +1588,13 @@ export default class Parse {
             if (message.send_data.data.main_tain === 'reset' || message.send_data.data.main_tain === 'reset_to_factory') {
                 await Acu.destroyItem({ id: acu.id, company: acu.company })
             }
+        }
+    }
+
+    public static async webPassAck (message: IMqttCrudMessaging) {
+        // console.log('webPassAck', message)
+        if (message.result.errorNo === 0) {
+
         }
     }
 }

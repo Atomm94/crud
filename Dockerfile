@@ -1,5 +1,5 @@
-FROM node:12.18 AS builder
-RUN npm config set unsafe-perm true && npm install eslint tslint -g
+FROM node:20.10.0-alpine3.18 AS builder
+RUN npm install eslint tslint -g
 COPY . /opt/builder/
 
 WORKDIR /opt/builder

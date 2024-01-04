@@ -174,7 +174,7 @@ export class Company extends MainEntity {
         // company.status = data.status
 
         return new Promise((resolve, reject) => {
-            this.save(company)
+            this.save(company, { transaction: false })
                 .then((item: Company) => {
                     resolve(item)
                 })
@@ -187,7 +187,7 @@ export class Company extends MainEntity {
     public static async updateItem (data: Company, user?: any): Promise<{ [key: string]: any }> {
         const where: any = { id: data.id }
         if (user && user.company && data.id !== user.company) where.parent_id = user.company
-        const company = await this.findOneOrFail(where)
+        const company = await this.findOneOrFail({ where })
         const oldData = Object.assign({}, company)
 
         if ('company_name' in data) company.company_name = data.company_name
@@ -211,7 +211,7 @@ export class Company extends MainEntity {
             if ('status' in data && data.status === statusCompany.ENABLE && !company.package) {
                 reject(new Error(`Cant change status of Company to ${statusCompany.ENABLE} without select Package`))
             } else {
-                this.save(company)
+                this.save(company, { transaction: false })
                     .then((item: Company) => {
                         resolve({
                             old: oldData,
@@ -248,7 +248,7 @@ export class Company extends MainEntity {
     public static async destroyItem (where: any) {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
-            this.findOneOrFail(where).then((data: any) => {
+            this.findOneOrFail({ where }).then((data: any) => {
                 this.softRemove(data)
                     .then(() => {
                         if (data.parent_id) {

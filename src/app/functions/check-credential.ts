@@ -14,7 +14,7 @@ export class CheckCredentialSettings {
             if (!Array.isArray(credentials)) credentials = [credentials]
             const credential_unique = await Credential.findOne({ where: { company: company, code: In(credentials.filter(credential => !credential.id && credential.code).map(credential => credential.code)) } })
             if (credential_unique) {
-                return (`Dublicate Credential ${credential_unique.code}`)
+                return (`Duplicate Credential ${credential_unique.code}`)
             } else {
                 for (const credential of credentials) {
                     if (Object.values(credentialType).indexOf(credential.type) === -1) {

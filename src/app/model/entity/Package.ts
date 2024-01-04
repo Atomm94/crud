@@ -70,7 +70,7 @@ export class Package extends MainEntity {
         if ('default' in data) package_data.default = data.default
 
         return new Promise((resolve, reject) => {
-            this.save(package_data)
+            this.save(package_data, { transaction: false })
                 .then((item: Package) => {
                     resolve(item)
                 })
@@ -81,7 +81,7 @@ export class Package extends MainEntity {
     }
 
     public static async updateItem (data: Package): Promise<{ [key: string]: any }> {
-        const package_data = await this.findOneOrFail({ id: data.id })
+        const package_data = await this.findOneOrFail({ where: { id: data.id } })
         const oldData = Object.assign({}, package_data)
 
         if ('name' in data) package_data.name = data.name
@@ -96,7 +96,7 @@ export class Package extends MainEntity {
 
         if (!package_data) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(package_data)
+            this.save(package_data, { transaction: false })
                 .then((item: Package) => {
                     resolve({
                         old: oldData,
@@ -129,7 +129,7 @@ export class Package extends MainEntity {
     public static async destroyItem (data: any) {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
-            this.findOneOrFail({ id: data.id }).then((data: any) => {
+            this.findOneOrFail({ where: { id: data.id } }).then((data: any) => {
                 this.remove(data)
                     .then(() => {
                         resolve({ message: 'success' })

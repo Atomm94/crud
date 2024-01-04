@@ -92,7 +92,7 @@ export class AcuStatus extends MainEntity {
         if ('ssid' in data) acuStatus.ssid = data.ssid
 
         return new Promise((resolve, reject) => {
-            this.save(acuStatus)
+            this.save(acuStatus, { transaction: false })
                 .then((item: AcuStatus) => {
                     resolve(item)
                 })
@@ -103,7 +103,7 @@ export class AcuStatus extends MainEntity {
     }
 
     public static async updateItem (data: AcuStatus): Promise<{ [key: string]: any }> {
-        const acuStatus = await this.findOneOrFail({ id: data.id })
+        const acuStatus = await this.findOneOrFail({ where: { id: data.id } })
         const oldData = Object.assign({}, acuStatus)
 
         acuStatus.timestamp = new Date().getTime()
@@ -121,7 +121,7 @@ export class AcuStatus extends MainEntity {
 
         if (!acuStatus) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(acuStatus)
+            this.save(acuStatus, { transaction: false })
                 .then((item: AcuStatus) => {
                     resolve({
                         old: oldData,
@@ -152,7 +152,7 @@ export class AcuStatus extends MainEntity {
     public static async destroyItem (data: any) {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
-            const entity = await this.findOne({ acu: data.acu })
+            const entity = await this.findOne({ where: { acu: data.acu } })
             if (entity) {
                 this.remove(entity)
                     .then(async () => {

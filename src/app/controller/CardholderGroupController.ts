@@ -163,6 +163,8 @@ export default class CardholderGroupController {
                     .getOne()
                 old_default_group.default = false
                 old_default_group.save()
+                    .then(() => { })
+                    .catch((err: any) => { console.log('CardholderGroup add save error', err) })
             }
             ctx.body = new_group
         } catch (error) {
@@ -305,6 +307,8 @@ export default class CardholderGroupController {
                     if (old_default_group) {
                         old_default_group.default = false
                         old_default_group.save()
+                            .then(() => { })
+                            .catch((err: any) => { console.log('CardholderGroup update save error', err) })
                     }
                 } else if (check_by_company.default && !req_data.default) {
                     const new_default_group: any = await CardholderGroup.createQueryBuilder('cardholder_group')
@@ -314,6 +318,8 @@ export default class CardholderGroupController {
                     if (new_default_group) {
                         new_default_group.default = true
                         new_default_group.save()
+                            .then(() => { })
+                            .catch((err: any) => { console.log('CardholderGroup update save error', err) })
                     }
                 }
 
@@ -431,12 +437,12 @@ export default class CardholderGroupController {
             const id = ctx.request.body.id
             const user = ctx.user
             const where = { id: id, company: user.company ? user.company : null }
-            const childs = await CardholderGroup.find({ parent_id: id })
+            const childs = await CardholderGroup.find({ where: { parent_id: id } })
             if (childs.length) {
                 ctx.status = 400
                 ctx.body = { message: 'Can\'t remove group with childs' }
             } else {
-                const cardholders = await Cardholder.find({ cardholder_group: id })
+                const cardholders = await Cardholder.find({ where: { cardholder_group: id } })
                 if (cardholders.length) {
                     ctx.status = 400
                     ctx.body = { message: 'Can\'t remove group with cardholders' }
@@ -455,7 +461,6 @@ export default class CardholderGroupController {
                 }
             }
         } catch (error) {
-            console.log('🚀 ~ file: CardholderGroupController.ts ~ line 445 ~ CardholderGroupController ~ destroy ~ error', error)
             ctx.status = error.status || 400
             ctx.body = error
         }

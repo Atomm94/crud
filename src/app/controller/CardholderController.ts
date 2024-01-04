@@ -28,7 +28,11 @@ import { cloneDeep } from 'lodash'
 import { Brackets } from 'typeorm'
 import CronJob from '../cron'
 import { guestGetDatesFromTimestamps } from '../functions/guest_get_dates_from_timestamps'
+import { minusResource } from '../functions/minusResource'
+import { adminStatus } from '../enums/adminStatus.enum'
+import { JwtToken } from '../model/entity/JwtToken'
 const xlsxj = require('xlsx-to-json')
+var chunk = require('chunk')
 
 export default class CardholderController {
     /**
@@ -548,7 +552,7 @@ export default class CardholderController {
             const auth_user = ctx.user
             const company = auth_user.company ? auth_user.company : null
             const where = { id: req_data.id, company: company }
-            const check_by_company = await Cardholder.findOne({ where: where, relations: ['limitations'] })
+            const check_by_company = await Cardholder.findOne({ where, relations: ['limitations'] })
 
             const logs_data = []
 
@@ -585,6 +589,50 @@ export default class CardholderController {
                     value: res_data
                 })
                 const cardholder = res_data.new
+
+                const cardholder_account = await Admin.findOne({ where: { cardholder: cardholder.id } })
+                let send_card_key_for_change_guest_status = false
+                if (cardholder_account) {
+                    if (check_by_company.status !== cardholder.status) {
+                        if (cardholder.status === cardholderStatus.INACTIVE) {
+                            if (cardholder_account.status !== adminStatus.INACTIVE) {
+                                await Admin.updateItem({ id: cardholder_account.id, status: adminStatus.INACTIVE })
+                                const tokens = await JwtToken.find({ where: { account: cardholder_account.id } })
+                                for (const token of tokens) {
+                                    token.expired = true
+                                    await token.save()
+                                }
+                            }
+                            const guests = await Cardholder.find({ where: { create_by: cardholder_account.id } })
+                            for (const guest of guests) {
+                                guest.status = cardholderStatus.INACTIVE
+                                await guest.save()
+                                const guest_keys = await Credential.find({ where: { cardholder: guest.id } })
+                                for (const guest_key of guest_keys) {
+                                    if (guest_key.status !== credentialStatus.INACTIVE) {
+                                        send_card_key_for_change_guest_status = true
+                                        guest_key.status = credentialStatus.INACTIVE
+                                        await guest_key.save()
+                                    }
+                                }
+                            }
+                        } else if (cardholder.status === cardholderStatus.ACTIVE) {
+                            const guests = await Cardholder.find({ where: { create_by: cardholder_account.id } })
+                            for (const guest of guests) {
+                                guest.status = cardholderStatus.ACTIVE
+                                await guest.save()
+                                const guest_keys = await Credential.find({ where: { cardholder: guest.id } })
+                                for (const guest_key of guest_keys) {
+                                    if (guest_key.status !== credentialStatus.ACTIVE) {
+                                        send_card_key_for_change_guest_status = true
+                                        guest_key.status = credentialStatus.ACTIVE
+                                        await guest_key.save()
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
 
                 const credentials: any = []
                 const old_credentials: any = []
@@ -627,6 +675,7 @@ export default class CardholderController {
 
                     if (
                         check_by_company.access_right !== cardholder.access_right ||
+                        send_card_key_for_change_guest_status ||
                         (check_by_company.limitations && limitations &&
                             (
                                 JSON.stringify(check_by_company.limitations.valid_from) !== JSON.stringify(limitations.valid_from) ||
@@ -1198,12 +1247,12 @@ export default class CardholderController {
         const user = ctx.user
         const company = (user.company) ? user.company : null
         try {
-            const cardholder: any = await Cardholder.findOne({ email: reqData.email })
+            const cardholder: any = await Cardholder.findOne({ where: { email: reqData.email } })
             if (!cardholder) {
                 ctx.status = 400
                 ctx.body = { message: 'Invalid Cardholder email' }
             }
-            const check_admin: any = await Admin.findOne({ email: reqData.email })
+            const check_admin: any = await Admin.findOne({ where: { email: reqData.email } })
             if (check_admin) {
                 ctx.status = 400
                 ctx.body = { message: `email ${reqData.email} already exists` }
@@ -1213,7 +1262,7 @@ export default class CardholderController {
             reqData.cardholder = cardholder.id
 
             // const role_slug = 'default_cardholder'
-            // let default_cardholder_role = await Role.findOne({ slug: role_slug, company: company })
+            // let default_cardholder_role = await Role.findOne({ where: {lug: role_slug, company: company })
             // console.log('default_cardholder_role', default_cardholder_role)
 
             // if (!default_cardholder_role) {
@@ -1286,7 +1335,7 @@ export default class CardholderController {
      */
     public static async setCardholderPassword (ctx: DefaultContext) {
         const verify_token: string = ctx.params.token
-        const user = await Admin.findOne({ verify_token: verify_token })
+        const user = await Admin.findOne({ where: { verify_token: verify_token } })
         if (user) {
             const password = ctx.request.body.password
             if (validate(password).success) {
@@ -1410,10 +1459,16 @@ export default class CardholderController {
                 .where(`cardholder.id = '${auth_user.cardholder}'`)
                 .getOne()
 
-            const created_guests = await Cardholder.find({ create_by: auth_user.id, guest: true })
+            if (invite_user.status === cardholderStatus.INACTIVE) {
+                ctx.status = 400
+                return ctx.body = { message: `Your status is ${cardholderStatus.INACTIVE}` }
+            }
+
+            const created_guests = await Cardholder.find({ where: { create_by: auth_user.id, guest: true } })
 
             if (!invite_user.enable_create_guest) {
-                ctx.stx.body = { message: 'You have not permission to create Guest' }
+                ctx.status = 400
+                return ctx.body = { message: 'You have not permission to create Guest' }
             }
             if (created_guests.length >= invite_user.guest_count) {
                 ctx.status = 400
@@ -1675,6 +1730,11 @@ export default class CardholderController {
                 .leftJoinAndSelect('time_attendance.timeframes', 'timeframe', 'timeframe.delete_date is null')
                 .where(`cardholder.id = '${auth_user.cardholder}'`)
                 .getOne()
+
+            if (invite_user.status === cardholderStatus.INACTIVE) {
+                ctx.status = 400
+                return ctx.body = { message: `Your status is ${cardholderStatus.INACTIVE}` }
+            }
 
             const company: any = await Company.createQueryBuilder('company')
                 .leftJoinAndSelect('company.base_schedules', 'base_schedule')
@@ -1960,7 +2020,7 @@ export default class CardholderController {
                 .where(`cardholder.id = '${auth_user.cardholder}'`)
                 .getOne()
 
-            const created_guests = await Cardholder.find({ create_by: auth_user.id, guest: true })
+            const created_guests = await Cardholder.find({ where: { create_by: auth_user.id, guest: true } })
 
             ctx.body = {
                 enable_create_guest: invite_user.enable_create_guest,
@@ -2452,7 +2512,7 @@ export default class CardholderController {
                 if (access_point_ids.indexOf(created_cardholder_access_rule.access_point) === -1) {
                     const acu = created_cardholder_access_rule.access_points.acus
                     if (acu.status === acuStatus.ACTIVE) {
-                        const schedule: Schedule = await Schedule.findOneOrFail({ id: created_cardholder_access_rule.schedule })
+                        const schedule: Schedule = await Schedule.findOneOrFail({ where: { id: created_cardholder_access_rule.schedule } })
                         const send_data = { id: created_cardholder_access_rule.id, access_point: created_cardholder_access_rule.access_points.id }
                         SdlController.delSdl(location, acu.serial_number, send_data, auth_user, schedule.type, acu.session_id)
                     } else {
@@ -2615,18 +2675,18 @@ export default class CardholderController {
                 for (const cardholder of cardholders) {
                     if (cardholder.status !== req_data.status) {
                         cardholder.status = req_data.status
-                        save.push(Cardholder.save(cardholder))
+                        save.push(Cardholder.save(cardholder, { transaction: false }))
                     }
 
                     for (const credential of cardholder.credentials) {
                         if (req_data.status === cardholderStatus.ACTIVE && credential.status === credentialStatus.INACTIVE) {
                             send_card_key = true
                             credential.status = credentialStatus.ACTIVE
-                            save.push(Credential.save(credential))
+                            save.push(Credential.save(credential, { transaction: false }))
                         } else if (req_data.status === cardholderStatus.INACTIVE && credential.status === credentialStatus.ACTIVE) {
                             send_card_key = true
                             credential.status = credentialStatus.INACTIVE
-                            save.push(Credential.save(credential))
+                            save.push(Credential.save(credential, { transaction: false }))
                         }
                     }
 
@@ -2794,19 +2854,26 @@ export default class CardholderController {
             // const cardholders = await Cardholder.getAllItems({ where: { id: { in: req_data.ids }, company: { '=': company } } })
 
             const cardholders = await Cardholder.createQueryBuilder('cardholder')
+                .select('cardholder.id')
+                .addSelect('cardholder.company')
                 .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null and credential.code is not null')
                 .where('cardholder.id in (:...ids)', { ids: req_data.ids })
                 .andWhere(`cardholder.company = '${company}'`)
                 .getMany()
 
-            const save = []
-            for (const cardholder of cardholders) {
-                if (cardholder.status !== req_data.status) {
-                    cardholder.status = req_data.status
-                    save.push(Cardholder.destroyItem(cardholder))
-                }
+            // const save = []
+            // for (const cardholder of cardholders) {
+            //     if (cardholder.status !== req_data.status) {
+            //         cardholder.status = req_data.status
+            //         save.push(Cardholder.destroyItem(cardholder))
+            //     }
+            // }
+
+            // await Promise.all(save)
+            const chs = chunk(cardholders, 500)
+            for (const ch of chs) {
+                await CardholderController.destroyItemsBulk(ch)
             }
-            await Promise.all(save)
             if (cardholders.length) {
                 CardKeyController.dellKeys(location, company, cardholders, auth_user)
             }
@@ -2853,9 +2920,11 @@ export default class CardholderController {
         const company = user.company
 
         const all_cardholder_group = await CardholderGroup.findOneOrFail({
+where: {
             default: true,
             company: company
-        })
+        }
+})
 
         xlsxj({
             input: file.path,
@@ -2899,5 +2968,45 @@ export default class CardholderController {
         })
         ctx.body = { success: true }
         return ctx.body
+    }
+
+    public static async destroyItemsBulk (data: any) {
+        // eslint-disable-next-line no-async-promise-executor
+        return new Promise(async (resolve, reject) => {
+            Cardholder.softRemove(data)
+                .then(async () => {
+                    for (const cardholder of data) {
+                        minusResource(Cardholder.name, cardholder.company)
+
+                        const cardholder_data: any = await Cardholder.createQueryBuilder('cardholder')
+                            .where('id = :id', { id: cardholder.id })
+                            .withDeleted()
+                            .getOne()
+
+                        cardholder_data.is_delete = (new Date()).getTime()
+                        await Cardholder.save(cardholder_data, { transaction: false })
+
+                        for (const credential of cardholder.credentials) {
+                            if (!credential.deleteDate) {
+                                await Credential.destroyItem(credential)
+                            }
+                        }
+
+                        if (cardholder_data.guest) {
+                            AccessRight.destroyItem({ id: cardholder_data.access_right, company: cardholder_data.company })
+                            const access_rules = await AccessRule.find({ where: { access_right: cardholder_data.access_right } })
+                            for (const access_rule of access_rules) {
+                                AccessRule.destroyItem({ id: access_rule.id, company: cardholder_data.company })
+                                const schedule = await Schedule.findOne({ where: { id: access_rule.schedule } })
+                                if (schedule) Schedule.destroyItem({ id: access_rule.schedule, company: cardholder_data.company })
+                            }
+                        }
+                    }
+                    resolve({ message: 'success' })
+                })
+                .catch((error: any) => {
+                    reject(error)
+                })
+        })
     }
 }

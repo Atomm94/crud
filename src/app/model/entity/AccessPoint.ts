@@ -4,7 +4,8 @@ import {
     ManyToOne,
     OneToMany,
     JoinColumn,
-    DeleteDateColumn
+    DeleteDateColumn,
+    Index
 } from 'typeorm'
 
 import { MainEntity } from './MainEntity'
@@ -28,6 +29,7 @@ import { resourceKeys } from '../../enums/resourceKeys.enum'
 import { CameraSet } from './CameraSet'
 
 @Entity('access_point')
+@Index(['id', 'company'])
 export class AccessPoint extends MainEntity {
     @Column('varchar', { name: 'name', nullable: false })
     name: string
@@ -112,7 +114,7 @@ export class AccessPoint extends MainEntity {
     access_point_statuses: AccessPointStatus[];
 
     @OneToMany(() => CameraSet, cameraSet => cameraSet.access_points)
-    cameraSets: CameraSet[]
+    camera_sets: CameraSet[]
 
     public static resource: boolean = true
     public static fields_that_used_in_sending: Array<string> = ['resources']
@@ -137,7 +139,7 @@ export class AccessPoint extends MainEntity {
         accessPoint.company = data.company
 
         return new Promise((resolve, reject) => {
-            this.save(accessPoint)
+            this.save(accessPoint, { transaction: false })
                 .then((item: AccessPoint) => {
                     resolve(item)
                 })
@@ -148,7 +150,7 @@ export class AccessPoint extends MainEntity {
     }
 
     public static async updateItem (data: AccessPoint): Promise<{ [key: string]: any }> {
-        const accessPoint = await this.findOneOrFail({ id: data.id })
+        const accessPoint = await this.findOneOrFail({ where: { id: data.id } })
         const oldData = Object.assign({}, accessPoint)
 
         if ('name' in data) accessPoint.name = data.name
@@ -178,7 +180,7 @@ export class AccessPoint extends MainEntity {
 
         if (!accessPoint) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(accessPoint)
+            this.save(accessPoint, { transaction: false })
                 .then((item: AccessPoint) => {
                     resolve({
                         old: oldData,
@@ -211,7 +213,7 @@ export class AccessPoint extends MainEntity {
         return new Promise(async (resolve, reject) => {
             const where: any = { id: data.id }
             if (data.company) where.company = data.company
-            this.findOneOrFail(where).then((data: any) => {
+            this.findOneOrFail({ where }).then((data: any) => {
                 this.softRemove(data)
                     .then(async () => {
                         let resource_name = this.name
@@ -226,7 +228,7 @@ export class AccessPoint extends MainEntity {
                             .select('access_point.name')
                             .addSelect('access_point.mode')
                             .addSelect('COUNT(access_point.id) as acp_qty')
-                            .where('access_point.company', data.company)
+                            .where(`access_point.company = ${data.company}`)
                             .groupBy('access_point.mode')
                             .getRawMany()
                         new SendSocketMessage(socketChannels.DASHBOARD_ACCESS_POINT_MODES, modes, data.company)
@@ -255,6 +257,12 @@ export class AccessPoint extends MainEntity {
                         }
 
                         AccessPointStatus.destroyItem({ access_point: data.id })
+
+                        const camera_sets: any = await CameraSet.getAllItems({ where: { access_point: { '=': data.id } } })
+                        for (const camera_set of camera_sets) {
+                            CameraSet.destroyItem({ id: camera_set.id, company: camera_set.company })
+                        }
+
                         resolve({ message: 'success' })
                     })
                     .catch((error: any) => {

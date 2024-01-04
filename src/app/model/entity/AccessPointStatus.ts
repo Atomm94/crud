@@ -44,7 +44,7 @@ export class AccessPointStatus extends MainEntity {
         accessPointStatus.company = data.company
 
         return new Promise((resolve, reject) => {
-            this.save(accessPointStatus)
+            this.save(accessPointStatus, { transaction: false })
                 .then((item: AccessPointStatus) => {
                     resolve(item)
                 })
@@ -55,7 +55,7 @@ export class AccessPointStatus extends MainEntity {
     }
 
     public static async updateItem (data: AccessPointStatus): Promise<{ [key: string]: any }> {
-        const accessPointStatus = await this.findOneOrFail({ access_point: data.access_point })
+        const accessPointStatus = await this.findOneOrFail({ where: { access_point: data.access_point } })
         const oldData = Object.assign({}, accessPointStatus)
 
         if ('resources' in data) accessPointStatus.resources = (data.resources && typeof data.resources === 'object') ? JSON.stringify(data.resources) : data.resources
@@ -63,7 +63,7 @@ export class AccessPointStatus extends MainEntity {
 
         if (!accessPointStatus) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(accessPointStatus)
+            this.save(accessPointStatus, { transaction: false })
                 .then((item: AccessPointStatus) => {
                     resolve({
                         old: oldData,
@@ -94,7 +94,7 @@ export class AccessPointStatus extends MainEntity {
     public static async destroyItem (where: any) {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
-            this.remove(await this.find(where))
+            this.remove(await this.find({ where }))
                 .then(() => {
                     resolve({ message: 'success' })
                 })

@@ -279,17 +279,17 @@ export default class AccessPointController {
             req_data.access_point = reader.access_points.id
             req_data.access_point_type = reader.access_points.type
 
-            logs_data.push({
-                event: logUserEvents.DELETE,
-                target: `${Reader.name}/${reader.access_points.acus.name}/${reader.access_points.name}/${readerTypes[reader.type]}`,
-                value: { type: readerTypes[reader.type] }
-            })
-            ctx.logsData = logs_data
             if (reader.access_points.acus.status === acuStatus.ACTIVE) {
                 RdController.delRd(location, reader.access_points.acus.serial_number, req_data, user, reader.access_points.acus.session_id)
                 ctx.body = { message: 'Delete pending' }
             } else if (reader.access_points.acus.status === acuStatus.NO_HARDWARE) {
                 ctx.body = await Reader.destroyItem(where)
+                logs_data.push({
+                    event: logUserEvents.DELETE,
+                    target: `${Reader.name}/${reader.access_points.acus.name}/${reader.access_points.name}/${readerTypes[reader.type]}`,
+                    value: { type: readerTypes[reader.type] }
+                })
+                ctx.logsData = logs_data
             } else {
                 ctx.status = 400
                 ctx.body = { message: 'You need to activate hardware' }
@@ -450,56 +450,55 @@ export default class AccessPointController {
 
             if (access_point.acus.status !== acuStatus.ACTIVE) {
                 ctx.status = 400
-                ctx.body = {
+                return ctx.body = {
                     message: `Cant update AccessPoint Mode when Acu status is not ${acuStatus.ACTIVE}`
                 }
-            } else {
-                if ((Object.values(accessPointMode).indexOf(req_data.mode) === -1) && Object.values(accessPointMode).indexOf(req_data.exit_mode) === -1) {
-                    if (req_data.mode !== 'open_once') {
+            }
+            if ((Object.values(accessPointMode).indexOf(req_data.mode) === -1) && Object.values(accessPointMode).indexOf(req_data.exit_mode) === -1) {
+                if (req_data.mode !== 'open_once') {
+                    ctx.status = 400
+                    return ctx.body = {
+                        message: `Invalid AccessPoint Mode ${req_data.mode} or Exit Mode`
+                    }
+                }
+                if ('direction' in req_data) {
+                    if (Object.values(accessPointDirection).indexOf(req_data.direction) === -1) {
                         ctx.status = 400
-                        ctx.body = {
-                            message: `Invalid AccessPoint Mode ${req_data.mode} or Exit Mode`
+                        return ctx.body = {
+                            message: `Invalid AccessPoint Direction ${req_data.direction}`
                         }
-                    } else {
-                        if ('direction' in req_data) {
-                            if (Object.values(accessPointDirection).indexOf(req_data.direction) === -1) {
-                                ctx.body = {
-                                    message: `Invalid AccessPoint Direction ${req_data.direction}`
-                                }
-                            } else {
-                                const single_pass_data: any = {
-                                    id: access_point.id,
-                                    direction: req_data.direction
-                                }
-                                CtpController.singlePass(location, access_point.acus.serial_number, single_pass_data, user, access_point.acus.session_id)
-                                ctx.body = {
-                                    message: 'Open Once sended'
-                                }
-                            }
-                        } else {
-                            ctx.status = 400
-                            ctx.body = {
-                                message: `direction is required when AccessPoint Mode is ${req_data.mode}`
-                            }
-                        }
+                    }
+                    const single_pass_data: any = {
+                        id: access_point.id,
+                        direction: req_data.direction
+                    }
+                    CtpController.singlePass(location, access_point.acus.serial_number, single_pass_data, user, access_point.acus.session_id)
+                    ctx.body = {
+                        message: 'Open Once sent'
                     }
                 } else {
-                    const set_access_mode_data: any = {
-                        id: access_point.id,
-                        type: access_point.type
+                    ctx.status = 400
+                    return ctx.body = {
+                        message: `direction is required when AccessPoint Mode is ${req_data.mode}`
                     }
-                    if (req_data.mode) set_access_mode_data.mode = req_data.mode
-                    if (req_data.exit_mode) set_access_mode_data.exit_mode = req_data.exit_mode
-                    CtpController.setAccessMode(location, access_point.acus.serial_number, set_access_mode_data, user, access_point.acus.session_id)
-                    ctx.body = {
-                        message: 'update Pending'
-                    }
+                }
+            } else {
+                const set_access_mode_data: any = {
+                    id: access_point.id,
+                    type: access_point.type
+                }
+                if (req_data.mode) set_access_mode_data.mode = req_data.mode
+                if (req_data.exit_mode) set_access_mode_data.exit_mode = req_data.exit_mode
+                CtpController.setAccessMode(location, access_point.acus.serial_number, set_access_mode_data, user, access_point.acus.session_id)
+                ctx.body = {
+                    message: 'update Pending'
                 }
             }
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
         }
+        return ctx.body
     }
 
     /**
@@ -535,5 +534,47 @@ export default class AccessPointController {
             return ctx.body = { message: 'Cardholder not found' }
         }
         return ctx.body = await AccessRule.find({ where: { access_right: cardholder.access_right }, relations: ['access_points'] })
+    }
+
+    /**
+     *
+     * @swagger
+     * /accessPoint/cameraSets:
+     *      get:
+     *          tags:
+     *              - AccessPoint
+     *          summary: Return accessPoint list
+     *          parameters:
+     *              - in: header
+     *                name: Authorization
+     *                required: true
+     *                description: Authentication token
+     *                schema:
+     *                    type: string
+     *          responses:
+     *              '200':
+     *                  description: Array of accessPoint
+     *              '401':
+     *                  description: Unauthorized
+     */
+    public static async getAccessPointsForCameraSet (ctx: DefaultContext) {
+        try {
+            const user = ctx.user
+            const access_points = await AccessPoint.createQueryBuilder('access_point')
+                .innerJoin('access_point.acus', 'acu', 'acu.delete_date is null')
+                .leftJoin('access_point.camera_sets', 'camera_set', 'camera_set.delete_date is null')
+                .where('camera_set.id is null')
+                .andWhere(`access_point.company = '${user.company ? user.company : null}'`)
+                .andWhere(`acu.status = '${acuStatus.ACTIVE}'`)
+                .getMany()
+
+            ctx.body = access_points
+        } catch (error) {
+            console.log(222, error)
+
+            ctx.status = error.status || 400
+            ctx.body = error
+        }
+        return ctx.body
     }
 }

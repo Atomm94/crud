@@ -8,7 +8,7 @@ export async function addDefaultFeaturesofCompany (company: number) {
     try {
         const access_right_data: any = {
             company: company,
-            name: `default_Access_Right_${company}`,
+            name: 'Default Access Right', // `default_Access_Right_${company}`,
             default: true
         }
         const access_right: any = await AccessRight.addItem(access_right_data)
@@ -21,7 +21,7 @@ export async function addDefaultFeaturesofCompany (company: number) {
         const limitation = await Limitation.addItem(limitation_data as Limitation)
         const schedule_data: any = {
             type: scheduleType.DAILY,
-            name: `default_Schedule_${company}`,
+            name: 'Default Schedule', // old `default_Schedule_${company}`
             company: company
         }
 

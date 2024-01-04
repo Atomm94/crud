@@ -43,7 +43,7 @@ export class AntipassBack extends MainEntity {
         antipassBack.time_type = data.time_type
 
         return new Promise((resolve, reject) => {
-            this.save(antipassBack)
+            this.save(antipassBack, { transaction: false })
                 .then((item: AntipassBack) => {
                     resolve(item)
                 })
@@ -54,7 +54,7 @@ export class AntipassBack extends MainEntity {
     }
 
     public static async updateItem (data: AntipassBack): Promise<{ [key: string]: any }> {
-        const antipassBack = await this.findOneOrFail({ id: data.id })
+        const antipassBack = await this.findOneOrFail({ where: { id: data.id } })
         const oldData = Object.assign({}, antipassBack)
 
         if ('type' in data) antipassBack.type = data.type
@@ -64,7 +64,7 @@ export class AntipassBack extends MainEntity {
 
         if (!antipassBack) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
-            this.save(antipassBack)
+            this.save(antipassBack, { transaction: false })
                 .then((item: AntipassBack) => {
                     resolve({
                         old: oldData,
@@ -80,7 +80,7 @@ export class AntipassBack extends MainEntity {
     public static async getItem (id: number) {
         const itemId: number = id
         return new Promise((resolve, reject) => {
-            this.findOneOrFail(itemId)
+            this.findOneOrFail({ where: { id: itemId } })
                 .then((item: AntipassBack) => {
                     resolve(item)
                 })
@@ -94,7 +94,7 @@ export class AntipassBack extends MainEntity {
         const itemId: number = id
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
-            this.remove(await this.findOneOrFail(itemId))
+            this.remove(await this.findOneOrFail({ where: { id: itemId } }))
                 .then(() => {
                     resolve({ message: 'success' })
                 })

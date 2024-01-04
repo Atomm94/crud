@@ -308,7 +308,7 @@ export default class ZohoController {
             const code = ctx.query.code
             if (code) {
                 console.log(code)
-                const zoho: any = await Zoho.findOne()
+                const zoho: any = await Zoho.findOne({ where: {} })
                 if (zoho) {
                     zoho.code = code
                     await zoho.save()
@@ -383,7 +383,7 @@ export default class ZohoController {
             const req_data = ctx.request.body
             console.log('req_data zohoCallback', JSON.stringify(req_data))
 
-            const zoho = await Zoho.findOneOrFail()
+            const zoho = await Zoho.findOneOrFail({ where: {} })
             const product_id = ctx.query.product_id
             if (product_id && zoho.product_id !== product_id) {
                 return ctx.body = { success: false }
@@ -391,7 +391,7 @@ export default class ZohoController {
 
             const customer_id = req_data.data.subscription.customer_id
             const package_id = req_data.data.subscription.plan.plan_code
-            const coming_package = await Package.findOne({ id: package_id }) as Package
+            const coming_package = await Package.findOne({ where: { id: package_id } }) as Package
             const company: any = await Company.findOneOrFail({ where: { zoho_customer_id: customer_id }, relations: ['company_account'] })
             const status: zohoCallbackStatus = req_data.data.subscription.status
             const main = company.company_account

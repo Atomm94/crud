@@ -30,7 +30,7 @@ export class RegistrationInvite extends MainEntity {
     //     registrationInvite.used = data.used
 
     //     return new Promise((resolve, reject) => {
-    //         this.save(registrationInvite)
+    //         this.save(registrationInvite, { transaction: false })
     //             .then((item: RegistrationInvite) => {
     //                 resolve(item)
     //             })
@@ -41,7 +41,7 @@ export class RegistrationInvite extends MainEntity {
     // }
 
     // public static async updateItem (data: RegistrationInvite) {
-    //     const registrationInvite = await this.findOneOrFail({ id: data.id })
+    //     const registrationInvite = await this.findOneOrFail({ where: {id: data.id })
 
     //     if ('email' in data) registrationInvite.email = data.email
     //     if ('token' in data) registrationInvite.token = data.token
@@ -49,7 +49,7 @@ export class RegistrationInvite extends MainEntity {
 
     //     if (!registrationInvite) return { status: 400, message: 'Item not found' }
     //     return new Promise((resolve, reject) => {
-    //         this.save(registrationInvite)
+    //         this.save(registrationInvite, { transaction: false })
     //             .then((item: RegistrationInvite) => {
     //                 resolve(item)
     //             })
@@ -62,7 +62,7 @@ export class RegistrationInvite extends MainEntity {
     // public static async getItem (id: number) {
     //     const itemId: number = id
     //     return new Promise((resolve, reject) => {
-    //         this.findOneOrFail(itemId)
+    //         this.findOneOrFail({where:{id:itemId}})
     //             .then((item: RegistrationInvite) => {
     //                 resolve(item)
     //             })
@@ -106,7 +106,7 @@ export class RegistrationInvite extends MainEntity {
         if ('company' in data) registrationInvite.company = data.company
 
         return new Promise((resolve, reject) => {
-            this.save(registrationInvite)
+            this.save(registrationInvite, { transaction: false })
                 .then(async (item: RegistrationInvite) => {
                     await Sendgrid.sendInvite(item.email, item.token)
                     resolve(item)
@@ -125,7 +125,7 @@ export class RegistrationInvite extends MainEntity {
         if ('company' in data) registrationInvite.company = data.company
 
         return new Promise((resolve, reject) => {
-            this.save(registrationInvite)
+            this.save(registrationInvite, { transaction: false })
                 .then(async (item: RegistrationInvite) => {
                     await Sendgrid.sendPartitionInvite(item.email, item.token)
                     resolve(item)
@@ -143,7 +143,7 @@ export class RegistrationInvite extends MainEntity {
         registrationInvite.token = uid(32)
 
         return new Promise((resolve, reject) => {
-            this.save(registrationInvite)
+            this.save(registrationInvite, { transaction: false })
                 .then(async (item: RegistrationInvite) => {
                     await Sendgrid.sendCardholderInvite(item.email, item.token)
                     resolve(item)
@@ -156,7 +156,7 @@ export class RegistrationInvite extends MainEntity {
 
     public static async getByLink (token: any) {
         try {
-            const regToken = await RegistrationInvite.findOneOrFail({ token: token, used: false })
+            const regToken = await RegistrationInvite.findOneOrFail({ where: { token: token, used: false } })
             if (regToken) {
                 const packageTypes = await PackageType.getAllItems({ where: { status: { '=': true } } })
                 return packageTypes

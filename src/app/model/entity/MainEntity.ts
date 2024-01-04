@@ -25,7 +25,7 @@ import { resourceKeys } from '../../enums/resourceKeys.enum'
 
 import * as Models from './index'
 
-export abstract class MainEntity extends BaseEntity {
+export class MainEntity extends BaseEntity {
     @Index()
     @PrimaryGeneratedColumn({ type: 'int', name: 'id' })
     id: number;
@@ -45,16 +45,16 @@ export abstract class MainEntity extends BaseEntity {
 
             const models: any = Models
             let model_name: any = self.constructor.name
-            let company = await Company.findOne({ id: self.company }) as Company
+            let company = await Company.findOne({ where: { id: self.company } }) as Company
 
             if (company && company.partition_parent_id) {
-                company = await Company.findOne({ id: company.partition_parent_id }) as Company
+                company = await Company.findOne({ where: { id: company.partition_parent_id } }) as Company
             }
             if (company) {
                 if (models[model_name] && models[model_name].resource) {
                     // console.log('increaseCompanyUsedResource resource', true)
 
-                    const company_resources = await CompanyResources.findOne({ company: company.id })
+                    const company_resources = await CompanyResources.findOne({ where: { company: company.id } })
                     // console.log('increaseCompanyUsedResource company_resources', company_resources)
                     if (model_name === 'AccessPoint') {
                         if (self.type === accessPointType.FLOOR) {
@@ -78,7 +78,7 @@ export abstract class MainEntity extends BaseEntity {
                     }
                 } else if (model_name === 'Credential' && self.type === credentialType.VIKEY) {
                     const resource_name = resourceKeys.VIRTUAL_KEYS
-                    const company_resources = await CompanyResources.findOne({ company: self.company })
+                    const company_resources = await CompanyResources.findOne({ where: { company: self.company } })
                     if (company_resources) {
                         const used: any = JSON.parse(company_resources.used)
                         if (used[resource_name]) {
@@ -103,13 +103,13 @@ export abstract class MainEntity extends BaseEntity {
             const models: any = Models
             const model_name: any = self.constructor.name
             if (models[model_name] && models[model_name].resource) {
-                let company = await Company.findOne({ id: self.company }) as Company
+                let company = await Company.findOne({ where: { id: self.company } }) as Company
                 if (company && company.partition_parent_id) {
-                    company = await Company.findOne({ id: company.partition_parent_id }) as Company
+                    company = await Company.findOne({ where: { id: company.partition_parent_id } }) as Company
                 }
 
                 if (company) {
-                    const company_resources = await CompanyResources.findOne({ company: company.id })
+                    const company_resources = await CompanyResources.findOne({ where: { company: company.id } })
                     if (company_resources) {
                         const used: any = JSON.parse(company_resources.used)
                         if (model_name in used) {

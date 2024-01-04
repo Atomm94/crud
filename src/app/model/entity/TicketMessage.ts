@@ -50,6 +50,8 @@ export class TicketMessage extends MainEntity {
         })
         ticket.read = false
         ticket.save()
+            .then(() => { })
+            .catch((err: any) => { console.log('updateTicketReadStatus ticket save error', err) })
     }
 
     public static gettingActions: boolean = false
@@ -64,7 +66,7 @@ export class TicketMessage extends MainEntity {
         if ('parent_id' in data) ticketMessage.parent_id = data.parent_id
         if ('image' in data) ticketMessage.image = data.image
         return new Promise((resolve, reject) => {
-            this.save(ticketMessage)
+            this.save(ticketMessage, { transaction: false })
                 .then((item: TicketMessage) => {
                     resolve(item)
                 })
@@ -74,8 +76,8 @@ export class TicketMessage extends MainEntity {
         })
     }
 
-    public static async updateItem (data: TicketMessage, user: Admin): Promise<{old:TicketMessage, new:TicketMessage}|{[key: string]:any}> {
-        const ticketMessage = await this.findOneOrFail({ id: data.id })
+    public static async updateItem (data: TicketMessage, user: Admin): Promise<{ old: TicketMessage, new: TicketMessage } | { [key: string]: any }> {
+        const ticketMessage = await this.findOneOrFail({ where: { id: data.id } })
         const oldData = Object.assign({}, ticketMessage)
 
         if ('text' in data) ticketMessage.text = data.text
@@ -85,7 +87,7 @@ export class TicketMessage extends MainEntity {
         if (!ticketMessage) return { status: 400, message: 'Item not found' }
         return new Promise((resolve, reject) => {
             if (ticketMessage.user_id === user.id) {
-                this.save(ticketMessage)
+                this.save(ticketMessage, { transaction: false })
                     .then((item: TicketMessage) => {
                         resolve({
                             old: oldData,
@@ -121,21 +123,21 @@ export class TicketMessage extends MainEntity {
     public static async destroyItem (data: any) {
         // eslint-disable-next-line no-async-promise-executor
 
-        const ticketMessage = await this.findOneOrFail({ id: data.id })
+        const ticketMessage = await this.findOneOrFail({ where: { id: data.id } })
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
-            this.findOneOrFail({ id: data.id }).then((data: any) => {
-            if (ticketMessage.user_id === data.user) {
-                this.remove(data)
-                    .then(() => {
-                        resolve({ message: 'success' })
-                    })
-                    .catch((error: any) => {
-                        reject(error)
-                    })
+            this.findOneOrFail({ where: { id: data.id } }).then((data: any) => {
+                if (ticketMessage.user_id === data.user) {
+                    this.remove(data)
+                        .then(() => {
+                            resolve({ message: 'success' })
+                        })
+                        .catch((error: any) => {
+                            reject(error)
+                        })
                 } else {
                     reject(new Error(`User ${data.user} cant update ${ticketMessage.user_id} user message!!!`))
-            }
+                }
             }).catch((error: any) => {
                 reject(error)
             })

@@ -149,7 +149,7 @@ export class Acu extends MainEntity {
                     acu.time = JSON.stringify(data.time)
                 }
             }
-            this.save(acu)
+            this.save(acu, { transaction: false })
                 .then((item: Acu) => {
                     resolve(item)
                 })
@@ -160,7 +160,7 @@ export class Acu extends MainEntity {
     }
 
     public static async updateItem (data: Acu): Promise<{ [key: string]: any }> {
-        const acu = await this.findOneOrFail({ id: data.id })
+        const acu = await this.findOneOrFail({ where: { id: data.id } })
         const oldData = Object.assign({}, acu)
 
         if ('name' in data) acu.name = data.name
@@ -208,7 +208,7 @@ export class Acu extends MainEntity {
             //     }
             // }
 
-            this.save(acu)
+            this.save(acu, { transaction: false })
                 .then((item: Acu) => {
                     resolve({
                         old: oldData,
@@ -239,7 +239,7 @@ export class Acu extends MainEntity {
     public static async destroyItem (data: any) {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
-            this.findOneOrFail({ id: data.id, company: data.company }).then((data: any) => {
+            this.findOneOrFail({ where: { id: data.id, company: data.company } }).then((data: any) => {
                 this.softRemove(data)
                     .then(async () => {
                         minusResource(this.name, data.company)
@@ -248,15 +248,15 @@ export class Acu extends MainEntity {
                         promises.push(Acu.createQueryBuilder('acu')
                             .select('acu.status')
                             .addSelect('COUNT(acu.id) as acu_qty')
-                            .where('acu.company', data.company)
+                            .where(`acu.company = ${data.company}`)
                             .groupBy('acu.status')
                             .getRawMany())
 
                         promises.push(Acu.createQueryBuilder('acu')
-                            .innerJoin('acu.access_points', 'access_point')
+                            .innerJoin('acu.access_points', 'access_point', 'access_point.delete_date is null')
                             .select('acu.status')
                             .addSelect('COUNT(access_point.id) as acp_qty')
-                            .where('access_point.company', data.company)
+                            .where(`access_point.company = ${data.company}`)
                             .groupBy('acu.status')
                             .getRawMany())
 

@@ -3,6 +3,7 @@ export enum OperatorType {
     PING_ACK = 'Ping-Ack',
     REGISTRATION = 'registration',
     CANCEL_REGISTRATION = 'cancel_registration',
+    CANCEL_REGISTRATION_ACK = 'cancel_registration-Ack',
     ACCEPT = 'accept',
     ACCEPT_ACK = 'accept-Ack',
     LOGIN = 'login',
@@ -181,5 +182,7 @@ export enum OperatorType {
     ACTIVATE_CREDENTIAL = 'activateCredential',
     ACTIVATE_CREDENTIAL_ACK = 'activateCredential-Ack',
     MAIN_TAIN = 'MainTain',
-    MAIN_TAIN_ACK = 'MainTain-Ack'
+    MAIN_TAIN_ACK = 'MainTain-Ack',
+    WEB_PASS = 'Web_pass',
+    WEB_PASS_ACK = 'Web_pass-Ack',
 }

@@ -24,6 +24,7 @@ import { CheckAccessPoint } from '../functions/check-accessPoint'
 import { AcuStatus } from '../model/entity/AcuStatus'
 import { acuCloudStatus } from '../enums/acuCloudStatus.enum'
 import { cloneDeep } from 'lodash'
+import { CameraSet } from '../model/entity/CameraSet'
 // import acu from '../router/acu'
 
 export default class AcuController {
@@ -464,7 +465,7 @@ export default class AcuController {
             const user = ctx.user
             const company = user.company ? user.company : null
             const where = { id: req_data.id, company: company }
-            const acu: Acu | undefined = await Acu.findOne(where)
+            const acu: Acu | null = await Acu.findOne({ where })
             const location = await locationGenerator(user)
 
             const logs_data = []
@@ -549,7 +550,7 @@ export default class AcuController {
                         for (const resource in access_point.resources) {
                             const component_source: number = access_point.resources[resource].component_source
                             if (component_source !== 0) { // when component source is 0, so it is device
-                                const ext_device = await ExtDevice.findOne({ id: component_source, company: company })
+                                const ext_device = await ExtDevice.findOne({ where: { id: component_source, company: company } })
                                 if (!ext_device) {
                                     ctx.status = 400
                                     return ctx.body = { message: `Invalid Component Source ${component_source}!` }
@@ -579,7 +580,7 @@ export default class AcuController {
 
                             access_point.access_point_zones = access_point_zone
                         } else {
-                            const old_access_point = await AccessPoint.findOneOrFail({ id: access_point.id, company: company })
+                            const old_access_point = await AccessPoint.findOneOrFail({ where: { id: access_point.id, company: company } })
                             const type = old_access_point.type
                             access_point.type = type
                             checkAccessPointSend = checkSendingDevice(old_access_point, access_point, AccessPoint.fields_that_used_in_sending, AccessPoint.required_fields_for_sending)
@@ -674,7 +675,7 @@ export default class AcuController {
                                 reader.company = company
                                 reader = await Reader.addItem(reader)
                             } else {
-                                const old_reader = await Reader.findOneOrFail({ id: reader.id, company: company })
+                                const old_reader = await Reader.findOneOrFail({ where: { id: reader.id, company: company } })
                                 reader.access_point = old_reader.access_point
                                 checkReaderSend = checkSendingDevice(old_reader, reader, Reader.fields_that_used_in_sending, Reader.required_fields_for_sending)
                                 const checkReaderOSDPDataSend = checkSendingDevice(old_reader.osdp_data, reader.osdp_data, Reader.OSDP_fields_that_used_in_sending)
@@ -755,7 +756,7 @@ export default class AcuController {
                         await Acu.updateItem({ id: acu.id, reader: acu_reader.id } as Acu)
                         acu_updated.new.reader = acu_reader.id
                     } else {
-                        const old_acu_reader = await Reader.findOneOrFail({ id: acu_reader.id, company: company })
+                        const old_acu_reader = await Reader.findOneOrFail({ where: { id: acu_reader.id, company: company } })
                         acu_reader.access_point = old_acu_reader.access_point
                         checkAcuReaderSend = checkSendingDevice(old_acu_reader, acu_reader, Reader.fields_that_used_in_sending, Reader.required_fields_for_sending)
                         const checkReaderOSDPDataSend = checkSendingDevice(old_acu_reader.osdp_data, acu_reader.osdp_data, Reader.OSDP_fields_that_used_in_sending)
@@ -906,18 +907,20 @@ export default class AcuController {
             const req_data = ctx.request.body
             const user = ctx.user
             const where = { id: req_data.id, company: user.company ? user.company : null }
-            const logs_data = []
-            const acu: Acu = await Acu.findOneOrFail(where)
-            const location = `${user.company_main}/${user.company}`
-            ctx.body = await Acu.destroyItem(where)
-            logs_data.push({
-                event: logUserEvents.DELETE,
-                target: `${Acu.name}/${acu.name}`,
-                value: { name: acu.name }
-            })
-            ctx.logsData = logs_data
+            const acu: Acu = await Acu.findOneOrFail({ where })
             if (acu.status === acuStatus.ACTIVE || acu.status === acuStatus.PENDING) {
+                ctx.body = { message: 'Delete pending' }
+                const location = `${user.company_main}/${user.company}`
                 DeviceController.delDevice(OperatorType.CANCEL_REGISTRATION, location, acu.serial_number, acu, user, acu.session_id)
+            } else {
+                ctx.body = await Acu.destroyItem(where)
+                const logs_data = []
+                logs_data.push({
+                    event: logUserEvents.DELETE,
+                    target: `${Acu.name}/${acu.name}`,
+                    value: { name: acu.name }
+                })
+                ctx.logsData = logs_data
             }
         } catch (error) {
             ctx.status = error.status || 400
@@ -1135,10 +1138,12 @@ export default class AcuController {
             }
 
             const hardware = await Acu.findOne({
+where: {
                 id: req_data.attached_hardware,
                 status: acuStatus.PENDING,
                 company: company
-            })
+            }
+})
             if (!hardware) {
                 ctx.status = 400
                 return ctx.body = {
@@ -1186,6 +1191,14 @@ export default class AcuController {
 
             await Acu.destroyItem(hardware)
             ctx.body = updated
+
+            if (detach) {
+                for (const access_point of device.access_points) {
+                    const camera_set = await CameraSet.findOne({ where: { access_point: access_point.id } })
+                    if (camera_set) CameraSet.destroyItem(camera_set)
+                }
+                return ctx.body
+            }
 
             // send extention Devices
             const ext_devices = device.ext_devices
@@ -1355,7 +1368,7 @@ export default class AcuController {
             const user = ctx.user
             const where = { id: req_data.id, company: user.company ? user.company : null }
             const logs_data = []
-            const acu: Acu = await Acu.findOneOrFail(where)
+            const acu: Acu = await Acu.findOneOrFail({ where })
             const location = await locationGenerator(user)
             if (acu.status !== acuStatus.ACTIVE) {
                 ctx.status = 400

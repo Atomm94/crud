@@ -84,7 +84,7 @@ export default class ExtDeviceController {
                 return ctx.body = { message: check_ext_device }
             }
 
-            const acu: Acu = await Acu.findOneOrFail({ id: req_data.acu, company: company })
+            const acu: Acu = await Acu.findOneOrFail({ where: { id: req_data.acu, company: company } })
             if (acu.status === acuStatus.PENDING) {
                 ctx.status = 400
                 return ctx.body = { message: `You cant add extentionDevice when acu status is ${acuStatus.PENDING}` }
@@ -201,8 +201,8 @@ export default class ExtDeviceController {
                 return ctx.body = { message: check_ext_device }
             }
 
-            const extDevice: ExtDevice = await ExtDevice.findOneOrFail(req_data.id)
-            const acu: Acu = await Acu.findOneOrFail({ id: extDevice.acu })
+            const extDevice: ExtDevice = await ExtDevice.findOneOrFail({ where: { id: req_data.id } })
+            const acu: Acu = await Acu.findOneOrFail({ where: { id: extDevice.acu } })
 
             if (acu.status === acuStatus.ACTIVE) {
                 const checkExtDeviceSend = checkSendingDevice(extDevice, req_data, ExtDevice.fields_that_used_in_sending, ExtDevice.required_fields_for_sending)
@@ -307,13 +307,13 @@ export default class ExtDeviceController {
      */
     public static async destroy (ctx: DefaultContext) {
         try {
-            const ext_device: ExtDevice = await ExtDevice.findOneOrFail({ id: ctx.request.body.id })
+            const ext_device: ExtDevice = await ExtDevice.findOneOrFail({ where: { id: ctx.request.body.id } })
             const req_data: any = ctx.request.body
             const user = ctx.user
             const logs_data = []
             const where = { id: req_data.id, company: user.company ? user.company : null }
             const location = await locationGenerator(user)
-            const acu: Acu = await Acu.findOneOrFail({ id: ext_device.acu })
+            const acu: Acu = await Acu.findOneOrFail({ where: { id: ext_device.acu } })
             if (acu.status === acuStatus.ACTIVE) {
                 ExtensionDeviceController.delExtBrd(location, acu.serial_number, req_data, user, acu.session_id)
                 ctx.body = { message: 'Destroy pending' }
