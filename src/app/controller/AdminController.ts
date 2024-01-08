@@ -358,7 +358,17 @@ export default class AdminController {
                 const adminFiltered = _.omit(admin, ['password', 'super', 'verify_token'])
                 ctx.body = adminFiltered
                 if (ctx.user && ctx.user.company) {
-                    const company = await Company.findOneOrFail({ where: { id: ctx.user.company }, relations: ['packages'] })
+                    const company = await Company.createQueryBuilder('company')
+                    .where(`company.id = ${ctx.user.company}`)
+                    .andWhere('company.delete_date is null')
+                    .withDeleted()
+                    .leftJoinAndSelect('company.packages', 'package')
+                    .getOne()
+                    if (!company) {
+                        ctx.status = 400
+                        return ctx.body = { message: 'something went wrong' }
+                    }
+
                     ctx.body.company_name = company.company_name
                     ctx.body.partition_parent_id = company.partition_parent_id
                     ctx.body.package = company.package
