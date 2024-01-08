@@ -1138,12 +1138,12 @@ export default class AcuController {
             }
 
             const hardware = await Acu.findOne({
-where: {
-                id: req_data.attached_hardware,
-                status: acuStatus.PENDING,
-                company: company
-            }
-})
+                where: {
+                    id: req_data.attached_hardware,
+                    status: acuStatus.PENDING,
+                    company: company
+                }
+            })
             if (!hardware) {
                 ctx.status = 400
                 return ctx.body = {

@@ -14,7 +14,13 @@ export class UserLog extends BaseClass {
             let url = `${getUserLogsUrl}?company=${user.company ? user.company : 0}`
 
             if (user.companyData && user.companyData.package) {
-                const package_data = await Package.findOneOrFail({ where: { id: user.companyData.package } })
+                // const package_data = await Package.findOneOrFail({ where: { id: user.companyData.package } })
+
+                const package_data: any = await Package.createQueryBuilder('package')
+                    .where('id = :id', { id: user.companyData.package })
+                    .withDeleted()
+                    .getOne()
+
                 if (package_data.extra_settings) {
                     const extra_settings: any = JSON.parse(package_data.extra_settings)
                     if (extra_settings.resources[this.name]) {
