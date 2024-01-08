@@ -117,7 +117,7 @@ export default class LogController {
             .andWhere(`access_point.company = '${message.company}'`)
             .getOne()
         const credential = Credential.findOne({
-            where: { id: message_data.Key_id, company: message.company },
+            where: { id: message_data.Key_id || 0, company: message.company },
             relations: ['cardholders', 'cardholders.access_rights', 'cardholders.car_infos', 'cardholders.limitations', 'cardholders.cardholder_groups']
         })
 

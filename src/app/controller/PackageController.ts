@@ -332,6 +332,8 @@ export default class PackageController {
 
                 const company = await Company.createQueryBuilder('company')
                     .where(`company.id = ${user.company}`)
+                    .andWhere('company.delete_date is null')
+                    .withDeleted()
                     .leftJoinAndSelect('company.packages', 'package')
                     .getOne()
 
