@@ -328,7 +328,18 @@ export default class PackageController {
             req_data.relations = ['package_types']
             const user = ctx.user
             if (user.company) {
-                const company = await Company.findOneOrFail({ where: { id: user.company }, relations: ['packages'] })
+                // const company = await Company.findOneOrFail({ where: { id: user.company }, relations: ['packages'] })
+
+                const company = await Company.createQueryBuilder('company')
+                    .where(`company.id = ${user.company}`)
+                    .leftJoinAndSelect('company.packages', 'package')
+                    .getOne()
+
+                if (!company) {
+                    ctx.status = 400
+                    return ctx.body = { message: 'something went wrong' }
+                }
+
                 const where: any = {
                     package_type: { '=': company.package_type },
                     status: { '=': true }
