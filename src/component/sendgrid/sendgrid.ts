@@ -10,7 +10,7 @@ export class Sendgrid {
     // private static sendgrid:any = MailService
     static from = config.sendgrid.fromEmail
     static mainDomain: string = JSON.parse(config.cors.origin)[0]
-    static template_logo = `${process.env.BASE_API}/Logo/template_logo.jpg`
+    static template_logo = `${process.env.BASE_API}/Logo/template_logo.png`
 
     public static async init (sendgridKey: string) {
         await sgMail.setApiKey(sendgridKey)
