@@ -419,14 +419,14 @@ export default class Parse {
     public static async deviceCancelRegistrationAck (message: IMqttCrudMessaging) {
         // console.log('deviceCancelRegistration', message)
         if (message.result.errorNo === 0) {
-            const device_id = message.device_id
-            const company = message.company
-            Acu.findOne({ where: { serial_number: device_id, company: company } }).then((acuData: Acu) => {
-                // when admin deleted this acu what we do ???
-                Acu.destroyItem(acuData)
-                new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.DELETE, `${Acu.name}/${acuData.name}`, { name: acuData.name })
-                new SendSocketMessage(socketChannels.ACU_DELETE, acuData, message.company, message.send_data.user)
-            })
+            // const device_id = message.device_id
+            // const company = message.company
+            // Acu.findOne({ where: { serial_number: device_id, company: company } }).then((acuData: Acu) => {
+            //     // when admin deleted this acu what we do ???
+            //     Acu.destroyItem(acuData)
+            //     new SendUserLogMessage(company, message.send_data.user_data, logUserEvents.DELETE, `${Acu.name}/${acuData.name}`, { name: acuData.name })
+            //     new SendSocketMessage(socketChannels.ACU_DELETE, acuData, message.company, message.send_data.user)
+            // })
         }
     }
 
