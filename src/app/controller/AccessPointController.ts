@@ -457,7 +457,7 @@ export default class AccessPointController {
                 .andWhere(`access_point.company = '${company}'`)
 
             if (req_data.id) {
-                access_points_query.andWhere(`acu.status = '${acuStatus.ACTIVE}'`)
+                access_points_query.andWhere(`access_point.id = '${req_data.id}'`)
             } else if (req_data.ids?.length) {
                 access_points_query.andWhere(`access_point.id in (${req_data.ids})`)
             }
