@@ -17,6 +17,7 @@ export default (token_required: boolean) => async (ctx: DefaultContext, next: ()
                         ctx.status = 400
                         ctx.body = { message: `Invalid code ${ctx.params.code}!` }
                     } else {
+                        delete ctx.vikey_data
                         return await next()
                     }
                 } else {

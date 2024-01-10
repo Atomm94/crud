@@ -507,33 +507,32 @@ export default class CredentialController {
 
             const credential_from_param: Credential | null = await Credential.findOne({ where: { code: param_code, type: credentialType.VIKEY } })
 
+            if (!credential_from_param) {
+                ctx.status = 400
+                return ctx.body = { message: `Invalid code ${param_code}!` }
+            }
+
             if (vikey_data) {
                 if (vikey_data.code !== param_code) {
                     const credential_from_token: Credential | null = await Credential.findOne({ where: { code: vikey_data.code, type: credentialType.VIKEY } })
-                    if (!(credential_from_param && !credential_from_token)) {
+                    if (credential_from_token) {
                         ctx.status = 400
                         return ctx.body = { message: 'Wrong token and code!' }
                     }
                 }
             }
-
-            if (!credential_from_param) {
+            if (!vikey_data && credential_from_param.isLogin) {
                 ctx.status = 400
-                ctx.body = { message: `Invalid code ${param_code}!` }
-            } else {
-                if (!vikey_data && credential_from_param.isLogin) {
-                    ctx.status = 400
-                    ctx.body = { message: `code ${param_code} already used!` }
-                } else {
-                    if (!vikey_data && !credential_from_param.isLogin) {
-                        credential_from_param.isLogin = true
-                        await credential_from_param.save()
-                    }
-                    const token = jwt.sign({ code: param_code, cardholder: credential_from_param.cardholder, company: credential_from_param.company, credential_id: credential_from_param.id }, 'jwtSecret')
-                    ctx.body = {
-                        token: token
-                    }
-                }
+                return ctx.body = { message: `code ${param_code} already used!` }
+            }
+
+            if (!vikey_data && !credential_from_param.isLogin) {
+                credential_from_param.isLogin = true
+                await credential_from_param.save()
+            }
+            const token = jwt.sign({ code: param_code, cardholder: credential_from_param.cardholder, company: credential_from_param.company, credential_id: credential_from_param.id }, 'jwtSecret')
+            ctx.body = {
+                token: token
             }
         } catch (error) {
             ctx.status = error.status || 400
