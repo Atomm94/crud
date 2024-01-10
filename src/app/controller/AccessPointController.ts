@@ -413,12 +413,14 @@ export default class AccessPointController {
      *              schema:
      *                type: object
      *                required:
-     *                  - id
      *                  - mode
      *                properties:
      *                  id:
      *                      type: number
      *                      example: 1
+     *                  ids:
+     *                      type: Array<number>
+     *                      example: [1, 2]
      *                  mode:
      *                      type: string
      *                      enum: [open_once, N/A, credential, locked, unlocked, free_entry_block_exit, block_entry_free_exit, antipanic]
@@ -444,55 +446,80 @@ export default class AccessPointController {
             const req_data = ctx.request.body
             const user = ctx.user
             const company = user.company ? user.company : null
-            const where = { id: req_data.id, company: company }
-            const access_point: any = await AccessPoint.findOneOrFail({ where: where, relations: ['acus'] })
-            const location = await locationGenerator(user)
+            // const where: { [key: string]: any } = { company: company }
+            // if (req_data.id) {
+            // where.id = req_data.id
+            // }
 
-            if (access_point.acus.status !== acuStatus.ACTIVE) {
+            const access_points_query = AccessPoint.createQueryBuilder('access_point')
+                .leftJoinAndSelect('access_point.acus', 'acu', 'acu.delete_date is null')
+                .where(`acu.status = '${acuStatus.ACTIVE}'`)
+                .andWhere(`access_point.company = '${company}'`)
+
+            if (req_data.id) {
+                access_points_query.andWhere(`acu.status = '${acuStatus.ACTIVE}'`)
+            } else if (req_data.ids?.length) {
+                access_points_query.andWhere(`access_point.id in (${req_data.ids})`)
+            }
+
+            const access_points = await access_points_query.getMany()
+
+            if (!access_points.length) {
                 ctx.status = 400
                 return ctx.body = {
-                    message: `Cant update AccessPoint Mode when Acu status is not ${acuStatus.ACTIVE}`
+                    message: 'There is no active Access Points'
                 }
             }
-            if ((Object.values(accessPointMode).indexOf(req_data.mode) === -1) && Object.values(accessPointMode).indexOf(req_data.exit_mode) === -1) {
-                if (req_data.mode !== 'open_once') {
+            // const access_point: any = await AccessPoint.findOneOrFail({ where: where, relations: ['acus'] })
+            const location = await locationGenerator(user)
+
+            for (const access_point of access_points) {
+                if (access_point.acus.status !== acuStatus.ACTIVE) {
                     ctx.status = 400
                     return ctx.body = {
-                        message: `Invalid AccessPoint Mode ${req_data.mode} or Exit Mode`
+                        message: `Cant update AccessPoint Mode when Acu status is not ${acuStatus.ACTIVE}`
                     }
                 }
-                if ('direction' in req_data) {
-                    if (Object.values(accessPointDirection).indexOf(req_data.direction) === -1) {
+                if ((Object.values(accessPointMode).indexOf(req_data.mode) === -1) && Object.values(accessPointMode).indexOf(req_data.exit_mode) === -1) {
+                    if (req_data.mode !== 'open_once') {
                         ctx.status = 400
                         return ctx.body = {
-                            message: `Invalid AccessPoint Direction ${req_data.direction}`
+                            message: `Invalid AccessPoint Mode ${req_data.mode} or Exit Mode`
                         }
                     }
-                    const single_pass_data: any = {
-                        id: access_point.id,
-                        direction: req_data.direction
-                    }
-                    CtpController.singlePass(location, access_point.acus.serial_number, single_pass_data, user, access_point.acus.session_id)
-                    ctx.body = {
-                        message: 'Open Once sent'
+                    if ('direction' in req_data) {
+                        if (Object.values(accessPointDirection).indexOf(req_data.direction) === -1) {
+                            ctx.status = 400
+                            return ctx.body = {
+                                message: `Invalid AccessPoint Direction ${req_data.direction}`
+                            }
+                        }
+                        const single_pass_data: any = {
+                            id: access_point.id,
+                            direction: req_data.direction
+                        }
+                        CtpController.singlePass(location, access_point.acus.serial_number, single_pass_data, user, access_point.acus.session_id)
+                        ctx.body = {
+                            message: 'Open Once sent'
+                        }
+                    } else {
+                        ctx.status = 400
+                        return ctx.body = {
+                            message: `direction is required when AccessPoint Mode is ${req_data.mode}`
+                        }
                     }
                 } else {
-                    ctx.status = 400
-                    return ctx.body = {
-                        message: `direction is required when AccessPoint Mode is ${req_data.mode}`
+                    const set_access_mode_data: any = {
+                        id: access_point.id,
+                        type: access_point.type
                     }
+                    if (req_data.mode) set_access_mode_data.mode = req_data.mode
+                    if (req_data.exit_mode) set_access_mode_data.exit_mode = req_data.exit_mode
+                    CtpController.setAccessMode(location, access_point.acus.serial_number, set_access_mode_data, user, access_point.acus.session_id)
                 }
-            } else {
-                const set_access_mode_data: any = {
-                    id: access_point.id,
-                    type: access_point.type
-                }
-                if (req_data.mode) set_access_mode_data.mode = req_data.mode
-                if (req_data.exit_mode) set_access_mode_data.exit_mode = req_data.exit_mode
-                CtpController.setAccessMode(location, access_point.acus.serial_number, set_access_mode_data, user, access_point.acus.session_id)
-                ctx.body = {
-                    message: 'update Pending'
-                }
+            }
+            ctx.body = {
+                message: 'update Pending'
             }
         } catch (error) {
             ctx.status = error.status || 400
