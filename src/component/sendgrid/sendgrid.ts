@@ -65,10 +65,10 @@ export class Sendgrid {
             to: `${toEmail}`,
             from: this.from,
             subject: 'Welcome to AllDoors Onlne',
-            text: 'Hello!',
+            // text: 'Hello!',
             html: this.newTextMail({
                 headingText: 'Thank you for registering with AllDoors Onlne.',
-                mainText: 'Please tell us a little about yourself by writing to support@lumiring.com, and we will offer you the best possible product package and activate your account ;) Alternatively, you can contact your representative to speed up the process. We are excited to hear from you soon.',
+                mainText: 'Please tell us a little about yourself by writing to support@lumiring.com, and we will offer you the best possible product package and activate your account ;) Alternatively, you can contact your representative to speed up the process.',
                 otherText: 'We are excited to hear from you soon.'
 })
         }
