@@ -14,11 +14,6 @@
 							<td style="width: 10%; padding: 0;"></td>
 						</tr>
 						<tr><td colspan="3" style="height: 60px"></td></tr>
-						<tr>
-							<td style="width: 10%; padding: 0;"></td>
-							<td style="width: 80%; padding: 0; font-size: 20px; font-weight: bold; line-height: 26px;">Hello!</td>
-							<td style="width: 10%; padding: 0;"></td>
-						</tr>
                         <tr><td colspan="3" style="height: 10px; padding: 0"></td></tr>
                         <tr>
 							<td style="width: 10%; padding: 0;"></td>
