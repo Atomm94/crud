@@ -40,10 +40,10 @@ export class Sendgrid {
             to: `${toEmail}`,
             from: this.from,
 
-            subject: 'Welcome to Unimacs.',
+            subject: 'Welcome to AllDoors Onlne.',
             text: 'has invited you',
             html: this.newMail({
-                title: 'Welcome to Unimacs.',
+                title: 'Welcome to AllDoors.',
                 text: 'Your company has been invited to register an account. Please follow the link and fill in the company details. Thank you.',
                 link: `${this.mainDomain}/registration/${token}`,
                 button_text: 'Create new company'
@@ -64,12 +64,13 @@ export class Sendgrid {
         const msg = {
             to: `${toEmail}`,
             from: this.from,
-            subject: 'Welcome to Unimacs',
+            subject: 'Welcome to AllDoors Onlne',
             text: 'Hello!',
             html: this.newTextMail({
-                headingText: 'Thank you for registering with Unimacs.',
-                mainText: 'We are glad to start cooperation with you and we would like to get to know you better in order to make you a better offer. Please tell us a little about yourself and your interests by writing to support@lumiring.com and we will offer you the best possible solution and activate your account ;)'
-            })
+                headingText: 'Thank you for registering with AllDoors Onlne.',
+                mainText: 'Please tell us a little about yourself by writing to support@lumiring.com, and we will offer you the best possible product package and activate your account ;) Alternatively, you can contact your representative to speed up the process. We are excited to hear from you soon.',
+                otherText: 'We are excited to hear from you soon.'
+})
         }
         try {
             await sgMail.send(msg)
@@ -86,10 +87,10 @@ export class Sendgrid {
         const msg = {
             to: `${toEmail}`,
             from: this.from,
-            subject: 'Welcome to Unimacs.',
+            subject: 'Welcome to AllDoors Onlne.',
             text: 'has invited you',
             html: this.newMail({
-                title: 'Welcome to Unimacs.',
+                title: 'Welcome to AllDoors Onlne.',
                 text: 'Your company has been invited to register an account. Please follow the link and fill in the company details. Thank you.',
                 link: `${this.mainDomain}/registrationofPartition/${token}`,
                 button_text: 'Create new Partition'
@@ -110,10 +111,10 @@ export class Sendgrid {
         const msg = {
             to: `${toEmail}`,
             from: this.from,
-            subject: 'Welcome to Unimacs.',
+            subject: 'Welcome to AllDoors Onlne.',
             text: 'has invited you',
             html: this.newMail({
-                title: 'Welcome to Unimacs.',
+                title: 'Welcome to AllDoors Onlne.',
                 text: 'Your company has been successfully registered. To finalize Your Account, please follow the link and set password you\'ll use to sign in to your account. Thank you.',
                 link: `${this.mainDomain}/newpassword/${token}`,
                 button_text: 'Set Password'
@@ -134,10 +135,10 @@ export class Sendgrid {
         const msg = {
             to: `${toEmail}`,
             from: this.from,
-            subject: 'Welcome to Unimacs.',
+            subject: 'Welcome to AllDoors Onlne.',
             text: 'has invited you',
             html: this.newMail({
-                title: 'Welcome to Unimacs.',
+                title: 'Welcome to AllDoors Onlne.',
                 text: ' To register Your Account, please follow the link. Set password you\'ll use to sign in to your account. Thank you.',
                 link: `${this.mainDomain}/newUserPassword/${token}`,
                 button_text: 'Set password'
@@ -182,10 +183,10 @@ export class Sendgrid {
         const msg = {
             to: `${toEmail}`,
             from: this.from,
-            subject: 'Welcome to Unimacs',
+            subject: 'Welcome to AllDoors Onlne',
             text: 'Congratulations, your account has been activated.',
             html: this.newTextMail({
-                headingText: 'Thank you for choosing Unimacs!',
+                headingText: 'Thank you for choosing AllDoors Onlne!',
                 mainText: `We have activated your account and you can start using it right now. Just follow this link ${this.mainDomain}/login and enter your username and password.`
             })
         }
@@ -218,10 +219,10 @@ export class Sendgrid {
         const msg = {
             to: `${toEmail}`,
             from: this.from,
-            subject: 'You have been invited to Unimacs',
+            subject: 'You have been invited to AllDoors Onlne',
             text: 'has invited you',
             html: this.newMail({
-                title: 'You have been invited to Unimacs',
+                title: 'You have been invited to AllDoors Onlne',
                 text: 'You are invited to register an account. Please follow the link and fill in the company details. Thank you.',
                 link: `${this.mainDomain}/cardholder/invite/${token}`,
                 button_text: 'Choose new Password'
@@ -238,12 +239,13 @@ export class Sendgrid {
         }
     }
 
-    private static newTextMail (mail: { headingText: string, mainText: string}) {
+    private static newTextMail (mail: { headingText: string, mainText: string, otherText?:string, }) {
         const emailTemplate: any = fs.readFileSync(`${parentDir}/templates/text.email.template`)
         const template = _.template(emailTemplate)
         const html = template({
             template_logo: this.template_logo,
             headingText: mail.headingText,
+            otherText: mail.otherText,
             mainText: mail.mainText
         })
         return html
