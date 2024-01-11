@@ -9,8 +9,8 @@
 						<tr>
 							<td style="width: 10%; padding: 0;"></td>
 							<td style="width: 80%; padding: 0; font-size: 30px; font-weight: 900; line-height: 25px;">
-								<img style="display: block; margin: 0 auto; width: 172px" src="<%= template_logo %>" alt="UNIMACS" title="UNIMACS"/>
-								<span style="color: #7367f0;padding-left: 3px">UNIMACS</span>
+								<img style="display: block; margin: 0 auto; width: 172px" src="<%= template_logo %>" alt="ALLDOORS ONLINE" title="ALLDOORS ONLINE"/>
+								<span style="color: #7367f0;padding-left: 3px">ALLDOORS ONLINE</span>
 							</td>
 							<td style="width: 10%; padding: 0;"></td>
 						</tr>
