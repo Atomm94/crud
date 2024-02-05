@@ -194,7 +194,14 @@ export class MainEntity extends BaseEntity {
             }
         }
 
-        const [result, total] = await this.findAndCount({
+        // const [result, total] = await this.findAndCount({
+        //     where: where,
+        //     order: data.sort ? { [data.sort.split(' ')[0]]: data.sort.split(' ')[1] } : { id: 'DESC' },
+        //     take: take,
+        //     skip: skip,
+        //     relations: data.relations ? data.relations : []
+        // })
+        const result = await this.find({
             where: where,
             order: data.sort ? { [data.sort.split(' ')[0]]: data.sort.split(' ')[1] } : { id: 'DESC' },
             take: take,
@@ -202,8 +209,9 @@ export class MainEntity extends BaseEntity {
             relations: data.relations ? data.relations : []
         })
 
-        if (!finally_total) finally_total = total
         if (data.page) {
+            const total = await this.count({ where: where })
+            if (!finally_total) finally_total = total
             return {
                 data: result,
                 count: finally_total
