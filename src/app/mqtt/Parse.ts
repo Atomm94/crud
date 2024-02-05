@@ -29,6 +29,7 @@ import CardKeyController from '../controller/Hardware/CardKeyController'
 import moment from 'moment'
 import { generateMessageForOperator } from '../functions/checkOperator'
 import { acuConnectionMode } from '../enums/acuConnectionMode.enum'
+import { acuCloudStatus } from '../enums/acuCloudStatus.enum'
 
 export default class Parse {
     public static async deviceData (topic: string, data: string) {
@@ -389,6 +390,7 @@ export default class Parse {
                 acu_data.rev = message.info.rev
                 acu_data.api_ver = message.info.api_ver
                 acu_data.acu_comment = message.info.acu_comment
+                if (!acu) acu_data.cloud_status = acuCloudStatus.ONLINE
                 // acu_data.registration_date = moment(Number(message.info.time) * 1000).format('YYYY-MM-DD HH:mm:ss')
                 acu_data.registration_date = moment(new Date().getTime()).format('YYYY-MM-DD HH:mm:ss')
                 acu_data.time = JSON.stringify({

@@ -134,7 +134,7 @@ export default class CronJob {
         new Cron.CronJob(interval, async () => {
             const access_point_statuses: any = await AccessPointStatus.getAllItems({ relations: ['access_points'] })
             for (const access_point_status of access_point_statuses) {
-                if (access_point_status.access_points.door_state !== access_point_status.door_state) {
+                if (access_point_status.access_points && access_point_status.access_points.door_state !== access_point_status.door_state) {
                     access_point_status.access_points.door_state = access_point_status.door_state
                     await AccessPoint.save(access_point_status.access_points, { transaction: false })
                 }
@@ -146,12 +146,14 @@ export default class CronJob {
         new Cron.CronJob(interval, async () => {
             const acus: any = await Acu.getAllItems({ where: { status: acuStatus.ACTIVE, heart_bit: false }, relation: ['companies'] })
             for (const acu of acus) {
-                const location = `${acu.companies.account}/${acu.company}`
-                const set_heart_bit_data = {
-                    On: true,
-                    min: 1
+                if (acu.companies) {
+                    const location = `${acu.companies.account}/${acu.company}`
+                    const set_heart_bit_data = {
+                        On: true,
+                        min: 1
+                    }
+                    DeviceController.setHeartBit(location, acu.serial_number, set_heart_bit_data, acu.session_id)
                 }
-                DeviceController.setHeartBit(location, acu.serial_number, set_heart_bit_data, acu.session_id)
             }
         }).start()
     }
