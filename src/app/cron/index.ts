@@ -1,6 +1,6 @@
 
 import * as Cron from 'cron'
-import { AccessPoint, Acu, Cardholder } from '../model/entity'
+import { AccessPoint, Acu, Cardholder, Company } from '../model/entity'
 import { JwtToken } from '../model/entity/JwtToken'
 
 import { acuStatus } from '../enums/acuStatus.enum'
@@ -60,7 +60,7 @@ export default class CronJob {
     }
 
     public static async devicePing (interval: string) {
-        const acus: any = await Acu.getAllItems({ where: { status: { '=': acuStatus.ACTIVE } }, relations: ['companies'] })
+        const acus: any = await Acu.getAllItems({ where: { status: { '=': acuStatus.ACTIVE } }, relations: { companies: Company } })
         for (const acu of acus) {
             this.active_devices[acu.id] = acu
         }
@@ -132,7 +132,7 @@ export default class CronJob {
 
     public static async updateAccessPointDoorState (interval: string) {
         new Cron.CronJob(interval, async () => {
-            const access_point_statuses: any = await AccessPointStatus.getAllItems({ relations: ['access_points'] })
+            const access_point_statuses: any = await AccessPointStatus.getAllItems({ relations: { access_points: AccessPoint } })
             for (const access_point_status of access_point_statuses) {
                 if (access_point_status.access_points && access_point_status.access_points.door_state !== access_point_status.door_state) {
                     access_point_status.access_points.door_state = access_point_status.door_state
@@ -144,7 +144,7 @@ export default class CronJob {
 
     public static async sendSetHeartBit (interval: string) {
         new Cron.CronJob(interval, async () => {
-            const acus: any = await Acu.getAllItems({ where: { status: acuStatus.ACTIVE, heart_bit: false }, relation: ['companies'] })
+            const acus: any = await Acu.getAllItems({ where: { status: acuStatus.ACTIVE, heart_bit: false }, relation: { companies: Company } })
             for (const acu of acus) {
                 if (acu.companies) {
                     const location = `${acu.companies.account}/${acu.company}`

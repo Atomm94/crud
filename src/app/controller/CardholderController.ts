@@ -345,6 +345,7 @@ export default class CardholderController {
                     .leftJoinAndSelect('cardholder.cardholder_groups', 'cardholder_group')
                     .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null')
                     .where(`cardholder.id = '${cardholder.id}'`)
+                    .limit(1)
                     .getOne()
                 ctx.body = cardholder_data
                 ctx.logsData = logs_data
@@ -742,6 +743,7 @@ export default class CardholderController {
                     .leftJoinAndSelect('cardholder.cardholder_groups', 'cardholder_group')
                     .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null')
                     .where(`cardholder.id = '${req_data.id}'`)
+                    .limit(1)
                     .getOne()
                 ctx.body = cardholder_data
                 ctx.logsData = logs_data
@@ -800,6 +802,7 @@ export default class CardholderController {
                 .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null')
                 .where(`cardholder.id = '${+ctx.params.id}'`)
                 .andWhere(`cardholder.company = ${user.company}`)
+                .limit(1)
                 .getOne()
             ctx.body = cardholder
         } catch (error) {
@@ -965,8 +968,8 @@ export default class CardholderController {
                 }
             }
             let [result, total] = await cardholders
-                .take(take)
-                .skip(skip)
+                .limit(take)
+                .offset(skip)
                 .orderBy('cardholder.id', 'DESC')
                 .getManyAndCount()
 
@@ -2764,7 +2767,7 @@ export default class CardholderController {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
             } else {
-                const cardholders = await Cardholder.getAllItems({ where: { id: { in: req_data.ids }, company: { '=': company } }, relations: ['limitations'] })
+                const cardholders = await Cardholder.getAllItems({ where: { id: { in: req_data.ids }, company: { '=': company } }, relations: { limitations: Limitation } })
                 var send_card_key = false
                 const save = []
                 for (const cardholder of cardholders) {
@@ -2920,11 +2923,11 @@ export default class CardholderController {
         const company = user.company
 
         const all_cardholder_group = await CardholderGroup.findOneOrFail({
-where: {
-            default: true,
-            company: company
-        }
-})
+            where: {
+                default: true,
+                company: company
+            }
+        })
 
         xlsxj({
             input: file.path,

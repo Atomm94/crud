@@ -19,6 +19,9 @@ import { createCustomer, createSubsciption } from '../functions/zoho-utils'
 
 import { AccessPoint } from '../model/entity/AccessPoint'
 import { AccessRight } from '../model/entity/AccessRight'
+import { Package } from '../model/entity/Package'
+import { PackageType } from '../model/entity/PackageType'
+import { CompanyDocuments } from '../model/entity/CompanyDocuments'
 
 import { Brackets, In } from 'typeorm'
 import { scheduleType } from '../enums/scheduleType.enum'
@@ -476,7 +479,7 @@ export default class CompanyController {
             }
 
             req_data.where = where
-            req_data.relations = ['company_account', 'packages', 'package_types', 'company_documents']
+            req_data.relations = { company_account: Admin, packages: Package, package_types: PackageType, company_documents: CompanyDocuments }
 
             ctx.body = await Company.getAllItems(req_data)
         } catch (error) {
@@ -956,7 +959,7 @@ export default class CompanyController {
                 }
             }
             req_data.where = where
-            req_data.relations = ['company_account']
+            req_data.relations = { company_account: Admin }
 
             ctx.body = await Company.getAllItems(req_data)
         } catch (error) {

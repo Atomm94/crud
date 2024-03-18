@@ -193,17 +193,61 @@ export class MainEntity extends BaseEntity {
                 finally_total = resource_limit
             }
         }
+        let dataPromise: any = this.createQueryBuilder(this.name)
+            .where(where)
+            .limit(take)
+            .offset(skip)
+        // if (data.search) {
+        //     dataPromise = await addSearchWheres(dataPromise, this, data.search, data.isAdmin, data.search_fields)
+        // }
+        if (data.relations) {
+            const relations = Object.keys(data.relations)
+            for (let i = 0; i < relations.length; i++) {
+                const element = relations[i]
+                const relationAs = `${element.split('.').slice(-1)[0]}`
+                const relationName = (element.indexOf('.') === -1) ? `${this.name}.${element}` : element.split('.').slice(-2).join('.')
+                dataPromise = dataPromise
+                    // .leftJoinAndSelect(`${this.name}.${element}`, element)
+                    .leftJoin(relationName, relationAs)
+            }
+        }
+        if (data.orderBy && Object.keys(data.orderBy).length) {
+            const orderKeys = Object.keys(data.orderBy)
+            for (let i = 0; i < orderKeys.length; i++) {
+                const orderKey = orderKeys[i]
+                if (i < 1) {
+                    dataPromise = dataPromise
+                        .orderBy(orderKey, data.orderBy[orderKey])
+                } else {
+                    dataPromise = dataPromise
+                        .addOrderBy(orderKey, data.orderBy[orderKey])
+                }
+            }
+        } else {
+            dataPromise = dataPromise
+                .orderBy(`${this.name}.id`, 'DESC')
+        }
+        const result = await dataPromise
+            .getManyAndCount()
 
-        const [result, total] = await this.findAndCount({
-            where: where,
-            order: data.sort ? { [data.sort.split(' ')[0]]: data.sort.split(' ')[1] } : { id: 'DESC' },
-            take: take,
-            skip: skip,
-            relations: data.relations ? data.relations : []
-        })
+        // const [result, total] = await this.findAndCount({
+        //     where: where,
+        //     order: data.sort ? { [data.sort.split(' ')[0]]: data.sort.split(' ')[1] } : { id: 'DESC' },
+        //     take: take,
+        //     skip: skip,
+        //     relations: data.relations ? data.relations : []
+        // })
+        // const result = await this.find({
+        //     where: where,
+        //     order: data.sort ? { [data.sort.split(' ')[0]]: data.sort.split(' ')[1] } : { id: 'DESC' },
+        //     take: take,
+        //     skip: skip,
+        //     relations: data.relations ? data.relations : []
+        // })
 
-        if (!finally_total) finally_total = total
         if (data.page) {
+            const total = await this.count({ where: where })
+            if (!finally_total) finally_total = total
             return {
                 data: result,
                 count: finally_total

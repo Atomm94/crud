@@ -2,7 +2,7 @@ import { DefaultContext } from 'koa'
 import { credentialType } from '../enums/credentialType.enum'
 import { Credential } from '../model/entity/Credential'
 // import { CheckCredentialSettings } from '../functions/check-credential'
-import { AccessPoint, AccessRule, Cardholder, Company } from '../model/entity'
+import { AccessPoint, AccessRule, Acu, Cardholder, Company, Schedule, Timeframe } from '../model/entity'
 import { acuStatus } from '../enums/acuStatus.enum'
 import CardKeyController from './Hardware/CardKeyController'
 import { logUserEvents } from '../enums/logUserEvents.enum'
@@ -577,7 +577,7 @@ export default class CredentialController {
             })
             const access_rules = await AccessRule.getAllItems({
                 where: { access_right: { '=': cardholder.access_right } },
-                relations: ['access_points', 'access_points.acus', 'schedules', 'schedules.timeframes']
+                relations: { access_points: AccessPoint, 'access_points.acus': Acu, schedules: Schedule, 'schedules.timeframes': Timeframe }
             })
             ctx.body = {
                 limitations: cardholder.limitations,

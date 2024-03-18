@@ -210,7 +210,7 @@ export default class AccessPointController {
             } else {
                 access_points = await access_points
                     .orderBy('access_point.id', 'DESC')
-                    .take(take_limit)
+                    .limit(take_limit)
                     .getMany()
             }
 

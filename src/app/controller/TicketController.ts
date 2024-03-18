@@ -3,7 +3,8 @@ import { logUserEvents } from '../enums/logUserEvents.enum'
 import {
     Ticket,
     TicketMessage,
-    Admin
+    Admin,
+    Department
 } from '../model/entity/index'
 
 export default class TicketController {
@@ -235,7 +236,7 @@ export default class TicketController {
         try {
             const user = ctx.user
             const req_data = ctx.query
-            req_data.relations = ['user', 'departments']
+            req_data.relations = { user: Admin, departments: Department }
             ctx.body = await Ticket.getAllItems(req_data, user as Admin)
         } catch (error) {
             ctx.status = error.status || 400

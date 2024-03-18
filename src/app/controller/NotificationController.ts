@@ -190,9 +190,34 @@ export default class NotificationController {
         try {
             const req_data = ctx.query
             const user = ctx.user
-            req_data.relations = ['access_points']
-            req_data.where = { company: { '=': user.company } }
-            ctx.body = await Notification.getAllItems(req_data)
+            // req_data.relations = ['access_points']
+            // req_data.where = { company: { '=': user.company } }
+            // ctx.body = await Notification.getAllItems(req_data)
+            const take = req_data.page_items_count ? (req_data.page_items_count > 10000) ? 10000 : req_data.page_items_count : 25
+            const skip = req_data.page_items_count && req_data.page ? (req_data.page - 1) * req_data.page_items_count : 0
+
+            const result: any = await Notification.createQueryBuilder('notification')
+                .leftJoin('notification.access_points', 'access_point')
+                .select(['notification.id', 'notification.event', 'notification.description', 'notification.confirmed', 'notification.create_date', 'notification.access_point', 'notification.company', 'access_point.id', 'access_point.name'])
+                .orderBy('notification.id', 'DESC')
+                .where(`notification.company = '${user.company ? user.company : null}'`)
+                .limit(take)
+                .offset(skip)
+                .cache(60000)
+                .getMany()
+            if (req_data.page) {
+                const total = await Notification.createQueryBuilder('notification')
+                    .select('COUNT(id) ', 'count')
+                    .where(`notification.company = '${user.company ? user.company : null}'`)
+                    .getRawOne()
+
+                ctx.body = {
+                    data: result,
+                    count: total.count
+                }
+            } else {
+                ctx.body = result
+            }
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

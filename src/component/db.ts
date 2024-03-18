@@ -11,6 +11,15 @@ const connectionOpts: ConnectionOptions = {
   username: config.db.user,
   password: config.db.pass,
   database: config.db.name,
+  // cache: true,
+  cache: {
+    type: 'ioredis',
+    options: {
+      host: 'redis',
+      port: 6379,
+      password: '7TJ2bsDgMj'
+    }
+  },
   entities: [`${parentDir}/app/model/entity/*{.ts,.js}`],
   migrations: [`${parentDir}/app/model/migration/*{.ts,.js}`],
   subscribers: [`${parentDir}/app/model/subscriber/*{.ts,.js}`],

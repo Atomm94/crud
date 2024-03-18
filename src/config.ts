@@ -26,6 +26,7 @@ export interface IConfig {
         pass: string,
         host: string,
         port: number | boolean,
+        cache: number | string,
         name: string,
         dbsslconn: boolean,
         synchronize: boolean,
@@ -73,6 +74,13 @@ export interface IConfig {
             createSubscriptionUrl: string
         }
     };
+    redis:{
+        host: string,
+        port: string,
+        password: string,
+        db: string,
+        username: string
+    }
     nodeEnv: string;
     isTest: boolean;
     isProduction: boolean;
@@ -100,6 +108,7 @@ var config: IConfig = {
         host: _.defaultTo(process.env.DB_HOST, 'localhost'),
         port: normalizePort(_.defaultTo(process.env.DB_PORT, 5432)),
         name: _.defaultTo(process.env.DB_NAME, 'postgres'),
+        cache: _.defaultTo(process.env.DB_CACHE, 60000),
         dbsslconn: process.env.NODE_ENV === 'production',
         synchronize: _.defaultTo(JSON.parse(process.env.DB_SYNC as string), false)
     },
@@ -149,6 +158,13 @@ var config: IConfig = {
             createSubscriptionUrl: 'https://subscriptions.zoho.com/api/v1/subscriptions'
         }
 
+    },
+    redis: {
+        host: _.defaultTo(process.env.REDIS_HOST, 'localhost'),
+        port: _.defaultTo(process.env.REDIS_PORT, '6379'),
+        password: _.defaultTo(process.env.REDIS_PASSWORD, '123456'),
+        db: _.defaultTo(process.env.REDIS_DB, '0'),
+        username: _.defaultTo(process.env.REDIS_USERNAME, 'default')
     },
     nodeEnv: process.env.NODE_ENV,
     isTest: !!(process.env.NODE_ENV === 'test' && process.env.NODE_TEST),
