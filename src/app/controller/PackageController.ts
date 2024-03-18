@@ -325,7 +325,7 @@ export default class PackageController {
     public static async getAll (ctx: DefaultContext) {
         try {
             const req_data = ctx.query
-            req_data.relations = ['package_types']
+            req_data.relations = { package_types: PackageType }
             const user = ctx.user
             if (user.company) {
                 // const company = await Company.findOneOrFail({ where: { id: user.company }, relations: ['packages'] })

@@ -1,6 +1,7 @@
 import { DefaultContext } from 'koa'
 import { Camera } from '../model/entity/Camera'
 import { AccessPoint } from '../model/entity'
+import { CameraDevice } from '../model/entity/CameraDevice'
 export default class CameraController {
     /**
      *
@@ -287,7 +288,7 @@ export default class CameraController {
                 where.hidden = { '=': myBool }
             }
             req_data.where = where
-            req_data.relations = ['camera_devices']
+            req_data.relations = { camera_devices: CameraDevice }
             ctx.body = await Camera.getAllItems(req_data)
         } catch (error) {
             ctx.status = error.status || 400

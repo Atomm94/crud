@@ -315,7 +315,7 @@ export default class StandardReportController {
             const req_data = ctx.query
             const user = ctx.user
             req_data.where = { company: { '=': user.company ? user.company : null } }
-            req_data.relations = ['authors']
+            req_data.relations = { authors: Admin }
             ctx.body = await StandardReport.getAllItems(req_data)
         } catch (error) {
             ctx.status = error.status || 400

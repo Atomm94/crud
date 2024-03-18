@@ -15,6 +15,7 @@ export class Dashboard extends BaseClass {
             .addSelect('COUNT(access_point.id) as acp_qty')
             .where(`acu.company = ${user.company}`)
             .andWhere('acu.delete_date is null')
+            .cache(60000)
             .groupBy('acu.status')
             .getRawMany())
 
@@ -23,6 +24,7 @@ export class Dashboard extends BaseClass {
             .addSelect('COUNT(acu.id) as acu_qty')
             .where(`acu.company = ${user.company}`)
             .andWhere('acu.delete_date is null')
+            .cache(60000)
             .groupBy('acu.status')
             .getRawMany())
 
@@ -31,6 +33,7 @@ export class Dashboard extends BaseClass {
             .addSelect('COUNT(access_point.id) as acp_qty')
             .where(`access_point.company = ${user.company}`)
             .andWhere('access_point.delete_date is null')
+            .cache(60000)
             .groupBy('access_point.mode')
             .getRawMany())
 
@@ -39,6 +42,7 @@ export class Dashboard extends BaseClass {
             .where(`access_point.company = ${user.company}`)
             .andWhere(`acu.status = '${acuStatus.ACTIVE}'`)
             .andWhere('access_point.delete_date is null')
+            .cache(60000)
             .getMany())
 
         promises.push(EventLog.getEventStatistic(user))
@@ -61,6 +65,7 @@ export class Dashboard extends BaseClass {
             .leftJoinAndSelect('access_point.access_point_groups', 'access_point_group', 'access_point_group.delete_date is null')
             .leftJoinAndSelect('access_point.access_point_zones', 'access_point_zone', 'access_point_zone.delete_date is null')
             .where(`access_point.company = '${user.company ? user.company : null}'`)
+            .cache(60000)
         if (data.not_visible_ids) {
             access_points.andWhere(`access_point.id not in (${data.not_visible_ids})`)
         }
@@ -70,8 +75,8 @@ export class Dashboard extends BaseClass {
             const take = data.page_items_count ? (data.page_items_count > 10000) ? 10000 : data.page_items_count : 25
             const skip = data.page_items_count && data.page ? (data.page - 1) * data.page_items_count : 0
             access_points = access_points
-                .take(take)
-                .skip(skip)
+                .limit(take)
+                .offset(skip)
             const [result, total] = await access_points.getManyAndCount()
 
             return {
@@ -90,6 +95,7 @@ export class Dashboard extends BaseClass {
             .addSelect('COUNT(cardholder.id) as cardholder_qty')
             .where(`cardholder.company = '${user.company ? user.company : null}'`)
             .groupBy('cardholder.presense')
+            .cache(60000)
             .getRawMany()
 
         return cardholders

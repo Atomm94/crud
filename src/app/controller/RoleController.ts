@@ -95,7 +95,7 @@ class RoleController {
       const user = ctx.user
 
       const req_data = ctx.query
-      req_data.relations = ['admins']
+      req_data.relations = { admins: Admin }
       req_data.where = {
         company: { '=': user.company ? user.company : null },
         id: { '!=': user.role },
@@ -316,7 +316,7 @@ class RoleController {
           ctx.body = { message: 'something went wrong' }
         } else {
           if (await checkPermissionsAccess(user, check_role_by_company.permissions)) {
-            const admin:any = await Admin.find({ where: { role: id } })
+            const admin: any = await Admin.find({ where: { role: id } })
             if (admin.length) {
               for (let i = 0; i < admin.length; i++) {
                 admin[i].role = null

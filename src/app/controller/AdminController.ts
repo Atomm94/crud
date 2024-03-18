@@ -1,7 +1,7 @@
 import * as _ from 'lodash'
 import { DefaultContext } from 'koa'
 import { getRepository } from 'typeorm'
-import { Admin, Company, Role } from '../model/entity/index'
+import { Admin, Company, Department, Role } from '../model/entity/index'
 import * as jwt from 'jsonwebtoken'
 import * as bcrypt from 'bcrypt'
 import fs from 'fs'
@@ -359,11 +359,11 @@ export default class AdminController {
                 ctx.body = adminFiltered
                 if (ctx.user && ctx.user.company) {
                     const company = await Company.createQueryBuilder('company')
-                    .where(`company.id = ${ctx.user.company}`)
-                    .andWhere('company.delete_date is null')
-                    .withDeleted()
-                    .leftJoinAndSelect('company.packages', 'package')
-                    .getOne()
+                        .where(`company.id = ${ctx.user.company}`)
+                        .andWhere('company.delete_date is null')
+                        .withDeleted()
+                        .leftJoinAndSelect('company.packages', 'package')
+                        .getOne()
                     if (!company) {
                         ctx.status = 400
                         return ctx.body = { message: 'something went wrong' }
@@ -888,7 +888,7 @@ export default class AdminController {
         var allAdmin
 
         const req_data = ctx.query
-        req_data.relations = ['departments']
+        req_data.relations = { departments: Department }
         const where: any = { company: { '=': user.company ? user.company : null }, id: { '!=': user.id } }
         if (!user.company && !user.super) {
             where.super = { '=': false }

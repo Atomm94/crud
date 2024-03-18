@@ -8,6 +8,7 @@ import { updateZohoConfig } from './functions/zoho-utils'
 import MQTTBroker from '../app/mqtt/mqtt'
 import { logger } from '../../modules/winston/logger'
 import CronJob from './cron'
+import { RedisClass } from '../component/redis'
 
 const database = new Database();
 // create connection with database
@@ -17,6 +18,7 @@ const database = new Database();
 (async () => {
     try {
         await database.connect()
+        RedisClass.connect()
         await AccessControl.GrantAccess()
         await AccessControl.GrantCompanyAccess()
         await Sendgrid.init(config.sendgrid.apiKey)

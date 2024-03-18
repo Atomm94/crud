@@ -1,4 +1,4 @@
-import overrideValidator from './middleware/validation'
+// import overrideValidator from './middleware/validation'
 import responseHandler from './middleware/responseHandler'
 import errorHandler from './middleware/errorHandler'
 import requestId from './middleware/requestId'
@@ -18,7 +18,7 @@ import { router } from './router'
 import compress from 'koa-compress'
 // import bodyParser from 'koa-bodyparser'
 
-import helmet from 'koa-helmet'
+// import helmet from 'koa-helmet'
 import cors from 'koa2-cors'
 
 import Koa from 'koa'
@@ -31,8 +31,8 @@ const koaBody = require('koa-body')
 const parentDir = join(__dirname, '../')
 const serve = require('koa-static')
 
-const responseTime = require('koa-response-time')
-const validator = require('node-input-validator')
+// const responseTime = require('koa-response-time')
+// const validator = require('node-input-validator')
 const swaggerUi = require('swagger-ui-koa')
 
 const app: Koa = new Koa()
@@ -45,12 +45,12 @@ require('koa-qs')(app)
 app.use(logging())
 
 // Validation middleware -> adds ctx.validate
-app.use(validator.koa())
+// app.use(validator.koa())
 
-app.use(overrideValidator())
+// app.use(overrideValidator())
 
 // Provides important security headers to make your app more secure
-app.use(helmet())
+// app.use(helmet())
 
 // Enable cors with default options
 app.use(cors({ ...config.cors, origin: checkOriginWhiteList }))
@@ -78,7 +78,7 @@ app.use(serve(`${parentDir}/public`))
 app.use(requestId())
 
 // Adds an X-Response-Time header with a query execution time value
-app.use(responseTime())
+// app.use(responseTime())
 
 // Check Jwt Middleware
 
@@ -94,6 +94,7 @@ app.use(swaggerUi.serve)
 app.use(compress())
 app.use(options())
 
+// app.use(cacheResponse(60))
 app.use(clickhouselog())
 // app.use(resource())
 // routers

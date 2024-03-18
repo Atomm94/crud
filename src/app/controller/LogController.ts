@@ -116,10 +116,20 @@ export default class LogController {
             .where(`access_point.id = '${message_data.Ctp_idx}'`)
             .andWhere(`access_point.company = '${message.company}'`)
             .getOne()
-        const credential = Credential.findOne({
-            where: { id: message_data.Key_id || 0, company: message.company },
-            relations: ['cardholders', 'cardholders.access_rights', 'cardholders.car_infos', 'cardholders.limitations', 'cardholders.cardholder_groups']
-        })
+        // const credential = Credential.findOne({
+        //     where: { id: message_data.Key_id || 0, company: message.company },
+        //     relations: ['cardholders', 'cardholders.access_rights', 'cardholders.car_infos', 'cardholders.limitations', 'cardholders.cardholder_groups']
+        // })
+
+        const credential = Credential.createQueryBuilder('credential')
+            .leftJoinAndSelect('credential.cardholders', 'cardholder')
+            .leftJoinAndSelect('cardholder.access_rights', 'access_right')
+            .leftJoinAndSelect('cardholder.car_infos', 'car_info')
+            .leftJoinAndSelect('cardholder.limitations', 'limitation')
+            .leftJoinAndSelect('cardholder.cardholder_groups', 'cardholder_group')
+            .where(`credential.id = ${message_data.Key_id || 0}`)
+            .andWhere(`credential.company = ${message.company}`)
+            .getOne()
 
         Promise.all([acu, access_point, credential]).then(async (data: any) => {
             const acu: any = data[0]

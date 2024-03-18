@@ -41,7 +41,7 @@ export class TicketMessage extends MainEntity {
 
     @ManyToOne(type => Admin, admin => admin.ticket_messages)
     @JoinColumn({ name: 'user_id' })
-    users: Ticket;
+    users: Admin;
 
     @AfterInsert()
     async updateTicketReadStatus () {
@@ -145,7 +145,7 @@ export class TicketMessage extends MainEntity {
     }
 
     public static async getAllItems (params?: any) {
-        params.relations = ['tickets', 'users']
+        params.relations = { tickets: Ticket, users: Admin }
         return new Promise((resolve, reject) => {
             this.findByParams(params)
                 .then((items) => {
