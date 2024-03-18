@@ -133,7 +133,7 @@ export default class LogController {
 
         Promise.all([acu, access_point, credential]).then(async (data: any) => {
             const acu: any = data[0]
-            const time_zone = acu.time ? JSON.parse(acu.time).time_zone : null
+            const time_zone = acu?.time ? JSON.parse(acu.time).time_zone : null
             if (acu) {
                 const access_point: AccessPoint = data[1]
                 const credential: Credential = data[2]
