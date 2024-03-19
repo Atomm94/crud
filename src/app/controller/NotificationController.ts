@@ -201,8 +201,8 @@ export default class NotificationController {
                 .select(['notification.id', 'notification.event', 'notification.description', 'notification.confirmed', 'notification.create_date', 'notification.access_point', 'notification.company', 'access_point.id', 'access_point.name'])
                 .orderBy('notification.id', 'DESC')
                 .where(`notification.company = '${user.company ? user.company : null}'`)
-                .limit(take)
-                .offset(skip)
+                .take(take)
+                .skip(skip)
                 .cache(60000)
                 .getMany()
             if (req_data.page) {

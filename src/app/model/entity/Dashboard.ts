@@ -75,8 +75,8 @@ export class Dashboard extends BaseClass {
             const take = data.page_items_count ? (data.page_items_count > 10000) ? 10000 : data.page_items_count : 25
             const skip = data.page_items_count && data.page ? (data.page - 1) * data.page_items_count : 0
             access_points = access_points
-                .limit(take)
-                .offset(skip)
+                .take(take)
+                .skip(skip)
             const [result, total] = await access_points.getManyAndCount()
 
             return {

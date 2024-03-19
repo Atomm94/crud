@@ -195,8 +195,8 @@ export class MainEntity extends BaseEntity {
         }
         let dataPromise: any = this.createQueryBuilder(this.name)
             .where(where)
-            .limit(take)
-            .offset(skip)
+            .take(take)
+            .skip(skip)
         // if (data.search) {
         //     dataPromise = await addSearchWheres(dataPromise, this, data.search, data.isAdmin, data.search_fields)
         // }
@@ -228,7 +228,7 @@ export class MainEntity extends BaseEntity {
                 .orderBy(`${this.name}.id`, 'DESC')
         }
         const result = await dataPromise
-            .getManyAndCount()
+            .getMany()
 
         // const [result, total] = await this.findAndCount({
         //     where: where,

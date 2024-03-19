@@ -968,8 +968,8 @@ export default class CardholderController {
                 }
             }
             let [result, total] = await cardholders
-                .limit(take)
-                .offset(skip)
+                .take(take)
+                .skip(skip)
                 .orderBy('cardholder.id', 'DESC')
                 .getManyAndCount()
 
