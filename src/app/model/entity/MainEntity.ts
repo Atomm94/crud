@@ -208,7 +208,7 @@ export class MainEntity extends BaseEntity {
                 const relationName = (element.indexOf('.') === -1) ? `${this.name}.${element}` : element.split('.').slice(-2).join('.')
                 dataPromise = dataPromise
                     // .leftJoinAndSelect(`${this.name}.${element}`, element)
-                    .leftJoin(relationName, relationAs)
+                    .leftJoinAndSelect(relationName, relationAs)
             }
         }
         if (data.orderBy && Object.keys(data.orderBy).length) {
