@@ -1,0 +1,76 @@
+<!DOCTYPE HTML>
+<html>
+		<body style="margin: 0;padding: 0;border: none">
+				<table style="width: 100%; max-width: 580px; margin: 0 auto; border-radius: 4px; box-shadow: 0 2px 2px rgba(0,0,0,0.16);font-family:Segoe UI, Arial, Helvetica, sans-serif; border-spacing: 0; color: #2C2C39; margin: 0 auto; background: #ffffff">
+					<tr>
+						<td>
+							<table style="width: 100%; ">
+								<tr><td colspan="3" style="height: 60px; padding: 0"></td></tr>
+						<tr>
+							<td style="width: 10%; padding: 0;"></td>
+							<td style="width: 80%; padding: 0; font-size: 30px; font-weight: 900; line-height: 25px;">
+								<img style="display: block; margin: 0 auto; width: 202px" src="<%= template_logo %>" alt="ALLDOORS ONLINE" title="ALLDOORS ONLINE"/>
+							</td>
+							<td style="width: 10%; padding: 0;"></td>
+						</tr>
+						<tr><td colspan="3" style="height: 60px"></td></tr>
+                        <tr><td colspan="3" style="height: 10px; padding: 0"></td></tr>
+
+                        <tr>
+							<td style="width: 10%; padding: 0;"></td>
+							<td style="width: 80%; padding: 0; font-size: 20px; font-weight: bold; line-height: 26px;">Assigned Account ID<%= account_id %></td>
+							<td style="width: 10%; padding: 0;"></td>
+						</tr>
+						<tr><td colspan="3" style="height: 15px; padding: 0"></td></tr>
+						<tr>
+							<td style="width: 10%; padding: 0;"></td>
+							<td style="width: 80%; padding: 0; font-size: 16px; line-height: 24px;">First Name<%= first_name %></td>
+							<td style="width: 10%; padding: 0;"></td>
+						</tr>
+						
+						<tr>
+							<td style="width: 10%; padding: 0;"></td>
+							<td style="width: 80%; padding: 0; font-size: 16px; line-height: 24px;">Last Name<%= last_name %></td>
+							<td style="width: 10%; padding: 0;"></td>
+						</tr>						
+						<tr>
+							<td style="width: 10%; padding: 0;"></td>
+							<td style="width: 80%; padding: 0; font-size: 16px; line-height: 24px;">Email<%= email %></td>
+							<td style="width: 10%; padding: 0;"></td>
+						</tr>						
+						<tr>
+							<td style="width: 10%; padding: 0;"></td>
+							<td style="width: 80%; padding: 0; font-size: 16px; line-height: 24px;">Phone Number<%= phone_number %></td>
+							<td style="width: 10%; padding: 0;"></td>
+						</tr>						
+						<tr>
+							<td style="width: 10%; padding: 0;"></td>
+							<td style="width: 80%; padding: 0; font-size: 16px; line-height: 24px;">Company Name<%= company_name %></td>
+							<td style="width: 10%; padding: 0;"></td>
+						</tr>						
+						<tr>
+							<td style="width: 10%; padding: 0;"></td>
+							<td style="width: 80%; padding: 0; font-size: 16px; line-height: 24px;">Message<%= message %></td>
+							<td style="width: 10%; padding: 0;"></td>
+						</tr>
+
+						<tr><td colspan="3" style="height: 15px; padding: 0"></td></tr>
+						<tr>
+							<td style="width: 10%; padding: 0;"></td>
+							<td style="width: 80%; padding: 0; font-size: 13px; line-height: 19px;">Regards,  </td>
+							<td style="width: 10%; padding: 0;"></td>
+						</tr>						<tr>
+							<td style="width: 10%; padding: 0;"></td>
+							<td style="width: 80%; padding: 0; font-size: 13px; line-height: 19px;">AllDoors Online team!  </td>
+							<td style="width: 10%; padding: 0;"></td>
+						</tr>
+
+						
+						<tr><td colspan="3" style="height: 60px"></td></tr>
+							</table>
+						</td>
+					</tr>
+						
+				</table>
+		</body>
+</html>

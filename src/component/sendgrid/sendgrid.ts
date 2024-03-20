@@ -70,7 +70,36 @@ export class Sendgrid {
                 headingText: 'Thank you for registering with AllDoors Onlne.',
                 mainText: 'Please tell us a little about yourself by writing to support@lumiring.com, and we will offer you the best possible product package and activate your account ;) Alternatively, you can contact your representative to speed up the process.',
                 otherText: 'We are excited to hear from you soon.'
-})
+            })
+        }
+        try {
+            await sgMail.send(msg)
+        } catch (error) {
+            console.error(error)
+
+            if (error.response) {
+                console.error(error.response.body)
+            }
+        }
+    }
+
+    public static async InformSuper (toEmail: string, account: any, company: any, account_id: number) {
+        console.log('InformSuper', toEmail, account, company)
+
+        const msg = {
+            to: `${toEmail}`,
+            from: this.from,
+            subject: 'Account activation request',
+            // text: 'Hello!',
+            html: this.newSuperTextMail({
+                first_name: account.first_name,
+                last_name: account.last_name,
+                email: account.email,
+                phone_number: account.phone_1,
+                message: company.message,
+                company_name: company.company_name,
+                account_id
+            })
         }
         try {
             await sgMail.send(msg)
@@ -239,7 +268,7 @@ export class Sendgrid {
         }
     }
 
-    private static newTextMail (mail: { headingText: string, mainText: string, otherText?:string, }) {
+    private static newTextMail (mail: { headingText: string, mainText: string, otherText?: string, }) {
         const emailTemplate: any = fs.readFileSync(`${parentDir}/templates/text.email.template`)
         const template = _.template(emailTemplate)
         const html = template({
@@ -247,6 +276,30 @@ export class Sendgrid {
             headingText: mail.headingText,
             otherText: mail.otherText,
             mainText: mail.mainText
+        })
+        return html
+    }
+
+    private static newSuperTextMail (mail: {
+        first_name: string
+        last_name: string
+        email: string
+        phone_number: string
+        message: string
+        company_name: string
+        account_id: number
+    }) {
+        const emailTemplate: any = fs.readFileSync(`${parentDir}/templates/super_text.email.template`)
+        const template = _.template(emailTemplate)
+        const html = template({
+            template_logo: this.template_logo,
+            first_name: mail.first_name,
+            last_name: mail.last_name,
+            email: mail.email,
+            phone_number: mail.phone_number,
+            message: mail.message,
+            company_name: mail.company_name,
+            account_id: mail.account_id
         })
         return html
     }
