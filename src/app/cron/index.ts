@@ -29,6 +29,7 @@ const update_acucloud_status_interval = process.env.UPDATE_ACUCLOUD_STATUS_INTER
 const update_accesspoint_door_state_interval = process.env.UPDATE_ACCESSPOINT_DOOR_STATE_INTERVAL ? process.env.UPDATE_ACCESSPOINT_DOOR_STATE_INTERVAL : '0 */10 * * * *'
 const send_set_heart_bit_interval = process.env.SEND_SET_HEART_BIT_INTERVAL ? process.env.SEND_SET_HEART_BIT_INTERVAL : '0 0 0 * * *'
 const update_camera_device_cameras_interval = process.env.UPDATE_CAMERA_DEVICE_CAMERAS_INTERVAL ? process.env.UPDATE_CAMERA_DEVICE_CAMERAS_INTERVAL : '0 */10 * * * *'
+const token_expire_time = process.env.TOKEN_EXPIRE_TIME ? +process.env.TOKEN_EXPIRE_TIME : 2
 
 export default class CronJob {
     public static cronObj: any = {}
@@ -46,14 +47,20 @@ export default class CronJob {
         this.updateCameraDeviceCameras(update_camera_device_cameras_interval)
     }
 
-    public static deleteOldTokens (interval: string): void {
+    public static async deleteOldTokens (interval: string) {
         this.cronObj[interval] = new Cron.CronJob(interval, async () => {
-            const jwt_tokens: JwtToken[] = await JwtToken.find()
-            const current_time = new Date().getTime()
-            for (const jwt_token of jwt_tokens) {
-                const expire_date = new Date(jwt_token.createDate).getTime() + 24 * 60 * 60 * 1000 // jwt_token.expire_time * 60 * 60 * 1000
-                if (current_time > expire_date) {
-                    JwtToken.delete(jwt_token.id)
+            // const jwt_tokens: JwtToken[] = await JwtToken.find({})
+            const jwt_tokens = await JwtToken.createQueryBuilder('jwt_token')
+                .where(`unix_timestamp(create_date) + ${token_expire_time} * 60 * 60 < UNIX_TIMESTAMP()`)
+                .getMany()
+
+            // const current_time = new Date().getTime()
+            if (jwt_tokens.length) {
+                for (const jwt_token of jwt_tokens) {
+                    // const expire_date = new Date(jwt_token.createDate).getTime() + token_expire_time * 60 * 60 * 1000 // jwt_token.expire_time * 60 * 60 * 1000
+                    // if (current_time > expire_date) {
+                    await JwtToken.delete(jwt_token.id)
+                    // }
                 }
             }
         }).start()
