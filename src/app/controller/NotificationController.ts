@@ -199,7 +199,7 @@ export default class NotificationController {
             const result: any = await Notification.createQueryBuilder('notification')
                 .leftJoin('notification.access_points', 'access_point')
                 .select(['notification.id', 'notification.event', 'notification.description', 'notification.confirmed', 'notification.create_date', 'notification.access_point', 'notification.company', 'access_point.id', 'access_point.name'])
-                .orderBy('notification.id', 'DESC')
+                .orderBy('notification.createDate', 'DESC')
                 .where(`notification.company = '${user.company ? user.company : null}'`)
                 .take(take)
                 .skip(skip)
