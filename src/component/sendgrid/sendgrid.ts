@@ -84,8 +84,6 @@ export class Sendgrid {
     }
 
     public static async InformSuper (toEmail: string, account: any, company: any, account_id: number) {
-        console.log('InformSuper', toEmail, account, company)
-
         const msg = {
             to: `${toEmail}`,
             from: this.from,

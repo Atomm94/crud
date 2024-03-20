@@ -145,7 +145,7 @@ export default class AuthController {
             await createCustomer(newCompany.id)
             await createSubsciption(newCompany.id)
             await Sendgrid.sendSignUp(admin.email)
-            await Sendgrid.InformSuper(process.env.SUPER_EMAIL as string, account, company, admin.id)
+            await Sendgrid.InformSuper(process.env.SENDGRID_FROM_EMAIL as string, account, company, admin.id)
 
             ctx.body = {
                 message: 'The user has been successfully registered, confirmation pending'
