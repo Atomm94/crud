@@ -45,7 +45,7 @@ export class PostSubscriber implements EntitySubscriberInterface<CardholderGroup
             }
 
             if (New?.limitation_inherited !== Old.limitation_inherited && New?.limitation_inherited === true) {
-                Limitation.destroyItem(Old.limitation)
+                await Limitation.destroyItem(Old.limitation)
             }
         }
 
