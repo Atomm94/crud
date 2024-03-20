@@ -345,7 +345,6 @@ export default class CardholderController {
                     .leftJoinAndSelect('cardholder.cardholder_groups', 'cardholder_group')
                     .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null')
                     .where(`cardholder.id = '${cardholder.id}'`)
-                    .limit(1)
                     .getOne()
                 ctx.body = cardholder_data
                 ctx.logsData = logs_data
@@ -743,7 +742,6 @@ export default class CardholderController {
                     .leftJoinAndSelect('cardholder.cardholder_groups', 'cardholder_group')
                     .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null')
                     .where(`cardholder.id = '${req_data.id}'`)
-                    .limit(1)
                     .getOne()
                 ctx.body = cardholder_data
                 ctx.logsData = logs_data
@@ -802,7 +800,6 @@ export default class CardholderController {
                 .leftJoinAndSelect('cardholder.credentials', 'credential', 'credential.delete_date is null')
                 .where(`cardholder.id = '${+ctx.params.id}'`)
                 .andWhere(`cardholder.company = ${user.company}`)
-                .limit(1)
                 .getOne()
             ctx.body = cardholder
         } catch (error) {
