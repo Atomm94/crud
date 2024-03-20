@@ -346,7 +346,7 @@ export default class Parse {
                     if ('connection_mod' in message.info) acuStatusData.connection_mod = (message.info.connection_mod === 0) ? acuConnectionMode.DHCP : acuConnectionMode.FIXED
                     if ('SSID' in message.info) acuStatusData.ssid = message.info.SSID
 
-                    AcuStatus.updateItem(acuStatusData)
+                    await AcuStatus.updateItem(acuStatusData)
                     if (message.info) {
                         for (const access_point_status of access_point_statuses) {
                             if (access_point_status.resources) {

@@ -61,10 +61,10 @@ export class PostSubscriber implements EntitySubscriberInterface<Acu> {
             const acu_data = { ...data, companies: company }
             CronJob.active_devices[data.id] = acu_data
 
-            AcuStatus.addItem({ ...data, acu: data.id })
+            await AcuStatus.addItem({ ...data, acu: data.id })
             const access_points: any = await AccessPoint.getAllItems({ where: { acu: data.id } })
             for (const access_point of access_points) {
-                AccessPointStatus.addItem({ ...access_point, access_point: access_point.id })
+                await AccessPointStatus.addItem({ ...access_point, access_point: access_point.id })
             }
         }
     }
@@ -86,14 +86,14 @@ export class PostSubscriber implements EntitySubscriberInterface<Acu> {
                     const acu_data = { ...New, companies: company }
                     CronJob.active_devices[New.id] = acu_data
 
-                    AcuStatus.addItem({ ...New, acu: New.id })
+                    await AcuStatus.addItem({ ...New, acu: New.id })
                     const access_points: any = await AccessPoint.getAllItems({ where: { acu: New.id } })
                     for (const access_point of access_points) {
-                        AccessPointStatus.addItem({ ...access_point, access_point: access_point.id })
+                        await AccessPointStatus.addItem({ ...access_point, access_point: access_point.id })
                     }
                 }
             } else if (New.status === acuStatus.NO_HARDWARE) {
-                AcuStatus.destroyItem({ acu: New.id })
+                await AcuStatus.destroyItem({ acu: New.id })
             }
 
             New.topic = SendTopics.MQTT_SOCKET

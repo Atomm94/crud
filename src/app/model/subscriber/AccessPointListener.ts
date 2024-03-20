@@ -40,7 +40,7 @@ export class PostSubscriber implements EntitySubscriberInterface<AccessPoint> {
 
         const acu: any = await Acu.findOne({ where: { id: data.acu } })
         if ([acuStatus.ACTIVE, acuStatus.PENDING].includes(acu.status)) {
-            AccessPointStatus.addItem({ ...data, access_point: data.id })
+            await AccessPointStatus.addItem({ ...data, access_point: data.id })
             const cloud_status_data = {
                 id: data.id,
                 acus: {
@@ -85,7 +85,7 @@ export class PostSubscriber implements EntitySubscriberInterface<AccessPoint> {
         if (New.resources !== Old.resources) {
             const acu: any = await Acu.findOne({ where: { id: New.acu, status: acuStatus.ACTIVE } })
             if (acu) {
-                AccessPointStatus.updateItem({
+                await AccessPointStatus.updateItem({
                     access_point: New.id,
                     resources: New.resources
                 } as AccessPointStatus)

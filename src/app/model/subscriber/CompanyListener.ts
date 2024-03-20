@@ -36,7 +36,7 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
             company: data.id,
             used: '{}'
         }
-        CompanyResources.addItem(newCompanyResource as CompanyResources)
+        await CompanyResources.addItem(newCompanyResource as CompanyResources)
         if (data.parent_id) {
             const parent_company_resources = await CompanyResources.findOneOrFail({ where: { company: data.parent_id } })
             const parent_used = JSON.parse(parent_company_resources.used)

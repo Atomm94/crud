@@ -39,7 +39,7 @@ export class PostSubscriber implements EntitySubscriberInterface<Package> {
     async afterInsert (event: InsertEvent<Package>) {
         const data = event.entity
         if (data.status && data.extra_settings) {
-            AccessControl.addCompanyGrant(data)
+            await AccessControl.addCompanyGrant(data)
         }
         createPlan(data)
     }
