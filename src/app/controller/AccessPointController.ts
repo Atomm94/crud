@@ -110,7 +110,7 @@ export default class AccessPointController {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
             } else {
-                if (access_point.acus.status === acuStatus.ACTIVE) {
+                if (access_point.acus?.status === acuStatus.ACTIVE) {
                     CtpController.delCtp(access_point.type, location, access_point.acus.serial_number, req_data, user, access_point.acus.session_id)
                     ctx.body = {
                         message: 'delete pending'
