@@ -290,7 +290,6 @@ export class Sendgrid {
         const emailTemplate: any = fs.readFileSync(`${parentDir}/templates/super_text.email.template`)
         const template = _.template(emailTemplate)
         const html = template({
-            template_logo: this.template_logo,
             first_name: mail.first_name,
             last_name: mail.last_name,
             email: mail.email,
