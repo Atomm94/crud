@@ -1,11 +1,12 @@
 import 'reflect-metadata'
-import { createConnection, Connection, ConnectionOptions } from 'typeorm'
 import { join } from 'path'
 import { config } from '../config'
+import { MysqlConnectionOptions } from 'typeorm/driver/mysql/MysqlConnectionOptions'
+import { DataSource } from 'typeorm'
 const parentDir = join(__dirname, '..')
 
-const connectionOpts: ConnectionOptions = {
-  type: config.db.type as 'postgres',
+const connectionOpts: MysqlConnectionOptions = {
+  type: config.db.type as 'mysql',
   host: config.db.host,
   port: config.db.port as number,
   username: config.db.user,
@@ -31,48 +32,53 @@ const connectionOpts: ConnectionOptions = {
   synchronize: config.db.synchronize,
   logging: false,
   extra: {
-    ssl: config.db.dbsslconn // if not development, will use SSL
+    connectionLimit: 2000,
+    waitForConnections: false
   }
 }
 
 interface IDatabase {
-  connect(): Promise<Connection>;
+  connect(): Promise<any>;
   disconnect(): Promise<void>;
   executeSQL(sql: string, ...params: any[]): Promise<any>;
   reset(): any;
 }
 
 export class Database implements IDatabase {
-  private connection: Connection;
-  public async connect (): Promise<Connection> {
+  private connection: DataSource;
+  public async connect(): Promise<any> {
     if (this.connection) {
-      await this.connection.connect()
+      await this.connection.initialize()
       return this.connection
     }
-    this.connection = await createConnection(connectionOpts)
+    try {
+      this.connection = await new DataSource(connectionOpts).initialize();
+    } catch (error) {
+      console.log('error', error)
+    }
     return this.connection
   }
 
-  public async disconnect (): Promise<void> {
+  public async disconnect(): Promise<void> {
     if (this.connection.isConnected) {
       await this.connection.close()
     }
   }
 
-  public async executeSQL (sql: string, ...params: any[]): Promise<any> {
+  public async executeSQL(sql: string, ...params: any[]): Promise<any> {
     return this.connection.createQueryRunner().query(sql, params)
   }
 
-  public async reset () {
+  public async reset() {
     await this.connection.dropDatabase()
     await this.connection.runMigrations()
   }
 
-  public async runMigrations () {
+  public async runMigrations() {
     await this.connection.runMigrations()
   }
 
-  public async dropDatabase () {
+  public async dropDatabase() {
     await this.connection.dropDatabase()
   }
 }

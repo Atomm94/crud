@@ -102,7 +102,7 @@ var config: IConfig = {
         password: _.defaultTo(process.env.MQTT_PASSWORD, '123456')
     },
     db: {
-        type: _.defaultTo(process.env.DB_TYPE, 'postgres'),
+        type: _.defaultTo(process.env.DB_TYPE, 'mysql'),
         user: _.defaultTo(process.env.DB_USER, 'postgres'),
         pass: _.defaultTo(process.env.DB_PASS, 'postgres'),
         host: _.defaultTo(process.env.DB_HOST, 'localhost'),
