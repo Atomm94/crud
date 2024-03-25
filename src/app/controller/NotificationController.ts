@@ -203,6 +203,7 @@ export default class NotificationController {
                 .where(`notification.company = '${user.company ? user.company : null}'`)
                 .take(take)
                 .skip(skip)
+                .cache(60000)
                 .getMany()
 
             if (req_data.page) {

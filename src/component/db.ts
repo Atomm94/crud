@@ -34,8 +34,7 @@ const connectionOpts: MysqlConnectionOptions = {
   synchronize: config.db.synchronize,
   logging: false,
   extra: {
-    connectionLimit: process.env.ORM_CONNECTION_LIMIT,
-    waitForConnections: false
+    connectionLimit: process.env.ORM_CONNECTION_LIMIT
   }
 }
 
