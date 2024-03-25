@@ -127,7 +127,7 @@ export class EventLog extends BaseClass {
         MQTTBroker.publishMessage(SendTopics.LOG, JSON.stringify(event_log))
         new SendSocketMessage(socketChannels.DASHBOARD_ACTIVITY, event.data, event.data.company)
 
-        const cache_key = `${event.data.company}_*dashboard/getDashboardActivity*`
+        const cache_key = `${event.data.company}_*/getDashboardActivity*`
         const cached_apis = await RedisClass.connection.keys(cache_key)
 
         for (const cached_api of cached_apis) {
