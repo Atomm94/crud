@@ -2,8 +2,7 @@ import {
     Entity,
     Column,
     ManyToOne,
-    JoinColumn,
-    Timestamp
+    JoinColumn
 } from 'typeorm'
 import { AccessPoint } from '.'
 
@@ -25,9 +24,6 @@ export class Notification extends MainEntity {
 
     @Column('int', { name: 'company', nullable: false })
     company: number
-
-    @Column('timestamp', { name: 'create_date' })
-    create_date: Timestamp;
 
     @ManyToOne(type => AccessPoint, access_point => access_point.notifications)
     @JoinColumn({ name: 'access_point' })
