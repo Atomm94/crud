@@ -16,9 +16,11 @@ const connectionOpts: MysqlConnectionOptions = {
   cache: {
     type: 'ioredis',
     options: {
-      host: 'redis',
-      port: 6379,
-      password: '7TJ2bsDgMj'
+      host: config.redis.host,
+      port: config.redis.port,
+      password: config.redis.password,
+      username: config.redis.username,
+      db: Number(config.redis.db)
     }
   },
   entities: [`${parentDir}/app/model/entity/*{.ts,.js}`],
@@ -32,7 +34,7 @@ const connectionOpts: MysqlConnectionOptions = {
   synchronize: config.db.synchronize,
   logging: false,
   extra: {
-    connectionLimit: 2000,
+    connectionLimit: process.env.ORM_CONNECTION_LIMIT,
     waitForConnections: false
   }
 }
@@ -46,39 +48,39 @@ interface IDatabase {
 
 export class Database implements IDatabase {
   private connection: DataSource;
-  public async connect(): Promise<any> {
+  public async connect (): Promise<any> {
     if (this.connection) {
       await this.connection.initialize()
       return this.connection
     }
     try {
-      this.connection = await new DataSource(connectionOpts).initialize();
+      this.connection = await new DataSource(connectionOpts).initialize()
     } catch (error) {
       console.log('error', error)
     }
     return this.connection
   }
 
-  public async disconnect(): Promise<void> {
+  public async disconnect (): Promise<void> {
     if (this.connection.isConnected) {
       await this.connection.close()
     }
   }
 
-  public async executeSQL(sql: string, ...params: any[]): Promise<any> {
+  public async executeSQL (sql: string, ...params: any[]): Promise<any> {
     return this.connection.createQueryRunner().query(sql, params)
   }
 
-  public async reset() {
+  public async reset () {
     await this.connection.dropDatabase()
     await this.connection.runMigrations()
   }
 
-  public async runMigrations() {
+  public async runMigrations () {
     await this.connection.runMigrations()
   }
 
-  public async dropDatabase() {
+  public async dropDatabase () {
     await this.connection.dropDatabase()
   }
 }
