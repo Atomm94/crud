@@ -18,6 +18,8 @@ import CtpController from '../../controller/Hardware/CtpController'
 import DeviceController from '../../controller/Hardware/DeviceController'
 import { cloneDeep } from 'lodash'
 
+import { RedisClass } from '../../../component/redis'
+
 const clickhouse_server: string = process.env.CLICKHOUSE_SERVER ? process.env.CLICKHOUSE_SERVER : 'http://localhost:4143'
 const getEventLogsUrl = `${clickhouse_server}/eventLog`
 const getEventStatisticUrl = `${clickhouse_server}/eventStatistic`
@@ -124,6 +126,13 @@ export class EventLog extends BaseClass {
 
         MQTTBroker.publishMessage(SendTopics.LOG, JSON.stringify(event_log))
         new SendSocketMessage(socketChannels.DASHBOARD_ACTIVITY, event.data, event.data.company)
+
+        const cache_key = `${event.data.company}_*dashboard/getDashboardActivity*`
+        const cached_apis = await RedisClass.connection.keys(cache_key)
+
+        for (const cached_api of cached_apis) {
+            await RedisClass.connection.del(cached_api)
+        }
 
         if (event.data.event_type === eventTypes.SYSTEM) {
             let door_state
