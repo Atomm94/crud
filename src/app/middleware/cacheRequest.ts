@@ -9,7 +9,7 @@ export default (expire_time?: number) => async (ctx: DefaultContext, next: () =>
         if (user) {
             company = user.company
         }
-        const key = Buffer.from(`${company}_${ctx.request.url}`).toString('base64')
+        const key = `${company}_${ctx.request.url}`
         const value = await RedisClass.connection.get(key)
         if (value) {
             return ctx.body = JSON.parse(value)
