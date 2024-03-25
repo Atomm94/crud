@@ -210,6 +210,7 @@ export default class NotificationController {
                 const total = await Notification.createQueryBuilder('notification')
                     .select('COUNT(id) ', 'count')
                     .where(`notification.company = '${user.company ? user.company : null}'`)
+                    .cache(60000)
                     .getRawOne()
 
                 ctx.body = {
