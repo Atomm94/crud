@@ -362,6 +362,7 @@ export default class AdminController {
                         .where(`company.id = ${ctx.user.company}`)
                         .andWhere('company.delete_date is null')
                         .withDeleted()
+                        .cache(60000)
                         .leftJoinAndSelect('company.packages', 'package')
                         .getOne()
                     if (!company) {
@@ -377,6 +378,7 @@ export default class AdminController {
                         .select('COUNT(notification.confirmed) as count')
                         .where(`notification.company = ${ctx.user.company}`)
                         .andWhere('notification.confirmed is null')
+                        .cache(60000)
                         .getRawOne()
                     ctx.body.notifications = notifs?.count || 0
                     if (company.packages && company.packages.extra_settings) {
