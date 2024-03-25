@@ -198,13 +198,14 @@ export default class NotificationController {
 
             const result: any = await Notification.createQueryBuilder('notification')
                 .leftJoin('notification.access_points', 'access_point')
-                .select(['notification.id', 'notification.event', 'notification.description', 'notification.confirmed', 'notification.create_date', 'notification.access_point', 'notification.company', 'access_point.id', 'access_point.name'])
-                .orderBy('notification.create_date', 'DESC')
+                .select(['notification.id', 'notification.event', 'notification.description', 'notification.confirmed', 'notification.createDate', 'notification.access_point', 'notification.company', 'access_point.id', 'access_point.name'])
+                .orderBy('notification_create_date', 'DESC') // ida drac exec ov hima
                 .where(`notification.company = '${user.company ? user.company : null}'`)
                 .take(take)
                 .skip(skip)
-                .cache(60000)
+                .printSql()
                 .getMany()
+
             if (req_data.page) {
                 const total = await Notification.createQueryBuilder('notification')
                     .select('COUNT(id) ', 'count')
@@ -219,6 +220,8 @@ export default class NotificationController {
                 ctx.body = result
             }
         } catch (error) {
+            console.log('error: ', error)
+
             ctx.status = error.status || 400
             ctx.body = error
         }
