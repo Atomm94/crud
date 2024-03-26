@@ -30,6 +30,7 @@ import { CameraSet } from './CameraSet'
 
 @Entity('access_point')
 @Index(['id', 'company'])
+@Index('access_point_delete_date', ['deleteDate'])
 export class AccessPoint extends MainEntity {
     @Column('varchar', { name: 'name', nullable: false })
     name: string

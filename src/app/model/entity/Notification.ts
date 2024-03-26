@@ -2,13 +2,17 @@ import {
     Entity,
     Column,
     ManyToOne,
-    JoinColumn
+    JoinColumn,
+    Index
 } from 'typeorm'
 import { AccessPoint } from '.'
 
 import { MainEntity } from './MainEntity'
 
 @Entity('notification')
+@Index('createDate|company', ['createDate', 'company'])
+@Index('confirmed|company', ['confirmed', 'company'])
+@Index('notification_company', ['company'])
 export class Notification extends MainEntity {
     @Column('bigint', { name: 'confirmed', nullable: true })
     confirmed: number | null
@@ -36,6 +40,7 @@ export class Notification extends MainEntity {
         const notification = new Notification()
 
         if ('access_point' in data) notification.access_point = data.access_point
+        if ('access_point_name' in data) notification.access_point_name = data.access_point_name
         notification.event = data.event
         if ('description' in data) notification.description = data.description
         notification.company = data.company
@@ -56,6 +61,7 @@ export class Notification extends MainEntity {
 
         if ('confirmed' in data) notification.confirmed = data.confirmed
         if ('access_point' in data) notification.access_point = data.access_point
+        if ('access_point_name' in data) notification.access_point_name = data.access_point_name
         if ('event' in data) notification.event = data.event
         if ('description' in data) notification.description = data.description
 
