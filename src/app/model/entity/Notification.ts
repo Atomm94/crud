@@ -13,7 +13,6 @@ import { MainEntity } from './MainEntity'
 @Index(['confirmed', 'company'])
 @Index(['create_date', 'company'])
 @Index('company')
-@Index('delete_date')
 export class Notification extends MainEntity {
     @Column('bigint', { name: 'confirmed', nullable: true })
     confirmed: number | null
