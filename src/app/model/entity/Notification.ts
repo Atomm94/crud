@@ -10,9 +10,9 @@ import { AccessPoint } from '.'
 import { MainEntity } from './MainEntity'
 
 @Entity('notification')
-@Index(['confirmed', 'company'])
-@Index(['create_date', 'company'])
-@Index('company')
+@Index('createDate|company', ['createDate', 'company'])
+@Index('confirmed|company', ['confirmed', 'company'])
+@Index('company', ['company'])
 export class Notification extends MainEntity {
     @Column('bigint', { name: 'confirmed', nullable: true })
     confirmed: number | null
