@@ -197,9 +197,8 @@ export default class NotificationController {
             const skip = req_data.page_items_count && req_data.page ? (req_data.page - 1) * req_data.page_items_count : 0
 
             const result: any = await Notification.createQueryBuilder('notification')
-                .leftJoin('notification.access_points', 'access_point')
-                .select(['notification.id', 'notification.event', 'notification.description', 'notification.confirmed', 'notification.createDate', 'notification.access_point', 'notification.company', 'access_point.id', 'access_point.name'])
-                .orderBy('notification.createDate', 'DESC') // ida drac exec ov hima
+                .leftJoinAndSelect('notification.access_points', 'access_point')
+                .orderBy('notification.createDate', 'DESC')
                 .where(`notification.company = '${user.company ? user.company : null}'`)
                 .take(take)
                 .skip(skip)
