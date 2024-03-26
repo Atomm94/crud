@@ -3,7 +3,8 @@ import {
     Column,
     JoinColumn,
     ManyToOne,
-    OneToOne
+    OneToOne,
+    Index
     // ManyToOne,
     // OneToMany,
     // JoinColumn
@@ -16,7 +17,7 @@ import { AccessPointStatus } from './AccessPointStatus'
 import { MainEntity } from './MainEntity'
 // import { Company } from './Company'
 // import { Acu } from './Acu'
-
+@Index('serial_number')
 @Entity('acu_status')
 export class AcuStatus extends MainEntity {
     @Column('int', { name: 'acu', nullable: false, unique: true })

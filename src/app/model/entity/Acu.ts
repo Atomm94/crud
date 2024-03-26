@@ -5,7 +5,8 @@ import {
     DeleteDateColumn,
     ManyToOne,
     JoinColumn,
-    OneToOne
+    OneToOne,
+    Index
 } from 'typeorm'
 
 import { acuStatus } from '../../enums/acuStatus.enum'
@@ -26,6 +27,7 @@ import { AutoTaskSchedule } from './AutoTaskSchedule'
 import { Reader } from './Reader'
 
 @Entity('acu')
+@Index('delete_date')
 export class Acu extends MainEntity {
     @Column('varchar', { name: 'name', nullable: true })
     name: string | null

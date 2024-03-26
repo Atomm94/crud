@@ -171,6 +171,7 @@ export default class LogController {
                     }
                     if (access_point) {
                         eventData.data.access_point = access_point.id
+                        eventData.data.access_point_name = access_point.name
                         const access_point_data: any = _.pick(access_point, ['id', 'name', 'access_point_zone', 'access_point_zones'])
                         if (access_point_data.access_point_zones) {
                             access_point_data.access_point_zones = _.pick(access_point_data.access_point_zones, ['id', 'name'])

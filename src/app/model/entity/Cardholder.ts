@@ -33,6 +33,8 @@ import { guestPeriod } from '../../enums/guestPeriod.enum'
 
 const parentDir = join(__dirname, '../../..')
 @Index('email|company|is_delete', ['email', 'company', 'is_delete'], { unique: true })
+@Index('delete_date')
+@Index('company')
 @Entity('cardholder')
 export class Cardholder extends MainEntity {
     @Column('varchar', { name: 'email', length: '255', nullable: true })
