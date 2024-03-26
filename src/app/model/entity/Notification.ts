@@ -16,6 +16,9 @@ export class Notification extends MainEntity {
     @Column('int', { name: 'access_point', nullable: true })
     access_point: number | null
 
+    @Column('varchar', { name: 'access_point_name', nullable: true })
+    access_point_name: string | null
+
     @Column('varchar', { name: 'event', nullable: false })
     event: string
 
