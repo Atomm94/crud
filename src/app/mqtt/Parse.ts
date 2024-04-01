@@ -329,11 +329,28 @@ export default class Parse {
     public static async pingAck (message: IMqttCrudMessaging) {
         try {
             AcuStatus.findOneOrFail({
-                where: { serial_number: message.device_id, company: message.company },
-                order: { acu: 'DESC' }
+                where: { company: message.company, serial_number: message.device_id }
             }).then(async (acuStatusData: AcuStatus) => {
-                const access_point_statuses: any = await AccessPointStatus.getAllItems({ where: { acu: { '=': acuStatusData.acu } } })
+                let check = false
                 if (message.result.errorNo === 0) {
+                    const old_connection_type = acuStatusData.connection_type
+                    const new_connection_type = (message.info.connection_type === 0) ? acuConnectionType.WI_FI : acuConnectionType.ETHERNET
+                    const old_connection_mod = acuStatusData.connection_mod
+                    const new_connection_mod = (message.info.connection_mod === 0) ? acuConnectionMode.DHCP : acuConnectionMode.FIXED
+                    if (('fw_version' in message.info && acuStatusData.fw_version !== message.info.firmware_ver) ||
+                        ('rev' in message.info && acuStatusData.rev !== message.info.rev) ||
+                        ('api_ver' in message.info && acuStatusData.api_ver !== message.info.api_ver) ||
+                        ('acu_comment' in message.info && acuStatusData.acu_comment !== message.info.acu_comment) ||
+                        ('connection_type' in message.info && old_connection_type !== new_connection_type) ||
+                        ('ip_address' in message.info && acuStatusData.ip_address !== message.info.ip_address) ||
+                        ('gateway' in message.info && acuStatusData.gateway !== message.info.gateway) ||
+                        ('subnet_mask' in message.info && acuStatusData.subnet_mask !== message.info.subnet_mask) ||
+                        ('dns_server' in message.info && acuStatusData.dns_server !== message.info.dns_server) ||
+                        ('connection_mod' in message.info && old_connection_mod !== new_connection_mod) ||
+                        ('ssid' in message.info && acuStatusData.ssid !== message.info.SSID)) {
+                        check = true
+                    }
+
                     if ('firmware_ver' in message.info) acuStatusData.fw_version = message.info.firmware_ver
                     if ('rev' in message.info) acuStatusData.rev = message.info.rev
                     if ('api_ver' in message.info) acuStatusData.api_ver = message.info.api_ver
@@ -345,10 +362,13 @@ export default class Parse {
                     if ('dns_server' in message.info) acuStatusData.dns_server = message.info.dns_server
                     if ('connection_mod' in message.info) acuStatusData.connection_mod = (message.info.connection_mod === 0) ? acuConnectionMode.DHCP : acuConnectionMode.FIXED
                     if ('SSID' in message.info) acuStatusData.ssid = message.info.SSID
-
-                    await AcuStatus.updateItem(acuStatusData)
+                    if (check) {
+                        AcuStatus.updateItem(acuStatusData)
+                    }
                     if (message.info) {
+                        const access_point_statuses: any = await AccessPointStatus.getAllItems({ where: { acu: { '=': acuStatusData.acu } } })
                         for (const access_point_status of access_point_statuses) {
+                            const old_door_state = access_point_status.door_state
                             if (access_point_status.resources) {
                                 const resources = JSON.parse(access_point_status.resources)
                                 if (resources.Door_sensor) {
@@ -362,8 +382,9 @@ export default class Parse {
                                     } else {
                                         access_point_status.door_state = accessPointDoorState.NO_SENSOR
                                     }
-
-                                    await AccessPointStatus.updateItem(access_point_status)
+                                    if (old_door_state !== access_point_status.door_state) {
+                                        await AccessPointStatus.updateItem(access_point_status)
+                                    }
                                 }
                             }
                         }
