@@ -27,7 +27,7 @@ import { AutoTaskSchedule } from './AutoTaskSchedule'
 import { Reader } from './Reader'
 
 @Entity('acu')
-// @Index('serial_number|company|is_delete', ['serial_number', 'company', 'is_delete'], { unique: true })
+@Index('serial_number|company|is_delete', ['serial_number', 'company', 'is_delete'], { unique: true })
 @Index('acu_delete_date', ['deleteDate'])
 export class Acu extends MainEntity {
     @Column('varchar', { name: 'name', nullable: true })
