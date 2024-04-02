@@ -25,6 +25,7 @@ import CronJob from './../../cron'
 import { AcuStatus } from './AcuStatus'
 import { AutoTaskSchedule } from './AutoTaskSchedule'
 import { Reader } from './Reader'
+import { AccessPointStatus } from './AccessPointStatus'
 
 @Entity('acu')
 @Index('serial_number|company|is_delete', ['serial_number', 'company', 'is_delete'], { unique: true })
@@ -117,6 +118,9 @@ export class Acu extends MainEntity {
 
     @OneToMany(type => AutoTaskSchedule, auto_task_schedule => auto_task_schedule.acus)
     auto_task_schedules: AutoTaskSchedule[];
+
+    @OneToMany(type => AccessPointStatus, access_point_status => access_point_status.acus)
+    access_point_statuses: AutoTaskSchedule[];
 
     @OneToOne(type => Reader, Reader => Reader.acus, { nullable: true })
     @JoinColumn({ name: 'reader' })
