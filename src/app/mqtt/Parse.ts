@@ -372,8 +372,9 @@ export default class Parse {
                     const access_point_statuses: any = await AccessPointStatus.createQueryBuilder('access_point_status')
                         .leftJoinAndSelect('access_point_status.acus', 'acu', 'acu.delete_date is null')
                         .where(`acu.serial_number = '${message.device_id}'`)
-                        .andWhere('access_point_status.company = :company', { company: message.company })
+                        .where(`access_point_status.company = '${message.company}'`)
                         .getMany()
+                    // .getQuery()
 
                     for (const access_point_status of access_point_statuses) {
                         const old_door_state = access_point_status.door_state
