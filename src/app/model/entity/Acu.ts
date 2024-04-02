@@ -27,6 +27,7 @@ import { AutoTaskSchedule } from './AutoTaskSchedule'
 import { Reader } from './Reader'
 
 @Entity('acu')
+// @Index('serial_number|company|is_delete', ['serial_number', 'company', 'is_delete'], { unique: true })
 @Index('acu_delete_date', ['deleteDate'])
 export class Acu extends MainEntity {
     @Column('varchar', { name: 'name', nullable: true })
@@ -97,6 +98,9 @@ export class Acu extends MainEntity {
 
     @Column('int', { name: 'company', nullable: false })
     company: number
+
+    @Column('varchar', { name: 'is_delete', default: 0 })
+    is_delete: string
 
     @OneToMany(type => AccessPoint, access_point => access_point.acus)
     access_points: AccessPoint[];
@@ -245,6 +249,12 @@ export class Acu extends MainEntity {
                 this.softRemove(data)
                     .then(async () => {
                         minusResource(this.name, data.company)
+                        const acu_data: any = await this.createQueryBuilder('acu')
+                            .where('id = :id', { id: data.id })
+                            .withDeleted()
+                            .getOne()
+                        acu_data.is_delete = (new Date()).getTime()
+                        await this.save(acu_data, { transaction: false })
 
                         const promises = []
                         promises.push(Acu.createQueryBuilder('acu')

@@ -17,7 +17,8 @@ import { AccessPointStatus } from './AccessPointStatus'
 import { MainEntity } from './MainEntity'
 // import { Company } from './Company'
 // import { Acu } from './Acu'
-@Index('acu_status_serial_number', ['serial_number'])
+@Index('serial_number|company', ['serial_number', 'company'], { unique: true })
+
 @Entity('acu_status')
 export class AcuStatus extends MainEntity {
     @Column('int', { name: 'acu', nullable: false, unique: true })
