@@ -7,6 +7,7 @@ import { UserLog } from '../model/entity/UserLog'
 import eventList from '../model/entity/eventList.json'
 import _ from 'lodash'
 import { OperatorType } from '../mqtt/Operators'
+import { RedisClass } from '../../component/redis'
 
 export default class LogController {
     /**
@@ -106,32 +107,53 @@ export default class LogController {
 
     public static createEventFromDevice (message: IMqttCrudMessaging) {
         const message_data = message.info
-        const acu: any = Acu.findOne({ where: { serial_number: message.device_id, company: message.company } })
+        let check_acu_write = false
+        let acu_data = this.cacheCheck(message.company, `acu_${message.device_id}`)
+        if (!acu_data) {
+            check_acu_write = true
+            acu_data = Acu.findOne({ where: { serial_number: message.device_id, company: message.company } })
+        }
         // const access_point = AccessPoint.findOne({ where: { id: message_data.Ctp_idx, company: message.company }, relations: ['access_point_zones'] })
-        const access_point = AccessPoint.createQueryBuilder('access_point')
-            .leftJoinAndSelect('access_point.access_point_zones', 'access_point_zone', 'access_point_zone.delete_date is null')
-            .leftJoinAndSelect('access_point.camera_sets', 'camera_set', 'camera_set.delete_date is null')
-            .leftJoinAndSelect('camera_set.camera_set_cameras', 'camera_set_camera')
-            .leftJoinAndSelect('camera_set_camera.cameras', 'camera', 'camera.delete_date is null')
-            .where(`access_point.id = '${message_data.Ctp_idx}'`)
-            .andWhere(`access_point.company = '${message.company}'`)
-            .getOne()
+        let access_point = this.cacheCheck(message.company, `ap_${message_data.Ctp_idx}`)
+        let check_access_point_write = false
+        let check_credential_write = false
+        if (!access_point) {
+            check_access_point_write = true
+            access_point = AccessPoint.createQueryBuilder('access_point')
+                .leftJoinAndSelect('access_point.access_point_zones', 'access_point_zone', 'access_point_zone.delete_date is null')
+                .leftJoinAndSelect('access_point.camera_sets', 'camera_set', 'camera_set.delete_date is null')
+                .leftJoinAndSelect('camera_set.camera_set_cameras', 'camera_set_camera')
+                .leftJoinAndSelect('camera_set_camera.cameras', 'camera', 'camera.delete_date is null')
+                .where(`access_point.id = '${message_data.Ctp_idx}'`)
+                .andWhere(`access_point.company = '${message.company}'`)
+                .getOne()
+        }
+
         // const credential = Credential.findOne({
         //     where: { id: message_data.Key_id || 0, company: message.company },
         //     relations: ['cardholders', 'cardholders.access_rights', 'cardholders.car_infos', 'cardholders.limitations', 'cardholders.cardholder_groups']
         // })
+        let credential = this.cacheCheck(message.company, message_data.Key_id ? `cr_${message_data.Key_id}` : null)
+        if (!credential) {
+            check_credential_write = true
+            if (message_data.Key_id) {
+                credential = Credential.createQueryBuilder('credential')
+                    .leftJoinAndSelect('credential.cardholders', 'cardholder')
+                    .leftJoinAndSelect('cardholder.access_rights', 'access_right')
+                    .leftJoinAndSelect('cardholder.car_infos', 'car_info')
+                    .leftJoinAndSelect('cardholder.limitations', 'limitation')
+                    .leftJoinAndSelect('cardholder.cardholder_groups', 'cardholder_group')
+                    .where(`credential.id = ${message_data.Key_id}`)
+                    .andWhere(`credential.company = ${message.company}`)
+                    .getOne()
+            }
+        }
 
-        const credential = Credential.createQueryBuilder('credential')
-            .leftJoinAndSelect('credential.cardholders', 'cardholder')
-            .leftJoinAndSelect('cardholder.access_rights', 'access_right')
-            .leftJoinAndSelect('cardholder.car_infos', 'car_info')
-            .leftJoinAndSelect('cardholder.limitations', 'limitation')
-            .leftJoinAndSelect('cardholder.cardholder_groups', 'cardholder_group')
-            .where(`credential.id = ${message_data.Key_id || 0}`)
-            .andWhere(`credential.company = ${message.company}`)
-            .getOne()
+        Promise.all([acu_data, access_point, credential, {}]).then(async (data: any) => {
+            if (check_acu_write) this.cacheCheck(message.company, `acu_${message.device_id}`, acu_data)
+            if (check_access_point_write) this.cacheCheck(message.company, `ap_${message_data.Ctp_idx}`, access_point)
+            if (check_credential_write) this.cacheCheck(message.company, message_data.Key_id ? `cr_${message_data.Key_id}` : null, credential)
 
-        Promise.all([acu, access_point, credential]).then(async (data: any) => {
             const acu: any = data[0]
             const time_zone = acu?.time ? JSON.parse(acu.time).time_zone : null
             if (acu) {
@@ -236,5 +258,24 @@ export default class LogController {
         }).catch((error) => {
             console.log(error)
         })
+    }
+
+    public static async cacheCheck (company: number, param: any, body?: any) {
+        try {
+            if (!param) return
+            const key = `${company}_${param}`
+            const value = await RedisClass.connection.get(key)
+            if (value) {
+                return JSON.parse(value)
+            } else {
+                if (body) {
+                    await RedisClass.connection.set(key, body ? JSON.stringify(body) : '', 'EX', 500000)
+                } else {
+                    return
+                }
+            }
+        } catch (error) {
+            console.log('cacheRequest error: ', error)
+        }
     }
 }
