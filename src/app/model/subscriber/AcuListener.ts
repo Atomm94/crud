@@ -17,6 +17,7 @@ import { AccessPoint, Company } from '../entity'
 import CronJob from './../../cron'
 import { AccessPointStatus } from '../entity/AccessPointStatus'
 import { AcuStatus } from '../entity/AcuStatus'
+import { RedisClass } from '../../../component/redis'
 
 @EventSubscriber()
 export class PostSubscriber implements EntitySubscriberInterface<Acu> {
@@ -78,6 +79,13 @@ export class PostSubscriber implements EntitySubscriberInterface<Acu> {
      */
     async afterUpdate (event: UpdateEvent<Acu>) {
         const { entity: New, databaseEntity: Old }: any = event
+
+        const cache_key = `${New.company}_acu_${New.serial_number}*`
+        const cached_apis = await RedisClass.connection.keys(cache_key)
+        for (const cached_api of cached_apis) {
+            await RedisClass.connection.del(cached_api)
+        }
+
         if (New.status !== Old.status) {
             if (New.status === acuStatus.ACTIVE) {
                 const acu_status = await AcuStatus.findOne({ where: { acu: New.id } })
