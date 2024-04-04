@@ -105,16 +105,16 @@ export default class LogController {
         return ctx.body
     }
 
-    public static createEventFromDevice (message: IMqttCrudMessaging) {
+    public static async createEventFromDevice (message: IMqttCrudMessaging) {
         const message_data = message.info
         let check_acu_write = false
-        let acu_data = this.cacheCheck(message.company, `acu_${message.device_id}`)
+        let acu_data = await this.cacheCheck(message.company, `acu_${message.device_id}`)
         if (!acu_data) {
             check_acu_write = true
             acu_data = Acu.findOne({ where: { serial_number: message.device_id, company: message.company } })
         }
         // const access_point = AccessPoint.findOne({ where: { id: message_data.Ctp_idx, company: message.company }, relations: ['access_point_zones'] })
-        let access_point = this.cacheCheck(message.company, `ap_${message_data.Ctp_idx}`)
+        let access_point = await this.cacheCheck(message.company, `ap_${message_data.Ctp_idx}`)
         let check_access_point_write = false
         let check_credential_write = false
         if (!access_point) {
@@ -133,26 +133,26 @@ export default class LogController {
         //     where: { id: message_data.Key_id || 0, company: message.company },
         //     relations: ['cardholders', 'cardholders.access_rights', 'cardholders.car_infos', 'cardholders.limitations', 'cardholders.cardholder_groups']
         // })
-        let credential = this.cacheCheck(message.company, message_data.Key_id ? `cr_${message_data.Key_id}` : null)
+        let credential = await this.cacheCheck(message.company, message_data.Key_id ? `cr_${message_data.Key_id}` : null)
         if (!credential) {
             check_credential_write = true
             if (message_data.Key_id) {
                 credential = Credential.createQueryBuilder('credential')
-                    .leftJoinAndSelect('credential.cardholders', 'cardholder')
-                    .leftJoinAndSelect('cardholder.access_rights', 'access_right')
-                    .leftJoinAndSelect('cardholder.car_infos', 'car_info')
-                    .leftJoinAndSelect('cardholder.limitations', 'limitation')
-                    .leftJoinAndSelect('cardholder.cardholder_groups', 'cardholder_group')
-                    .where(`credential.id = ${message_data.Key_id}`)
-                    .andWhere(`credential.company = ${message.company}`)
-                    .getOne()
+                .leftJoinAndSelect('credential.cardholders', 'cardholder')
+                .leftJoinAndSelect('cardholder.access_rights', 'access_right')
+                .leftJoinAndSelect('cardholder.car_infos', 'car_info')
+                .leftJoinAndSelect('cardholder.limitations', 'limitation')
+                .leftJoinAndSelect('cardholder.cardholder_groups', 'cardholder_group')
+                .where(`credential.id = ${989898985226}`)
+                .andWhere(`credential.company = ${message.company}`)
+                .getOne()
             }
         }
 
-        Promise.all([acu_data, access_point, credential, {}]).then(async (data: any) => {
-            if (check_acu_write) this.cacheCheck(message.company, `acu_${message.device_id}`, acu_data)
-            if (check_access_point_write) this.cacheCheck(message.company, `ap_${message_data.Ctp_idx}`, access_point)
-            if (check_credential_write) this.cacheCheck(message.company, message_data.Key_id ? `cr_${message_data.Key_id}` : null, credential)
+        Promise.all([acu_data, access_point, credential]).then(async (data: any) => {
+            if (check_acu_write) await this.cacheCheck(message.company, `acu_${message.device_id}`, acu_data)
+            if (check_access_point_write) await this.cacheCheck(message.company, `ap_${message_data.Ctp_idx}`, access_point)
+            if (check_credential_write) await this.cacheCheck(message.company, message_data.Key_id ? `cr_${message_data.Key_id}` : null, credential)
 
             const acu: any = data[0]
             const time_zone = acu?.time ? JSON.parse(acu.time).time_zone : null
@@ -266,7 +266,9 @@ export default class LogController {
             const key = `${company}_${param}`
             const value = await RedisClass.connection.get(key)
             if (value) {
-                return JSON.parse(value)
+                const data = JSON.parse(value)
+                if (Object.keys(data).length === 0) return null
+                return data
             } else {
                 if (body) {
                     await RedisClass.connection.set(key, body ? JSON.stringify(body) : '', 'EX', 500000)
