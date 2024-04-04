@@ -17,6 +17,7 @@ import {
     AccessRight,
     Schedule
 } from './index'
+import LogController from '../../controller/LogController'
 // import { Cardholder } from './Cardholder'
 
 @Index('name|company|is_delete', ['name', 'company', 'is_delete'], { unique: true })
@@ -216,7 +217,8 @@ export class CardholderGroup extends MainEntity {
                             .getOne()
                         group_data.is_delete = (new Date()).getTime()
                         await this.save(group_data, { transaction: false })
-
+                        const cache_key = `${data.company}:cg_${data.id}:acr_*:cr_*`
+                        await LogController.invalidateCache(cache_key)
                         resolve({ message: 'success' })
                     })
                     .catch((error: any) => {

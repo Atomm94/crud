@@ -12,7 +12,7 @@ import { AccessPoint, Acu } from '../entity'
 import SendSocketMessage from '../../mqtt/SendSocketMessage'
 import { acuStatus } from '../../enums/acuStatus.enum'
 import { AccessPointStatus } from '../entity/AccessPointStatus'
-import { RedisClass } from '../../../component/redis'
+import LogController from '../../controller/LogController'
 
 @EventSubscriber()
 export class PostSubscriber implements EntitySubscriberInterface<AccessPoint> {
@@ -63,11 +63,8 @@ export class PostSubscriber implements EntitySubscriberInterface<AccessPoint> {
      */
     async afterUpdate (event: UpdateEvent<AccessPoint>) {
         const { entity: New, databaseEntity: Old }: any = event
-        const cache_key = `${New.company}_ap_${New.id}*`
-        const cached_apis = await RedisClass.connection.keys(cache_key)
-        for (const cached_api of cached_apis) {
-            await RedisClass.connection.del(cached_api)
-        }
+        const cache_key = `${New.company}:ap_${New.id}`
+        await LogController.invalidateCache(cache_key)
         if (New.mode !== Old.mode) {
             const modes: any = await AccessPoint.createQueryBuilder('access_point')
                 .select('access_point.name')
