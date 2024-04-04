@@ -8,6 +8,7 @@ import eventList from '../model/entity/eventList.json'
 import _ from 'lodash'
 import { OperatorType } from '../mqtt/Operators'
 import { RedisClass } from '../../component/redis'
+import { checkCacheKey } from '../enums/checkCacheKey.enum'
 
 export default class LogController {
     /**
@@ -105,35 +106,38 @@ export default class LogController {
         return ctx.body
     }
 
-    public static createEventFromDevice (message: IMqttCrudMessaging) {
+    public static async createEventFromDevice (message: IMqttCrudMessaging) {
         const message_data = message.info
         let check_acu_write = false
-        let acu_data = this.cacheCheck(message.company, `acu_${message.device_id}`)
+        let acu_data = await this.cacheCheck(message.company, message.device_id, checkCacheKey.ACU)
         if (!acu_data) {
             check_acu_write = true
             acu_data = Acu.findOne({ where: { serial_number: message.device_id, company: message.company } })
         }
         // const access_point = AccessPoint.findOne({ where: { id: message_data.Ctp_idx, company: message.company }, relations: ['access_point_zones'] })
-        let access_point = this.cacheCheck(message.company, `ap_${message_data.Ctp_idx}`)
+        let access_point = await this.cacheCheck(message.company, message_data.Ctp_idx, checkCacheKey.ACCESS_POINT)
         let check_access_point_write = false
         let check_credential_write = false
         if (!access_point) {
             check_access_point_write = true
-            access_point = AccessPoint.createQueryBuilder('access_point')
-                .leftJoinAndSelect('access_point.access_point_zones', 'access_point_zone', 'access_point_zone.delete_date is null')
-                .leftJoinAndSelect('access_point.camera_sets', 'camera_set', 'camera_set.delete_date is null')
-                .leftJoinAndSelect('camera_set.camera_set_cameras', 'camera_set_camera')
-                .leftJoinAndSelect('camera_set_camera.cameras', 'camera', 'camera.delete_date is null')
-                .where(`access_point.id = '${message_data.Ctp_idx}'`)
-                .andWhere(`access_point.company = '${message.company}'`)
-                .getOne()
+            if (message_data.Ctp_idx) {
+                access_point = AccessPoint.createQueryBuilder('access_point')
+                    .leftJoinAndSelect('access_point.access_point_zones', 'access_point_zone', 'access_point_zone.delete_date is null')
+                    .leftJoinAndSelect('access_point.camera_sets', 'camera_set', 'camera_set.delete_date is null')
+                    .leftJoinAndSelect('camera_set.camera_set_cameras', 'camera_set_camera')
+                    .leftJoinAndSelect('camera_set_camera.cameras', 'camera', 'camera.delete_date is null')
+                    .where(`access_point.id = '${message_data.Ctp_idx}'`)
+                    .andWhere(`access_point.company = '${message.company}'`)
+                    .getOne()
+            }
         }
 
         // const credential = Credential.findOne({
         //     where: { id: message_data.Key_id || 0, company: message.company },
         //     relations: ['cardholders', 'cardholders.access_rights', 'cardholders.car_infos', 'cardholders.limitations', 'cardholders.cardholder_groups']
         // })
-        let credential = this.cacheCheck(message.company, message_data.Key_id ? `cr_${message_data.Key_id}` : null)
+
+        let credential = await this.cacheCheck(message.company, message_data.Key_id ? message_data.Key_id : null, checkCacheKey.CARDHOLDER)
         if (!credential) {
             check_credential_write = true
             if (message_data.Key_id) {
@@ -149,16 +153,15 @@ export default class LogController {
             }
         }
 
-        Promise.all([acu_data, access_point, credential, {}]).then(async (data: any) => {
-            if (check_acu_write) this.cacheCheck(message.company, `acu_${message.device_id}`, acu_data)
-            if (check_access_point_write) this.cacheCheck(message.company, `ap_${message_data.Ctp_idx}`, access_point)
-            if (check_credential_write) this.cacheCheck(message.company, message_data.Key_id ? `cr_${message_data.Key_id}` : null, credential)
-
+        Promise.all([acu_data, access_point, credential]).then(async (data: any) => {
             const acu: any = data[0]
+            if (check_acu_write) await this.cacheCheck(message.company, message.device_id, checkCacheKey.ACU, acu || {})
             const time_zone = acu?.time ? JSON.parse(acu.time).time_zone : null
             if (acu) {
                 const access_point: AccessPoint = data[1]
+                if (check_access_point_write) await this.cacheCheck(message.company, message_data.Ctp_idx, checkCacheKey.ACCESS_POINT, access_point || {})
                 const credential: Credential = data[2]
+                if (check_credential_write) await this.cacheCheck(message.company, message_data.Key_id ? message_data.Key_id : null, checkCacheKey.CARDHOLDER, credential || {})
                 const companies_that_send_events = [message.company]
                 if (credential && credential.company !== message.company) { // that means its event for partition
                     companies_that_send_events.push(credential.company)
@@ -260,22 +263,45 @@ export default class LogController {
         })
     }
 
-    public static async cacheCheck (company: number, param: any, body?: any) {
+    public static async cacheCheck (company: number, param: any, check_key: checkCacheKey, body?: any) {
         try {
             if (!param) return
-            const key = `${company}_${param}`
-            const value = await RedisClass.connection.get(key)
+            let key = `${company}:acu_${param}`
+            if (check_key === checkCacheKey.CARDHOLDER) {
+                key = `${company}:cg_*:acr_*:cr_${param}`
+            } else if (check_key === checkCacheKey.ACCESS_POINT) {
+                key = `${company}:ap_${param}`
+            }
+            const keys = await RedisClass.connection.keys(key)
+            let value
+            if (keys.length) value = await RedisClass.connection.get(keys[0])
             if (value) {
-                return JSON.parse(value)
+                if (value === '{}') return null
+                const data = JSON.parse(value)
+                return data
             } else {
                 if (body) {
-                    await RedisClass.connection.set(key, body ? JSON.stringify(body) : '', 'EX', 500000)
+                    if (check_key === checkCacheKey.CARDHOLDER) {
+                        const cardholder_group = body.cardholders?.cardholder_groups?.id || 0
+                        const access_right = body.cardholders?.access_rights?.id || 0
+                        key = `${company}:cg_${cardholder_group}:acr_${access_right}:cr_${param}`
+                    } else if (check_key === checkCacheKey.ACCESS_POINT) {
+                        key = `${company}:ap_${param}`
+                    }
+                    await RedisClass.connection.set(key, body ? JSON.stringify(body) : '', 'EX', 10 * 24 * 60 * 60)
                 } else {
                     return
                 }
             }
         } catch (error) {
             console.log('cacheRequest error: ', error)
+        }
+    }
+
+    public static async invalidateCache (key: string) {
+        const cached_keys = await RedisClass.connection.keys(key)
+        for (const cached_key of cached_keys) {
+            await RedisClass.connection.del(cached_key)
         }
     }
 }

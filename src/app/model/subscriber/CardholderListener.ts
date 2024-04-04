@@ -9,7 +9,7 @@ import {
 // import SendSocketMessage from '../../mqtt/SendSocketMessage'
 // import * as Models from '../entity'
 import { Cardholder, Credential, Limitation } from '../entity'
-import { RedisClass } from '../../../component/redis'
+import LogController from '../../controller/LogController'
 // import { AntipassBack } from '../entity/AntipassBack'
 
 @EventSubscriber()
@@ -27,11 +27,8 @@ export class PostSubscriber implements EntitySubscriberInterface<Cardholder> {
             const credentials = await Credential.find({ where: { cardholder: New.id } })
             if (credentials.length) {
                 for (const credential of credentials) {
-                    const cache_key = `${New.company}_cr_${credential.id}*`
-                    const cached_keys = await RedisClass.connection.keys(cache_key)
-                    for (const cached_key of cached_keys) {
-                        await RedisClass.connection.del(cached_key)
-                    }
+                    const cache_key = `${New.company}:cg_*:acr_*:cr_${credential.id}`
+                    await LogController.invalidateCache(cache_key)
                 }
             }
 

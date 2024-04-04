@@ -27,6 +27,7 @@ import { acuStatus } from '../../enums/acuStatus.enum'
 import { AccessPointStatus } from './AccessPointStatus'
 import { resourceKeys } from '../../enums/resourceKeys.enum'
 import { CameraSet } from './CameraSet'
+import LogController from '../../controller/LogController'
 
 @Entity('access_point')
 @Index(['id', 'company'])
@@ -225,6 +226,8 @@ export class AccessPoint extends MainEntity {
                         }
                         minusResource(resource_name, data.company)
 
+                        const cache_key = `${data.company}:ap_${data.id}`
+                        await LogController.invalidateCache(cache_key)
                         const modes: any = await this.createQueryBuilder('access_point')
                             .select('access_point.name')
                             .addSelect('access_point.mode')
