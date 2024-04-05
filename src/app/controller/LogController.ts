@@ -108,6 +108,8 @@ export default class LogController {
 
     public static async createEventFromDevice (message: IMqttCrudMessaging) {
         const message_data = message.info
+        message_data.Ctp_idx = +message_data.Ctp_idx
+        message_data.Key_id = +message_data.Key_id
         let check_acu_write = false
         let acu_data = await this.cacheCheck(message.company, message.device_id, checkCacheKey.ACU)
         if (!acu_data) {
