@@ -113,7 +113,10 @@ export default class LogController {
         if (!acu_data) {
             check_acu_write = true
             acu_data = Acu.findOne({ where: { serial_number: message.device_id, company: message.company } })
+        } else if (acu_data === '{}') {
+            acu_data = null
         }
+
         // const access_point = AccessPoint.findOne({ where: { id: message_data.Ctp_idx, company: message.company }, relations: ['access_point_zones'] })
         let access_point = await this.cacheCheck(message.company, message_data.Ctp_idx, checkCacheKey.ACCESS_POINT)
         let check_access_point_write = false
@@ -130,6 +133,8 @@ export default class LogController {
                     .andWhere(`access_point.company = '${message.company}'`)
                     .getOne()
             }
+        } else if (access_point === '{}') {
+            access_point = null
         }
 
         // const credential = Credential.findOne({
@@ -151,6 +156,8 @@ export default class LogController {
                     .andWhere(`credential.company = ${message.company}`)
                     .getOne()
             }
+        } else if (credential === '{}') {
+            credential = null
         }
 
         Promise.all([acu_data, access_point, credential]).then(async (data: any) => {
@@ -276,7 +283,7 @@ export default class LogController {
             let value
             if (keys.length) value = await RedisClass.connection.get(keys[0])
             if (value) {
-                if (value === '{}') return null
+                if (value === '{}') return value
                 const data = JSON.parse(value)
                 return data
             } else {

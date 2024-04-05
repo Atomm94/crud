@@ -361,7 +361,6 @@ export default class AdminController {
                     const company = await Company.createQueryBuilder('company')
                         .where(`company.id = ${ctx.user.company}`)
                         .andWhere('company.delete_date is null')
-                        .withDeleted()
                         .cache(60000)
                         .leftJoinAndSelect('company.packages', 'package')
                         .getOne()
