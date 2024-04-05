@@ -45,10 +45,21 @@ export class MainEntity extends BaseEntity {
 
             const models: any = Models
             let model_name: any = self.constructor.name
-            let company = await Company.findOne({ where: { id: self.company } }) as Company
+            // let company = await Company.findOne({ where: { id: self.company } }) as Company
+
+            let company = await Company.createQueryBuilder('company')
+                .where(`company.id = ${self.company}`)
+                .andWhere('company.delete_date is null')
+                .cache(3 * 24 * 60 * 60 * 1000)
+                .getOne()
 
             if (company && company.partition_parent_id) {
-                company = await Company.findOne({ where: { id: company.partition_parent_id } }) as Company
+                // company = await Company.findOne({ where: { id: company.partition_parent_id } }) as Company
+                company = await Company.createQueryBuilder('company')
+                    .where(`company.id = ${company.partition_parent_id}`)
+                    .andWhere('company.delete_date is null')
+                    .cache(3 * 24 * 60 * 60 * 1000)
+                    .getOne()
             }
             if (company) {
                 if (models[model_name] && models[model_name].resource) {
@@ -103,9 +114,19 @@ export class MainEntity extends BaseEntity {
             const models: any = Models
             const model_name: any = self.constructor.name
             if (models[model_name] && models[model_name].resource) {
-                let company = await Company.findOne({ where: { id: self.company } }) as Company
+                // let company = await Company.findOne({ where: { id: self.company } }) as Company
+                let company = await Company.createQueryBuilder('company')
+                    .where(`company.id = ${self.company}`)
+                    .andWhere('company.delete_date is null')
+                    .cache(3 * 24 * 60 * 60 * 1000)
+                    .getOne()
                 if (company && company.partition_parent_id) {
-                    company = await Company.findOne({ where: { id: company.partition_parent_id } }) as Company
+                    // company = await Company.findOne({ where: { id: company.partition_parent_id } }) as Company
+                    company = await Company.createQueryBuilder('company')
+                        .where(`company.id = ${company.partition_parent_id}`)
+                        .andWhere('company.delete_date is null')
+                        .cache(3 * 24 * 60 * 60 * 1000)
+                        .getOne()
                 }
 
                 if (company) {
