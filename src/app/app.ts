@@ -37,6 +37,8 @@ const swaggerUi = require('swagger-ui-koa')
 
 const app: Koa = new Koa()
 require('koa-qs')(app)
+
+process.setMaxListeners(0)
 // centralized error handling
 // app.on('error', (err: Error, ctx: Koa.DefaultContext): void => {
 
