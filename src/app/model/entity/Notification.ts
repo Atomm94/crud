@@ -10,7 +10,7 @@ import { AccessPoint } from '.'
 import { MainEntity } from './MainEntity'
 
 @Entity('notification')
-@Index('createDate|company', ['createDate', 'company'])
+@Index('company|createDate', ['company', 'createDate'])
 @Index('confirmed|company', ['confirmed', 'company'])
 @Index('notification_company', ['company'])
 export class Notification extends MainEntity {
