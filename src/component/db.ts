@@ -52,11 +52,7 @@ export class Database implements IDatabase {
       await this.connection.initialize()
       return this.connection
     }
-    try {
-      this.connection = await new DataSource(connectionOpts).initialize()
-    } catch (error) {
-      console.log('error', error)
-    }
+    this.connection = await new DataSource(connectionOpts).initialize()
     return this.connection
   }
 
