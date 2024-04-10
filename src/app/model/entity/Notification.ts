@@ -14,6 +14,10 @@ import { MainEntity } from './MainEntity'
 @Index('confirmed|company', ['confirmed', 'company'])
 @Index('notification_company', ['company'])
 export class Notification extends MainEntity {
+    @Index()
+    @Column({ type: 'varchar', name: 'id', length: 36, primary: true, nullable: false})
+    id: any;
+
     @Column('bigint', { name: 'confirmed', nullable: true })
     confirmed: number | null
 

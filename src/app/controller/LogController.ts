@@ -175,7 +175,15 @@ export default class LogController {
                 if (credential && credential.company !== message.company) { // that means its event for partition
                     companies_that_send_events.push(credential.company)
                 } else if (access_point) {
-                    const partitions = await Company.find({ where: { partition_parent_id: message.company } })
+                    // TO DO: check if the access point is in the partition --SET CACHE
+                    // const partitions = await Company.find({ where: { partition_parent_id: message.company } })
+
+                    const partitions = await Company.createQueryBuilder('company')
+                        .where(`company.partition_parent_id = ${message.company}`)
+                        .andWhere('company.delete_date is null')
+                        .cache(24 * 60 * 60 * 1000)
+                        .getMany()
+
                     for (const partition of partitions) {
                         if (partition.base_access_points) {
                             const base_access_points = JSON.parse(partition.base_access_points)
