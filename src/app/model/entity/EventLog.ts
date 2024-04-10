@@ -19,6 +19,7 @@ import DeviceController from '../../controller/Hardware/DeviceController'
 import { cloneDeep } from 'lodash'
 
 import { RedisClass } from '../../../component/redis'
+import uuid from 'uuid'
 
 const clickhouse_server: string = process.env.CLICKHOUSE_SERVER ? process.env.CLICKHOUSE_SERVER : 'http://localhost:4143'
 const getEventLogsUrl = `${clickhouse_server}/eventLog`
@@ -204,7 +205,14 @@ export class EventLog extends BaseClass {
                     (event_group_id === 2 && [24].includes(event_id)) ||
                     (event_group_id === 3 && [1, 2, 3, 5, 7, 9, 10, 11, 12, 13, 14, 15, 16, 17].includes(event_id))
                 ) {
-                    const auto_task = await AutoTaskSchedule.findOne({ where: { access_point: event.data.access_point, status: false } })
+                    // const auto_task = await AutoTaskSchedule.findOne({ where: { access_point: event.data.access_point, status: false } })
+
+                    const auto_task = await AutoTaskSchedule.createQueryBuilder('auto_task_schedule')
+                        .where(`auto_task_schedule.access_point = ${event.data.access_point}`)
+                        .andWhere(`status = ${false}`)
+                        .cache(24 * 60 * 60 * 1000)
+                        .getOne()
+
                     if (auto_task && auto_task.reaction_access_points) {
                         const access_points = await AccessPoint.find({ where: { id: In(JSON.parse(auto_task.reaction_access_points)) }, relations: ['acus', 'companies'] })
                         for (const access_point of access_points) {
@@ -229,8 +237,27 @@ export class EventLog extends BaseClass {
         }
 
         if (event.data.event_type === eventTypes.CARDHOLDER_ALARM || event.data.event_type === eventTypes.SYSTEM_ALARM) {
-            const notification: any = await Notification.addItem(event.data as Notification)
-            notification.access_points = event.data.access_points
+            // const notification: any = await Notification.addItem(event.data as Notification)
+            const id = uuid.v4()
+            event.data.id = id
+             await Notification
+                .createQueryBuilder()
+                .insert()
+                .values(event.data)
+                .updateEntity(false)
+                .execute()
+
+            const notification = {
+                id: id,
+                confirmed: null,
+                access_point: event.data.access_point,
+                access_point_name: event.data.access_point_name,
+                event: event.data.event,
+                description: event.data.description,
+                company: event.data.company
+
+            }
+
             new SendSocketMessage(socketChannels.NOTIFICATION, notification, event.data.company)
         }
         if (event.data.event_type === eventTypes.CARDHOLDER_ALARM) {
