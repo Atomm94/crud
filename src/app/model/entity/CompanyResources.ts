@@ -6,10 +6,10 @@ import {
 } from 'typeorm'
 import { Company } from '.'
 
-import { MainEntity } from './MainEntity'
+import { MainEntityColumns } from './MainEntityColumns'
 
 @Entity('company_resources')
-export class CompanyResources extends MainEntity {
+export class CompanyResources extends MainEntityColumns {
     @Column('int', { name: 'company', nullable: false, unique: true })
     company: number
 

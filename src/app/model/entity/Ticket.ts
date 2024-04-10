@@ -7,7 +7,7 @@ import {
 } from 'typeorm'
 import * as _ from 'lodash'
 
-import { MainEntity } from './MainEntity'
+import { MainEntityColumns } from './MainEntityColumns'
 import { fileSave } from '../../functions/file'
 import fs from 'fs'
 import { join } from 'path'
@@ -21,7 +21,7 @@ import { Admin } from './Admin'
 const parentDir = join(__dirname, '../../..')
 
 @Entity('ticket')
-export class Ticket extends MainEntity {
+export class Ticket extends MainEntityColumns {
     @Column('int', { name: 'department' })
     department: number
 

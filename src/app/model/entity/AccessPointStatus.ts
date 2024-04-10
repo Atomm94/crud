@@ -10,12 +10,12 @@ import {
 import { AccessPoint, Acu } from '.'
 import { accessPointDoorState } from '../../enums/accessPointDoorState.enum'
 
-import { MainEntity } from './MainEntity'
+import { MainEntityColumns } from './MainEntityColumns'
 // import { Company } from './Company'
 // import { Acu } from './Acu'
 
 @Entity('access_point_status')
-export class AccessPointStatus extends MainEntity {
+export class AccessPointStatus extends MainEntityColumns {
     @Column('int', { name: 'access_point', nullable: false, unique: true })
     access_point: number
 

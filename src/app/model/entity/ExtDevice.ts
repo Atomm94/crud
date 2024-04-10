@@ -7,7 +7,7 @@ import {
     DeleteDateColumn
 } from 'typeorm'
 
-import { MainEntity } from './MainEntity'
+import { MainEntityColumns } from './MainEntityColumns'
 import { Acu } from './Acu'
 import { expBrd } from '../../enums/expBrd.enum'
 import { extBrdInterface } from '../../enums/extBrdInterface.enum'
@@ -17,7 +17,7 @@ import { expBrdBaudRate } from '../../enums/expBrdBaudRate.enum'
 @Index('acu|interface|address|port|is_delete', ['acu', 'interface', 'address', 'port', 'is_delete'], { unique: true })
 
 @Entity('ext_device')
-export class ExtDevice extends MainEntity {
+export class ExtDevice extends MainEntityColumns {
     @Column('varchar', { name: 'name', nullable: false })
     name: string
 

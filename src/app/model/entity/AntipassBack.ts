@@ -5,11 +5,11 @@ import {
 } from 'typeorm'
 import { typeAntipassBack } from '../../enums/typeAntipassBack.enum'
 import { timeTypeAntipassBack } from '../../enums/timeTypeAntipassBack.enum'
-import { MainEntity } from './MainEntity'
+import { MainEntityColumns } from './MainEntityColumns'
 import { AccessPointZone } from '.'
 
 @Entity('antipass_back')
-export class AntipassBack extends MainEntity {
+export class AntipassBack extends MainEntityColumns {
     @Column('enum', { name: 'type', enum: typeAntipassBack, default: typeAntipassBack.DISABLE })
     type: typeAntipassBack
 

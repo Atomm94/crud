@@ -11,7 +11,7 @@ import {
 
 import { acuStatus } from '../../enums/acuStatus.enum'
 import { networkValidation, interfaceValidation, timeValidation } from '../../functions/validator'
-import { MainEntity } from './MainEntity'
+import { MainEntityColumns } from './MainEntityColumns'
 import { AccessPoint } from './AccessPoint'
 import { ExtDevice } from './ExtDevice'
 import { acuModel } from '../../enums/acuModel.enum'
@@ -31,7 +31,7 @@ import LogController from '../../controller/LogController'
 @Entity('acu')
 @Index('serial_number|company|is_delete', ['serial_number', 'company', 'is_delete'], { unique: true })
 @Index('acu_delete_date', ['deleteDate'])
-export class Acu extends MainEntity {
+export class Acu extends MainEntityColumns {
     @Column('varchar', { name: 'name', nullable: true })
     name: string | null
 

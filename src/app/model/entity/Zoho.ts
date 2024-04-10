@@ -4,10 +4,10 @@ import {
     Column
 } from 'typeorm'
 
-import { MainEntity } from './MainEntity'
+import { MainEntityColumns } from './MainEntityColumns'
 
 @Entity('zoho')
-export class Zoho extends MainEntity {
+export class Zoho extends MainEntityColumns {
     @Column('varchar', { name: 'client_id', nullable: false })
     client_id: string
 

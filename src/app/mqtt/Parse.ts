@@ -59,21 +59,22 @@ export default class Parse {
                     if (error === 777) {
                         const description: any = { ...message }
                         delete description.send_data
-                        const notification = {
+                        const notification = new Notification({
                             event: `Timeout ${message.device_topic} - ${generateMessageForOperator(message.operator)}`,
                             description: JSON.stringify(description),
                             company: message.company,
                             confirmed: null,
                             access_point: null
-                        }
-                        const notification_save = await Notification
+                        })
+                       await Notification
                             .createQueryBuilder()
                             .insert()
                             .values(notification)
+                            .updateEntity(false)
                             .execute()
-                        const newObj = Object.assign(notification, notification_save.generatedMaps[0])
+                        // const newObj = Object.assign(notification, notification_save.generatedMaps[0])
 
-                        new SendSocketMessage(socketChannels.NOTIFICATION, newObj, message.company)
+                        new SendSocketMessage(socketChannels.NOTIFICATION, notification, message.company)
                     }
                 }
             }

@@ -7,11 +7,11 @@ import {
 } from 'typeorm'
 import { scheduleType } from '../../enums/scheduleType.enum'
 
-import { MainEntity } from './MainEntity'
+import { MainEntityColumns } from './MainEntityColumns'
 import { Schedule } from './Schedule'
 
 @Entity('timeframe')
-export class Timeframe extends MainEntity {
+export class Timeframe extends MainEntityColumns {
     @Column('varchar', { name: 'name', nullable: false })
     name: string
 

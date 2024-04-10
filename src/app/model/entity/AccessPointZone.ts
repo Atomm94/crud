@@ -8,11 +8,11 @@ import {
 } from 'typeorm'
 import { AntipassBack } from './AntipassBack'
 
-import { MainEntity, AccessPoint } from './index'
+import { MainEntityColumns, AccessPoint } from './index'
 import { Reader } from './Reader'
 
 @Entity('access_point_zone')
-export class AccessPointZone extends MainEntity {
+export class AccessPointZone extends MainEntityColumns {
     @Column('varchar', { name: 'name', nullable: false })
     name: string
 

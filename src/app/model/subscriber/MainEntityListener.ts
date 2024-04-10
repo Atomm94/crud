@@ -10,7 +10,7 @@ import {
 // import * as Models from '../entity'
 // import { Cardholder, CarInfo, Limitation } from '../entity'
 // import { AntipassBack } from '../entity/AntipassBack'
-import { MainEntity } from '../entity/MainEntity'
+import { MainEntityColumns } from '../entity/MainEntityColumns'
 
 // import * as Models from '../entity/index'
 import fs from 'fs'
@@ -22,15 +22,15 @@ const public_path = path.join(appRoot.path, config.publicPath)
 
 // const upload_files_path: string = process.env.UPLOAD_FILES_PATH ? process.env.UPLOAD_FILES_PATH : '/'
 @EventSubscriber()
-export class PostSubscriber implements EntitySubscriberInterface<MainEntity> {
+export class PostSubscriber implements EntitySubscriberInterface<MainEntityColumns> {
     /**
      * Indicates that this subscriber only listen to Company events.
      */
     listenTo () {
-        return MainEntity
+        return MainEntityColumns
     }
 
-    async beforeUpdate (event: UpdateEvent<MainEntity>) {
+    async beforeUpdate (event: UpdateEvent<MainEntityColumns>) {
         // const { entity: New, databaseEntity: Old } = event
         try {
             const New: any = event.entity
@@ -121,7 +121,7 @@ export class PostSubscriber implements EntitySubscriberInterface<MainEntity> {
         }
     }
 
-    async beforeInsert (event: InsertEvent<MainEntity>) {
+    async beforeInsert (event: InsertEvent<MainEntityColumns>) {
         try {
             const data: any = event.entity
             // const models: any = Models

@@ -8,14 +8,14 @@ import {
     Index
 } from 'typeorm'
 
-import { MainEntity } from './MainEntity'
+import { MainEntityColumns } from './MainEntityColumns'
 import { PackageType } from './PackageType'
 import { Company } from './Company'
 
 @Index('name|deleteDate', ['name', 'deleteDate'], { unique: true })
 
 @Entity('package')
-export class Package extends MainEntity {
+export class Package extends MainEntityColumns {
     @Column('varchar', { name: 'name' })
     name: string
 

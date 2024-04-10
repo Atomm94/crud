@@ -8,6 +8,7 @@ import {
 import { AccessPoint } from '.'
 
 import { MainEntity } from './MainEntity'
+import uuid from 'uuid'
 
 @Entity('notification')
 @Index('company|createDate', ['company', 'createDate'])
@@ -15,8 +16,8 @@ import { MainEntity } from './MainEntity'
 @Index('notification_company', ['company'])
 export class Notification extends MainEntity {
     @Index()
-    @Column({ type: 'varchar', name: 'id', length: 36, primary: true, nullable: false})
-    id: any;
+    @Column({ type: 'varchar', name: 'id', length: 36, primary: true, nullable: false })
+    id: string;
 
     @Column('bigint', { name: 'confirmed', nullable: true })
     confirmed: number | null
@@ -39,6 +40,21 @@ export class Notification extends MainEntity {
     @ManyToOne(type => AccessPoint, access_point => access_point.notifications)
     @JoinColumn({ name: 'access_point' })
     access_points: AccessPoint;
+
+    constructor (data?: any) {
+        super()
+        if (data) {
+            this.id = ('id' in data) ? data.id : uuid.v4()
+            this.confirmed = ('confirmed' in data) ? data.confirmed : null
+            this.access_point = ('access_point' in data) ? data.access_point : null
+            this.access_point_name = ('access_point_name' in data) ? data.access_point_name : null
+            this.event = ('event' in data) ? data.event : ''
+            this.description = ('description' in data) ? data.description : null
+            this.createDate = ('createDate' in data) ? data.createDate : new Date().toISOString()
+            this.createDate = ('updateDate' in data) ? data.updateDate : new Date().toISOString()
+            this.company = data.company
+        }
+    }
 
     public static async addItem (data: Notification) {
         const notification = new Notification()
@@ -84,7 +100,7 @@ export class Notification extends MainEntity {
     public static async getItem (id: number) {
         const itemId: number = id
         return new Promise((resolve, reject) => {
-            this.findOneOrFail({ where: { id: itemId } })
+            this.findOneOrFail({ where: { id: `${itemId}` } })
                 .then((item: Notification) => {
                     resolve(item)
                 })

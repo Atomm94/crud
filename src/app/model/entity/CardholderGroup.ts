@@ -13,7 +13,7 @@ import { minusResource } from '../../functions/minusResource'
 import {
     Cardholder,
     Limitation,
-    MainEntity,
+    MainEntityColumns,
     AccessRight,
     Schedule
 } from './index'
@@ -22,7 +22,7 @@ import LogController from '../../controller/LogController'
 
 @Index('name|company|is_delete', ['name', 'company', 'is_delete'], { unique: true })
 @Entity('cardholder_group')
-export class CardholderGroup extends MainEntity {
+export class CardholderGroup extends MainEntityColumns {
     @Column('varchar', { name: 'name', nullable: false })
     name: string
 

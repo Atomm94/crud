@@ -18,7 +18,7 @@ import {
   // PrimaryGeneratedColumn,
 } from 'typeorm'
 import * as Models from './index'
-import { MainEntity } from './MainEntity'
+import { MainEntityColumns } from './MainEntityColumns'
 import { Company } from './Company'
 import { Admin } from './Admin'
 import { AccountGroup } from './AccountGroup'
@@ -26,7 +26,7 @@ import { AccountGroup } from './AccountGroup'
 // @Index('slug|company', ['slug', 'company'], { unique: true })
 
 @Entity('role')
-export class Role extends MainEntity {
+export class Role extends MainEntityColumns {
   @Column('varchar', { name: 'slug', nullable: true, length: 255 })
   slug: string | null;
 

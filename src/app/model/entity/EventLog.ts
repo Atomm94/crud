@@ -19,7 +19,6 @@ import DeviceController from '../../controller/Hardware/DeviceController'
 import { cloneDeep } from 'lodash'
 
 import { RedisClass } from '../../../component/redis'
-import uuid from 'uuid'
 
 const clickhouse_server: string = process.env.CLICKHOUSE_SERVER ? process.env.CLICKHOUSE_SERVER : 'http://localhost:4143'
 const getEventLogsUrl = `${clickhouse_server}/eventLog`
@@ -238,25 +237,26 @@ export class EventLog extends BaseClass {
 
         if (event.data.event_type === eventTypes.CARDHOLDER_ALARM || event.data.event_type === eventTypes.SYSTEM_ALARM) {
             // const notification: any = await Notification.addItem(event.data as Notification)
-            const id = uuid.v4()
-            event.data.id = id
+            // const id = uuid.v4()
+            // event.data.id = id
+            const notification = new Notification(event.data)
              await Notification
                 .createQueryBuilder()
                 .insert()
-                .values(event.data)
+                .values(notification)
                 .updateEntity(false)
                 .execute()
 
-            const notification = {
-                id: id,
-                confirmed: null,
-                access_point: event.data.access_point,
-                access_point_name: event.data.access_point_name,
-                event: event.data.event,
-                description: event.data.description,
-                company: event.data.company
+            // const notification = {
+            //     id: id,
+            //     confirmed: null,
+            //     access_point: event.data.access_point,
+            //     access_point_name: event.data.access_point_name,
+            //     event: event.data.event,
+            //     description: event.data.description,
+            //     company: event.data.company
 
-            }
+            // }
 
             new SendSocketMessage(socketChannels.NOTIFICATION, notification, event.data.company)
         }

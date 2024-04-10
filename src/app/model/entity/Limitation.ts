@@ -4,12 +4,12 @@ import {
     OneToMany
 } from 'typeorm'
 
-import { MainEntity } from './MainEntity'
+import { MainEntityColumns } from './MainEntityColumns'
 import { Cardholder } from './Cardholder'
 import { CardholderGroup } from './CardholderGroup'
 
 @Entity('limitation')
-export class Limitation extends MainEntity {
+export class Limitation extends MainEntityColumns {
     @Column('boolean', { name: 'enable_date', default: false })
     enable_date: boolean
 

@@ -3,13 +3,13 @@ import {
     Column
 } from 'typeorm'
 
-import { MainEntity } from './MainEntity'
+import { MainEntityColumns } from './MainEntityColumns'
 import { uid } from 'uid'
 import { Sendgrid } from '../../../component/sendgrid/sendgrid'
 import { PackageType } from './PackageType'
 
 @Entity('registration_invite')
-export class RegistrationInvite extends MainEntity {
+export class RegistrationInvite extends MainEntityColumns {
     @Column('varchar', { name: 'email' })
     email: string
 

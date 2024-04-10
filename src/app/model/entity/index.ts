@@ -1,4 +1,4 @@
-import { MainEntity } from './MainEntity'
+import { MainEntityColumns } from './MainEntityColumns'
 import { Admin } from './Admin'
 import { Role } from './Role'
 import { Translation } from './Translation'
@@ -37,7 +37,7 @@ import { Dashboard } from './Dashboard'
 import { AutoTaskSchedule } from './AutoTaskSchedule'
 import { Notification } from './Notification'
 export {
-    MainEntity,
+    MainEntityColumns,
     Admin,
     Role,
     Translation,
