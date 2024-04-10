@@ -4,12 +4,12 @@ import {
     OneToMany
 } from 'typeorm'
 
-import { MainEntity } from './MainEntity'
+import { MainEntityColumns } from './MainEntityColumns'
 import { Package } from './Package'
 import { Company } from './Company'
 
 @Entity('package_type')
-export class PackageType extends MainEntity {
+export class PackageType extends MainEntityColumns {
     @Column('varchar', { name: 'name', unique: true })
     name: string
 

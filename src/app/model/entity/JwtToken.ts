@@ -4,10 +4,10 @@ import {
     In
 } from 'typeorm'
 
-import { Admin, MainEntity } from './index'
+import { Admin, MainEntityColumns } from './index'
 
 @Entity('jwt_token')
-export class JwtToken extends MainEntity {
+export class JwtToken extends MainEntityColumns {
     @Column('int', { name: 'account', nullable: true })
     account: number | null
 

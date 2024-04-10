@@ -3,10 +3,10 @@ import {
     Column
 } from 'typeorm'
 
-import { MainEntity } from './MainEntity'
+import { MainEntityColumns } from './MainEntityColumns'
 
 @Entity('language')
-export class Language extends MainEntity {
+export class Language extends MainEntityColumns {
     @Column('varchar', { name: 'title', nullable: true, length: '255', unique: true })
     title: string | null
 

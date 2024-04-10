@@ -9,7 +9,7 @@ import {
     Index
 } from 'typeorm'
 import { cardholderStatus } from '../../enums/cardholderStatus.enum'
-import { MainEntity } from './MainEntity'
+import { MainEntityColumns } from './MainEntityColumns'
 import { CarInfo } from './CarInfo'
 import { Limitation } from './Limitation'
 import { AccessRight } from './AccessRight'
@@ -37,7 +37,7 @@ const parentDir = join(__dirname, '../../..')
 @Index('cardholder_delete_date', ['deleteDate'])
 @Index('cardholder_company', ['company'])
 @Entity('cardholder')
-export class Cardholder extends MainEntity {
+export class Cardholder extends MainEntityColumns {
     @Column('varchar', { name: 'email', length: '255', nullable: true })
     email: string
 

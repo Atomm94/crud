@@ -8,7 +8,7 @@ import {
     OneToMany
 } from 'typeorm'
 
-import { MainEntity } from './MainEntity'
+import { MainEntityColumns } from './MainEntityColumns'
 import { CameraDevice } from './CameraDevice'
 import { CameraSet } from './CameraSet'
 import { CameraSetToCamera } from './CameraSetToCamera'
@@ -16,7 +16,7 @@ import { CameraSetToCamera } from './CameraSetToCamera'
 @Index('camera_device|service_id|is_delete', ['camera_device', 'service_id', 'is_delete'], { unique: true })
 
 @Entity('camera')
-export class Camera extends MainEntity {
+export class Camera extends MainEntityColumns {
     @Column('int', { name: 'service_id', nullable: false })
     service_id: number
 

@@ -6,7 +6,7 @@ import {
     AfterInsert
 } from 'typeorm'
 
-import { MainEntity } from './MainEntity'
+import { MainEntityColumns } from './MainEntityColumns'
 import { fileSave } from '../../functions/file'
 import {
     Ticket
@@ -19,7 +19,7 @@ import { join } from 'path'
 const parentDir = join(__dirname, '../../..')
 
 @Entity('ticket_message')
-export class TicketMessage extends MainEntity {
+export class TicketMessage extends MainEntityColumns {
     @Column('int', { name: 'ticket_id' })
     ticket_id: number
 

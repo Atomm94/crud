@@ -22,7 +22,7 @@ import {
   Department,
   Ticket,
   AccountGroup,
-  MainEntity,
+  MainEntityColumns,
   Company
 } from './index'
 import * as bcrypt from 'bcrypt'
@@ -38,7 +38,7 @@ import { adminStatus } from '../../enums/adminStatus.enum'
 const parentDir = join(__dirname, '../../..')
 
 @Entity('admin')
-export class Admin extends MainEntity {
+export class Admin extends MainEntityColumns {
   @Column('varchar', { name: 'username', nullable: true, length: 255, unique: true })
   username: string | null;
 

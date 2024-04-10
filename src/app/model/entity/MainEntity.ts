@@ -2,8 +2,6 @@ import {
     BaseEntity,
     CreateDateColumn,
     UpdateDateColumn,
-    PrimaryGeneratedColumn,
-    Index,
     getRepository,
     Not,
     LessThan,
@@ -26,10 +24,6 @@ import { resourceKeys } from '../../enums/resourceKeys.enum'
 import * as Models from './index'
 
 export class MainEntity extends BaseEntity {
-    @Index()
-    @PrimaryGeneratedColumn({ type: 'int', name: 'id' })
-    id: number;
-
     @CreateDateColumn({ type: 'timestamp', name: 'create_date' })
     createDate: string;
 

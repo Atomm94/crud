@@ -8,7 +8,7 @@ import {
     Index
 } from 'typeorm'
 
-import { MainEntity } from './MainEntity'
+import { MainEntityColumns } from './MainEntityColumns'
 import { Company } from './Company'
 import { AccessRule } from './AccessRule'
 import { AccessPointGroup } from './AccessPointGroup'
@@ -30,9 +30,9 @@ import { CameraSet } from './CameraSet'
 import LogController from '../../controller/LogController'
 
 @Entity('access_point')
-@Index(['id', 'company'])
+@Index('id|company', ['id', 'company'])
 @Index('access_point_delete_date', ['deleteDate'])
-export class AccessPoint extends MainEntity {
+export class AccessPoint extends MainEntityColumns {
     @Column('varchar', { name: 'name', nullable: false })
     name: string
 

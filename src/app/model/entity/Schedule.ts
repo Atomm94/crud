@@ -8,7 +8,7 @@ import {
 } from 'typeorm'
 
 import { scheduleType } from '../../enums/scheduleType.enum'
-import { MainEntity } from './MainEntity'
+import { MainEntityColumns } from './MainEntityColumns'
 import { Company } from './Company'
 import { AccessRule } from './AccessRule'
 import { Timeframe } from './Timeframe'
@@ -17,7 +17,7 @@ import { Cardholder } from '.'
 
 import { minusResource } from '../../functions/minusResource'
 @Entity('schedule')
-export class Schedule extends MainEntity {
+export class Schedule extends MainEntityColumns {
     @Column('varchar', { name: 'name', nullable: false })
     name: string
 

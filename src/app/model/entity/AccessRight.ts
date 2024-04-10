@@ -9,7 +9,7 @@ import {
 import { minusResource } from '../../functions/minusResource'
 
 import {
-    MainEntity,
+    MainEntityColumns,
     Company,
     CardholderGroup,
     AccessRule,
@@ -18,7 +18,7 @@ import {
 import LogController from '../../controller/LogController'
 
 @Entity('access_right')
-export class AccessRight extends MainEntity {
+export class AccessRight extends MainEntityColumns {
     @Column('varchar', { name: 'name', nullable: false })
     name: string
 

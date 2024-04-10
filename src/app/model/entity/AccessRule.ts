@@ -8,7 +8,7 @@ import {
 } from 'typeorm'
 
 import {
-    MainEntity,
+    MainEntityColumns,
     Company,
     AccessRight,
     AccessPoint,
@@ -19,7 +19,7 @@ import { minusResource } from '../../functions/minusResource'
 @Index('access_right|access_point|is_delete', ['access_right', 'access_point', 'is_delete'], { unique: true })
 
 @Entity('access_rule')
-export class AccessRule extends MainEntity {
+export class AccessRule extends MainEntityColumns {
     @Column('int', { name: 'access_right', nullable: false })
     access_right: number
 
