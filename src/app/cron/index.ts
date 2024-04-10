@@ -143,7 +143,7 @@ export default class CronJob {
             for (const access_point_status of access_point_statuses) {
                 if (access_point_status.access_points && access_point_status.access_points.door_state !== access_point_status.door_state) {
                     access_point_status.access_points.door_state = access_point_status.door_state
-                    await AccessPoint.save(access_point_status.access_points, { transaction: false })
+                    await AccessPoint.updateItem(access_point_status.access_points)
                 }
             }
         }).start()
