@@ -28,6 +28,7 @@ import { AccessPointStatus } from './AccessPointStatus'
 import { resourceKeys } from '../../enums/resourceKeys.enum'
 import { CameraSet } from './CameraSet'
 import LogController from '../../controller/LogController'
+import { checkCacheKey } from '../../enums/checkCacheKey.enum'
 
 @Entity('access_point')
 @Index('id|company', ['id', 'company'])
@@ -152,7 +153,12 @@ export class AccessPoint extends MainEntityColumns {
     }
 
     public static async updateItem (data: AccessPoint): Promise<{ [key: string]: any }> {
-        const accessPoint = await this.findOneOrFail({ where: { id: data.id } })
+        let accessPoint = await LogController.cacheCheck(data.company, data.id, checkCacheKey.GLOBAL_ACCESS_POINT)
+
+        if (!accessPoint) accessPoint = await this.findOneOrFail({ where: { id: data.id } })
+
+        if (!accessPoint) return { status: 400, messsage: 'Item not found' }
+
         const oldData = Object.assign({}, accessPoint)
 
         if ('name' in data) accessPoint.name = data.name
@@ -180,10 +186,10 @@ export class AccessPoint extends MainEntityColumns {
         }
         if ('last_activity' in data) accessPoint.last_activity = (data.last_activity && typeof data.last_activity === 'object') ? JSON.stringify(data.last_activity) : data.last_activity
 
-        if (!accessPoint) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {
             this.save(accessPoint, { transaction: false })
-                .then((item: AccessPoint) => {
+                .then(async (item: AccessPoint) => {
+                    await LogController.cacheCheck(item.company, item.id, checkCacheKey.GLOBAL_ACCESS_POINT, item)
                     resolve({
                         old: oldData,
                         new: item
@@ -228,6 +234,7 @@ export class AccessPoint extends MainEntityColumns {
 
                         const cache_key = `${data.company}:ap_${data.id}`
                         await LogController.invalidateCache(cache_key)
+                        await LogController.invalidateCache(`ap_${data.id}`)
                         const modes: any = await this.createQueryBuilder('access_point')
                             .select('access_point.name')
                             .addSelect('access_point.mode')

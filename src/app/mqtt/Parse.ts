@@ -66,7 +66,7 @@ export default class Parse {
                             confirmed: null,
                             access_point: null
                         })
-                       await Notification
+                        await Notification
                             .createQueryBuilder()
                             .insert()
                             .values(notification)
@@ -815,6 +815,7 @@ export default class Parse {
                         await auto_task.save()
                     }
                 }
+                message.send_data.data.company = company
                 const save = await AccessPoint.updateItem(message.send_data.data as AccessPoint)
                 const acu = await Acu.findOneOrFail({ where: { id: save.old.acu } })
                 const access_point: any = await AccessPoint.findOneOrFail({ where: { id: save.new.id }, relations: ['acus'] })
@@ -868,6 +869,7 @@ export default class Parse {
                         await auto_task.save()
                     }
                 }
+                message.send_data.data.company = company
                 const save: any = await AccessPoint.updateItem(message.send_data.data as AccessPoint)
                 const acu = await Acu.findOneOrFail({ where: { id: save.old.acu } })
 
@@ -924,6 +926,7 @@ export default class Parse {
                         await auto_task.save()
                     }
                 }
+                message.send_data.data.company = company
                 const save: any = await AccessPoint.updateItem(message.send_data.data as AccessPoint)
                 const acu = await Acu.findOneOrFail({ where: { id: save.old.acu } })
 
@@ -980,6 +983,7 @@ export default class Parse {
                         await auto_task.save()
                     }
                 }
+                message.send_data.data.company = company
                 const save: any = await AccessPoint.updateItem(message.send_data.data as AccessPoint)
                 const acu = await Acu.findOneOrFail({ where: { id: save.old.acu } })
 
@@ -1036,6 +1040,7 @@ export default class Parse {
                         await auto_task.save()
                     }
                 }
+                message.send_data.data.company = company
                 const save: any = await AccessPoint.updateItem(message.send_data.data as AccessPoint)
                 const acu = await Acu.findOneOrFail({ where: { id: save.old.acu } })
                 const access_point: any = await AccessPoint.findOneOrFail({ where: { id: save.new.id }, relations: ['acus'] })
@@ -1115,13 +1120,28 @@ export default class Parse {
         // console.log('deviceSetAccessModeAck', message)
         if (message.result.errorNo === 0) {
             // console.log('deviceSetAccessModeAck complete')
-            // const company = message.company
-            const access_point = await AccessPoint.findOneOrFail({ where: { id: message.send_data.data.id /*, company: company */ } })
-            if (message.send_data.data.mode) access_point.mode = message.send_data.data.mode
-            if (message.send_data.data.exit_mode) access_point.exit_mode = message.send_data.data.exit_mode
-            AccessPoint.save(access_point, { transaction: false })
-                .then(() => { })
-                .catch((err: any) => { console.log('deviceSetAccessModeAck AccessPoint save error', err) })
+            const company = message.company
+            const data: any = {
+                id: message.send_data.data.id,
+                company: company
+            }
+            let change = false
+            if (message.send_data.data.mode) {
+                change = true
+                data.mode = message.send_data.data.mode
+            }
+            if (message.send_data.data.exit_mode) {
+                change = true
+                data.exit_mode = message.send_data.data.exit_mode
+            }
+            if (change) {
+                await AccessPoint.updateItem(data as AccessPoint)
+            }
+
+            // const access_point = await AccessPoint.findOneOrFail({ where: { id: message.send_data.data.id /*, company: company */ } })
+            // AccessPoint.save(access_point, { transaction: false })
+            //     .then(() => { })
+            //     .catch((err: any) => { console.log('deviceSetAccessModeAck AccessPoint save error', err) })
         } else {
         }
     }

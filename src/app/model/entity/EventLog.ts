@@ -13,7 +13,7 @@ import { cardholderPresense } from '../../enums/cardholderPresense.enum'
 import { Cardholder } from './Cardholder'
 import { Package } from './Package'
 import { AutoTaskSchedule } from '.'
-import { In } from 'typeorm'
+// import { In } from 'typeorm'
 import CtpController from '../../controller/Hardware/CtpController'
 import DeviceController from '../../controller/Hardware/DeviceController'
 import { cloneDeep } from 'lodash'
@@ -142,13 +142,13 @@ export class EventLog extends BaseClass {
                 door_state = accessPointDoorState.OPEN
             }
             if (door_state) {
-                AccessPoint.updateItem({ id: event.data.access_point, door_state: door_state } as AccessPoint)
+                AccessPoint.updateItem({ id: event.data.access_point, door_state: door_state, company: event.data.company } as AccessPoint)
             }
         }
 
         if (event.data.access_point) {
             const last_activity = event.data
-            AccessPoint.updateItem({ id: event.data.access_point, last_activity: last_activity } as AccessPoint)
+            AccessPoint.updateItem({ id: event.data.access_point, last_activity: last_activity, company: event.data.company } as AccessPoint)
 
             const event_group_id = Number(event.data.event_group_id)
             const event_id = Number(event.data.event_id)
@@ -213,7 +213,14 @@ export class EventLog extends BaseClass {
                         .getOne()
 
                     if (auto_task && auto_task.reaction_access_points) {
-                        const access_points = await AccessPoint.find({ where: { id: In(JSON.parse(auto_task.reaction_access_points)) }, relations: ['acus', 'companies'] })
+                        // const access_points = await AccessPoint.find({ where: { id: In(JSON.parse(auto_task.reaction_access_points)) }, relations: ['acus', 'companies'] })
+                        const access_points = await AccessPoint.createQueryBuilder('access_point')
+                            .leftJoinAndSelect('access_point.acus', 'acus')
+                            .leftJoinAndSelect('access_point.companies', 'companies')
+                            .where(`access_point.id in (${auto_task.reaction_access_points})`)
+                            .cache(24 * 60 * 60 * 1000)
+                            .getMany()
+
                         for (const access_point of access_points) {
                             const location = `${access_point.companies.account}/${access_point.company}`
                             if (auto_task.reaction !== 3) {
@@ -273,8 +280,16 @@ export class EventLog extends BaseClass {
                 } else if (event.data.event_type.event_id === 26) {
                     cardholder.presense = cardholderPresense.ABSENT_BY_REASON
                 }
-                if (event.data.cardholder !== cardholder.presense) {
-                    await Cardholder.save(cardholder, { transaction: false })
+                if (event.data.cardholder.presense !== cardholder.presense) {
+                    // await Cardholder.save(cardholder, { transaction: false, reload: false })
+
+                    await Cardholder
+                       .createQueryBuilder()
+                       .update(Cardholder)
+                       .set(cardholder)
+                       .where(`id = ${cardholder.id}`)
+                       .updateEntity(false)
+                       .execute()
                 }
             }
         }

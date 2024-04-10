@@ -288,6 +288,8 @@ export default class LogController {
                 key = `${company}:cg_*:acr_*:cr_${param}`
             } else if (check_key === checkCacheKey.ACCESS_POINT) {
                 key = `${company}:ap_${param}`
+            } else if (check_key === checkCacheKey.GLOBAL_ACCESS_POINT) {
+                key = `ap_${param}`
             }
             const keys = await RedisClass.connection.keys(key)
             let value

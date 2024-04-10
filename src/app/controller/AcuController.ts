@@ -562,11 +562,11 @@ export default class AcuController {
                         const readers = access_point.readers
 
                         let checkAccessPointSend: any = false
+                        access_point.company = company
                         if (!access_point.id) {
                             if (acu.elevator_mode) acuReaderSend = true
                             access_point_update = false
                             access_point.acu = acu.id
-                            access_point.company = company
                             if (access_point.resource) access_point.resource = JSON.stringify(access_point.resource)
                             access_point.mode = accessPointMode.CREDENTIAL
 
