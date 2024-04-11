@@ -36,7 +36,9 @@ export class PostSubscriber implements EntitySubscriberInterface<AccountGroup> {
             for (const account of accounts) {
                 if (account.role_inherited === true) {
                     account.role = New.role
-                    delete account.password
+                    type IUserNew = Partial<Admin>
+                    const tmpData: IUserNew = account
+                    delete tmpData.password
                     await account.save()
                 }
             }

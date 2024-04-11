@@ -70,21 +70,32 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
             if (Old.status === statusCompany.DISABLE && New?.status === statusCompany.ENABLE) {
                 const accounts = await Admin.find({ where: { company: New?.id, status: adminStatus.INACTIVE } })
                 for (const account of accounts) {
+                    type IUserNew = Partial<Admin>
+                    const tmpData: IUserNew = account
                     account.status = adminStatus.ACTIVE
-                    delete account.password
+                    delete tmpData.password
                     await account.save()
                 }
             } else if (New?.status === statusCompany.DISABLE) {
                 const accounts = await Admin.find({ where: { company: New?.id, status: adminStatus.ACTIVE } })
                 for (const account of accounts) {
                     account.status = adminStatus.INACTIVE
-                    delete account.password
+                    type IUserNew = Partial<Admin>
+                    const tmpData: IUserNew = account
+                    account.status = adminStatus.ACTIVE
+                    delete tmpData.password
+                    // delete account.password
                     await account.save()
                 }
             } else if (Old.status === statusCompany.DISABLE && New?.status === statusCompany.PENDING) {
                 const account = await Admin.findOneOrFail({ where: { id: New?.account } })
                 account.status = adminStatus.ACTIVE
-                delete account.password
+
+                type IUserNew = Partial<Admin>
+                const tmpData: IUserNew = account
+                account.status = adminStatus.ACTIVE
+                delete tmpData.password
+                // delete account.password
                 await account.save()
             } else if (Old.status === statusCompany.ENABLE && New?.status === statusCompany.PENDING) {
                 // const accounts = await Admin.find({ where: { company: New?.id, id: Not(New?.account), status: adminStatus.ACTIVE } })

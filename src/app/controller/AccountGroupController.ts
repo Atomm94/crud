@@ -224,7 +224,9 @@ export default class AccountGroupController {
                 if (admins.length) {
                     for (const admin of admins) {
                         admin.account_group = null
-                        delete admin.password
+                        type IUserNew = Partial<Admin>
+                        const tmpData: IUserNew = admin
+                        delete tmpData.password
                         await admin.save()
                     }
                 } else {
