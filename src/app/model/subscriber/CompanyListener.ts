@@ -4,9 +4,7 @@ import {
     EventSubscriber,
     InsertEvent,
     IsNull,
-    UpdateEvent,
-    getManager
-    // Not
+    UpdateEvent
 } from 'typeorm'
 import * as Models from '../entity'
 import { Admin, CompanyResources, Role, PackageType, RegistrationInvite } from '../entity'
@@ -17,6 +15,7 @@ import { Feature } from '../../middleware/feature'
 import { adminStatus } from '../../enums/adminStatus.enum'
 import { JwtToken } from '../entity/JwtToken'
 import { CameraSet } from '../entity/CameraSet'
+import { Package } from '../entity/Package'
 const featureList: any = Feature
 @EventSubscriber()
 export class PostSubscriber implements EntitySubscriberInterface<Company> {
@@ -71,23 +70,38 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
             if (Old.status === statusCompany.DISABLE && New?.status === statusCompany.ENABLE) {
                 const accounts = await Admin.find({ where: { company: New?.id, status: adminStatus.INACTIVE } })
                 for (const account of accounts) {
+                    type IUserNew = Partial<Admin>
+                    const tmpData: IUserNew = account
                     account.status = adminStatus.ACTIVE
+                    delete tmpData.password
                     await account.save()
                 }
             } else if (New?.status === statusCompany.DISABLE) {
                 const accounts = await Admin.find({ where: { company: New?.id, status: adminStatus.ACTIVE } })
                 for (const account of accounts) {
                     account.status = adminStatus.INACTIVE
+                    type IUserNew = Partial<Admin>
+                    const tmpData: IUserNew = account
+                    account.status = adminStatus.ACTIVE
+                    delete tmpData.password
+                    // delete account.password
                     await account.save()
                 }
             } else if (Old.status === statusCompany.DISABLE && New?.status === statusCompany.PENDING) {
                 const account = await Admin.findOneOrFail({ where: { id: New?.account } })
                 account.status = adminStatus.ACTIVE
+
+                type IUserNew = Partial<Admin>
+                const tmpData: IUserNew = account
+                account.status = adminStatus.ACTIVE
+                delete tmpData.password
+                // delete account.password
                 await account.save()
             } else if (Old.status === statusCompany.ENABLE && New?.status === statusCompany.PENDING) {
                 // const accounts = await Admin.find({ where: { company: New?.id, id: Not(New?.account), status: adminStatus.ACTIVE } })
                 // for (const account of accounts) {
                 //     account.status = adminStatus.INACTIVE
+                //     delete account.password
                 //     await account.save()
                 // }
             }
@@ -100,11 +114,14 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
                     const account_role: Role | undefined = await Role.findOne({ where: { id: account.role } }) as Role
                     const default_role: Role | undefined = await Role.findOne({ where: { slug: 'default_partner', company: IsNull() } }) as Role
                     // const package: Package | undefined = await Package.findOne(New?.package) // get softDelete too
-                    let package_data: any = await getManager().query(`SELECT * FROM package where id = ${New?.package}`)
+                    // let package_data: any = await getManager().query(`SELECT * FROM package where id = ${New?.package}`)
+                    const package_data: any = await Package.createQueryBuilder('package')
+                        .where('id = :id', { id: New?.package })
+                        .withDeleted()
+                        .getOne()
                     const package_type: any = await PackageType.findOneOrFail({ where: { id: New?.package_type } })
 
-                    if (account_role && package_data.length) {
-                        package_data = package_data[0]
+                    if (account_role && package_data) {
                         // generate account permissions
                         const permissions: any = {}
                         const default_permissions = (default_role) ? JSON.parse(default_role.permissions) : Role.default_partner_role
