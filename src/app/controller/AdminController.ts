@@ -1134,6 +1134,7 @@ export default class AdminController {
             })
             if (admin) {
                 admin.verify_token = uid(32)
+                delete admin.password
                 await admin.save()
                 if (admin) {
                     ctx.body = { success: true }

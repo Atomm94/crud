@@ -224,6 +224,7 @@ export default class AccountGroupController {
                 if (admins.length) {
                     for (const admin of admins) {
                         admin.account_group = null
+                        delete admin.password
                         await admin.save()
                     }
                 } else {
