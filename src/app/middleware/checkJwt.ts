@@ -64,7 +64,7 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
                         let company = await Company.createQueryBuilder('company')
                             .leftJoinAndSelect('company.packages', 'package')
                             .where(`company.id = ${ctx.user.company}`)
-                            .cache(24 * 60 * 60 * 1000)
+                            .cache(true)
                             .getOne()
 
                         if (company) {
@@ -73,7 +73,7 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
                                 company = await Company.createQueryBuilder('company')
                                     .leftJoinAndSelect('company.packages', 'package')
                                     .where(`company.id = ${company.partition_parent_id}`)
-                                    .cache(24 * 60 * 60 * 1000)
+                                    .cache(true)
                                     .getOne()
                             }
                             if (company && company.packages) {

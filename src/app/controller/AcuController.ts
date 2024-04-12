@@ -964,6 +964,7 @@ export default class AcuController {
                 .leftJoinAndSelect('acu.access_points', 'access_point', 'access_point.delete_date is null')
                 .leftJoinAndSelect('acu.acu_statuses', 'acu_status')
                 .leftJoinAndSelect('access_point.readers', 'reader', 'reader.delete_date is null')
+                .cache(`access_point:acu_statuses:readers:${ctx.user.company}`, 24 * 60 * 60 * 1000)
                 .where(`acu.company = ${ctx.user.company}`)
             if (req_data.status) {
                 data = data.andWhere(`acu.status = '${req_data.status}'`)
