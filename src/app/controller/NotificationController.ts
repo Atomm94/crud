@@ -1,5 +1,5 @@
 import { DefaultContext } from 'koa'
-import { IsNull } from 'typeorm'
+// import { IsNull } from 'typeorm'
 import { Notification } from '../model/entity/Notification'
 export default class NotificationController {
     /**
@@ -104,16 +104,18 @@ export default class NotificationController {
                     ctx.body = { message: 'confirmed seted!' }
                 } else {
                     notification.confirmed = new Date().getTime()
+                    notification.confirmed_check = true
                     ctx.body = await notification.save()
                 }
             } else {
-                const notifications: Notification[] = await Notification.find({ where: { company: company, confirmed: IsNull() } })
+                const notifications: Notification[] = await Notification.find({ where: { confirmed_check: false, company: company } })
                 if (!notifications.length) {
                     // ctx.status = 400
                     ctx.body = { message: 'All notifications are confirmed!' }
                 } else {
                     for (const notification of notifications) {
                         notification.confirmed = new Date().getTime()
+                        notification.confirmed_check = true
                         await notification.save()
                     }
                     ctx.body = { success: true }

@@ -44,7 +44,7 @@ export class EventLog extends BaseClass {
                 }
             }
         }
-
+// TO DO urlsearchparams
         if (data) {
             if (data.page) url += `&page=${data.page}`
             if (data.page_items_count) url += `&page_items_count=${data.page_items_count}`

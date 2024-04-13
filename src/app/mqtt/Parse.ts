@@ -64,6 +64,7 @@ export default class Parse {
                             description: JSON.stringify(description),
                             company: message.company,
                             confirmed: null,
+                            confirmed_check: false,
                             access_point: null
                         })
                         await Notification
