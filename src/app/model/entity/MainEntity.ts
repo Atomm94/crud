@@ -44,7 +44,7 @@ export class MainEntity extends BaseEntity {
             let company = await Company.createQueryBuilder('company')
                 .where(`company.id = ${self.company}`)
                 .andWhere('company.delete_date is null')
-                .cache(3 * 24 * 60 * 60 * 1000)
+                .cache(`company:${self.company}`, 3 * 24 * 60 * 60 * 1000)
                 .getOne()
 
             if (company && company.partition_parent_id) {
@@ -52,7 +52,7 @@ export class MainEntity extends BaseEntity {
                 company = await Company.createQueryBuilder('company')
                     .where(`company.id = ${company.partition_parent_id}`)
                     .andWhere('company.delete_date is null')
-                    .cache(3 * 24 * 60 * 60 * 1000)
+                    .cache(`company:${company.partition_parent_id}`, 3 * 24 * 60 * 60 * 1000)
                     .getOne()
             }
             if (company) {
@@ -112,14 +112,14 @@ export class MainEntity extends BaseEntity {
                 let company = await Company.createQueryBuilder('company')
                     .where(`company.id = ${self.company}`)
                     .andWhere('company.delete_date is null')
-                    .cache(3 * 24 * 60 * 60 * 1000)
+                    .cache(`company:${self.company}`, 3 * 24 * 60 * 60 * 1000)
                     .getOne()
                 if (company && company.partition_parent_id) {
                     // company = await Company.findOne({ where: { id: company.partition_parent_id } }) as Company
                     company = await Company.createQueryBuilder('company')
                         .where(`company.id = ${company.partition_parent_id}`)
                         .andWhere('company.delete_date is null')
-                        .cache(3 * 24 * 60 * 60 * 1000)
+                        .cache(`company:${company.partition_parent_id}`, 3 * 24 * 60 * 60 * 1000)
                         .getOne()
                 }
 

@@ -199,7 +199,6 @@ export default class NotificationController {
             const skip = req_data.page_items_count && req_data.page ? (req_data.page - 1) * req_data.page_items_count : 0
 
             const result: any = await Notification.createQueryBuilder('notification')
-                // .leftJoinAndSelect('notification.access_points', 'access_point')
                 .orderBy('notification.createDate', 'DESC')
                 .where(`notification.company = '${user.company ? user.company : null}'`)
                 .take(take)

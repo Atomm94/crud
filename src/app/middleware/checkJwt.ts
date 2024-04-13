@@ -49,7 +49,7 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
                     .where('jwt_token.account = :account', { account: ctx.user.id })
                     .andWhere('jwt_token.token = :token', { token: token })
                     .andWhere('jwt_token.expired = :expired', { expired: false })
-                    .cache(24 * 60 * 60 * 1000)
+                    .cache(`jwt:${token}`, 24 * 60 * 60 * 1000)
                     .getOne()
 
                 if (!check_jwt_black_list) {
@@ -64,7 +64,7 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
                         let company = await Company.createQueryBuilder('company')
                             .leftJoinAndSelect('company.packages', 'package')
                             .where(`company.id = ${ctx.user.company}`)
-                            .cache(true)
+                            .cache(`company:package:${ctx.user.company}`, 24 * 60 * 60 * 1000)
                             .getOne()
 
                         if (company) {
@@ -73,7 +73,7 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
                                 company = await Company.createQueryBuilder('company')
                                     .leftJoinAndSelect('company.packages', 'package')
                                     .where(`company.id = ${company.partition_parent_id}`)
-                                    .cache(true)
+                                    .cache(`company:package:${ctx.user.company}`, 168 * 60 * 60 * 1000)
                                     .getOne()
                             }
                             if (company && company.packages) {

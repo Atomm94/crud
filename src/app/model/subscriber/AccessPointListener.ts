@@ -67,6 +67,9 @@ export class PostSubscriber implements EntitySubscriberInterface<AccessPoint> {
             const cache_key = `${New.company}:ap_${New.id}`
             await LogController.invalidateCache(cache_key)
         }
+
+        const cache_update_key = `acu:access_point:acu_statuses:readers:${New.company}`
+        await LogController.invalidateCache(cache_update_key)
         if (New.mode !== Old.mode) {
             const modes: any = await AccessPoint.createQueryBuilder('access_point')
                 .select('access_point.name')

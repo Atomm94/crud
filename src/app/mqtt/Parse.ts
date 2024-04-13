@@ -366,6 +366,9 @@ export default class Parse {
                     .andWhere(`serial_number = ${message.device_id}`)
                     .updateEntity(true)
                     .execute()
+
+                const cache_update_key = `acu:access_point:acu_statuses:readers:${message.company}`
+                await LogController.invalidateCache(cache_update_key)
                 // need update result
 
                 if (message.info) {

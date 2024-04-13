@@ -83,6 +83,9 @@ export class PostSubscriber implements EntitySubscriberInterface<Acu> {
         const cache_key = `${New.company}:acu_${New.serial_number}`
         await LogController.invalidateCache(cache_key)
 
+        const cache_update_key = `acu:access_point:acu_statuses:readers:${New.company}`
+        await LogController.invalidateCache(cache_update_key)
+
         if (New.status !== Old.status) {
             if (New.status === acuStatus.ACTIVE) {
                 const acu_status = await AcuStatus.findOne({ where: { acu: New.id } })

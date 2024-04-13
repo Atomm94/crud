@@ -181,7 +181,7 @@ export default class LogController {
                     const partitions = await Company.createQueryBuilder('company')
                         .where(`company.partition_parent_id = ${message.company}`)
                         .andWhere('company.delete_date is null')
-                        .cache(24 * 60 * 60 * 1000)
+                        .cache(`company:${message.company}`, 24 * 60 * 60 * 1000)
                         .getMany()
 
                     for (const partition of partitions) {

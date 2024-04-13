@@ -16,6 +16,7 @@ import { adminStatus } from '../../enums/adminStatus.enum'
 import { JwtToken } from '../entity/JwtToken'
 import { CameraSet } from '../entity/CameraSet'
 import { Package } from '../entity/Package'
+import LogController from '../../controller/LogController'
 const featureList: any = Feature
 @EventSubscriber()
 export class PostSubscriber implements EntitySubscriberInterface<Company> {
@@ -66,6 +67,7 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
      */
     async afterUpdate (event: UpdateEvent<Company>) {
         const { entity: New, databaseEntity: Old } = event
+
         if (Old.status !== New?.status) {
             if (Old.status === statusCompany.DISABLE && New?.status === statusCompany.ENABLE) {
                 const accounts = await Admin.find({ where: { company: New?.id, status: adminStatus.INACTIVE } })
@@ -299,6 +301,12 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
 
             JwtToken.logoutAccounts(New?.id)
         }
+
+        const cache_update_key = `company:${New?.id}`
+        await LogController.invalidateCache(cache_update_key)
+
+        const cache_update_cp_key = `company:package:${New?.id}`
+        await LogController.invalidateCache(cache_update_cp_key)
     }
 
     /**
