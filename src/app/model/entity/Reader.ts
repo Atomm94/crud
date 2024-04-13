@@ -206,6 +206,9 @@ export class Reader extends MainEntityColumns {
             this.findOneOrFail({ where }).then((data: any) => {
                 this.softRemove(data)
                     .then(() => {
+                        const cache_update_key = `acu:access_point:acu_statuses:readers:${data.company}`
+                        LogController.invalidateCache(cache_update_key)
+
                         minusResource(this.name, data.company)
                         resolve({ message: 'success' })
                     })
