@@ -264,6 +264,9 @@ export class Acu extends MainEntityColumns {
                         const cache_key = `${data.company}:acu_${data.serial_number}`
                         await LogController.invalidateCache(cache_key)
 
+                        const cache_update_key = `acu:access_point:acu_statuses:readers:${data.company}`
+                        await LogController.invalidateCache(cache_update_key)
+
                         const promises = []
                         promises.push(Acu.createQueryBuilder('acu')
                             .select('acu.status')

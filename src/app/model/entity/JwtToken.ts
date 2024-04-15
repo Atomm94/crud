@@ -5,6 +5,7 @@ import {
 } from 'typeorm'
 
 import { Admin, MainEntityColumns } from './index'
+import LogController from '../../controller/LogController'
 
 @Entity('jwt_token')
 export class JwtToken extends MainEntityColumns {
@@ -48,6 +49,8 @@ export class JwtToken extends MainEntityColumns {
         const tokens = await JwtToken.find({ where: { account: In(accounts.map((account: Admin) => { return account.id })), expired: false } })
         for (const token of tokens) {
             token.expired = true
+            const cache_key = `jwt:${token}`
+            await LogController.invalidateCache(cache_key)
             await token.save()
         }
     }

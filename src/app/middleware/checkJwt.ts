@@ -44,7 +44,14 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
 
             if (verify) {
                 ctx.user = verify
-                const check_jwt_black_list = await JwtToken.findOne({ where: { account: ctx.user.id, token: token, expired: false } })
+                // const check_jwt_black_list = await JwtToken.findOne({ where: { account: ctx.user.id, token: token, expired: false } })
+                const check_jwt_black_list = await JwtToken.createQueryBuilder('jwt_token')
+                    .where('jwt_token.account = :account', { account: ctx.user.id })
+                    .andWhere('jwt_token.token = :token', { token: token })
+                    .andWhere('jwt_token.expired = :expired', { expired: false })
+                    .cache(`jwt:${token}`, 24 * 60 * 60 * 1000)
+                    .getOne()
+
                 if (!check_jwt_black_list) {
                     ctx.status = 401
                     ctx.body = { message: 'User Blocked or TokenExpiredError' }
@@ -53,11 +60,21 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
                         ctx.allowed = true
                     }
                     if (ctx.user.company) {
-                        let company: any = await Company.findOne({ where: { id: ctx.user.company }, relations: ['packages'] })
+                        // let company: any = await Company.findOne({ where: { id: ctx.user.company }, relations: ['packages'] })
+                        let company = await Company.createQueryBuilder('company')
+                            .leftJoinAndSelect('company.packages', 'package')
+                            .where(`company.id = ${ctx.user.company}`)
+                            .cache(`company:package:${ctx.user.company}`, 24 * 60 * 60 * 1000)
+                            .getOne()
 
                         if (company) {
                             if (company.partition_parent_id) {
-                                company = await Company.findOne({ where: { id: company.partition_parent_id }, relations: ['packages'] })
+                                // company = await Company.findOne({ where: { id: company.partition_parent_id }, relations: ['packages'] })
+                                company = await Company.createQueryBuilder('company')
+                                    .leftJoinAndSelect('company.packages', 'package')
+                                    .where(`company.id = ${company.partition_parent_id}`)
+                                    .cache(`company:package:${ctx.user.company}`, 168 * 60 * 60 * 1000)
+                                    .getOne()
                             }
                             if (company && company.packages) {
                                 ctx.query = {

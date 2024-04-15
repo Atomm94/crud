@@ -64,6 +64,7 @@ export default class Parse {
                             description: JSON.stringify(description),
                             company: message.company,
                             confirmed: null,
+                            confirmed_check: false,
                             access_point: null
                         })
                         await Notification
@@ -365,6 +366,11 @@ export default class Parse {
                     .andWhere(`serial_number = ${message.device_id}`)
                     .updateEntity(true)
                     .execute()
+
+                const cache_update_key = `acu:access_point:acu_statuses:readers:${message.company}`
+                await LogController.invalidateCache(cache_update_key)
+
+        LogController.invalidateCache(`acu:count:${message.company}`)
                 // need update result
 
                 if (message.info) {

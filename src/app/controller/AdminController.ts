@@ -361,7 +361,7 @@ export default class AdminController {
                     const company = await Company.createQueryBuilder('company')
                         .where(`company.id = ${ctx.user.company}`)
                         .andWhere('company.delete_date is null')
-                        .cache(60000)
+                        .cache(`company:${ctx.user.company}`, 24 * 60 * 60 * 1000)
                         .leftJoinAndSelect('company.packages', 'package')
                         .getOne()
                     if (!company) {
@@ -374,9 +374,9 @@ export default class AdminController {
                     ctx.body.package = company.package
                     ctx.body.upgraded_package_id = company.upgraded_package_id
                     const notifs = await Notification.createQueryBuilder('notification')
-                        .select('COUNT(notification.confirmed) as count')
-                        .where(`notification.company = ${ctx.user.company}`)
-                        .andWhere('notification.confirmed is null')
+                        .select('COUNT(notification.confirmed_check) as count')
+                        .where('notification.confirmed_check = 0')
+                        .andWhere(`notification.company = ${ctx.user.company}`)
                         .cache(60000)
                         .getRawOne()
                     ctx.body.notifications = notifs?.count || 0
