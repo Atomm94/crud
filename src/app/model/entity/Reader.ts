@@ -17,7 +17,6 @@ import { readerDirections } from '../../enums/readerDirection'
 import { minusResource } from '../../functions/minusResource'
 import { AccessPointZone } from './AccessPointZone'
 import { Acu } from '.'
-import LogController from '../../controller/LogController'
 @Entity('reader')
 export class Reader extends MainEntityColumns {
     @Column('int', { name: 'access_point', nullable: true })
@@ -168,8 +167,6 @@ export class Reader extends MainEntityColumns {
         return new Promise((resolve, reject) => {
             this.save(reader, { transaction: false })
                 .then((item: Reader) => {
-                    const cache_update_key = `acu:access_point:acu_statuses:readers:${reader.company}`
-                    LogController.invalidateCache(cache_update_key)
                     resolve({
                         old: oldData,
                         new: item
@@ -206,9 +203,6 @@ export class Reader extends MainEntityColumns {
             this.findOneOrFail({ where }).then((data: any) => {
                 this.softRemove(data)
                     .then(() => {
-                        const cache_update_key = `acu:access_point:acu_statuses:readers:${data.company}`
-                        LogController.invalidateCache(cache_update_key)
-
                         minusResource(this.name, data.company)
                         resolve({ message: 'success' })
                     })
