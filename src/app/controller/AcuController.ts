@@ -981,7 +981,6 @@ export default class AcuController {
                         'acu.acu_comment'
                     ]
                 )
-                // .addSelect('acu.id as acu_id')
                 .addSelect(['acu_status.updateDate', 'acu_status.rev'])
                 // .leftJoin('acu.access_points', 'access_point')
                 .leftJoin('acu.acu_statuses', 'acu_status')
@@ -998,11 +997,8 @@ export default class AcuController {
                 data = data.andWhere(`acu.status = '${req_data.status}'`)
             }
             data.orderBy('acu.id', 'DESC')
-            console.time('acu')
-            console.log('data', data.getSql())
 
             data = await data.getMany()
-            console.timeEnd('acu')
             if (req_data.page) {
                 console.time('acu_count')
                 const total = await Acu.createQueryBuilder('acu')
