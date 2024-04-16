@@ -264,7 +264,7 @@ export class Acu extends MainEntityColumns {
                         const cache_key = `${data.company}:acu_${data.serial_number}`
                         await LogController.invalidateCache(cache_key)
 
-                        const cache_update_key = `acu:access_point:acu_statuses:readers:${data.company}`
+                        const cache_update_key = `acu:acu_statuses:${data.company}*`
                         await LogController.invalidateCache(cache_update_key)
 
                         const promises = []

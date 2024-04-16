@@ -236,7 +236,7 @@ export class AccessPoint extends MainEntityColumns {
                         await LogController.invalidateCache(cache_key)
                         await LogController.invalidateCache(`ap_${data.id}`)
 
-                        const cache_update_key = `acu:access_point:acu_statuses:readers:${data.company}`
+                        const cache_update_key = `acu:acu_statuses:${data.company}*`
                         await LogController.invalidateCache(cache_update_key)
 
                         const modes: any = await this.createQueryBuilder('access_point')

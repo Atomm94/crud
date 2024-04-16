@@ -209,7 +209,8 @@ export class EventLog extends BaseClass {
                     const auto_task = await AutoTaskSchedule.createQueryBuilder('auto_task_schedule')
                         .where(`auto_task_schedule.access_point = ${event.data.access_point}`)
                         .andWhere(`status = ${false}`)
-                        .cache(24 * 60 * 60 * 1000)
+                        // .cache(`auto_task_schedule_${event.data.access_point}`, 24 * 60 * 60 * 1000)
+                        .cache(60 * 60 * 1000)
                         .getOne()
 
                     if (auto_task && auto_task.reaction_access_points) {
@@ -218,7 +219,7 @@ export class EventLog extends BaseClass {
                             .leftJoinAndSelect('access_point.acus', 'acus')
                             .leftJoinAndSelect('access_point.companies', 'companies')
                             .where(`access_point.id in (${auto_task.reaction_access_points})`)
-                            .cache(24 * 60 * 60 * 1000)
+                            .cache(60 * 60 * 1000)
                             .getMany()
 
                         for (const access_point of access_points) {

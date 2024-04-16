@@ -367,7 +367,7 @@ export default class Parse {
                     .updateEntity(true)
                     .execute()
 
-                const cache_update_key = `acu:access_point:acu_statuses:readers:${message.company}`
+                const cache_update_key = `acu:acu_statuses:${message.company}*`
                 await LogController.invalidateCache(cache_update_key)
 
         LogController.invalidateCache(`acu:count:${message.company}`)

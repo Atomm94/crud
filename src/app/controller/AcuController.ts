@@ -1000,15 +1000,20 @@ export default class AcuController {
 
             data = await data.getMany()
             if (req_data.page) {
-                console.time('acu_count')
-                const total = await Acu.createQueryBuilder('acu')
+                let total: any = await Acu.createQueryBuilder('acu')
                     .select('COUNT(id) ', 'count')
                     .where(`acu.company = '${user.company ? user.company : null}'`)
-                    .cache(`acu:count:${ctx.user.company}`, 168 * 60 * 60 * 1000)
-                    .getRawOne()
-                console.timeEnd('acu_count')
+                    .andWhere('not (acu.status = :status and acu.cloud_status = :cloud_status)', {
+                        status: acuStatus.PENDING,
+                        cloud_status: acuCloudStatus.OFFLINE
+                    })
+                if (req_data.status) {
+                    total = total.andWhere(`acu.status = '${req_data.status}'`)
+                }
+                total.cache(`acu:count:${ctx.user.company}`, 168 * 60 * 60 * 1000)
+                total = await total.getRawOne()
                 ctx.body = {
-                    data,
+                    data: data,
                     count: total.count
                 }
             } else {
