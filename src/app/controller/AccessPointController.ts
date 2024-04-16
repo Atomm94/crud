@@ -165,19 +165,20 @@ export default class AccessPointController {
         try {
             // const req_data = ctx.query
             const user = ctx.user
+            const req_data = ctx.query
             // req_data.where = { company: { '=': user.company ? user.company : null } }
             // req_data.relations = ['acus', 'access_point_groups', 'access_point_zones']
             // ctx.body = await AccessPoint.getAllItems(req_data)
             let access_points: any
-            let resurce_limited
-            let take_limit
+            let resource_limited
+            let resource_limit
             if (ctx.query.packageExtraSettings) {
-                if (ctx.query.packageExtraSettings.resources.Cardholder) {
-                    take_limit = ctx.query.packageExtraSettings.resources.Cardholder
+                if (ctx.query.packageExtraSettings.resources.AccessPoint) {
+                    resource_limit = ctx.query.packageExtraSettings.resources.AccessPoint
                 } else {
-                    take_limit = 0
+                    resource_limit = 0
                 }
-                resurce_limited = true
+                resource_limited = true
             }
             if (!user.companyData.partition_parent_id) {
                 access_points = AccessPoint.createQueryBuilder('access_point')
@@ -204,17 +205,36 @@ export default class AccessPointController {
                 access_points = access_points.andWhere(`acu.status = '${ctx.query.status}'`)
             }
 
-            if (!resurce_limited) {
-                access_points = await access_points
-                    .getMany()
-            } else {
-                access_points = await access_points
-                    .orderBy('access_point.id', 'DESC')
-                    .take(take_limit)
-                    .getMany()
-            }
+            let take = req_data.page ? req_data.page_items_count ? (req_data.page_items_count > 10000) ? 10000 : req_data.page_items_count : 25 : 100
+            const skip = req_data.page_items_count && req_data.page ? (req_data.page - 1) * req_data.page_items_count : 0
 
-            ctx.body = access_points
+            if (resource_limited) {
+                if (req_data.page) {
+                    if (req_data.page * take > resource_limit) {
+                        take = resource_limit - (req_data.page - 1) * take
+                        if (take < 0) take = 0
+                    }
+                } else {
+                    if (take > resource_limit) take = resource_limit
+                }
+            }
+            let [result, total] = await access_points
+                .take(take)
+                .skip(skip)
+                .orderBy('access_point.id', 'DESC')
+                .getManyAndCount()
+
+            if (resource_limited && total > resource_limit) {
+                total = resource_limit
+            }
+            if (req_data.page) {
+                ctx.body = {
+                    data: result,
+                    count: total
+                }
+            } else {
+                ctx.body = result
+            }
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
