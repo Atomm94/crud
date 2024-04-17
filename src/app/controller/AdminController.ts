@@ -361,7 +361,8 @@ export default class AdminController {
                     const company = await Company.createQueryBuilder('company')
                         .where(`company.id = ${ctx.user.company}`)
                         .andWhere('company.delete_date is null')
-                        .cache(`company:${ctx.user.company}`, 24 * 60 * 60 * 1000)
+                        .withDeleted()
+                        .cache(`company:package:${ctx.user.company}`, 24 * 60 * 60 * 1000)
                         .leftJoinAndSelect('company.packages', 'package')
                         .getOne()
                     if (!company) {
@@ -525,10 +526,8 @@ export default class AdminController {
 
     public static async changeMyPass (ctx: DefaultContext) {
         const { id, old_password, password } = ctx.request.body
-        const userRepository = getRepository(Admin)
         let checkPass
         const reqData = ctx.request.body
-        let updatedUser
         let user
 
         try {
@@ -538,7 +537,7 @@ export default class AdminController {
                     message: validate(password).message
                 }
             } else {
-                user = await userRepository.findOneOrFail({ where: { id: id } })
+                user = await Admin.findOneOrFail({ where: { id: id } })
 
                 if (user && user.password) {
                     ctx.oldData = Object.assign({}, user)
@@ -546,8 +545,8 @@ export default class AdminController {
 
                     if (checkPass) {
                         if (reqData.password) user.password = password
-                        updatedUser = await userRepository.save(user, { transaction: false })
-                        ctx.body = updatedUser
+                        await user.save()
+                        ctx.body = user
                     } else {
                         ctx.status = 400
                         ctx.body = { message: 'Incorrect Password' }
