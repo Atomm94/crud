@@ -64,6 +64,8 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
                         let company = await Company.createQueryBuilder('company')
                             .leftJoinAndSelect('company.packages', 'package')
                             .where(`company.id = ${ctx.user.company}`)
+                            .andWhere('company.delete_date is null')
+                            .withDeleted()
                             .cache(`company:package:${ctx.user.company}`, 24 * 60 * 60 * 1000)
                             .getOne()
 
@@ -73,6 +75,8 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
                                 company = await Company.createQueryBuilder('company')
                                     .leftJoinAndSelect('company.packages', 'package')
                                     .where(`company.id = ${company.partition_parent_id}`)
+                                    .andWhere('company.delete_date is null')
+                                    .withDeleted()
                                     .cache(`company:package:${ctx.user.company}`, 168 * 60 * 60 * 1000)
                                     .getOne()
                             }
