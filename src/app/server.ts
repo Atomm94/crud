@@ -10,7 +10,8 @@ import MQTTBroker from '../app/mqtt/mqtt'
 import { logger } from '../../modules/winston/logger'
 import CronJob from './cron'
 import { RedisClass } from '../component/redis'
-
+import uuid from 'uuid'
+const mqtt_group_id = uuid.v4();
 const database = new Database()
 
 if (cluster.isMaster) {
@@ -45,7 +46,7 @@ if (cluster.isMaster) {
             await AccessControl.GrantAccess()
             await AccessControl.GrantCompanyAccess()
             await Sendgrid.init(config.sendgrid.apiKey)
-            await MQTTBroker.init()
+            await MQTTBroker.init(mqtt_group_id)
             await updateZohoConfig()
             app.listen(config.server.port, () => {
                 logger.info(`APP listening at port ${config.server.port}`)
