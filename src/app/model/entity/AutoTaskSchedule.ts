@@ -6,14 +6,15 @@ import {
     Index
 } from 'typeorm'
 
-import { MainEntity } from './index'
+import { MainEntityColumns } from './index'
 import { autoTaskStatus } from '../../enums/autoTaskStatus.enum'
 import { reactionType } from '../../enums/reactionType.enum'
 import { AccessPoint } from './AccessPoint'
 import { Acu } from './Acu'
+import LogController from '../../controller/LogController'
 @Index('access_point', ['access_point'], { unique: true })
 @Entity('auto_task_schedule')
-export class AutoTaskSchedule extends MainEntity {
+export class AutoTaskSchedule extends MainEntityColumns {
     @Column('varchar', { name: 'name', nullable: false })
     name: string
 
@@ -113,6 +114,8 @@ export class AutoTaskSchedule extends MainEntity {
         return new Promise((resolve, reject) => {
             this.save(autoTaskSchedule, { transaction: false })
                 .then((item: AutoTaskSchedule) => {
+                    const cache_update_key = `auto_task_schedule_${autoTaskSchedule.access_point}`
+                    LogController.invalidateCache(cache_update_key)
                     resolve(item)
                 })
                 .catch((error: any) => {

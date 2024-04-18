@@ -13,10 +13,12 @@ import { cardholderPresense } from '../../enums/cardholderPresense.enum'
 import { Cardholder } from './Cardholder'
 import { Package } from './Package'
 import { AutoTaskSchedule } from '.'
-import { In } from 'typeorm'
+// import { In } from 'typeorm'
 import CtpController from '../../controller/Hardware/CtpController'
 import DeviceController from '../../controller/Hardware/DeviceController'
 import { cloneDeep } from 'lodash'
+
+import { RedisClass } from '../../../component/redis'
 
 const clickhouse_server: string = process.env.CLICKHOUSE_SERVER ? process.env.CLICKHOUSE_SERVER : 'http://localhost:4143'
 const getEventLogsUrl = `${clickhouse_server}/eventLog`
@@ -42,7 +44,7 @@ export class EventLog extends BaseClass {
                 }
             }
         }
-
+// TO DO urlsearchparams
         if (data) {
             if (data.page) url += `&page=${data.page}`
             if (data.page_items_count) url += `&page_items_count=${data.page_items_count}`
@@ -125,6 +127,13 @@ export class EventLog extends BaseClass {
         MQTTBroker.publishMessage(SendTopics.LOG, JSON.stringify(event_log))
         new SendSocketMessage(socketChannels.DASHBOARD_ACTIVITY, event.data, event.data.company)
 
+        const cache_key = `${event.data.company}_*/getDashboardActivity*`
+        const cached_apis = await RedisClass.connection.keys(cache_key)
+
+        for (const cached_api of cached_apis) {
+            await RedisClass.connection.del(cached_api)
+        }
+
         if (event.data.event_type === eventTypes.SYSTEM) {
             let door_state
             if (event.data.event_type.event_id === 116) {
@@ -133,13 +142,13 @@ export class EventLog extends BaseClass {
                 door_state = accessPointDoorState.OPEN
             }
             if (door_state) {
-                AccessPoint.updateItem({ id: event.data.access_point, door_state: door_state } as AccessPoint)
+                AccessPoint.updateItem({ id: event.data.access_point, door_state: door_state, company: event.data.company } as AccessPoint)
             }
         }
 
         if (event.data.access_point) {
             const last_activity = event.data
-            AccessPoint.updateItem({ id: event.data.access_point, last_activity: last_activity } as AccessPoint)
+            AccessPoint.updateItem({ id: event.data.access_point, last_activity: last_activity, company: event.data.company } as AccessPoint)
 
             const event_group_id = Number(event.data.event_group_id)
             const event_id = Number(event.data.event_id)
@@ -195,9 +204,24 @@ export class EventLog extends BaseClass {
                     (event_group_id === 2 && [24].includes(event_id)) ||
                     (event_group_id === 3 && [1, 2, 3, 5, 7, 9, 10, 11, 12, 13, 14, 15, 16, 17].includes(event_id))
                 ) {
-                    const auto_task = await AutoTaskSchedule.findOne({ where: { access_point: event.data.access_point, status: false } })
+                    // const auto_task = await AutoTaskSchedule.findOne({ where: { access_point: event.data.access_point, status: false } })
+
+                    const auto_task = await AutoTaskSchedule.createQueryBuilder('auto_task_schedule')
+                        .where(`auto_task_schedule.access_point = ${event.data.access_point}`)
+                        .andWhere(`status = ${false}`)
+                        // .cache(`auto_task_schedule_${event.data.access_point}`, 24 * 60 * 60 * 1000)
+                        .cache(60 * 60 * 1000)
+                        .getOne()
+
                     if (auto_task && auto_task.reaction_access_points) {
-                        const access_points = await AccessPoint.find({ where: { id: In(JSON.parse(auto_task.reaction_access_points)) }, relations: ['acus', 'companies'] })
+                        // const access_points = await AccessPoint.find({ where: { id: In(JSON.parse(auto_task.reaction_access_points)) }, relations: ['acus', 'companies'] })
+                        const access_points = await AccessPoint.createQueryBuilder('access_point')
+                            .leftJoinAndSelect('access_point.acus', 'acus')
+                            .leftJoinAndSelect('access_point.companies', 'companies')
+                            .where(`access_point.id in (${auto_task.reaction_access_points})`)
+                            .cache(60 * 60 * 1000)
+                            .getMany()
+
                         for (const access_point of access_points) {
                             const location = `${access_point.companies.account}/${access_point.company}`
                             if (auto_task.reaction !== 3) {
@@ -220,8 +244,28 @@ export class EventLog extends BaseClass {
         }
 
         if (event.data.event_type === eventTypes.CARDHOLDER_ALARM || event.data.event_type === eventTypes.SYSTEM_ALARM) {
-            const notification: any = await Notification.addItem(event.data as Notification)
-            notification.access_points = event.data.access_points
+            // const notification: any = await Notification.addItem(event.data as Notification)
+            // const id = uuid.v4()
+            // event.data.id = id
+            const notification = new Notification(event.data)
+             await Notification
+                .createQueryBuilder()
+                .insert()
+                .values(notification)
+                .updateEntity(false)
+                .execute()
+
+            // const notification = {
+            //     id: id,
+            //     confirmed: null,
+            //     access_point: event.data.access_point,
+            //     access_point_name: event.data.access_point_name,
+            //     event: event.data.event,
+            //     description: event.data.description,
+            //     company: event.data.company
+
+            // }
+
             new SendSocketMessage(socketChannels.NOTIFICATION, notification, event.data.company)
         }
         if (event.data.event_type === eventTypes.CARDHOLDER_ALARM) {
@@ -237,8 +281,16 @@ export class EventLog extends BaseClass {
                 } else if (event.data.event_type.event_id === 26) {
                     cardholder.presense = cardholderPresense.ABSENT_BY_REASON
                 }
-                if (event.data.cardholder !== cardholder.presense) {
-                    await Cardholder.save(cardholder, { transaction: false })
+                if (event.data.cardholder.presense !== cardholder.presense) {
+                    // await Cardholder.save(cardholder, { transaction: false, reload: false })
+
+                    await Cardholder
+                       .createQueryBuilder()
+                       .update(Cardholder)
+                       .set(cardholder)
+                       .where(`id = ${cardholder.id}`)
+                       .updateEntity(false)
+                       .execute()
                 }
             }
         }

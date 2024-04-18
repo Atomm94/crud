@@ -6,11 +6,11 @@ import {
     JoinColumn
 } from 'typeorm'
 
-import { Admin, MainEntity } from './index'
+import { Admin, MainEntityColumns } from './index'
 
 @Entity('standard_report')
 
-export class StandardReport extends MainEntity {
+export class StandardReport extends MainEntityColumns {
     @Column('varchar', { name: 'name', nullable: false })
     name: string
 

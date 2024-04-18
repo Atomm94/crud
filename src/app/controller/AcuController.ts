@@ -562,11 +562,11 @@ export default class AcuController {
                         const readers = access_point.readers
 
                         let checkAccessPointSend: any = false
+                        access_point.company = company
                         if (!access_point.id) {
                             if (acu.elevator_mode) acuReaderSend = true
                             access_point_update = false
                             access_point.acu = acu.id
-                            access_point.company = company
                             if (access_point.resource) access_point.resource = JSON.stringify(access_point.resource)
                             access_point.mode = accessPointMode.CREDENTIAL
 
@@ -960,17 +960,65 @@ export default class AcuController {
             const user = ctx.user
             req_data.where = { company: { '=': user.company ? user.company : null } }
 
+            const take = req_data.page_items_count ? (req_data.page_items_count > 10000) ? 10000 : req_data.page_items_count : 25
+            const skip = req_data.page_items_count && req_data.page ? (req_data.page - 1) * req_data.page_items_count : 0
+
             let data: any = Acu.createQueryBuilder('acu')
-                .leftJoinAndSelect('acu.access_points', 'access_point', 'access_point.delete_date is null')
-                .leftJoinAndSelect('acu.acu_statuses', 'acu_status')
-                .leftJoinAndSelect('access_point.readers', 'reader', 'reader.delete_date is null')
+                .select(
+                    [
+                        'acu.id',
+                        'acu.name',
+                        'acu.serial_number',
+                        'acu.description',
+                        'acu.model',
+                        'acu.status',
+                        'acu.cloud_status',
+                        'acu.maintain_update_manual',
+                        'acu.network',
+                        'acu.registration_date',
+                        'acu.fw_version',
+                        'acu.api_ver',
+                        'acu.acu_comment'
+                    ]
+                )
+                .addSelect(['acu_status.updateDate', 'acu_status.rev'])
+                // .leftJoin('acu.access_points', 'access_point')
+                .leftJoin('acu.acu_statuses', 'acu_status')
+                // .leftJoin('access_point.readers', 'reader')
+                .take(take)
+                .skip(skip)
+                .cache(`acu:acu_statuses:${ctx.user.company}-${take}-${skip}`, 168 * 60 * 60 * 1000)
                 .where(`acu.company = ${ctx.user.company}`)
+                .andWhere('not (acu.status = :status and acu.cloud_status = :cloud_status)', {
+                    status: acuStatus.PENDING,
+                    cloud_status: acuCloudStatus.OFFLINE
+                })
             if (req_data.status) {
                 data = data.andWhere(`acu.status = '${req_data.status}'`)
             }
             data.orderBy('acu.id', 'DESC')
+
             data = await data.getMany()
-            ctx.body = data
+            if (req_data.page) {
+                let total: any = await Acu.createQueryBuilder('acu')
+                    .select('COUNT(id) ', 'count')
+                    .where(`acu.company = '${user.company ? user.company : null}'`)
+                    .andWhere('not (acu.status = :status and acu.cloud_status = :cloud_status)', {
+                        status: acuStatus.PENDING,
+                        cloud_status: acuCloudStatus.OFFLINE
+                    })
+                if (req_data.status) {
+                    total = total.andWhere(`acu.status = '${req_data.status}'`)
+                }
+                total.cache(`acu:count:${ctx.user.company}`, 168 * 60 * 60 * 1000)
+                total = await total.getRawOne()
+                ctx.body = {
+                    data: data,
+                    count: total.count
+                }
+            } else {
+                ctx.body = data
+            }
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

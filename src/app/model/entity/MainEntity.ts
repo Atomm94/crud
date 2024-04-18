@@ -2,8 +2,6 @@ import {
     BaseEntity,
     CreateDateColumn,
     UpdateDateColumn,
-    PrimaryGeneratedColumn,
-    Index,
     getRepository,
     Not,
     LessThan,
@@ -26,10 +24,6 @@ import { resourceKeys } from '../../enums/resourceKeys.enum'
 import * as Models from './index'
 
 export class MainEntity extends BaseEntity {
-    @Index()
-    @PrimaryGeneratedColumn({ type: 'int', name: 'id' })
-    id: number;
-
     @CreateDateColumn({ type: 'timestamp', name: 'create_date' })
     createDate: string;
 
@@ -45,10 +39,21 @@ export class MainEntity extends BaseEntity {
 
             const models: any = Models
             let model_name: any = self.constructor.name
-            let company = await Company.findOne({ where: { id: self.company } }) as Company
+            // let company = await Company.findOne({ where: { id: self.company } }) as Company
+
+            let company = await Company.createQueryBuilder('company')
+                .where(`company.id = ${self.company}`)
+                .andWhere('company.delete_date is null')
+                .cache(`company:${self.company}`, 3 * 24 * 60 * 60 * 1000)
+                .getOne()
 
             if (company && company.partition_parent_id) {
-                company = await Company.findOne({ where: { id: company.partition_parent_id } }) as Company
+                // company = await Company.findOne({ where: { id: company.partition_parent_id } }) as Company
+                company = await Company.createQueryBuilder('company')
+                    .where(`company.id = ${company.partition_parent_id}`)
+                    .andWhere('company.delete_date is null')
+                    .cache(`company:${company.partition_parent_id}`, 3 * 24 * 60 * 60 * 1000)
+                    .getOne()
             }
             if (company) {
                 if (models[model_name] && models[model_name].resource) {
@@ -103,9 +108,19 @@ export class MainEntity extends BaseEntity {
             const models: any = Models
             const model_name: any = self.constructor.name
             if (models[model_name] && models[model_name].resource) {
-                let company = await Company.findOne({ where: { id: self.company } }) as Company
+                // let company = await Company.findOne({ where: { id: self.company } }) as Company
+                let company = await Company.createQueryBuilder('company')
+                    .where(`company.id = ${self.company}`)
+                    .andWhere('company.delete_date is null')
+                    .cache(`company:${self.company}`, 3 * 24 * 60 * 60 * 1000)
+                    .getOne()
                 if (company && company.partition_parent_id) {
-                    company = await Company.findOne({ where: { id: company.partition_parent_id } }) as Company
+                    // company = await Company.findOne({ where: { id: company.partition_parent_id } }) as Company
+                    company = await Company.createQueryBuilder('company')
+                        .where(`company.id = ${company.partition_parent_id}`)
+                        .andWhere('company.delete_date is null')
+                        .cache(`company:${company.partition_parent_id}`, 3 * 24 * 60 * 60 * 1000)
+                        .getOne()
                 }
 
                 if (company) {
@@ -193,6 +208,42 @@ export class MainEntity extends BaseEntity {
                 finally_total = resource_limit
             }
         }
+        let dataPromise: any = this.createQueryBuilder(this.name)
+            .where(where)
+            .take(take)
+            .skip(skip)
+        // if (data.search) {
+        //     dataPromise = await addSearchWheres(dataPromise, this, data.search, data.isAdmin, data.search_fields)
+        // }
+        if (data.relations) {
+            const relations = Object.keys(data.relations)
+            for (let i = 0; i < relations.length; i++) {
+                const element = relations[i]
+                const relationAs = `${element.split('.').slice(-1)[0]}`
+                const relationName = (element.indexOf('.') === -1) ? `${this.name}.${element}` : element.split('.').slice(-2).join('.')
+                dataPromise = dataPromise
+                    // .leftJoinAndSelect(`${this.name}.${element}`, element)
+                    .leftJoinAndSelect(relationName, relationAs)
+            }
+        }
+        if (data.orderBy && Object.keys(data.orderBy).length) {
+            const orderKeys = Object.keys(data.orderBy)
+            for (let i = 0; i < orderKeys.length; i++) {
+                const orderKey = orderKeys[i]
+                if (i < 1) {
+                    dataPromise = dataPromise
+                        .orderBy(orderKey, data.orderBy[orderKey])
+                } else {
+                    dataPromise = dataPromise
+                        .addOrderBy(orderKey, data.orderBy[orderKey])
+                }
+            }
+        } else {
+            dataPromise = dataPromise
+                .orderBy(`${this.name}.id`, 'DESC')
+        }
+        const result = await dataPromise
+            .getMany()
 
         // const [result, total] = await this.findAndCount({
         //     where: where,
@@ -201,13 +252,13 @@ export class MainEntity extends BaseEntity {
         //     skip: skip,
         //     relations: data.relations ? data.relations : []
         // })
-        const result = await this.find({
-            where: where,
-            order: data.sort ? { [data.sort.split(' ')[0]]: data.sort.split(' ')[1] } : { id: 'DESC' },
-            take: take,
-            skip: skip,
-            relations: data.relations ? data.relations : []
-        })
+        // const result = await this.find({
+        //     where: where,
+        //     order: data.sort ? { [data.sort.split(' ')[0]]: data.sort.split(' ')[1] } : { id: 'DESC' },
+        //     take: take,
+        //     skip: skip,
+        //     relations: data.relations ? data.relations : []
+        // })
 
         if (data.page) {
             const total = await this.count({ where: where })

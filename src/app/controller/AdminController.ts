@@ -1,7 +1,7 @@
 import * as _ from 'lodash'
 import { DefaultContext } from 'koa'
 import { getRepository } from 'typeorm'
-import { Admin, Company, Role } from '../model/entity/index'
+import { Admin, Company, Department, Role } from '../model/entity/index'
 import * as jwt from 'jsonwebtoken'
 import * as bcrypt from 'bcrypt'
 import fs from 'fs'
@@ -359,11 +359,12 @@ export default class AdminController {
                 ctx.body = adminFiltered
                 if (ctx.user && ctx.user.company) {
                     const company = await Company.createQueryBuilder('company')
-                    .where(`company.id = ${ctx.user.company}`)
-                    .andWhere('company.delete_date is null')
-                    .withDeleted()
-                    .leftJoinAndSelect('company.packages', 'package')
-                    .getOne()
+                        .where(`company.id = ${ctx.user.company}`)
+                        .andWhere('company.delete_date is null')
+                        .withDeleted()
+                        .cache(`company:package:${ctx.user.company}`, 24 * 60 * 60 * 1000)
+                        .leftJoinAndSelect('company.packages', 'package')
+                        .getOne()
                     if (!company) {
                         ctx.status = 400
                         return ctx.body = { message: 'something went wrong' }
@@ -374,9 +375,10 @@ export default class AdminController {
                     ctx.body.package = company.package
                     ctx.body.upgraded_package_id = company.upgraded_package_id
                     const notifs = await Notification.createQueryBuilder('notification')
-                        .select('COUNT(notification.confirmed) as count')
-                        .where(`notification.company = ${ctx.user.company}`)
-                        .andWhere('notification.confirmed is null')
+                        .select('COUNT(notification.confirmed_check) as count')
+                        .where('notification.confirmed_check = 0')
+                        .andWhere(`notification.company = ${ctx.user.company}`)
+                        .cache(60000)
                         .getRawOne()
                     ctx.body.notifications = notifs?.count || 0
                     if (company.packages && company.packages.extra_settings) {
@@ -524,10 +526,8 @@ export default class AdminController {
 
     public static async changeMyPass (ctx: DefaultContext) {
         const { id, old_password, password } = ctx.request.body
-        const userRepository = getRepository(Admin)
         let checkPass
         const reqData = ctx.request.body
-        let updatedUser
         let user
 
         try {
@@ -537,7 +537,7 @@ export default class AdminController {
                     message: validate(password).message
                 }
             } else {
-                user = await userRepository.findOneOrFail({ where: { id: id } })
+                user = await Admin.findOneOrFail({ where: { id: id } })
 
                 if (user && user.password) {
                     ctx.oldData = Object.assign({}, user)
@@ -545,8 +545,8 @@ export default class AdminController {
 
                     if (checkPass) {
                         if (reqData.password) user.password = password
-                        updatedUser = await userRepository.save(user, { transaction: false })
-                        ctx.body = updatedUser
+                        await user.save()
+                        ctx.body = user
                     } else {
                         ctx.status = 400
                         ctx.body = { message: 'Incorrect Password' }
@@ -888,7 +888,7 @@ export default class AdminController {
         var allAdmin
 
         const req_data = ctx.query
-        req_data.relations = ['departments']
+        req_data.relations = { departments: Department }
         const where: any = { company: { '=': user.company ? user.company : null }, id: { '!=': user.id } }
         if (!user.company && !user.super) {
             where.super = { '=': false }
@@ -1133,6 +1133,11 @@ export default class AdminController {
             })
             if (admin) {
                 admin.verify_token = uid(32)
+
+                type IUserNew = Partial<Admin>
+                const tmpData: IUserNew = admin
+                delete tmpData.password
+
                 await admin.save()
                 if (admin) {
                     ctx.body = { success: true }

@@ -1,5 +1,5 @@
 import { DefaultContext } from 'koa'
-import { IsNull } from 'typeorm'
+// import { IsNull } from 'typeorm'
 import { Notification } from '../model/entity/Notification'
 export default class NotificationController {
     /**
@@ -104,16 +104,18 @@ export default class NotificationController {
                     ctx.body = { message: 'confirmed seted!' }
                 } else {
                     notification.confirmed = new Date().getTime()
+                    notification.confirmed_check = true
                     ctx.body = await notification.save()
                 }
             } else {
-                const notifications: Notification[] = await Notification.find({ where: { company: company, confirmed: IsNull() } })
+                const notifications: Notification[] = await Notification.find({ where: { confirmed_check: false, company: company } })
                 if (!notifications.length) {
                     // ctx.status = 400
                     ctx.body = { message: 'All notifications are confirmed!' }
                 } else {
                     for (const notification of notifications) {
                         notification.confirmed = new Date().getTime()
+                        notification.confirmed_check = true
                         await notification.save()
                     }
                     ctx.body = { success: true }
@@ -190,10 +192,37 @@ export default class NotificationController {
         try {
             const req_data = ctx.query
             const user = ctx.user
-            req_data.relations = ['access_points']
-            req_data.where = { company: { '=': user.company } }
-            ctx.body = await Notification.getAllItems(req_data)
+            // req_data.relations = ['access_points']
+            // req_data.where = { company: { '=': user.company } }
+            // ctx.body = await Notification.getAllItems(req_data)
+            const take = req_data.page_items_count ? (req_data.page_items_count > 10000) ? 10000 : req_data.page_items_count : 25
+            const skip = req_data.page_items_count && req_data.page ? (req_data.page - 1) * req_data.page_items_count : 0
+
+            const result: any = await Notification.createQueryBuilder('notification')
+                .orderBy('notification.createDate', 'DESC')
+                .where(`notification.company = '${user.company ? user.company : null}'`)
+                .take(take)
+                .skip(skip)
+                .cache(60000)
+                .getMany()
+
+            if (req_data.page) {
+                const total = await Notification.createQueryBuilder('notification')
+                    .select('COUNT(id) ', 'count')
+                    .where(`notification.company = '${user.company ? user.company : null}'`)
+                    .cache(60000)
+                    .getRawOne()
+
+                ctx.body = {
+                    data: result,
+                    count: total.count
+                }
+            } else {
+                ctx.body = result
+            }
         } catch (error) {
+            console.log('error: ', error)
+
             ctx.status = error.status || 400
             ctx.body = error
         }

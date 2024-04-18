@@ -5,10 +5,10 @@ import {
     DeleteDateColumn
 } from 'typeorm'
 
-import { MainEntity, AccessPoint } from './index'
+import { MainEntityColumns, AccessPoint } from './index'
 
 @Entity('access_point_group')
-export class AccessPointGroup extends MainEntity {
+export class AccessPointGroup extends MainEntityColumns {
     @Column('varchar', { name: 'name', nullable: false })
     name: string
 

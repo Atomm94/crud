@@ -1,6 +1,6 @@
 
 import * as Cron from 'cron'
-import { AccessPoint, Acu, Cardholder } from '../model/entity'
+import { AccessPoint, Acu, Cardholder, Company } from '../model/entity'
 import { JwtToken } from '../model/entity/JwtToken'
 
 import { acuStatus } from '../enums/acuStatus.enum'
@@ -29,6 +29,7 @@ const update_acucloud_status_interval = process.env.UPDATE_ACUCLOUD_STATUS_INTER
 const update_accesspoint_door_state_interval = process.env.UPDATE_ACCESSPOINT_DOOR_STATE_INTERVAL ? process.env.UPDATE_ACCESSPOINT_DOOR_STATE_INTERVAL : '0 */10 * * * *'
 const send_set_heart_bit_interval = process.env.SEND_SET_HEART_BIT_INTERVAL ? process.env.SEND_SET_HEART_BIT_INTERVAL : '0 0 0 * * *'
 const update_camera_device_cameras_interval = process.env.UPDATE_CAMERA_DEVICE_CAMERAS_INTERVAL ? process.env.UPDATE_CAMERA_DEVICE_CAMERAS_INTERVAL : '0 */10 * * * *'
+const token_expire_time = process.env.TOKEN_EXPIRE_TIME ? +process.env.TOKEN_EXPIRE_TIME : 2
 
 export default class CronJob {
     public static cronObj: any = {}
@@ -46,21 +47,27 @@ export default class CronJob {
         this.updateCameraDeviceCameras(update_camera_device_cameras_interval)
     }
 
-    public static deleteOldTokens (interval: string): void {
+    public static async deleteOldTokens (interval: string) {
         this.cronObj[interval] = new Cron.CronJob(interval, async () => {
-            const jwt_tokens: JwtToken[] = await JwtToken.find()
-            const current_time = new Date().getTime()
-            for (const jwt_token of jwt_tokens) {
-                const expire_date = new Date(jwt_token.createDate).getTime() + 24 * 60 * 60 * 1000 // jwt_token.expire_time * 60 * 60 * 1000
-                if (current_time > expire_date) {
-                    JwtToken.delete(jwt_token.id)
+            // const jwt_tokens: JwtToken[] = await JwtToken.find({})
+            const jwt_tokens = await JwtToken.createQueryBuilder('jwt_token')
+                .where(`unix_timestamp(create_date) + ${token_expire_time} * 60 * 60 < UNIX_TIMESTAMP()`)
+                .getMany()
+
+            // const current_time = new Date().getTime()
+            if (jwt_tokens.length) {
+                for (const jwt_token of jwt_tokens) {
+                    // const expire_date = new Date(jwt_token.createDate).getTime() + token_expire_time * 60 * 60 * 1000 // jwt_token.expire_time * 60 * 60 * 1000
+                    // if (current_time > expire_date) {
+                    await JwtToken.delete(jwt_token.id)
+                    // }
                 }
             }
         }).start()
     }
 
     public static async devicePing (interval: string) {
-        const acus: any = await Acu.getAllItems({ where: { status: { '=': acuStatus.ACTIVE } }, relations: ['companies'] })
+        const acus: any = await Acu.getAllItems({ where: { status: { '=': acuStatus.ACTIVE } }, relations: { companies: Company } })
         for (const acu of acus) {
             this.active_devices[acu.id] = acu
         }
@@ -132,11 +139,11 @@ export default class CronJob {
 
     public static async updateAccessPointDoorState (interval: string) {
         new Cron.CronJob(interval, async () => {
-            const access_point_statuses: any = await AccessPointStatus.getAllItems({ relations: ['access_points'] })
+            const access_point_statuses: any = await AccessPointStatus.getAllItems({ relations: { access_points: AccessPoint } })
             for (const access_point_status of access_point_statuses) {
                 if (access_point_status.access_points && access_point_status.access_points.door_state !== access_point_status.door_state) {
                     access_point_status.access_points.door_state = access_point_status.door_state
-                    await AccessPoint.save(access_point_status.access_points, { transaction: false })
+                    await AccessPoint.updateItem(access_point_status.access_points)
                 }
             }
         }).start()
@@ -144,7 +151,7 @@ export default class CronJob {
 
     public static async sendSetHeartBit (interval: string) {
         new Cron.CronJob(interval, async () => {
-            const acus: any = await Acu.getAllItems({ where: { status: acuStatus.ACTIVE, heart_bit: false }, relation: ['companies'] })
+            const acus: any = await Acu.getAllItems({ where: { status: acuStatus.ACTIVE, heart_bit: false }, relation: { companies: Company } })
             for (const acu of acus) {
                 if (acu.companies) {
                     const location = `${acu.companies.account}/${acu.company}`

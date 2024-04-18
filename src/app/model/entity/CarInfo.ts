@@ -4,10 +4,10 @@ import {
     OneToOne
 } from 'typeorm'
 
-import { Cardholder, MainEntity } from './index'
+import { Cardholder, MainEntityColumns } from './index'
 
 @Entity('car_info')
-export class CarInfo extends MainEntity {
+export class CarInfo extends MainEntityColumns {
     @Column('varchar', { name: 'model', nullable: true })
     model: string
 

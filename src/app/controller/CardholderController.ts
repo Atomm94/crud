@@ -2764,7 +2764,7 @@ export default class CardholderController {
                 ctx.status = 400
                 ctx.body = { message: 'something went wrong' }
             } else {
-                const cardholders = await Cardholder.getAllItems({ where: { id: { in: req_data.ids }, company: { '=': company } }, relations: ['limitations'] })
+                const cardholders = await Cardholder.getAllItems({ where: { id: { in: req_data.ids }, company: { '=': company } }, relations: { limitations: Limitation } })
                 var send_card_key = false
                 const save = []
                 for (const cardholder of cardholders) {
@@ -2920,11 +2920,11 @@ export default class CardholderController {
         const company = user.company
 
         const all_cardholder_group = await CardholderGroup.findOneOrFail({
-where: {
-            default: true,
-            company: company
-        }
-})
+            where: {
+                default: true,
+                company: company
+            }
+        })
 
         xlsxj({
             input: file.path,

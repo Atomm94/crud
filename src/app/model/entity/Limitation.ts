@@ -4,12 +4,12 @@ import {
     OneToMany
 } from 'typeorm'
 
-import { MainEntity } from './MainEntity'
+import { MainEntityColumns } from './MainEntityColumns'
 import { Cardholder } from './Cardholder'
 import { CardholderGroup } from './CardholderGroup'
 
 @Entity('limitation')
-export class Limitation extends MainEntity {
+export class Limitation extends MainEntityColumns {
     @Column('boolean', { name: 'enable_date', default: false })
     enable_date: boolean
 
@@ -55,21 +55,22 @@ export class Limitation extends MainEntity {
     public static gettingActions: boolean = false
     public static gettingAttributes: boolean = false
 
-    public static async addItem (data: Limitation):Promise<Limitation> {
+    public static async addItem (data: Limitation): Promise<Limitation> {
         const limitation = new Limitation()
-
-        if ('enable_date' in data) limitation.enable_date = data.enable_date
-        if ('valid_from' in data) limitation.valid_from = data.valid_from
-        if ('valid_due' in data) limitation.valid_due = data.valid_due
-        if ('pass_counter_enable' in data) limitation.pass_counter_enable = data.pass_counter_enable
-        if ('pass_counter_passes' in data) limitation.pass_counter_passes = data.pass_counter_passes
-        if ('pass_counter_current' in data) limitation.pass_counter_current = data.pass_counter_current
-        if ('first_use_counter_enable' in data) limitation.first_use_counter_enable = data.first_use_counter_enable
-        if ('first_use_counter_days' in data) limitation.first_use_counter_days = data.first_use_counter_days
-        if ('first_use_counter_current' in data) limitation.first_use_counter_current = data.first_use_counter_current
-        if ('last_use_counter_enable' in data) limitation.last_use_counter_enable = data.last_use_counter_enable
-        if ('last_use_counter_days' in data) limitation.last_use_counter_days = data.last_use_counter_days
-        if ('last_use_counter_current' in data) limitation.last_use_counter_current = data.last_use_counter_current
+        if (data) {
+            if ('enable_date' in data) limitation.enable_date = data.enable_date
+            if ('valid_from' in data) limitation.valid_from = data.valid_from
+            if ('valid_due' in data) limitation.valid_due = data.valid_due
+            if ('pass_counter_enable' in data) limitation.pass_counter_enable = data.pass_counter_enable
+            if ('pass_counter_passes' in data) limitation.pass_counter_passes = data.pass_counter_passes
+            if ('pass_counter_current' in data) limitation.pass_counter_current = data.pass_counter_current
+            if ('first_use_counter_enable' in data) limitation.first_use_counter_enable = data.first_use_counter_enable
+            if ('first_use_counter_days' in data) limitation.first_use_counter_days = data.first_use_counter_days
+            if ('first_use_counter_current' in data) limitation.first_use_counter_current = data.first_use_counter_current
+            if ('last_use_counter_enable' in data) limitation.last_use_counter_enable = data.last_use_counter_enable
+            if ('last_use_counter_days' in data) limitation.last_use_counter_days = data.last_use_counter_days
+            if ('last_use_counter_current' in data) limitation.last_use_counter_current = data.last_use_counter_current
+        }
 
         return new Promise((resolve, reject) => {
             this.save(limitation, { transaction: false })

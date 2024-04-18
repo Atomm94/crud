@@ -8,7 +8,7 @@ import {
     Index
 } from 'typeorm'
 
-import { MainEntity } from './index'
+import { MainEntityColumns } from './index'
 import { credentialType } from '../../enums/credentialType.enum'
 import { credentialStatus } from '../../enums/credentialStatus.enum'
 import { credentialInputMode } from '../../enums/credentialInputMode.enum'
@@ -24,7 +24,7 @@ import { v4 } from 'uuid'
 @Index('code|company|is_delete', ['code', 'company', 'is_delete'], { unique: true })
 
 @Entity('credential')
-export class Credential extends MainEntity {
+export class Credential extends MainEntityColumns {
     @Column('enum', { name: 'type', enum: credentialType })
     type: credentialType
 

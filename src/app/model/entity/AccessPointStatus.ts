@@ -7,15 +7,15 @@ import {
     // OneToMany,
     // JoinColumn
 } from 'typeorm'
-import { AccessPoint } from '.'
+import { AccessPoint, Acu } from '.'
 import { accessPointDoorState } from '../../enums/accessPointDoorState.enum'
 
-import { MainEntity } from './MainEntity'
+import { MainEntityColumns } from './MainEntityColumns'
 // import { Company } from './Company'
 // import { Acu } from './Acu'
 
 @Entity('access_point_status')
-export class AccessPointStatus extends MainEntity {
+export class AccessPointStatus extends MainEntityColumns {
     @Column('int', { name: 'access_point', nullable: false, unique: true })
     access_point: number
 
@@ -34,6 +34,10 @@ export class AccessPointStatus extends MainEntity {
     @ManyToOne(type => AccessPoint, access_point => access_point.access_point_statuses)
     @JoinColumn({ name: 'access_point' })
     access_points: AccessPoint[];
+
+    @ManyToOne(type => Acu, acu => acu.access_point_statuses)
+    @JoinColumn({ name: 'acu' })
+    acus: AccessPoint[];
 
     public static async addItem (data: AccessPointStatus): Promise<AccessPointStatus> {
         const accessPointStatus = new AccessPointStatus()

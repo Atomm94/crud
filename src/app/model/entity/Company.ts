@@ -14,7 +14,7 @@ import * as _ from 'lodash'
 import { statusCompany } from '../../enums/statusCompany.enum'
 import {
     AccessRight,
-    MainEntity,
+    MainEntityColumns,
     Package,
     Admin,
     Role,
@@ -33,7 +33,7 @@ import { AcuStatus } from './AcuStatus'
 import { companyDayKeys } from '../../enums/companyDayKeys.enum'
 import { zohoCallbackStatus } from '../../enums/zohoCallbackStatus.enum'
 @Entity('company')
-export class Company extends MainEntity {
+export class Company extends MainEntityColumns {
     @Column('varchar', { name: 'company_name', nullable: false })
     company_name: string
 

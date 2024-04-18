@@ -5,7 +5,7 @@ import autoTaskcommands from '../model/entity/autoTaskcommands.json'
 import acpEventList from '../model/entity/acpEventList.json'
 import { logUserEvents } from '../enums/logUserEvents.enum'
 import DeviceController from './Hardware/DeviceController'
-import { Acu } from '../model/entity'
+import { AccessPoint, Acu } from '../model/entity'
 import { acuStatus } from '../enums/acuStatus.enum'
 import { locationGenerator } from '../functions/locationGenerator'
 
@@ -370,7 +370,7 @@ export default class AutoTaskScheduleController {
         try {
             const req_data = ctx.query
             const user = ctx.user
-            req_data.relations = ['access_points', 'acus']
+            req_data.relations = { access_points: AccessPoint, acus: Acu }
             req_data.where = { company: { '=': user.company ? user.company : null }, one_time: { '=': false } }
             ctx.body = await AutoTaskSchedule.getAllItems(req_data)
         } catch (error) {

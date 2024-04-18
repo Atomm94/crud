@@ -8,7 +8,8 @@ import {
 // import { socketChannels } from '../../enums/socketChannels.enum'
 // import SendSocketMessage from '../../mqtt/SendSocketMessage'
 // import * as Models from '../entity'
-import { Cardholder, Limitation } from '../entity'
+import { Cardholder, Credential, Limitation } from '../entity'
+import LogController from '../../controller/LogController'
 // import { AntipassBack } from '../entity/AntipassBack'
 
 @EventSubscriber()
@@ -23,9 +24,17 @@ export class PostSubscriber implements EntitySubscriberInterface<Cardholder> {
     async afterUpdate (event: UpdateEvent<Cardholder>) {
         const { entity: New, databaseEntity: Old } = event
         if (New) {
-            if (New.limitation_inherited !== Old.limitation_inherited) {
+            const credentials = await Credential.find({ where: { cardholder: New.id } })
+            if (credentials.length) {
+                for (const credential of credentials) {
+                    const cache_key = `${New.company}:cg_*:acr_*:cr_${credential.id}`
+                    await LogController.invalidateCache(cache_key)
+                }
+            }
+
+            if (New.limitation_inherited !== Old?.limitation_inherited) {
                 if (New.limitation_inherited === true) {
-                    if (Old.limitation) Limitation.destroyItem(Old.limitation)
+                    if (Old.limitation) await Limitation.destroyItem(Old.limitation)
                 }
             }
         }

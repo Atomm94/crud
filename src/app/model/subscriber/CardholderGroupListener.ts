@@ -9,6 +9,7 @@ import { Limitation } from '../entity'
 // import * as Models from '../entity'
 import { CardholderGroup } from '../entity/CardholderGroup'
 import { Cardholder } from '../entity/Cardholder'
+import LogController from '../../controller/LogController'
 
 @EventSubscriber()
 export class PostSubscriber implements EntitySubscriberInterface<CardholderGroup> {
@@ -24,6 +25,10 @@ export class PostSubscriber implements EntitySubscriberInterface<CardholderGroup
  */
     async afterUpdate (event: UpdateEvent<CardholderGroup>) {
         const { entity: New, databaseEntity: Old } = event
+        if (New) {
+            const cache_key = `${New.company}:cg_${New.id}:acr_*:cr_*`
+            await LogController.invalidateCache(cache_key)
+        }
 
         // limitation
         if ((New?.limitation_inherited !== Old.limitation_inherited && New?.limitation_inherited === true) || New?.limitation !== Old.limitation) {
@@ -45,7 +50,7 @@ export class PostSubscriber implements EntitySubscriberInterface<CardholderGroup
             }
 
             if (New?.limitation_inherited !== Old.limitation_inherited && New?.limitation_inherited === true) {
-                Limitation.destroyItem(Old.limitation)
+                await Limitation.destroyItem(Old.limitation)
             }
         }
 

@@ -1,13 +1,14 @@
 import { Column, DeleteDateColumn, Entity, Index, JoinColumn, ManyToOne, OneToMany } from 'typeorm'
 import { AccessPoint } from './AccessPoint'
 import { Company } from './Company'
-import { MainEntity } from './MainEntity'
+import { MainEntityColumns } from './MainEntityColumns'
 import { CameraSetToCamera } from './CameraSetToCamera'
+import LogController from '../../controller/LogController'
 
 @Index('access_point|company|is_delete', ['access_point', 'company', 'is_delete'], { unique: true })
 
 @Entity('camera_set')
-export class CameraSet extends MainEntity {
+export class CameraSet extends MainEntityColumns {
     @Column('varchar', { name: 'name', nullable: false })
     name: string
 
@@ -121,6 +122,9 @@ export class CameraSet extends MainEntity {
                             .getOne()
                         camera_set_data.is_delete = (new Date()).getTime()
                         await this.save(camera_set_data, { transaction: false })
+
+                        const cache_key = `${data.company}:acp_${data.access_point}`
+                        await LogController.invalidateCache(cache_key)
 
                         resolve({ message: 'success' })
                     })

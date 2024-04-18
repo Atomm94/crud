@@ -1,10 +1,10 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm'
 import { CameraSet } from './CameraSet'
 import { Camera } from './Camera'
-import { MainEntity } from './MainEntity'
+import { MainEntityColumns } from './MainEntityColumns'
 
 @Entity('camera_set_to_camera')
-export class CameraSetToCamera extends MainEntity {
+export class CameraSetToCamera extends MainEntityColumns {
     @Column('int', { name: 'camera_set_id', nullable: false })
     camera_set_id: number
 

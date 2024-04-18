@@ -6,7 +6,7 @@ import {
     AfterInsert
 } from 'typeorm'
 
-import { MainEntity } from './MainEntity'
+import { MainEntityColumns } from './MainEntityColumns'
 import { fileSave } from '../../functions/file'
 import {
     Ticket
@@ -19,7 +19,7 @@ import { join } from 'path'
 const parentDir = join(__dirname, '../../..')
 
 @Entity('ticket_message')
-export class TicketMessage extends MainEntity {
+export class TicketMessage extends MainEntityColumns {
     @Column('int', { name: 'ticket_id' })
     ticket_id: number
 
@@ -41,7 +41,7 @@ export class TicketMessage extends MainEntity {
 
     @ManyToOne(type => Admin, admin => admin.ticket_messages)
     @JoinColumn({ name: 'user_id' })
-    users: Ticket;
+    users: Admin;
 
     @AfterInsert()
     async updateTicketReadStatus () {
@@ -145,7 +145,7 @@ export class TicketMessage extends MainEntity {
     }
 
     public static async getAllItems (params?: any) {
-        params.relations = ['tickets', 'users']
+        params.relations = { tickets: Ticket, users: Admin }
         return new Promise((resolve, reject) => {
             this.findByParams(params)
                 .then((items) => {

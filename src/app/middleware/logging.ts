@@ -10,12 +10,14 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
     let req_data: string = `${ctx.method} ${ctx.originalUrl} reqBody - ${ctx.method === 'GET' ? ctx.query ? JSON.stringify(ctx.query) : '{}' : ctx.request.body ? JSON.stringify(ctx.request.body) : '{}'}`
     if (ctx.user) req_data += `, user - ${ctx.user.id} `
     logger.info(req_data)
+    const previous_value = process.cpuUsage()
 
     await next()
 
     const ms = +new Date() - start
-    const msg: string = `${date} ${ctx.method} ${ctx.originalUrl} ${ctx.status} ${ms}ms`
-
+    const usage = process.cpuUsage(previous_value)
+    const cpuUsage = `User: ${usage.user} System: ${usage.system}`
+    const msg: string = `${date} ${ctx.method} ${ctx.originalUrl} ${ctx.status} ${ms}ms cpuUsage:${cpuUsage}`
     winston.configure({
         level: 'debug',
         transports: [

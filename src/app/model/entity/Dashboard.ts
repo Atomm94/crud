@@ -15,6 +15,7 @@ export class Dashboard extends BaseClass {
             .addSelect('COUNT(access_point.id) as acp_qty')
             .where(`acu.company = ${user.company}`)
             .andWhere('acu.delete_date is null')
+            .cache(60000)
             .groupBy('acu.status')
             .getRawMany())
 
@@ -23,6 +24,7 @@ export class Dashboard extends BaseClass {
             .addSelect('COUNT(acu.id) as acu_qty')
             .where(`acu.company = ${user.company}`)
             .andWhere('acu.delete_date is null')
+            .cache(60000)
             .groupBy('acu.status')
             .getRawMany())
 
@@ -31,6 +33,7 @@ export class Dashboard extends BaseClass {
             .addSelect('COUNT(access_point.id) as acp_qty')
             .where(`access_point.company = ${user.company}`)
             .andWhere('access_point.delete_date is null')
+            .cache(60000)
             .groupBy('access_point.mode')
             .getRawMany())
 
@@ -39,6 +42,7 @@ export class Dashboard extends BaseClass {
             .where(`access_point.company = ${user.company}`)
             .andWhere(`acu.status = '${acuStatus.ACTIVE}'`)
             .andWhere('access_point.delete_date is null')
+            .cache(60000)
             .getMany())
 
         promises.push(EventLog.getEventStatistic(user))
@@ -90,6 +94,7 @@ export class Dashboard extends BaseClass {
             .addSelect('COUNT(cardholder.id) as cardholder_qty')
             .where(`cardholder.company = '${user.company ? user.company : null}'`)
             .groupBy('cardholder.presense')
+            .cache(60000)
             .getRawMany()
 
         return cardholders

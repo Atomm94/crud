@@ -5,7 +5,7 @@ import {
     JoinColumn
 } from 'typeorm'
 
-import { MainEntity } from './MainEntity'
+import { MainEntityColumns } from './MainEntityColumns'
 import { Company } from './Company'
 import { fileSave } from '../../functions/file'
 import fs from 'fs'
@@ -14,7 +14,7 @@ import { logger } from '../../../../modules/winston/logger'
 const parentDir = join(__dirname, '../../..')
 
 @Entity('company_documents')
-export class CompanyDocuments extends MainEntity {
+export class CompanyDocuments extends MainEntityColumns {
     @Column('varchar', { name: 'name' })
     name: string
 

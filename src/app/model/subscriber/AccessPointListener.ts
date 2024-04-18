@@ -12,6 +12,7 @@ import { AccessPoint, Acu } from '../entity'
 import SendSocketMessage from '../../mqtt/SendSocketMessage'
 import { acuStatus } from '../../enums/acuStatus.enum'
 import { AccessPointStatus } from '../entity/AccessPointStatus'
+import LogController from '../../controller/LogController'
 
 @EventSubscriber()
 export class PostSubscriber implements EntitySubscriberInterface<AccessPoint> {
@@ -40,7 +41,7 @@ export class PostSubscriber implements EntitySubscriberInterface<AccessPoint> {
 
         const acu: any = await Acu.findOne({ where: { id: data.acu } })
         if ([acuStatus.ACTIVE, acuStatus.PENDING].includes(acu.status)) {
-            AccessPointStatus.addItem({ ...data, access_point: data.id })
+            await AccessPointStatus.addItem({ ...data, access_point: data.id })
             const cloud_status_data = {
                 id: data.id,
                 acus: {
@@ -62,6 +63,11 @@ export class PostSubscriber implements EntitySubscriberInterface<AccessPoint> {
      */
     async afterUpdate (event: UpdateEvent<AccessPoint>) {
         const { entity: New, databaseEntity: Old }: any = event
+        if (New.name !== Old.name) {
+            const cache_key = `${New.company}:ap_${New.id}`
+            await LogController.invalidateCache(cache_key)
+        }
+
         if (New.mode !== Old.mode) {
             const modes: any = await AccessPoint.createQueryBuilder('access_point')
                 .select('access_point.name')
@@ -85,7 +91,7 @@ export class PostSubscriber implements EntitySubscriberInterface<AccessPoint> {
         if (New.resources !== Old.resources) {
             const acu: any = await Acu.findOne({ where: { id: New.acu, status: acuStatus.ACTIVE } })
             if (acu) {
-                AccessPointStatus.updateItem({
+                await AccessPointStatus.updateItem({
                     access_point: New.id,
                     resources: New.resources
                 } as AccessPointStatus)

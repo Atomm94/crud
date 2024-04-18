@@ -1,16 +1,28 @@
 import 'reflect-metadata'
-import { createConnection, Connection, ConnectionOptions } from 'typeorm'
 import { join } from 'path'
 import { config } from '../config'
+import { MysqlConnectionOptions } from 'typeorm/driver/mysql/MysqlConnectionOptions'
+import { DataSource } from 'typeorm'
 const parentDir = join(__dirname, '..')
 
-const connectionOpts: ConnectionOptions = {
-  type: config.db.type as 'postgres',
+const connectionOpts: MysqlConnectionOptions = {
+  type: config.db.type as 'mysql',
   host: config.db.host,
   port: config.db.port as number,
   username: config.db.user,
   password: config.db.pass,
   database: config.db.name,
+  // cache: true,
+  cache: {
+    type: 'ioredis',
+    options: {
+      host: config.redis.host,
+      port: config.redis.port,
+      password: config.redis.password,
+      username: config.redis.username,
+      db: Number(config.redis.db)
+    }
+  },
   entities: [`${parentDir}/app/model/entity/*{.ts,.js}`],
   migrations: [`${parentDir}/app/model/migration/*{.ts,.js}`],
   subscribers: [`${parentDir}/app/model/subscriber/*{.ts,.js}`],
@@ -22,25 +34,25 @@ const connectionOpts: ConnectionOptions = {
   synchronize: config.db.synchronize,
   logging: false,
   extra: {
-    ssl: config.db.dbsslconn // if not development, will use SSL
+    connectionLimit: process.env.ORM_CONNECTION_LIMIT
   }
 }
 
 interface IDatabase {
-  connect(): Promise<Connection>;
+  connect(): Promise<any>;
   disconnect(): Promise<void>;
   executeSQL(sql: string, ...params: any[]): Promise<any>;
   reset(): any;
 }
 
 export class Database implements IDatabase {
-  private connection: Connection;
-  public async connect (): Promise<Connection> {
+  private connection: DataSource;
+  public async connect (): Promise<any> {
     if (this.connection) {
-      await this.connection.connect()
+      await this.connection.initialize()
       return this.connection
     }
-    this.connection = await createConnection(connectionOpts)
+    this.connection = await new DataSource(connectionOpts).initialize()
     return this.connection
   }
 

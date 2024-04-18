@@ -6,11 +6,11 @@ import {
     OneToMany
 } from 'typeorm'
 
-import { Role, Admin, Company, MainEntity } from './index'
+import { Role, Admin, Company, MainEntityColumns } from './index'
 import * as _ from 'lodash'
 
 @Entity('account_group')
-export class AccountGroup extends MainEntity {
+export class AccountGroup extends MainEntityColumns {
     @Column('varchar', { name: 'name' })
     name: string
 

@@ -9,15 +9,16 @@ import {
 import { minusResource } from '../../functions/minusResource'
 
 import {
-    MainEntity,
+    MainEntityColumns,
     Company,
     CardholderGroup,
     AccessRule,
     Cardholder
 } from './index'
+import LogController from '../../controller/LogController'
 
 @Entity('access_right')
-export class AccessRight extends MainEntity {
+export class AccessRight extends MainEntityColumns {
     @Column('varchar', { name: 'name', nullable: false })
     name: string
 
@@ -118,6 +119,8 @@ export class AccessRight extends MainEntity {
                 this.softRemove(data)
                     .then(async () => {
                         minusResource(this.name, data.company)
+                        const cache_key = `${data.company}:cg_*:acr_${data.id}:cr_*`
+                        await LogController.invalidateCache(cache_key)
                         resolve({ message: 'success' })
                     })
                     .catch((error: any) => {

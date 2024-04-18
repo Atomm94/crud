@@ -4,7 +4,7 @@ import {
     OneToMany
 } from 'typeorm'
 
-import { MainEntity } from './MainEntity'
+import { MainEntityColumns } from './MainEntityColumns'
 import { Ticket } from './Ticket'
 import { Admin } from './Admin'
 
@@ -31,7 +31,7 @@ import { Admin } from './Admin'
 // }
 
 @Entity('department')
-export class Department extends MainEntity {
+export class Department extends MainEntityColumns {
     @Column('varchar', { name: 'name', unique: true })
     name: string | null
 

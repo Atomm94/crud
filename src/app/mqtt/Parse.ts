@@ -59,21 +59,23 @@ export default class Parse {
                     if (error === 777) {
                         const description: any = { ...message }
                         delete description.send_data
-                        const notification = {
+                        const notification = new Notification({
                             event: `Timeout ${message.device_topic} - ${generateMessageForOperator(message.operator)}`,
                             description: JSON.stringify(description),
                             company: message.company,
                             confirmed: null,
+                            confirmed_check: false,
                             access_point: null
-                        }
-                        const notification_save = await Notification
+                        })
+                        await Notification
                             .createQueryBuilder()
                             .insert()
                             .values(notification)
+                            .updateEntity(false)
                             .execute()
-                        const newObj = Object.assign(notification, notification_save.generatedMaps[0])
+                        // const newObj = Object.assign(notification, notification_save.generatedMaps[0])
 
-                        new SendSocketMessage(socketChannels.NOTIFICATION, newObj, message.company)
+                        new SendSocketMessage(socketChannels.NOTIFICATION, notification, message.company)
                     }
                 }
             }
@@ -328,48 +330,82 @@ export default class Parse {
 
     public static async pingAck (message: IMqttCrudMessaging) {
         try {
-            AcuStatus.findOneOrFail({
-                where: { serial_number: message.device_id, company: message.company },
-                order: { acu: 'DESC' }
-            }).then(async (acuStatusData: AcuStatus) => {
-                const access_point_statuses: any = await AccessPointStatus.getAllItems({ where: { acu: { '=': acuStatusData.acu } } })
-                if (message.result.errorNo === 0) {
-                    if ('firmware_ver' in message.info) acuStatusData.fw_version = message.info.firmware_ver
-                    if ('rev' in message.info) acuStatusData.rev = message.info.rev
-                    if ('api_ver' in message.info) acuStatusData.api_ver = message.info.api_ver
-                    if ('acu_comment' in message.info) acuStatusData.acu_comment = message.info.acu_comment
-                    if ('connection_type' in message.info) acuStatusData.connection_type = (message.info.connection_type === 0) ? acuConnectionType.WI_FI : acuConnectionType.ETHERNET
-                    if ('ip_address' in message.info) acuStatusData.ip_address = message.info.ip_address
-                    if ('gateway' in message.info) acuStatusData.gateway = message.info.gateway
-                    if ('subnet_mask' in message.info) acuStatusData.subnet_mask = message.info.subnet_mask
-                    if ('dns_server' in message.info) acuStatusData.dns_server = message.info.dns_server
-                    if ('connection_mod' in message.info) acuStatusData.connection_mod = (message.info.connection_mod === 0) ? acuConnectionMode.DHCP : acuConnectionMode.FIXED
-                    if ('SSID' in message.info) acuStatusData.ssid = message.info.SSID
+            // AcuStatus.updateItem({
+            //  where: { company: message.company, serial_number: message.device_id }
+            // ).then(async (acuStatusData: AcuStatus) => {
+            if (message.result.errorNo === 0) {
+                //     if ('firmware_ver' in message.info) acuStatusData.fw_version = message.info.firmware_ver
+                //     if ('rev' in message.info) acuStatusData.rev = message.info.rev
+                //     if ('api_ver' in message.info) acuStatusData.api_ver = message.info.api_ver
+                //     if ('acu_comment' in message.info) acuStatusData.acu_comment = message.info.acu_comment
+                //     if ('connection_type' in message.info) acuStatusData.connection_type = (message.info.connection_type === 0) ? acuConnectionType.WI_FI : acuConnectionType.ETHERNET
+                //     if ('ip_address' in message.info) acuStatusData.ip_address = message.info.ip_address
+                //     if ('gateway' in message.info) acuStatusData.gateway = message.info.gateway
+                //     if ('subnet_mask' in message.info) acuStatusData.subnet_mask = message.info.subnet_mask
+                //     if ('dns_server' in message.info) acuStatusData.dns_server = message.info.dns_server
+                //     if ('connection_mod' in message.info) acuStatusData.connection_mod = (message.info.connection_mod === 0) ? acuConnectionMode.DHCP : acuConnectionMode.FIXED
+                //     if ('SSID' in message.info) acuStatusData.ssid = message.info.SSID
+                await AcuStatus
+                    .createQueryBuilder('acu_status')
+                    .update(AcuStatus)
+                    .set({
+                        fw_version: message.info.firmware_ver,
+                        rev: message.info.rev,
+                        api_ver: message.info.api_ver,
+                        acu_comment: message.info.acu_comment,
+                        connection_type: (message.info.connection_type === 0) ? acuConnectionType.WI_FI : acuConnectionType.ETHERNET,
+                        ip_address: message.info.ip_address,
+                        gateway: message.info.gateway,
+                        subnet_mask: message.info.subnet_mask,
+                        dns_server: message.info.dns_server,
+                        connection_mod: (message.info.connection_mod === 0) ? acuConnectionMode.DHCP : acuConnectionMode.FIXED,
+                        ssid: message.info.SSID,
+                        timestamp: new Date().getTime()
+                    })
+                    .where(`company = ${message.company}`)
+                    .andWhere(`serial_number = ${message.device_id}`)
+                    .updateEntity(true)
+                    .execute()
 
-                    AcuStatus.updateItem(acuStatusData)
-                    if (message.info) {
-                        for (const access_point_status of access_point_statuses) {
-                            if (access_point_status.resources) {
-                                const resources = JSON.parse(access_point_status.resources)
-                                if (resources.Door_sensor) {
-                                    const gpio_value = `Gpio_input_opt_${resources.Door_sensor.component_source}_idx_${resources.Door_sensor.input}`
-                                    if (resources.Door_sensor && gpio_value in message.info) {
-                                        if (message.info[gpio_value] === 0) {
-                                            access_point_status.door_state = accessPointDoorState.CLOSED
-                                        } else {
-                                            access_point_status.door_state = accessPointDoorState.OPEN
-                                        }
+                const cache_update_key = `acu:acu_statuses:${message.company}*`
+                await LogController.invalidateCache(cache_update_key)
+
+        LogController.invalidateCache(`acu:count:${message.company}`)
+                // need update result
+
+                if (message.info) {
+                    // const access_point_statuses: any = await AccessPointStatus.getAllItems({ where: { acu: { '=': acuStatusData.acu } } })
+
+                    const access_point_statuses: any = await AccessPointStatus.createQueryBuilder('access_point_status')
+                        .leftJoinAndSelect('access_point_status.acus', 'acu')
+                        .where(`acu.serial_number = '${message.device_id}'`)
+                        .andWhere(`access_point_status.company = '${message.company}'`)
+                        .getMany()
+
+                    for (const access_point_status of access_point_statuses) {
+                        const old_door_state = access_point_status.door_state
+                        if (access_point_status.resources) {
+                            const resources = JSON.parse(access_point_status.resources)
+                            if (resources.Door_sensor) {
+                                const gpio_value = `Gpio_input_opt_${resources.Door_sensor.component_source}_idx_${resources.Door_sensor.input}`
+                                if (resources.Door_sensor && gpio_value in message.info) {
+                                    if (message.info[gpio_value] === 0) {
+                                        access_point_status.door_state = accessPointDoorState.CLOSED
                                     } else {
-                                        access_point_status.door_state = accessPointDoorState.NO_SENSOR
+                                        access_point_status.door_state = accessPointDoorState.OPEN
                                     }
-
+                                } else {
+                                    access_point_status.door_state = accessPointDoorState.NO_SENSOR
+                                }
+                                if (old_door_state !== access_point_status.door_state) {
                                     await AccessPointStatus.updateItem(access_point_status)
                                 }
                             }
                         }
                     }
                 }
-            }).catch(err => console.log('pingAck exception', err))
+            }
+            // }).catch(err => console.log('pingAck exception', err))
         } catch (error) {
             console.log('error pingack ', error)
         }
@@ -785,6 +821,7 @@ export default class Parse {
                         await auto_task.save()
                     }
                 }
+                message.send_data.data.company = company
                 const save = await AccessPoint.updateItem(message.send_data.data as AccessPoint)
                 const acu = await Acu.findOneOrFail({ where: { id: save.old.acu } })
                 const access_point: any = await AccessPoint.findOneOrFail({ where: { id: save.new.id }, relations: ['acus'] })
@@ -838,6 +875,7 @@ export default class Parse {
                         await auto_task.save()
                     }
                 }
+                message.send_data.data.company = company
                 const save: any = await AccessPoint.updateItem(message.send_data.data as AccessPoint)
                 const acu = await Acu.findOneOrFail({ where: { id: save.old.acu } })
 
@@ -894,6 +932,7 @@ export default class Parse {
                         await auto_task.save()
                     }
                 }
+                message.send_data.data.company = company
                 const save: any = await AccessPoint.updateItem(message.send_data.data as AccessPoint)
                 const acu = await Acu.findOneOrFail({ where: { id: save.old.acu } })
 
@@ -950,6 +989,7 @@ export default class Parse {
                         await auto_task.save()
                     }
                 }
+                message.send_data.data.company = company
                 const save: any = await AccessPoint.updateItem(message.send_data.data as AccessPoint)
                 const acu = await Acu.findOneOrFail({ where: { id: save.old.acu } })
 
@@ -1006,6 +1046,7 @@ export default class Parse {
                         await auto_task.save()
                     }
                 }
+                message.send_data.data.company = company
                 const save: any = await AccessPoint.updateItem(message.send_data.data as AccessPoint)
                 const acu = await Acu.findOneOrFail({ where: { id: save.old.acu } })
                 const access_point: any = await AccessPoint.findOneOrFail({ where: { id: save.new.id }, relations: ['acus'] })
@@ -1085,13 +1126,28 @@ export default class Parse {
         // console.log('deviceSetAccessModeAck', message)
         if (message.result.errorNo === 0) {
             // console.log('deviceSetAccessModeAck complete')
-            // const company = message.company
-            const access_point = await AccessPoint.findOneOrFail({ where: { id: message.send_data.data.id /*, company: company */ } })
-            if (message.send_data.data.mode) access_point.mode = message.send_data.data.mode
-            if (message.send_data.data.exit_mode) access_point.exit_mode = message.send_data.data.exit_mode
-            AccessPoint.save(access_point, { transaction: false })
-                .then(() => { })
-                .catch((err: any) => { console.log('deviceSetAccessModeAck AccessPoint save error', err) })
+            const company = message.company
+            const data: any = {
+                id: message.send_data.data.id,
+                company: company
+            }
+            let change = false
+            if (message.send_data.data.mode) {
+                change = true
+                data.mode = message.send_data.data.mode
+            }
+            if (message.send_data.data.exit_mode) {
+                change = true
+                data.exit_mode = message.send_data.data.exit_mode
+            }
+            if (change) {
+                await AccessPoint.updateItem(data as AccessPoint)
+            }
+
+            // const access_point = await AccessPoint.findOneOrFail({ where: { id: message.send_data.data.id /*, company: company */ } })
+            // AccessPoint.save(access_point, { transaction: false })
+            //     .then(() => { })
+            //     .catch((err: any) => { console.log('deviceSetAccessModeAck AccessPoint save error', err) })
         } else {
         }
     }

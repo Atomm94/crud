@@ -1,6 +1,6 @@
 import { DefaultContext } from 'koa'
 import { logUserEvents } from '../enums/logUserEvents.enum'
-import { AccessPointGroup, Admin } from '../model/entity'
+import { AccessPointGroup, Admin, Company } from '../model/entity'
 import { AccountGroup } from '../model/entity/AccountGroup'
 export default class AccountGroupController {
     /**
@@ -224,6 +224,9 @@ export default class AccountGroupController {
                 if (admins.length) {
                     for (const admin of admins) {
                         admin.account_group = null
+                        type IUserNew = Partial<Admin>
+                        const tmpData: IUserNew = admin
+                        delete tmpData.password
                         await admin.save()
                     }
                 } else {
@@ -269,7 +272,7 @@ export default class AccountGroupController {
             const req_data = ctx.query
             const user = ctx.user
             req_data.where = { company: { '=': user.company ? user.company : null } }
-            req_data.relations = ['users', 'companies']
+            req_data.relations = { users: Admin, companies: Company }
             ctx.body = await AccountGroup.getAllItems(req_data)
         } catch (error) {
             ctx.status = error.status || 400

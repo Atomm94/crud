@@ -7,7 +7,7 @@ import {
     OneToOne
 } from 'typeorm'
 
-import { MainEntity } from './MainEntity'
+import { MainEntityColumns } from './MainEntityColumns'
 import { readerTypes } from '../../enums/readerTypes'
 import { wiegandTypes } from '../../enums/wiegandTypes'
 import { AccessPoint } from './AccessPoint'
@@ -18,7 +18,7 @@ import { minusResource } from '../../functions/minusResource'
 import { AccessPointZone } from './AccessPointZone'
 import { Acu } from '.'
 @Entity('reader')
-export class Reader extends MainEntity {
+export class Reader extends MainEntityColumns {
     @Column('int', { name: 'access_point', nullable: true })
     access_point: number | null
 

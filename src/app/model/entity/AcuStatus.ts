@@ -3,7 +3,8 @@ import {
     Column,
     JoinColumn,
     ManyToOne,
-    OneToOne
+    OneToOne,
+    Index
     // ManyToOne,
     // OneToMany,
     // JoinColumn
@@ -13,12 +14,13 @@ import { acuConnectionMode } from '../../enums/acuConnectionMode.enum'
 import { acuConnectionType } from '../../enums/acuConnectionType.enum'
 import { AccessPointStatus } from './AccessPointStatus'
 
-import { MainEntity } from './MainEntity'
+import { MainEntityColumns } from './MainEntityColumns'
 // import { Company } from './Company'
 // import { Acu } from './Acu'
+@Index('serial_number|company', ['serial_number', 'company'], { unique: true })
 
 @Entity('acu_status')
-export class AcuStatus extends MainEntity {
+export class AcuStatus extends MainEntityColumns {
     @Column('int', { name: 'acu', nullable: false, unique: true })
     acu: number
 

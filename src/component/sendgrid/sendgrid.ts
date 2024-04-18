@@ -40,7 +40,7 @@ export class Sendgrid {
             to: `${toEmail}`,
             from: this.from,
 
-            subject: 'Welcome to AllDoors Onlne.',
+            subject: 'Welcome to AllDoors Online.',
             text: 'has invited you',
             html: this.newMail({
                 title: 'Welcome to AllDoors.',
@@ -64,13 +64,40 @@ export class Sendgrid {
         const msg = {
             to: `${toEmail}`,
             from: this.from,
-            subject: 'Welcome to AllDoors Onlne',
+            subject: 'Welcome to AllDoors Online',
             // text: 'Hello!',
             html: this.newTextMail({
-                headingText: 'Thank you for registering with AllDoors Onlne.',
+                headingText: 'Thank you for registering with AllDoors Online.',
                 mainText: 'Please tell us a little about yourself by writing to support@lumiring.com, and we will offer you the best possible product package and activate your account ;) Alternatively, you can contact your representative to speed up the process.',
                 otherText: 'We are excited to hear from you soon.'
-})
+            })
+        }
+        try {
+            await sgMail.send(msg)
+        } catch (error) {
+            console.error(error)
+
+            if (error.response) {
+                console.error(error.response.body)
+            }
+        }
+    }
+
+    public static async InformSuper (toEmail: string, account: any, company: any, account_id: number) {
+        const msg = {
+            to: `${toEmail}`,
+            from: this.from,
+            subject: 'Account activation request',
+            // text: 'Hello!',
+            html: this.newSuperTextMail({
+                first_name: account.first_name,
+                last_name: account.last_name,
+                email: account.email,
+                phone_number: account.phone_1,
+                message: company.message,
+                company_name: company.company_name,
+                account_id
+            })
         }
         try {
             await sgMail.send(msg)
@@ -87,10 +114,10 @@ export class Sendgrid {
         const msg = {
             to: `${toEmail}`,
             from: this.from,
-            subject: 'Welcome to AllDoors Onlne.',
+            subject: 'Welcome to AllDoors Online.',
             text: 'has invited you',
             html: this.newMail({
-                title: 'Welcome to AllDoors Onlne.',
+                title: 'Welcome to AllDoors Online.',
                 text: 'Your company has been invited to register an account. Please follow the link and fill in the company details. Thank you.',
                 link: `${this.mainDomain}/registrationofPartition/${token}`,
                 button_text: 'Create new Partition'
@@ -111,10 +138,10 @@ export class Sendgrid {
         const msg = {
             to: `${toEmail}`,
             from: this.from,
-            subject: 'Welcome to AllDoors Onlne.',
+            subject: 'Welcome to AllDoors Online.',
             text: 'has invited you',
             html: this.newMail({
-                title: 'Welcome to AllDoors Onlne.',
+                title: 'Welcome to AllDoors Online.',
                 text: 'Your company has been successfully registered. To finalize Your Account, please follow the link and set password you\'ll use to sign in to your account. Thank you.',
                 link: `${this.mainDomain}/newpassword/${token}`,
                 button_text: 'Set Password'
@@ -135,10 +162,10 @@ export class Sendgrid {
         const msg = {
             to: `${toEmail}`,
             from: this.from,
-            subject: 'Welcome to AllDoors Onlne.',
+            subject: 'Welcome to AllDoors Online.',
             text: 'has invited you',
             html: this.newMail({
-                title: 'Welcome to AllDoors Onlne.',
+                title: 'Welcome to AllDoors Online.',
                 text: ' To register Your Account, please follow the link. Set password you\'ll use to sign in to your account. Thank you.',
                 link: `${this.mainDomain}/newUserPassword/${token}`,
                 button_text: 'Set password'
@@ -183,10 +210,10 @@ export class Sendgrid {
         const msg = {
             to: `${toEmail}`,
             from: this.from,
-            subject: 'Welcome to AllDoors Onlne',
+            subject: 'Welcome to AllDoors Online',
             text: 'Congratulations, your account has been activated.',
             html: this.newTextMail({
-                headingText: 'Thank you for choosing AllDoors Onlne!',
+                headingText: 'Thank you for choosing AllDoors Online!',
                 mainText: `We have activated your account and you can start using it right now. Just follow this link ${this.mainDomain}/login and enter your username and password.`
             })
         }
@@ -219,10 +246,10 @@ export class Sendgrid {
         const msg = {
             to: `${toEmail}`,
             from: this.from,
-            subject: 'You have been invited to AllDoors Onlne',
+            subject: 'You have been invited to AllDoors Online',
             text: 'has invited you',
             html: this.newMail({
-                title: 'You have been invited to AllDoors Onlne',
+                title: 'You have been invited to AllDoors Online',
                 text: 'You are invited to register an account. Please follow the link and fill in the company details. Thank you.',
                 link: `${this.mainDomain}/cardholder/invite/${token}`,
                 button_text: 'Choose new Password'
@@ -239,7 +266,7 @@ export class Sendgrid {
         }
     }
 
-    private static newTextMail (mail: { headingText: string, mainText: string, otherText?:string, }) {
+    private static newTextMail (mail: { headingText: string, mainText: string, otherText?: string, }) {
         const emailTemplate: any = fs.readFileSync(`${parentDir}/templates/text.email.template`)
         const template = _.template(emailTemplate)
         const html = template({
@@ -247,6 +274,29 @@ export class Sendgrid {
             headingText: mail.headingText,
             otherText: mail.otherText,
             mainText: mail.mainText
+        })
+        return html
+    }
+
+    private static newSuperTextMail (mail: {
+        first_name: string
+        last_name: string
+        email: string
+        phone_number: string
+        message: string
+        company_name: string
+        account_id: number
+    }) {
+        const emailTemplate: any = fs.readFileSync(`${parentDir}/templates/super_text.email.template`)
+        const template = _.template(emailTemplate)
+        const html = template({
+            first_name: mail.first_name,
+            last_name: mail.last_name,
+            email: mail.email,
+            phone_number: mail.phone_number,
+            message: mail.message,
+            company_name: mail.company_name,
+            account_id: mail.account_id
         })
         return html
     }

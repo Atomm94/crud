@@ -5,12 +5,13 @@ import {
     DeleteDateColumn,
     ManyToOne,
     JoinColumn,
-    OneToOne
+    OneToOne,
+    Index
 } from 'typeorm'
 
 import { acuStatus } from '../../enums/acuStatus.enum'
 import { networkValidation, interfaceValidation, timeValidation } from '../../functions/validator'
-import { MainEntity } from './MainEntity'
+import { MainEntityColumns } from './MainEntityColumns'
 import { AccessPoint } from './AccessPoint'
 import { ExtDevice } from './ExtDevice'
 import { acuModel } from '../../enums/acuModel.enum'
@@ -24,9 +25,13 @@ import CronJob from './../../cron'
 import { AcuStatus } from './AcuStatus'
 import { AutoTaskSchedule } from './AutoTaskSchedule'
 import { Reader } from './Reader'
+import { AccessPointStatus } from './AccessPointStatus'
+import LogController from '../../controller/LogController'
 
 @Entity('acu')
-export class Acu extends MainEntity {
+@Index('serial_number|company|is_delete', ['serial_number', 'company', 'is_delete'], { unique: true })
+@Index('acu_delete_date', ['deleteDate'])
+export class Acu extends MainEntityColumns {
     @Column('varchar', { name: 'name', nullable: true })
     name: string | null
 
@@ -96,6 +101,9 @@ export class Acu extends MainEntity {
     @Column('int', { name: 'company', nullable: false })
     company: number
 
+    @Column('varchar', { name: 'is_delete', default: 0 })
+    is_delete: string
+
     @OneToMany(type => AccessPoint, access_point => access_point.acus)
     access_points: AccessPoint[];
 
@@ -111,6 +119,9 @@ export class Acu extends MainEntity {
 
     @OneToMany(type => AutoTaskSchedule, auto_task_schedule => auto_task_schedule.acus)
     auto_task_schedules: AutoTaskSchedule[];
+
+    @OneToMany(type => AccessPointStatus, access_point_status => access_point_status.acus)
+    access_point_statuses: AutoTaskSchedule[];
 
     @OneToOne(type => Reader, Reader => Reader.acus, { nullable: true })
     @JoinColumn({ name: 'reader' })
@@ -243,6 +254,18 @@ export class Acu extends MainEntity {
                 this.softRemove(data)
                     .then(async () => {
                         minusResource(this.name, data.company)
+                        const acu_data: any = await this.createQueryBuilder('acu')
+                            .where('id = :id', { id: data.id })
+                            .withDeleted()
+                            .getOne()
+                        acu_data.is_delete = (new Date()).getTime()
+                        await this.save(acu_data, { transaction: false })
+
+                        const cache_key = `${data.company}:acu_${data.serial_number}`
+                        await LogController.invalidateCache(cache_key)
+
+                        const cache_update_key = `acu:acu_statuses:${data.company}*`
+                        await LogController.invalidateCache(cache_update_key)
 
                         const promises = []
                         promises.push(Acu.createQueryBuilder('acu')
