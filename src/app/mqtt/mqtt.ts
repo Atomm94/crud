@@ -49,7 +49,7 @@ export default class MQTTBroker {
         const topicList = Object.values(ReceiveTopics)
         for (let i = 0; i < topicList.length; i++) {
             const topic = topicList[i]
-            this.client.subscribe(topic, (err: any) => {
+            this.client.subscribe(`$share/groupA/${topic}`, {qos:1}, (err: any) => {
                 if (err) {
                     logger.error('topic subscription error', err)
                 } else {
