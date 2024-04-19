@@ -48,7 +48,7 @@ export default class MqttController {
             const where = { account: main_id }
             const company = await Company.findOne({ where })
             if (!company) {
-                 ctx.body = {
+                ctx.body = {
                     BrokerAdr: '',
                     BrokerPort: '',
                     ClientID: false, // '101FRE1111325665454RETV123355'
@@ -71,20 +71,36 @@ export default class MqttController {
                 // var keyname = 'test'
 
                 const location = `${main_id}/${company.id}/registration`
+                // ctx.body = {
+                //     BrokerAdr: mqtt_host_for_device,
+                //     BrokerPort: mqtt_port,
+                //     BrokerTLSPort: mqtt_broker_tls_port, // 18883,
+                //     ClientID: false, // '101FRE1111325665454RETV123355'
+                //     Use_SSL: true,
+                //     use_enryption: true,
+                //     User_Name: user_name,
+                //     User_Pass: final_pass,
+                //     TLS_User_Name: mqtt_tls_user_name, // "unimacs232145",
+                //     TLS_User_Pass: mqtt_tls_user_pass, // "7b1b06b881b4a8a95d98a5167db123e8",
+                //     Location: location,
+                //     length: plaintext.length
+                // }
+
                 ctx.body = {
                     BrokerAdr: mqtt_host_for_device,
                     BrokerPort: mqtt_port,
-                    BrokerTLSPort: mqtt_broker_tls_port, // 18883,
-                    ClientID: false, // '101FRE1111325665454RETV123355'
+                    BrokerTLSPort: mqtt_broker_tls_port,
+                    ClientID: false,
                     Use_SSL: true,
                     use_enryption: true,
                     User_Name: user_name,
                     User_Pass: final_pass,
-                    TLS_User_Name: mqtt_tls_user_name, // "unimacs232145",
-                    TLS_User_Pass: mqtt_tls_user_pass, // "7b1b06b881b4a8a95d98a5167db123e8",
+                    TLS_User_Name: mqtt_tls_user_name,
+                    TLS_User_Pass: mqtt_tls_user_pass,
                     Location: location,
                     length: plaintext.length
                 }
+
                 // const send_message = {
                 //     operator: 'registration',
                 //     info: {
