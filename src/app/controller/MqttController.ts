@@ -12,6 +12,10 @@ const mqtt_host_for_device = process.env.MQTT_HOST_FOR_DEVICE
 const mqtt_port = process.env.MQTT_PORT
 const user_name = process.env.MQTT_USERNAME
 const user_pass = process.env.MQTT_PASSWORD
+const mqtt_broker_tls_port = process.env.MQTT_BROKER_TLS_PORT
+const mqtt_tls_user_name = process.env.MQTT_TLS_USER_NAME
+const mqtt_tls_user_pass = process.env.MQTT_TLS_USER_PASS
+
 const crypto = require('crypto')
 export default class MqttController {
     /**
@@ -70,11 +74,14 @@ export default class MqttController {
                 ctx.body = {
                     BrokerAdr: mqtt_host_for_device,
                     BrokerPort: mqtt_port,
+                    BrokerTLSPort: mqtt_broker_tls_port, // 18883,
                     ClientID: false, // '101FRE1111325665454RETV123355'
-                    Use_SSL: false,
-                    use_enryption: false,
+                    Use_SSL: true,
+                    use_enryption: true,
                     User_Name: user_name,
                     User_Pass: final_pass,
+                    TLS_User_Name: mqtt_tls_user_name, // "unimacs232145",
+                    TLS_User_Pass: mqtt_tls_user_pass, // "7b1b06b881b4a8a95d98a5167db123e8",
                     Location: location,
                     length: plaintext.length
                 }

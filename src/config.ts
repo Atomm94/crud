@@ -3,6 +3,7 @@ import * as path from 'path'
 import * as _ from 'lodash'
 import { DefaultContext } from 'koa'
 import { IClientOptions } from 'mqtt'
+import uuid from 'uuid'
 
 // Load environment variables from .env file, where API keys and passwords are configured
 dotenv.config({ path: '.env' })
@@ -99,7 +100,9 @@ var config: IConfig = {
         host: _.defaultTo(process.env.MQTT_HOST, 'localhost'),
         port: normalizePort(_.defaultTo(process.env.MQTT_PORT, 5432)) as number,
         username: _.defaultTo(process.env.MQTT_USERNAME, 'unimacs'),
-        password: _.defaultTo(process.env.MQTT_PASSWORD, '123456')
+        password: _.defaultTo(process.env.MQTT_PASSWORD, '123456'),
+        clientId: uuid.v4(),
+        clean: false
     },
     db: {
         type: _.defaultTo(process.env.DB_TYPE, 'mysql'),
