@@ -52,7 +52,7 @@ export class Database implements IDatabase {
       await this.connection.initialize()
       return this.connection
     }
-    this.connection = await new DataSource({ ...connectionOpts, synchronize: sync }).initialize()
+    this.connection = await new DataSource({ ...connectionOpts, synchronize: sync ? connectionOpts.synchronize : false }).initialize()
     return this.connection
   }
 
