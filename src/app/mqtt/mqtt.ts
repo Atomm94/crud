@@ -7,7 +7,7 @@ import { ReceiveTopics } from './Topics'
 export default class MQTTBroker {
     public static client: any = null
     public static groupId: string = 'groupA';
-    public static async init(groupId: string) {
+    public static async init(groupId: string, subscribe: boolean = true) {
         if (groupId) {
             this.groupId = groupId;
         }
@@ -15,7 +15,7 @@ export default class MQTTBroker {
         return await new Promise((resolve, reject) => {
             this.client.on('connect', (status: any) => {
                 logger.info('MQTT server connected successfully!')
-                this.subscribeAll()
+                if (subscribe) this.subscribeAll()
                 resolve(status)
             })
             this.client.on('error', (err: any) => {
@@ -53,7 +53,7 @@ export default class MQTTBroker {
         const topicList = Object.values(ReceiveTopics)
         for (let i = 0; i < topicList.length; i++) {
             const topic = topicList[i]
-            this.client.subscribe(`$share/${this.groupId}/${topic}`, { qos: 1 }, (err: any) => {
+            this.client.subscribe(`$share/group_${this.groupId}/${topic}`, { qos: 1 }, (err: any) => {
                 if (err) {
                     logger.error('topic subscription error', err)
                 } else {

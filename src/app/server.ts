@@ -11,21 +11,48 @@ import { logger } from '../../modules/winston/logger'
 import CronJob from './cron'
 import { RedisClass } from '../component/redis'
 import uuid from 'uuid'
-const mqtt_group_id = uuid.v4();
+const fs = require('fs');
 const database = new Database()
+
+let mqtt_group_id: any;
+
+// Function to generate or retrieve UUID
+function getUUID() {
+  if (!mqtt_group_id) {
+    // Try to read UUID from file
+    try {
+      mqtt_group_id = fs.readFileSync('uuid.txt', 'utf8');
+    } catch (err) {
+      // If file doesn't exist or cannot be read, generate a new UUID
+      mqtt_group_id = uuid.v4();
+      // Store UUID in a file
+      fs.writeFileSync('uuid.txt', mqtt_group_id, 'utf8');
+    }
+  }
+  return mqtt_group_id;
+}
 
 if (cluster.isMaster) {
     const numCPUs = os.cpus().length
-
+    // Generate new UUID in a file
+    fs.writeFileSync('uuid.txt', uuid.v4(), 'utf8');
     // Fork workers.
     for (let i = 0; i < numCPUs; i++) {
         cluster.fork()
     }
     (async () => {
         try {
-            await database.connect()
+            await database.connect(true)
             RedisClass.connect()
             CronJob.startCrons()
+            await MQTTBroker.init(getUUID(), false)
+            await AccessControl.GrantAccess()
+            await AccessControl.GrantCompanyAccess()
+            await Sendgrid.init(config.sendgrid.apiKey)
+            await updateZohoConfig()
+            app.listen(config.server.port, () => {
+                logger.info(`APP listening at port ${config.server.port}`)
+            })
         } catch (e) {
             console.error('Error:', e)
         }
@@ -33,6 +60,12 @@ if (cluster.isMaster) {
 
     cluster.on('exit', (worker, code, signal) => {
         logger.error(`Worker ${worker.process.pid} died`)
+        try {
+            database.disconnect()
+            process.exit(0)
+        } catch (e) {
+            process.exit(1)
+        }
     })
 } else {
     // Workers share the TCP connection in this server
@@ -43,15 +76,7 @@ if (cluster.isMaster) {
         try {
             await database.connect()
             RedisClass.connect()
-            await AccessControl.GrantAccess()
-            await AccessControl.GrantCompanyAccess()
-            await Sendgrid.init(config.sendgrid.apiKey)
-            await MQTTBroker.init(mqtt_group_id)
-            await updateZohoConfig()
-            app.listen(config.server.port, () => {
-                logger.info(`APP listening at port ${config.server.port}`)
-            })
-
+            await MQTTBroker.init(getUUID())            
             process.on('SIGINT', async () => {
                 try {
                     await database.disconnect()
