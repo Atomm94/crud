@@ -11,31 +11,31 @@ import { logger } from '../../modules/winston/logger'
 import CronJob from './cron'
 import { RedisClass } from '../component/redis'
 import uuid from 'uuid'
-const fs = require('fs');
+const fs = require('fs')
 const database = new Database()
 
-let mqtt_group_id: any;
+let mqtt_group_id: any
 
 // Function to generate or retrieve UUID
-function getUUID() {
+function getUUID () {
   if (!mqtt_group_id) {
     // Try to read UUID from file
     try {
-      mqtt_group_id = fs.readFileSync('uuid.txt', 'utf8');
+      mqtt_group_id = fs.readFileSync('uuid.txt', 'utf8')
     } catch (err) {
       // If file doesn't exist or cannot be read, generate a new UUID
-      mqtt_group_id = uuid.v4();
+      mqtt_group_id = uuid.v4()
       // Store UUID in a file
-      fs.writeFileSync('uuid.txt', mqtt_group_id, 'utf8');
+      fs.writeFileSync('uuid.txt', mqtt_group_id, 'utf8')
     }
   }
-  return mqtt_group_id;
+  return mqtt_group_id
 }
 
 if (cluster.isMaster) {
     const numCPUs = os.cpus().length
     // Generate new UUID in a file
-    fs.writeFileSync('uuid.txt', uuid.v4(), 'utf8');
+    fs.writeFileSync('uuid.txt', uuid.v4(), 'utf8')
     // Fork workers.
     for (let i = 0; i < numCPUs; i++) {
         cluster.fork()
@@ -76,7 +76,7 @@ if (cluster.isMaster) {
         try {
             await database.connect()
             RedisClass.connect()
-            await MQTTBroker.init(getUUID())            
+            await MQTTBroker.init(getUUID())
             process.on('SIGINT', async () => {
                 try {
                     await database.disconnect()
