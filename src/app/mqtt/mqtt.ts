@@ -7,15 +7,15 @@ import { ReceiveTopics } from './Topics'
 export default class MQTTBroker {
     public static client: any = null
     public static groupId: string = 'groupA';
-    public static async init(groupId: string) {
+    public static async init (groupId: string, subscribe: boolean = true) {
         if (groupId) {
-            this.groupId = groupId;
+            this.groupId = groupId
         }
         this.client = connect(config.mqtt)
         return await new Promise((resolve, reject) => {
             this.client.on('connect', (status: any) => {
                 logger.info('MQTT server connected successfully!')
-                this.subscribeAll()
+                if (subscribe) this.subscribeAll()
                 resolve(status)
             })
             this.client.on('error', (err: any) => {
@@ -28,20 +28,20 @@ export default class MQTTBroker {
         })
     }
 
-    public static publishMessage(topic: string, msg: string): void {
+    public static publishMessage (topic: string, msg: string): void {
         // console.log('publishMessage topic', topic, msg)
         this.client.publish(topic, msg, (error: any) => {
             if (error) logger.error('publish error', error)
         })
     }
 
-    public static subscribe(topic: string | number) {
+    public static subscribe (topic: string | number) {
         this.client.subscribe(topic, (err: any) => {
             if (err) logger.error('subscribe error', err)
         })
     }
 
-    public static getMessage(callback: Function) {
+    public static getMessage (callback: Function) {
         this.client.on('message', function (topic: string, message: string) {
             if (topic && message) {
                 return callback(topic, message.toString())
@@ -49,11 +49,11 @@ export default class MQTTBroker {
         })
     }
 
-    private static subscribeAll() {
+    private static subscribeAll () {
         const topicList = Object.values(ReceiveTopics)
         for (let i = 0; i < topicList.length; i++) {
             const topic = topicList[i]
-            this.client.subscribe(`$share/${this.groupId}/${topic}`, { qos: 1 }, (err: any) => {
+            this.client.subscribe(`$share/group_${this.groupId}/${topic}`, { qos: 1 }, (err: any) => {
                 if (err) {
                     logger.error('topic subscription error', err)
                 } else {

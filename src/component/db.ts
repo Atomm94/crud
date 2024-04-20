@@ -47,12 +47,12 @@ interface IDatabase {
 
 export class Database implements IDatabase {
   private connection: DataSource;
-  public async connect (): Promise<any> {
+  public async connect (sync: boolean = false): Promise<any> {
     if (this.connection) {
       await this.connection.initialize()
       return this.connection
     }
-    this.connection = await new DataSource(connectionOpts).initialize()
+    this.connection = await new DataSource({ ...connectionOpts, synchronize: sync ? connectionOpts.synchronize : false }).initialize()
     return this.connection
   }
 
