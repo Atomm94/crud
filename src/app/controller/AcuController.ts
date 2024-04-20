@@ -978,10 +978,11 @@ export default class AcuController {
                         'acu.registration_date',
                         'acu.fw_version',
                         'acu.api_ver',
-                        'acu.acu_comment'
+                        'acu.acu_comment',
+                        'acu.rev'
                     ]
                 )
-                .addSelect(['acu_status.updateDate', 'acu_status.rev'])
+                .addSelect(['acu_status.timestamp'])
                 // .leftJoin('acu.access_points', 'access_point')
                 .leftJoin('acu.acu_statuses', 'acu_status')
                 // .leftJoin('access_point.readers', 'reader')
