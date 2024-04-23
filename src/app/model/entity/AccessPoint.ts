@@ -189,7 +189,8 @@ export class AccessPoint extends MainEntityColumns {
         return new Promise((resolve, reject) => {
             this.save(accessPoint, { transaction: false })
                 .then(async (item: AccessPoint) => {
-                    await LogController.cacheCheck(item.company, item.id, checkCacheKey.GLOBAL_ACCESS_POINT, item)
+                    await LogController.invalidateCache(`ap_${item.id}`)
+                    // await LogController.cacheCheck(item.company, item.id, checkCacheKey.GLOBAL_ACCESS_POINT, item)
                     resolve({
                         old: oldData,
                         new: item
