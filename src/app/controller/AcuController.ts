@@ -1232,7 +1232,7 @@ export default class AcuController {
 
             await Acu.destroyItem(hardware)
             // device.time = hardware.time
-            const updated = await device.save()
+            const updated = await device.save({ transaction: false })
             const acu_status = await AcuStatus.findOne({ where: { acu: device.id, serial_number: Not(device.serial_number) } })
             if (acu_status) {
                 acu_status.serial_number = device.serial_number
