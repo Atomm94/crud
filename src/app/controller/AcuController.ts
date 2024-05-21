@@ -25,6 +25,7 @@ import { AcuStatus } from '../model/entity/AcuStatus'
 import { acuCloudStatus } from '../enums/acuCloudStatus.enum'
 import { cloneDeep } from 'lodash'
 import { CameraSet } from '../model/entity/CameraSet'
+import { Not } from 'typeorm'
 // import acu from '../router/acu'
 
 export default class AcuController {
@@ -1229,15 +1230,15 @@ export default class AcuController {
             device.registration_date = hardware_data.registration_date
             device.cloud_status = hardware_data.cloud_status
 
+            await Acu.destroyItem(hardware)
             // device.time = hardware.time
             const updated = await device.save()
-            const acu_status = await AcuStatus.findOne({ where: { acu: device.id } })
+            const acu_status = await AcuStatus.findOne({ where: { acu: device.id, serial_number: Not(device.serial_number) } })
             if (acu_status) {
                 acu_status.serial_number = device.serial_number
                 await acu_status.save()
             }
 
-            await Acu.destroyItem(hardware)
             ctx.body = updated
 
             if (detach) {
