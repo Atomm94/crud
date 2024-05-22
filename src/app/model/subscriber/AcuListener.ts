@@ -7,14 +7,11 @@ import {
     // UpdateEvent
 } from 'typeorm'
 import { SendTopics } from '../../mqtt/Topics'
-// import SendDevice from '../../mqtt/SendDevice'
-// import { Company } from '../entity'
 import { Acu } from '../entity/Acu'
 import { socketChannels } from '../../enums/socketChannels.enum'
 import SendSocketMessage from '../../mqtt/SendSocketMessage'
 import { acuStatus } from '../../enums/acuStatus.enum'
-import { AccessPoint, Company } from '../entity'
-import CronJob from './../../cron'
+import { AccessPoint } from '../entity'
 import { AccessPointStatus } from '../entity/AccessPointStatus'
 import { AcuStatus } from '../entity/AcuStatus'
 import LogController from '../../controller/LogController'
@@ -58,9 +55,9 @@ export class PostSubscriber implements EntitySubscriberInterface<Acu> {
         new SendSocketMessage(socketChannels.DASHBOARD_ACU, send_data, data.company)
 
         if ([acuStatus.ACTIVE, acuStatus.PENDING].includes(data.status)) {
-            const company = await Company.findOne({ where: { id: data.company } })
-            const acu_data = { ...data, companies: company }
-            CronJob.active_devices[data.id] = acu_data
+            // const company = await Company.findOne({ where: { id: data.company } })
+            // const acu_data = { ...data, companies: company }
+            // CronJob.active_devices[data.id] = acu_data
 
             await AcuStatus.addItem({ ...data, acu: data.id })
             const access_points: any = await AccessPoint.getAllItems({ where: { acu: data.id } })
@@ -92,9 +89,9 @@ export class PostSubscriber implements EntitySubscriberInterface<Acu> {
             if (New.status === acuStatus.ACTIVE) {
                 const acu_status = await AcuStatus.findOne({ where: { acu: New.id } })
                 if (!acu_status) {
-                    const company = await Company.findOne({ where: { id: New.company } })
-                    const acu_data = { ...New, companies: company }
-                    CronJob.active_devices[New.id] = acu_data
+                    // const company = await Company.findOne({ where: { id: New.company } })
+                    // const acu_data = { ...New, companies: company }
+                    // CronJob.active_devices[New.id] = acu_data
 
                     await AcuStatus.addItem({ ...New, acu: New.id })
                     const access_points: any = await AccessPoint.getAllItems({ where: { acu: New.id } })
