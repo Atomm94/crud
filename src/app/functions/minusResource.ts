@@ -26,7 +26,7 @@ export async function minusResource (resource_name: string, company_id: number) 
             }
             // console.log('minusResource updated used', JSON.stringify(used))
             company_resources.used = JSON.stringify(used)
-            await company_resources.save()
+            await company_resources.save({ transaction: false })
         }
     }
 }

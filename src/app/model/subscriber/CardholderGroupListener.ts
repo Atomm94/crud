@@ -37,7 +37,7 @@ export class PostSubscriber implements EntitySubscriberInterface<CardholderGroup
             for (const child of childs) {
                 if (child.limitation_inherited === true) {
                     child.limitation = New?.limitation
-                    await child.save()
+                    await child.save({ transaction: false })
                 }
             }
 
@@ -45,7 +45,7 @@ export class PostSubscriber implements EntitySubscriberInterface<CardholderGroup
             for (const cardholder of cardholders) {
                 if (cardholder.limitation_inherited === true) {
                     cardholder.limitation = New?.limitation
-                    await cardholder.save()
+                    await cardholder.save({ transaction: false })
                 }
             }
 
@@ -64,7 +64,7 @@ export class PostSubscriber implements EntitySubscriberInterface<CardholderGroup
                 if (child.antipass_back_inherited === true) {
                     // child.antipass_back = New?.antipass_back
                     child.enable_antipass_back = New?.enable_antipass_back
-                    await child.save()
+                    await child.save({ transaction: false })
                 }
             }
 
@@ -73,7 +73,7 @@ export class PostSubscriber implements EntitySubscriberInterface<CardholderGroup
                 if (cardholder.antipass_back_inherited === true) {
                     // cardholder.antipass_back = New?.antipass_back
                     cardholder.enable_antipass_back = New?.enable_antipass_back
-                    await cardholder.save()
+                    await cardholder.save({ transaction: false })
                 }
             }
 
@@ -88,7 +88,7 @@ export class PostSubscriber implements EntitySubscriberInterface<CardholderGroup
             for (const child of childs) {
                 if (child.access_right_inherited === true) {
                     child.access_right = New?.access_right
-                    await child.save()
+                    await child.save({ transaction: false })
                 }
             }
 
@@ -96,7 +96,7 @@ export class PostSubscriber implements EntitySubscriberInterface<CardholderGroup
             for (const cardholder of cardholders) {
                 if (cardholder.access_right_inherited === true) {
                     cardholder.access_right = New?.access_right
-                    await cardholder.save()
+                    await cardholder.save({ transaction: false })
                 }
             }
         }
@@ -107,7 +107,7 @@ export class PostSubscriber implements EntitySubscriberInterface<CardholderGroup
             for (const child of childs) {
                 if (child.time_attendance_inherited === true) {
                     child.time_attendance = New?.time_attendance
-                    await child.save()
+                    await child.save({ transaction: false })
                 }
             }
 
@@ -115,7 +115,7 @@ export class PostSubscriber implements EntitySubscriberInterface<CardholderGroup
             for (const cardholder of cardholders) {
                 if (cardholder.time_attendance_inherited === true) {
                     cardholder.time_attendance = New?.time_attendance
-                    await cardholder.save()
+                    await cardholder.save({ transaction: false })
                 }
             }
         }

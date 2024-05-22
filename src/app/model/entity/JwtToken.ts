@@ -51,7 +51,7 @@ export class JwtToken extends MainEntityColumns {
             token.expired = true
             const cache_key = `jwt:${token}`
             await LogController.invalidateCache(cache_key)
-            await token.save()
+            await token.save({ transaction: false })
         }
     }
 }

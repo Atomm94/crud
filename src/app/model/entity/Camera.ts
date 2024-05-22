@@ -216,7 +216,7 @@ export class Camera extends MainEntityColumns {
                                     camera_set_cameras.splice(i, 1)
                                     if (camera_set_camera.main && camera_set_cameras.length) {
                                         camera_set_cameras[0].main = true
-                                        camera_set_cameras[0].save()
+                                        camera_set_cameras[0].save({ transaction: false })
                                             .then(() => { })
                                             .catch((err: any) => { console.log('Camera destroyItem save error', err) })
                                     }
@@ -227,7 +227,7 @@ export class Camera extends MainEntityColumns {
                             //     if (_camera.id !== data.id) _cameras.push({ id: _camera.id } as Camera)
                             // }
                             // camera_set.cameras = _cameras
-                            // camera_set.save()
+                            // camera_set.save({ transaction: false })
                         }
 
                         resolve({ message: 'success' })

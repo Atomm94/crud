@@ -528,7 +528,7 @@ export default class CredentialController {
 
             if (!vikey_data && !credential_from_param.isLogin) {
                 credential_from_param.isLogin = true
-                await credential_from_param.save()
+                await credential_from_param.save({ transaction: false })
             }
             const token = jwt.sign({ code: param_code, cardholder: credential_from_param.cardholder, company: credential_from_param.company, credential_id: credential_from_param.id }, 'jwtSecret')
             ctx.body = {

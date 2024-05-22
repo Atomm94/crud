@@ -41,7 +41,7 @@ export async function updateTokenFromRefreshToken () {
                 } else {
                     zoho.access_token = token.access_token
                     zoho.token_expire_time = String(new Date().getTime() + token.expires_in * 1000)
-                    await zoho.save()
+                    await zoho.save({ transaction: false })
                     await updateZohoConfig(zoho)
                     await sendAllNotSyncedToZoho()
                 }
@@ -77,7 +77,7 @@ export async function createPlan (package_data: Package) {
             const plan: any = await postBodyRequest(createPlan, body, headers)
             if (plan.code === 0 || plan.code === 100502) {
                 package_data.create_package_zoho_sync = true
-                await package_data.save()
+                await package_data.save({ transaction: false })
             }
         }
     } catch (error) {
@@ -108,7 +108,7 @@ export async function createCustomer (company_id: number) {
             if (customer.code === 0) {
                 company.create_customer_zoho_sync = true
                 company.zoho_customer_id = customer.customer.customer_id
-                await company.save()
+                await company.save({ transaction: false })
             }
         }
     } catch (error) {
@@ -138,7 +138,7 @@ export async function createSubsciption (company_id: number) {
                 const subscription: any = await postBodyRequest(createSubsciption, bodyForSubsciption, headers)
                 if (subscription.code === 0) {
                     company.create_subscription_zoho_sync = true
-                    await company.save()
+                    await company.save({ transaction: false })
                 }
             }
         }

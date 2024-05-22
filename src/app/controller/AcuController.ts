@@ -214,7 +214,7 @@ export default class AcuController {
             if (acu_reader) acu.reader = acu_reader.id
 
             acu.time = JSON.stringify(req_data.time)
-            const save_acu = await acu.save()
+            const save_acu = await acu.save({ transaction: false })
             logs_data.push({
                 event: logUserEvents.CREATE,
                 target: `${Acu.name}/${save_acu.name}`,
@@ -1216,7 +1216,7 @@ export default class AcuController {
                 hardware.interface = device.interface
                 hardware.serial_number = device.serial_number
                 hardware.session_id = device.session_id
-                await hardware.save()
+                await hardware.save({ transaction: false })
                 DeviceController.delDevice(OperatorType.CANCEL_REGISTRATION, location, device.serial_number, device, user, device.session_id)
             }
             device.network = hardware_data.network
@@ -1236,7 +1236,7 @@ export default class AcuController {
             const acu_status = await AcuStatus.findOne({ where: { acu: device.id, serial_number: Not(device.serial_number) } })
             if (acu_status) {
                 acu_status.serial_number = device.serial_number
-                await acu_status.save()
+                await acu_status.save({ transaction: false })
             }
 
             ctx.body = updated
@@ -1369,7 +1369,7 @@ export default class AcuController {
             }
         }
         hardware.status = acuStatus.ACTIVE
-        await hardware.save()
+        await hardware.save({ transaction: false })
         CardKeyController.setAddCardKey(OperatorType.SET_CARD_KEYS, location, company, user, null, null, [hardware])
         return ctx.body = {
             message: 'success'

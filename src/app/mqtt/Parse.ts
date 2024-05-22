@@ -501,7 +501,7 @@ export default class Parse {
                 new SendDeviceMessage(OperatorType.SET_PASS, message.location, message.device_id, send_data)
             }
             acu.session_id = message.session_id
-            await acu.save()
+            await acu.save({ transaction: false })
             // console.log('login complete')
         } else {
             // console.log('error deviceLoginAck', message)
@@ -517,7 +517,7 @@ export default class Parse {
             const device_id = message.device_id
             const acu = await Acu.findOneOrFail({ where: { serial_number: device_id, company: company } })
             acu.session_id = '0'
-            await acu.save()
+            await acu.save({ transaction: false })
             // this.login(message.topic)
         }
     }
@@ -530,7 +530,7 @@ export default class Parse {
             const acu = await Acu.findOne({ where: { serial_number: device_id, company: company } })
             if (acu) {
                 acu.password = message.send_data.data.password
-                await acu.save()
+                await acu.save({ transaction: false })
                 new SendDeviceMessage(OperatorType.GET_NET_SETTINGS, message.location, message.device_id)
             } else {
                 // console.log('error deviceSetPass', message)
@@ -546,7 +546,7 @@ export default class Parse {
             const acu: Acu = await Acu.findOneOrFail({ where: { serial_number: device_id, company: company } })
             if (acu) {
                 acu.session_id = '0'
-                await acu.save()
+                await acu.save({ transaction: false })
                 const loginData = {
                     username: acu.username,
                     password: acu.password
@@ -605,7 +605,7 @@ export default class Parse {
                         gateway: message.info.Gate,
                         dns_server: message.info.DNS1
                     })
-                    await acu.save()
+                    await acu.save({ transaction: false })
                 } else {
                     console.log(`error - cant find acu with serial number ${device_id} and company ${company}`)
                 }
@@ -818,7 +818,7 @@ export default class Parse {
                     const auto_task = await AutoTaskSchedule.findOne({ where: { access_point: message.send_data.data.id, status: false } })
                     if (auto_task) {
                         auto_task.status = true
-                        await auto_task.save()
+                        await auto_task.save({ transaction: false })
                     }
                 }
                 message.send_data.data.company = company
@@ -872,7 +872,7 @@ export default class Parse {
                     const auto_task = await AutoTaskSchedule.findOne({ where: { access_point: message.send_data.data.id, status: false } })
                     if (auto_task) {
                         auto_task.status = true
-                        await auto_task.save()
+                        await auto_task.save({ transaction: false })
                     }
                 }
                 message.send_data.data.company = company
@@ -929,7 +929,7 @@ export default class Parse {
                     const auto_task = await AutoTaskSchedule.findOne({ where: { access_point: message.send_data.data.id, status: false } })
                     if (auto_task) {
                         auto_task.status = true
-                        await auto_task.save()
+                        await auto_task.save({ transaction: false })
                     }
                 }
                 message.send_data.data.company = company
@@ -986,7 +986,7 @@ export default class Parse {
                     const auto_task = await AutoTaskSchedule.findOne({ where: { access_point: message.send_data.data.id, status: false } })
                     if (auto_task) {
                         auto_task.status = true
-                        await auto_task.save()
+                        await auto_task.save({ transaction: false })
                     }
                 }
                 message.send_data.data.company = company
@@ -1043,7 +1043,7 @@ export default class Parse {
                     const auto_task = await AutoTaskSchedule.findOne({ where: { access_point: message.send_data.data.id, status: false } })
                     if (auto_task) {
                         auto_task.status = true
-                        await auto_task.save()
+                        await auto_task.save({ transaction: false })
                     }
                 }
                 message.send_data.data.company = company
@@ -1558,7 +1558,7 @@ export default class Parse {
             const acu = await Acu.findOneOrFail({ where: { serial_number: message.device_id, company: message.company } })
             if (!acu.heart_bit) {
                 acu.heart_bit = true
-                acu.save()
+                acu.save({ transaction: false })
                     .then(() => { })
                     .catch((err: any) => { console.log('setHeartBitAck acu save error', err) })
             }
@@ -1623,7 +1623,7 @@ export default class Parse {
                             CardKeyController.setAddCardKey(OperatorType.ADD_CARD_KEY, location, guest.company, send_data.user, null, [guest], null)
                         } else {
                             credential.code = code
-                            await credential.save()
+                            await credential.save({ transaction: false })
                             CardKeyController.setAddCardKey(OperatorType.SET_CARD_KEYS, location, guest.company, send_data.user, null)
                         }
                         new SendSocketMessage(socketChannels.GUEST_SET_KEY, credential, guest.company, send_data.user)

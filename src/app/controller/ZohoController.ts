@@ -311,7 +311,7 @@ export default class ZohoController {
                 const zoho: any = await Zoho.findOne({ where: {} })
                 if (zoho) {
                     zoho.code = code
-                    await zoho.save()
+                    await zoho.save({ transaction: false })
                     await updateZohoConfig()
                     const tokenBody = {
                         refresh_token: config.zoho.refresh_token,
@@ -324,7 +324,7 @@ export default class ZohoController {
                     let token: any = await postBodyRequestForToken(linkForToken, tokenBody)
                     token = JSON.parse(token)
                     zoho.access_token = token.access_token
-                    await zoho.save()
+                    await zoho.save({ transaction: false })
                 }
             }
             ctx.body = { success: true }
@@ -401,10 +401,10 @@ export default class ZohoController {
                     company.zoho_callback_status = status
                     company.package = Number(package_id)
                     company.upgraded_package_id = null
-                    await company.save()
+                    await company.save({ transaction: false })
                     if (company.status === statusCompany.PENDING && !company.company_sign_up) {
                         company.status = statusCompany.ENABLE
-                        await company.save()
+                        await company.save({ transaction: false })
 
                         if (main) {
                             await Sendgrid.updateStatus(main.email)
@@ -426,7 +426,7 @@ export default class ZohoController {
                         }
                     }
                     company.zoho_callback_status = status
-                    await company.save()
+                    await company.save({ transaction: false })
                     break
                 // case zohoCallbackStatus.NON_RENEWING:
                 // case zohoCallbackStatus.DUNNING:

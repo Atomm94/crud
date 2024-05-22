@@ -545,7 +545,7 @@ export default class AdminController {
 
                     if (checkPass) {
                         if (reqData.password) user.password = password
-                        await user.save()
+                        await user.save({ transaction: false })
                         ctx.body = user
                     } else {
                         ctx.status = 400
@@ -1073,7 +1073,7 @@ export default class AdminController {
                 user.password = password
                 user.verify_token = null
                 user.status = adminStatus.ACTIVE
-                await user.save()
+                await user.save({ transaction: false })
                 ctx.body = {
                     success: true
                 }
@@ -1138,7 +1138,7 @@ export default class AdminController {
                 const tmpData: IUserNew = admin
                 delete tmpData.password
 
-                await admin.save()
+                await admin.save({ transaction: false })
                 if (admin) {
                     ctx.body = { success: true }
                     if (admin.verify_token) {
@@ -1199,7 +1199,7 @@ export default class AdminController {
             delete admin.password
             const settings = (req_data.settings && typeof req_data.settings === 'object') ? JSON.stringify(req_data.settings) : req_data.settings
             admin.settings = settings
-            ctx.body = await admin.save()
+            ctx.body = await admin.save({ transaction: false })()
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

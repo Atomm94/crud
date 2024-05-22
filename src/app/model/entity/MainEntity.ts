@@ -79,7 +79,7 @@ export class MainEntity extends BaseEntity {
 
                         // console.log('increaseCompanyUsedResource used', JSON.stringify(used))
                         company_resources.used = JSON.stringify(used)
-                        await company_resources.save()
+                        await company_resources.save({ transaction: false })
                     }
                 } else if (model_name === 'Credential' && self.type === credentialType.VIKEY) {
                     const resource_name = resourceKeys.VIRTUAL_KEYS
@@ -92,7 +92,7 @@ export class MainEntity extends BaseEntity {
                             used[resource_name] = 1
                         }
                         company_resources.used = JSON.stringify(used)
-                        await company_resources.save()
+                        await company_resources.save({ transaction: false })
                     }
                 }
             }
@@ -133,7 +133,7 @@ export class MainEntity extends BaseEntity {
                             used[model_name] = 0
                         }
                         company_resources.used = JSON.stringify(used)
-                        await company_resources.save()
+                        await company_resources.save({ transaction: false })
                     }
                 }
             }
