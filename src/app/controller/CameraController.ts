@@ -411,7 +411,7 @@ export default class CameraController {
             const cameras: any = await Camera.getAllItems({ where })
             for (const camera of cameras) {
                 camera.hidden = req_data.hidden
-                await camera.save()
+                await camera.save({ transaction: false })
             }
 
             ctx.body = cameras

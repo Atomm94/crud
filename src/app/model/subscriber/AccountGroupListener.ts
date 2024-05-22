@@ -28,7 +28,7 @@ export class PostSubscriber implements EntitySubscriberInterface<AccountGroup> {
             for (const child of childs) {
                 if (child.role_inherited === true) {
                     child.role = New.role
-                    await child.save()
+                    await child.save({ transaction: false })
                 }
             }
 
@@ -39,7 +39,7 @@ export class PostSubscriber implements EntitySubscriberInterface<AccountGroup> {
                     type IUserNew = Partial<Admin>
                     const tmpData: IUserNew = account
                     delete tmpData.password
-                    await account.save()
+                    await account.save({ transaction: false })
                 }
             }
         }

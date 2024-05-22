@@ -46,7 +46,7 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
                 parent_used[data.package_type] = 1
             }
             parent_company_resources.used = JSON.stringify(parent_used)
-            await parent_company_resources.save()
+            await parent_company_resources.save({ transaction: false })
         }
 
         if (data.partition_parent_id) {
@@ -58,7 +58,7 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
                 parent_used.Company = 1
             }
             partition_parent_company_resources.used = JSON.stringify(parent_used)
-            await partition_parent_company_resources.save()
+            await partition_parent_company_resources.save({ transaction: false })
         }
     }
 
@@ -76,7 +76,7 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
                     const tmpData: IUserNew = account
                     account.status = adminStatus.ACTIVE
                     delete tmpData.password
-                    await account.save()
+                    await account.save({ transaction: false })
                 }
             } else if (New?.status === statusCompany.DISABLE) {
                 const accounts = await Admin.find({ where: { company: New?.id, status: adminStatus.ACTIVE } })
@@ -87,7 +87,7 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
                     account.status = adminStatus.ACTIVE
                     delete tmpData.password
                     // delete account.password
-                    await account.save()
+                    await account.save({ transaction: false })
                 }
             } else if (Old.status === statusCompany.DISABLE && New?.status === statusCompany.PENDING) {
                 const account = await Admin.findOneOrFail({ where: { id: New?.account } })
@@ -98,13 +98,13 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
                 account.status = adminStatus.ACTIVE
                 delete tmpData.password
                 // delete account.password
-                await account.save()
+                await account.save({ transaction: false })
             } else if (Old.status === statusCompany.ENABLE && New?.status === statusCompany.PENDING) {
                 // const accounts = await Admin.find({ where: { company: New?.id, id: Not(New?.account), status: adminStatus.ACTIVE } })
                 // for (const account of accounts) {
                 //     account.status = adminStatus.INACTIVE
                 //     delete account.password
-                //     await account.save()
+                //     await account.save({ transaction: false })
                 // }
             }
         }
@@ -294,7 +294,7 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
                         account_role.permissions = JSON.stringify(permissions)
                         console.log(555, account_role)
 
-                        await account_role.save()
+                        await account_role.save({ transaction: false })
                     }
                 }
             }

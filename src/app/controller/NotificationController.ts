@@ -105,7 +105,7 @@ export default class NotificationController {
                 } else {
                     notification.confirmed = new Date().getTime()
                     notification.confirmed_check = true
-                    ctx.body = await notification.save()
+                    ctx.body = await notification.save({ transaction: false })
                 }
             } else {
                 const notifications: Notification[] = await Notification.find({ where: { confirmed_check: false, company: company } })
@@ -116,7 +116,7 @@ export default class NotificationController {
                     for (const notification of notifications) {
                         notification.confirmed = new Date().getTime()
                         notification.confirmed_check = true
-                        await notification.save()
+                        await notification.save({ transaction: false })
                     }
                     ctx.body = { success: true }
                 }

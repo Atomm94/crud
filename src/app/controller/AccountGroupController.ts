@@ -227,7 +227,7 @@ export default class AccountGroupController {
                         type IUserNew = Partial<Admin>
                         const tmpData: IUserNew = admin
                         delete tmpData.password
-                        await admin.save()
+                        await admin.save({ transaction: false })
                     }
                 } else {
                     const account_group = await AccountGroup.findOneOrFail({ where: where })

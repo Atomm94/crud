@@ -184,7 +184,7 @@ export class EventLog extends BaseClass {
                 //     } else {
                 //         console.log('🚀 ~ file: EventLog.ts ~ line 142 ~ EventLog ~ create ~ cardholder', credential)
                 //         credential.code =
-                //         await credential.save()
+                //         await credential.save({ transaction: false })
                 //         new SendSocketMessage(socketChannels.CREDENTIAL_AUTOMAT_MODE, credential, credential.company)
 
                 //         const parent_company = await Company.findOneOrFail({ where: { id: event.data.company } })

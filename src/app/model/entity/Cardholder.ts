@@ -371,6 +371,7 @@ export class Cardholder extends MainEntityColumns {
         if ('selected_access_point' in data) cardholder.selected_access_point = data.selected_access_point
         if ('vip' in data) cardholder.vip = data.vip
         if ('guest_count' in data) cardholder.guest_count = data.guest_count
+        if ('enable_create_guest' in data) cardholder.enable_create_guest = data.enable_create_guest
 
         if (!cardholder) return { status: 400, messsage: 'Item not found' }
         return new Promise((resolve, reject) => {

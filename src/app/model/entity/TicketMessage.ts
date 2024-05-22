@@ -49,7 +49,7 @@ export class TicketMessage extends MainEntityColumns {
             where: { id: this.ticket_id }
         })
         ticket.read = false
-        ticket.save()
+        ticket.save({ transaction: false })
             .then(() => { })
             .catch((err: any) => { console.log('updateTicketReadStatus ticket save error', err) })
     }

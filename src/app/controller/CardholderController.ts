@@ -600,19 +600,19 @@ export default class CardholderController {
                                 const tokens = await JwtToken.find({ where: { account: cardholder_account.id } })
                                 for (const token of tokens) {
                                     token.expired = true
-                                    await token.save()
+                                    await token.save({ transaction: false })
                                 }
                             }
                             const guests = await Cardholder.find({ where: { create_by: cardholder_account.id } })
                             for (const guest of guests) {
                                 guest.status = cardholderStatus.INACTIVE
-                                await guest.save()
+                                await guest.save({ transaction: false })
                                 const guest_keys = await Credential.find({ where: { cardholder: guest.id } })
                                 for (const guest_key of guest_keys) {
                                     if (guest_key.status !== credentialStatus.INACTIVE) {
                                         send_card_key_for_change_guest_status = true
                                         guest_key.status = credentialStatus.INACTIVE
-                                        await guest_key.save()
+                                        await guest_key.save({ transaction: false })
                                     }
                                 }
                             }
@@ -620,13 +620,13 @@ export default class CardholderController {
                             const guests = await Cardholder.find({ where: { create_by: cardholder_account.id } })
                             for (const guest of guests) {
                                 guest.status = cardholderStatus.ACTIVE
-                                await guest.save()
+                                await guest.save({ transaction: false })
                                 const guest_keys = await Credential.find({ where: { cardholder: guest.id } })
                                 for (const guest_key of guest_keys) {
                                     if (guest_key.status !== credentialStatus.ACTIVE) {
                                         send_card_key_for_change_guest_status = true
                                         guest_key.status = credentialStatus.ACTIVE
-                                        await guest_key.save()
+                                        await guest_key.save({ transaction: false })
                                     }
                                 }
                             }
@@ -1193,7 +1193,7 @@ export default class CardholderController {
                     if (req_data.data.cardholder_group) {
                         cardholder.cardholder_group = req_data.data.cardholder_group
                     }
-                    await cardholder.save()
+                    await cardholder.save({ transaction: false })
                 }
 
                 ctx.body = { success: true }
@@ -1341,7 +1341,7 @@ export default class CardholderController {
             if (validate(password).success) {
                 user.password = password
                 user.verify_token = null
-                await user.save()
+                await user.save({ transaction: false })
                 ctx.body = {
                     success: true
                 }

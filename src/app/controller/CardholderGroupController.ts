@@ -162,7 +162,7 @@ export default class CardholderGroupController {
                     .andWhere(`id != ${new_group.id}`)
                     .getOne()
                 old_default_group.default = false
-                old_default_group.save()
+                old_default_group.save({ transaction: false })
                     .then(() => { })
                     .catch((err: any) => { console.log('CardholderGroup add save error', err) })
             }
@@ -306,7 +306,7 @@ export default class CardholderGroupController {
                         .getOne()
                     if (old_default_group) {
                         old_default_group.default = false
-                        old_default_group.save()
+                        old_default_group.save({ transaction: false })
                             .then(() => { })
                             .catch((err: any) => { console.log('CardholderGroup update save error', err) })
                     }
@@ -317,7 +317,7 @@ export default class CardholderGroupController {
                         .getOne()
                     if (new_default_group) {
                         new_default_group.default = true
-                        new_default_group.save()
+                        new_default_group.save({ transaction: false })
                             .then(() => { })
                             .catch((err: any) => { console.log('CardholderGroup update save error', err) })
                     }

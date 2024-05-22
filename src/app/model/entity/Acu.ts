@@ -293,7 +293,7 @@ export class Acu extends MainEntityColumns {
 
                         if (data.status === acuStatus.ACTIVE || data.status === acuStatus.PENDING) {
                             delete CronJob.active_devices[data.id]
-                            AcuStatus.destroyItem({ acu: data.id })
+                            await AcuStatus.destroyItem({ acu: data.id })
                         }
 
                         const access_points: any = await AccessPoint.getAllItems({ where: { acu: { '=': data.id } }/* , relations: ['readers', 'access_rules'] */ })

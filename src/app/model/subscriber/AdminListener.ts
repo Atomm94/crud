@@ -32,7 +32,7 @@ export class PostSubscriber implements EntitySubscriberInterface<Admin> {
                 if (used.Admin) {
                     used.Admin++
                     company_resources.used = JSON.stringify(used)
-                    await company_resources.save()
+                    await company_resources.save({ transaction: false })
                 }
             }
         }
@@ -48,7 +48,7 @@ export class PostSubscriber implements EntitySubscriberInterface<Admin> {
                 const tokens = await JwtToken.find({ where: { account: New.id } })
                 for (const token of tokens) {
                     token.expired = true
-                    await token.save()
+                    await token.save({ transaction: false })
                 }
             }
         }
@@ -65,7 +65,7 @@ export class PostSubscriber implements EntitySubscriberInterface<Admin> {
                 if (used.Admin) {
                     used.Admin--
                     company_resources.used = JSON.stringify(used)
-                    await company_resources.save()
+                    await company_resources.save({ transaction: false })
                 }
             }
         }

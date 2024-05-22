@@ -246,7 +246,7 @@ export default class AuthController {
                 delete user.password
                 Admin.save(user, { transaction: false })
                     .then(() => { })
-                    .catch((err) => { console.log('login Admin.save error', err) })
+                    .catch((err) => { console.log('login admin.save({ transaction: false }) error', err) })
             } catch (error) {
                 ctx.status = error.status || 400
                 return ctx.body = error

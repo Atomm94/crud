@@ -17,7 +17,7 @@ export default router
   .get('account/getUserData', AdminController.getUserData) /// ???????????
   .put('Admin-updateItem', 'account/myProfile', checkRole(), AdminController.update) /// ???????????
 
-  .post('Admin-saveImage', 'account/image', checkRole(), AdminController.accountImageSave)
+  .post('admin.save({ transaction: false })Image', 'account/image', checkRole(), AdminController.accountImageSave)
   .delete('Admin-deleteImage', 'account/image', checkRole(), AdminController.accountImageDelete)
 
   .get('account/invite/:token', AdminController.getUserByToken)
@@ -38,7 +38,7 @@ export default router
   // .get('Admin-getItem', 'getUserData', AdminController.getUserData)
   // .put('Admin-updateItem', 'myProfile', AdminController.update)
 
-  // .post('Admin-saveImage', 'accountImageSave', AdminController.accountImageSave)
+  // .post('admin.save({ transaction: false })Image', 'accountImageSave', AdminController.accountImageSave)
   // .delete('Admin-deleteImage', 'accountImageDelete', AdminController.accountImageDelete)
 
   // .get('account/:token', AdminController.getUserByToken)

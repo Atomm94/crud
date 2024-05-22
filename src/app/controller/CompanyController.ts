@@ -186,7 +186,7 @@ export default class CompanyController {
                     if (company.upgraded_package_id) {
                         company.package = company.upgraded_package_id
                         company.upgraded_package_id = null
-                        await company.save()
+                        await company.save({ transaction: false })
                     }
                 }
             }
@@ -394,7 +394,7 @@ export default class CompanyController {
             const company = await Company.findOneOrFail({ where: where })
             company.message = `${company.message}... MainAccount - ${company.account}`
             company.account = null
-            await company.save()
+            await company.save({ transaction: false })
             ctx.body = await Company.destroyItem(where)
             ctx.logsData = [{
                 event: logUserEvents.DELETE,
@@ -405,7 +405,7 @@ export default class CompanyController {
             for (const account of accounts) {
                 // account.status = false
                 await Admin.destroyItem(account)
-                // await account.save()
+                // await account.save({ transaction: false })
             }
             JwtToken.logoutAccounts(req_data.id, accounts)
         } catch (error) {
@@ -633,7 +633,7 @@ export default class CompanyController {
 
                         // set registration token to null
                         regToken.used = true
-                        await regToken.save()
+                        await regToken.save({ transaction: false })
                         ctx.body = {
                             success: true
                         }
@@ -793,7 +793,7 @@ export default class CompanyController {
 
                         // set registration token to null
                         regToken.used = true
-                        await regToken.save()
+                        await regToken.save({ transaction: false })
                         ctx.body = {
                             success: true
                         }
@@ -1175,7 +1175,7 @@ export default class CompanyController {
                     }
                 }
                 parent_company_any.company_resources.used = JSON.stringify(resources_used)
-                await parent_company_any.company_resources.save()
+                await parent_company_any.company_resources.save({ transaction: false })
             }
             await AccessControl.GrantCompanyAccess()
 
