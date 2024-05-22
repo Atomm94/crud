@@ -21,7 +21,6 @@ import { minusResource } from '../../functions/minusResource'
 import SendSocketMessage from '../../mqtt/SendSocketMessage'
 import { socketChannels } from '../../enums/socketChannels.enum'
 import { Company } from './Company'
-import CronJob from './../../cron'
 import { AcuStatus } from './AcuStatus'
 import { AutoTaskSchedule } from './AutoTaskSchedule'
 import { Reader } from './Reader'
@@ -292,7 +291,7 @@ export class Acu extends MainEntityColumns {
                         new SendSocketMessage(socketChannels.DASHBOARD_ACU, send_data, data.company)
 
                         if (data.status === acuStatus.ACTIVE || data.status === acuStatus.PENDING) {
-                            delete CronJob.active_devices[data.id]
+                            // delete CronJob.active_devices[data.id]
                             await AcuStatus.destroyItem({ acu: data.id })
                         }
 
