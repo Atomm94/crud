@@ -133,7 +133,7 @@ export default class AccessRightController {
                         const exist_default: any = await AccessRight.findOne({ where: { default: req_data.default, company: user.company } })
                         if (exist_default) {
                             exist_default.default = false
-                            await exist_default.save({ transaction: false })()
+                            await exist_default.save({ transaction: false })
                         }
                     }
                 }
