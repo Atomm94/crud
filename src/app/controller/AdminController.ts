@@ -1199,7 +1199,7 @@ export default class AdminController {
             delete admin.password
             const settings = (req_data.settings && typeof req_data.settings === 'object') ? JSON.stringify(req_data.settings) : req_data.settings
             admin.settings = settings
-            ctx.body = await admin.save({ transaction: false })()
+            ctx.body = await admin.save({ transaction: false })
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error

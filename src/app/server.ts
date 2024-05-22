@@ -72,21 +72,21 @@ if (cluster.isMaster) {
     // create connection with database
     // note that its not active database connection
     // TypeORM creates you connection pull to uses connections from pull on your requests
-    // (async () => {
-    //     try {
-    //         await database.connect()
-    //         RedisClass.connect()
-    //         await MQTTBroker.init(getUUID())
-    //         process.on('SIGINT', async () => {
-    //             try {
-    //                 await database.disconnect()
-    //                 process.exit(0)
-    //             } catch (e) {
-    //                 process.exit(1)
-    //             }
-    //         })
-    //     } catch (e) {
-    //         console.error('Error:', e)
-    //     }
-    // })()
+    (async () => {
+        try {
+            await database.connect()
+            RedisClass.connect()
+            await MQTTBroker.init(getUUID())
+            process.on('SIGINT', async () => {
+                try {
+                    await database.disconnect()
+                    process.exit(0)
+                } catch (e) {
+                    process.exit(1)
+                }
+            })
+        } catch (e) {
+            console.error('Error:', e)
+        }
+    })()
 }
