@@ -1360,7 +1360,7 @@ export default class Parse {
 
         if (message.result.errorNo === 0 || message.result.errorNo === 11) {
             const company = message.company
-            if (message.send_data.update) {
+            if (!message.send_data.update) {
                 const access_rule = await AccessRule.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['access_points'] })
                 await AccessRule.destroyItem({ id: message.send_data.data.id /*, company: message.company */ })
 
@@ -1435,7 +1435,7 @@ export default class Parse {
 
         if (message.result.errorNo === 0 || message.result.errorNo === 11) {
             const company = message.company
-            if (message.send_data.update) {
+            if (!message.send_data.update) {
                 const access_rule = await AccessRule.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['access_points'] })
                 await AccessRule.destroyItem({ id: message.send_data.data.id /*, company: message.company */ })
 
@@ -1462,7 +1462,7 @@ export default class Parse {
 
         if (message.result.errorNo === 0 || message.result.errorNo === 11) {
             const company = message.company
-            if (message.send_data.update) {
+            if (!message.send_data.update) {
                 const access_rule = await AccessRule.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['access_points'] })
                 await AccessRule.destroyItem({ id: message.send_data.data.id /*, company: message.company */ })
 
