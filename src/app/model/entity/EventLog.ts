@@ -44,7 +44,7 @@ export class EventLog extends BaseClass {
                 }
             }
         }
-// TO DO urlsearchparams
+        // TO DO urlsearchparams
         if (data) {
             if (data.page) url += `&page=${data.page}`
             if (data.page_items_count) url += `&page_items_count=${data.page_items_count}`
@@ -248,7 +248,7 @@ export class EventLog extends BaseClass {
             // const id = uuid.v4()
             // event.data.id = id
             const notification = new Notification(event.data)
-             await Notification
+            await Notification
                 .createQueryBuilder()
                 .insert()
                 .values(notification)
@@ -285,12 +285,12 @@ export class EventLog extends BaseClass {
                     // await Cardholder.save(cardholder, { transaction: false, reload: false })
 
                     await Cardholder
-                       .createQueryBuilder()
-                       .update(Cardholder)
-                       .set(cardholder)
-                       .where(`id = ${cardholder.id}`)
-                       .updateEntity(false)
-                       .execute()
+                        .createQueryBuilder()
+                        .update(Cardholder)
+                        .set(cardholder)
+                        .where(`id = ${cardholder.id}`)
+                        .updateEntity(false)
+                        .execute()
                 }
             }
         }

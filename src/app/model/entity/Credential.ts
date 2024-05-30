@@ -18,6 +18,7 @@ import { Cardholder } from './Cardholder'
 import { minusResource } from '../../functions/minusResource'
 import { resourceKeys } from '../../enums/resourceKeys.enum'
 import { v4 } from 'uuid'
+import LogController from '../../controller/LogController'
 
 // @Unique('code', 'company', 'is_delete')
 
@@ -158,6 +159,9 @@ export class Credential extends MainEntityColumns {
                             .getOne()
                         credential_data.is_delete = (new Date()).getTime()
                         await this.save(credential_data, { transaction: false })
+
+                        const cache_key = `${data.company}:cg_*:acr_*:cr_${data.id}`
+                        await LogController.invalidateCache(cache_key)
                         resolve({ message: 'success' })
                     })
                     .catch((error: any) => {
