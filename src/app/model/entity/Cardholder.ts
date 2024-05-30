@@ -30,6 +30,7 @@ import { cardholderPresense } from '../../enums/cardholderPresense.enum'
 import { getObjectDiff } from '../../functions/checkDifference'
 import { cardholderGuestCount } from '../../enums/cardholderGuestCount.enum'
 import { guestPeriod } from '../../enums/guestPeriod.enum'
+import LogController from '../../controller/LogController'
 
 const parentDir = join(__dirname, '../../..')
 @Index('email|company|is_delete', ['email', 'company', 'is_delete'], { unique: true })
@@ -324,6 +325,10 @@ export class Cardholder extends MainEntityColumns {
                 }
             } else {
                 const car_info_data = await CarInfo.updateItem(data.car_infos)
+                for (const credential of data.credentials) {
+                    const cache_key = `${cardholder.company}:cg_*:acr_*:cr_${credential.id}`
+                    await LogController.invalidateCache(cache_key)
+                }
                 const diff_car_info_data = await getObjectDiff(car_info_data.new, car_info_data.old)
                 if (Object.keys(diff_car_info_data).length) {
                     logs_data.push({
