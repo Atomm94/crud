@@ -31,6 +31,10 @@ export class PostSubscriber implements EntitySubscriberInterface<Acu> {
     async afterInsert (event: InsertEvent<Acu>) {
         const data: any = event.entity
         const promises = []
+
+        const cache_update_key = `acu:acu_statuses:${data.company}*`
+        await LogController.invalidateCache(cache_update_key)
+
         promises.push(Acu.createQueryBuilder('acu')
             .select('acu.status')
             .addSelect('COUNT(acu.id) as acu_qty')
