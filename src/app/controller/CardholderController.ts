@@ -870,7 +870,6 @@ export default class CardholderController {
             }]
             CardKeyController.dellKeys(location, user.company, cardholder, user)
         } catch (error) {
-
             ctx.status = error.status || 400
             ctx.body = error
         }
@@ -1891,7 +1890,6 @@ export default class CardholderController {
             CronJob.setGuestKeySchedule(guest_update)
             ctx.body = guest_update
         } catch (error) {
-
             ctx.status = error.status || 400
             ctx.body = error
         }

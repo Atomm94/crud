@@ -646,7 +646,6 @@ export default class CompanyController {
                 }
             }
         } catch (error) {
-
             ctx.status = error.status || 400
             ctx.body = error
         }
@@ -805,7 +804,6 @@ export default class CompanyController {
                 }
             }
         } catch (error) {
-
             ctx.status = error.status || 400
             ctx.body = error
         }
@@ -1179,7 +1177,6 @@ export default class CompanyController {
 
             ctx.body = { success: true }
         } catch (error) {
-
             ctx.status = error.status || 400
             ctx.body = error
         }

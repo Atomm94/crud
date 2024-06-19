@@ -278,7 +278,7 @@ export default class CronJob {
                             }
                         })
                         .catch(() => {
-                           
+
                         })
                 } catch (error) {
                 }

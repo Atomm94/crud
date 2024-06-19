@@ -221,7 +221,6 @@ export default class NotificationController {
                 ctx.body = result
             }
         } catch (error) {
-
             ctx.status = error.status || 400
             ctx.body = error
         }

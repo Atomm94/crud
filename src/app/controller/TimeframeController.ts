@@ -92,7 +92,6 @@ export default class TimeframeController {
                 SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, user, access_rule.access_points.acus.session_id, false, send_data)
             }
         } catch (error) {
-
             ctx.status = error.status || 400
             if (error.message) {
                 ctx.body = {
@@ -306,7 +305,6 @@ export default class TimeframeController {
                 SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, user, access_rule.access_points.acus.session_id, false, send_data)
             }
         } catch (error) {
-
             ctx.status = error.status || 400
             ctx.body = error
         }

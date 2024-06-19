@@ -99,7 +99,7 @@ var config: IConfig = {
         root: ROOT
     },
     cluster: {
-        qty: _.defaultTo(process.env.CLUSTERS_QTY, '0'),
+        qty: _.defaultTo(process.env.CLUSTERS_QTY, '0')
     },
     mqtt: {
         protocol: _.defaultTo(process.env.MQTT_PROTOCOL, 'wxs') as 'wss' | 'ws' | 'mqtt' | 'mqtts' | 'tcp' | 'ssl' | 'wx' | 'wxs',

@@ -140,7 +140,6 @@ export class PostSubscriber implements EntitySubscriberInterface<MainEntityColum
 
             if (fields.length) {
                 for (const field of fields) {
-
                     let file_path_objs = JSON.parse(data[field])
                     const is_array = Array.isArray(file_path_objs)
                     if (!is_array) file_path_objs = [file_path_objs]

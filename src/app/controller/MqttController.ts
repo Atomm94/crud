@@ -286,7 +286,6 @@ export default class MqttController {
             // const message = new SendDeviceMessage(OperatorType.LOGIN, `${main_id}/${company.id}`, 1073493824, loginData)
             // ctx.body = true
         } catch (error) {
-
             ctx.status = error.status || 400
             ctx.body = error
         }

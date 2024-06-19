@@ -148,7 +148,7 @@ export default class AccessRuleController {
             }
             ctx.body = await Promise.all(res_data)
         } catch (error) {
-            //console.log('error2', error)
+            // console.log('error2', error)
 
             ctx.status = error.status || 400
             ctx.body = error
