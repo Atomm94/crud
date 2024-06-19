@@ -3,6 +3,7 @@ import * as winston from 'winston'
 import { getLogLevelForStatus } from '../../lib/logger'
 import { DefaultContext } from 'koa'
 import { logger } from '../../../modules/winston/logger'
+const log_level = process.env.LOG_LEVEL ? process.env.LOG_LEVEL : 'error'
 
 export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
     const start = +new Date()
@@ -19,7 +20,7 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
     const cpuUsage = `User: ${usage.user} System: ${usage.system}`
     const msg: string = `${date} ${ctx.method} ${ctx.originalUrl} ${ctx.status} ${ms}ms cpuUsage:${cpuUsage}`
     winston.configure({
-        level: 'debug',
+        level: log_level,
         transports: [
             //
             // - Write to all logs with specified level to console.
