@@ -142,7 +142,6 @@ export default class ZohoController {
             ctx.oldData = updated.old
             ctx.body = updated.new
         } catch (error) {
-
             ctx.status = error.status || 400
             ctx.body = error
         }

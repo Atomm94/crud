@@ -17,7 +17,7 @@ const database = new Database()
 let mqtt_group_id: any
 
 // Function to generate or retrieve UUID
-function getUUID() {
+function getUUID () {
     if (!mqtt_group_id) {
         // Try to read UUID from file
         try {

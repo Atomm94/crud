@@ -248,7 +248,6 @@ class RoleController {
         }
       }
     } catch (error) {
-
       ctx.status = error.status || 400
       ctx.body = error
     }

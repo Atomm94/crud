@@ -142,7 +142,6 @@ export async function getRequestWIthDigestAuth<T> (url: string, device: any) {
             if (!error && response.statusCode === 200) {
                 resolve(body)
             } else {
-
                 reject(error)
             }
         })

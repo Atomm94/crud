@@ -1555,7 +1555,7 @@ export default class Parse {
                 acu.heart_bit = true
                 acu.save({ transaction: false })
                     .then(() => { })
-                    .catch(() => {  })
+                    .catch(() => { })
             }
         } else {
         }

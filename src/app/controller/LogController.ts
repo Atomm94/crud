@@ -309,7 +309,7 @@ export default class LogController {
                     }
                     await RedisClass.connection.set(key, body ? JSON.stringify(body) : '', 'EX', 10 * 24 * 60 * 60)
                 } else {
-                    return
+
                 }
             }
         } catch (error) {
