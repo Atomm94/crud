@@ -324,7 +324,7 @@ export default class Parse {
                     break
             }
         } catch (error) {
-            console.log('error deviceData', topic, data, error)
+            // console.log('error deviceData', topic, data, error)
         }
     }
 
@@ -407,7 +407,7 @@ export default class Parse {
             }
             // }).catch(err => console.log('pingAck exception', err))
         } catch (error) {
-            console.log('error pingack ', error)
+            // console.log('error pingack ', error)
         }
     }
 
@@ -450,7 +450,7 @@ export default class Parse {
                 // }
             }
         } catch (error) {
-            console.log('error deviceRegistrion ', error)
+            // console.log('error deviceRegistrion ', error)
         }
     }
 
@@ -830,7 +830,6 @@ export default class Parse {
                     new SendSocketMessage(socketChannels.ACCESS_POINT_UPDATE, access_point, message.company, message.send_data.user)
                 }
                 if (save) {
-                    console.log('AccessPoint update completed')
                 }
             } else {
                 const access_point: any = await AccessPoint.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['acus'] })
@@ -845,7 +844,6 @@ export default class Parse {
     }
 
     public static async deviceDelCtpDoorAck (message: IMqttCrudMessaging) {
-        console.log('deviceDelCtpDoorAck', message)
         if (message.result.errorNo === 0 || message.result.errorNo === 5) {
             const company = message.company
             const access_point = await AccessPoint.findOneOrFail({ where: { id: message.send_data.data.id }, relations: ['acus'] })
@@ -1094,7 +1092,6 @@ export default class Parse {
         // console.log('deviceEvent', message)
         if (message.info) {
             LogController.createEventFromDevice(message)
-            console.log('deviceEvent')
         }
     }
 
@@ -1171,7 +1168,7 @@ export default class Parse {
     public static async setCardKeysAck (message: IMqttCrudMessaging) {
         // console.log('setCardKeysAck', message)
         if (message.result.errorNo === 0) {
-            console.log('setCardKeysAck complete')
+            // console.log('setCardKeysAck complete')
         } else {
             // await Cardholder.destroyItem({ id: message.send_data.data.id })
         }
@@ -1198,7 +1195,6 @@ export default class Parse {
     public static editKeyAck (message: IMqttCrudMessaging): void {
         // console.log('editKeyAck', message)
         if (message.result.errorNo === 0) {
-            console.log('editKeyAck complete')
         } else {
         }
     }
@@ -1261,7 +1257,6 @@ export default class Parse {
                 }
             }
         } catch (error) {
-            console.log('delSdlDailyAck error', error)
         }
     }
 
@@ -1560,7 +1555,7 @@ export default class Parse {
                 acu.heart_bit = true
                 acu.save({ transaction: false })
                     .then(() => { })
-                    .catch((err: any) => { console.log('setHeartBitAck acu save error', err) })
+                    .catch(() => {  })
             }
         } else {
         }
@@ -1633,7 +1628,7 @@ export default class Parse {
                 //
             }
         } catch (error) {
-            console.log('activateCredentialAck error', error)
+            // console.log('activateCredentialAck error', error)
         }
     }
 

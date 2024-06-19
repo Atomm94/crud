@@ -436,7 +436,7 @@ export default class CameraDeviceController {
                 await Camera.addItem(save_data as Camera)
             }
         } catch (err) {
-            console.log('cameras insert error', err)
+          //  console.log('cameras insert error', err)
         }
     }
 

@@ -75,13 +75,16 @@ export interface IConfig {
             createSubscriptionUrl: string
         }
     };
-    redis:{
+    redis: {
         host: string,
         port: string,
         password: string,
         db: string,
         username: string
     }
+    cluster: {
+        qty: string,
+    },
     nodeEnv: string;
     isTest: boolean;
     isProduction: boolean;
@@ -94,6 +97,9 @@ var config: IConfig = {
     server: {
         port: normalizePort(_.defaultTo(process.env.PORT, 3000)),
         root: ROOT
+    },
+    cluster: {
+        qty: _.defaultTo(process.env.CLUSTERS_QTY, '0'),
     },
     mqtt: {
         protocol: _.defaultTo(process.env.MQTT_PROTOCOL, 'wxs') as 'wss' | 'ws' | 'mqtt' | 'mqtts' | 'tcp' | 'ssl' | 'wx' | 'wxs',
@@ -180,7 +186,7 @@ var config: IConfig = {
  * Normalize port
  * @param val {string} value port
  */
-export function normalizePort (val: string | number): number | boolean {
+export function normalizePort(val: string | number): number | boolean {
     const port: number = parseInt(val as string, 10)
 
     if (isNaN(port)) {
@@ -195,7 +201,7 @@ export function normalizePort (val: string | number): number | boolean {
 }
 
 const whitelist = _.defaultTo(JSON.parse(process.env.ORIGIN as string), ['http://localhost:8080'])
-export function checkOriginWhiteList (ctx: DefaultContext) {
+export function checkOriginWhiteList(ctx: DefaultContext) {
     const requestOrigin = ctx.accept.headers.origin
     if (!whitelist.includes('*') && !whitelist.includes(requestOrigin)) {
         return false

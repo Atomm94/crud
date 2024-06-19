@@ -275,8 +275,8 @@ export default class LogController {
                     EventLog.create(eventData)
                 }
             }
-        }).catch((error) => {
-            console.log(error)
+        }).catch(() => {
+            // console.log(error)
         })
     }
 
@@ -313,7 +313,7 @@ export default class LogController {
                 }
             }
         } catch (error) {
-            console.log('cacheRequest error: ', error)
+            // console.log('cacheRequest error: ', error)
         }
     }
 

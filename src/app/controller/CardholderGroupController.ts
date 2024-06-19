@@ -164,12 +164,10 @@ export default class CardholderGroupController {
                 old_default_group.default = false
                 old_default_group.save({ transaction: false })
                     .then(() => { })
-                    .catch((err: any) => { console.log('CardholderGroup add save error', err) })
+                    .catch(() => {})
             }
             ctx.body = new_group
         } catch (error) {
-            console.log('error', error)
-
             ctx.status = error.status || 400
             ctx.body = error
         }
@@ -308,7 +306,7 @@ export default class CardholderGroupController {
                         old_default_group.default = false
                         old_default_group.save({ transaction: false })
                             .then(() => { })
-                            .catch((err: any) => { console.log('CardholderGroup update save error', err) })
+                            .catch(() => { })
                     }
                 } else if (check_by_company.default && !req_data.default) {
                     const new_default_group: any = await CardholderGroup.createQueryBuilder('cardholder_group')
@@ -319,7 +317,7 @@ export default class CardholderGroupController {
                         new_default_group.default = true
                         new_default_group.save({ transaction: false })
                             .then(() => { })
-                            .catch((err: any) => { console.log('CardholderGroup update save error', err) })
+                            .catch(() => { })
                     }
                 }
 

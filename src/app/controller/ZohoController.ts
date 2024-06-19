@@ -142,7 +142,6 @@ export default class ZohoController {
             ctx.oldData = updated.old
             ctx.body = updated.new
         } catch (error) {
-            console.log(error)
 
             ctx.status = error.status || 400
             ctx.body = error
@@ -307,7 +306,6 @@ export default class ZohoController {
         try {
             const code = ctx.query.code
             if (code) {
-                console.log(code)
                 const zoho: any = await Zoho.findOne({ where: {} })
                 if (zoho) {
                     zoho.code = code
@@ -381,7 +379,6 @@ export default class ZohoController {
     public static async zohoCallback (ctx: DefaultContext) {
         try {
             const req_data = ctx.request.body
-            console.log('req_data zohoCallback', JSON.stringify(req_data))
 
             const zoho = await Zoho.findOneOrFail({ where: {} })
             const product_id = ctx.query.product_id

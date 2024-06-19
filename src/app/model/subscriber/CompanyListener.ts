@@ -292,7 +292,6 @@ export class PostSubscriber implements EntitySubscriberInterface<Company> {
                         })
 
                         account_role.permissions = JSON.stringify(permissions)
-                        console.log(555, account_role)
 
                         await account_role.save({ transaction: false })
                     }

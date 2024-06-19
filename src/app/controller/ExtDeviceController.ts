@@ -224,7 +224,6 @@ export default class ExtDeviceController {
                 ctx.body = { message: 'Activate ACU before changes' }
             }
         } catch (error) {
-            console.log(error)
 
             ctx.status = error.status || 400
             ctx.body = error

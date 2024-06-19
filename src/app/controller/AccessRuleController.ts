@@ -140,7 +140,7 @@ export default class AccessRuleController {
                         ctx.body = true
                     }
                 } catch (error) {
-                    console.log('error', error.message ? error.message : error)
+                   // console.log('error', error.message ? error.message : error)
                 }
             }
             if (send_set_card_key) {
@@ -148,7 +148,7 @@ export default class AccessRuleController {
             }
             ctx.body = await Promise.all(res_data)
         } catch (error) {
-            console.log('error2', error)
+            //console.log('error2', error)
 
             ctx.status = error.status || 400
             ctx.body = error
@@ -255,7 +255,7 @@ export default class AccessRuleController {
                 }
             }
         } catch (error) {
-            console.log(error)
+          //  console.log(error)
 
             ctx.status = error.status || 400
             ctx.body = error
@@ -393,7 +393,7 @@ export default class AccessRuleController {
             }
             ctx.logsData = logs_data
         } catch (error) {
-            console.log(error)
+          //  console.log(error)
 
             ctx.status = error.status || 400
             ctx.body = error

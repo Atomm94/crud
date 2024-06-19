@@ -113,8 +113,7 @@ export class Zoho extends MainEntityColumns {
                 .then(async () => {
                     resolve({ message: 'success' })
                 })
-                .catch((error: any) => {
-                    console.log('Zoho delete failed', error)
+                .catch(() => {
                     resolve({ message: 'Zoho delete failed' })
                 })
         })

@@ -18,6 +18,5 @@ export default (expire_time?: number) => async (ctx: DefaultContext, next: () =>
             await RedisClass.connection.set(key, ctx.body ? JSON.stringify(ctx.body) : '', 'EX', expire_time || 60)
         }
     } catch (error) {
-        console.log('cacheRequest error: ', error)
     }
 }

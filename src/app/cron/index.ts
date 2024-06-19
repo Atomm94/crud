@@ -277,11 +277,10 @@ export default class CronJob {
                                 Camera.destroyItem(obj_cameras[camera_service_id])
                             }
                         })
-                        .catch((error: any) => {
-                            console.log('error updateCameraDeviceCameras device', JSON.stringify(camera_device), error)
+                        .catch(() => {
+                           
                         })
                 } catch (error) {
-                    console.log('error updateCameraDeviceCameras device', JSON.stringify(camera_device), error)
                 }
             }
         }).start()

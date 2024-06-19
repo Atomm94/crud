@@ -65,7 +65,6 @@ export default class TimeframeController {
             const user = ctx.user
             req_data.company = user.company ? user.company : null
             const save = await Timeframe.addItem(req_data as Timeframe)
-            console.log(',save', save)
 
             ctx.body = save
             ctx.logsData = [{
@@ -93,7 +92,6 @@ export default class TimeframeController {
                 SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, user, access_rule.access_points.acus.session_id, false, send_data)
             }
         } catch (error) {
-            console.log('error', error)
 
             ctx.status = error.status || 400
             if (error.message) {
@@ -308,7 +306,6 @@ export default class TimeframeController {
                 SdlController.setSdl(location, access_rule.access_points.acus.serial_number, access_rule, user, access_rule.access_points.acus.session_id, false, send_data)
             }
         } catch (error) {
-            console.log(error)
 
             ctx.status = error.status || 400
             ctx.body = error
@@ -419,12 +416,10 @@ export default class TimeframeController {
         try {
             const req_data = ctx.request.body
             const user = ctx.user
-            console.log('reqdata', req_data)
 
             const where = { schedule: req_data.copy_id, name: req_data.copy_name, company: user.company }
             const timeFrames = await Timeframe.find({ where })
             const deleteWhere = { schedule: req_data.paste_id, company: user.company, name: req_data.paste_name }
-            console.log('timeFrames', timeFrames)
 
             if (timeFrames.length) {
                 await Timeframe.delete(deleteWhere)

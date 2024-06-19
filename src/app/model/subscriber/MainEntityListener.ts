@@ -102,7 +102,7 @@ export class PostSubscriber implements EntitySubscriberInterface<MainEntityColum
                                 try {
                                     fs.renameSync(`${file_path}`, `${public_path}/${new_path.path}`)
                                 } catch (error) {
-                                    console.log(error)
+                                    // console.log(error)
                                 }
 
                                 new_file_path_objs.push(new_path)
@@ -117,7 +117,7 @@ export class PostSubscriber implements EntitySubscriberInterface<MainEntityColum
                 }
             }
         } catch (error) {
-            console.log('MAIN ENTITY beforeUpdate', error)
+            // console.log('MAIN ENTITY beforeUpdate', error)
         }
     }
 
@@ -140,7 +140,6 @@ export class PostSubscriber implements EntitySubscriberInterface<MainEntityColum
 
             if (fields.length) {
                 for (const field of fields) {
-                    console.log('data[field]', data[field])
 
                     let file_path_objs = JSON.parse(data[field])
                     const is_array = Array.isArray(file_path_objs)
@@ -167,7 +166,7 @@ export class PostSubscriber implements EntitySubscriberInterface<MainEntityColum
                             try {
                                 fs.renameSync(`${file_path}`, `${public_path}/${new_path.path}`)
                             } catch (error) {
-                                console.log(error)
+                                // console.log(error)
                             }
                         }
                     }
@@ -180,7 +179,7 @@ export class PostSubscriber implements EntitySubscriberInterface<MainEntityColum
                 }
             }
         } catch (error) {
-            console.log('MAIN ENTITY afterInsert', error)
+            // console.log('MAIN ENTITY afterInsert', error)
         }
     }
 }
