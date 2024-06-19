@@ -102,8 +102,7 @@ export class AccessPointStatus extends MainEntityColumns {
                 .then(() => {
                     resolve({ message: 'success' })
                 })
-                .catch((error: any) => {
-                    console.log('AccessPointStatus delete failed', error)
+                .catch(() => {
                     resolve({ message: 'AccessPointStatus delete failed' })
                 })
         })

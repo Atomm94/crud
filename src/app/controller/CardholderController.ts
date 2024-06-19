@@ -747,7 +747,7 @@ export default class CardholderController {
                 ctx.logsData = logs_data
             }
         } catch (error) {
-            console.log('error', error)
+          //  console.log('error', error)
 
             ctx.status = error.status || 400
             ctx.body = error
@@ -870,7 +870,6 @@ export default class CardholderController {
             }]
             CardKeyController.dellKeys(location, user.company, cardholder, user)
         } catch (error) {
-            console.log(error)
 
             ctx.status = error.status || 400
             ctx.body = error
@@ -1289,7 +1288,6 @@ export default class CardholderController {
         } catch (error) {
             ctx.status = error.status || 400
             ctx.body = error
-            console.log(error)
 
             if (error.detail && error.detail.includes('email')) {
                 ctx.body.err = 'email'
@@ -1893,7 +1891,6 @@ export default class CardholderController {
             CronJob.setGuestKeySchedule(guest_update)
             ctx.body = guest_update
         } catch (error) {
-            console.log(error)
 
             ctx.status = error.status || 400
             ctx.body = error
@@ -1974,8 +1971,6 @@ export default class CardholderController {
             }]
             CardKeyController.dellKeys(location, user.company, cardholder, user)
         } catch (error) {
-            console.log(error)
-
             ctx.status = error.status || 400
             ctx.body = error
         }
@@ -2703,8 +2698,6 @@ export default class CardholderController {
                 }
             }
         } catch (error) {
-            console.log(error)
-
             ctx.status = error.status || 400
             ctx.body = error
         }

@@ -129,8 +129,6 @@ export default class DashboardController {
             const events_data: any = await EventLog.get(user, req_data)
             ctx.body = events_data
         } catch (error) {
-            console.log('3633', error)
-
             ctx.status = error.status || 400
             ctx.body = error
         }

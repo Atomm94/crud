@@ -178,7 +178,6 @@ export default class CameraSetController {
             }
             ctx.body = cameraSetUpdated.new
         } catch (err) {
-            console.log(65635, err)
 
             ctx.status = err.status || 400
             ctx.body = err

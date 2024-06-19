@@ -54,6 +54,6 @@ export default () => async (ctx: DefaultContext, next: () => Promise<any>) => {
             }
         }
     } catch (error) {
-        console.log(error)
+        // console.log(error)
     }
 }

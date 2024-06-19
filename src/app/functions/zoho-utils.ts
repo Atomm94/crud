@@ -49,7 +49,6 @@ export async function updateTokenFromRefreshToken () {
         }
         return true
     } catch (error) {
-        console.log('updateTokenFromRefreshToken error', error)
         return false
     }
 }
@@ -81,7 +80,6 @@ export async function createPlan (package_data: Package) {
             }
         }
     } catch (error) {
-        console.log('createPlan error', error)
     }
 }
 
@@ -112,7 +110,6 @@ export async function createCustomer (company_id: number) {
             }
         }
     } catch (error) {
-        console.log('createCustomer error', error)
     }
 }
 
@@ -143,7 +140,6 @@ export async function createSubsciption (company_id: number) {
             }
         }
     } catch (error) {
-        console.log('createSubsciption error', error)
     }
 }
 

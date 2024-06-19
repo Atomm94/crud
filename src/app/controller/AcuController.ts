@@ -251,7 +251,7 @@ export default class AcuController {
             ctx.logsData = logs_data
             ctx.body = save_acu
         } catch (error) {
-            console.log('error', error)
+           // console.log('error', error)
 
             ctx.status = error.status || 400
             ctx.body = error
@@ -808,7 +808,7 @@ export default class AcuController {
                 ctx.body = res_data
             }
         } catch (error) {
-            console.log('error', error)
+          //  console.log('error', error)
 
             ctx.status = error.status || 400
             ctx.body = error
@@ -1304,7 +1304,7 @@ export default class AcuController {
                 CardKeyController.setAddCardKey(OperatorType.SET_CARD_KEYS, location, company, user, null, null, [device])
             }
         } catch (error) {
-            console.log(error)
+          //  console.log(error)
 
             ctx.status = error.status || 400
             ctx.body = error
@@ -1680,7 +1680,7 @@ export default class AcuController {
                 message: 'success'
             }
         } catch (error) {
-            console.log('error', error)
+           // console.log('error', error)
 
             ctx.status = error.status || 400
             ctx.body = error

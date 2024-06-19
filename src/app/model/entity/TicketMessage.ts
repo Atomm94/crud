@@ -51,7 +51,7 @@ export class TicketMessage extends MainEntityColumns {
         ticket.read = false
         ticket.save({ transaction: false })
             .then(() => { })
-            .catch((err: any) => { console.log('updateTicketReadStatus ticket save error', err) })
+            .catch(() => { })
     }
 
     public static gettingActions: boolean = false

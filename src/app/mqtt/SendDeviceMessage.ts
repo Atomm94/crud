@@ -15,7 +15,6 @@ export default class SendDeviceMessage {
 
     constructor (operator: string, location: string, device_id: number, data: any = 'none', user: any = null, session_id: string | null = '0', update: boolean = false, message_id: string = new Date().getTime().toString()) {
         if (!device_id) {
-            console.log('cant send.. device_id -', device_id)
         } else {
             this.operator = operator
             this.topic = `${location}/registration/${device_id}/Operate/`

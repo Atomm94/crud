@@ -126,7 +126,7 @@ export default class AccessPointController {
                 }
             }
         } catch (error) {
-            console.log(error)
+            //console.log(error)
 
             ctx.status = error.status || 400
             ctx.body = error
@@ -315,7 +315,7 @@ export default class AccessPointController {
                 ctx.body = { message: 'You need to activate hardware' }
             }
         } catch (error) {
-            console.log(error)
+           // console.log(error)
 
             ctx.status = error.status || 400
             ctx.body = error
@@ -617,8 +617,6 @@ export default class AccessPointController {
 
             ctx.body = access_points
         } catch (error) {
-            console.log(222, error)
-
             ctx.status = error.status || 400
             ctx.body = error
         }

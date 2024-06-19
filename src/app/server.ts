@@ -17,23 +17,23 @@ const database = new Database()
 let mqtt_group_id: any
 
 // Function to generate or retrieve UUID
-function getUUID () {
-  if (!mqtt_group_id) {
-    // Try to read UUID from file
-    try {
-      mqtt_group_id = fs.readFileSync('uuid.txt', 'utf8')
-    } catch (err) {
-      // If file doesn't exist or cannot be read, generate a new UUID
-      mqtt_group_id = uuid.v4()
-      // Store UUID in a file
-      fs.writeFileSync('uuid.txt', mqtt_group_id, 'utf8')
+function getUUID() {
+    if (!mqtt_group_id) {
+        // Try to read UUID from file
+        try {
+            mqtt_group_id = fs.readFileSync('uuid.txt', 'utf8')
+        } catch (err) {
+            // If file doesn't exist or cannot be read, generate a new UUID
+            mqtt_group_id = uuid.v4()
+            // Store UUID in a file
+            fs.writeFileSync('uuid.txt', mqtt_group_id, 'utf8')
+        }
     }
-  }
-  return mqtt_group_id
+    return mqtt_group_id
 }
 
 if (cluster.isMaster) {
-    const numCPUs = os.cpus().length
+    const numCPUs = +config.cluster.qty > 0 ? +config.cluster.qty : os.cpus().length
     // Generate new UUID in a file
     fs.writeFileSync('uuid.txt', uuid.v4(), 'utf8')
     // Fork workers.

@@ -286,7 +286,6 @@ export default class MqttController {
             // const message = new SendDeviceMessage(OperatorType.LOGIN, `${main_id}/${company.id}`, 1073493824, loginData)
             // ctx.body = true
         } catch (error) {
-            console.log(error)
 
             ctx.status = error.status || 400
             ctx.body = error
@@ -362,8 +361,6 @@ export default class MqttController {
             MQTTBroker.publishMessage(data.topic, JSON.stringify(data))
             ctx.body = { message: 'success' }
         } catch (error) {
-            console.log(333, error)
-
             ctx.status = error.status || 400
             ctx.body = error
         }

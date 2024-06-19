@@ -35,7 +35,7 @@ export function postBodyRequest<T> (link: string, body: object | string, headers
             },
             // tslint:disable-next-line:variable-name
             (err, _res, res_body) => {
-                console.log('postBodyRequest', link, body, _res.statusCode, res_body)
+               // console.log('postBodyRequest', link, body, _res.statusCode, res_body)
                 if (err) {
                     reject(err)
                 } else {
@@ -74,7 +74,7 @@ export function postBodyRequestForToken<T> (link: string, body: object | string,
             },
             // tslint:disable-next-line:variable-name
             (err, _res, res_body) => {
-                console.log('postBodyRequestForToken', link, body, _res.statusCode, res_body)
+               // console.log('postBodyRequestForToken', link, body, _res.statusCode, res_body)
                 if (err) {
                     console.error(err)
                     reject(err)
@@ -142,7 +142,6 @@ export async function getRequestWIthDigestAuth<T> (url: string, device: any) {
             if (!error && response.statusCode === 200) {
                 resolve(body)
             } else {
-                console.log(2231212, error)
 
                 reject(error)
             }

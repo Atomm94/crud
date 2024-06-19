@@ -218,7 +218,7 @@ export class Camera extends MainEntityColumns {
                                         camera_set_cameras[0].main = true
                                         camera_set_cameras[0].save({ transaction: false })
                                             .then(() => { })
-                                            .catch((err: any) => { console.log('Camera destroyItem save error', err) })
+                                            .catch(() => {  })
                                     }
                                 }
                             }
