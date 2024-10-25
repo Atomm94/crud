@@ -1,5 +1,5 @@
 import cluster from 'cluster'
-import os from 'os'
+//  import os from 'os'
 import app from './app'
 import { config } from '../config'
 import { Database } from '../component/db'
@@ -33,7 +33,8 @@ function getUUID () {
 }
 
 if (cluster.isMaster) {
-    const numCPUs = +config.cluster.qty > 0 ? +config.cluster.qty : os.cpus().length
+    // const numCPUs = +config.cluster.qty > 0 ? +config.cluster.qty : os.cpus().length
+    const numCPUs = 1
     // Generate new UUID in a file
     fs.writeFileSync('uuid.txt', uuid.v4(), 'utf8')
     // Fork workers.

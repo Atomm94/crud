@@ -1112,7 +1112,7 @@ export default class Parse {
     }
 
     public static deviceGetEventsAck (message: IMqttCrudMessaging): void {
-        // console.log('deviceGetEventsAck', message)
+        console.log('deviceGetEventsAck', message)
         if (message.result.errorNo === 0) {
             // console.log('deviceGetEventsAck complete')
         } else {

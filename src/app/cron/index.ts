@@ -21,11 +21,14 @@ import { CameraDevice } from '../model/entity/CameraDevice'
 import { CameraIntegration } from '../cameraIntegration/deviceFactory'
 import { cameraApiCodes } from '../cameraIntegration/enums/cameraApiCodes.enum'
 import { Camera } from '../model/entity/Camera'
+import SendDeviceMessage from '../mqtt/SendDeviceMessage'
+import { OperatorType } from '../mqtt/Operators'
 
 const acu_cloud_status_change_time = process.env.ACU_CLOUD_STATUS_CHANGE_TIME ? Number(process.env.ACU_CLOUD_STATUS_CHANGE_TIME) : 1 // in minutes
 const delete_old_tokens_interval = process.env.DELETE_OLD_TOKENS_INTERVAL ? process.env.DELETE_OLD_TOKENS_INTERVAL : '0 0 0 * * *'
 // const device_ping_interval = process.env.DEVICE_PING_INTERVAL ? process.env.DEVICE_PING_INTERVAL : '*/15 * * * * *'
-const update_acucloud_status_interval = process.env.UPDATE_ACUCLOUD_STATUS_INTERVAL ? process.env.UPDATE_ACUCLOUD_STATUS_INTERVAL : '0 */10 * * * *'
+// const update_acucloud_status_interval = process.env.UPDATE_ACUCLOUD_STATUS_INTERVAL ? process.env.UPDATE_ACUCLOUD_STATUS_INTERVAL : '0 */10 * * * *'
+const update_acucloud_status_interval = '0 */1 * * * *'
 const update_accesspoint_door_state_interval = process.env.UPDATE_ACCESSPOINT_DOOR_STATE_INTERVAL ? process.env.UPDATE_ACCESSPOINT_DOOR_STATE_INTERVAL : '0 */10 * * * *'
 const send_set_heart_bit_interval = process.env.SEND_SET_HEART_BIT_INTERVAL ? process.env.SEND_SET_HEART_BIT_INTERVAL : '0 0 0 * * *'
 const update_camera_device_cameras_interval = process.env.UPDATE_CAMERA_DEVICE_CAMERAS_INTERVAL ? process.env.UPDATE_CAMERA_DEVICE_CAMERAS_INTERVAL : '0 */10 * * * *'
@@ -86,8 +89,16 @@ export default class CronJob {
     public static async updateAcuCloudStatus (interval: string) {
         new Cron.CronJob(interval, async () => {
             const acu_statuses: any = await AcuStatus.find({ relations: ['acus'] })
+
+            const d = {
+                StartDate: 1599904641,
+                EndDate: 0
+            }
+
+            new SendDeviceMessage(OperatorType.GET_EVENTS, '305/220', 6234024, d)
+
             for (const acu_status of acu_statuses) {
-                var acu = acu_status.acus
+                const acu = acu_status.acus
                 if (!acu) continue
                 let cloud_status = acuCloudStatus.OFFLINE
                 if (acu_status.timestamp > (new Date().getTime() - acu_cloud_status_change_time * 60 * 1000)) {
