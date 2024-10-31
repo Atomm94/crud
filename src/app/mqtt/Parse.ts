@@ -33,7 +33,6 @@ import { acuCloudStatus } from '../enums/acuCloudStatus.enum'
 import structureEvents from '../functions/structureEvents'
 
 export default class Parse {
-
     public static async deviceData (topic: string, data: string) {
         try {
             const message: IMqttCrudMessaging = JSON.parse(data)

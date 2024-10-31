@@ -282,7 +282,7 @@ export default class LogController {
                     }
                }
             }).catch(() => {
-            //console.log(error)
+            // console.log(error)
             })
         }))
 
