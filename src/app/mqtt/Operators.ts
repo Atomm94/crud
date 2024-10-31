@@ -95,6 +95,7 @@ export enum OperatorType {
     SET_ACCESS_MODE_ACK = 'SetAccessMode-Ack',
 
     EVENT_LOG = 'EventLog',
+    GET_EVENTS_LOGS = 'GetEventsLogs',
     USER_LOG = 'UserLog',
 
     GET_ACCESS_MODE = 'GetAccessMode',

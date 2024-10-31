@@ -30,8 +30,10 @@ import moment from 'moment'
 import { generateMessageForOperator } from '../functions/checkOperator'
 import { acuConnectionMode } from '../enums/acuConnectionMode.enum'
 import { acuCloudStatus } from '../enums/acuCloudStatus.enum'
+import structureEvents from '../functions/structureEvents'
 
 export default class Parse {
+
     public static async deviceData (topic: string, data: string) {
         try {
             const message: IMqttCrudMessaging = JSON.parse(data)
@@ -1112,11 +1114,15 @@ export default class Parse {
     }
 
     public static deviceGetEventsAck (message: IMqttCrudMessaging): void {
-        console.log('deviceGetEventsAck', message)
         if (message.result.errorNo === 0) {
-            // console.log('deviceGetEventsAck complete')
-        } else {
-        }
+           // console.log(structureEvents(message.info.Events))
+
+            if (message.info) {
+                message.info.Events = structureEvents(message.info.Events)
+
+                LogController.sendEventsLog(message)
+            }
+        } else {}
     }
 
     public static async deviceSetAccessModeAck (message: IMqttCrudMessaging) {

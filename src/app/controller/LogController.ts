@@ -106,6 +106,189 @@ export default class LogController {
         return ctx.body
     }
 
+    public static async sendEventsLog (message: IMqttCrudMessaging) {
+        const message_data = message.info
+
+        const Events: any[] = message.info.Events
+        let check_acu_write = false
+        let check_access_point_write = false
+        let check_credential_write = false
+        let acu_data = await this.cacheCheck(message.company, message.device_id, checkCacheKey.ACU)
+        if (!acu_data) {
+            check_acu_write = true
+            acu_data = Acu.findOne({ where: { serial_number: message.device_id, company: message.company } })
+        } else if (acu_data === '{}') {
+            acu_data = null
+        }
+
+        const eventsData: any = {
+            operator: OperatorType.GET_EVENTS_LOGS
+        }
+
+        eventsData.events = await Promise.all(Events.map(async event => {
+            event.Ctp_idx = +event.Ctp_idx
+            event.Key_id = +event.Key_id
+
+            let access_point = await this.cacheCheck(message.company, message_data.Ctp_idx, checkCacheKey.ACCESS_POINT)
+            if (!access_point) {
+                check_access_point_write = true
+                if (event.Ctp_idx) {
+                    access_point = AccessPoint.createQueryBuilder('access_point')
+                        .leftJoinAndSelect('access_point.access_point_zones', 'access_point_zone', 'access_point_zone.delete_date is null')
+                        .leftJoinAndSelect('access_point.camera_sets', 'camera_set', 'camera_set.delete_date is null')
+                        .leftJoinAndSelect('camera_set.camera_set_cameras', 'camera_set_camera')
+                        .leftJoinAndSelect('camera_set_camera.cameras', 'camera', 'camera.delete_date is null')
+                        .where(`access_point.id = '${event.Ctp_idx}'`)
+                        .andWhere(`access_point.company = '${message.company}'`)
+                        .getOne()
+                }
+            } else if (access_point === '{}') {
+                access_point = null
+            }
+
+            let credential = await this.cacheCheck(message.company, message_data.Key_id ? message_data.Key_id : null, checkCacheKey.CARDHOLDER)
+            if (!credential) {
+                check_credential_write = true
+                if (event.Key_id) {
+                    credential = Credential.createQueryBuilder('credential')
+                        .leftJoinAndSelect('credential.cardholders', 'cardholder')
+                        .leftJoinAndSelect('cardholder.access_rights', 'access_right')
+                        .leftJoinAndSelect('cardholder.car_infos', 'car_info')
+                        .leftJoinAndSelect('cardholder.limitations', 'limitation')
+                        .leftJoinAndSelect('cardholder.cardholder_groups', 'cardholder_group')
+                        .where(`credential.id = ${event.Key_id}`)
+                        .andWhere(`credential.company = ${message.company}`)
+                        .getOne()
+                }
+            } else if (credential === '{}') {
+                credential = null
+            }
+
+            console.log('access_point')
+            console.log(access_point)
+            console.log('credential')
+            console.log(credential)
+
+            return Promise.all([acu_data, access_point, credential]).then(async (data: any) => {
+                const acu: any = data[0]
+                if (check_acu_write) await this.cacheCheck(message.company, message.device_id, checkCacheKey.ACU, acu || {})
+                const time_zone = acu?.time ? JSON.parse(acu.time).time_zone : null
+                if (acu) {
+                    const access_point: AccessPoint = data[1]
+                    if (check_access_point_write) await this.cacheCheck(message.company, event.Ctp_idx, checkCacheKey.ACCESS_POINT, access_point || {})
+                    const credential: Credential = data[2]
+                    if (check_credential_write) await this.cacheCheck(message.company, event.Key_id ? event.Key_id : null, checkCacheKey.CARDHOLDER, credential || {})
+                    const companies_that_send_events = [message.company]
+                    if (credential && credential.company !== message.company) {
+                        companies_that_send_events.push(credential.company)
+                    } else if (access_point) {
+                        const partitions = await Company.createQueryBuilder('company')
+                            .where(`company.partition_parent_id = ${message.company}`)
+                            .andWhere('company.delete_date is null')
+                            .cache(`company:${message.company}`, 24 * 60 * 60 * 1000)
+                            .getMany()
+
+                        for (const partition of partitions) {
+                            if (partition.base_access_points) {
+                                const base_access_points = JSON.parse(partition.base_access_points)
+                                if (base_access_points.includes(access_point.id)) {
+                                    companies_that_send_events.push(partition.id)
+                                }
+                            }
+                        }
+                    }
+
+                    for (const company_that_send_events of companies_that_send_events) {
+                        const data: any = {
+                            company: company_that_send_events,
+                            date: event.time,
+                            gmt: event.gmt,
+                            time_zone: time_zone,
+                            direction: event.direction
+                        }
+                        if (credential) {
+                            data.credential = _.pick(credential, ['id', 'type', 'code'])
+                            data.cardholder_id = credential.cardholders ? credential.cardholders.id : null
+                            data.cardholder = credential.cardholders ? _.pick(credential.cardholders, ['id', 'email', 'phone', 'avatar', 'first_name', 'last_name', 'family_name', 'company_name', 'status', 'presense', 'vip', 'car_infos', 'limitations', 'access_rights', 'cardholder_groups']) : null
+                            data.access_right = credential.cardholders.access_rights ? _.pick(credential.cardholders.access_rights, ['id', 'name']) : null
+                        }
+                        if (access_point) {
+                            data.access_point = access_point.id
+                            data.access_point_name = access_point.name
+                            const access_point_data: any = _.pick(access_point, ['id', 'name', 'access_point_zone', 'access_point_zones'])
+                            if (access_point_data.access_point_zones) {
+                                access_point_data.access_point_zones = _.pick(access_point_data.access_point_zones, ['id', 'name'])
+                            }
+                            if (access_point.camera_sets && access_point.camera_sets.length && event.time) {
+                                const camera_set = access_point.camera_sets[0]
+                                const cameras = []
+                                for (const camera_set_camera of camera_set.camera_set_cameras) {
+                                    if (camera_set_camera.cameras) {
+                                        cameras.push({ id: camera_set_camera.cameras.id, main: camera_set_camera.main, name: camera_set_camera.cameras.name })
+                                    }
+                                }
+                                access_point_data.camera_set = {
+                                    before_event_tms: event.time - camera_set.before_event,
+                                    after_event_tms: event.time + camera_set.after_event,
+                                    cameras
+                                }
+                            } else {
+                                access_point_data.camera_set = null
+                            }
+                            data.access_points = access_point_data
+                        }
+                        if ('gmt' in data) {
+                            if (data.access_points) {
+                                data.access_points.gmt = data.gmt
+                                data.access_points.time_zone = time_zone
+                            } else {
+                               data.access_points = {
+                                    gmt: data.gmt,
+                                    time_zone: time_zone
+                                }
+                            }
+                        }
+                        const EventList: any = eventList
+
+                        if (EventList[event.Group]) {
+                            data.event_type = EventList[event.Group].name
+                            if (EventList[event.Group].events[event.Event_id]) {
+                                data.event = EventList[event.Group].events[event.Event_id].event
+                                data.event_source = EventList[event.Group].events[event.Event_id].source_entity
+                                data.result = EventList[event.Group].events[event.Event_id].description
+                            } else {
+                                data.event = 'Unknown Event_id'
+                                data.event_source = 'Unknown SourceEntity'
+                                data.result = 'Unknown Description'
+                            }
+                        } else {
+                            data.event_type = 'Unknown Group'
+                            data.event = 'Unknown Event_id'
+                            data.event_source = 'Unknown SourceEntity'
+                            data.result = 'Unknown Description'
+                        }
+                        data.event_group_id = event.Group
+                        data.event_id = event.Event_id
+                        data.Key_HEX = event.Key_HEX
+                        data.credential = { type: event.Kind_key, code: event.Key_HEX }
+                        // eventData.data.cardholder_id = message_data.key_id
+                        // eventData.data.direction = (event.Direction === 1) ? 'Exit' : 'Entry'
+                        data.direction = (event.Direction === 1) ? 1 : 0
+
+                        console.log('daaaaaaaaaaaaaaaaaataaaaaaaaaaaaaaa')
+                        console.log(data)
+
+                        return data
+                    }
+               }
+            }).catch(() => {
+            //console.log(error)
+            })
+        }))
+
+        EventLog.createTest(eventsData)
+    }
+
     public static async createEventFromDevice (message: IMqttCrudMessaging) {
         const message_data = message.info
         message_data.Ctp_idx = +message_data.Ctp_idx

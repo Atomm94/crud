@@ -116,8 +116,21 @@ export class EventLog extends BaseClass {
         })
     }
 
+    public static async createTest (event: any) {
+        const event_log = cloneDeep(event)
+
+        // if (event_log.data.direction === 'Exit') {
+        //     event_log.data.direction = 1
+        // } else if (event_log.data.direction === 'Entry') {
+        //     event_log.data.direction = 0
+        // }
+
+        MQTTBroker.publishMessage(SendTopics.LOG, JSON.stringify(event_log))
+    }
+
     public static async create (event: any) {
-        var event_log = cloneDeep(event)
+        const event_log = cloneDeep(event)
+
         if (event_log.data.direction === 'Exit') {
             event_log.data.direction = 1
         } else if (event_log.data.direction === 'Entry') {
